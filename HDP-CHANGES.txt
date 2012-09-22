@@ -3303,3 +3303,7 @@ ATS V1.5:
     in JobSubmissionFiles#JobStagingDir().
 
     BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history server addr not resolvable.
+
+    HADOOP-7256. Resource leak during failure scenario of closing of
+    resources. Contributed by Ramkrishna S. Vasudevan. (harsh)
+

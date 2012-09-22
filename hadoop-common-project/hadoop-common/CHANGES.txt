@@ -5337,6 +5337,11 @@ Release 2.0.3-alpha - 2013-02-06
     HADOOP-9153. Support createNonRecursive in ViewFileSystem.
     (Sandy Ryza via tomwhite)
 
+    HADOOP-7256. Resource leak during failure scenario of closing
+    of resources. (Ramkrishna S. Vasudevan via harsh)
+
+  OPTIMIZATIONS
+
     HADOOP-9181. Set daemon flag for HttpServer's QueuedThreadPool.
     (Liang Xie via suresh)
 
