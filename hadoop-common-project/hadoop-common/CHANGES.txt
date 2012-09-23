@@ -1,5 +1,20 @@
 Hadoop Change Log
 
+Release 2.8.0 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    HADOOP-8151. Error handling in snappy decompressor throws invalid
+    exceptions. (Matt Foley via harsh)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
