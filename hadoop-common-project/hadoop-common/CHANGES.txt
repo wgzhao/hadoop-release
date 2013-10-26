@@ -31,6 +31,9 @@ Release 2.2.1 - UNRELEASED
 
     HADOOP-10112. har file listing doesn't work with wild card. (brandonli)
 
+    HADOOP-10072. TestNfsExports#testMultiMatchers fails due to non-deterministic
+    timing around cache expiry check. (cnauroth)
+
 Release 2.2.0 - 2013-10-13
 
   INCOMPATIBLE CHANGES
