@@ -39,3 +39,6 @@ bigwheel-m16-2.2.0 is branched from hortonworks  bigwheel-GA-2.2.0 SHA1  8656b1c
 
     HADOOP-10342. Extend UserGroupInformation to return a UGI given a
     preauthenticated kerberos Subject. (Larry McCay)
+
+    HDFS-5657. race condition causes writeback state error in NFS gateway (brandonli)
+
