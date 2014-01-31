@@ -24,6 +24,21 @@ if "%HADOOP_BIN_PATH:~-1%" == "\" (
   set HADOOP_BIN_PATH=%HADOOP_BIN_PATH:~0,-1%
 )
 
+@rem if we're being called by --service we need to use %2 otherwise use %1
+@rem for the command line so we log to the right file
+if "%2" == "" (
+  set HADOOP_LOGFILE=hadoop-%1-%computername%.log
+) else (
+  set HADOOP_LOGFILE=hadoop-%2-%computername%.log
+)
+
+@rem if running as a service, log to (daily rolling) files instead of console
+if "%1" == "--service" (
+  if not defined HADOOP_ROOT_LOGGER (
+    set HADOOP_ROOT_LOGGER=INFO,DRFA
+  )
+)
+
 set DEFAULT_LIBEXEC_DIR=%HADOOP_BIN_PATH%\..\libexec
 if not defined HADOOP_LIBEXEC_DIR (
   set HADOOP_LIBEXEC_DIR=%DEFAULT_LIBEXEC_DIR%
@@ -36,6 +51,11 @@ if "%1" == "--config" (
 )
 if "%1" == "--loglevel" (
   shift
+  shift
+)
+
+if "%1" == "--service" (
+  set service_entry=true
   shift
 )
 
@@ -63,7 +83,11 @@ if "%1" == "--loglevel" (
   )
 
   set java_arguments=%JAVA_HEAP_MAX% %HADOOP_OPTS% -classpath %CLASSPATH% %CLASS% %hdfs-command-arguments%
-  call %JAVA% %java_arguments%
+  if defined service_entry (
+    call :makeServiceXml %java_arguments%
+  ) else (
+    call %JAVA% %java_arguments%
+  )
 
 goto :eof
 
@@ -163,6 +187,17 @@ goto :eof
   set CLASS=org.apache.hadoop.hdfs.tools.GetStoragePolicies
   goto :eof
 
+:makeServiceXml
+  set arguments=%*
+  @echo ^<service^>
+  @echo   ^<id^>%hdfs-command%^</id^>
+  @echo   ^<name^>%hdfs-command%^</name^>
+  @echo   ^<description^>This service runs Hadoop %hdfs-command%^</description^>
+  @echo   ^<executable^>%JAVA%^</executable^>
+  @echo   ^<arguments^>%arguments%^</arguments^>
+  @echo ^</service^>
+  goto :eof
+
 @rem This changes %1, %2 etc. Hence those cannot be used after calling this.
 :make_command_arguments
   if "%1" == "--config" (
@@ -176,6 +211,7 @@ goto :eof
   if [%2] == [] goto :eof
   shift
   set _hdfsarguments=
+
   :MakeCmdArgsLoop 
   if [%1]==[] goto :EndLoop 
 
@@ -186,7 +222,7 @@ goto :eof
   )
   shift
   goto :MakeCmdArgsLoop 
-  :EndLoop 
+  :EndLoop
   set hdfs-command-arguments=%_hdfsarguments%
   goto :eof
 

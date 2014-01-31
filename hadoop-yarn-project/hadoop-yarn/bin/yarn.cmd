@@ -69,6 +69,15 @@ if "%1" == "--loglevel" (
   shift
 )
 
+if "%1" == "--service" (
+  set service_entry=true
+  if not defined YARN_ROOT_LOGGER (
+    set YARN_ROOT_LOGGER=INFO,DRFA
+  )
+  set YARN_LOGFILE=yarn-%2-%computername%.log
+  shift
+)
+
 :main
   if exist %YARN_CONF_DIR%\yarn-env.cmd (
     call %YARN_CONF_DIR%\yarn-env.cmd
@@ -164,7 +173,11 @@ if "%1" == "--loglevel" (
   )
 
   set java_arguments=%JAVA_HEAP_MAX% %YARN_OPTS% -classpath %CLASSPATH% %CLASS% %yarn-command-arguments%
-  call %JAVA% %java_arguments%
+  if defined service_entry (
+    call :makeServiceXml %java_arguments%
+  ) else (
+    call %JAVA% %java_arguments%
+  )
 
 goto :eof
 
@@ -269,6 +282,17 @@ goto :eof
 :daemonlog
   set CLASS=org.apache.hadoop.log.LogLevel
   set YARN_OPTS=%YARN_OPTS% %YARN_CLIENT_OPTS%
+  goto :eof
+
+:makeServiceXml
+  set arguments=%*
+  @echo ^<service^>
+  @echo   ^<id^>%yarn-command%^</id^>
+  @echo   ^<name^>%yarn-command%^</name^>
+  @echo   ^<description^>This service runs Hadoop %yarn-command%^</description^>
+  @echo   ^<executable^>%JAVA%^</executable^>
+  @echo   ^<arguments^>%arguments%^</arguments^>
+  @echo ^</service^>
   goto :eof
 
 @rem This changes %1, %2 etc. Hence those cannot be used after calling this.
