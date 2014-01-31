@@ -65,6 +65,15 @@ if "%1" == "--config" (
   shift
 )
 
+if "%1" == "--service" (
+  set service_entry=true
+  if not defined YARN_ROOT_LOGGER (
+    set YARN_ROOT_LOGGER=INFO,DRFA
+  )
+  set YARN_LOGFILE=yarn-%2-%computername%.log
+  shift
+)
+
 :main
   if exist %YARN_CONF_DIR%\yarn-env.cmd (
     call %YARN_CONF_DIR%\yarn-env.cmd
@@ -154,13 +163,16 @@ if "%1" == "--config" (
     set CLASSPATH=%CLASSPATH%;%CD%
     set CLASS=%yarn-command%
   )
-
   if defined JAVA_LIBRARY_PATH (
     set YARN_OPTS=%YARN_OPTS% -Djava.library.path=%JAVA_LIBRARY_PATH%
   )
 
   set java_arguments=%JAVA_HEAP_MAX% %YARN_OPTS% -classpath %CLASSPATH% %CLASS% %yarn-command-arguments%
-  call %JAVA% %java_arguments%
+  if defined service_entry (
+    call :makeServiceXml %java_arguments%
+  ) else (
+    call %JAVA% %java_arguments%
+  )
 
 goto :eof
 
@@ -195,16 +207,6 @@ goto :eof
   set CLASS=org.apache.hadoop.yarn.client.cli.NodeCLI
   set YARN_OPTS=%YARN_OPTS% %YARN_CLIENT_OPTS%
   goto :eof
-
-:resourcemanager
-  set CLASSPATH=%CLASSPATH%;%YARN_CONF_DIR%\rm-config\log4j.properties
-  set CLASS=org.apache.hadoop.yarn.server.resourcemanager.ResourceManager
-  set YARN_OPTS=%YARN_OPTS% %YARN_RESOURCEMANAGER_OPTS%
-  if defined YARN_RESOURCEMANAGER_HEAPSIZE (
-    set JAVA_HEAP_MAX=-Xmx%YARN_RESOURCEMANAGER_HEAPSIZE%m
-  )
-  goto :eof
-
 :historyserver
   @echo DEPRECATED: Use of this command to start the timeline server is deprecated. 1>&2
   @echo Instead use the timelineserver command for it. 1>&2
@@ -233,7 +235,14 @@ goto :eof
     set JAVA_HEAP_MAX=-Xmx%YARN_NODEMANAGER_HEAPSIZE%m
   )
   goto :eof
-
+:resourcemanager
+  set CLASSPATH=%CLASSPATH%;%YARN_CONF_DIR%\rm-config\log4j.properties
+  set CLASS=org.apache.hadoop.yarn.server.resourcemanager.ResourceManager
+  set YARN_OPTS=%YARN_OPTS% %YARN_RESOURCEMANAGER_OPTS%
+  if defined YARN_RESOURCEMANAGER_HEAPSIZE (
+    set JAVA_HEAP_MAX=-Xmx%YARN_RESOURCEMANAGER_HEAPSIZE%m
+  )
+  goto :eof
 :proxyserver
   set CLASS=org.apache.hadoop.yarn.server.webproxy.WebAppProxyServer
   set YARN_OPTS=%YARN_OPTS% %HADOOP_PROXYSERVER_OPTS%
@@ -262,13 +271,27 @@ goto :eof
   set YARN_OPTS=%YARN_OPTS% %YARN_CLIENT_OPTS%
   goto :eof
 
+:makeServiceXml
+  set arguments=%*
+  @echo ^<service^>
+  @echo   ^<id^>%yarn-command%^</id^>
+  @echo   ^<name^>%yarn-command%^</name^>
+  @echo   ^<description^>This service runs Hadoop %yarn-command%^</description^>
+  @echo   ^<executable^>%JAVA%^</executable^>
+  @echo   ^<arguments^>%arguments%^</arguments^>
+  @echo ^</service^>
+  goto :eof
+
 @rem This changes %1, %2 etc. Hence those cannot be used after calling this.
 :make_command_arguments
+  if [%2] == [] goto :eof
   if "%1" == "--config" (
     shift
     shift
   )
-  if [%2] == [] goto :eof
+  if "%1" == "--service" (
+    shift
+  )
   shift
   set _yarnarguments=
   :MakeCmdArgsLoop 
