@@ -1474,7 +1474,7 @@ function ConfigureHdfs(
         ###
         if ( $serviceCredential -eq $null )
         {
-            foreach( $service in ("namenode", "datanode") )
+            foreach( $service in ("namenode", "datanode", "secondarynamenode") )
             {
                 AclFoldersForVirtualAccount $xmlFile $service $HdfsPropertyFolderList
             }
@@ -1499,7 +1499,7 @@ function ConfigureHdfs(
 
             if ( $serviceCredential -eq $null )
             {
-                foreach( $service in ("namenode", "datanode"))
+                foreach( $service in ("namenode", "datanode", "secondarynamenode") )
                 {
                     AclFoldersForVirtualAccount $xmlFile $service $folderList
                 }
