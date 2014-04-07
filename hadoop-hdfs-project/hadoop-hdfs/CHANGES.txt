@@ -42,6 +42,8 @@ Release 2.4.1 - UNRELEASED
 
     HDFS-6215. Wrong error message for upgrade. (Kihwal Lee via jeagles)
 
+    HDFS-6191. Disable quota checks when replaying edit log. (kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES 
