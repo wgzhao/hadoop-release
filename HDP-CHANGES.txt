@@ -32,3 +32,5 @@ bigwheel-m16-2.2.0 is branched from hortonworks  bigwheel-GA-2.2.0 SHA1  8656b1c
     
     Monarch HADOOP-813. Add support for Multi NIC to YARN/MR. (Milan Potocnik)
 
+    HDFS-5526. Datanode cannot roll back to previous layout version.
+
