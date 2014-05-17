@@ -1,0 +1,13 @@
+Changes only in Hortonworks github and not in apache and hence not covered by CHANGES.txt.
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  BUG FIXES
+
+    HDFS-27. HDFS CLI with --config set to default config complains log file not
+    found error. (cnauroth)
+
