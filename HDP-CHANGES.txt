@@ -37,3 +37,5 @@ bigwheel-m16-2.2.0 is branched from hortonworks  bigwheel-GA-2.2.0 SHA1  8656b1c
     BUG-17817. Initialization error during Hive MiniTez tests. (Arpit
     Agarwal)
 
+    HADOOP-10342. Extend UserGroupInformation to return a UGI given a
+    preauthenticated kerberos Subject. (Larry McCay)
