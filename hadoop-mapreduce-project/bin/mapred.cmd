@@ -32,16 +32,20 @@ if "%HADOOP_BIN_PATH:~`%" == "\" (
 @rem Otherwise use %1
 if "%1" == "--service" (
   set HADOOP_LOGFILE=mapred-%2-%computername%.log
+  set service_entry=true
 ) else if "%1" == "--config" (
   if "%3" == "--service" (
+    set service_entry=true
     set HADOOP_LOGFILE=mapred-%4-%computername%.log
   )
 )
 
-if not defined HADOOP_ROOT_LOGGER (
+if defined service_entry (
+  if not defined HADOOP_ROOT_LOGGER (
     set HADOOP_ROOT_LOGGER=INFO,DRFA
   )
 )
+
 set DEFAULT_LIBEXEC_DIR=%HADOOP_BIN_PATH%\..\libexec
 if not defined HADOOP_LIBEXEC_DIR (
   set HADOOP_LIBEXEC_DIR=%DEFAULT_LIBEXEC_DIR%
@@ -54,8 +58,6 @@ if "%1" == "--config" (
 )
 
 if "%1" == "--service" (
-  set service_entry=true
-  set HADOOP_ROOT_LOGGER=INFO,DRFA
   shift
 )
 
