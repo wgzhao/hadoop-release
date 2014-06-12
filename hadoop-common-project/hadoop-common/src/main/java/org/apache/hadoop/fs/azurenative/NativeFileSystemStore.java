@@ -49,6 +49,8 @@ interface NativeFileSystemStore {
 
   DataOutputStream storefile(String key, PermissionStatus permissionStatus) throws AzureException;
 
+  boolean isPageBlobKey(String key);
+
   void storeEmptyLinkFile(String key, String tempBlobKey,
       PermissionStatus permissionStatus) throws AzureException;
 
@@ -69,7 +71,6 @@ interface NativeFileSystemStore {
   void delete(String key) throws IOException;
 
   void rename(String srcKey, String dstKey) throws IOException;
-
 
   /**
    * Delete all keys with the given prefix. Used for testing.
