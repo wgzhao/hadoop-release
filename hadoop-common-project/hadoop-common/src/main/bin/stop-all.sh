@@ -24,6 +24,11 @@ bin=`dirname "${BASH_SOURCE-$0}"`
 bin=`cd "$bin"; pwd`
 
 DEFAULT_LIBEXEC_DIR="$bin"/../libexec
+
+if [ -n "$HADOOP_HOME" ]; then
+  DEFAULT_LIBEXEC_DIR="$HADOOP_HOME"/libexec
+fi
+
 HADOOP_LIBEXEC_DIR=${HADOOP_LIBEXEC_DIR:-$DEFAULT_LIBEXEC_DIR}
 . $HADOOP_LIBEXEC_DIR/hadoop-config.sh
 
