@@ -2408,7 +2408,7 @@
         <output path="${build.dir.eclipse-main-classes}" />
         <library pathref="src.lib.classpath" exported="false" />
         <library pathref="test.lib.classpath" exported="false" />
-        <variable path="ANT_HOME/lib/ant.jar" exported="false" />
+        <library path="${env.ANT_HOME}/lib/ant.jar" exported="false" />
         <library path="${conf.dir}" exported="false" />
         <library path="${build.dir.eclipse-test-resources}" exported="false" />
       </classpath>
