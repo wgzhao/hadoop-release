@@ -41,9 +41,9 @@ import org.apache.hadoop.security.KerberosInfo;
     clientPrincipal = DFSConfigKeys.DFS_DATANODE_USER_NAME_KEY)
 public interface DatanodeProtocol extends VersionedProtocol {
   /**
-   * 26: Added an additional member to NamespaceInfo
+   * 250: Add InfoSecurePort in datanode registration
    */
-  public static final long versionID = 26L;
+  public static final long versionID = 250L;
   
   // error code
   final static int NOTIFY = 0;

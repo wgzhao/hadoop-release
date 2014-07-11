@@ -37,13 +37,14 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
   public String name;       // hostname:port (data transfer port)
   public String storageID;  // unique per cluster storageID
   protected int infoPort;   // info server port
+  protected int infoSecurePort; // infor server port
   public int ipcPort;       // ipc server port
 
   /** Equivalent to DatanodeID(""). */
   public DatanodeID() {this("");}
 
   /** Equivalent to DatanodeID(nodeName, "", -1, -1). */
-  public DatanodeID(String nodeName) {this(nodeName, "", -1, -1);}
+  public DatanodeID(String nodeName) {this(nodeName, "", -1, -1, -1);}
 
   /**
    * DatanodeID copy constructor
@@ -54,6 +55,7 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
     this(from.getName(),
         from.getStorageID(),
         from.getInfoPort(),
+        from.getInfoSecurePort(),
         from.getIpcPort());
   }
   
@@ -65,10 +67,11 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
    * @param ipcPort ipc server port
    */
   public DatanodeID(String nodeName, String storageID,
-      int infoPort, int ipcPort) {
+      int infoPort, int infoSecurePort, int ipcPort) {
     this.name = nodeName;
     this.storageID = storageID;
     this.infoPort = infoPort;
+    this.infoSecurePort = infoSecurePort;
     this.ipcPort = ipcPort;
   }
   
@@ -91,6 +94,13 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
    */
   public int getInfoPort() {
     return infoPort;
+  }
+
+  /**
+   * @return infoSecurePort (the port at which the HTTPS server bound to)
+   */
+  public int getInfoSecurePort() {
+    return infoSecurePort;
   }
 
   /**
@@ -153,6 +163,7 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
   public void updateRegInfo(DatanodeID nodeReg) {
     name = nodeReg.getName();
     infoPort = nodeReg.getInfoPort();
+    infoSecurePort = nodeReg.getInfoSecurePort();
     ipcPort = nodeReg.getIpcPort();
     // update any more fields added in future.
   }
@@ -174,6 +185,7 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
     UTF8.writeString(out, name);
     UTF8.writeString(out, storageID);
     out.writeShort(infoPort);
+    out.writeShort(infoSecurePort);
   }
 
   /** {@inheritDoc} */
@@ -185,5 +197,6 @@ public class DatanodeID implements WritableComparable<DatanodeID> {
     // So chop off the first two bytes (and hence the signed bits) before 
     // setting the field.
     this.infoPort = in.readShort() & 0x0000ffff;
+    this.infoSecurePort = in.readShort() & 0x0000ffff;
   }
 }

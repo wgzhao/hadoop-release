@@ -536,7 +536,7 @@ public class TestDFSClientRetries extends TestCase {
 
     final InetSocketAddress addr = NetUtils.getConnectAddress(server);
     DatanodeID fakeDnId = new DatanodeID(
-        "localhost:" + addr.getPort(), "fake-storage", 0, addr.getPort());
+        "localhost:" + addr.getPort(), "fake-storage", 0, addr.getPort(), 0);
     DatanodeInfo dnInfo = new DatanodeInfo(fakeDnId);
 
     LocatedBlock fakeBlock = new LocatedBlock(new Block(12345L), new DatanodeInfo[0]);

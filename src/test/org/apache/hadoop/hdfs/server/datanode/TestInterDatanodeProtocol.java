@@ -199,7 +199,7 @@ public class TestInterDatanodeProtocol extends junit.framework.TestCase {
 
     final InetSocketAddress addr = NetUtils.getConnectAddress(server);
     DatanodeID fakeDnId = new DatanodeID(
-        "localhost:" + addr.getPort(), "fake-storage", 0, addr.getPort());
+        "localhost:" + addr.getPort(), "fake-storage", 0, addr.getPort(), 0);
     DatanodeInfo dInfo = new DatanodeInfo(fakeDnId);
     InterDatanodeProtocol proxy = null;
 

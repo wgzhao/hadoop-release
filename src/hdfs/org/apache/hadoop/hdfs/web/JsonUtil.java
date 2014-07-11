@@ -246,6 +246,7 @@ public class JsonUtil {
         (String)m.get("name"),
         (String)m.get("storageID"),
         (int)(long)(Long)m.get("infoPort"),
+        getInt(m, "infoSecurePort", 0),
         (int)(long)(Long)m.get("ipcPort"),
 
         (Long)m.get("capacity"),
@@ -304,6 +305,14 @@ public class JsonUtil {
     m.put("locations", toJsonArray(locatedblock.getLocations()));
     return m;
   }
+
+	private static int getInt(Map<?, ?> m, String key, final int defaultValue) {
+		Object value = m.get(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		return (int) (long) (Long) value;
+	}
 
   /** Convert a Json map to LocatedBlock. */
   private static LocatedBlock toLocatedBlock(final Map<?, ?> m) throws IOException {

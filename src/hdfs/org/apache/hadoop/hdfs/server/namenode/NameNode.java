@@ -487,7 +487,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol,
             if (certSSL || SecurityUtil.useKsslAuth()) {
               boolean needClientAuth = conf.getBoolean("dfs.https.need.client.auth", false);
               InetSocketAddress secInfoSocAddr = NetUtils.createSocketAddr(infoHost + ":"+ conf.get(
-                "dfs.https.port", infoHost + ":" + 0));
+                "dfs.https.port", "50470"));
               Configuration sslConf = new Configuration(false);
               if(certSSL) {
                 sslConf.addResource(conf.get("dfs.https.server.keystore.resource",

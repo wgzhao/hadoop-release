@@ -68,7 +68,11 @@ public class DatanodeRegistration extends DatanodeID implements Writable {
   public void setInfoPort(int infoPort) {
     this.infoPort = infoPort;
   }
-  
+
+  public void setInfoSecurePort(int port) {
+	this.infoSecurePort = port;  
+  }
+
   public void setIpcPort(int ipcPort) {
     this.ipcPort = ipcPort;
   }
@@ -99,6 +103,7 @@ public class DatanodeRegistration extends DatanodeID implements Writable {
       + "(" + name
       + ", storageID=" + storageID
       + ", infoPort=" + infoPort
+      + ", infoSecurePort=" + infoSecurePort
       + ", ipcPort=" + ipcPort
       + ")";
   }

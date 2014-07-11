@@ -3014,6 +3014,7 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean, FSClusterSt
     DatanodeID dnReg = new DatanodeID(dnAddress + ":" + nodeReg.getPort(),
                                       nodeReg.getStorageID(),
                                       nodeReg.getInfoPort(),
+                                      nodeReg.getInfoSecurePort(),
                                       nodeReg.getIpcPort());
     nodeReg.updateRegInfo(dnReg);
     nodeReg.exportedKeys = getBlockKeys();
