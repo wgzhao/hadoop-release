@@ -79,26 +79,34 @@ public class SecureDataNodeStarter implements Daemon {
       throw new RuntimeException("Unable to bind on specified streaming port in secure " +
       		"context. Needed " + socAddr.getPort() + ", got " + ss.getLocalPort());
 
-    // Obtain secure listener for web server
-    Connector listener = SecurityUtil.openListener(conf);
+    Connector listener = null;
 
-    InetSocketAddress infoSocAddr = DataNode.getInfoAddr(conf);
-    listener.setHost(infoSocAddr.getHostName());
-    listener.setPort(infoSocAddr.getPort());
-    // Open listener here in order to bind to port as root
-    listener.open(); 
-    if(listener.getPort() != infoSocAddr.getPort())
-      throw new RuntimeException("Unable to bind on specified info port in secure " +
+    if (!conf.getBoolean("dfs.internal.datanode.https-only", false)) {
+      // Obtain secure listener for web server
+      listener = SecurityUtil.openListener(conf);
+
+      InetSocketAddress infoSocAddr = DataNode.getInfoAddr(conf);
+      listener.setHost(infoSocAddr.getHostName());
+      listener.setPort(infoSocAddr.getPort());
+      // Open listener here in order to bind to port as root
+      listener.open();
+      if(listener.getPort() != infoSocAddr.getPort())
+        throw new RuntimeException("Unable to bind on specified info port in secure " +
           "context. Needed " + socAddr.getPort() + ", got " + ss.getLocalPort());
    
-    if(ss.getLocalPort() >= 1023 || listener.getPort() >= 1023)
-      throw new RuntimeException("Cannot start secure datanode on non-privileged "
-         +" ports. (streaming port = " + ss + " ) (http listener port = " + 
-         listener.getConnection() + "). Exiting.");
+      if(ss.getLocalPort() >= 1023 || listener.getPort() >= 1023)
+        throw new RuntimeException("Cannot start secure datanode on non-privileged "
+          +" ports. (streaming port = " + ss + " ) (http listener port = " +
+          listener.getConnection() + "). Exiting.");
  
-    System.err.println("Successfully obtained privileged resources (streaming port = "
-        + ss + " ) (http listener port = " + listener.getConnection() +")");
-    
+      System.err.println("Successfully obtained privileged resources (streaming port = "
+          + ss + " ) (http listener port = " + listener.getConnection() +")");
+    } else {
+      // XXX: Apple specific hack for disabling HTTP in datanode in secure setups
+      if (!conf.getBoolean("dfs.https.enable", false)) {
+    	throw new RuntimeException("dfs.https.enable has to be true if dfs.internal.datanode.https-only equals to true");
+      }
+    }
     resources = new SecureResources(ss, listener);
   }
 

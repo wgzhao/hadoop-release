@@ -111,6 +111,7 @@ public class HttpServer implements FilterContainer {
   private final Configuration conf;
 
   private boolean listenerStartedExternally = false;
+  private final boolean disableHttp;
 
   /** Same as this(name, bindAddress, port, findPort, null); */
   public HttpServer(String name, String bindAddress, int port, boolean findPort
@@ -145,14 +146,21 @@ public class HttpServer implements FilterContainer {
   }
 
   public HttpServer(String name, String bindAddress, int port,
+	      boolean findPort, Configuration conf, AccessControlList adminsAcl,
+	      Connector connector) throws IOException {
+	this(name, bindAddress, port, findPort, conf, adminsAcl, connector, false);
+  }
+
+  public HttpServer(String name, String bindAddress, int port,
       boolean findPort, Configuration conf, AccessControlList adminsAcl, 
-      Connector connector) throws IOException{
+      Connector connector, boolean disableHttp) throws IOException{
     webServer = new Server();
     this.findPort = findPort;
     this.conf = conf;
     this.adminsAcl = adminsAcl;
+    this.disableHttp = disableHttp;
 
-    if(connector == null) {
+    if(connector == null && !disableHttp) {
       listenerStartedExternally = false;
       listener = SecurityUtil.openListener(conf);
       listener.setHost(bindAddress);
@@ -161,8 +169,10 @@ public class HttpServer implements FilterContainer {
       listenerStartedExternally = true;
       listener = connector;
     }
-    
-    webServer.addConnector(listener);
+
+    if (listener != null) {
+      webServer.addConnector(listener);
+    }
 
     int maxThreads = conf.getInt(HTTP_MAX_THREADS, -1);
     // If HTTP_MAX_THREADS is not configured, QueueThreadPool() will use the
@@ -601,7 +611,7 @@ public class HttpServer implements FilterContainer {
   public void start() throws IOException {
     try {
       if(listenerStartedExternally) { // Expect that listener was started securely
-        if(listener.getLocalPort() == -1) // ... and verify
+        if(!disableHttp && listener.getLocalPort() == -1) // ... and verify
           throw new Exception("Exepected webserver's listener to be started" +
           		"previously but wasn't");
         // And skip all the port rolling issues.
@@ -700,7 +710,9 @@ public class HttpServer implements FilterContainer {
    * stop the server
    */
   public void stop() throws Exception {
-    listener.close();
+	if (listener != null) {
+      listener.close();
+	}
     webServer.stop();
   }
 

@@ -504,12 +504,13 @@ public class DataNode extends Configured
     InetSocketAddress infoSocAddr = DataNode.getInfoAddr(conf);
     String infoHost = infoSocAddr.getHostName();
     int tmpInfoPort = infoSocAddr.getPort();
+    boolean disableHttp = conf.getBoolean("dfs.internal.datanode.https-only", false);
     this.infoServer = (secureResources == null) 
        ? new HttpServer("datanode", infoHost, tmpInfoPort, tmpInfoPort == 0, 
            conf, SecurityUtil.getAdminAcls(conf, DFSConfigKeys.DFS_ADMIN))
        : new HttpServer("datanode", infoHost, tmpInfoPort, tmpInfoPort == 0,
            conf, SecurityUtil.getAdminAcls(conf, DFSConfigKeys.DFS_ADMIN),
-           secureResources.getListener());
+           secureResources.getListener(), disableHttp);
     if (conf.getBoolean("dfs.https.enable", false)) {
       boolean needClientAuth = conf.getBoolean("dfs.https.need.client.auth", false);
       InetSocketAddress secInfoSocAddr = NetUtils.createSocketAddr(conf.get(
