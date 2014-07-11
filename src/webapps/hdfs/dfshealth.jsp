@@ -84,10 +84,6 @@
           to interact with datanodes.
     */
     // from nn_browsedfscontent.jsp:
-    String url = HttpConfig.getSchemePrefix() + d.getHostName() + ":" + d.getInfoPort() +
-                 "/browseDirectory.jsp?namenodeInfoPort=" +
-                 nnHttpPort + "&dir=" +
-                 URLEncoder.encode("/", "UTF-8");
      
     String name = d.getHostName() + ":" + d.getPort();
     if ( !name.matches( "\\d+\\.\\d+.\\d+\\.\\d+.*" ) ) 
@@ -97,7 +93,7 @@
     
     out.print( rowTxt() + "<td class=\"name\"><a title=\""
                + d.getHost() + ":" + d.getPort() +
-               "\" href=\"" + url + "\">" +
+               "\" href=\"explorer.html\">" +
                (( idx > 0 ) ? name.substring(0, idx) : name) + "</a>" +
                (( alive ) ? "" : "\n") );
     if ( !alive )
@@ -271,7 +267,7 @@
 <tr> <td id="col1"> Upgrades: <td> <%= jspHelper.getUpgradeStatusText()%>
 </table></div><br>				      
 
-<b><a href="/nn_browsedfscontent.jsp">Browse the filesystem</a></b><br>
+<b><a href="explorer.html">Browse the filesystem</a></b><br>
 <b><a href="/logs/">Namenode Logs</a></b>
 
 <hr>

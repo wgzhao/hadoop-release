@@ -68,17 +68,7 @@ String NodeHeaderStr(String name) {
 }
 
 String getBrowseUrl ( DatanodeDescriptor d, int nnHttpPort ) throws IOException{
-    String url = null;
-    if (UserGroupInformation.isSecurityEnabled()) {
-      url = "/nn_browsedfscontent.jsp?datanode="+
-        URLEncoder.encode(d.getHostName() + ":" + d.getInfoPort());
-    }
-    else {
-      url = HttpConfig.getSchemePrefix() + d.getHostName() + ":" + d.getInfoPort()
-        + "/browseDirectory.jsp?namenodeInfoPort=" + nnHttpPort + "&dir="
-        + URLEncoder.encode("/", "UTF-8");
-    }
-    return url;
+    return "/explorer.html";
 }
 
 void generateDecommissioningNodeData(JspWriter out, DatanodeDescriptor d,
@@ -356,7 +346,7 @@ String namenodeLabel = nn.getNameNodeAddress().getHostName() + ":" + nn.getNameN
 <tr> <td id="col1"> Upgrades: <td> <%= jspHelper.getUpgradeStatusText()%>
 </table></div><br>				      
 
-<b><a href="/nn_browsedfscontent.jsp">Browse the filesystem</a></b><br>
+<b><a href="explorer.html">Browse the filesystem</a></b><br>
 <b><a href="/logs/">Namenode Logs</a></b><br>
 <b><a href=/dfshealth.jsp> Go back to DFS home</a></b>
 <hr>
