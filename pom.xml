@@ -64,14 +64,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <enabled>false</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <id>hortonworks.repo</id>
-      <url>http://repo.hortonworks.com/content/repositories/releases</url>
-      <name>Hortonworks Repo</name>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
   </repositories>
 
   <licenses>
