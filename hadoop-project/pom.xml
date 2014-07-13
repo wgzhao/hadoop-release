@@ -46,6 +46,7 @@
     <hadoop.assemblies.version>${project.version}</hadoop.assemblies.version>
 
     <commons-daemon.version>1.0.13</commons-daemon.version>
+    <zookeeper.version>[3.4.5.2.2.0.0,3.4.5.2.3.0.0)</zookeeper.version>
 
     <test.build.dir>${project.build.directory}/test-dir</test.build.dir>
     <test.build.data>${test.build.dir}</test.build.data>
