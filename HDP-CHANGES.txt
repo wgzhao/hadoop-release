@@ -11,3 +11,8 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
     HDFS-27. HDFS CLI with --config set to default config complains log file not
     found error. (cnauroth)
 
+    HADOOP-10839. Add unregisterSource() to MetricsSystem API.
+    (Shanyu Zhao via cnauroth)
+
+    HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
+    System. (Shanyu Zhao via cnauroth)

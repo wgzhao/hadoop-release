@@ -16,10 +16,8 @@ final class AzureFileSystemMetricsSystem {
   }
 
   public synchronized static void fileSystemClosed() {
-    if (instance != null) {
-      instance.publishMetricsNow();
-    }
     if (numFileSystems == 1) {
+      instance.publishMetricsNow();
       instance.stop();
       instance.shutdown();
       instance = null;
@@ -29,8 +27,15 @@ final class AzureFileSystemMetricsSystem {
 
   public static void registerSource(String name, String desc,
       MetricsSource source) {
-    // Register the source with the name appended with -WasbSystem
-    // so that the name is globally unique.
-    instance.register(name + "-WasbSystem", desc, source);
+    //caller has to use unique name to register source
+    instance.register(name, desc, source);
+  }
+
+  public static synchronized void unregisterSource(String name) {
+    if (instance != null) {
+      //publish metrics before unregister a metrics source
+      instance.publishMetricsNow();
+      instance.unregisterSource(name);
+    }
   }
 }
