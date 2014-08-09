@@ -399,10 +399,14 @@ abstract class StorageInterface {
      *            is used to track requests to the storage service, and to provide additional runtime information about
      *            the operation.
      *
+     * @param lease
+     *            An Azure storage lease. May be null. If it's not null, it will be used as an argument
+     *            to the delete.
+     *
      * @throws StorageException
      *             If a storage service error occurred.
      */
-    public abstract void delete(OperationContext opContext)
+    public abstract void delete(OperationContext opContext, SelfRenewingLease lease)
         throws StorageException;
 
     /**
@@ -483,8 +487,13 @@ abstract class StorageInterface {
     public abstract void uploadMetadata(OperationContext opContext)
         throws StorageException;
 
-    public abstract void uploadProperties(OperationContext opContext)
+    public abstract void uploadProperties(OperationContext opContext,
+        SelfRenewingLease lease)
             throws StorageException;
+
+    public abstract SelfRenewingLease acquireLease() throws StorageException;
+
+    public abstract CloudBlob getBlob();
   }
 
   /**
@@ -495,7 +504,6 @@ abstract class StorageInterface {
       extends CloudBlobWrapper {
     /**
      * Creates and opens an output stream to write data to the block blob using the specified
->>>>>>> 4e7dfc7... HADOOP-850: port WASB page blob support for HBase log files to 2.1
      * operation context.
      *
      * @param opContext
@@ -520,10 +528,6 @@ abstract class StorageInterface {
   public abstract static interface CloudPageBlobWrapper
       extends CloudBlobWrapper {
     /**
-<<<<<<< HEAD
-     * Uploads the source stream data to the blob, using the specified operation context.
-     *
-=======
      * Creates a page blob using the specified request options and operation context.
      *
      * @param length
@@ -551,7 +555,6 @@ abstract class StorageInterface {
      * Uploads a range of contiguous pages, up to 4 MB in size, at the specified offset in the page blob, using the
      * specified lease ID, request options, and operation context.
      *
->>>>>>> 4e7dfc7... HADOOP-850: port WASB page blob support for HBase log files to 2.1
      * @param sourceStream
      *            An <code>InputStream</code> object that represents the input stream to write to the page blob.
      * @param offset
@@ -567,13 +570,9 @@ abstract class StorageInterface {
      *            An {@link OperationContext} object that represents the context for the current operation. This object
      *            is used to track requests to the storage service, and to provide additional runtime information about
      *            the operation.
-<<<<<<< HEAD
-     *
-=======
      *
      * @throws IllegalArgumentException
      *             If the offset or length are not multiples of 512, or if the length is greater than 4 MB.
->>>>>>> 4e7dfc7... HADOOP-850: port WASB page blob support for HBase log files to 2.1
      * @throws IOException
      *             If an I/O exception occurred.
      * @throws StorageException

@@ -345,7 +345,8 @@ public class MockStorageInterface extends StorageInterface {
     }
 
     @Override
-    public void delete(OperationContext opContext) throws StorageException {
+    public void delete(OperationContext opContext, SelfRenewingLease lease)
+        throws StorageException {
       backingStore.delete(uri.toString());
     }
 
@@ -412,7 +413,17 @@ public class MockStorageInterface extends StorageInterface {
     }
 
     @Override
-    public void uploadProperties(OperationContext context) {
+    public void uploadProperties(OperationContext context, SelfRenewingLease lease) {
+    }
+
+    @Override
+    public SelfRenewingLease acquireLease() {
+      return null;
+    }
+
+    @Override
+    public CloudBlob getBlob() {
+      return null;
     }
   }
 
@@ -456,10 +467,19 @@ public class MockStorageInterface extends StorageInterface {
     }
 
     @Override
-    public void uploadProperties(OperationContext opContext)
+    public void uploadProperties(OperationContext opContext,
+        SelfRenewingLease lease)
         throws StorageException {
-      // TODO Auto-generated method stub
+    }
 
+    @Override
+    public SelfRenewingLease acquireLease() {
+      return null;
+    }
+
+    @Override
+    public CloudBlob getBlob() {
+      return null;
     }
   }
 }
