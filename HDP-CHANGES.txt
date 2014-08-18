@@ -35,6 +35,9 @@ The changes also include jiras that are yet to become available in later apache 
     YARN-2071. Modified levelDB store permissions to be readable only by the
     server user. (Zhijie Shen via vinodkv)
 
+    YARN-2410. Support simple user and group mappings to queues in
+    CapacityScheduler. (Ram Venkatesh via jianhe)
+
   BUG FIXES
 
     HDFS-5089. When a LayoutVersion support SNAPSHOT, it must support
