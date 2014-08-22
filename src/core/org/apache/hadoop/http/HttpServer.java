@@ -215,7 +215,7 @@ public class HttpServer implements FilterContainer {
       for(FilterInitializer c : initializers) {
         if (hostName != null && !hostName.isEmpty()) {
           conf.set(BIND_ADDRESS, hostName);
-	}
+        }
         c.initFilter(this, conf);
       }
     }
