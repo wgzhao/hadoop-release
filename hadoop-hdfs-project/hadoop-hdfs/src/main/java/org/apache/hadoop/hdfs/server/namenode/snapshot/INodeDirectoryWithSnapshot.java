@@ -706,6 +706,8 @@ public class INodeDirectoryWithSnapshot extends INodeDirectoryWithQuota {
         counts.add(lastDiff.diff.destroyCreatedList(this, collectedBlocks,
             removedINodes));
       }
+      counts.add(cleanSubtreeRecursively(snapshot, prior, collectedBlocks,
+          removedINodes, priorDeleted, countDiffChange));
     } else {
       // update prior
       prior = getDiffs().updatePrior(snapshot, prior);
@@ -729,7 +731,9 @@ public class INodeDirectoryWithSnapshot extends INodeDirectoryWithQuota {
       
       counts.add(getDiffs().deleteSnapshotDiff(snapshot, prior, this, 
           collectedBlocks, removedINodes, countDiffChange));
-      
+      counts.add(cleanSubtreeRecursively(snapshot, prior, collectedBlocks,
+          removedINodes, priorDeleted, countDiffChange));
+
       // check priorDiff again since it may be created during the diff deletion
       if (prior != null) {
         DirectoryDiff priorDiff = this.getDiffs().getDiff(prior);
@@ -768,9 +772,7 @@ public class INodeDirectoryWithSnapshot extends INodeDirectoryWithQuota {
         }
       }
     }
-    counts.add(cleanSubtreeRecursively(snapshot, prior, collectedBlocks,
-        removedINodes, priorDeleted, countDiffChange));
-    
+
     if (isQuotaSet()) {
       this.addSpaceConsumed2Cache(-counts.get(Quota.NAMESPACE),
           -counts.get(Quota.DISKSPACE));
