@@ -470,9 +470,6 @@ abstract class StorageInterface {
         OperationContext opContext) throws StorageException;
 
     /**
-<<<<<<< HEAD
-     * Creates and opens an output stream to write data to the block blob using the specified
-=======
      * Uploads the blob's metadata to the storage service using the specified lease ID, request options, and operation
      * context.
      *
@@ -601,27 +598,6 @@ abstract class StorageInterface {
      * @throws StorageException
      *             If a storage service error occurred.
      */
-
-    /**
-     * Sets the minimum read block size to use with this Blob.
-     *
-     * @param minimumReadSizeBytes
-     *            The maximum block size, in bytes, for reading from a block blob while using a {@link BlobInputStream}
-     *            object, ranging from 512 bytes to 64 MB, inclusive.
-     */
-    public abstract void setStreamMinimumReadSizeInBytes(int minimumReadSizeBytes);
-
-    /**
-     * Sets the write block size to use with this Blob.
-     *
-     * @param writeBlockSizeBytes
-     *            The maximum block size, in bytes, for writing to a block blob while using a {@link BlobOutputStream}
-     *            object, ranging from 1 MB to 4 MB, inclusive.
-     *
-     * @throws IllegalArgumentException
-     *             If <code>writeBlockSizeInBytes</code> is less than 1 MB or greater than 4 MB.
-     */
-    public abstract void setWriteBlockSizeInBytes(int writeBlockSizeBytes);
 
     public abstract ArrayList<PageRange> downloadPageRanges(BlobRequestOptions options,
             OperationContext opContext) throws StorageException;
