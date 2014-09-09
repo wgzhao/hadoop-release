@@ -1077,6 +1077,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
     }
 
     if (nn.getFSImage().isUpgradeFinalized() &&
+        !namesystem.isRollingUpgrade() &&
         !nn.isStandbyState() &&
         noStaleStorages) {
       return new FinalizeCommand(poolId);

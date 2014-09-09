@@ -1312,13 +1312,6 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
               +  ". Parent not found for file " + f);
           continue;
         }
-        ReplicaState replicaState = info.getState();
-        if (replicaState == ReplicaState.FINALIZED || 
-            (replicaState == ReplicaState.RUR && 
-                ((ReplicaUnderRecovery)info).getOriginalReplica().getState() == 
-                  ReplicaState.FINALIZED)) {
-          v.clearPath(bpid, parent);
-        }
         volumeMap.remove(bpid, invalidBlks[i]);
       }
 
@@ -2044,6 +2037,16 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
   @Override
   public boolean trashEnabled(String bpid) {
     return dataStorage.trashEnabled(bpid);
+  }
+
+  @Override
+  public void setRollingUpgradeMarker(String bpid) throws IOException {
+    dataStorage.setRollingUpgradeMarker(bpid);
+  }
+
+  @Override
+  public void clearRollingUpgradeMarker(String bpid) throws IOException {
+    dataStorage.clearRollingUpgradeMarker(bpid);
   }
 
   @Override

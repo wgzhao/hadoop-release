@@ -19,6 +19,7 @@
 package org.apache.hadoop.hdfs.server.datanode;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.HardLink;
@@ -38,8 +39,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +66,18 @@ import java.util.regex.Pattern;
 public class BlockPoolSliceStorage extends Storage {
   static final String TRASH_ROOT_DIR = "trash";
 
+  /**
+   * A marker file that is created on each root directory if a rolling upgrade
+   * is in progress. The NN does not inform the DN when a rolling upgrade is
+   * finalized. All the DN can infer is whether or not a rolling upgrade is
+   * currently in progress. When the rolling upgrade is not in progress:
+   *   1. If the marker file is present, then a rolling upgrade just completed.
+   *      If a 'previous' directory exists, it can be deleted now.
+   *   2. If the marker file is absent, then a regular upgrade may be in
+   *      progress. Do not delete the 'previous' directory.
+   */
+  static final String ROLLING_UPGRADE_MARKER_FILE = "RollingUpgradeInProgress";
+
   private static final String BLOCK_POOL_ID_PATTERN_BASE =
       Pattern.quote(File.separator) +
       "BP-\\d+-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d+" +
@@ -83,6 +99,13 @@ public class BlockPoolSliceStorage extends Storage {
     blockpoolID = bpid;
   }
 
+  /**
+   * These maps are used as an optimization to avoid one filesystem operation
+   * per storage on each heartbeat response.
+   */
+  private static Set<String> storagesWithRollingUpgradeMarker;
+  private static Set<String> storagesWithoutRollingUpgradeMarker;
+
   BlockPoolSliceStorage(int namespaceID, String bpID, long cTime,
       String clusterId) {
     super(NodeType.DATA_NODE);
@@ -90,10 +113,18 @@ public class BlockPoolSliceStorage extends Storage {
     this.blockpoolID = bpID;
     this.cTime = cTime;
     this.clusterID = clusterId;
+    storagesWithRollingUpgradeMarker = Collections.newSetFromMap(
+        new ConcurrentHashMap<String, Boolean>());
+    storagesWithoutRollingUpgradeMarker = Collections.newSetFromMap(
+        new ConcurrentHashMap<String, Boolean>());
   }
 
   private BlockPoolSliceStorage() {
     super(NodeType.DATA_NODE);
+    storagesWithRollingUpgradeMarker = Collections.newSetFromMap(
+        new ConcurrentHashMap<String, Boolean>());
+    storagesWithoutRollingUpgradeMarker = Collections.newSetFromMap(
+        new ConcurrentHashMap<String, Boolean>());
   }
 
   /**
@@ -163,7 +194,7 @@ public class BlockPoolSliceStorage extends Storage {
     // During startup some of them can upgrade or roll back
     // while others could be up-to-date for the regular startup.
     for (int idx = 0; idx < getNumStorageDirs(); idx++) {
-      doTransition(getStorageDir(idx), nsInfo, startOpt);
+      doTransition(datanode, getStorageDir(idx), nsInfo, startOpt);
       assert getCTime() == nsInfo.getCTime() 
           : "Data-node and name-node CTimes must be the same.";
     }
@@ -267,9 +298,12 @@ public class BlockPoolSliceStorage extends Storage {
    * @param startOpt startup option
    * @throws IOException
    */
-  private void doTransition(StorageDirectory sd,
+  private void doTransition(DataNode datanode, StorageDirectory sd,
       NamespaceInfo nsInfo, StartupOption startOpt) throws IOException {
-    if (startOpt == StartupOption.ROLLBACK) {
+    if (startOpt == StartupOption.ROLLBACK && sd.getPreviousDir().exists()) {
+      Preconditions.checkState(!getTrashRootDir(sd).exists(),
+          sd.getPreviousDir() + " and " + getTrashRootDir(sd) + " should not " +
+          " both be present.");
       doRollback(sd, nsInfo); // rollback if applicable
     } else {
       // Restore all the files in the trash. The restored files are retained
@@ -300,7 +334,7 @@ public class BlockPoolSliceStorage extends Storage {
     }
     if (this.layoutVersion > HdfsConstants.DATANODE_LAYOUT_VERSION
         || this.cTime < nsInfo.getCTime()) {
-      doUpgrade(sd, nsInfo); // upgrade
+      doUpgrade(datanode, sd, nsInfo); // upgrade
       return;
     }
     // layoutVersion == LAYOUT_VERSION && this.cTime > nsInfo.cTime
@@ -329,7 +363,8 @@ public class BlockPoolSliceStorage extends Storage {
    * @param nsInfo Namespace Info from the namenode
    * @throws IOException on error
    */
-  void doUpgrade(StorageDirectory bpSd, NamespaceInfo nsInfo) throws IOException {
+  void doUpgrade(DataNode datanode, StorageDirectory bpSd, NamespaceInfo nsInfo)
+      throws IOException {
     // Upgrading is applicable only to release with federation or after
     if (!DataNodeLayoutVersion.supports(
         LayoutVersion.Feature.FEDERATION, layoutVersion)) {
@@ -365,7 +400,7 @@ public class BlockPoolSliceStorage extends Storage {
     rename(bpCurDir, bpTmpDir);
     
     // 3. Create new <SD>/current with block files hardlinks and VERSION
-    linkAllBlocks(bpTmpDir, bpCurDir);
+    linkAllBlocks(datanode, bpTmpDir, bpCurDir);
     this.layoutVersion = HdfsConstants.DATANODE_LAYOUT_VERSION;
     assert this.namespaceID == nsInfo.getNamespaceID() 
         : "Data-node and name-node layout versions must be the same.";
@@ -432,10 +467,18 @@ public class BlockPoolSliceStorage extends Storage {
       }
 
       final File newChild = new File(restoreDirectory, child.getName());
-      if (!child.renameTo(newChild)) {
+
+      if (newChild.exists() && newChild.length() >= child.length()) {
+        // Failsafe - we should not hit this case but let's make sure
+        // we never overwrite a newer version of a block file with an
+        // older version.
+        LOG.info("Not overwriting " + newChild + " with smaller file from " +
+                     "trash directory. This message can be safely ignored.");
+      } else if (!child.renameTo(newChild)) {
         throw new IOException("Failed to rename " + child + " to " + newChild);
+      } else {
+        ++filesRestored;
       }
-      ++filesRestored;
     }
     FileUtil.fullyDelete(trashRoot);
     return filesRestored;
@@ -542,14 +585,15 @@ public class BlockPoolSliceStorage extends Storage {
    * @param toDir the current data directory
    * @throws IOException if error occurs during hardlink
    */
-  private void linkAllBlocks(File fromDir, File toDir) throws IOException {
+  private void linkAllBlocks(DataNode datanode, File fromDir, File toDir)
+      throws IOException {
     // do the link
     int diskLayoutVersion = this.getLayoutVersion();
     // hardlink finalized blocks in tmpDir
     HardLink hardLink = new HardLink();
-    DataStorage.linkBlocks(new File(fromDir, DataStorage.STORAGE_DIR_FINALIZED), 
+    DataStorage.linkBlocks(datanode, new File(fromDir, DataStorage.STORAGE_DIR_FINALIZED),
       new File(toDir,DataStorage.STORAGE_DIR_FINALIZED), diskLayoutVersion, hardLink);
-    DataStorage.linkBlocks(new File(fromDir, DataStorage.STORAGE_DIR_RBW), 
+    DataStorage.linkBlocks(datanode, new File(fromDir, DataStorage.STORAGE_DIR_RBW),
         new File(toDir, DataStorage.STORAGE_DIR_RBW), diskLayoutVersion, hardLink);
     LOG.info( hardLink.linkStats.report() );
   }
@@ -591,6 +635,18 @@ public class BlockPoolSliceStorage extends Storage {
   }
 
   /**
+   * Determine whether we can use trash for the given blockFile. Trash
+   * is disallowed if a 'previous' directory exists for the
+   * storage directory containing the block.
+   */
+  @VisibleForTesting
+  public boolean isTrashAllowed(File blockFile) {
+    Matcher matcher = BLOCK_POOL_CURRENT_PATH_PATTERN.matcher(blockFile.getParent());
+    String previousDir = matcher.replaceFirst("$1$2" + STORAGE_DIR_PREVIOUS);
+    return !(new File(previousDir)).exists();
+  }
+
+  /**
    * Get a target subdirectory under trash/ for a given block file that is being
    * deleted.
    *
@@ -600,9 +656,12 @@ public class BlockPoolSliceStorage extends Storage {
    * @return the trash directory for a given block file that is being deleted.
    */
   public String getTrashDirectory(File blockFile) {
-    Matcher matcher = BLOCK_POOL_CURRENT_PATH_PATTERN.matcher(blockFile.getParent());
-    String trashDirectory = matcher.replaceFirst("$1$2" + TRASH_ROOT_DIR + "$4");
-    return trashDirectory;
+    if (isTrashAllowed(blockFile)) {
+      Matcher matcher = BLOCK_POOL_CURRENT_PATH_PATTERN.matcher(blockFile.getParent());
+      String trashDirectory = matcher.replaceFirst("$1$2" + TRASH_ROOT_DIR + "$4");
+      return trashDirectory;
+    }
+    return null;
   }
 
   /**
@@ -629,6 +688,7 @@ public class BlockPoolSliceStorage extends Storage {
     for (StorageDirectory sd : storageDirs) {
       File trashRoot = getTrashRootDir(sd);
       try {
+        Preconditions.checkState(!(trashRoot.exists() && sd.getPreviousDir().exists()));
         restoreBlockFilesFromTrash(trashRoot);
         FileUtil.fullyDelete(getTrashRootDir(sd));
       } catch (IOException ioe) {
@@ -646,5 +706,50 @@ public class BlockPoolSliceStorage extends Storage {
       }
     }
     return false;
+  }
+
+  /**
+   * Create a rolling upgrade marker file for each BP storage root, if it
+   * does not exist already.
+   */
+  public void setRollingUpgradeMarkers(List<StorageDirectory> dnStorageDirs)
+      throws IOException {
+    for (StorageDirectory sd : dnStorageDirs) {
+      File bpRoot = getBpRoot(blockpoolID, sd.getCurrentDir());
+      File markerFile = new File(bpRoot, ROLLING_UPGRADE_MARKER_FILE);
+      if (!storagesWithRollingUpgradeMarker.contains(bpRoot.toString())) {
+        if (!markerFile.exists() && markerFile.createNewFile()) {
+          LOG.info("Created " + markerFile);
+        } else {
+          LOG.info(markerFile + " already exists.");
+        }
+        storagesWithRollingUpgradeMarker.add(bpRoot.toString());
+        storagesWithoutRollingUpgradeMarker.remove(bpRoot.toString());
+      }
+    }
+  }
+
+  /**
+   * Check whether the rolling upgrade marker file exists for each BP storage
+   * root. If it does exist, then the marker file is cleared and more
+   * importantly the layout upgrade is finalized.
+   */
+  public void clearRollingUpgradeMarkers(List<StorageDirectory> dnStorageDirs)
+      throws IOException {
+    for (StorageDirectory sd : dnStorageDirs) {
+      File bpRoot = getBpRoot(blockpoolID, sd.getCurrentDir());
+      File markerFile = new File(bpRoot, ROLLING_UPGRADE_MARKER_FILE);
+      if (!storagesWithoutRollingUpgradeMarker.contains(bpRoot.toString())) {
+        if (markerFile.exists()) {
+          LOG.info("Deleting " + markerFile);
+          doFinalize(sd.getCurrentDir());
+          if (!markerFile.delete()) {
+            LOG.warn("Failed to delete " + markerFile);
+          }
+        }
+        storagesWithoutRollingUpgradeMarker.add(bpRoot.toString());
+        storagesWithRollingUpgradeMarker.remove(bpRoot.toString());
+      }
+    }
   }
 }
