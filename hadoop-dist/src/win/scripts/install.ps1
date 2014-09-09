@@ -208,7 +208,9 @@ function Main( $scriptDir )
     if ((Test-Path ENV:ENABLE_LZO) -and ($ENV:ENABLE_LZO -ieq "yes")){
         $coreConfigs["io.compression.codec.lzo.class"] = "com.hadoop.compression.lzo.LzoCodec"
     }
-
+    if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes")){
+        $coreConfigs["io.compression.codecs"] = "org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec"
+    }
     if ($ENV:DEFAULT_FS -eq "ASV"){
         Write-Log "ASV usage detected. Configuring HDP to use ASV as default filesystem"
 
@@ -426,7 +428,13 @@ function Main( $scriptDir )
     if ((Test-Path ENV:HA) -and ($ENV:HA -ieq "yes")) {
         $mapredConfigs["mapreduce.am.max-attempts"] = "20"
     }
-
+    if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes")) {
+        $mapredConfigs["mapred.compress.map.output"] = "true"
+        $mapredConfigs["mapred.map.output.compression.codec"] = "org.apache.hadoop.io.compress.GzipCodec"
+        $mapredConfigs["mapred.output.compression.type"] = "BLOCK"
+        $mapredConfigs["mapred.output.compress"] = "true"
+        $mapredConfigs["mapred.output.compression.codec"] = "org.apache.hadoop.io.compress.GzipCodec"
+    }
     Configure "mapreduce" $NodeInstallRoot $serviceCredential $mapredConfigs
     Write-Log "Install of Hadoop Core, HDFS, MapRed completed successfully"
 }
