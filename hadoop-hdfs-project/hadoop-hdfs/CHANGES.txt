@@ -188,8 +188,6 @@ Release 2.6.0 - UNRELEASED
     HDFS-6376. Distcp data between two HA clusters requires another configuration.
     (Dave Marion and Haohui Mai via jing9)
 
-    HDFS-6940. Refactoring to allow ConsensusNode implementation. (shv)
-
     HDFS-6943. Improve NN allocateBlock log to include replicas' datanode IPs.
     (Ming Ma via wheat9)
 
@@ -375,6 +373,9 @@ Release 2.6.0 - UNRELEASED
     (James Thomas via Arpit Agarwal)
 
     HDFS-6981. Fix DN upgrade with layout version change. (Arpit Agarwal)
+
+    HDFS-6506. Newly moved block replica been invalidated and deleted in
+    TestBalancer. (Binglin Chang via cnauroth)
 
     BREAKDOWN OF HDFS-6134 AND HADOOP-10150 SUBTASKS AND RELATED JIRAS
   
