@@ -1703,8 +1703,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         checkOperation(OperationCategory.WRITE);
         writeLock(); // writelock is needed to set accesstime
       }
-      src = FSDirectory.resolvePath(src, pathComponents, dir);
       try {
+        src = FSDirectory.resolvePath(src, pathComponents, dir);
         if (isReadOp) {
           checkOperation(OperationCategory.READ);
         } else {
