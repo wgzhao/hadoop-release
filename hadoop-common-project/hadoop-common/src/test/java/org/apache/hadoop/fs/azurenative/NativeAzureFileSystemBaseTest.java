@@ -1187,6 +1187,29 @@ public abstract class NativeAzureFileSystemBaseTest {
     }
   }
 
+  @Test
+  public void testGetFileSizeFromListing() throws IOException {
+    Path path = new Path("file.dat");
+    final int PAGE_SIZE = 512;
+    final int FILE_SIZE = PAGE_SIZE + 1;
+
+    // write FILE_SIZE bytes to page blob
+    FSDataOutputStream out = fs.create(path);
+    byte[] data = new byte[FILE_SIZE];
+    Arrays.fill(data, (byte) 5);
+    out.write(data, 0, FILE_SIZE);
+    out.close();
+
+    // list the file to get its properties
+    FileStatus[] status = fs.listStatus(path);
+    assertEquals(1, status.length);
+
+    // The file length should report the number of bytes
+    // written for either page or block blobs (subclasses
+    // of this test class will exercise both).
+    assertEquals(FILE_SIZE, status[0].getLen());
+  }
+
   private boolean testModifiedTime(Path testPath, long time) throws Exception {
   	FileStatus fileStatus = fs.getFileStatus(testPath);
   	final long errorMargin = modifiedTimeErrorMargin;
