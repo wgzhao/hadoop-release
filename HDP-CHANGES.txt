@@ -139,3 +139,6 @@ The changes also include jiras that are yet to become available in later apache 
 
     MAPREDUCE-6044. Fully qualified intermediate done dir path breaks per-user dir
     creation on Windows. (zjshen)
+
+    YARN-2459. RM crashes if App gets rejected for any reason and HA is enabled.
+    Contributed by Jian He & Mayank Bansal.
