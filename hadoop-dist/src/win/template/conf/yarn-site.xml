@@ -70,10 +70,6 @@
     <value>gz</value>
   </property>
   <property>
-    <name>yarn.nodemanager.delete.debug-delay-sec</name>
-    <value>36000</value>
-  </property>
-  <property>
     <description>Store class name for history store, defaulting to file system store </description>
     <name>yarn.timeline-service.generic-application-history.store-class</name>
     <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
