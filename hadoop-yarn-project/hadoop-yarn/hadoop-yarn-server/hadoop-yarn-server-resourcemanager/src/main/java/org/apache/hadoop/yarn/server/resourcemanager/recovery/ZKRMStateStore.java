@@ -603,9 +603,7 @@ public class ZKRMStateStore extends RMStateStore {
               attemptStateData.getFinalTrackingUrl(),
               attemptStateData.getDiagnostics(),
               attemptStateData.getFinalApplicationStatus(),
-              attemptStateData.getAMContainerExitStatus(),
-              attemptStateData.getMemorySeconds(),
-              attemptStateData.getVcoreSeconds());
+              attemptStateData.getAMContainerExitStatus());
 
         appState.attempts.put(attemptState.getAttemptId(), attemptState);
       }

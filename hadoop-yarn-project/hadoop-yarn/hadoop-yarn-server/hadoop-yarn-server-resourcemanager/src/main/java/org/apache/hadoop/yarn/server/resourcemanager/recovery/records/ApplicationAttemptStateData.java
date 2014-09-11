@@ -43,8 +43,7 @@ public abstract class ApplicationAttemptStateData {
       ApplicationAttemptId attemptId, Container container,
       ByteBuffer attemptTokens, long startTime, RMAppAttemptState finalState,
       String finalTrackingUrl, String diagnostics,
-      FinalApplicationStatus amUnregisteredFinalStatus, int exitStatus,
-      long memorySeconds, long vcoreSeconds) {
+      FinalApplicationStatus amUnregisteredFinalStatus, int exitStatus) {
     ApplicationAttemptStateData attemptStateData =
         Records.newRecord(ApplicationAttemptStateData.class);
     attemptStateData.setAttemptId(attemptId);
@@ -56,8 +55,6 @@ public abstract class ApplicationAttemptStateData {
     attemptStateData.setStartTime(startTime);
     attemptStateData.setFinalApplicationStatus(amUnregisteredFinalStatus);
     attemptStateData.setAMContainerExitStatus(exitStatus);
-    attemptStateData.setMemorySeconds(memorySeconds);
-    attemptStateData.setVcoreSeconds(vcoreSeconds);
     return attemptStateData;
   }
 
@@ -75,8 +72,7 @@ public abstract class ApplicationAttemptStateData {
       attemptState.getStartTime(), attemptState.getState(),
       attemptState.getFinalTrackingUrl(), attemptState.getDiagnostics(),
       attemptState.getFinalApplicationStatus(),
-      attemptState.getAMContainerExitStatus(),
-      attemptState.getMemorySeconds(), attemptState.getVcoreSeconds());
+      attemptState.getAMContainerExitStatus());
   }
 
   public abstract ApplicationAttemptStateDataProto getProto();
@@ -161,28 +157,4 @@ public abstract class ApplicationAttemptStateData {
   public abstract int getAMContainerExitStatus();
 
   public abstract void setAMContainerExitStatus(int exitStatus);
-
-  /**
-   * Get the <em>memory seconds</em> (in MB seconds) of the application.
-   * @return <em>memory seconds</em> (in MB seconds) of the application
-   */
-  @Public
-  @Unstable
-  public abstract long getMemorySeconds();
-
-  @Public
-  @Unstable
-  public abstract void setMemorySeconds(long memorySeconds);
-
-  /**
-   * Get the <em>vcore seconds</em> of the application.
-   * @return <em>vcore seconds</em> of the application
-   */
-  @Public
-  @Unstable
-  public abstract long getVcoreSeconds();
-
-  @Public
-  @Unstable
-  public abstract void setVcoreSeconds(long vcoreSeconds);
 }

@@ -60,7 +60,6 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptReportRes
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptsRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptsResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportRequest;
-import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationsRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationsResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.GetClusterNodesRequest;
@@ -79,7 +78,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
 import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Container;
@@ -225,7 +223,7 @@ public class TestClientRMService {
   }
   
   @Test
-  public void testNonExistingApplicationReport() throws YarnException {
+  public void testGetApplicationReport() throws YarnException {
     RMContext rmContext = mock(RMContext.class);
     when(rmContext.getRMApps()).thenReturn(
         new ConcurrentHashMap<ApplicationId, RMApp>());
@@ -242,38 +240,6 @@ public class TestClientRMService {
       Assert.assertEquals(ex.getMessage(),
           "Application with id '" + request.getApplicationId()
               + "' doesn't exist in RM.");
-    }
-  }
-
-   @Test
-  public void testGetApplicationReport() throws Exception {
-    YarnScheduler yarnScheduler = mock(YarnScheduler.class);
-    RMContext rmContext = mock(RMContext.class);
-    mockRMContext(yarnScheduler, rmContext);
-
-    ApplicationId appId1 = getApplicationId(1);
-
-    ApplicationACLsManager mockAclsManager = mock(ApplicationACLsManager.class);
-    when(
-        mockAclsManager.checkAccess(UserGroupInformation.getCurrentUser(),
-            ApplicationAccessType.VIEW_APP, null, appId1)).thenReturn(true);
-
-    ClientRMService rmService = new ClientRMService(rmContext, yarnScheduler,
-        null, mockAclsManager, null, null);
-    try {
-      RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
-      GetApplicationReportRequest request = recordFactory
-          .newRecordInstance(GetApplicationReportRequest.class);
-      request.setApplicationId(appId1);
-      GetApplicationReportResponse response = 
-          rmService.getApplicationReport(request);
-      ApplicationReport report = response.getApplicationReport();
-      ApplicationResourceUsageReport usageReport = 
-          report.getApplicationResourceUsageReport();
-      Assert.assertEquals(10, usageReport.getMemorySeconds());
-      Assert.assertEquals(3, usageReport.getVcoreSeconds());
-    } finally {
-      rmService.close();
     }
   }
   
@@ -1099,11 +1065,11 @@ public class TestClientRMService {
     ApplicationId applicationId3 = getApplicationId(3);
     YarnConfiguration config = new YarnConfiguration();
     apps.put(applicationId1, getRMApp(rmContext, yarnScheduler, applicationId1,
-        config, "testqueue", 10, 3));
+        config, "testqueue"));
     apps.put(applicationId2, getRMApp(rmContext, yarnScheduler, applicationId2,
-        config, "a", 20, 2));
+        config, "a"));
     apps.put(applicationId3, getRMApp(rmContext, yarnScheduler, applicationId3,
-        config, "testqueue", 40, 5));
+        config, "testqueue"));
     return apps;
   }
   
@@ -1125,26 +1091,12 @@ public class TestClientRMService {
   }
 
   private RMAppImpl getRMApp(RMContext rmContext, YarnScheduler yarnScheduler,
-      ApplicationId applicationId3, YarnConfiguration config, String queueName,
-      final long memorySeconds, final long vcoreSeconds) {
+      ApplicationId applicationId3, YarnConfiguration config, String queueName) {
     ApplicationSubmissionContext asContext = mock(ApplicationSubmissionContext.class);
     when(asContext.getMaxAppAttempts()).thenReturn(1);
     RMAppImpl app = spy(new RMAppImpl(applicationId3, rmContext, config, null,
         null, queueName, asContext, yarnScheduler, null,
-        System.currentTimeMillis(), "YARN", null) {
-              @Override
-              public ApplicationReport createAndGetApplicationReport(
-                  String clientUserName, boolean allowAccess) {
-                ApplicationReport report = super.createAndGetApplicationReport(
-                    clientUserName, allowAccess);
-                ApplicationResourceUsageReport usageReport = 
-                    report.getApplicationResourceUsageReport();
-                usageReport.setMemorySeconds(memorySeconds);
-                usageReport.setVcoreSeconds(vcoreSeconds);
-                report.setApplicationResourceUsageReport(usageReport);
-                return report;
-              }
-          });
+        System.currentTimeMillis(), "YARN", null));
     ApplicationAttemptId attemptId = ApplicationAttemptId.newInstance(
         ApplicationId.newInstance(123456, 1), 1);
     RMAppAttemptImpl rmAppAttemptImpl = spy(new RMAppAttemptImpl(attemptId,

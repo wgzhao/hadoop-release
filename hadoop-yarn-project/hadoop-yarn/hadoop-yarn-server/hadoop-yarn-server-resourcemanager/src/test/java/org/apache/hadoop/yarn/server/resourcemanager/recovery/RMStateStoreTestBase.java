@@ -64,9 +64,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.RMSta
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.AMRMTokenSecretManagerState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptMetrics;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.server.resourcemanager.security.AMRMTokenSecretManager;
@@ -154,8 +152,6 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
       SecretKey clientTokenMasterKey, TestDispatcher dispatcher)
       throws Exception {
 
-    RMAppAttemptMetrics mockRmAppAttemptMetrics = 
-        mock(RMAppAttemptMetrics.class);
     Container container = new ContainerPBImpl();
     container.setId(ConverterUtils.toContainerId(containerIdStr));
     RMAppAttempt mockAttempt = mock(RMAppAttempt.class);
@@ -164,10 +160,6 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     when(mockAttempt.getAMRMToken()).thenReturn(appToken);
     when(mockAttempt.getClientTokenMasterKey())
         .thenReturn(clientTokenMasterKey);
-    when(mockAttempt.getRMAppAttemptMetrics())
-        .thenReturn(mockRmAppAttemptMetrics);
-    when(mockRmAppAttemptMetrics.getAggregateAppResourceUsage())
-        .thenReturn(new AggregateAppResourceUsage(0,0));
     dispatcher.attemptId = attemptId;
     store.storeNewApplicationAttempt(mockAttempt);
     waitNotify(dispatcher);
@@ -232,8 +224,6 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
         "container_1352994193343_0002_01_000001", null, null, dispatcher);
 
     RMApp mockRemovedApp = mock(RMApp.class);
-    RMAppAttemptMetrics mockRmAppAttemptMetrics = 
-        mock(RMAppAttemptMetrics.class);
     HashMap<ApplicationAttemptId, RMAppAttempt> attempts =
                               new HashMap<ApplicationAttemptId, RMAppAttempt>();
     ApplicationSubmissionContext context =
@@ -244,10 +234,6 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     when(mockRemovedApp.getAppAttempts()).thenReturn(attempts);
     RMAppAttempt mockRemovedAttempt = mock(RMAppAttempt.class);
     when(mockRemovedAttempt.getAppAttemptId()).thenReturn(attemptIdRemoved);
-    when(mockRemovedAttempt.getRMAppAttemptMetrics())
-        .thenReturn(mockRmAppAttemptMetrics);
-    when(mockRmAppAttemptMetrics.getAggregateAppResourceUsage())
-        .thenReturn(new AggregateAppResourceUsage(0,0));
     attempts.put(attemptIdRemoved, mockRemovedAttempt);
     store.removeApplication(mockRemovedApp);
 
@@ -318,7 +304,7 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
           oldAttemptState.getAppAttemptCredentials(),
           oldAttemptState.getStartTime(), RMAppAttemptState.FINISHED,
           "myTrackingUrl", "attemptDiagnostics",
-          FinalApplicationStatus.SUCCEEDED, 100, 0, 0);
+          FinalApplicationStatus.SUCCEEDED, 100);
     store.updateApplicationAttemptState(newAttemptState);
 
     // test updating the state of an app/attempt whose initial state was not
@@ -341,7 +327,7 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
           oldAttemptState.getAppAttemptCredentials(),
           oldAttemptState.getStartTime(), RMAppAttemptState.FINISHED,
           "myTrackingUrl", "attemptDiagnostics",
-          FinalApplicationStatus.SUCCEEDED, 111, 0, 0);
+          FinalApplicationStatus.SUCCEEDED, 111);
     store.updateApplicationAttemptState(dummyAttempt);
 
     // let things settle down

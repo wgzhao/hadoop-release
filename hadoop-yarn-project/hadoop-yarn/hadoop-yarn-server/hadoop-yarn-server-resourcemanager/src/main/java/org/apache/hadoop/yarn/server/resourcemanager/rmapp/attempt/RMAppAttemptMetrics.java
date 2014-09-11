@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -28,9 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
@@ -45,17 +42,12 @@ public class RMAppAttemptMetrics {
   
   private ReadLock readLock;
   private WriteLock writeLock;
-  private AtomicLong finishedMemorySeconds = new AtomicLong(0);
-  private AtomicLong finishedVcoreSeconds = new AtomicLong(0);
-  private RMContext rmContext;
-
-  public RMAppAttemptMetrics(ApplicationAttemptId attemptId,
-      RMContext rmContext) {
+  
+  public RMAppAttemptMetrics(ApplicationAttemptId attemptId) {
     this.attemptId = attemptId;
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     this.readLock = lock.readLock();
     this.writeLock = lock.writeLock();
-    this.rmContext = rmContext;
   }
   
   public void updatePreemptionInfo(Resource resource, RMContainer container) {
@@ -101,29 +93,5 @@ public class RMAppAttemptMetrics {
   
   public boolean getIsPreempted() {
     return this.isPreempted.get();
-  }
-
-  public AggregateAppResourceUsage getAggregateAppResourceUsage() {
-    long memorySeconds = finishedMemorySeconds.get();
-    long vcoreSeconds = finishedVcoreSeconds.get();
-
-    // Only add in the running containers if this is the active attempt.
-    RMAppAttempt currentAttempt = rmContext.getRMApps()
-                   .get(attemptId.getApplicationId()).getCurrentAppAttempt();
-    if (currentAttempt.getAppAttemptId().equals(attemptId)) {
-      ApplicationResourceUsageReport appResUsageReport = rmContext
-            .getScheduler().getAppResourceUsageReport(attemptId);
-      if (appResUsageReport != null) {
-        memorySeconds += appResUsageReport.getMemorySeconds();
-        vcoreSeconds += appResUsageReport.getVcoreSeconds();
-      }
-    }
-    return new AggregateAppResourceUsage(memorySeconds, vcoreSeconds);
-  }
-
-  public void updateAggregateAppResourceUsage(long finishedMemorySeconds,
-                                        long finishedVcoreSeconds) {
-    this.finishedMemorySeconds.addAndGet(finishedMemorySeconds);
-    this.finishedVcoreSeconds.addAndGet(finishedVcoreSeconds);
   }
 }

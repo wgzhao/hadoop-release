@@ -146,10 +146,7 @@ public class AppBlock extends HtmlBlock {
           attemptMetrics.getResourcePreempted())
         ._("Number of Non-AM Containers Preempted from Current Attempt:",
           String.valueOf(attemptMetrics
-            .getNumNonAMContainersPreempted()))
-        ._("Aggregate Resource Allocation:",
-            String.format("%d MB-seconds, %d vcore-seconds", 
-                appMerics.getMemorySeconds(), appMerics.getVcoreSeconds()));
+            .getNumNonAMContainersPreempted()));
     pdiv._();
 
     Collection<RMAppAttempt> attempts = rmApp.getAppAttempts().values();
