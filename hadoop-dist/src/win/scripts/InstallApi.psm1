@@ -185,6 +185,10 @@ function DataDirectoriesDelete-Chk(
             {
                 throw "Non-empty $property folders: $($nonEmptyFolderList -Join ',')"
             }
+            elseif ($dataexists)
+            {
+                return $dataexists
+            }
         }
     }
     return $dataexists
