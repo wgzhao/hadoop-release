@@ -1851,7 +1851,7 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
           return new FileMetadata(
               key, // Always return denormalized key with metadata.
-              properties.getLength(),
+              getDataLength(blob, properties),
               properties.getLastModified().getTime(),
               getPermissionStatus(blob));
         }
@@ -2046,7 +2046,7 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
           } else {
             metadata = new FileMetadata(
                 blobKey,
-                properties.getLength(),
+                getDataLength(blob, properties),
                 properties.getLastModified().getTime(),
                 getPermissionStatus(blob));
           }
@@ -2193,7 +2193,7 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
           } else {
             metadata = new FileMetadata(
                 blobKey,
-                properties.getLength(),
+                getDataLength(blob, properties),
                 properties.getLastModified().getTime(),
                 getPermissionStatus(blob));
           }
@@ -2277,6 +2277,26 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
         }
       }
     }
+  }
+
+  /**
+   * Return the actual data length of the blob with the specified properties.
+   * If it is a page blob, you can't rely on the length from the properties
+   * argument and you must get it from the file. Otherwise, you can.
+   */
+  private long getDataLength(CloudBlobWrapper blob, BlobProperties properties)
+    throws AzureException {
+    if (blob instanceof CloudPageBlobWrapper) {
+      try {
+        return PageBlobInputStream.GetPageBlobSize((CloudPageBlobWrapper) blob,
+            getInstrumentedContext(
+                isConcurrentOOBAppendAllowed()));
+      } catch (Exception e) {
+        throw new AzureException(
+            "Unexpected exception getting page blob actual data size.", e);
+      }
+    }
+    return properties.getLength();
   }
 
   /**
