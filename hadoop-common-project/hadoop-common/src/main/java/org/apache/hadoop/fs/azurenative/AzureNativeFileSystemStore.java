@@ -2456,6 +2456,10 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
       catch (StorageException se){
       }
 
+      if (blob.getCopyState() == null) {
+        LOG.error("Could not get blob copy state while waiting for copy to complete.");
+      }
+
       // test for null because mocked filesystem doesn't know about copystates yet.
       copyInProgress = (blob.getCopyState() != null && blob.getCopyState().getStatus() == CopyStatus.PENDING);
       if(copyInProgress){
