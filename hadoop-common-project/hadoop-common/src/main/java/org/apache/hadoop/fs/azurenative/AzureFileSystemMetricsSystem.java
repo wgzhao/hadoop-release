@@ -17,7 +17,6 @@ final class AzureFileSystemMetricsSystem {
 
   public synchronized static void fileSystemClosed() {
     if (numFileSystems == 1) {
-      instance.publishMetricsNow();
       instance.stop();
       instance.shutdown();
       instance = null;
@@ -33,8 +32,6 @@ final class AzureFileSystemMetricsSystem {
 
   public static synchronized void unregisterSource(String name) {
     if (instance != null) {
-      //publish metrics before unregister a metrics source
-      instance.publishMetricsNow();
       instance.unregisterSource(name);
     }
   }
