@@ -964,7 +964,7 @@ public class LeafQueue implements CSQueue {
   }
 
   @Lock({LeafQueue.class, FiCaSchedulerApp.class})
-  private Resource computeUserLimitAndSetHeadroom(
+  Resource computeUserLimitAndSetHeadroom(
       FiCaSchedulerApp application, Resource clusterResource, Resource required) {
     
     String user = application.getUser();
@@ -985,11 +985,13 @@ public class LeafQueue implements CSQueue {
             minimumAllocation);
     
     Resource userConsumed = getUser(user).getConsumedResources(); 
-    Resource headroom = 
+    Resource headroom =
+      Resources.min(resourceCalculator, clusterResource,
         Resources.subtract(
             Resources.min(resourceCalculator, clusterResource, 
                 userLimit, queueMaxCap), 
-            userConsumed);
+            userConsumed),
+	Resources.subtract(queueMaxCap, usedResources));
     
     if (LOG.isDebugEnabled()) {
       LOG.debug("Headroom calculation for user " + user + ": " + 
