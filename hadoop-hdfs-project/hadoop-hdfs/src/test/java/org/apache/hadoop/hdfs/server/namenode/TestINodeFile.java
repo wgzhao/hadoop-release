@@ -78,39 +78,15 @@ public class TestINodeFile {
   static final short BLOCKBITS = 48;
   static final long BLKSIZE_MAXVALUE = ~(0xffffL << BLOCKBITS);
 
-  private static final PermissionStatus perm = new PermissionStatus(
+  private final PermissionStatus perm = new PermissionStatus(
       "userName", null, FsPermission.getDefault());
   private short replication;
   private long preferredBlockSize = 1024;
 
   INodeFile createINodeFile(short replication, long preferredBlockSize) {
     return new INodeFile(INodeId.GRANDFATHER_INODE_ID, null, perm, 0L, 0L,
-        null, replication, preferredBlockSize, (byte)0);
+        null, replication, preferredBlockSize);
   }
-
-  private static INodeFile createINodeFile(byte storagePolicyID) {
-    return new INodeFile(INodeId.GRANDFATHER_INODE_ID, null, perm, 0L, 0L,
-        null, (short)3, 1024L, storagePolicyID);
-  }
-
-  @Test
-  public void testStoragePolicyID () {
-    for(byte i = 0; i < 16; i++) {
-      final INodeFile f = createINodeFile(i);
-      assertEquals(i, f.getStoragePolicyID());
-    }
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testStoragePolicyIdBelowLowerBound () throws IllegalArgumentException {
-    createINodeFile((byte)-1);
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testStoragePolicyIdAboveUpperBound () throws IllegalArgumentException {
-    createINodeFile((byte)16);
-  }
-
   /**
    * Test for the Replication value. Sets a value and checks if it was set
    * correct.
@@ -286,7 +262,7 @@ public class TestINodeFile {
     INodeFile[] iNodes = new INodeFile[nCount];
     for (int i = 0; i < nCount; i++) {
       iNodes[i] = new INodeFile(i, null, perm, 0L, 0L, null, replication,
-          preferredBlockSize, (byte)0);
+          preferredBlockSize);
       iNodes[i].setLocalName(DFSUtil.string2Bytes(fileNamePrefix + i));
       BlockInfo newblock = new BlockInfo(replication);
       iNodes[i].addBlock(newblock);
@@ -343,8 +319,7 @@ public class TestINodeFile {
 
     {//cast from INodeFileUnderConstruction
       final INode from = new INodeFile(
-          INodeId.GRANDFATHER_INODE_ID, null, perm, 0L, 0L, null, replication,
-          1024L, (byte)0);
+          INodeId.GRANDFATHER_INODE_ID, null, perm, 0L, 0L, null, replication, 1024L);
       from.asFile().toUnderConstruction("client", "machine");
     
       //cast to INodeFile, should success
@@ -1068,7 +1043,7 @@ public class TestINodeFile {
   public void testFileUnderConstruction() {
     replication = 3;
     final INodeFile file = new INodeFile(INodeId.GRANDFATHER_INODE_ID, null,
-        perm, 0L, 0L, null, replication, 1024L, (byte)0);
+        perm, 0L, 0L, null, replication, 1024L);
     assertFalse(file.isUnderConstruction());
 
     final String clientName = "client";

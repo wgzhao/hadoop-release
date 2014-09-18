@@ -28,19 +28,16 @@ import java.util.Map;
 import java.util.Queue;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.hdfs.StorageType;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.server.namenode.CachedBlock;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
-import org.apache.hadoop.hdfs.util.EnumCounters;
 import org.apache.hadoop.hdfs.util.LightWeightHashSet;
 import org.apache.hadoop.util.IntrusiveCollection;
 import org.apache.hadoop.util.Time;
@@ -207,10 +204,8 @@ public class DatanodeDescriptor extends DatanodeInfo {
    * in case of errors (e.g. datanode does not report if an error occurs
    * while writing the block).
    */
-  private EnumCounters<StorageType> currApproxBlocksScheduled
-      = new EnumCounters<StorageType>(StorageType.class);
-  private EnumCounters<StorageType> prevApproxBlocksScheduled
-      = new EnumCounters<StorageType>(StorageType.class);
+  private int currApproxBlocksScheduled = 0;
+  private int prevApproxBlocksScheduled = 0;
   private long lastBlocksScheduledRollTime = 0;
   private static final int BLOCKS_SCHEDULED_ROLL_INTERVAL = 600*1000; //10min
   private int volumeFailures = 0;
@@ -483,46 +478,23 @@ public class DatanodeDescriptor extends DatanodeInfo {
 
   /**
    * @return Approximate number of blocks currently scheduled to be written 
-   */
-  public long getRemaining(StorageType t) {
-    long remaining = 0;
-    for(DatanodeStorageInfo s : getStorageInfos()) {
-      if (s.getStorageType() == t) {
-        remaining += s.getRemaining();
-      }
-    }
-    return remaining;    
-  }
-
-  /**
-   * @return Approximate number of blocks currently scheduled to be written 
-   * to the given storage type of this datanode.
-   */
-  public int getBlocksScheduled(StorageType t) {
-    return (int)(currApproxBlocksScheduled.get(t)
-        + prevApproxBlocksScheduled.get(t));
-  }
-
-  /**
-   * @return Approximate number of blocks currently scheduled to be written 
    * to this datanode.
    */
   public int getBlocksScheduled() {
-    return (int)(currApproxBlocksScheduled.sum()
-        + prevApproxBlocksScheduled.sum());
+    return currApproxBlocksScheduled + prevApproxBlocksScheduled;
   }
 
   /** Increment the number of blocks scheduled. */
-  void incrementBlocksScheduled(StorageType t) {
-    currApproxBlocksScheduled.add(t, 1);;
+  void incrementBlocksScheduled() {
+    currApproxBlocksScheduled++;
   }
   
   /** Decrement the number of blocks scheduled. */
-  void decrementBlocksScheduled(StorageType t) {
-    if (prevApproxBlocksScheduled.get(t) > 0) {
-      prevApproxBlocksScheduled.subtract(t, 1);
-    } else if (currApproxBlocksScheduled.get(t) > 0) {
-      currApproxBlocksScheduled.subtract(t, 1);
+  void decrementBlocksScheduled() {
+    if (prevApproxBlocksScheduled > 0) {
+      prevApproxBlocksScheduled--;
+    } else if (currApproxBlocksScheduled > 0) {
+      currApproxBlocksScheduled--;
     } 
     // its ok if both counters are zero.
   }
@@ -530,8 +502,8 @@ public class DatanodeDescriptor extends DatanodeInfo {
   /** Adjusts curr and prev number of blocks scheduled every few minutes. */
   private void rollBlocksScheduled(long now) {
     if (now - lastBlocksScheduledRollTime > BLOCKS_SCHEDULED_ROLL_INTERVAL) {
-      prevApproxBlocksScheduled.set(currApproxBlocksScheduled);
-      currApproxBlocksScheduled.reset();
+      prevApproxBlocksScheduled = currApproxBlocksScheduled;
+      currApproxBlocksScheduled = 0;
       lastBlocksScheduledRollTime = now;
     }
   }

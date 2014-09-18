@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +31,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsServerDefaults;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.NameNodeProxies;
 import org.apache.hadoop.hdfs.protocol.AlreadyBeingCreatedException;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
@@ -53,35 +51,6 @@ public class NameNodeConnector implements Closeable {
   private static final Log LOG = LogFactory.getLog(NameNodeConnector.class);
 
   private static final int MAX_NOT_CHANGED_ITERATIONS = 5;
-  
-  /** Create {@link NameNodeConnector} for the given namenodes. */
-  public static List<NameNodeConnector> newNameNodeConnectors(
-      Collection<URI> namenodes, String name, Path idPath, Configuration conf)
-      throws IOException {
-    final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
-        namenodes.size());
-    for (URI uri : namenodes) {
-      NameNodeConnector nnc = new NameNodeConnector(name, uri, idPath,
-          null, conf);
-      nnc.getKeyManager().startBlockKeyUpdater();
-      connectors.add(nnc);
-    }
-    return connectors;
-  }
-
-  public static List<NameNodeConnector> newNameNodeConnectors(
-      Map<URI, List<Path>> namenodes, String name, Path idPath,
-      Configuration conf) throws IOException {
-    final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
-        namenodes.size());
-    for (Map.Entry<URI, List<Path>> entry : namenodes.entrySet()) {
-      NameNodeConnector nnc = new NameNodeConnector(name, entry.getKey(),
-          idPath, entry.getValue(), conf);
-      nnc.getKeyManager().startBlockKeyUpdater();
-      connectors.add(nnc);
-    }
-    return connectors;
-  }
 
   private final URI nameNodeUri;
   private final String blockpoolID;
@@ -90,26 +59,22 @@ public class NameNodeConnector implements Closeable {
   private final ClientProtocol client;
   private final KeyManager keyManager;
 
-  private final DistributedFileSystem fs;
+  private final FileSystem fs;
   private final Path idPath;
   private final OutputStream out;
-  private final List<Path> targetPaths;
 
   private int notChangedIterations = 0;
 
   public NameNodeConnector(String name, URI nameNodeUri, Path idPath,
-                           List<Path> targetPaths, Configuration conf)
-      throws IOException {
+      Configuration conf) throws IOException {
     this.nameNodeUri = nameNodeUri;
     this.idPath = idPath;
-    this.targetPaths = targetPaths == null || targetPaths.isEmpty() ? Arrays
-        .asList(new Path("/")) : targetPaths;
-
+    
     this.namenode = NameNodeProxies.createProxy(conf, nameNodeUri,
         NamenodeProtocol.class).getProxy();
     this.client = NameNodeProxies.createProxy(conf, nameNodeUri,
         ClientProtocol.class).getProxy();
-    this.fs = (DistributedFileSystem)FileSystem.get(nameNodeUri, conf);
+    this.fs = FileSystem.get(nameNodeUri, conf);
 
     final NamespaceInfo namespaceinfo = namenode.versionRequest();
     this.blockpoolID = namespaceinfo.getBlockPoolID();
@@ -122,10 +87,6 @@ public class NameNodeConnector implements Closeable {
     if (out == null) {
       throw new IOException("Another " + name + " is running.");
     }
-  }
-
-  public DistributedFileSystem getDistributedFileSystem() {
-    return fs;
   }
 
   /** @return the block pool ID */
@@ -148,11 +109,6 @@ public class NameNodeConnector implements Closeable {
   /** @return the key manager */
   public KeyManager getKeyManager() {
     return keyManager;
-  }
-
-  /** @return the list of paths to scan/migrate */
-  public List<Path> getTargetPaths() {
-    return targetPaths;
   }
 
   /** Should the instance continue running? */
