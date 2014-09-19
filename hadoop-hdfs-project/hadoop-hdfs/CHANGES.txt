@@ -225,6 +225,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-6727. Refresh data volumes on DataNode based on configuration changes
     (Lei Xu via cmccabe)
 
+    HDFS-6970. Move startFile EDEK retries to the DFSClient. (wang)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
@@ -431,6 +433,9 @@ Release 2.6.0 - UNRELEASED
     JavaKeyStoreProvider$Factory (cmccabe)
 
     HDFS-7078. Fix listEZs to work correctly with snapshots. (wang)
+
+    HDFS-6840. Clients are always sent to the same datanode when read
+    is off rack. (wang)
 
     BREAKDOWN OF HDFS-6134 AND HADOOP-10150 SUBTASKS AND RELATED JIRAS
   
