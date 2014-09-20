@@ -22,18 +22,33 @@ import java.util.Map;
 
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
+import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 
 public class ApplicationInitEvent extends ApplicationEvent {
 
   private final Map<ApplicationAccessType, String> applicationACLs;
+  private final LogAggregationContext logAggregationContext;
 
   public ApplicationInitEvent(ApplicationId appId,
       Map<ApplicationAccessType, String> acls) {
     super(appId, ApplicationEventType.INIT_APPLICATION);
     this.applicationACLs = acls;
+    this.logAggregationContext = null;
+  }
+
+  public ApplicationInitEvent(ApplicationId appId,
+      Map<ApplicationAccessType, String> acls,
+      LogAggregationContext logAggregationContext) {
+    super(appId, ApplicationEventType.INIT_APPLICATION);
+    this.applicationACLs = acls;
+    this.logAggregationContext = logAggregationContext;
   }
 
   public Map<ApplicationAccessType, String> getApplicationACLs() {
     return this.applicationACLs;
+  }
+
+  public LogAggregationContext getLogAggregationContext() {
+    return this.logAggregationContext;
   }
 }

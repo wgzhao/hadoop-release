@@ -34,8 +34,11 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.impl.pb.LogAggregationContextPBImpl;
+import org.apache.hadoop.yarn.proto.YarnProtos.LogAggregationContextProto;
 
 /**
  * TokenIdentifier for a container. Encodes {@link ContainerId},
@@ -59,6 +62,7 @@ public class ContainerTokenIdentifier extends TokenIdentifier {
   private long rmIdentifier;
   private Priority priority;
   private long creationTime;
+  private LogAggregationContext logAggregationContext;
 
   public ContainerTokenIdentifier(ContainerId containerID,
       String hostName, String appSubmitter, Resource r, long expiryTimeStamp,
@@ -74,6 +78,21 @@ public class ContainerTokenIdentifier extends TokenIdentifier {
     this.creationTime = creationTime;
   }
 
+  public ContainerTokenIdentifier(ContainerId containerID, String hostName,
+      String appSubmitter, Resource r, long expiryTimeStamp, int masterKeyId,
+      long rmIdentifier, Priority priority, long creationTime,
+      LogAggregationContext logAggregationContext) {
+    this.containerId = containerID;
+    this.nmHostAddr = hostName;
+    this.appSubmitter = appSubmitter;
+    this.resource = r;
+    this.expiryTimeStamp = expiryTimeStamp;
+    this.masterKeyId = masterKeyId;
+    this.rmIdentifier = rmIdentifier;
+    this.priority = priority;
+    this.creationTime = creationTime;
+    this.logAggregationContext = logAggregationContext;
+  }
   /**
    * Default constructor needed by RPC layer/SecretManager.
    */
@@ -119,6 +138,10 @@ public class ContainerTokenIdentifier extends TokenIdentifier {
     return this.rmIdentifier;
   }
 
+  public LogAggregationContext getLogAggregationContext() {
+    return this.logAggregationContext;
+  }
+
   @Override
   public void write(DataOutput out) throws IOException {
     LOG.debug("Writing ContainerTokenIdentifier to RPC layer: " + this);
@@ -138,6 +161,14 @@ public class ContainerTokenIdentifier extends TokenIdentifier {
     out.writeLong(this.rmIdentifier);
     out.writeInt(this.priority.getPriority());
     out.writeLong(this.creationTime);
+    if (this.logAggregationContext == null) {
+      out.writeInt(-1);
+    } else {
+      byte[] logAggregationContextByte =
+          this.logAggregationContext.getProto().toByteArray();
+      out.writeInt(logAggregationContextByte.length);
+      out.write(logAggregationContextByte);
+    }
   }
 
   @Override
@@ -158,6 +189,19 @@ public class ContainerTokenIdentifier extends TokenIdentifier {
     this.rmIdentifier = in.readLong();
     this.priority = Priority.newInstance(in.readInt());
     this.creationTime = in.readLong();
+    int size = in.readInt();
+    if (size != -1) {
+      byte[] bytes = new byte[size];
+      in.readFully(bytes);
+      LogAggregationContextPBImpl logAggregationContextData =
+          new LogAggregationContextPBImpl(
+            LogAggregationContextProto.parseFrom(bytes));
+      this.logAggregationContext =
+          logAggregationContext.newInstance(
+            logAggregationContextData.getIncludePattern(),
+            logAggregationContextData.getExcludePattern(),
+            logAggregationContextData.getRollingIntervalSeconds());
+    }
   }
 
   @Override
