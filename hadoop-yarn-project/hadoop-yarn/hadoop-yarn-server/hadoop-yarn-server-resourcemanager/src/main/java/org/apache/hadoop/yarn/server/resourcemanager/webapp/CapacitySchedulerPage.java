@@ -34,6 +34,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.ResourceInfo;
 import org.apache.hadoop.yarn.webapp.ResponseInfo;
 import org.apache.hadoop.yarn.webapp.SubView;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.A;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.DIV;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.LI;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.UL;
@@ -49,8 +50,10 @@ class CapacitySchedulerPage extends RmView {
   static final float Q_STATS_POS = Q_MAX_WIDTH + 0.05f;
   static final String Q_END = "left:101%";
   static final String Q_GIVEN = "left:0%;background:none;border:1px dashed rgba(0,0,0,0.25)";
+  static final String Q_ACTUAL = "left:0%;background:none;border:1px dashed rgba(255,0,0,0.8)";
   static final String Q_OVER = "background:rgba(255, 140, 0, 0.8)";
   static final String Q_UNDER = "background:rgba(50, 205, 50, 0.8)";
+  static final String Q_MAX_LESS_ACTUAL = "background: rgba(255, 255, 0, 0.3)";
 
   @RequestScoped
   static class CSQInfo {
@@ -120,7 +123,9 @@ class CapacitySchedulerPage extends RmView {
           _("Configured Max Capacity:", percent(lqinfo.getMaxCapacity() / 100)).
           _("Configured Minimum User Limit Percent:", Integer.toString(lqinfo.getUserLimit()) + "%").
           _("Configured User Limit Factor:", String.format("%.1f", lqinfo.getUserLimitFactor())).
-          _r("Active users: ", activeUserList.toString());
+          _("Active users: ", activeUserList.toString()).
+          _("Actual Absolute Capacity:", percent(lqinfo.getAbsActualCapacity() / 100)).
+          _r("Labels Can Access:", StringUtils.join(",", lqinfo.getLabels().getLabels()));
 
       html._(InfoBlock.class);
 
@@ -147,18 +152,31 @@ class CapacitySchedulerPage extends RmView {
         float absCap = info.getAbsoluteCapacity() / 100;
         float absMaxCap = info.getAbsoluteMaxCapacity() / 100;
         float absUsedCap = info.getAbsoluteUsedCapacity() / 100;
-        LI<UL<Hamlet>> li = ul.
-          li().
-            a(_Q).$style(width(absMaxCap * Q_MAX_WIDTH)).
-              $title(join("Absolute Capacity:", percent(absCap))).
-              span().$style(join(Q_GIVEN, ";font-size:1px;", width(absCap/absMaxCap))).
-                _('.')._().
-              span().$style(join(width(absUsedCap/absMaxCap),
-                ";font-size:1px;left:0%;", absUsedCap > absCap ? Q_OVER : Q_UNDER)).
-                _('.')._().
-              span(".q", info.getQueuePath().substring(5))._().
-            span().$class("qstats").$style(left(Q_STATS_POS)).
-              _(join(percent(used), " used"))._();
+        float absActualCap = info.getAbsActualCapacity() / 100;
+
+        A<LI<UL<Hamlet>>> a = ul.
+          li().a(_Q).$style(width(absMaxCap * Q_MAX_WIDTH)).
+                $title(join("Absolute Capacity:", percent(absCap)));
+        
+        if (absActualCap < absCap) {
+          a = a.span().$style(join(width(1),
+              ";font-size:1px;left:0%;", Q_MAX_LESS_ACTUAL)).
+              _('.')._();
+        }
+        
+        LI<UL<Hamlet>> li = a.
+         span().$style(join(absActualCap < absCap ? Q_ACTUAL :Q_GIVEN, 
+                ";font-size:1px;", 
+                (absActualCap < absCap ? 
+                width(absActualCap / absMaxCap) : 
+                width(absCap / absMaxCap)))).
+                _('.')._().  
+          span().$style(join(width(absUsedCap/absMaxCap),
+            ";font-size:1px;left:0%;", absUsedCap > absCap ? Q_OVER : Q_UNDER)).
+            _('.')._().
+          span(".q", info.getQueuePath().substring(5))._().
+          span().$class("qstats").$style(left(Q_STATS_POS)).
+            _(join(percent(used), " used"))._();
 
         csqinfo.qinfo = info;
         if (info.getQueues() == null) {
@@ -209,12 +227,16 @@ class CapacitySchedulerPage extends RmView {
             span().$style("font-weight: bold")._("Legend:")._().
             span().$class("qlegend ui-corner-all").$style(Q_GIVEN).
               _("Capacity")._().
+            span().$class("qlegend ui-corner-all").$style(Q_ACTUAL).
+              _("Actual Capacity (< Capacity)")._().
             span().$class("qlegend ui-corner-all").$style(Q_UNDER).
               _("Used")._().
             span().$class("qlegend ui-corner-all").$style(Q_OVER).
               _("Used (over capacity)")._().
             span().$class("qlegend ui-corner-all ui-state-default").
               _("Max Capacity")._().
+            span().$class("qlegend ui-corner-all").$style(Q_MAX_LESS_ACTUAL).
+              _("Max Capacity (< Capacity)")._().
           _().
           li().
             a(_Q).$style(width(Q_MAX_WIDTH)).

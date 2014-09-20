@@ -300,6 +300,7 @@ public class UnmanagedAMLauncher {
     amProc.destroy();
   }
   
+  @SuppressWarnings("deprecation")
   public boolean run() throws IOException, YarnException {
     LOG.info("Starting Client");
     

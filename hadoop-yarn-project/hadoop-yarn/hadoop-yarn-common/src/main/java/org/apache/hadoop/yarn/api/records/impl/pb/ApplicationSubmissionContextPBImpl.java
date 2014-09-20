@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.api.records.impl.pb;
 
+import java.util.*;
+
 import com.google.common.base.CharMatcher;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -28,6 +30,7 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationSubmissionContextProto;
@@ -36,11 +39,10 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ContainerLaunchContextProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.LogAggregationContextProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.PriorityProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
+import org.apache.hadoop.yarn.proto.YarnProtos.ResourceRequestProto;
 
+import com.google.common.base.CharMatcher;
 import com.google.protobuf.TextFormat;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Private
 @Unstable
@@ -56,6 +58,7 @@ extends ApplicationSubmissionContext {
   private ContainerLaunchContext amContainer = null;
   private Resource resource = null;
   private Set<String> applicationTags = null;
+  private ResourceRequest amResourceRequest = null;
   private LogAggregationContext logAggregationContext = null;
 
   public ApplicationSubmissionContextPBImpl() {
@@ -118,6 +121,10 @@ extends ApplicationSubmissionContext {
       builder.setLogAggregationContext(
           convertToProtoFormat(this.logAggregationContext));
     }
+    if (this.amResourceRequest != null) {
+      builder.setAmContainerResourceRequest(
+          convertToProtoFormat(this.amResourceRequest));
+    }
   }
 
   private void mergeLocalToProto() {
@@ -134,8 +141,8 @@ extends ApplicationSubmissionContext {
     }
     viaProto = false;
   }
-    
-  
+
+  @Deprecated
   @Override
   public Priority getPriority() {
     ApplicationSubmissionContextProtoOrBuilder p = viaProto ? proto : builder;
@@ -148,7 +155,8 @@ extends ApplicationSubmissionContext {
     this.priority = convertFromProtoFormat(p.getPriority());
     return this.priority;
   }
-
+  
+  @Deprecated
   @Override
   public void setPriority(Priority priority) {
     maybeInitBuilder();
@@ -343,6 +351,7 @@ extends ApplicationSubmissionContext {
     builder.setMaxAppAttempts(maxAppAttempts);
   }
 
+  @Deprecated
   @Override
   public Resource getResource() {
     ApplicationSubmissionContextProtoOrBuilder p = viaProto ? proto : builder;
@@ -356,6 +365,7 @@ extends ApplicationSubmissionContext {
     return this.resource;
   }
 
+  @Deprecated
   @Override
   public void setResource(Resource resource) {
     maybeInitBuilder();
@@ -385,6 +395,14 @@ extends ApplicationSubmissionContext {
   private PriorityProto convertToProtoFormat(Priority t) {
     return ((PriorityPBImpl)t).getProto();
   }
+  
+  private ResourceRequestPBImpl convertFromProtoFormat(ResourceRequestProto p) {
+    return new ResourceRequestPBImpl(p);
+  }
+
+  private ResourceRequestProto convertToProtoFormat(ResourceRequest t) {
+    return ((ResourceRequestPBImpl)t).getProto();
+  }
 
   private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
     return new ApplicationIdPBImpl(p);
@@ -409,6 +427,47 @@ extends ApplicationSubmissionContext {
 
   private ResourceProto convertToProtoFormat(Resource t) {
     return ((ResourcePBImpl)t).getProto();
+  }
+
+  @Override
+  public String getAppLabelExpression() {
+    ApplicationSubmissionContextProtoOrBuilder p = viaProto ? proto : builder;
+    if (!p.hasAppLabelExpression()) {
+      return null;
+    }
+    return p.getAppLabelExpression();
+  }
+
+  @Override
+  public void setAppLabelExpression(String labelExpression) {
+    maybeInitBuilder();
+    if (labelExpression == null) {
+      builder.clearAppLabelExpression();
+      return;
+    }
+    builder.setAppLabelExpression(labelExpression);
+  }
+  
+  @Override
+  public ResourceRequest getAMContainerResourceRequest() {
+    ApplicationSubmissionContextProtoOrBuilder p = viaProto ? proto : builder;
+    if (this.amResourceRequest != null) {
+      return amResourceRequest;
+    } // Else via proto
+    if (!p.hasAmContainerResourceRequest()) {
+      return null;
+    }
+    amResourceRequest = convertFromProtoFormat(p.getAmContainerResourceRequest());
+    return amResourceRequest;
+  }
+
+  @Override
+  public void setAMContainerResourceRequest(ResourceRequest request) {
+    maybeInitBuilder();
+    if (request == null) {
+      builder.clearAmContainerResourceRequest();
+    }
+    this.amResourceRequest = request;
   }
 
   @Override

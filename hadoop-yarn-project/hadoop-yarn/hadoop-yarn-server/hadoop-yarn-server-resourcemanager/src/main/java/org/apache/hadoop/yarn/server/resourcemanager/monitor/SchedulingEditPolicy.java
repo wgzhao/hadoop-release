@@ -19,14 +19,16 @@ package org.apache.hadoop.yarn.server.resourcemanager.monitor;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.event.EventHandler;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.PreemptableResourceScheduler;
+import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ContainerPreemptEvent;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.PreemptableResourceScheduler;
 
 public interface SchedulingEditPolicy {
 
   public void init(Configuration config,
       EventHandler<ContainerPreemptEvent> dispatcher,
-      PreemptableResourceScheduler scheduler);
+      PreemptableResourceScheduler scheduler,
+      NodeLabelManager labelManager);
 
   /**
    * This method is invoked at regular intervals. Internally the policy is

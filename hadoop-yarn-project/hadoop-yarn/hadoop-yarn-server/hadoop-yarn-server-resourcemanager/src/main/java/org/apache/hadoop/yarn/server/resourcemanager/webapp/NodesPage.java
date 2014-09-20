@@ -66,6 +66,7 @@ class NodesPage extends RmView {
       TBODY<TABLE<Hamlet>> tbody = html.table("#nodes").
           thead().
           tr().
+          th(".label", "Labels").
           th(".rack", "Rack").
           th(".state", "Node State").
           th(".nodeaddress", "Node Address").
@@ -113,6 +114,7 @@ class NodesPage extends RmView {
         int usedMemory = (int)info.getUsedMemory();
         int availableMemory = (int)info.getAvailableMemory();
         TR<TBODY<TABLE<Hamlet>>> row = tbody.tr().
+            td(StringUtils.join(",", info.getLabels())).
             td(info.getRack()).
             td(info.getState()).
             td(info.getNodeId());
