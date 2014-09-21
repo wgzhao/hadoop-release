@@ -221,6 +221,7 @@ public class FSImageFormatPBSnapshot {
               .toByteArray(), permission, acl, fileInPb.getModificationTime(),
               fileInPb.getAccessTime(), (short) fileInPb.getReplication(),
               fileInPb.getPreferredBlockSize(),
+              fileInPb.hasIsLazyPersist() ? fileInPb.getIsLazyPersist() : false,
               (byte)fileInPb.getStoragePolicyID(), xAttrs);
         }
 

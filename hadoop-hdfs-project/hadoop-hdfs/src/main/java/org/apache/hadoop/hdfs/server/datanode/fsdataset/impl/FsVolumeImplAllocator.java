@@ -15,34 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.hadoop.hdfs.server.datanode.fsdataset.impl;
 
-package org.apache.hadoop.hdfs;
-
-import java.util.Arrays;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hdfs.StorageType;
 
 /**
- * Defines the types of supported storage media. The default storage
- * medium is assumed to be DISK.
+ * Generate volumes based on the storageType.
  */
-@InterfaceAudience.Public
-@InterfaceStability.Unstable
-public enum StorageType {
-  DISK,
-  SSD,
-  ARCHIVE,
-  RAM_DISK;
-
-  public static final StorageType DEFAULT = DISK;
-  
-  public static final StorageType[] EMPTY_ARRAY = {};
-  
-  private static final StorageType[] VALUES = values();
-  
-  public static List<StorageType> asList() {
-    return Arrays.asList(VALUES);
+@InterfaceAudience.Private
+class FsVolumeImplAllocator {
+  static FsVolumeImpl createVolume(FsDatasetImpl fsDataset, String storageUuid,
+      File dir, Configuration conf, StorageType storageType)
+          throws IOException {
+    switch(storageType) {
+      case RAM_DISK:
+        return new FsTransientVolumeImpl(
+            fsDataset, storageUuid, dir, conf, storageType);
+      default:
+        return new FsVolumeImpl(
+            fsDataset, storageUuid, dir, conf, storageType);
+    }
   }
 }

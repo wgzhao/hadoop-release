@@ -860,7 +860,7 @@ public class DataNode extends ReconfigurableBase
   }
   
   // calls specific to BP
-  protected void notifyNamenodeReceivedBlock(
+  public void notifyNamenodeReceivedBlock(
       ExtendedBlock block, String delHint, String storageUuid) {
     BPOfferService bpos = blockPoolManager.get(block.getBlockPoolId());
     if(bpos != null) {
@@ -1970,7 +1970,8 @@ public class DataNode extends ReconfigurableBase
 
         new Sender(out).writeBlock(b, targetStorageTypes[0], accessToken,
             clientname, targets, targetStorageTypes, srcNode,
-            stage, 0, 0, 0, 0, blockSender.getChecksum(), cachingStrategy);
+            stage, 0, 0, 0, 0, blockSender.getChecksum(), cachingStrategy,
+            false);
 
         // send data & checksum
         blockSender.sendBlock(out, unbufOut, null);
@@ -2047,7 +2048,8 @@ public class DataNode extends ReconfigurableBase
       LOG.warn("Cannot find BPOfferService for reporting block received for bpid="
           + block.getBlockPoolId());
     }
-    if (blockScanner != null) {
+    FsVolumeSpi volume = getFSDataset().getVolume(block);
+    if (blockScanner != null && !volume.isTransientStorage()) {
       blockScanner.addBlock(block);
     }
   }
