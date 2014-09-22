@@ -22,7 +22,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Properties;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -55,10 +54,6 @@ public class QueueInfo implements Writable {
   private List<QueueInfo> children;
 
   private Properties props;
-  
-  private Set<String> labels;
-  
-  private String defaultLabelExpression;
 
   /**
    * Default constructor for QueueInfo.
@@ -84,13 +79,6 @@ public class QueueInfo implements Writable {
     this.queueName = queueName;
     this.schedulingInfo = schedulingInfo;
   }
-
-  public QueueInfo(String queueName, String schedulingInfo, QueueState state,
-                   JobStatus[] stats) {
-    this(queueName, schedulingInfo);
-    this.queueState = state;
-    this.stats = stats;
-  }
   
   /**
    * 
@@ -98,15 +86,12 @@ public class QueueInfo implements Writable {
    * @param schedulingInfo
    * @param state
    * @param stats
-   * @param labels
-   * @param defaultLabelExpression
    */
   public QueueInfo(String queueName, String schedulingInfo, QueueState state,
-                   JobStatus[] stats, Set<String> labels, 
-                   String defaultLabelExpression) {
-    this(queueName, schedulingInfo, state, stats);
-    this.labels = labels;
-    this.defaultLabelExpression = defaultLabelExpression;
+                   JobStatus[] stats) {
+    this(queueName, schedulingInfo);
+    this.queueState = state;
+    this.stats = stats;
   }
 
   /**
@@ -202,22 +187,6 @@ public class QueueInfo implements Writable {
    */
   public JobStatus[] getJobStatuses() {
     return stats;
-  }
-  
-  public Set<String> getLabels() {
-    return labels;
-  }
-  
-  public String getDefaultLabelExpression() {
-    return defaultLabelExpression; 
-  }
-  
-  public void setLabels(Set<String> labels) {
-    this.labels = labels;
-  }
-  
-  public void setDefaultLabelExpression(String defaultLabelExpression) {
-    this.defaultLabelExpression = defaultLabelExpression; 
   }
   
   @Override

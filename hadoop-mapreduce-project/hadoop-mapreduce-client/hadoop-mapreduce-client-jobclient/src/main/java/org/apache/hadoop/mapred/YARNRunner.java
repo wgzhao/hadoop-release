@@ -319,7 +319,6 @@ public class YARNRunner implements ClientProtocol {
     return rsrc;
   }
 
-  @SuppressWarnings("deprecation")
   public ApplicationSubmissionContext createApplicationSubmissionContext(
       Configuration jobConf,
       String jobSubmitDir, Credentials ts) throws IOException {

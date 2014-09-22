@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.sls.nodemanager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
@@ -160,10 +159,6 @@ public class NodeInfo {
       return null;
     }
 
-    @Override
-    public Set<String> getLabels() {
-      return null;
-    }
   }
 
   public static RMNode newNodeInfo(String rackName, String hostName,

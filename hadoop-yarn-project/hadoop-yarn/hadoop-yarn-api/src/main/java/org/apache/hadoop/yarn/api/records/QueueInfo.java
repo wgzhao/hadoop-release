@@ -19,7 +19,6 @@
 package org.apache.hadoop.yarn.api.records;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
@@ -49,23 +48,13 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Stable
 public abstract class QueueInfo {
-  
-  @Private
-  @Unstable
-  public static QueueInfo newInstance(String queueName, float capacity,
-      float maximumCapacity, float currentCapacity,
-      List<QueueInfo> childQueues, List<ApplicationReport> applications,
-      QueueState queueState) {
-    return newInstance(queueName, capacity, maximumCapacity, currentCapacity,
-        childQueues, applications, queueState, null, null);
-  }
 
   @Private
   @Unstable
   public static QueueInfo newInstance(String queueName, float capacity,
       float maximumCapacity, float currentCapacity,
       List<QueueInfo> childQueues, List<ApplicationReport> applications,
-      QueueState queueState, Set<String> labels, String defaultLabelExpression) {
+      QueueState queueState) {
     QueueInfo queueInfo = Records.newRecord(QueueInfo.class);
     queueInfo.setQueueName(queueName);
     queueInfo.setCapacity(capacity);
@@ -160,28 +149,4 @@ public abstract class QueueInfo {
   @Private
   @Unstable
   public abstract void setQueueState(QueueState queueState);
-  
-  /**
-   * Get the <code>labels</code> of the queue.
-   * @return <code>labels</code> of the queue
-   */
-  @Public
-  @Stable
-  public abstract Set<String> getLabels();
-  
-  @Private
-  @Unstable
-  public abstract void setLabels(Set<String> labels);
-  
-  /**
-   * Get the <code>default label expression</code> of the queue
-   * @return <code>default label expression</code> of the queue
-   */
-  @Public
-  @Stable
-  public abstract String getDefaultLabelExpression();
-  
-  @Public
-  @Stable
-  public abstract void setDefaultLabelExpression(String defaultLabelExpression);
 }

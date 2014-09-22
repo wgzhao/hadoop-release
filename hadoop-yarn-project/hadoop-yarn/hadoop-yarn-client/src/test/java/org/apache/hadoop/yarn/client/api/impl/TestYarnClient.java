@@ -660,7 +660,6 @@ public class TestYarnClient {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private ApplicationId createApp(YarnClient rmClient, boolean unmanaged) 
     throws Exception {
     YarnClientApplication newApp = rmClient.createApplication();

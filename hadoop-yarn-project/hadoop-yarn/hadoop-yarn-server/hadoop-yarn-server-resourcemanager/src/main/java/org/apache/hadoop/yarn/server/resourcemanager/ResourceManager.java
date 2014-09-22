@@ -61,10 +61,6 @@ import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
-import org.apache.hadoop.yarn.label.FileSystemNodeLabelManager;
-import org.apache.hadoop.yarn.label.MemoryNodeLabelManager;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
-import org.apache.hadoop.yarn.label.NodeLabelManagerFactory;
 import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWriter;
 import org.apache.hadoop.yarn.server.resourcemanager.amlauncher.AMLauncherEventType;
 import org.apache.hadoop.yarn.server.resourcemanager.amlauncher.ApplicationMasterLauncher;
@@ -298,10 +294,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
     return new AMLivelinessMonitor(this.rmDispatcher);
   }
   
-  protected NodeLabelManager createNodeLabelManager() {
-    return NodeLabelManagerFactory.getNodeLabelManager(conf);
-  }
-  
   protected DelegationTokenRenewer createDelegationTokenRenewer() {
     return new DelegationTokenRenewer();
   }
@@ -381,10 +373,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
       AMLivelinessMonitor amFinishingMonitor = createAMLivelinessMonitor();
       addService(amFinishingMonitor);
       rmContext.setAMFinishingMonitor(amFinishingMonitor);
-      
-      NodeLabelManager nlm = createNodeLabelManager();
-      addService(nlm);
-      rmContext.setNodeLabelManager(nlm);
 
       boolean isRecoveryEnabled = conf.getBoolean(
           YarnConfiguration.RECOVERY_ENABLED,
@@ -934,7 +922,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
    * instance of {@link RMActiveServices} and initializes it.
    * @throws Exception
    */
-  protected void createAndInitActiveServices() throws Exception {
+  void createAndInitActiveServices() throws Exception {
     activeServices = new RMActiveServices();
     activeServices.init(conf);
   }

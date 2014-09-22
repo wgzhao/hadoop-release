@@ -1349,19 +1349,6 @@ public class YarnConfiguration extends Configuration {
   public static final String YARN_HTTP_POLICY_KEY = YARN_PREFIX + "http.policy";
   public static final String YARN_HTTP_POLICY_DEFAULT = HttpConfig.Policy.HTTP_ONLY
       .name();
-  
-  public static final String LABEL_PREFIX = YARN_PREFIX + "labels.";
-
-  /** URI for NodeLabelManager */
-  public static final String FS_NODE_LABEL_STORE_URI = LABEL_PREFIX
-      + "fs.store.uri";
-  public static final String FS_NODE_LABEL_STORE_RETRY_POLICY_SPEC =
-      LABEL_PREFIX + "fs.retry-policy-spec";
-  public static final String DEFAULT_FS_NODE_LABEL_STORE_RETRY_POLICY_SPEC =
-      "2000, 500";
-
-  /** Class of node label manager */
-  public static final String NODE_LABEL_MANAGER_CLS = LABEL_PREFIX + "class";
 
   public YarnConfiguration() {
     super();
