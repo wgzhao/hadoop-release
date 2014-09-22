@@ -1002,8 +1002,6 @@ function InstallYarn(
                 Write-Log "Renaming 'Apache Hadoop historyserver' to 'Apache Hadoop YARN TimelineServer'"
                 $cmd="$ENV:WINDIR\system32\sc.exe config $service DisplayName= " +'"Apache Hadoop YARN TimelineServer"'
                 Invoke-CmdChk $cmd
-                $cmd="$ENV:WINDIR\system32\sc.exe config $service start= disabled"
-                Invoke-CmdChk $cmd
             }
         }
     }
