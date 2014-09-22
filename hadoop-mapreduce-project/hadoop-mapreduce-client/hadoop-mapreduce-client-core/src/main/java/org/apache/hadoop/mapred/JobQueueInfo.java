@@ -60,6 +60,8 @@ public class JobQueueInfo extends QueueInfo {
     setQueueChildren(queue.getQueueChildren());
     setProperties(queue.getProperties());
     setJobStatuses(queue.getJobStatuses());
+    setLabels(queue.getLabels());
+    setDefaultLabelExpression(queue.getDefaultLabelExpression());
   }
   
   /**

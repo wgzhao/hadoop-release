@@ -30,6 +30,14 @@ import org.apache.hadoop.tools.GetUserMappingsProtocol;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.ResourceOption;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.server.api.protocolrecords.AddLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.AddLabelsResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.ClearAllLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.ClearAllLabelsResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.GetLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.GetLabelsResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.GetNodeToLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.GetNodeToLabelsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshAdminAclsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshAdminAclsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesRequest;
@@ -42,6 +50,10 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsC
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsConfigurationResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveLabelsResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.SetNodeToLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.SetNodeToLabelsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceResponse;
 
@@ -110,4 +122,40 @@ public interface ResourceManagerAdministrationProtocol extends GetUserMappingsPr
   public UpdateNodeResourceResponse updateNodeResource(
       UpdateNodeResourceRequest request) 
   throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public AddLabelsResponse addLabels(AddLabelsRequest request)
+      throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public RemoveLabelsResponse removeLabels(
+      RemoveLabelsRequest request) throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public SetNodeToLabelsResponse setNodeToLabels(
+      SetNodeToLabelsRequest request) throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public GetNodeToLabelsResponse getNodeToLabels(
+      GetNodeToLabelsRequest request) throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public GetLabelsResponse getLabels(
+      GetLabelsRequest request) throws YarnException, IOException;
+  
+  @Public
+  @Evolving
+  @Idempotent
+  public ClearAllLabelsResponse clearAllLabels(
+      ClearAllLabelsRequest request) throws YarnException, IOException;
 }

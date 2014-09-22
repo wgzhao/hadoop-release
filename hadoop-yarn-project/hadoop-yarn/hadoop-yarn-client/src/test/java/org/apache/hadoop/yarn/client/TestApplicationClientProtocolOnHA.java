@@ -158,6 +158,7 @@ public class TestApplicationClientProtocolOnHA extends ProtocolHATestBase {
         reports);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(timeout = 15000)
   public void testSubmitApplicationOnHA() throws Exception {
     ApplicationSubmissionContext appContext =

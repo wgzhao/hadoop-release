@@ -98,6 +98,7 @@ public class TestChildQueueOrder {
     thenReturn(CapacityScheduler.queueComparator);
     when(csContext.getResourceCalculator()).
     thenReturn(resourceComparator);
+    when(csContext.getRMContext()).thenReturn(rmContext);
   }
 
   private FiCaSchedulerApp getMockApplication(int appId, String user) {

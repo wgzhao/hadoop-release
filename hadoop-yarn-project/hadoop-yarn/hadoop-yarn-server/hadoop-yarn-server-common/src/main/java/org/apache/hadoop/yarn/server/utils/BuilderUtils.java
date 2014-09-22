@@ -338,6 +338,7 @@ public class BuilderUtils {
     return report;
   }
   
+  @SuppressWarnings("deprecation")
   public static ApplicationSubmissionContext newApplicationSubmissionContext(
       ApplicationId applicationId, String applicationName, String queue,
       Priority priority, ContainerLaunchContext amContainer,

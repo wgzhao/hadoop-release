@@ -132,6 +132,11 @@ import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.ResourceInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.SchedulerInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.SchedulerTypeInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.StatisticsItemInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LabelInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LabelNamesInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LabelsInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodesToLabelsInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeToLabelsInfo;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.webapp.BadRequestException;
@@ -714,6 +719,140 @@ public class RMWebServices {
 
     return Response.status(Status.OK).entity(ret).build();
   }
+  
+  @GET
+  @Path("/labels/all-labels")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public LabelNamesInfo getLabels(@Context HttpServletRequest hsr) throws AuthorizationException, IOException {
+    init();
+
+    LabelNamesInfo ret = new LabelNamesInfo(rm.getRMContext().getNodeLabelManager().getLabels());
+
+    return ret;
+  }
+  
+  @GET
+  @Path("/labels/all-nodes-to-labels")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public NodesToLabelsInfo getNodesToLabels(@Context HttpServletRequest hsr,
+                                  @QueryParam("labels") Set<String> labelsQuery) throws AuthorizationException, IOException {
+    init();
+
+    NodesToLabelsInfo nodesToLabelsInfo = new NodesToLabelsInfo();
+    
+    Map<String, Set<String>> nodesToLabels = rm.getRMContext().getNodeLabelManager().getNodesToLabels();
+    
+    boolean filterLabels = false;
+    if (labelsQuery != null && !labelsQuery.isEmpty()) {
+      filterLabels = true;
+    }
+    
+    for (Map.Entry<String, Set<String>> nlEntry : nodesToLabels.entrySet()) {
+      Set<String> nodeLabels = nlEntry.getValue();
+      if (filterLabels) {
+        Set<String> labelIntersect = new HashSet<String>(nodeLabels);
+        labelIntersect.retainAll(labelsQuery);
+        if (!labelIntersect.isEmpty()) {
+          nodesToLabelsInfo.add(new NodeToLabelsInfo(nlEntry.getKey(), labelIntersect));
+        }
+      } else {
+        nodesToLabelsInfo.add(new NodeToLabelsInfo(nlEntry.getKey(), nlEntry.getValue()));
+      }
+    }
+
+    return nodesToLabelsInfo;
+  }
+  
+  @POST
+  @Path("/labels/add-labels")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public Response addLabels(final LabelNamesInfo newLabels,
+      @Context HttpServletRequest hsr)
+      throws Exception {
+    init();
+    
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    if (callerUGI == null) {
+      String msg = "Unable to obtain user name, user not authenticated";
+      throw new AuthorizationException(msg);
+    }
+    if (!rm.getRMContext().getNodeLabelManager().checkAccess(callerUGI)) {
+      String msg = "User not authorized for this action " +
+        callerUGI.getShortUserName();
+      throw new AuthorizationException(msg);
+    }
+    
+    rm.getRMContext().getNodeLabelManager()
+        .addLabels(new HashSet<String>(newLabels.getLabels()));
+            
+    return Response.status(Status.OK).build();
+
+  }
+  
+  @POST
+  @Path("/labels/remove-labels")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public Response removeLabels(final LabelNamesInfo oldLabels,
+      @Context HttpServletRequest hsr)
+      throws Exception {
+    init();
+    
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    if (callerUGI == null) {
+      String msg = "Unable to obtain user name, user not authenticated";
+      throw new AuthorizationException(msg);
+    }
+    if (!rm.getRMContext().getNodeLabelManager().checkAccess(callerUGI)) {
+      String msg = "User not authorized for this action " +
+        callerUGI.getShortUserName();
+      throw new AuthorizationException(msg);
+    }
+   
+    rm.getRMContext().getNodeLabelManager()
+        .removeLabels(new HashSet<String>(oldLabels.getLabels()));
+    
+    return Response.status(Status.OK).build();
+
+  }
+  
+  @POST
+  @Path("/labels/set-node-to-labels")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public Response addLabels(NodesToLabelsInfo newNodesToLabelsInfo,
+      @Context HttpServletRequest hsr)
+      throws Exception {
+    init();
+    
+    final Map<String, Set<String>> newNodeToLabels = new HashMap<String, Set<String>>();
+    
+    for (NodeToLabelsInfo nodeToLabelsInfo : newNodesToLabelsInfo.getNodeToLabelsInfos()) {
+      //It's a list, the same node could be specified > once
+      Set<String> labels = newNodeToLabels.get(nodeToLabelsInfo.getNode());
+      if (labels == null) {
+        labels = new HashSet<String>();
+        newNodeToLabels.put(nodeToLabelsInfo.getNode(), labels);
+      }
+      labels.addAll(nodeToLabelsInfo.getLabels());
+    }
+    
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    if (callerUGI == null) {
+      String msg = "Unable to obtain user name, user not authenticated";
+      throw new AuthorizationException(msg);
+    }
+
+    if (!rm.getRMContext().getNodeLabelManager().checkAccess(callerUGI)) {
+      String msg = "User not authorized for this action " +
+        callerUGI.getShortUserName();
+      throw new AuthorizationException(msg);
+    }
+    
+    rm.getRMContext().getNodeLabelManager().setLabelsOnMultipleNodes(newNodeToLabels);
+
+    
+    return Response.status(Status.OK).build();
+
+  }
 
   protected Response killApp(RMApp app, UserGroupInformation callerUGI,
       HttpServletRequest hsr) throws IOException, InterruptedException {
@@ -964,7 +1103,9 @@ public class RMWebServices {
           newApp.getCancelTokensWhenComplete(), newApp.getMaxAppAttempts(),
           createAppSubmissionContextResource(newApp),
           newApp.getApplicationType(),
-          newApp.getKeepContainersAcrossApplicationAttempts());
+          newApp.getKeepContainersAcrossApplicationAttempts(),
+          newApp.getAppLabelExpression(),
+          newApp.getAMContainerLabelExpression());
     appContext.setApplicationTags(newApp.getApplicationTags());
 
     return appContext;
