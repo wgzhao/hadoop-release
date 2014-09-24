@@ -263,6 +263,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-6894. Add XDR parser method for each NFS response.
     (Brandon Li via wheat9)
 
+    HDFS-7139. Unit test for creating encryption zone on root path. (Zhe Zhang via wang)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
