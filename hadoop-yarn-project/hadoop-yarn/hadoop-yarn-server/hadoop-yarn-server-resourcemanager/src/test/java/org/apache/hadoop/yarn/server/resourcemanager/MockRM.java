@@ -49,7 +49,6 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.ContainerState;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -295,7 +294,7 @@ public class MockRM extends ResourceManager {
       boolean waitForAccepted, boolean keepContainers) throws Exception {
     return submitApp(masterMemory, name, user, acls, unmanaged, queue,
         maxAppAttempts, ts, appType, waitForAccepted, keepContainers,
-        false, null, 0, null);
+        false, null, 0);
   }
 
   public RMApp submitApp(int masterMemory, long attemptFailuresValidityInterval)
@@ -304,7 +303,7 @@ public class MockRM extends ResourceManager {
       .getShortUserName(), null, false, null,
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
       YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS), null, null, true, false,
-      false, null, attemptFailuresValidityInterval, null);
+      false, null, attemptFailuresValidityInterval);
   }
 
   public RMApp submitApp(int masterMemory, String name, String user,
@@ -314,25 +313,15 @@ public class MockRM extends ResourceManager {
       ApplicationId applicationId) throws Exception {
     return submitApp(masterMemory, name, user, acls, unmanaged, queue,
       maxAppAttempts, ts, appType, waitForAccepted, keepContainers,
-      isAppIdProvided, applicationId, 0, null);
+      isAppIdProvided, applicationId, 0);
   }
-
-  public RMApp submitApp(int masterMemory,
-      LogAggregationContext logAggregationContext) throws Exception {
-    return submitApp(masterMemory, "", UserGroupInformation.getCurrentUser()
-      .getShortUserName(), null, false, null,
-      super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
-      YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS), null, null, true, false,
-      false, null, 0, logAggregationContext);
-   }
 
   @SuppressWarnings("deprecation")
   public RMApp submitApp(int masterMemory, String name, String user,
       Map<ApplicationAccessType, String> acls, boolean unmanaged, String queue,
       int maxAppAttempts, Credentials ts, String appType,
       boolean waitForAccepted, boolean keepContainers, boolean isAppIdProvided,
-      ApplicationId applicationId, long attemptFailuresValidityInterval,
-      LogAggregationContext logAggregationContext)
+      ApplicationId applicationId, long attemptFailuresValidityInterval)
       throws Exception {
     ApplicationId appId = isAppIdProvided ? applicationId : null;
     ApplicationClientProtocol client = getClientRMService();
@@ -370,9 +359,6 @@ public class MockRM extends ResourceManager {
     }
     sub.setAMContainerSpec(clc);
     sub.setAttemptFailuresValidityInterval(attemptFailuresValidityInterval);
-    if (logAggregationContext != null) {
-      sub.setLogAggregationContext(logAggregationContext);
-    }
     req.setApplicationSubmissionContext(sub);
     UserGroupInformation fakeUser =
       UserGroupInformation.createUserForTesting(user, new String[] {"someGroup"});

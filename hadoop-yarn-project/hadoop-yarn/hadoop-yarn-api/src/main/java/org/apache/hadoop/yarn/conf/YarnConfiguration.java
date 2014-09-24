@@ -667,10 +667,6 @@ public class YarnConfiguration extends Configuration {
       + "log-aggregation-enable";
   public static final boolean DEFAULT_LOG_AGGREGATION_ENABLED = false;
   
-  public static final String HISTORY_LOG_RETENTION_SIZE = YARN_PREFIX
-      + "history-log.retention-size";
-  public static final int DEFAULT_HISTORY_LOG_RETENTION_SIZE = 30;
-
   /** 
    * How long to wait before deleting aggregated logs, -1 disables.
    * Be careful set this too small and you will spam the name node.

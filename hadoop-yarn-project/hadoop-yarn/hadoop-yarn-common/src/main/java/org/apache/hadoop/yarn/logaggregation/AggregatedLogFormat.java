@@ -35,13 +35,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.logging.Log;
@@ -64,14 +60,9 @@ import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 @Public
 @Evolving
@@ -158,10 +149,6 @@ public class AggregatedLogFormat {
     private final List<String> rootLogDirs;
     private final ContainerId containerId;
     private final String user;
-    private final LogAggregationContext logAggregationContext;
-    private Set<File> uploadedFiles = new HashSet<File>();
-    private final Set<String> alreadyUploadedLogFiles;
-    private Set<String> allExistingFileMeta = new HashSet<String>();
     // TODO Maybe add a version string here. Instead of changing the version of
     // the entire k-v format
 
@@ -173,24 +160,9 @@ public class AggregatedLogFormat {
 
       // Ensure logs are processed in lexical order
       Collections.sort(this.rootLogDirs);
-      this.logAggregationContext = null;
-      this.alreadyUploadedLogFiles = new HashSet<String>();
     }
 
-    public LogValue(List<String> rootLogDirs, ContainerId containerId,
-        String user, LogAggregationContext logAggregationContext,
-        Set<String> alreadyUploadedLogFiles) {
-      this.rootLogDirs = new ArrayList<String>(rootLogDirs);
-      this.containerId = containerId;
-      this.user = user;
-
-      // Ensure logs are processed in lexical order
-      Collections.sort(this.rootLogDirs);
-      this.logAggregationContext = logAggregationContext;
-      this.alreadyUploadedLogFiles = alreadyUploadedLogFiles;
-    }
-
-    private int getNumOfLogFilesToUpload() {
+    public void write(DataOutputStream out) throws IOException {
       for (String rootLogDir : this.rootLogDirs) {
         File appLogDir =
             new File(rootLogDir, 
@@ -205,136 +177,60 @@ public class AggregatedLogFormat {
           continue; // ContainerDir may have been deleted by the user.
         }
 
-        this.uploadedFiles.addAll(getFilteredLogFiles(containerLogDir));
-      }
-      return this.uploadedFiles.size();
-    }
+        // Write out log files in lexical order
+        File[] logFiles = containerLogDir.listFiles();
+        Arrays.sort(logFiles);
+        for (File logFile : logFiles) {
 
-    public void write(DataOutputStream out) throws IOException {
-      List<File> fileList = new ArrayList<File>(this.uploadedFiles);
-      Collections.sort(fileList);
+          final long fileLength = logFile.length();
 
-      for (File logFile : fileList) {
-        final long fileLength = logFile.length();
-        // Write the logFile Type
-        out.writeUTF(logFile.getName());
+          // Write the logFile Type
+          out.writeUTF(logFile.getName());
 
-        // Write the log length as UTF so that it is printable
-        out.writeUTF(String.valueOf(fileLength));
+          // Write the log length as UTF so that it is printable
+          out.writeUTF(String.valueOf(fileLength));
 
-        // Write the log itself
-        FileInputStream in = null;
-        try {
-          in = SecureIOUtils.openForRead(logFile, getUser(), null);
-          byte[] buf = new byte[65535];
-          int len = 0;
-          long bytesLeft = fileLength;
-          while ((len = in.read(buf)) != -1) {
-            //If buffer contents within fileLength, write
-            if (len < bytesLeft) {
-              out.write(buf, 0, len);
-              bytesLeft-=len;
+          // Write the log itself
+          FileInputStream in = null;
+          try {
+            in = SecureIOUtils.openForRead(logFile, getUser(), null);
+            byte[] buf = new byte[65535];
+            int len = 0;
+            long bytesLeft = fileLength;
+            while ((len = in.read(buf)) != -1) {
+              //If buffer contents within fileLength, write
+              if (len < bytesLeft) {
+                out.write(buf, 0, len);
+                bytesLeft-=len;
+              }
+              //else only write contents within fileLength, then exit early
+              else {
+                out.write(buf, 0, (int)bytesLeft);
+                break;
+              }
             }
-            //else only write contents within fileLength, then exit early
-            else {
-              out.write(buf, 0, (int)bytesLeft);
-              break;
+            long newLength = logFile.length();
+            if(fileLength < newLength) {
+              LOG.warn("Aggregated logs truncated by approximately "+
+                  (newLength-fileLength) +" bytes.");
             }
-          }
-          long newLength = logFile.length();
-          if(fileLength < newLength) {
-            LOG.warn("Aggregated logs truncated by approximately "+
-                (newLength-fileLength) +" bytes.");
-          }
-        } catch (IOException e) {
-          String message = "Error aggregating log file. Log file : "
-              + logFile.getAbsolutePath() + e.getMessage();
-          LOG.error(message, e);
-          out.write(message.getBytes());
-        } finally {
-          if (in != null) {
-            in.close();
+          } catch (IOException e) {
+            String message = "Error aggregating log file. Log file : "
+                + logFile.getAbsolutePath() + e.getMessage(); 
+            LOG.error(message, e);
+            out.write(message.getBytes());
+          } finally {
+            if (in != null) {
+              in.close();
+            }
           }
         }
       }
     }
-
+    
     // Added for testing purpose.
     public String getUser() {
       return user;
-    }
-
-    private Set<File> getFilteredLogFiles(File containerLogDir) {
-      Set<File> candidates =
-          new HashSet<File>(Arrays.asList(containerLogDir.listFiles()));
-      for (File logFile : candidates) {
-        this.allExistingFileMeta.add(fileMeta(logFile));
-      }
-
-      if (this.logAggregationContext != null && candidates.size() > 0) {
-        if (this.logAggregationContext.getIncludePattern() != null
-            && !this.logAggregationContext.getExcludePattern().isEmpty()) {
-          candidates =
-              filterFiles(this.logAggregationContext.getIncludePattern(),
-                candidates);
-        }
-
-        final Set<File> excludeFiles = new HashSet<File>();
-        if (this.logAggregationContext.getExcludePattern() != null
-            && !this.logAggregationContext.getExcludePattern().isEmpty()) {
-          excludeFiles.addAll(
-              filterFiles(this.logAggregationContext.getExcludePattern(),
-                candidates));
-        }
-        Iterable<File> mask =
-            Iterables.filter(candidates, new Predicate<File>() {
-              @Override
-              public boolean apply(File next) {
-                return !alreadyUploadedLogFiles.contains(fileMeta(next))
-                    && !excludeFiles.contains(next);
-              }
-            });
-        candidates = Sets.newHashSet(mask);
-      }
-      return candidates;
-    }
-
-    private Set<File> filterFiles(String pattern, Set<File> candidates) {
-      Pattern filterPattern =
-          Pattern.compile(pattern);
-      Set<File> filteredFiles = new HashSet<File>();
-      for (File file : candidates) {
-        Matcher fileMatcher = filterPattern.matcher(file.getName());
-        if (fileMatcher.find()) {
-          filteredFiles.add(file);
-        }
-      }
-      return filteredFiles;
-    }
-
-    public Set<Path> getCurrentUpLoadedFilesPath() {
-      Set<Path> path = new HashSet<Path>();
-      for (File file : this.uploadedFiles) {
-        path.add(new Path(file.getAbsolutePath()));
-      }
-      return path;
-    }
-
-    public Set<String> getCurrentUpLoadedFileMeta() {
-      Set<String> info = new HashSet<String>();
-      for (File file : this.uploadedFiles) {
-        info.add(fileMeta(file));
-      }
-      return info;
-    }
-
-    public Set<String> getAllExistingFilesMeta() {
-      return this.allExistingFileMeta;
-    }
-
-    private String fileMeta(File file) {
-      return containerId.toString() + "_" + file.getName() + "_"
-          + file.lastModified();
     }
   }
 
@@ -346,22 +242,16 @@ public class AggregatedLogFormat {
 
     private final FSDataOutputStream fsDataOStream;
     private final TFile.Writer writer;
-    private final Path remoteAppLogFile;
-    private FileContext fc;
 
     public LogWriter(final Configuration conf, final Path remoteAppLogFile,
         UserGroupInformation userUgi) throws IOException {
-      this.remoteAppLogFile = remoteAppLogFile;
       try {
         this.fsDataOStream =
             userUgi.doAs(new PrivilegedExceptionAction<FSDataOutputStream>() {
               @Override
               public FSDataOutputStream run() throws Exception {
-                fc = FileContext.getFileContext(conf);
+                FileContext fc = FileContext.getFileContext(conf);
                 fc.setUMask(APP_LOG_FILE_UMASK);
-                if (fc.util().exists(remoteAppLogFile)) {
-                  fc.delete(remoteAppLogFile, false);
-                }
                 return fc.create(
                     remoteAppLogFile,
                     EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE),
@@ -414,14 +304,6 @@ public class AggregatedLogFormat {
     }
 
     public void append(LogKey logKey, LogValue logValue) throws IOException {
-      if (logValue.getNumOfLogFilesToUpload() == 0) {
-        // No new logs need to uploaded at this time
-        // delete the temporary remote App file
-        if (fc.util().exists(remoteAppLogFile)) {
-          fc.delete(remoteAppLogFile, false);
-          return;
-        }
-      }
       DataOutputStream out = this.writer.prepareAppendKey(-1);
       logKey.write(out);
       out.close();

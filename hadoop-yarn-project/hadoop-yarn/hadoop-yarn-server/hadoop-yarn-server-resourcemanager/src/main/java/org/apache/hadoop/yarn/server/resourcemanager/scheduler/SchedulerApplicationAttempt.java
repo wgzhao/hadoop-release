@@ -91,7 +91,6 @@ public class SchedulerApplicationAttempt {
   private Resource amResource;
   private boolean unmanagedAM = true;
   private boolean amRunning = false;
-  private ApplicationSubmissionContext appSubmissionContext = null;
 
   protected List<RMContainer> newlyAllocatedContainers = 
       new ArrayList<RMContainer>();
@@ -134,7 +133,7 @@ public class SchedulerApplicationAttempt {
     if (rmContext.getRMApps() != null &&
         rmContext.getRMApps()
             .containsKey(applicationAttemptId.getApplicationId())) {
-      appSubmissionContext =
+      ApplicationSubmissionContext appSubmissionContext =
           rmContext.getRMApps().get(applicationAttemptId.getApplicationId())
               .getApplicationSubmissionContext();
       if (appSubmissionContext != null) {
@@ -445,8 +444,7 @@ public class SchedulerApplicationAttempt {
         container.setContainerToken(rmContext.getContainerTokenSecretManager()
           .createContainerToken(container.getId(), container.getNodeId(),
             getUser(), container.getResource(), container.getPriority(),
-            rmContainer.getCreationTime(), this.appSubmissionContext == null ?
-            null : this.appSubmissionContext.getLogAggregationContext()));
+            rmContainer.getCreationTime()));
         NMToken nmToken =
             rmContext.getNMTokenSecretManager().createAndGetNMToken(getUser(),
               getApplicationAttemptId(), container);

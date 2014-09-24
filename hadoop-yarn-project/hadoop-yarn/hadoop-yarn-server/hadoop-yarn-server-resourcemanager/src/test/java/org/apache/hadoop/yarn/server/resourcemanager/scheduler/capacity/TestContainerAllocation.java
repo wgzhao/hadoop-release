@@ -30,7 +30,6 @@ import org.apache.hadoop.yarn.api.protocolrecords.AllocateResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -39,7 +38,6 @@ import org.apache.hadoop.yarn.api.records.Token;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.label.MemoryNodeLabelManager;
 import org.apache.hadoop.yarn.label.NodeLabelManager;
-import org.apache.hadoop.yarn.security.ContainerTokenIdentifier;
 import org.apache.hadoop.yarn.server.resourcemanager.MockAM;
 import org.apache.hadoop.yarn.server.resourcemanager.MockNM;
 import org.apache.hadoop.yarn.server.resourcemanager.MockRM;
@@ -56,7 +54,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerAppReport;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.YarnScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMContainerTokenSecretManager;
-import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -209,57 +206,6 @@ public class TestContainerAllocation {
     Assert.assertEquals(1, containers.size());
   }
 
-  // This is to test whether logContext is passed into
-  // container tokens correctly
-  @Test
-  public void testLogContextPassedIntoContainerToken() throws Exception {
-    MockRM rm1 = new MockRM(conf);
-    rm1.start();
-    MockNM nm1 = rm1.registerNode("127.0.0.1:1234", 8000);
-    MockNM nm2 = rm1.registerNode("127.0.0.1:2345", 8000);
-    // logContext is set as null
-    Assert
-      .assertNull(getLogAggregationContextFromContainerToken(rm1, nm1, null));
-
-    // create a not-null logContext
-    final int interval = 2000;
-    LogAggregationContext logAggregationContext =
-        LogAggregationContext.newInstance(
-          "includePattern", "excludePattern", interval);
-    LogAggregationContext returned =
-        getLogAggregationContextFromContainerToken(rm1, nm2,
-          logAggregationContext);
-    Assert.assertEquals(returned.getIncludePattern(), "includePattern");
-    Assert.assertEquals(returned.getExcludePattern(), "excludePattern");
-    Assert.assertTrue(returned.getRollingIntervalSeconds() == interval);
-    rm1.stop();
-  }
-
-  private LogAggregationContext getLogAggregationContextFromContainerToken(
-      MockRM rm1, MockNM nm1, LogAggregationContext logContext)
-      throws Exception {
-    RMApp app2 = rm1.submitApp(200, logContext);
-    MockAM am2 = MockRM.launchAndRegisterAM(app2, rm1, nm1);
-    nm1.nodeHeartbeat(true);
-    // request a container.
-    am2.allocate("127.0.0.1", 512, 1, new ArrayList<ContainerId>());
-    ContainerId containerId =
-        ContainerId.newInstance(am2.getApplicationAttemptId(), 2);
-    rm1.waitForState(nm1, containerId, RMContainerState.ALLOCATED);
-
-    // acquire the container.
-    List<Container> containers =
-        am2.allocate(new ArrayList<ResourceRequest>(),
-          new ArrayList<ContainerId>()).getAllocatedContainers();
-    Assert.assertEquals(containerId, containers.get(0).getId());
-    // container token is generated.
-    Assert.assertNotNull(containers.get(0).getContainerToken());
-    ContainerTokenIdentifier token =
-        BuilderUtils.newContainerTokenIdentifier(containers.get(0)
-          .getContainerToken());
-    return token.getLogAggregationContext();
-  }
-
   private volatile int numRetries = 0;
   private class TestRMSecretManagerService extends RMSecretManagerService {
 
@@ -275,11 +221,10 @@ public class TestContainerAllocation {
         @Override
         public Token createContainerToken(ContainerId containerId,
             NodeId nodeId, String appSubmitter, Resource capability,
-            Priority priority, long createTime,
-            LogAggregationContext logAggregationContext) {
+            Priority priority, long createTime) {
           numRetries++;
           return super.createContainerToken(containerId, nodeId, appSubmitter,
-            capability, priority, createTime, logAggregationContext);
+            capability, priority, createTime);
         }
       };
     }

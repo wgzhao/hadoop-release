@@ -72,11 +72,9 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.ContainerState;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.SerializedException;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationIdPBImpl;
-import org.apache.hadoop.yarn.api.records.impl.pb.LogAggregationContextPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.AsyncDispatcher;
@@ -277,17 +275,11 @@ public class ContainerManagerImpl extends CompositeService implements
           aclProto.getAcl());
     }
 
-    LogAggregationContext logAggregationContext = null;
-    if (p.getLogAggregationContext() != null) {
-      logAggregationContext =
-          new LogAggregationContextPBImpl(p.getLogAggregationContext());
-    }
-    
     LOG.info("Recovering application " + appId);
     ApplicationImpl app = new ApplicationImpl(dispatcher, p.getUser(), appId,
         creds, context);
     context.getApplications().put(appId, app);
-    app.handle(new ApplicationInitEvent(appId, acls, logAggregationContext));
+    app.handle(new ApplicationInitEvent(appId, acls));
   }
 
   @SuppressWarnings("unchecked")
@@ -727,18 +719,12 @@ public class ContainerManagerImpl extends CompositeService implements
 
   private ContainerManagerApplicationProto buildAppProto(ApplicationId appId,
       String user, Credentials credentials,
-      Map<ApplicationAccessType, String> appAcls,
-      LogAggregationContext logAggregationContext) {
+      Map<ApplicationAccessType, String> appAcls) {
 
     ContainerManagerApplicationProto.Builder builder =
         ContainerManagerApplicationProto.newBuilder();
     builder.setId(((ApplicationIdPBImpl) appId).getProto());
     builder.setUser(user);
-
-    if (logAggregationContext != null) {
-      builder.setLogAggregationContext(
-          ((LogAggregationContextPBImpl) logAggregationContext).getProto());
-    }
 
     builder.clearCredentials();
     if (credentials != null) {
@@ -840,16 +826,12 @@ public class ContainerManagerImpl extends CompositeService implements
         if (null == context.getApplications().putIfAbsent(applicationID,
           application)) {
           LOG.info("Creating a new application reference for app " + applicationID);
-          LogAggregationContext logAggregationContext =
-              containerTokenIdentifier.getLogAggregationContext();
           Map<ApplicationAccessType, String> appAcls =
               container.getLaunchContext().getApplicationACLs();
-          context.getNMStateStore().storeApplication(
-            applicationID,
-            buildAppProto(applicationID, user, credentials, appAcls,
-              logAggregationContext));
+          context.getNMStateStore().storeApplication(applicationID,
+              buildAppProto(applicationID, user, credentials, appAcls));
           dispatcher.getEventHandler().handle(
-            new ApplicationInitEvent(applicationID, appAcls, logAggregationContext));
+            new ApplicationInitEvent(applicationID, appAcls));
         }
 
         this.context.getNMStateStore().storeContainer(containerId, request);

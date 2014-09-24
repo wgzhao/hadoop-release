@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -178,25 +177,6 @@ public class RMContainerTokenSecretManager extends
   public Token createContainerToken(ContainerId containerId, NodeId nodeId,
       String appSubmitter, Resource capability, Priority priority,
       long createTime) {
-    return createContainerToken(containerId, nodeId, appSubmitter, capability,
-      priority, createTime, null);
-  }
-
-  /**
-   * Helper function for creating ContainerTokens
-   * 
-   * @param containerId
-   * @param nodeId
-   * @param appSubmitter
-   * @param capability
-   * @param priority
-   * @param createTime
-   * @param logAggregationContext
-   * @return the container-token
-   */
-  public Token createContainerToken(ContainerId containerId, NodeId nodeId,
-      String appSubmitter, Resource capability, Priority priority,
-      long createTime, LogAggregationContext logAggregationContext) {
     byte[] password;
     ContainerTokenIdentifier tokenIdentifier;
     long expiryTimeStamp =
@@ -209,8 +189,7 @@ public class RMContainerTokenSecretManager extends
           new ContainerTokenIdentifier(containerId, nodeId.toString(),
             appSubmitter, capability, expiryTimeStamp, this.currentMasterKey
               .getMasterKey().getKeyId(),
-            ResourceManager.getClusterTimeStamp(), priority, createTime,
-            logAggregationContext);
+            ResourceManager.getClusterTimeStamp(), priority, createTime);
       password = this.createPassword(tokenIdentifier);
 
     } finally {

@@ -54,7 +54,6 @@ import org.apache.hadoop.yarn.util.Records;
  *     validityInterval into failure count. If failure count reaches to
  *     maxAppAttempts, the application will be failed.
  *     </li>
- *   <li>Optional, application-specific {@link LogAggregationContext}</li>
  *   </ul>
  * </p>
  * 
@@ -164,21 +163,6 @@ public abstract class ApplicationSubmissionContext {
     return context;
   }
 
-  @Public
-  @Stable
-  public static ApplicationSubmissionContext newInstance(
-      ApplicationId applicationId, String applicationName, String queue,
-      Priority priority, ContainerLaunchContext amContainer,
-      boolean isUnmanagedAM, boolean cancelTokensWhenComplete,
-      int maxAppAttempts, Resource resource, String applicationType,
-      boolean keepContainers, LogAggregationContext logAggregationContext) {
-    ApplicationSubmissionContext context =
-        newInstance(applicationId, applicationName, queue, priority,
-          amContainer, isUnmanagedAM, cancelTokensWhenComplete, maxAppAttempts,
-          resource, applicationType, keepContainers);
-    context.setLogAggregationContext(logAggregationContext);
-    return context;
-  }
   /**
    * Get the <code>ApplicationId</code> of the submitted application.
    * @return <code>ApplicationId</code> of the submitted application
@@ -486,24 +470,4 @@ public abstract class ApplicationSubmissionContext {
   @Stable
   public abstract void setAttemptFailuresValidityInterval(
       long attemptFailuresValidityInterval);
-
-  /**
-   * Get <code>LogAggregationContext</code> of the application
-   *
-   * @return <code>LogAggregationContext</code> of the application
-   */
-  @Public
-  @Stable
-  public abstract LogAggregationContext getLogAggregationContext();
-
-  /**
-   * Set <code>LogAggregationContext</code> for the application
-   *
-   * @param logAggregationContext
-   *          for the application
-   */
-  @Public
-  @Stable
-  public abstract void setLogAggregationContext(
-      LogAggregationContext logAggregationContext);
 }
