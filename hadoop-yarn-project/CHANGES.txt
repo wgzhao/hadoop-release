@@ -64,6 +64,12 @@ Release 2.6.0 - UNRELEASED
     YARN-1250. Generic history service should support application-acls. (Zhijie Shen
     via junping_du)
 
+    YARN-2569. Added the log handling APIs for the long running services. (Xuan
+    Gong via zjshen)
+
+    YARN-2102. Added the concept of a Timeline Domain to handle read/write ACLs
+    on Timeline service event data. (Zhijie Shen via vinodkv)
+
   IMPROVEMENTS
 
     YARN-2242. Improve exception information on AM launch crashes. (Li Lu 
