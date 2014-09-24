@@ -649,6 +649,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-7128. Decommission slows way down when it gets towards the end.
     (Ming Ma via cnauroth)
 
+    HDFS-6534. Fix build on macosx: HDFS parts (Binglin Chang via aw)
+
   BREAKDOWN OF HDFS-6584 ARCHIVAL STORAGE
 
     HDFS-6677. Change INodeFile and FSImage to support storage policy ID.
