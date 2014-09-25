@@ -233,6 +233,9 @@ Release 2.6.0 - UNRELEASED
     HDFS-7118. Improve diagnostics on storage directory rename operations by
     using NativeIO#renameTo in Storage#rename. (cnauroth)
 
+    HDFS-7119. Split error checks in AtomicFileOutputStream#close into separate
+    conditions to improve diagnostics. (cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
