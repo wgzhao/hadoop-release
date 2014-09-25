@@ -230,6 +230,9 @@ Release 2.6.0 - UNRELEASED
     HDFS-6948. DN rejects blocks if it has older UC block
     (Eric Payne via kihwal)
 
+    HDFS-7118. Improve diagnostics on storage directory rename operations by
+    using NativeIO#renameTo in Storage#rename. (cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
