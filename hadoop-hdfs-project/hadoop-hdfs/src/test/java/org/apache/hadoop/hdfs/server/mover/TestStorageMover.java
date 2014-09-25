@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
@@ -51,7 +52,7 @@ import org.apache.hadoop.hdfs.protocol.LocatedBlocks;
 import org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtocol;
 import org.apache.hadoop.hdfs.server.balancer.Dispatcher;
 import org.apache.hadoop.hdfs.server.balancer.ExitStatus;
-import org.apache.hadoop.hdfs.server.balancer.TestBalancer;
+import org.apache.hadoop.hdfs.server.balancer.NameNodeConnector;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicy;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
@@ -98,8 +99,10 @@ public class TestStorageMover {
     HOT = DEFAULT_POLICIES.getPolicy("HOT");
     WARM = DEFAULT_POLICIES.getPolicy("WARM");
     COLD = DEFAULT_POLICIES.getPolicy("COLD");
-    TestBalancer.initTestSetup();
+    Dispatcher.setBlockMoveWaitTime(1000L);
     Dispatcher.setDelayAfterErrors(1000L);
+    // do not create id file since we will eat up all the disk space
+    NameNodeConnector.setCreateIdFile(false);
   }
 
   /**
