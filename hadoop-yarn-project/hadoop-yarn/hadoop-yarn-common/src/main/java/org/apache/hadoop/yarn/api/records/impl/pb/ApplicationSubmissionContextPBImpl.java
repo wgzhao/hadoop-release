@@ -26,6 +26,7 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
@@ -34,6 +35,7 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationSubmissionContextProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationSubmissionContextProtoOrBuilder;
 import org.apache.hadoop.yarn.proto.YarnProtos.ContainerLaunchContextProto;
+import org.apache.hadoop.yarn.proto.YarnProtos.LogAggregationContextProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.PriorityProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceRequestProto;
@@ -55,6 +57,7 @@ extends ApplicationSubmissionContext {
   private ContainerLaunchContext amContainer = null;
   private Resource resource = null;
   private Set<String> applicationTags = null;
+  private LogAggregationContext logAggregationContext = null;
 
   private ResourceRequest amResourceRequest = null;
 
@@ -117,6 +120,10 @@ extends ApplicationSubmissionContext {
     if (this.amResourceRequest != null) {
       builder.setAmContainerResourceRequest(
           convertToProtoFormat(this.amResourceRequest));
+    }
+    if (this.logAggregationContext != null) {
+      builder.setLogAggregationContext(
+          convertToProtoFormat(this.logAggregationContext));
     }
   }
 
@@ -474,5 +481,37 @@ extends ApplicationSubmissionContext {
       long attemptFailuresValidityInterval) {
     maybeInitBuilder();
     builder.setAttemptFailuresValidityInterval(attemptFailuresValidityInterval);
+  }
+
+  private LogAggregationContextPBImpl convertFromProtoFormat(
+      LogAggregationContextProto p) {
+    return new LogAggregationContextPBImpl(p);
+  }
+
+  private LogAggregationContextProto convertToProtoFormat(
+      LogAggregationContext t) {
+    return ((LogAggregationContextPBImpl) t).getProto();
+  }
+
+  @Override
+  public LogAggregationContext getLogAggregationContext() {
+    ApplicationSubmissionContextProtoOrBuilder p = viaProto ? proto : builder;
+    if (this.logAggregationContext != null) {
+      return this.logAggregationContext;
+    } // Else via proto
+    if (!p.hasLogAggregationContext()) {
+      return null;
+    }
+    logAggregationContext = convertFromProtoFormat(p.getLogAggregationContext());
+    return logAggregationContext;
+  }
+
+  @Override
+  public void setLogAggregationContext(
+      LogAggregationContext logAggregationContext) {
+    maybeInitBuilder();
+    if (logAggregationContext == null)
+      builder.clearLogAggregationContext();
+    this.logAggregationContext = logAggregationContext;
   }
 }  
