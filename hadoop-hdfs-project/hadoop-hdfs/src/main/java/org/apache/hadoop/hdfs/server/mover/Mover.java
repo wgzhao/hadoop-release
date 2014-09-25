@@ -75,10 +75,8 @@ public class Mover {
     
     private void add(Source source, StorageGroup target) {
       sources.put(source);
-      if (target != null) {
-        targets.put(target);
-        getTargetStorages(target.getStorageType()).add(target);
-      }
+      targets.put(target);
+      getTargetStorages(target.getStorageType()).add(target);
     }
     
     private Source getSource(MLocation ml) {
@@ -128,11 +126,12 @@ public class Mover {
     for(DatanodeStorageReport r : reports) {
       final DDatanode dn = dispatcher.newDatanode(r.getDatanodeInfo());
       for(StorageType t : StorageType.asList()) {
-        final Source source = dn.addSource(t, Long.MAX_VALUE, dispatcher);
         final long maxRemaining = getMaxRemaining(r, t);
-        final StorageGroup target = maxRemaining > 0L ? dn.addTarget(t,
-            maxRemaining) : null;
-        storages.add(source, target);
+        if (maxRemaining > 0L) {
+          final Source source = dn.addSource(t, Long.MAX_VALUE, dispatcher); 
+          final StorageGroup target = dn.addTarget(t, maxRemaining);
+          storages.add(source, target);
+        }
       }
     }
   }
@@ -156,10 +155,7 @@ public class Mover {
   DBlock newDBlock(Block block, List<MLocation> locations) {
     final DBlock db = new DBlock(block);
     for(MLocation ml : locations) {
-      StorageGroup source = storages.getSource(ml);
-      if (source != null) {
-        db.addLocation(source);
-      }
+      db.addLocation(storages.getTarget(ml));
     }
     return db;
   }
@@ -353,7 +349,7 @@ public class Mover {
       for (final StorageType t : diff.existing) {
         for (final MLocation ml : locations) {
           final Source source = storages.getSource(ml);
-          if (ml.storageType == t && source != null) {
+          if (ml.storageType == t) {
             // try to schedule one replica move.
             if (scheduleMoveReplica(db, source, diff.expected)) {
               return true;
@@ -367,9 +363,7 @@ public class Mover {
     @VisibleForTesting
     boolean scheduleMoveReplica(DBlock db, MLocation ml,
                                 List<StorageType> targetTypes) {
-      final Source source = storages.getSource(ml);
-      return source == null ? false : scheduleMoveReplica(db,
-          storages.getSource(ml), targetTypes);
+      return scheduleMoveReplica(db, storages.getSource(ml), targetTypes);
     }
 
     boolean scheduleMoveReplica(DBlock db, Source source,
