@@ -20,8 +20,3 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
     HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
     System. (Shanyu Zhao via cnauroth)
-
-    HDFS-6990. Add unit test for evict/delete RAM_DISK block with open handle.
-    (Xiaoyu Yao via Arpit Agarwal)
-
-
