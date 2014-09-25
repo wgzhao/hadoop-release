@@ -93,7 +93,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-import static org.apache.hadoop.fs.CreateFlag.*;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -279,36 +278,43 @@ public class DFSTestUtil {
   
   public static void createFile(FileSystem fs, Path fileName, long fileLen, 
       short replFactor, long seed) throws IOException {
-    createFile(fs, fileName, 1024, fileLen, fs.getDefaultBlockSize(fileName),
-        replFactor, seed);
+    if (!fs.mkdirs(fileName.getParent())) {
+      throw new IOException("Mkdirs failed to create " + 
+                            fileName.getParent().toString());
+    }
+    FSDataOutputStream out = null;
+    try {
+      out = fs.create(fileName, replFactor);
+      byte[] toWrite = new byte[1024];
+      Random rb = new Random(seed);
+      long bytesToWrite = fileLen;
+      while (bytesToWrite>0) {
+        rb.nextBytes(toWrite);
+        int bytesToWriteNext = (1024<bytesToWrite)?1024:(int)bytesToWrite;
+
+        out.write(toWrite, 0, bytesToWriteNext);
+        bytesToWrite -= bytesToWriteNext;
+      }
+      out.close();
+      out = null;
+    } finally {
+      IOUtils.closeStream(out);
+    }
   }
 
   public static void createFile(FileSystem fs, Path fileName, int bufferLen,
-      long fileLen, long blockSize, short replFactor, long seed)
+                                long fileLen, long blockSize, short replFactor, long seed)
       throws IOException {
-    createFile(fs, fileName, false, bufferLen, fileLen, blockSize,
-            replFactor, seed, false);
-  }
-
-  public static void createFile(FileSystem fs, Path fileName,
-      boolean isLazyPersist, int bufferLen, long fileLen, long blockSize,
-      short replFactor, long seed, boolean flush) throws IOException {
-  assert bufferLen > 0;
-  if (!fs.mkdirs(fileName.getParent())) {
+    assert bufferLen > 0;
+    if (!fs.mkdirs(fileName.getParent())) {
       throw new IOException("Mkdirs failed to create " +
-                fileName.getParent().toString());
-  }
-  FSDataOutputStream out = null;
-  EnumSet<CreateFlag> createFlags = EnumSet.of(CREATE);
-  createFlags.add(OVERWRITE);
-  if (isLazyPersist) {
-    createFlags.add(LAZY_PERSIST);
-  }
-  try {
-      out = fs.create(fileName, FsPermission.getFileDefault(), createFlags,
-        fs.getConf().getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
-        replFactor, blockSize, null);
-
+                            fileName.getParent().toString());
+    }
+    FSDataOutputStream out = null;
+    try {
+      out = fs.create(fileName, true, fs.getConf()
+                                        .getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
+                      replFactor, blockSize);
       if (fileLen > 0) {
         byte[] toWrite = new byte[bufferLen];
         Random rb = new Random(seed);
@@ -316,13 +322,10 @@ public class DFSTestUtil {
         while (bytesToWrite>0) {
           rb.nextBytes(toWrite);
           int bytesToWriteNext = (bufferLen < bytesToWrite) ? bufferLen
-            : (int) bytesToWrite;
+              : (int) bytesToWrite;
 
-            out.write(toWrite, 0, bytesToWriteNext);
-            bytesToWrite -= bytesToWriteNext;
-        }
-        if (flush) {
-          out.hsync();
+          out.write(toWrite, 0, bytesToWriteNext);
+          bytesToWrite -= bytesToWriteNext;
         }
       }
     } finally {

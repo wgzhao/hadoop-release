@@ -37,7 +37,8 @@ public class ReplicaUnderRecovery extends ReplicaInfo {
                            // that the replica will be bumped to after recovery
 
   public ReplicaUnderRecovery(ReplicaInfo replica, long recoveryId) {
-    super(replica, replica.getVolume(), replica.getDir());
+    super(replica.getBlockId(), replica.getNumBytes(), replica.getGenerationStamp(),
+        replica.getVolume(), replica.getDir());
     if ( replica.getState() != ReplicaState.FINALIZED &&
          replica.getState() != ReplicaState.RBW &&
          replica.getState() != ReplicaState.RWR ) {

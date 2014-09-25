@@ -106,8 +106,8 @@ public interface DataTransferProtocol {
       final long maxBytesRcvd,
       final long latestGenerationStamp,
       final DataChecksum requestedChecksum,
-      final CachingStrategy cachingStrategy,
-      final boolean allowLazyPersist) throws IOException;
+      final CachingStrategy cachingStrategy) throws IOException;
+
   /**
    * Transfer a block to another datanode.
    * The block stage must be

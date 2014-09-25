@@ -59,9 +59,4 @@ public interface Replica {
    * Return the storageUuid of the volume that stores this replica.
    */
   public String getStorageUuid();
-
-  /**
-   * Return true if the target volume is backed by RAM.
-   */
-  public boolean isOnTransientStorage();
 }

@@ -529,7 +529,7 @@ public class TestBlockRecovery {
     if(LOG.isDebugEnabled()) {
       LOG.debug("Running " + GenericTestUtils.getMethodName());
     }
-    dn.data.createRbw(StorageType.DEFAULT, block, false);
+    dn.data.createRbw(StorageType.DEFAULT, block);
     try {
       dn.syncBlock(rBlock, initBlockRecords(dn));
       fail("Sync should fail");
@@ -553,7 +553,7 @@ public class TestBlockRecovery {
       LOG.debug("Running " + GenericTestUtils.getMethodName());
     }
     ReplicaInPipelineInterface replicaInfo = dn.data.createRbw(
-        StorageType.DEFAULT, block, false);
+        StorageType.DEFAULT, block);
     ReplicaOutputStreams streams = null;
     try {
       streams = replicaInfo.createStreams(true,
