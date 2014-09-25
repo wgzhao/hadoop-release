@@ -161,8 +161,5 @@ public class HdfsConstants {
       = DFSUtil.string2Bytes(DOT_SNAPSHOT_DIR);
   
   public static final String SEPARATOR_DOT_SNAPSHOT_DIR
-      = Path.SEPARATOR + DOT_SNAPSHOT_DIR;
-
-  public static final String SEPARATOR_DOT_SNAPSHOT_DIR_SEPARATOR
-      = Path.SEPARATOR + DOT_SNAPSHOT_DIR + Path.SEPARATOR;
+      = Path.SEPARATOR + DOT_SNAPSHOT_DIR; 
 }

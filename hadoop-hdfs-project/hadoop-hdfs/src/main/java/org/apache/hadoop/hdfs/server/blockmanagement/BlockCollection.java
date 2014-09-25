@@ -60,11 +60,6 @@ public interface BlockCollection {
    */
   public short getBlockReplication();
 
-  /** 
-   * @return the storage policy ID.
-   */
-  public byte getStoragePolicyID();
-
   /**
    * Get the name of the collection.
    */

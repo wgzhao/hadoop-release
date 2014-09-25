@@ -71,7 +71,7 @@ if "%1" == "--service" (
       goto print_usage
   )
 
-  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer mover jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin
+  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin
   for %%i in ( %hdfscommands% ) do (
     if %hdfs-command% == %%i set hdfscommand=true
   )
@@ -139,11 +139,6 @@ goto :eof
 
 :balancer
   set CLASS=org.apache.hadoop.hdfs.server.balancer.Balancer
-  set HADOOP_OPTS=%HADOOP_OPTS% %HADOOP_BALANCER_OPTS%
-  goto :eof
-
-:mover
-  set CLASS=org.apache.hadoop.hdfs.server.mover.Mover
   set HADOOP_OPTS=%HADOOP_OPTS% %HADOOP_BALANCER_OPTS%
   goto :eof
 
@@ -235,7 +230,6 @@ goto :eof
   @echo   haadmin              run a DFS HA admin client
   @echo   fsck                 run a DFS filesystem checking utility
   @echo   balancer             run a cluster balancing utility
-  @echo   mover                run a utility to move block replicas across storage types
   @echo   jmxget               get JMX exported values from NameNode or DataNode.
   @echo   oiv                  apply the offline fsimage viewer to an fsimage
   @echo   oev                  apply the offline edits viewer to an edits file

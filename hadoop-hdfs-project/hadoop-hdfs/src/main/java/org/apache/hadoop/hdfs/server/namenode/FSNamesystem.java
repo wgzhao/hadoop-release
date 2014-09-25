@@ -167,7 +167,6 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.ha.ServiceFailedException;
-import org.apache.hadoop.hdfs.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.HAUtil;
@@ -327,7 +326,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   private HdfsFileStatus getAuditFileInfo(String path, boolean resolveSymlink)
       throws IOException {
     return (isAuditEnabled() && isExternalInvocation())
-        ? dir.getFileInfo(path, resolveSymlink, false, false) : null;
+        ? dir.getFileInfo(path, resolveSymlink, false) : null;
   }
   
   private void logAuditEvent(boolean succeeded, String cmd, String src)
@@ -2257,52 +2256,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     return isFile;
   }
 
-  /**
-   * Set the storage policy for a file or a directory.
-   *
-   * @param src file/directory path
-   * @param policyName storage policy name
-   */
-  void setStoragePolicy(String src, final String policyName)
-      throws IOException {
-    try {
-      setStoragePolicyInt(src, policyName);
-    } catch (AccessControlException e) {
-      logAuditEvent(false, "setStoragePolicy", src);
-      throw e;
-    }
-  }
-
-  private void setStoragePolicyInt(String src, final String policyName)
-      throws IOException {
-    checkSuperuserPrivilege();
-    checkOperation(OperationCategory.WRITE);
-    byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
-    waitForLoadingFSImage();
-    HdfsFileStatus fileStat;
-    writeLock();
-    try {
-      checkOperation(OperationCategory.WRITE);
-      checkNameNodeSafeMode("Cannot set storage policy for " + src);
-      src = FSDirectory.resolvePath(src, pathComponents, dir);
-
-      // get the corresponding policy and make sure the policy name is valid
-      BlockStoragePolicy policy = blockManager.getStoragePolicy(policyName);
-      if (policy == null) {
-        throw new HadoopIllegalArgumentException(
-            "Cannot find a block policy with the name " + policyName);
-      }
-      dir.setStoragePolicy(src, policy.getId());
-      getEditLog().logSetStoragePolicy(src, policy.getId());
-      fileStat = getAuditFileInfo(src, false);
-    } finally {
-      writeUnlock();
-    }
-
-    getEditLog().logSync();
-    logAuditEvent(true, "setStoragePolicy", src, null, fileStat);
-  }
-
   long getPreferredBlockSize(String filename) 
       throws IOException, UnresolvedLinkException {
     FSPermissionChecker pc = getPermissionChecker();
@@ -3012,9 +2965,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throws LeaseExpiredException, NotReplicatedYetException,
       QuotaExceededException, SafeModeException, UnresolvedLinkException,
       IOException {
-    final long blockSize;
-    final int replication;
-    final byte storagePolicyID;
+    long blockSize;
+    int replication;
     DatanodeDescriptor clientNode = null;
 
     if(NameNode.stateChangeLog.isDebugEnabled()) {
@@ -3049,15 +3001,13 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       clientNode = blockManager.getDatanodeManager().getDatanodeByHost(
               pendingFile.getFileUnderConstructionFeature().getClientMachine());
       replication = pendingFile.getFileReplication();
-      storagePolicyID = pendingFile.getStoragePolicyID();
     } finally {
       readUnlock();
     }
 
     // choose targets for the new block to be allocated.
-    final DatanodeStorageInfo targets[] = getBlockManager().chooseTarget4NewBlock( 
-        src, replication, clientNode, excludedNodes, blockSize, favoredNodes,
-        storagePolicyID);
+    final DatanodeStorageInfo targets[] = getBlockManager().chooseTarget( 
+        src, replication, clientNode, excludedNodes, blockSize, favoredNodes);
 
     // Part II.
     // Allocate a new block, add it to the INode and the BlocksMap. 
@@ -3245,7 +3195,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
     final DatanodeDescriptor clientnode;
     final long preferredblocksize;
-    final byte storagePolicyID;
     final List<DatanodeStorageInfo> chosen;
     checkOperation(OperationCategory.READ);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
@@ -3272,7 +3221,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
               .getClientMachine();
       clientnode = blockManager.getDatanodeManager().getDatanodeByHost(clientMachine);
       preferredblocksize = file.getPreferredBlockSize();
-      storagePolicyID = file.getStoragePolicyID();
 
       //find datanode storages
       final DatanodeManager dm = blockManager.getDatanodeManager();
@@ -3282,9 +3230,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     }
 
     // choose new datanodes.
-    final DatanodeStorageInfo[] targets = blockManager.chooseTarget4AdditionalDatanode(
-        src, numAdditionalNodes, clientnode, chosen, 
-        excludes, preferredblocksize, storagePolicyID);
+    final DatanodeStorageInfo[] targets = blockManager.getBlockPlacementPolicy(
+        ).chooseTarget(src, numAdditionalNodes, clientnode, chosen, true,
+            // TODO: get storage type from the file
+        excludes, preferredblocksize, StorageType.DEFAULT);
     final LocatedBlock lb = new LocatedBlock(blk, targets);
     blockManager.setBlockToken(lb, AccessMode.COPY);
     return lb;
@@ -3971,14 +3920,12 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     try {
       checkOperation(OperationCategory.READ);
       src = resolvePath(src, pathComponents);
-      boolean isSuperUser = true;
       if (isPermissionEnabled) {
         checkPermission(pc, src, false, null, null, null, null, false,
             resolveLink);
-        isSuperUser = pc.isSuperUser();
       }
       stat = dir.getFileInfo(src, resolveLink,
-          FSDirectory.isReservedRawName(srcArg), isSuperUser);
+          FSDirectory.isReservedRawName(srcArg));
     } catch (AccessControlException e) {
       logAuditEvent(false, "getfileinfo", srcArg);
       throw e;
@@ -4207,7 +4154,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   /**
    * Get the content summary for a specific file/dir.
    *
-   * @param srcArg The string representation of the path to the file
+   * @param src The string representation of the path to the file
    *
    * @throws AccessControlException if access is denied
    * @throws UnresolvedLinkException if a symlink is encountered.
@@ -4783,18 +4730,16 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
               "Can't find startAfter " + startAfterString);
         }
       }
-
-      boolean isSuperUser = true;
+      
       if (isPermissionEnabled) {
         if (dir.isDir(src)) {
           checkPathAccess(pc, src, FsAction.READ_EXECUTE);
         } else {
           checkTraverse(pc, src);
         }
-        isSuperUser = pc.isSuperUser();
       }
       logAuditEvent(true, "listStatus", srcArg);
-      dl = dir.getListing(src, startAfter, needLocation, isSuperUser);
+      dl = dir.getListing(src, startAfter, needLocation);
     } finally {
       readUnlock();
     }
@@ -4944,6 +4889,12 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
   /**
    * Add the given symbolic link to the fs. Record it in the edits log.
+   * @param path
+   * @param target
+   * @param dirPerms
+   * @param createParent
+   * @param logRetryCache
+   * @param dir
    */
   private INodeSymlink addSymlink(String path, String target,
                                   PermissionStatus dirPerms,

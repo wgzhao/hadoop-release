@@ -1904,9 +1904,7 @@ public class DataNode extends ReconfigurableBase
             + b + " (numBytes=" + b.getNumBytes() + ")"
             + ", stage=" + stage
             + ", clientname=" + clientname
-            + ", targets=" + Arrays.asList(targets)
-            + ", target storage types=" + (targetStorageTypes == null ? "[]" :
-            Arrays.asList(targetStorageTypes)));
+            + ", targets=" + Arrays.asList(targets));
       }
       this.targets = targets;
       this.targetStorageTypes = targetStorageTypes;

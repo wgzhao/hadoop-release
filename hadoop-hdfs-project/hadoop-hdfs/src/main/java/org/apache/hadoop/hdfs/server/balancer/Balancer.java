@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +54,6 @@ import org.apache.hadoop.hdfs.server.blockmanagement.BlockPlacementPolicyDefault
 import org.apache.hadoop.hdfs.server.namenode.UnsupportedActionException;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorageReport;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.Tool;
@@ -271,7 +271,7 @@ public class Balancer {
     //   over-utilized, above-average, below-average and under-utilized.
     long overLoadedBytes = 0L, underLoadedBytes = 0L;
     for(DatanodeStorageReport r : reports) {
-      final DDatanode dn = dispatcher.newDatanode(r.getDatanodeInfo());
+      final DDatanode dn = dispatcher.newDatanode(r);
       for(StorageType t : StorageType.asList()) {
         final Double utilization = policy.getUtilization(r, t);
         if (utilization == null) { // datanode does not have such storage type 
@@ -295,7 +295,7 @@ public class Balancer {
           }
           g = s;
         } else {
-          g = dn.addTarget(t, maxSize2Move);
+          g = dn.addStorageGroup(t, maxSize2Move);
           if (thresholdDiff <= 0) { // within threshold
             belowAvgUtilized.add(g);
           } else {
@@ -549,10 +549,15 @@ public class Balancer {
     final Formatter formatter = new Formatter(System.out);
     System.out.println("Time Stamp               Iteration#  Bytes Already Moved  Bytes Left To Move  Bytes Being Moved");
     
-    List<NameNodeConnector> connectors = Collections.emptyList();
+    final List<NameNodeConnector> connectors
+        = new ArrayList<NameNodeConnector>(namenodes.size());
     try {
-      connectors = NameNodeConnector.newNameNodeConnectors(namenodes, 
-            Balancer.class.getSimpleName(), BALANCER_ID_PATH, conf);
+      for (URI uri : namenodes) {
+        final NameNodeConnector nnc = new NameNodeConnector(
+            Balancer.class.getSimpleName(), uri, BALANCER_ID_PATH, conf);
+        nnc.getKeyManager().startBlockKeyUpdater();
+        connectors.add(nnc);
+      }
     
       boolean done = false;
       for(int iteration = 0; !done; iteration++) {
@@ -577,7 +582,7 @@ public class Balancer {
       }
     } finally {
       for(NameNodeConnector nnc : connectors) {
-        IOUtils.cleanup(LOG, nnc);
+        nnc.close();
       }
     }
     return ExitStatus.SUCCESS.getExitCode();

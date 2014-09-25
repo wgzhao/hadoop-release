@@ -43,13 +43,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DFSUtil;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.StorageType;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
@@ -87,11 +85,7 @@ public class Dispatcher {
   private static final long MAX_BLOCKS_SIZE_TO_FETCH = 2 * GB;
 
   private static final int MAX_NO_PENDING_MOVE_ITERATIONS = 5;
-  /**
-   * the period of time to delay the usage of a DataNode after hitting
-   * errors when using it for migrating data
-   */
-  private static long delayAfterErrors = 10 * 1000;
+  private static final long DELAY_AFTER_ERROR = 10 * 1000L; // 10 seconds
 
   private final NameNodeConnector nnc;
   private final SaslDataTransferClient saslClient;
@@ -108,14 +102,12 @@ public class Dispatcher {
   private final MovedBlocks<StorageGroup> movedBlocks;
 
   /** Map (datanodeUuid,storageType -> StorageGroup) */
-  private final StorageGroupMap<StorageGroup> storageGroupMap
-      = new StorageGroupMap<StorageGroup>();
+  private final StorageGroupMap storageGroupMap = new StorageGroupMap();
 
   private NetworkTopology cluster;
 
   private final ExecutorService moveExecutor;
   private final ExecutorService dispatchExecutor;
-
   /** The maximum number of concurrent blocks moves at a datanode */
   private final int maxConcurrentMovesPerNode;
 
@@ -147,18 +139,18 @@ public class Dispatcher {
     }
   }
 
-  public static class StorageGroupMap<G extends StorageGroup> {
+  static class StorageGroupMap {
     private static String toKey(String datanodeUuid, StorageType storageType) {
       return datanodeUuid + ":" + storageType;
     }
 
-    private final Map<String, G> map = new HashMap<String, G>();
+    private final Map<String, StorageGroup> map = new HashMap<String, StorageGroup>();
 
-    public G get(String datanodeUuid, StorageType storageType) {
+    StorageGroup get(String datanodeUuid, StorageType storageType) {
       return map.get(toKey(datanodeUuid, storageType));
     }
 
-    public void put(G g) {
+    void put(StorageGroup g) {
       final String key = toKey(g.getDatanodeInfo().getDatanodeUuid(), g.storageType);
       final StorageGroup existing = map.put(key, g);
       Preconditions.checkState(existing == null);
@@ -171,32 +163,24 @@ public class Dispatcher {
     void clear() {
       map.clear();
     }
-
-    public Collection<G> values() {
-      return map.values();
-    }
   }
 
   /** This class keeps track of a scheduled block move */
-  public class PendingMove {
+  private class PendingMove {
     private DBlock block;
     private Source source;
     private DDatanode proxySource;
     private StorageGroup target;
 
-    private PendingMove(Source source, StorageGroup target) {
-      this.source = source;
-      this.target = target;
+    private PendingMove() {
     }
 
     @Override
     public String toString() {
-      final Block b = block != null ? block.getBlock() : null;
-      String bStr = b != null ? (b + " with size=" + b.getNumBytes() + " ")
-          : " ";
-      return bStr + "from " + source.getDisplayName() + " to " + target
-          .getDisplayName() + " through " + (proxySource != null ? proxySource
-          .datanode : "");
+      final Block b = block.getBlock();
+      return b + " with size=" + b.getNumBytes() + " from "
+          + source.getDisplayName() + " to " + target.getDisplayName()
+          + " through " + proxySource.datanode;
     }
 
     /**
@@ -206,11 +190,9 @@ public class Dispatcher {
      * @return true if a block and its proxy are chosen; false otherwise
      */
     private boolean chooseBlockAndProxy() {
-      // source and target must have the same storage type
-      final StorageType t = source.getStorageType();
       // iterate all source's blocks until find a good one
       for (Iterator<DBlock> i = source.getBlockIterator(); i.hasNext();) {
-        if (markMovedIfGoodBlock(i.next(), t)) {
+        if (markMovedIfGoodBlock(i.next())) {
           i.remove();
           return true;
         }
@@ -221,10 +203,10 @@ public class Dispatcher {
     /**
      * @return true if the given block is good for the tentative move.
      */
-    private boolean markMovedIfGoodBlock(DBlock block, StorageType targetStorageType) {
+    private boolean markMovedIfGoodBlock(DBlock block) {
       synchronized (block) {
         synchronized (movedBlocks) {
-          if (isGoodBlockCandidate(source, target, targetStorageType, block)) {
+          if (isGoodBlockCandidate(source, target, block)) {
             this.block = block;
             if (chooseProxySource()) {
               movedBlocks.put(block);
@@ -317,13 +299,12 @@ public class Dispatcher {
         LOG.info("Successfully moved " + this);
       } catch (IOException e) {
         LOG.warn("Failed to move " + this + ": " + e.getMessage());
-        target.getDDatanode().setHasFailure();
         // Proxy or target may have some issues, delay before using these nodes
         // further in order to avoid a potential storm of "threads quota
         // exceeded" warnings when the dispatcher gets out of sync with work
         // going on in datanodes.
-        proxySource.activateDelay(delayAfterErrors);
-        target.getDDatanode().activateDelay(delayAfterErrors);
+        proxySource.activateDelay(DELAY_AFTER_ERROR);
+        target.getDDatanode().activateDelay(DELAY_AFTER_ERROR);
       } finally {
         IOUtils.closeStream(out);
         IOUtils.closeStream(in);
@@ -374,22 +355,9 @@ public class Dispatcher {
   }
 
   /** A class for keeping track of block locations in the dispatcher. */
-  public static class DBlock extends MovedBlocks.Locations<StorageGroup> {
-    public DBlock(Block block) {
+  private static class DBlock extends MovedBlocks.Locations<StorageGroup> {
+    DBlock(Block block) {
       super(block);
-    }
-
-    @Override
-    public synchronized boolean isLocatedOn(StorageGroup loc) {
-      // currently we only check if replicas are located on the same DataNodes
-      // since we do not have the capability to store two replicas in the same
-      // DataNode even though they are on two different storage types
-      for (StorageGroup existing : locations) {
-        if (existing.getDatanodeInfo().equals(loc.getDatanodeInfo())) {
-          return true;
-        }
-      }
-      return false;
     }
   }
 
@@ -409,10 +377,10 @@ public class Dispatcher {
   }
 
   /** A class that keeps track of a datanode. */
-  public static class DDatanode {
+  static class DDatanode {
 
     /** A group of storages in a datanode with the same storage type. */
-    public class StorageGroup {
+    class StorageGroup {
       final StorageType storageType;
       final long maxSize2Move;
       private long scheduledSize = 0L;
@@ -421,26 +389,18 @@ public class Dispatcher {
         this.storageType = storageType;
         this.maxSize2Move = maxSize2Move;
       }
-      
-      public StorageType getStorageType() {
-        return storageType;
-      }
 
       private DDatanode getDDatanode() {
         return DDatanode.this;
       }
 
-      public DatanodeInfo getDatanodeInfo() {
+      DatanodeInfo getDatanodeInfo() {
         return DDatanode.this.datanode;
       }
 
       /** Decide if still need to move more bytes */
-      boolean hasSpaceForScheduling() {
-        return hasSpaceForScheduling(0L);
-      }
-
-      synchronized boolean hasSpaceForScheduling(long size) {
-        return availableSizeToMove() > size;
+      synchronized boolean hasSpaceForScheduling() {
+        return availableSizeToMove() > 0L;
       }
 
       /** @return the total number of bytes that need to be moved */
@@ -449,7 +409,7 @@ public class Dispatcher {
       }
 
       /** increment scheduled size */
-      public synchronized void incScheduledSize(long size) {
+      synchronized void incScheduledSize(long size) {
         scheduledSize += size;
       }
 
@@ -461,18 +421,6 @@ public class Dispatcher {
       /** Reset scheduled size to zero. */
       synchronized void resetScheduledSize() {
         scheduledSize = 0L;
-      }
-
-      private PendingMove addPendingMove(DBlock block, final PendingMove pm) {
-        if (getDDatanode().addPendingBlock(pm)) {
-          if (pm.markMovedIfGoodBlock(block, getStorageType())) {
-            incScheduledSize(pm.block.getNumBytes());
-            return pm;
-          } else {
-            getDDatanode().removePendingBlock(pm);
-          }
-        }
-        return null;
       }
 
       /** @return the name for display */
@@ -487,46 +435,38 @@ public class Dispatcher {
     }
 
     final DatanodeInfo datanode;
-    private final EnumMap<StorageType, Source> sourceMap
-        = new EnumMap<StorageType, Source>(StorageType.class);
-    private final EnumMap<StorageType, StorageGroup> targetMap
+    final EnumMap<StorageType, StorageGroup> storageMap
         = new EnumMap<StorageType, StorageGroup>(StorageType.class);
     protected long delayUntil = 0L;
     /** blocks being moved but not confirmed yet */
     private final List<PendingMove> pendings;
-    private volatile boolean hasFailure = false;
     private final int maxConcurrentMoves;
 
     @Override
     public String toString() {
-      return getClass().getSimpleName() + ":" + datanode;
+      return getClass().getSimpleName() + ":" + datanode + ":" + storageMap.values();
     }
 
-    private DDatanode(DatanodeInfo datanode, int maxConcurrentMoves) {
-      this.datanode = datanode;
+    private DDatanode(DatanodeStorageReport r, int maxConcurrentMoves) {
+      this.datanode = r.getDatanodeInfo();
       this.maxConcurrentMoves = maxConcurrentMoves;
       this.pendings = new ArrayList<PendingMove>(maxConcurrentMoves);
     }
 
-    public DatanodeInfo getDatanodeInfo() {
-      return datanode;
-    }
-
-    private static <G extends StorageGroup> void put(StorageType storageType,
-        G g, EnumMap<StorageType, G> map) {
-      final StorageGroup existing = map.put(storageType, g);
+    private void put(StorageType storageType, StorageGroup g) {
+      final StorageGroup existing = storageMap.put(storageType, g);
       Preconditions.checkState(existing == null);
     }
 
-    public StorageGroup addTarget(StorageType storageType, long maxSize2Move) {
+    StorageGroup addStorageGroup(StorageType storageType, long maxSize2Move) {
       final StorageGroup g = new StorageGroup(storageType, maxSize2Move);
-      put(storageType, g, targetMap);
+      put(storageType, g);
       return g;
     }
 
-    public Source addSource(StorageType storageType, long maxSize2Move, Dispatcher d) {
+    Source addSource(StorageType storageType, long maxSize2Move, Dispatcher d) {
       final Source s = d.new Source(storageType, maxSize2Move, this);
-      put(storageType, s, sourceMap);
+      put(storageType, s);
       return s;
     }
 
@@ -564,14 +504,10 @@ public class Dispatcher {
     synchronized boolean removePendingBlock(PendingMove pendingBlock) {
       return pendings.remove(pendingBlock);
     }
-
-    void setHasFailure() {
-      this.hasFailure = true;
-    }
   }
 
   /** A node that can be the sources of a block move */
-  public class Source extends DDatanode.StorageGroup {
+  class Source extends DDatanode.StorageGroup {
 
     private final List<Task> tasks = new ArrayList<Task>(2);
     private long blocksToReceive = 0L;
@@ -639,11 +575,8 @@ public class Dispatcher {
 
     /** Decide if the given block is a good candidate to move or not */
     private boolean isGoodBlockCandidate(DBlock block) {
-      // source and target must have the same storage type
-      final StorageType sourceStorageType = getStorageType();
       for (Task t : tasks) {
-        if (Dispatcher.this.isGoodBlockCandidate(this, t.target,
-            sourceStorageType, block)) {
+        if (Dispatcher.this.isGoodBlockCandidate(this, t.target, block)) {
           return true;
         }
       }
@@ -663,9 +596,11 @@ public class Dispatcher {
       for (Iterator<Task> i = tasks.iterator(); i.hasNext();) {
         final Task task = i.next();
         final DDatanode target = task.target.getDDatanode();
-        final PendingMove pendingBlock = new PendingMove(this, task.target);
+        PendingMove pendingBlock = new PendingMove();
         if (target.addPendingBlock(pendingBlock)) {
           // target is not busy, so do a tentative block allocation
+          pendingBlock.source = this;
+          pendingBlock.target = task.target;
           if (pendingBlock.chooseBlockAndProxy()) {
             long blockSize = pendingBlock.block.getNumBytes();
             incScheduledSize(-blockSize);
@@ -681,11 +616,6 @@ public class Dispatcher {
         }
       }
       return null;
-    }
-    
-    /** Add a pending move */
-    public PendingMove addPendingMove(DBlock block, StorageGroup target) {
-      return target.addPendingMove(block, new PendingMove(this, target));
     }
 
     /** Iterate all source's blocks to remove moved ones */
@@ -725,7 +655,13 @@ public class Dispatcher {
         if (p != null) {
           // Reset no pending move counter
           noPendingMoveIteration=0;
-          executePendingMove(p);
+          // move the block
+          moveExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+              p.dispatch();
+            }
+          });
           continue;
         }
 
@@ -781,8 +717,7 @@ public class Dispatcher {
     this.cluster = NetworkTopology.getInstance(conf);
 
     this.moveExecutor = Executors.newFixedThreadPool(moverThreads);
-    this.dispatchExecutor = dispatcherThreads == 0? null
-        : Executors.newFixedThreadPool(dispatcherThreads);
+    this.dispatchExecutor = Executors.newFixedThreadPool(dispatcherThreads);
     this.maxConcurrentMovesPerNode = maxConcurrentMovesPerNode;
 
     this.saslClient = new SaslDataTransferClient(
@@ -790,15 +725,11 @@ public class Dispatcher {
         TrustedChannelResolver.getInstance(conf), nnc.fallbackToSimpleAuth);
   }
 
-  public DistributedFileSystem getDistributedFileSystem() {
-    return nnc.getDistributedFileSystem();
-  }
-
-  public StorageGroupMap<StorageGroup> getStorageGroupMap() {
+  StorageGroupMap getStorageGroupMap() {
     return storageGroupMap;
   }
 
-  public NetworkTopology getCluster() {
+  NetworkTopology getCluster() {
     return cluster;
   }
   
@@ -846,7 +777,7 @@ public class Dispatcher {
   }
 
   /** Get live datanode storage reports and then build the network topology. */
-  public List<DatanodeStorageReport> init() throws IOException {
+  List<DatanodeStorageReport> init() throws IOException {
     final DatanodeStorageReport[] reports = nnc.getLiveDatanodeStorageReport();
     final List<DatanodeStorageReport> trimmed = new ArrayList<DatanodeStorageReport>(); 
     // create network topology and classify utilization collections:
@@ -862,18 +793,8 @@ public class Dispatcher {
     return trimmed;
   }
 
-  public DDatanode newDatanode(DatanodeInfo datanode) {
-    return new DDatanode(datanode, maxConcurrentMovesPerNode);
-  }
-
-  public void executePendingMove(final PendingMove p) {
-    // move the block
-    moveExecutor.execute(new Runnable() {
-      @Override
-      public void run() {
-        p.dispatch();
-      }
-    });
+  public DDatanode newDatanode(DatanodeStorageReport r) {
+    return new DDatanode(r, maxConcurrentMovesPerNode);
   }
 
   public boolean dispatchAndCheckContinue() throws InterruptedException {
@@ -913,7 +834,7 @@ public class Dispatcher {
     }
 
     // wait for all block moving to be done
-    waitForMoveCompletion(targets);
+    waitForMoveCompletion();
 
     return bytesMoved.get() - bytesLastMoved;
   }
@@ -921,25 +842,23 @@ public class Dispatcher {
   /** The sleeping period before checking if block move is completed again */
   static private long blockMoveWaitTime = 30000L;
 
-  /**
-   * Wait for all block move confirmations.
-   * @return true if there is failed move execution
-   */
-  public static boolean waitForMoveCompletion(
-      Iterable<? extends StorageGroup> targets) {
-    boolean hasFailure = false;
+  /** set the sleeping period for block move completion check */
+  static void setBlockMoveWaitTime(long time) {
+    blockMoveWaitTime = time;
+  }
+
+  /** Wait for all block move confirmations. */
+  private void waitForMoveCompletion() {
     for(;;) {
       boolean empty = true;
       for (StorageGroup t : targets) {
         if (!t.getDDatanode().isPendingQEmpty()) {
           empty = false;
           break;
-        } else {
-          hasFailure |= t.getDDatanode().hasFailure;
         }
       }
       if (empty) {
-        return hasFailure; // all pending queues are empty
+        return; //all pending queues are empty
       }
       try {
         Thread.sleep(blockMoveWaitTime);
@@ -950,14 +869,14 @@ public class Dispatcher {
 
   /**
    * Decide if the block is a good candidate to be moved from source to target.
-   * A block is a good candidate if
+   * A block is a good candidate if 
    * 1. the block is not in the process of being moved/has not been moved;
    * 2. the block does not have a replica on the target;
    * 3. doing the move does not reduce the number of racks that the block has
    */
-  private boolean isGoodBlockCandidate(StorageGroup source, StorageGroup target,
-      StorageType targetStorageType, DBlock block) {
-    if (target.storageType != targetStorageType) {
+  private boolean isGoodBlockCandidate(Source source, StorageGroup target,
+      DBlock block) {
+    if (source.storageType != target.storageType) {
       return false;
     }
     // check if the block is moved or not
@@ -968,7 +887,7 @@ public class Dispatcher {
       return false;
     }
     if (cluster.isNodeGroupAware()
-        && isOnSameNodeGroupWithReplicas(source, target, block)) {
+        && isOnSameNodeGroupWithReplicas(target, block, source)) {
       return false;
     }
     if (reduceNumOfRacks(source, target, block)) {
@@ -981,7 +900,7 @@ public class Dispatcher {
    * Determine whether moving the given block replica from source to target
    * would reduce the number of racks of the block replicas.
    */
-  private boolean reduceNumOfRacks(StorageGroup source, StorageGroup target,
+  private boolean reduceNumOfRacks(Source source, StorageGroup target,
       DBlock block) {
     final DatanodeInfo sourceDn = source.getDatanodeInfo();
     if (cluster.isOnSameRack(sourceDn, target.getDatanodeInfo())) {
@@ -1014,12 +933,12 @@ public class Dispatcher {
    * Check if there are any replica (other than source) on the same node group
    * with target. If true, then target is not a good candidate for placing
    * specific replica as we don't want 2 replicas under the same nodegroup.
-   *
+   * 
    * @return true if there are any replica (other than source) on the same node
    *         group with target
    */
-  private boolean isOnSameNodeGroupWithReplicas(StorageGroup source,
-      StorageGroup target, DBlock block) {
+  private boolean isOnSameNodeGroupWithReplicas(
+      StorageGroup target, DBlock block, Source source) {
     final DatanodeInfo targetDn = target.getDatanodeInfo();
     for (StorageGroup g : block.getLocations()) {
       if (g != source && cluster.isOnSameNodeGroup(g.getDatanodeInfo(), targetDn)) {
@@ -1039,22 +958,9 @@ public class Dispatcher {
     movedBlocks.cleanup();
   }
 
-  /** set the sleeping period for block move completion check */
-  @VisibleForTesting
-  public static void setBlockMoveWaitTime(long time) {
-    blockMoveWaitTime = time;
-  }
-
-  @VisibleForTesting
-  public static void setDelayAfterErrors(long time) {
-    delayAfterErrors = time;
-  }
-
   /** shutdown thread pools */
-  public void shutdownNow() {
-    if (dispatchExecutor != null) {
-      dispatchExecutor.shutdownNow();
-    }
+  void shutdownNow() {
+    dispatchExecutor.shutdownNow();
     moveExecutor.shutdownNow();
   }
 
