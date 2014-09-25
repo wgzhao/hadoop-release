@@ -599,6 +599,9 @@ Release 2.6.0 - UNRELEASED
     HDFS-7130. TestDataTransferKeepalive fails intermittently on Windows.
     (cnauroth)
 
+    HDFS-7111. TestSafeMode assumes Unix line endings in safe mode tip.
+    (cnauroth)
+
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
