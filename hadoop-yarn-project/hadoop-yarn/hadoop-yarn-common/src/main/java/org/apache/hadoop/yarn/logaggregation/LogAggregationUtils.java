@@ -28,6 +28,8 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @Private
 public class LogAggregationUtils {
 
+  public static final String TMP_FILE_SUFFIX = ".tmp";
+
   /**
    * Constructs the full filename for an application's log file per node.
    * @param remoteRootLogDir
@@ -102,8 +104,11 @@ public class LogAggregationUtils {
    * @param nodeId
    * @return the node string to be used to construct the file name.
    */
-  private static String getNodeString(NodeId nodeId) {
+  public static String getNodeString(NodeId nodeId) {
     return nodeId.toString().replace(":", "_");
   }
-  
+
+  public static String getNodeString(String nodeId) {
+    return nodeId.replace(":", "_");
+  }
 }

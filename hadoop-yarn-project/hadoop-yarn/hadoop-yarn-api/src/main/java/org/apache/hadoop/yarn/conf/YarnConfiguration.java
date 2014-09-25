@@ -666,7 +666,7 @@ public class YarnConfiguration extends Configuration {
   public static final String LOG_AGGREGATION_ENABLED = YARN_PREFIX
       + "log-aggregation-enable";
   public static final boolean DEFAULT_LOG_AGGREGATION_ENABLED = false;
-  
+
   /** 
    * How long to wait before deleting aggregated logs, -1 disables.
    * Be careful set this too small and you will spam the name node.
@@ -675,6 +675,13 @@ public class YarnConfiguration extends Configuration {
       + "log-aggregation.retain-seconds";
   public static final long DEFAULT_LOG_AGGREGATION_RETAIN_SECONDS = -1;
   
+  /**
+   * How many logs NM could save per application.
+   */
+  public static final String NM_LOG_AGGREGATION_RETAIN_RETENTION_SIZE_PER_APP
+      = NM_PREFIX + "history-log.retention-size.per-app";
+  public static final int DEFAULT_NM_LOG_AGGREGATION_RETAIN_RETENTION_SIZE_PER_APP
+      = 30;
   /**
    * How long to wait between aggregated log retention checks. If set to
    * a value <= 0 then the value is computed as one-tenth of the log retention
