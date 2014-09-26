@@ -1407,9 +1407,10 @@ public class FSDirectory implements Closeable {
       if (srcs.endsWith(HdfsConstants.SEPARATOR_DOT_SNAPSHOT_DIR)) {
         return getSnapshotsListing(srcs, startAfter);
       }
-      final INodesInPath inodesInPath = getLastINodeInPath(srcs);
+      final INodesInPath inodesInPath = getINodesInPath(srcs, true);
+      final INode[] inodes = inodesInPath.getINodes();
       final int snapshot = inodesInPath.getPathSnapshotId();
-      final INode targetNode = inodesInPath.getLastINode();
+      final INode targetNode = inodes[inodes.length - 1];
       if (targetNode == null)
         return null;
       byte parentStoragePolicy = isSuperUser ?
@@ -2179,7 +2180,6 @@ public class FSDirectory implements Closeable {
       }
     }
   }
-
   
   /**
    * This method is always called with writeLock of FSDirectory held.
