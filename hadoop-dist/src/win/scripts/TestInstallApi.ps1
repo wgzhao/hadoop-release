@@ -289,6 +289,18 @@ function ValidateXmlConfigValue($xmlFileName, $key, $expectedValue)
     }
 }
 
+function ValidateServiceXmlArgumentsValue($xmlFileName, $expectedValue)
+{
+    $xml = [xml](gc $xmlFileName)
+    [string]$result = $xml.service.arguments
+    if ( ($result -eq $null) -or (-not ( $result -eq $expectedValue ) ) )
+    {
+        throw "TEST FAILED: Value $expectedValue not found in the service xml file"
+    }
+}
+
+
+
 function TestUpdateXmlConfig()
 {
     $xmlTemplate = "<?xml version=`"1.0`"?>`
@@ -314,6 +326,35 @@ function TestUpdateXmlConfig()
     ValidateXmlConfigValue $testFile "key1" "value1Updated"
     ValidateXmlConfigValue $testFile "key2" "value2"
     ValidateXmlConfigValue $testFile "key3" "value3"
+}
+
+function TestUpdateServiceXmlConfig()
+{
+    $xmlTemplate = "<?xml version=`"1.0`"?>`
+    <service>`
+    <arguments>-server -Xmx4096m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode</arguments>
+    </service>"
+    $testFile = Join-Path $ScriptDir "testFile.xml"
+    write-output $xmlTemplate | out-file -encoding ascii $testFile
+    
+    ### Create empty configuration xml
+    UpdateServiceXmlConfig $testFile
+    ValidateServiceXmlArgumentsValue $testFile "-server -Xmx4096m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode"
+
+    ### Add two properties to it
+    UpdateServiceXmlConfig $testFile @{"Xms" = "-Xms256m";"Xmx" = "-Xmx512m"}
+    ValidateServiceXmlArgumentsValue $testFile "-Xms256m -server -Xmx512m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode"
+
+    ### Add a D flag, test special chars
+    UpdateServiceXmlConfig $testFile @{"Dhadoop\sroot.logger" = """-Dhadoop\sroot.logger=INFO,console,DRFA,ETW,FilterLog"""}
+    ValidateServiceXmlArgumentsValue $testFile """-Dhadoop\sroot.logger=INFO,console,DRFA,ETW,FilterLog"" -Xms256m -server -Xmx512m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode"
+
+    UpdateServiceXmlConfig $testFile @{"Dhadoop\sroot.logger" = """-Dhadoop\sroot.logger=INFO,console,DRFA,ETW,FilterLog"""}
+    ValidateServiceXmlArgumentsValue $testFile " ""-Dhadoop\sroot.logger=INFO,console,DRFA,ETW,FilterLog"" -Xms256m -server -Xmx512m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode"
+
+    ### Add an equal sign with space, test special one
+    UpdateServiceXmlConfig $testFile @{"XX:HeapDumpPath" = "-XX:OnOutOfMemoryError=""testing this"""}
+    ValidateServiceXmlArgumentsValue $testFile "-XX:OnOutOfMemoryError=""testing this""  ""-Dhadoop\sroot.logger=INFO,console,DRFA,ETW,FilterLog"" -Xms256m -server -Xmx512m -classpath org.apache.hadoop.hdfs.server.namenode.NameNode"
 }
 
 function CoreConfigureTestBasic()
@@ -552,6 +593,7 @@ try
     InstallAllTestIdempotent
     EmptyPasswordInstallTest
     TestUpdateXmlConfig
+    TestUpdateServiceXmlConfig
     CoreConfigureTestBasic
     CoreConfigureWithFileTestBasic
     InstallAndConfigAllTestBasic

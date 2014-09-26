@@ -368,7 +368,14 @@ function InstallCore(
 
     $xcopy_cmd = "xcopy /EIYF `"$HDP_INSTALL_PATH\..\template\conf\dfs.*`" `"$hadoopInstallToDir\etc\hadoop`""
     Invoke-CmdChk $xcopy_cmd
+	
+    ###
+    ###  Copy OnOutOfMemory Script file
+    ###   
 
+    $xcopy_cmd = "xcopy /EIYF `"$HDP_INSTALL_PATH\..\resources\OnOutOfMemory.cmd`" `"$hadoopInstallToDir\bin`""
+    Invoke-CmdChk $xcopy_cmd
+	
     ###
     ### Grant Hadoop user access to $hadoopInstallToDir
     ###
@@ -1132,6 +1139,64 @@ function UpdateXmlConfig(
     $xml.ReleasePath
 }
 
+### Helper routine that updates the given fileName XML file with the given
+### configuration values. The XML file is expected to be in the service
+### XML format. For example:
+### <service>
+###   <arguments>
+###     -Xms1024m -server -Xmx2048m -Dhadoop.root.logger=INFO
+###   </arguments>
+### </service>
+###
+### Example config hashmap entries:
+###   key: Xms
+###   value: -Xms1024m
+function UpdateServiceXmlConfig(
+    [string]
+    [parameter( Position=0, Mandatory=$true )]
+    $fileName,
+    [hashtable]
+    [parameter( Position=1 )]
+    $config = @{} )
+{
+    $xml = New-Object System.Xml.XmlDocument
+    $xml.PreserveWhitespace = $true
+    $xml.Load($fileName)
+
+    [string]$value = $xml.service.arguments
+
+    foreach( $key in empty-null $config.Keys )
+    {
+        # Given how java cmd line args are defined, the only thing
+        # we can do at this point is match as prefix. If this turns
+        # out to be buggy, we should introduce strongly named configs
+        # which are configurable.
+
+        $newArg = $config[$key]
+        $escapedKey = [regex]::escape($key)
+        # Regex that matches config arg with the following properties
+        #  - It is on the beggining of a line or prefixed with space
+        #  - It is on the end of a line or followed with a space (quoted or unquoted)
+        #  - it contains the given key followed by: 0-9a-zA-Z\p{P}\p{S}=
+        $regex = "(^| |(^| )"")-$escapedKey((""[\p{N}\p{L}\p{P}\p{Z}\p{S}]*"")|[\p{N}\p{L}\p{P}\p{S}=])*?($| |""(^| ))"
+
+        if ( $value -imatch $regex )
+        {
+            $value = $value -ireplace $regex, " $newArg "
+        }
+        else
+        {
+            # add a new entry to the beginning
+            $value = $config[$key] + " " + $value
+        }
+    }
+
+    $xml.service.arguments = $value
+
+    $xml.Save($fileName)
+    $xml.ReleasePath
+}
+
 ### Helper routine that converts a path in url into a Windows path are are
 ### recognizable by normal Windows commands. For example:
 ###  file:///c:/hdfs/dn -> c:\hdfs\dn
@@ -1460,6 +1525,51 @@ function ConfigureCore(
     }
 }
 
+### Helper method that extracts all javaargs configs from the "config"
+### hashmap and applies them to corresponding service.xml.
+### The function returns the list of configs that are not specific to this
+### service.
+### Example config:
+###   javaargs.datanode.Xms = -Xms256m
+### Note that Xms and Xmx configs are case sensitive.
+function ConfigureServiceXml(
+    [string]
+    [parameter( Position=0, Mandatory=$true )]
+    $serviceXmlFileName,
+    [string]
+    [parameter( Position=1, Mandatory=$true )]
+    $serviceName,
+    [hashtable]
+    [parameter( Position=2 )]
+    $config = @{} )
+{
+    [hashtable]$newConfig = @{}
+    [hashtable]$newServiceConfig = @{}
+    foreach( $key in empty-null $config.Keys )
+    {
+        [string]$keyString = $key
+        $value = $config[$key]
+        if ( $keyString.StartsWith("javaargs.$serviceName.", "InvariantCultureIgnoreCase") )
+        {
+            # remove the prefix to align with UpdateServiceXmlConfig contract
+            $newKey = $key -ireplace "javaargs\.$serviceName\.", ""
+            $newServiceConfig.Add($newKey, $value) > $null
+        }
+        else
+        {
+            $newConfig.Add($key, $value) > $null
+        }
+    }
+
+    # skip update if there are no service config changes
+    if ($newServiceConfig.Count -gt 0)
+    {
+        UpdateServiceXmlConfig $serviceXmlFileName $newServiceConfig > $null
+    }
+
+    $newConfig
+}
+
 ###############################################################################
 ###
 ### Alters the configuration of the Hadoop HDFS component.
@@ -1494,6 +1604,19 @@ function ConfigureHdfs(
 
     ### TODO: Support JBOD and NN replication
 
+    ###
+    ### Apply configuration changes to service xmls
+    ###
+    foreach( $service in ("namenode", "datanode", "secondarynamenode"))
+    {
+        $serviceXmlFile = Join-Path $hadoopInstallToDir "bin\$service.xml"
+        # Apply configs only if the service xml exist
+        if ( Test-Path $serviceXmlFile )
+        {
+            [hashtable]$configs = ConfigureServiceXml $serviceXmlFile $service $configs
+        }
+    }
+	
     ###
     ### Apply configuration changes to hdfs-site.xml
     ###
@@ -1608,6 +1731,19 @@ function ConfigureMapRed(
     {
         throw "ConfigureMapRed: InstallCore and InstallMapRed must be called before ConfigureMapRed"
     }
+	
+    ###
+    ### Apply configuration changes to service xmls
+    ###
+    foreach( $service in ("jobclient", "jobhistoryserver"))
+    {
+        $serviceXmlFile = Join-Path $hadoopInstallToDir "bin\$service.xml"
+        # Apply configs only if the service xml exist
+        if ( Test-Path $serviceXmlFile )
+        {
+            [hashtable]$configs = ConfigureServiceXml $serviceXmlFile $service $configs
+        }
+    }
 
     ###
     ### Apply configuration changes to mapred-site.xml
@@ -1670,6 +1806,19 @@ function ConfigureYarn(
     if( -not (Test-Path $hadoopInstallToDir ))
     {
         throw "ConfigureYarn: InstallCore and InstallYarn must be called before ConfigureYarn"
+    }
+	
+    ###
+    ### Apply configuration changes to service xmls
+    ###
+    foreach( $service in ("resourcemanager", "nodemanager", "timelineserver"))
+    {
+        $serviceXmlFile = Join-Path $hadoopInstallToDir "bin\$service.xml"
+        # Apply configs only if the service xml exist
+        if ( Test-Path $serviceXmlFile )
+        {
+            [hashtable]$configs = ConfigureServiceXml $serviceXmlFile $service $configs
+        }
     }
 
     ###
@@ -2178,4 +2327,5 @@ Export-ModuleMember -Function ConvertToFileURI
 ### Private API (exposed for test only)
 ###
 Export-ModuleMember -Function UpdateXmlConfig
+Export-ModuleMember -Function UpdateServiceXmlConfig
 Export-ModuleMember -Function ProcessAliasConfigOptions
