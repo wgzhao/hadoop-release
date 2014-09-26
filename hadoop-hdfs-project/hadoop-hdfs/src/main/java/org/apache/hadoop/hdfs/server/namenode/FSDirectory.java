@@ -1540,7 +1540,8 @@ public class FSDirectory implements Closeable {
       byte policyId = includeStoragePolicy && i != null && !i.isSymlink() ?
           i.getStoragePolicyID() : BlockStoragePolicySuite.ID_UNSPECIFIED;
       return i == null ? null : createFileStatus(HdfsFileStatus.EMPTY_NAME, i,
-          policyId, inodesInPath.getPathSnapshotId(), isRawPath, inodesInPath);
+          policyId, inodesInPath.getPathSnapshotId(), isRawPath,
+          inodesInPath);
     } finally {
       readUnlock();
     }
@@ -2858,7 +2859,7 @@ public class FSDirectory implements Closeable {
    * @return consolidated file encryption info; null for non-encrypted files
    */
   FileEncryptionInfo getFileEncryptionInfo(INode inode, int snapshotId,
-                                           INodesInPath iip) throws IOException {
+      INodesInPath iip) throws IOException {
     if (!inode.isFile()) {
       return null;
     }
@@ -3060,7 +3061,7 @@ public class FSDirectory implements Closeable {
   }
 
   private XAttr unprotectedGetXAttrByName(INode inode, int snapshotId,
-                                          String xAttrName)
+      String xAttrName)
       throws IOException {
     List<XAttr> xAttrs = XAttrStorage.readINodeXAttrs(inode, snapshotId);
     if (xAttrs == null) {
