@@ -159,6 +159,7 @@ public class HttpFSFileSystem extends FileSystem
   public static final String XATTR_NAME_JSON = "name";
   public static final String XATTR_VALUE_JSON = "value";
   public static final String XATTRNAMES_JSON = "XAttrNames";
+  public static final String LAZY_PERSIST_JSON = "LazyPersist";
 
   public static final String FILE_CHECKSUM_JSON = "FileChecksum";
   public static final String CHECKSUM_ALGORITHM_JSON = "algorithm";
@@ -947,19 +948,20 @@ public class HttpFSFileSystem extends FileSystem
     long mTime = (Long) json.get(MODIFICATION_TIME_JSON);
     long blockSize = (Long) json.get(BLOCK_SIZE_JSON);
     short replication = ((Long) json.get(REPLICATION_JSON)).shortValue();
+    boolean isLazyPersist = ((Boolean) json.get(LAZY_PERSIST_JSON)).booleanValue();
     FileStatus fileStatus = null;
 
     switch (type) {
       case FILE:
       case DIRECTORY:
         fileStatus = new FileStatus(len, (type == FILE_TYPE.DIRECTORY),
-                                    replication, blockSize, mTime, aTime,
-                                    permission, owner, group, path);
+                                    replication, blockSize, false, mTime, aTime,
+                                    permission, owner, group, null, path);
         break;
       case SYMLINK:
         Path symLink = null;
         fileStatus = new FileStatus(len, false,
-                                    replication, blockSize, mTime, aTime,
+                                    replication, blockSize, isLazyPersist, mTime, aTime,
                                     permission, owner, group, symLink,
                                     path);
     }

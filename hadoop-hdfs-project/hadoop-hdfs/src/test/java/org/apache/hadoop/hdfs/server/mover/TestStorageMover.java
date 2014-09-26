@@ -340,7 +340,7 @@ public class TestStorageMover {
         Assert.assertTrue(fileStatus.getFullName(parent.toString())
             + " with policy " + policy + " has non-empty overlap: " + diff
             + ", the corresponding block is " + lb.getBlock().getLocalBlock(),
-            diff.removeOverlap());
+            diff.removeOverlap(true));
       }
     }
     
