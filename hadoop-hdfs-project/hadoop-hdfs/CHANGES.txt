@@ -755,6 +755,9 @@ Release 2.6.0 - UNRELEASED
     HDFS-6904. YARN unable to renew delegation token fetched via webhdfs due to
     incorrect service port (jitendra)
 
+    HDFS-6664. HDFS permissions guide documentation states incorrect default
+    group mapping class. (Ray Chiang via aw)
+
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
