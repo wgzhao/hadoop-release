@@ -771,7 +771,7 @@ function UninstallHdfs(
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
 ###     mapredRole: Space separated list of MapRed roles that should be installed.
-###               (for example, "historyserver")
+###               (for example, "timelineserver")
 ###
 ###############################################################################
 function InstallMapRed(
@@ -947,12 +947,12 @@ function InstallYarn(
 
     if( $yarnRole -eq $null )
     {
-        $yarnRole = "resourcemanager nodemanager historyserver"
+        $yarnRole = "resourcemanager nodemanager timelineserver"
     }
 
     $yarnRole = $yarnRole.Trim()
     ### Verify that yarnRoles are in the supported set
-    CheckRole $yarnRole @("resourcemanager","nodemanager","historyserver")
+    CheckRole $yarnRole @("resourcemanager","nodemanager","timelineserver")
 
     $HDP_INSTALL_PATH, $HDP_RESOURCES_DIR = Initialize-InstallationEnv $ScriptDir "hadoop-@version@.winpkg.log"
     Test-JavaHome
@@ -997,9 +997,9 @@ function InstallYarn(
             Write-Log "Creating service config ${hadoopInstallToBin}\$service.xml"
             $cmd = "$hadoopInstallToBin\yarn.cmd --service $service > `"$hadoopInstallToBin\$service.xml`""
             Invoke-CmdChk $cmd
-            if ( $service -eq "historyserver")
+            if ( $service -eq "timelineserver")
             {
-                Write-Log "Renaming 'Apache Hadoop historyserver' to 'Apache Hadoop YARN TimelineServer'"
+                Write-Log "Renaming 'Apache Hadoop timelineserver' to 'Apache Hadoop YARN TimelineServer'"
                 $cmd="$ENV:WINDIR\system32\sc.exe config $service DisplayName= " +'"Apache Hadoop YARN TimelineServer"'
                 Invoke-CmdChk $cmd
             }
@@ -1037,7 +1037,7 @@ function UninstallYarn(
     ###
     ### Stop and delete services
     ###
-    foreach( $service in ("resourcemanager", "nodemanager", "historyserver"))
+    foreach( $service in ("resourcemanager", "nodemanager", "timelineserver"))
     {
         StopAndDeleteHadoopService $service
     }
@@ -1687,7 +1687,7 @@ function ConfigureYarn(
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
 ###     role: Space separated list of roles that should be installed.
-###           (for example, "resourcemanager historyserver" for mapreduce)
+###           (for example, "resourcemanager timelineserver" for mapreduce)
 ###
 ###############################################################################
 function Install(
@@ -2040,7 +2040,7 @@ function StopService(
     elseif ( $component -eq "yarn" )
     {
         ### Verify that roles are in the supported set
-        CheckRole $roles @("resourcemanager","nodemanager","historyserver")
+        CheckRole $roles @("resourcemanager","nodemanager","timelineserver")
 
         foreach ( $role in $roles -Split("\s+") )
         {

@@ -59,7 +59,7 @@ param(
     [String]
     $hdfsRoles = "namenode datanode secondarynamenode",
     [String]
-    $yarnRoles = "nodemanager resourcemanager historyserver",
+    $yarnRoles = "nodemanager resourcemanager timelineserver",
     [String]
     $mapredRoles = "jobhistoryserver",
     [Switch]
@@ -119,7 +119,7 @@ function Main( $scriptDir )
     StopService "mapreduce" "jobhistoryserver"
 
     Write-Log "Stoppping Yarn services if already running before proceeding with Install"
-    StopService "yarn" "resourcemanager nodemanager historyserver"
+    StopService "yarn" "resourcemanager nodemanager timelineserver"
 
     Write-Log "Stopping HDFS services if already running before proceeding with install"
     StopService "hdfs" "namenode datanode secondarynamenode"
@@ -136,7 +136,7 @@ function Main( $scriptDir )
             if ($role -eq "RESOURCEMANAGER" ) {
                 $mapredRoles = $mapredRoles+" "+"jobhistoryserver"
                 $yarnRoles = $yarnRoles+" "+"resourcemanager"
-                $yarnRoles = $yarnRoles+" "+"historyserver"
+                $yarnRoles = $yarnRoles+" "+"timelineserver"
             }
             if ($role -eq "SLAVE" ) {
                 $yarnRoles = $yarnRoles+" "+"nodemanager"
@@ -157,7 +157,7 @@ function Main( $scriptDir )
             if (($role -eq "RM_HA_STANDBY_RESOURCEMANAGER" ) -and ($ENV:HA -ieq "yes")) {
                 $hdfsroles = $hdfsroles+" "+"zkfc"
                 $yarnRoles = $yarnRoles+" "+"resourcemanager"
-                $yarnRoles = $yarnRoles+" "+"historyserver"
+                $yarnRoles = $yarnRoles+" "+"timelineserver"
             }
         }
     }
