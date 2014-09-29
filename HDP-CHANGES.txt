@@ -10,6 +10,8 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
   IMPROVEMENTS
 
+    HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
