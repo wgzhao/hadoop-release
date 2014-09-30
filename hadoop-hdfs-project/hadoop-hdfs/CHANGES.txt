@@ -704,6 +704,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7167. NPE while running Mover if the given path is for a file. (jing9)
 
+    HDFS-6904. YARN unable to renew delegation token fetched via webhdfs due to
+    incorrect service port (jitendra)
+
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
