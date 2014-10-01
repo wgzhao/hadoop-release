@@ -357,7 +357,6 @@ public class DFSOutputStream extends FSOutputSummer
     private long restartDeadline = 0; // Deadline of DN restart
     private BlockConstructionStage stage;  // block construction stage
     private long bytesSent = 0; // number of bytes that've been sent
-    private final boolean isLazyPersistFile;
 
     /** Nodes have been used in the pipeline before and have failed. */
     private final List<DatanodeInfo> failed = new ArrayList<DatanodeInfo>();
@@ -374,16 +373,15 @@ public class DFSOutputStream extends FSOutputSummer
     /**
      * Default construction for file create
      */
-    private DataStreamer(HdfsFileStatus stat) {
-      this(stat, null);
+    private DataStreamer() {
+      this(null);
     }
 
     /**
      * construction with tracing info
      */
-    private DataStreamer(HdfsFileStatus stat, Span span) {
+    private DataStreamer(Span span) {
       isAppend = false;
-      isLazyPersistFile = stat.isLazyPersist();
       stage = BlockConstructionStage.PIPELINE_SETUP_CREATE;
       traceSpan = span;
     }
@@ -403,7 +401,6 @@ public class DFSOutputStream extends FSOutputSummer
       block = lastBlock.getBlock();
       bytesSent = block.getNumBytes();
       accessToken = lastBlock.getBlockToken();
-      isLazyPersistFile = stat.isLazyPersist();
       long usedInLastBlock = stat.getLen() % blockSize;
       int freeInLastBlock = (int)(blockSize - usedInLastBlock);
 
@@ -1396,7 +1393,7 @@ public class DFSOutputStream extends FSOutputSummer
           new Sender(out).writeBlock(blockCopy, nodeStorageTypes[0], accessToken,
               dfsClient.clientName, nodes, nodeStorageTypes, null, bcs, 
               nodes.length, block.getNumBytes(), bytesSent, newGS, checksum,
-              cachingStrategy.get(), isLazyPersistFile);
+              cachingStrategy.get());
   
           // receive ack for connect
           BlockOpResponseProto resp = BlockOpResponseProto.parseFrom(
@@ -1649,7 +1646,7 @@ public class DFSOutputStream extends FSOutputSummer
     if (Trace.isTracing()) {
       traceSpan = Trace.startSpan(this.getClass().getSimpleName()).detach();
     }
-    streamer = new DataStreamer(stat, traceSpan);
+    streamer = new DataStreamer(traceSpan);
     if (favoredNodes != null && favoredNodes.length != 0) {
       streamer.setFavoredNodes(favoredNodes);
     }
@@ -1727,7 +1724,7 @@ public class DFSOutputStream extends FSOutputSummer
     } else {
       computePacketChunkSize(dfsClient.getConf().writePacketSize,
           checksum.getBytesPerChecksum());
-      streamer = new DataStreamer(stat, traceSpan);
+      streamer = new DataStreamer(traceSpan);
     }
     this.fileEncryptionInfo = stat.getFileEncryptionInfo();
   }

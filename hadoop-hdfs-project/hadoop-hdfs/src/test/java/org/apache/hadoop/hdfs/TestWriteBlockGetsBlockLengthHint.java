@@ -98,10 +98,9 @@ public class TestWriteBlockGetsBlockLengthHint {
      */
     @Override
     public synchronized ReplicaInPipelineInterface createRbw(
-        StorageType storageType, ExtendedBlock b, boolean allowLazyPersist)
-        throws IOException {
+        StorageType storageType, ExtendedBlock b) throws IOException {
       assertThat(b.getLocalBlock().getNumBytes(), is(EXPECTED_BLOCK_LENGTH));
-      return super.createRbw(storageType, b, allowLazyPersist);
+      return super.createRbw(storageType, b);
     }
   }
 }

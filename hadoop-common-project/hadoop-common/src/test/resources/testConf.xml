@@ -436,7 +436,7 @@
       <comparators>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^-put \[-f\] \[-p\] \[-l\] &lt;localsrc&gt; \.\.\. &lt;dst&gt; :( )*</expected-output>
+          <expected-output>^-put \[-f\] \[-p\] &lt;localsrc&gt; \.\.\. &lt;dst&gt; :\s*</expected-output>
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
@@ -444,31 +444,15 @@
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^\s*exists, unless the -f flag is given.( )*</expected-output>
+          <expected-output>^\s*exists, unless the -f flag is given.( )*Passing -p preserves access and( )*</expected-output>
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^\s*Flags:( )*</expected-output>
+          <expected-output>^\s*modification times, ownership and the mode. Passing -f overwrites the( )*</expected-output>
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^\s*-p  Preserves access and modification times, ownership and the mode.( )*</expected-output>
-        </comparator>
-        <comparator>
-          <type>RegexpComparator</type>
-          <expected-output>^\s*-f  Overwrites the destination if it already exists.( )*</expected-output>
-        </comparator>
-        <comparator>
-          <type>RegexpComparator</type>
-          <expected-output>^\s*-l  Allow DataNode to lazily persist the file to disk. Forces( )*</expected-output>
-        </comparator>
-        <comparator>
-          <type>RegexpComparator</type>
-          <expected-output>^\s*replication factor of 1. This flag will result in reduced( )*</expected-output>
-        </comparator>
-        <comparator>
-          <type>RegexpComparator</type>
-          <expected-output>^\s*durability. Use with care.( )*</expected-output>
+          <expected-output>^( |\t)*destination if it already exists.( )*</expected-output>
         </comparator>
       </comparators>
     </test>
@@ -483,7 +467,7 @@
       <comparators>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^-copyFromLocal \[-f\] \[-p\] \[-l\] &lt;localsrc&gt; \.\.\. &lt;dst&gt; :\s*</expected-output>
+          <expected-output>^-copyFromLocal \[-f\] \[-p\] &lt;localsrc&gt; \.\.\. &lt;dst&gt; :\s*</expected-output>
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
@@ -798,7 +782,7 @@
         </comparator>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^( |\t)*\(%y, %Y\), lazyPersist flag \(\%l\)( )*</expected-output>
+          <expected-output>^( |\t)*\(%y, %Y\)( )*</expected-output>
         </comparator>
       </comparators>
     </test>

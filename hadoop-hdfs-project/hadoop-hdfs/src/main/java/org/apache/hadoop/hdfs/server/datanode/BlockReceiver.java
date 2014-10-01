@@ -139,8 +139,7 @@ class BlockReceiver implements Closeable {
       final long newGs, final long minBytesRcvd, final long maxBytesRcvd, 
       final String clientname, final DatanodeInfo srcDataNode,
       final DataNode datanode, DataChecksum requestedChecksum,
-      CachingStrategy cachingStrategy,
-      final boolean allowLazyPersist) throws IOException {
+      CachingStrategy cachingStrategy) throws IOException {
     try{
       this.block = block;
       this.in = in;
@@ -181,7 +180,7 @@ class BlockReceiver implements Closeable {
       } else {
         switch (stage) {
         case PIPELINE_SETUP_CREATE:
-          replicaInfo = datanode.data.createRbw(storageType, block, allowLazyPersist);
+          replicaInfo = datanode.data.createRbw(storageType, block);
           datanode.notifyNamenodeReceivingBlock(
               block, replicaInfo.getStorageUuid());
           break;

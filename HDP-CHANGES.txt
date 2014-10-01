@@ -4,10 +4,6 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
   NEW FEATURES
 
-    HDFS-6581. HDFS Support for Writing to Memory. Consolidated patch from
-    Apache branch HDFS-6581 (diff between Apache git commit IDs e96ce6f and
-    2639779, with editsStored from HDFS-7071).
-
   IMPROVEMENTS
 
   BUG FIXES

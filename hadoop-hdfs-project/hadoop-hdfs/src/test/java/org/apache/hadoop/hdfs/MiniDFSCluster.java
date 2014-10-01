@@ -1343,7 +1343,6 @@ public class MiniDFSCluster {
     }
 
     int curDatanodesNum = dataNodes.size();
-    final int curDatanodesNumSaved = curDatanodesNum;
     // for mincluster's the default initialDelay for BRs is 0
     if (conf.get(DFS_BLOCKREPORT_INITIAL_DELAY_KEY) == null) {
       conf.setLong(DFS_BLOCKREPORT_INITIAL_DELAY_KEY, 0);
@@ -1394,8 +1393,7 @@ public class MiniDFSCluster {
       // Set up datanode address
       setupDatanodeAddress(dnConf, setupHostsFile, checkDataNodeAddrConfig);
       if (manageDfsDirs) {
-        String dirs = makeDataNodeDirs(i, storageTypes == null ?
-          null : storageTypes[i - curDatanodesNum]);
+        String dirs = makeDataNodeDirs(i, storageTypes == null ? null : storageTypes[i]);
         dnConf.set(DFS_DATANODE_DATA_DIR_KEY, dirs);
         conf.set(DFS_DATANODE_DATA_DIR_KEY, dirs);
       }

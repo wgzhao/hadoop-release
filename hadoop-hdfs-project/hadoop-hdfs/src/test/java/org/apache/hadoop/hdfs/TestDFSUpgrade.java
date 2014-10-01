@@ -229,7 +229,6 @@ public class TestDFSUpgrade {
       conf = UpgradeUtilities.initializeStorageStateConf(numDirs, conf);
       String[] nameNodeDirs = conf.getStrings(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY);
       String[] dataNodeDirs = conf.getStrings(DFSConfigKeys.DFS_DATANODE_DATA_DIR_KEY);
-      conf.setBoolean(DFSConfigKeys.DFS_DATANODE_DUPLICATE_REPLICA_DELETION, false);
       
       log("Normal NameNode upgrade", numDirs);
       UpgradeUtilities.createNameNodeStorageDirs(nameNodeDirs, "current");
@@ -371,7 +370,6 @@ public class TestDFSUpgrade {
     {
       conf = new HdfsConfiguration();
       conf.setInt(DFSConfigKeys.DFS_DATANODE_SCAN_PERIOD_HOURS_KEY, -1);      
-      conf.setBoolean(DFSConfigKeys.DFS_DATANODE_DUPLICATE_REPLICA_DELETION, false);
       conf = UpgradeUtilities.initializeStorageStateConf(numDirs, conf);
       String[] nameNodeDirs = conf.getStrings(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY);
       
@@ -407,7 +405,6 @@ public class TestDFSUpgrade {
     int numDirs = 4;
     conf = new HdfsConfiguration();
     conf.setInt(DFSConfigKeys.DFS_DATANODE_SCAN_PERIOD_HOURS_KEY, -1);      
-    conf.setBoolean(DFSConfigKeys.DFS_DATANODE_DUPLICATE_REPLICA_DELETION, false);
     conf = UpgradeUtilities.initializeStorageStateConf(numDirs, conf);
     String[] nameNodeDirs = conf.getStrings(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY);
 
