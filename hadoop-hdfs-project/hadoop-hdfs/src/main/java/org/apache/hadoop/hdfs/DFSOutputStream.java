@@ -54,6 +54,7 @@ import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.client.HdfsDataOutputStream;
 import org.apache.hadoop.hdfs.client.HdfsDataOutputStream.SyncFlag;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.protocol.DSQuotaExceededException;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
@@ -75,6 +76,7 @@ import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.Status;
 import org.apache.hadoop.hdfs.protocolPB.PBHelper;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.hdfs.security.token.block.InvalidBlockTokenException;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite;
 import org.apache.hadoop.hdfs.server.datanode.CachingStrategy;
 import org.apache.hadoop.hdfs.server.namenode.NotReplicatedYetException;
 import org.apache.hadoop.hdfs.server.namenode.RetryStartFileException;
@@ -169,6 +171,8 @@ public class DFSOutputStream extends FSOutputSummer
   private final AtomicReference<CachingStrategy> cachingStrategy;
   private boolean failPacket = false;
   private FileEncryptionInfo fileEncryptionInfo;
+  private static final BlockStoragePolicySuite blockStoragePolicySuite =
+      BlockStoragePolicySuite.createDefaultSuite();
 
   private static class Packet {
     private static final long HEART_BEAT_SEQNO = -1L;
@@ -357,6 +361,7 @@ public class DFSOutputStream extends FSOutputSummer
     private long restartDeadline = 0; // Deadline of DN restart
     private BlockConstructionStage stage;  // block construction stage
     private long bytesSent = 0; // number of bytes that've been sent
+    private final boolean isLazyPersistFile;
 
     /** Nodes have been used in the pipeline before and have failed. */
     private final List<DatanodeInfo> failed = new ArrayList<DatanodeInfo>();
@@ -373,15 +378,16 @@ public class DFSOutputStream extends FSOutputSummer
     /**
      * Default construction for file create
      */
-    private DataStreamer() {
-      this(null);
+    private DataStreamer(HdfsFileStatus stat) {
+      this(stat, null);
     }
 
     /**
      * construction with tracing info
      */
-    private DataStreamer(Span span) {
+    private DataStreamer(HdfsFileStatus stat, Span span) {
       isAppend = false;
+      isLazyPersistFile = initLazyPersist(stat);
       stage = BlockConstructionStage.PIPELINE_SETUP_CREATE;
       traceSpan = span;
     }
@@ -401,6 +407,7 @@ public class DFSOutputStream extends FSOutputSummer
       block = lastBlock.getBlock();
       bytesSent = block.getNumBytes();
       accessToken = lastBlock.getBlockToken();
+      isLazyPersistFile = initLazyPersist(stat);
       long usedInLastBlock = stat.getLen() % blockSize;
       int freeInLastBlock = (int)(blockSize - usedInLastBlock);
 
@@ -444,6 +451,13 @@ public class DFSOutputStream extends FSOutputSummer
       }
     }
     
+    private boolean initLazyPersist(HdfsFileStatus stat) {
+      final BlockStoragePolicy lpPolicy =
+          blockStoragePolicySuite.getPolicy("LAZY_PERSIST");
+      return lpPolicy != null &&
+             stat.getStoragePolicy() == lpPolicy.getId();
+    }
+
     private void setPipeline(LocatedBlock lb) {
       setPipeline(lb.getLocations(), lb.getStorageTypes(), lb.getStorageIDs());
     }
@@ -1393,7 +1407,7 @@ public class DFSOutputStream extends FSOutputSummer
           new Sender(out).writeBlock(blockCopy, nodeStorageTypes[0], accessToken,
               dfsClient.clientName, nodes, nodeStorageTypes, null, bcs, 
               nodes.length, block.getNumBytes(), bytesSent, newGS, checksum,
-              cachingStrategy.get());
+              cachingStrategy.get(), isLazyPersistFile);
   
           // receive ack for connect
           BlockOpResponseProto resp = BlockOpResponseProto.parseFrom(
@@ -1646,7 +1660,7 @@ public class DFSOutputStream extends FSOutputSummer
     if (Trace.isTracing()) {
       traceSpan = Trace.startSpan(this.getClass().getSimpleName()).detach();
     }
-    streamer = new DataStreamer(traceSpan);
+    streamer = new DataStreamer(stat, traceSpan);
     if (favoredNodes != null && favoredNodes.length != 0) {
       streamer.setFavoredNodes(favoredNodes);
     }
@@ -1724,7 +1738,7 @@ public class DFSOutputStream extends FSOutputSummer
     } else {
       computePacketChunkSize(dfsClient.getConf().writePacketSize,
           checksum.getBytesPerChecksum());
-      streamer = new DataStreamer(traceSpan);
+      streamer = new DataStreamer(stat, traceSpan);
     }
     this.fileEncryptionInfo = stat.getFileEncryptionInfo();
   }

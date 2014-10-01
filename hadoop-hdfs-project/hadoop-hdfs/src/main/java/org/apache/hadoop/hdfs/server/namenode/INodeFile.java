@@ -108,6 +108,7 @@ public class INodeFile extends INodeWithAdditionalFields
       h = STORAGE_POLICY_ID.BITS.combine(storagePolicyID, h);
       return h;
     }
+
   }
 
   private long header = 0L;
@@ -115,11 +116,17 @@ public class INodeFile extends INodeWithAdditionalFields
   private BlockInfo[] blocks;
 
   INodeFile(long id, byte[] name, PermissionStatus permissions, long mtime,
+            long atime, BlockInfo[] blklist, short replication,
+            long preferredBlockSize) {
+    this(id, name, permissions, mtime, atime, blklist, replication,
+         preferredBlockSize, (byte) 0);
+  }
+
+  INodeFile(long id, byte[] name, PermissionStatus permissions, long mtime,
       long atime, BlockInfo[] blklist, short replication,
       long preferredBlockSize, byte storagePolicyID) {
     super(id, name, permissions, mtime, atime);
-    header = HeaderFormat.toLong(preferredBlockSize, replication,
-        storagePolicyID);
+    header = HeaderFormat.toLong(preferredBlockSize, replication, storagePolicyID);
     this.blocks = blklist;
   }
   

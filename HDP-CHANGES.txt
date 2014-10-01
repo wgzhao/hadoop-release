@@ -4,6 +4,11 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
   NEW FEATURES
 
+    HDFS-6581. Support for writing to single replica in RAM.
+    Applied HDFS-6581.merge.15.patch to Champlain. This is a consolidated
+    patch containing all feature changes and was applied to trunk.
+    (Multiple contributors via Arpit Agarwal)
+
   IMPROVEMENTS
 
     HDFS-7153. Add storagePolicy to NN edit log during file creation.

@@ -58,6 +58,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.XAttrHelper;
 import org.apache.hadoop.hdfs.protocol.AclException;
 import org.apache.hadoop.hdfs.protocol.Block;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
 import org.apache.hadoop.hdfs.protocol.EncryptionZone;
@@ -1034,6 +1035,20 @@ public class FSDirectory implements Closeable {
     }
     final int snapshotId = iip.getLatestSnapshotId();
     if (inode.isFile()) {
+      BlockStoragePolicy newPolicy = getBlockManager().getStoragePolicy(policyId);
+      if (newPolicy.isCopyOnCreateFile()) {
+        throw new HadoopIllegalArgumentException(
+            "Policy " + newPolicy + " cannot be set after file creation.");
+      }
+
+      BlockStoragePolicy currentPolicy =
+          getBlockManager().getStoragePolicy(inode.getLocalStoragePolicyID());
+
+      if (currentPolicy != null && currentPolicy.isCopyOnCreateFile()) {
+        throw new HadoopIllegalArgumentException(
+            "Existing policy " + currentPolicy.getName() +
+                " cannot be changed after file creation.");
+      }
       inode.asFile().setStoragePolicyID(policyId, snapshotId);
     } else if (inode.isDirectory()) {
       setDirStoragePolicy(inode.asDirectory(), policyId, snapshotId);  

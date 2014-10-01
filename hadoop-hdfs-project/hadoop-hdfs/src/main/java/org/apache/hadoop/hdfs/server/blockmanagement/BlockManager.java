@@ -402,6 +402,10 @@ public class BlockManager {
     return storagePolicySuite.getPolicy(policyName);
   }
 
+  public BlockStoragePolicy getStoragePolicy(final byte policyId) {
+    return storagePolicySuite.getPolicy(policyId);
+  }
+
   public BlockStoragePolicy[] getStoragePolicies() {
     return storagePolicySuite.getAllPolicies();
   }
@@ -2106,8 +2110,8 @@ public class BlockManager {
     // Add replica if appropriate. If the replica was previously corrupt
     // but now okay, it might need to be updated.
     if (reportedState == ReplicaState.FINALIZED
-        && (!storedBlock.findDatanode(dn)
-        || corruptReplicas.isReplicaCorrupt(storedBlock, dn))) {
+        && (storedBlock.findStorageInfo(storageInfo) == -1 ||
+            corruptReplicas.isReplicaCorrupt(storedBlock, dn))) {
       toAdd.add(storedBlock);
     }
     return storedBlock;

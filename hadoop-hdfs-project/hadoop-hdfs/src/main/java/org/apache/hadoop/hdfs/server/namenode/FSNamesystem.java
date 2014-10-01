@@ -61,6 +61,8 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_EDIT_LOG_AUTOROL
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_EDIT_LOG_AUTOROLL_MULTIPLIER_THRESHOLD_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_ENABLE_RETRY_CACHE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_ENABLE_RETRY_CACHE_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_OBJECTS_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_OBJECTS_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY;
@@ -352,7 +354,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       Path symlink = stat.isSymlink() ? new Path(stat.getSymlink()) : null;
       Path path = dst != null ? new Path(dst) : new Path(src);
       status = new FileStatus(stat.getLen(), stat.isDir(),
-          stat.getReplication(), stat.getBlockSize(), stat.getModificationTime(),
+          stat.getReplication(), stat.getBlockSize(),
+          stat.getModificationTime(),
           stat.getAccessTime(), stat.getPermission(), stat.getOwner(),
           stat.getGroup(), symlink, path);
     }
@@ -437,6 +440,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   Daemon nnrmthread = null; // NamenodeResourceMonitor thread
 
   Daemon nnEditLogRoller = null; // NameNodeEditLogRoller thread
+
+  // A daemon to periodically clean up corrupt lazyPersist files
+  // from the name space.
+  Daemon lazyPersistFileScrubber = null;
   /**
    * When an active namenode will roll its own edit log, in # edits
    */
@@ -445,6 +452,12 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
    * Check interval of an active namenode's edit log roller thread 
    */
   private final int editLogRollerInterval;
+
+  /**
+   * How frequently we scan and unlink corrupt lazyPersist files.
+   * (In seconds)
+   */
+  private final int lazyPersistFileScrubIntervalSec;
 
   private volatile boolean hasResourcesAvailable = false;
   private volatile boolean fsRunning = true;
@@ -863,6 +876,15 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           DFS_NAMENODE_EDIT_LOG_AUTOROLL_CHECK_INTERVAL_MS_DEFAULT);
       this.inodeId = new INodeId();
       
+      this.lazyPersistFileScrubIntervalSec = conf.getInt(
+          DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC,
+          DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC_DEFAULT);
+
+      if (this.lazyPersistFileScrubIntervalSec == 0) {
+        throw new IllegalArgumentException(
+            DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC + " must be non-zero.");
+      }
+
       // For testing purposes, allow the DT secret manager to be started regardless
       // of whether security is enabled.
       alwaysUseDelegationTokensForTests = conf.getBoolean(
@@ -932,7 +954,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   @VisibleForTesting
   static RetryCache initRetryCache(Configuration conf) {
     boolean enable = conf.getBoolean(DFS_NAMENODE_ENABLE_RETRY_CACHE_KEY,
-        DFS_NAMENODE_ENABLE_RETRY_CACHE_DEFAULT);
+                                     DFS_NAMENODE_ENABLE_RETRY_CACHE_DEFAULT);
     LOG.info("Retry cache on namenode is " + (enable ? "enabled" : "disabled"));
     if (enable) {
       float heapPercent = conf.getFloat(
@@ -1161,6 +1183,12 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           editLogRollerThreshold, editLogRollerInterval));
       nnEditLogRoller.start();
 
+      if (lazyPersistFileScrubIntervalSec > 0) {
+        lazyPersistFileScrubber = new Daemon(new LazyPersistFileScrubber(
+            lazyPersistFileScrubIntervalSec));
+        lazyPersistFileScrubber.start();
+      }
+
       cacheManager.startMonitorThread();
       blockManager.getDatanodeManager().setShouldSendCachingCommands(true);
     } finally {
@@ -1213,6 +1241,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       if (nnEditLogRoller != null) {
         ((NameNodeEditLogRoller)nnEditLogRoller.getRunnable()).stop();
         nnEditLogRoller.interrupt();
+      }
+      if (lazyPersistFileScrubber != null) {
+        ((LazyPersistFileScrubber) lazyPersistFileScrubber.getRunnable()).stop();
+        lazyPersistFileScrubber.interrupt();
       }
       if (dir != null && getFSImage() != null) {
         if (getFSImage().editLog != null) {
@@ -2521,6 +2553,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     boolean create = flag.contains(CreateFlag.CREATE);
     boolean overwrite = flag.contains(CreateFlag.OVERWRITE);
+    boolean isLazyPersist = flag.contains(CreateFlag.LAZY_PERSIST);
 
     waitForLoadingFSImage();
 
@@ -2576,7 +2609,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       src = resolvePath(src, pathComponents);
       toRemoveBlocks = startFileInternal(pc, src, permissions, holder, 
           clientMachine, create, overwrite, createParent, replication, 
-          blockSize, suite, edek, logRetryCache);
+          blockSize, isLazyPersist, suite, edek, logRetryCache);
       stat = dir.getFileInfo(src, false,
           FSDirectory.isReservedRawName(srcArg), true);
     } catch (StandbyException se) {
@@ -2612,6 +2645,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       String src, PermissionStatus permissions, String holder, 
       String clientMachine, boolean create, boolean overwrite, 
       boolean createParent, short replication, long blockSize, 
+      boolean isLazyPersist,
       CipherSuite suite, EncryptedKeyVersion edek, boolean logRetryEntry)
       throws FileAlreadyExistsException, AccessControlException,
       UnresolvedLinkException, FileNotFoundException,
@@ -2692,7 +2726,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       if (parent != null && mkdirsRecursively(parent.toString(),
               permissions, true, now())) {
         newNode = dir.addFile(src, permissions, replication, blockSize,
-                holder, clientMachine);
+                              holder, clientMachine);
       }
 
       if (newNode == null) {
@@ -2707,6 +2741,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         newNode = dir.getInode(newNode.getId()).asFile();
       }
 
+      setNewINodeStoragePolicy(newNode, iip, isLazyPersist);
+
       // record file record in log, record new generation stamp
       getEditLog().logOpenFile(src, newNode, overwrite, logRetryEntry);
       if (NameNode.stateChangeLog.isDebugEnabled()) {
@@ -2718,6 +2754,37 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       NameNode.stateChangeLog.warn("DIR* NameSystem.startFile: " + src + " " +
           ie.getMessage());
       throw ie;
+    }
+  }
+
+  private void setNewINodeStoragePolicy(INodeFile inode,
+                                        INodesInPath iip,
+                                        boolean isLazyPersist)
+      throws IOException {
+
+    if (isLazyPersist) {
+      BlockStoragePolicy lpPolicy =
+          blockManager.getStoragePolicy("LAZY_PERSIST");
+
+      // Set LAZY_PERSIST storage policy if the flag was passed to
+      // CreateFile.
+      if (lpPolicy == null) {
+        throw new HadoopIllegalArgumentException(
+            "The LAZY_PERSIST storage policy has been disabled " +
+            "by the administrator.");
+      }
+      inode.setStoragePolicyID(lpPolicy.getId(),
+                                 iip.getLatestSnapshotId());
+    } else {
+      BlockStoragePolicy effectivePolicy =
+          blockManager.getStoragePolicy(inode.getStoragePolicyID());
+
+      if (effectivePolicy != null &&
+          effectivePolicy.isCopyOnCreateFile()) {
+        // Copy effective policy from ancestor directory to current file.
+        inode.setStoragePolicyID(effectivePolicy.getId(),
+                                 iip.getLatestSnapshotId());
+      }
     }
   }
 
@@ -2760,6 +2827,14 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           + src + " for client " + clientMachine);
       }
       INodeFile myFile = INodeFile.valueOf(inode, src, true);
+      final BlockStoragePolicy lpPolicy =
+          blockManager.getStoragePolicy("LAZY_PERSIST");
+
+      if (lpPolicy != null &&
+          lpPolicy.getId() == myFile.getStoragePolicyID()) {
+        throw new UnsupportedOperationException(
+            "Cannot append to lazy persist file " + src);
+      }
       // Opening an existing file for write - may need to recover lease.
       recoverLeaseInternal(myFile, src, holder, clientMachine, false);
       
@@ -5084,6 +5159,73 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         } catch (Exception e) {
           FSNamesystem.LOG.error("Swallowing exception in "
               + NameNodeEditLogRoller.class.getSimpleName() + ":", e);
+        }
+      }
+    }
+
+    public void stop() {
+      shouldRun = false;
+    }
+  }
+
+  /**
+   * Daemon to periodically scan the namespace for lazyPersist files
+   * with missing blocks and unlink them.
+   */
+  class LazyPersistFileScrubber implements Runnable {
+    private volatile boolean shouldRun = true;
+    final int scrubIntervalSec;
+    public LazyPersistFileScrubber(final int scrubIntervalSec) {
+      this.scrubIntervalSec = scrubIntervalSec;
+    }
+
+    /**
+     * Periodically go over the list of lazyPersist files with missing
+     * blocks and unlink them from the namespace.
+     */
+    private void clearCorruptLazyPersistFiles()
+        throws SafeModeException, AccessControlException,
+        UnresolvedLinkException, IOException {
+
+      BlockStoragePolicy lpPolicy = blockManager.getStoragePolicy("LAZY_PERSIST");
+
+      List<BlockCollection> filesToDelete = new ArrayList<BlockCollection>();
+
+      writeLock();
+
+      try {
+        final Iterator<Block> it = blockManager.getCorruptReplicaBlockIterator();
+
+        while (it.hasNext()) {
+          Block b = it.next();
+          BlockInfo blockInfo = blockManager.getStoredBlock(b);
+          if (blockInfo.getBlockCollection().getStoragePolicyID() == lpPolicy.getId()) {
+            filesToDelete.add(blockInfo.getBlockCollection());
+          }
+        }
+
+        for (BlockCollection bc : filesToDelete) {
+          LOG.warn("Removing lazyPersist file " + bc.getName() + " with no replicas.");
+          deleteInternal(bc.getName(), false, false, false);
+        }
+      } finally {
+        writeUnlock();
+      }
+    }
+
+    @Override
+    public void run() {
+      while (fsRunning && shouldRun) {
+        try {
+          clearCorruptLazyPersistFiles();
+          Thread.sleep(scrubIntervalSec * 1000);
+        } catch (InterruptedException e) {
+          FSNamesystem.LOG.info(
+              "LazyPersistFileScrubber was interrupted, exiting");
+          break;
+        } catch (Exception e) {
+          FSNamesystem.LOG.error(
+              "Ignoring exception in LazyPersistFileScrubber:", e);
         }
       }
     }

@@ -544,7 +544,8 @@ class DataXceiver extends Receiver implements Runnable {
       final long maxBytesRcvd,
       final long latestGenerationStamp,
       DataChecksum requestedChecksum,
-      CachingStrategy cachingStrategy) throws IOException {
+      CachingStrategy cachingStrategy,
+      final boolean allowLazyPersist) throws IOException {
     previousOpClientName = clientname;
     updateCurrentThreadName("Receiving block " + block);
     final boolean isDatanode = clientname.length() == 0;
@@ -606,8 +607,8 @@ class DataXceiver extends Receiver implements Runnable {
             peer.getLocalAddressString(),
             stage, latestGenerationStamp, minBytesRcvd, maxBytesRcvd,
             clientname, srcDataNode, datanode, requestedChecksum,
-            cachingStrategy);
-        
+            cachingStrategy, allowLazyPersist);
+
         storageUuid = blockReceiver.getStorageUuid();
       } else {
         storageUuid = datanode.data.recoverClose(
@@ -648,10 +649,11 @@ class DataXceiver extends Receiver implements Runnable {
               HdfsConstants.SMALL_BUFFER_SIZE));
           mirrorIn = new DataInputStream(unbufMirrorIn);
 
+          // Do not propagate allowLazyPersist to downstream DataNodes.
           new Sender(mirrorOut).writeBlock(originalBlock, targetStorageTypes[0],
               blockToken, clientname, targets, targetStorageTypes, srcDataNode,
               stage, pipelineSize, minBytesRcvd, maxBytesRcvd,
-              latestGenerationStamp, requestedChecksum, cachingStrategy);
+              latestGenerationStamp, requestedChecksum, cachingStrategy, false);
 
           mirrorOut.flush();
 
@@ -1046,7 +1048,7 @@ class DataXceiver extends Receiver implements Runnable {
           proxyReply, proxySock.getRemoteSocketAddress().toString(),
           proxySock.getLocalSocketAddress().toString(),
           null, 0, 0, 0, "", null, datanode, remoteChecksum,
-          CachingStrategy.newDropBehind());
+          CachingStrategy.newDropBehind(), false);
 
       // receive a block
       blockReceiver.receiveBlock(null, null, replyOut, null, 

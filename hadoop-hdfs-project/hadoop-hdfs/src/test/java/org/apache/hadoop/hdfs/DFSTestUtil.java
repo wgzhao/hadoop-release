@@ -93,6 +93,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+import static org.apache.hadoop.fs.CreateFlag.*;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -305,16 +306,29 @@ public class DFSTestUtil {
   public static void createFile(FileSystem fs, Path fileName, int bufferLen,
                                 long fileLen, long blockSize, short replFactor, long seed)
       throws IOException {
-    assert bufferLen > 0;
-    if (!fs.mkdirs(fileName.getParent())) {
+    createFile(fs, fileName, false, bufferLen, fileLen, blockSize,
+            replFactor, seed, false);
+  }
+
+  public static void createFile(FileSystem fs, Path fileName,
+      boolean isLazyPersist, int bufferLen, long fileLen, long blockSize,
+      short replFactor, long seed, boolean flush) throws IOException {
+  assert bufferLen > 0;
+  if (!fs.mkdirs(fileName.getParent())) {
       throw new IOException("Mkdirs failed to create " +
-                            fileName.getParent().toString());
-    }
-    FSDataOutputStream out = null;
-    try {
-      out = fs.create(fileName, true, fs.getConf()
-                                        .getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
-                      replFactor, blockSize);
+                fileName.getParent().toString());
+  }
+  FSDataOutputStream out = null;
+  EnumSet<CreateFlag> createFlags = EnumSet.of(CREATE);
+  createFlags.add(OVERWRITE);
+  if (isLazyPersist) {
+    createFlags.add(LAZY_PERSIST);
+  }
+  try {
+      out = fs.create(fileName, FsPermission.getFileDefault(), createFlags,
+        fs.getConf().getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
+        replFactor, blockSize, null);
+
       if (fileLen > 0) {
         byte[] toWrite = new byte[bufferLen];
         Random rb = new Random(seed);
@@ -322,10 +336,13 @@ public class DFSTestUtil {
         while (bytesToWrite>0) {
           rb.nextBytes(toWrite);
           int bytesToWriteNext = (bufferLen < bytesToWrite) ? bufferLen
-              : (int) bytesToWrite;
+            : (int) bytesToWrite;
 
-          out.write(toWrite, 0, bytesToWriteNext);
-          bytesToWrite -= bytesToWriteNext;
+            out.write(toWrite, 0, bytesToWriteNext);
+            bytesToWrite -= bytesToWriteNext;
+        }
+        if (flush) {
+          out.hsync();
         }
       }
     } finally {
@@ -1432,6 +1449,39 @@ public class DFSTestUtil {
       in1.close();
       in2.close();
     }
+  }
+
+  /**
+   * Helper function that verified blocks of a file are placed on the
+   * expected storage type.
+   *
+   * @param fs The file system containing the the file.
+   * @param client The DFS client used to access the file
+   * @param path name to the file to verify
+   * @param storageType expected storage type
+   * @returns true if file exists and its blocks are located on the expected
+   *            storage type.
+   *          false otherwise.
+   */
+  public static boolean verifyFileReplicasOnStorageType(FileSystem fs,
+    DFSClient client, Path path, StorageType storageType) throws IOException {
+    if (!fs.exists(path)) {
+      LOG.info("verifyFileReplicasOnStorageType: file " + path + "does not exist");
+      return false;
+    }
+    long fileLength = client.getFileInfo(path.toString()).getLen();
+    LocatedBlocks locatedBlocks =
+      client.getLocatedBlocks(path.toString(), 0, fileLength);
+    for (LocatedBlock locatedBlock : locatedBlocks.getLocatedBlocks()) {
+      if (locatedBlock.getStorageTypes()[0] != storageType) {
+        LOG.info("verifyFileReplicasOnStorageType: for file " + path +
+            ". Expect blk" + locatedBlock +
+          " on Type: " + storageType + ". Actual Type: " +
+          locatedBlock.getStorageTypes()[0]);
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

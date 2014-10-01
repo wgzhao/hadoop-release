@@ -32,6 +32,7 @@ import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
@@ -65,6 +66,8 @@ import org.junit.Test;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_LAZY_WRITER_INTERVAL_SEC;
 
 /**
  * Test the data migration tool (for Archival Storage)
@@ -336,10 +339,10 @@ public class TestStorageMover {
         Assert.assertTrue(fileStatus.getFullName(parent.toString())
             + " with policy " + policy + " has non-empty overlap: " + diff
             + ", the corresponding block is " + lb.getBlock().getLocalBlock(),
-            diff.removeOverlap());
+            diff.removeOverlap(true));
       }
     }
-    
+
     Replication getReplication(Path file) throws IOException {
       return getOrVerifyReplication(file, null);
     }
@@ -407,17 +410,29 @@ public class TestStorageMover {
   }
 
   private static StorageType[][] genStorageTypes(int numDataNodes) {
-    return genStorageTypes(numDataNodes, 0, 0);
+    return genStorageTypes(numDataNodes, 0, 0, 0);
   }
 
   private static StorageType[][] genStorageTypes(int numDataNodes,
       int numAllDisk, int numAllArchive) {
+    return genStorageTypes(numDataNodes, numAllDisk, numAllArchive, 0);
+  }
+
+  private static StorageType[][] genStorageTypes(int numDataNodes,
+      int numAllDisk, int numAllArchive, int numRamDisk) {
+    Preconditions.checkArgument(
+      (numAllDisk + numAllArchive + numRamDisk) <= numDataNodes);
+
     StorageType[][] types = new StorageType[numDataNodes][];
     int i = 0;
-    for (; i < numAllDisk; i++) {
+    for (; i < numRamDisk; i++)
+    {
+      types[i] = new StorageType[]{StorageType.RAM_DISK, StorageType.DISK};
+    }
+    for (; i < numRamDisk + numAllDisk; i++) {
       types[i] = new StorageType[]{StorageType.DISK, StorageType.DISK};
     }
-    for (; i < numAllDisk + numAllArchive; i++) {
+    for (; i < numRamDisk + numAllDisk + numAllArchive; i++) {
       types[i] = new StorageType[]{StorageType.ARCHIVE, StorageType.ARCHIVE};
     }
     for (; i < types.length; i++) {
@@ -425,15 +440,19 @@ public class TestStorageMover {
     }
     return types;
   }
-  
+
   private static long[][] genCapacities(int nDatanodes, int numAllDisk,
-      int numAllArchive, long diskCapacity, long archiveCapacity) {
+      int numAllArchive, int numRamDisk, long diskCapacity,
+      long archiveCapacity, long ramDiskCapacity) {
     final long[][] capacities = new long[nDatanodes][];
     int i = 0;
-    for (; i < numAllDisk; i++) {
+    for (; i < numRamDisk; i++) {
+      capacities[i] = new long[]{ramDiskCapacity, diskCapacity};
+    }
+    for (; i < numRamDisk + numAllDisk; i++) {
       capacities[i] = new long[]{diskCapacity, diskCapacity};
     }
-    for (; i < numAllDisk + numAllArchive; i++) {
+    for (; i < numRamDisk + numAllDisk + numAllArchive; i++) {
       capacities[i] = new long[]{archiveCapacity, archiveCapacity};
     }
     for(; i < capacities.length; i++) {

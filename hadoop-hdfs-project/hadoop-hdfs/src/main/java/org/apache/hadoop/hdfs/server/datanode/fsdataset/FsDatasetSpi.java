@@ -116,13 +116,16 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
   /** @return a list of finalized blocks for the given block pool. */
   public List<FinalizedReplica> getFinalizedBlocks(String bpid);
 
+  /** @return a list of finalized blocks for the given block pool. */
+  public List<FinalizedReplica> getFinalizedBlocksOnPersistentStorage(String bpid);
+
   /**
    * Check whether the in-memory block record matches the block on the disk,
    * and, in case that they are not matched, update the record or mark it
    * as corrupted.
    */
   public void checkAndUpdate(String bpid, long blockId, File diskFile,
-      File diskMetaFile, FsVolumeSpi vol);
+      File diskMetaFile, FsVolumeSpi vol) throws IOException;
 
   /**
    * @param b - the block
@@ -197,7 +200,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * @throws IOException if an error occurs
    */
   public ReplicaInPipelineInterface createRbw(StorageType storageType,
-      ExtendedBlock b) throws IOException;
+      ExtendedBlock b, boolean allowLazyPersist) throws IOException;
 
   /**
    * Recovers a RBW replica and returns the meta info of the replica

@@ -417,6 +417,7 @@ public abstract class FSEditLogOp {
     
     private AddCloseOp(FSEditLogOpCodes opCode) {
       super(opCode);
+      storagePolicyId = BlockStoragePolicySuite.ID_UNSPECIFIED;
       assert(opCode == OP_ADD || opCode == OP_CLOSE);
     }
     
@@ -711,6 +712,7 @@ public abstract class FSEditLogOp {
       this.mtime = Long.parseLong(st.getValue("MTIME"));
       this.atime = Long.parseLong(st.getValue("ATIME"));
       this.blockSize = Long.parseLong(st.getValue("BLOCKSIZE"));
+
       this.clientName = st.getValue("CLIENT_NAME");
       this.clientMachine = st.getValue("CLIENT_MACHINE");
       this.overwrite = Boolean.parseBoolean(st.getValueOrNull("OVERWRITE"));
