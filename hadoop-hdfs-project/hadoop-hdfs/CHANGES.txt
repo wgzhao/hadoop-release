@@ -260,6 +260,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
 
+    HDFS-6894. Add XDR parser method for each NFS response.
+    (Brandon Li via wheat9)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
