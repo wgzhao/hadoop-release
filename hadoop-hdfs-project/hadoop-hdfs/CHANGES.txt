@@ -253,6 +253,8 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
 
+    HDFS-7158. Reduce the memory usage of WebImageViewer. (wheat9)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
