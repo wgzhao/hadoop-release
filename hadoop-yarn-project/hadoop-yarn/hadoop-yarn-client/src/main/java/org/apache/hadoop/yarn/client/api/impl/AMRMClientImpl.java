@@ -251,7 +251,7 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
           // RPC layer is using it to send info across
           askList.add(ResourceRequest.newInstance(r.getPriority(),
               r.getResourceName(), r.getCapability(), r.getNumContainers(),
-              r.getRelaxLocality(), r.getLabelExpression()));
+              r.getRelaxLocality()));
         }
         releaseList = new ArrayList<ContainerId>(release);
         // optimistically clear this collection assuming no RPC failure
@@ -436,25 +436,25 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
       }
       for (String node : dedupedNodes) {
         addResourceRequest(req.getPriority(), node, req.getCapability(), req,
-            true, req.getLabelExpression());
+            true);
       }
     }
 
     for (String rack : dedupedRacks) {
       addResourceRequest(req.getPriority(), rack, req.getCapability(), req,
-          true, req.getLabelExpression());
+          true);
     }
 
     // Ensure node requests are accompanied by requests for
     // corresponding rack
     for (String rack : inferredRacks) {
       addResourceRequest(req.getPriority(), rack, req.getCapability(), req,
-          req.getRelaxLocality(), req.getLabelExpression());
+          req.getRelaxLocality());
     }
 
     // Off-switch
     addResourceRequest(req.getPriority(), ResourceRequest.ANY, 
-        req.getCapability(), req, req.getRelaxLocality(), req.getLabelExpression());
+                    req.getCapability(), req, req.getRelaxLocality());
   }
 
   @Override
@@ -608,10 +608,8 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
     ask.add(remoteRequest);
   }
 
-  private void
-      addResourceRequest(Priority priority, String resourceName,
-          Resource capability, T req, boolean relaxLocality,
-          String labelExpression) {
+  private void addResourceRequest(Priority priority, String resourceName,
+      Resource capability, T req, boolean relaxLocality) {
     Map<String, TreeMap<Resource, ResourceRequestInfo>> remoteRequests =
       this.remoteRequestsTable.get(priority);
     if (remoteRequests == null) {
@@ -644,8 +642,6 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
     if (relaxLocality) {
       resourceRequestInfo.containerRequests.add(req);
     }
-    
-    resourceRequestInfo.remoteRequest.setLabelExpression(labelExpression);
 
     // Note this down for next interaction with ResourceManager
     addResourceRequestToAsk(resourceRequestInfo.remoteRequest);

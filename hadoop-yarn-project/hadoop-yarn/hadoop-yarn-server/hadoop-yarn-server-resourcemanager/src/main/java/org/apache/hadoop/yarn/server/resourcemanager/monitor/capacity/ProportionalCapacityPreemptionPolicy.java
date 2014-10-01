@@ -33,18 +33,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.server.resourcemanager.monitor.SchedulingEditPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ContainerPreemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ContainerPreemptEventType;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.PreemptableResourceScheduler;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerNode;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CSQueue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue;
@@ -128,33 +125,6 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
   private float percentageClusterPreemptionAllowed;
   private double naturalTerminationFactor;
   private boolean observeOnly;
-  private NodeLabelManager labelManager;
-  
-  /*
-   * Variables for considering labels while preempting resource When considering
-   * preemption resource,
-   * 
-   * When build queue tree in cloneQueue(), qA's resToBePreempted
-   * 
-   * resToBePreempted = min(guaranteed - current, pending)
-   * And we will add it to totalResourceToBePreempted and 
-   * totalResourceToBePreempted when resToBePreempted > 0:
-   *   totalResourceToBePreempted += resToBePreempted
-   *   labelToResourceToBePreempted[label belongs to qA] += resToBePreempted
-   * 
-   * When trying to preempt a containerX from nodeY First will check
-   * totalResToBePreempted > 0 If it's < 0, no more resource need to be
-   * preempted. Else:
-   *   if (labelToResourceToBePreempted[any label belongs to nodeY] > 0):
-   *      labelToResourceToBePreempted[label belongs to nodeY] -= containerX.res
-   *      totalResourceToBePreempted -= containerX.res
-   *      mark containerX will be preempted
-   */
-  Resource totalResourceToBePreempted;
-  Map<String, Resource> labelToResourceToBePreempted;
-  
-  Resource totalResource;
-  Map<String, Resource> labelToResource;
 
   public ProportionalCapacityPreemptionPolicy() {
     clock = new SystemClock();
@@ -162,22 +132,20 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
 
   public ProportionalCapacityPreemptionPolicy(Configuration config,
       EventHandler<ContainerPreemptEvent> dispatcher,
-      CapacityScheduler scheduler, NodeLabelManager labelManager) {
-    this(config, dispatcher, scheduler, new SystemClock(), labelManager);
+      CapacityScheduler scheduler) {
+    this(config, dispatcher, scheduler, new SystemClock());
   }
 
   public ProportionalCapacityPreemptionPolicy(Configuration config,
       EventHandler<ContainerPreemptEvent> dispatcher,
-      CapacityScheduler scheduler, Clock clock, NodeLabelManager labelManager) {
-    init(config, dispatcher, scheduler, labelManager);
+      CapacityScheduler scheduler, Clock clock) {
+    init(config, dispatcher, scheduler);
     this.clock = clock;
   }
 
-  @Override
   public void init(Configuration config,
       EventHandler<ContainerPreemptEvent> disp,
-      PreemptableResourceScheduler sched,
-      NodeLabelManager labelManager) {
+      PreemptableResourceScheduler sched) {
     LOG.info("Preemption monitor:" + this.getClass().getCanonicalName());
     assert null == scheduler : "Unexpected duplicate call to init";
     if (!(sched instanceof CapacityScheduler)) {
@@ -196,71 +164,19 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
       config.getFloat(TOTAL_PREEMPTION_PER_ROUND, (float) 0.1);
     observeOnly = config.getBoolean(OBSERVE_ONLY, false);
     rc = scheduler.getResourceCalculator();
-    this.labelManager = labelManager;
-    labelToResourceToBePreempted = new HashMap<String, Resource>();
   }
   
   @VisibleForTesting
   public ResourceCalculator getResourceCalculator() {
     return rc;
   }
-  
-  @VisibleForTesting
-  public void setNodeLabelManager(NodeLabelManager mgr) {
-    this.labelManager = mgr;
-  }
 
   @Override
   public void editSchedule(){
-    totalResourceToBePreempted = Resource.newInstance(0, 0);
-    labelToResourceToBePreempted.clear();
-
     CSQueue root = scheduler.getRootQueue();
     Resource clusterResources =
       Resources.clone(scheduler.getClusterResource());
-    
-    updateTotalResource(clusterResources);
     containerBasedPreemptOrKill(root, clusterResources);
-  }
-  
-  private void updateTotalResource(Resource clusterResource) {
-    totalResource = Resource.newInstance(0, 0);
-    labelToResource = new HashMap<String, Resource>();
-    Map<String, Set<String>> nodeToLabels = labelManager.getNodesToLabels();
-    
-    for (SchedulerNode schedulerNode : scheduler.getSchedulerNodes()) {
-      Resource nodeTotal = schedulerNode.getTotalResource();
-      if (Resources.greaterThan(rc, clusterResource, nodeTotal,
-          Resources.none())) {
-        Set<String> labels =
-            nodeToLabels.get(schedulerNode.getNodeName());
-        if (labels != null && !labels.isEmpty()) {
-          for (String label : labels) {
-            if (!labelToResource.containsKey(label)) {
-              labelToResource.put(label, Resource.newInstance(0, 0));
-            }
-            Resources.addTo(labelToResource.get(label), nodeTotal);
-          }
-        } else {
-          if (!labelToResource.containsKey("")) {
-            labelToResource.put("", Resource.newInstance(0, 0));
-          }
-          Resources.addTo(labelToResource.get(""), nodeTotal);
-        }
-        
-        Resources.addTo(totalResource, nodeTotal);
-      }
-    }
-  }
-  
-  private void updateResourceToBePreempted(List<TempQueue> queues,
-      Resource clusterResources) {
-    for (TempQueue queue : queues) {
-      // set totalResourceToBePreempted and label-to-resource-to-be-preempted
-      if (queue.leafQueue != null) {
-        addResourceToBePreempted(queue, clusterResources);
-      }
-    }
   }
 
   /**
@@ -286,7 +202,6 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
         percentageClusterPreemptionAllowed);
     List<TempQueue> queues =
       recursivelyComputeIdealAssignment(tRoot, totalPreemptionAllowed);
-    updateResourceToBePreempted(queues, clusterResources);
 
     // based on ideal allocation select containers to be preempted from each
     // queue and each application
@@ -443,7 +358,7 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
     }
 
   }
-
+  
   /**
    * Given a set of queues compute the fix-point distribution of unassigned
    * resources among them. As pending request of a queue are exhausted, the
@@ -455,13 +370,10 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
   private void computeFixpointAllocation(ResourceCalculator rc,
       Resource tot_guarant, Collection<TempQueue> qAlloc, Resource unassigned, 
       boolean ignoreGuarantee) {
-    Resource wQassigned = Resource.newInstance(1, 1);
-    
     //assign all cluster resources until no more demand, or no resources are left
-    while (!qAlloc.isEmpty()
-        && Resources.greaterThan(rc, tot_guarant, unassigned, Resources.none())
-        && Resources.greaterThan(rc, tot_guarant, wQassigned, Resources.none())) {
-      wQassigned = Resource.newInstance(0, 0);
+    while (!qAlloc.isEmpty() && Resources.greaterThan(rc, tot_guarant,
+          unassigned, Resources.none())) {
+      Resource wQassigned = Resource.newInstance(0, 0);
 
       // we compute normalizedGuarantees capacity based on currently active
       // queues
@@ -471,120 +383,20 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
       // their share of over-capacity
       for (Iterator<TempQueue> i = qAlloc.iterator(); i.hasNext();) {
         TempQueue sub = i.next();
-        
-        if (!Double.isInfinite(sub.normalizedGuarantee)) {
-          Resource wQavail =
-              Resources.multiply(unassigned, sub.normalizedGuarantee);
-          Resource wQidle = sub.offer(wQavail, rc, tot_guarant);
-          Resource wQdone = Resources.subtract(wQavail, wQidle);
-          
-          if (sub.children.isEmpty()) {
-            Resource maxAvailableResource =
-                duductAvailableResourceAccordingToLabel(sub,
-                    Resources.clone(wQdone), tot_guarant);
-            wQdone =
-                Resources.min(rc, tot_guarant, wQdone, maxAvailableResource);
-          }
-          Resources.addTo(sub.idealAssigned, wQdone);
-          
-          // if the queue returned a value > 0 it means it is fully satisfied
-          // and it is removed from the list of active queues qAlloc
-          if (!Resources.greaterThan(rc, tot_guarant, wQdone, Resources.none())) {
-            i.remove();
-          }
-          Resources.addTo(wQassigned, wQdone);
-        } else {
+        Resource wQavail =
+          Resources.multiply(unassigned, sub.normalizedGuarantee);
+        Resource wQidle = sub.offer(wQavail, rc, tot_guarant);
+        Resource wQdone = Resources.subtract(wQavail, wQidle);
+        // if the queue returned a value > 0 it means it is fully satisfied
+        // and it is removed from the list of active queues qAlloc
+        if (!Resources.greaterThan(rc, tot_guarant,
+              wQdone, Resources.none())) {
           i.remove();
         }
+        Resources.addTo(wQassigned, wQdone);
       }
       Resources.subtractFrom(unassigned, wQassigned);
     }
-  }
-  
-  private boolean hasAvailableResourceAccordingToLabel(TempQueue q,
-      Resource clusterResource) {
-    if (Resources.lessThanOrEqual(rc, clusterResource, totalResource,
-        Resources.none())) {
-      return false;
-    }
-    
-    // check if we have empty-available resource
-    if (labelToResource.containsKey("")) {
-      if (Resources.greaterThan(rc, clusterResource,
-          labelToResource.get(""), Resources.none())) {
-        return true;
-      }
-    }
-    
-    // check if we have any resource available for labels of the queue
-    if (q.labels != null) {
-      for (String label : q.labels) {
-        Resource res = labelToResource.get(label);
-        if (res != null) {
-          if (Resources.greaterThan(rc, clusterResource, res, Resources.none())) {
-            return true;
-          }
-        }
-      }
-    }
-    
-    return true;
-  }
-  
-  private Resource duductAvailableResource(String label, Resource maxCap,
-      Resource clusterResource) {
-    if (Resources.lessThanOrEqual(rc, clusterResource, totalResource,
-        Resources.none())) {
-      return Resources.none();
-    }
-    
-    if (labelToResource.containsKey(label)) {
-      if (Resources.greaterThan(rc, clusterResource,
-          labelToResource.get(label), Resources.none())) {
-        // deduct-available-res = min(maxCap, totalResourceAvailable,
-        //    availableResource[label])
-        Resource min =
-            Resources.clone(Resources.min(
-                rc,
-                clusterResource,
-                Resources.min(rc, clusterResource,
-                    labelToResource.get(label), maxCap),
-                totalResource));
-        if (Resources.greaterThan(rc, clusterResource, min, Resources.none())) {
-          Resources.subtractFrom(maxCap, min);
-          Resources.subtractFrom(totalResource, min);
-          Resources.subtractFrom(labelToResource.get(label), min);
-        }
-        
-        return min;
-      }
-    }
-    
-    return Resources.none();
-  }
-  
-  private Resource duductAvailableResourceAccordingToLabel(TempQueue q,
-      Resource maxCap, Resource clusterResource) {
-    Resource maxAvailableResource = Resource.newInstance(0, 0);
-    
-    if (Resources.lessThanOrEqual(rc, clusterResource, totalResource,
-        Resources.none())) {
-      return Resources.none();
-    }
-    
-    // check if we have empty-label available resource
-    Resources.addTo(maxAvailableResource,
-        duductAvailableResource("", maxCap, clusterResource));
-    
-    // check if we have any resource available for labels of the queue
-    if (q.labels != null) {
-      for (String label : q.labels) {
-        Resources.addTo(maxAvailableResource,
-            duductAvailableResource(label, maxCap, clusterResource));
-      }
-    }
-    
-    return maxAvailableResource;
   }
 
   /**
@@ -596,25 +408,18 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
   private void resetCapacity(ResourceCalculator rc, Resource clusterResource,
       Collection<TempQueue> queues, boolean ignoreGuar) {
     Resource activeCap = Resource.newInstance(0, 0);
-    int availableQueueSize = queues.size();
     
     if (ignoreGuar) {
       for (TempQueue q : queues) {
-        if (!Double.isInfinite(q.normalizedGuarantee)) {
-          q.normalizedGuarantee = 1.0f / availableQueueSize;
-        }
+        q.normalizedGuarantee = (float)  1.0f / ((float) queues.size());
       }
     } else {
       for (TempQueue q : queues) {
-        if (!Double.isInfinite(q.normalizedGuarantee)) {
-          Resources.addTo(activeCap, q.guaranteed);
-        }
+        Resources.addTo(activeCap, q.guaranteed);
       }
       for (TempQueue q : queues) {
-        if (!Double.isInfinite(q.normalizedGuarantee)) {
-          q.normalizedGuarantee =
-              Resources.divide(rc, clusterResource, q.guaranteed, activeCap);
-        }
+        q.normalizedGuarantee = Resources.divide(rc, clusterResource,
+            q.guaranteed, activeCap);
       }
     }
   }
@@ -709,10 +514,6 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
           maxAMCapacityForThisQueue)) {
         break;
       }
-      if (!possiblePendingRequestOnNode(clusterResource, c.getContainer()
-          .getNodeId(), c.getContainer().getResource())) {
-        continue;
-      }
       Set<RMContainer> contToPrempt = preemptMap.get(c
           .getApplicationAttemptId());
       if (null == contToPrempt) {
@@ -777,49 +578,11 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
         Resources.addTo(skippedAMSize, c.getContainer().getResource());
         continue;
       }
-      
-      if (possiblePendingRequestOnNode(clusterResource, c.getContainer()
-          .getNodeId(), c.getContainer().getResource())) {
-        ret.add(c);
-        Resources.subtractFrom(rsrcPreempt, c.getContainer().getResource()); 
-      }
+      ret.add(c);
+      Resources.subtractFrom(rsrcPreempt, c.getContainer().getResource());
     }
 
     return ret;
-  }
-  
-  protected boolean possiblePendingRequestOnNode(Resource clusterResource,
-      NodeId nodeId, Resource containerRes) {
-    if (labelManager == null) {
-      return true;
-    }
-
-    if (!Resources.greaterThan(rc, clusterResource, totalResourceToBePreempted,
-        Resources.none())) {
-      return false;
-    }
-
-    Set<String> labels = labelManager.getLabelsOnNode(nodeId.getHost());
-
-    if (labels != null && !labels.isEmpty()) {
-      boolean isPossible = false;
-      // there're some labels on this node, so we will check if any of
-      // labelToResourceToBePreempted[label belongs to the node] > 0
-      for (String label : labels) {
-        Resource res = labelToResourceToBePreempted.get(label);
-        res = res == null ? Resources.none() : res;
-        if (Resources.greaterThan(rc, clusterResource, res, Resources.none())) {
-          Resources.subtractFrom(res, containerRes);
-          isPossible = true;
-        }
-      }
-
-      if (!isPossible) {
-        return false;
-      }
-    }
-    Resources.subtractFrom(totalResourceToBePreempted, containerRes);
-    return true;
   }
 
   /**
@@ -854,26 +617,6 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
     return "ProportionalCapacityPreemptionPolicy";
   }
 
-  private void addResourceToBePreempted(TempQueue leafQueue,
-      Resource clusterResources) {
-    Resource toBePreempted =
-        Resources.min(rc, clusterResources,
-            Resources.subtract(leafQueue.idealAssigned, leafQueue.current),
-            leafQueue.pending);
-    if (Resources.greaterThan(rc, clusterResources, toBePreempted,
-        Resources.none())) {
-      Resources.addTo(totalResourceToBePreempted, toBePreempted);
-      if (leafQueue.labels != null) {
-        for (String label : leafQueue.labels) {
-          if (!labelToResourceToBePreempted.containsKey(label)) {
-            labelToResourceToBePreempted.put(label, Resource.newInstance(0, 0));
-          }
-          Resources.addTo(labelToResourceToBePreempted.get(label),
-              toBePreempted);
-        }
-      }
-    }
-  }
 
   /**
    * This method walks a tree of CSQueue and clones the portion of the state
@@ -899,28 +642,14 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
       if (root instanceof LeafQueue) {
         LeafQueue l = (LeafQueue) root;
         Resource pending = l.getTotalResourcePending();
-        
-        // it is possible queue's guaranteed resource cannot be satisfied because
-        // of labels, set min(guaranteed, resourceConsiderLabels) as guaranteed
-        // resource
-        if (labelManager != null) {
-          Resource queueResRespectLabels =
-              labelManager.getQueueResource(l.getQueueName(), l.getLabels(),
-                  clusterResources);
-          guaranteed =
-              Resources.min(rc, clusterResources, queueResRespectLabels,
-                  guaranteed);
-          maxCapacity =
-              Resources.min(rc, clusterResources, queueResRespectLabels,
-                  maxCapacity);
-        }
         ret = new TempQueue(queueName, current, pending, guaranteed,
-            maxCapacity, l.getLabels());
+            maxCapacity);
+
         ret.setLeafQueue(l);
       } else {
         Resource pending = Resource.newInstance(0, 0);
         ret = new TempQueue(root.getQueueName(), current, pending, guaranteed,
-            maxCapacity, root.getLabels());
+            maxCapacity);
         for (CSQueue c : root.getChildQueues()) {
           ret.addChild(cloneQueues(c, clusterResources));
         }
@@ -966,10 +695,9 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
 
     final ArrayList<TempQueue> children;
     LeafQueue leafQueue;
-    Set<String> labels;
 
     TempQueue(String queueName, Resource current, Resource pending,
-        Resource guaranteed, Resource maxCapacity, Set<String> labels) {
+        Resource guaranteed, Resource maxCapacity) {
       this.queueName = queueName;
       this.current = current;
       this.pending = pending;
@@ -978,9 +706,8 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
       this.idealAssigned = Resource.newInstance(0, 0);
       this.actuallyPreempted = Resource.newInstance(0, 0);
       this.toBePreempted = Resource.newInstance(0, 0);
-      this.normalizedGuarantee = Double.NaN;
+      this.normalizedGuarantee = Float.NaN;
       this.children = new ArrayList<TempQueue>();
-      this.labels = labels;
     }
 
     public void setLeafQueue(LeafQueue l){
@@ -1019,6 +746,7 @@ public class ProportionalCapacityPreemptionPolicy implements SchedulingEditPolic
           Resources.min(rc, clusterResource, avail, Resources.subtract(
               Resources.add(current, pending), idealAssigned)));
       Resource remain = Resources.subtract(avail, accepted);
+      Resources.addTo(idealAssigned, accepted);
       return remain;
     }
 

@@ -343,7 +343,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       long submitTime, String user)
       throws YarnException {
     ApplicationId applicationId = submissionContext.getApplicationId();
-    ResourceRequest amReq = validateAndCreateResourceRequest(submissionContext);
+    validateResourceRequest(submissionContext);
     // Create RMApp
     RMAppImpl application =
         new RMAppImpl(applicationId, rmContext, this.conf,
@@ -351,7 +351,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
             submissionContext.getQueue(),
             submissionContext, this.scheduler, this.masterService,
             submitTime, submissionContext.getApplicationType(),
-            submissionContext.getApplicationTags(), amReq);
+            submissionContext.getApplicationTags());
 
     // Concurrent app submissions with same applicationId will fail here
     // Concurrent app submissions with different applicationIds will not
@@ -373,8 +373,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
     return application;
   }
 
-  @SuppressWarnings("deprecation")
-  private ResourceRequest validateAndCreateResourceRequest(
+  private void validateResourceRequest(
       ApplicationSubmissionContext submissionContext)
       throws InvalidResourceRequestException {
     // Validation of the ApplicationSubmissionContext needs to be completed
@@ -384,38 +383,18 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
 
     // Check whether AM resource requirements are within required limits
     if (!submissionContext.getUnmanagedAM()) {
-      ResourceRequest amReq;
-      if (submissionContext.getAMContainerResourceRequest() != null) {
-        amReq = submissionContext.getAMContainerResourceRequest();
-      } else {
-        amReq =
-            BuilderUtils.newResourceRequest(
-                RMAppAttemptImpl.AM_CONTAINER_PRIORITY, ResourceRequest.ANY,
-                submissionContext.getResource(), 1);
-      }
-      
-      // set label expression for AM container
-      if (null == amReq.getLabelExpression()) {
-        amReq.setLabelExpression(submissionContext
-            .getAppLabelExpression());
-      }
-      amReq.setPriority(RMAppAttemptImpl.AM_CONTAINER_PRIORITY);
-      amReq.setNumContainers(1);
-
+      ResourceRequest amReq = BuilderUtils.newResourceRequest(
+          RMAppAttemptImpl.AM_CONTAINER_PRIORITY, ResourceRequest.ANY,
+          submissionContext.getResource(), 1);
       try {
         SchedulerUtils.validateResourceRequest(amReq,
-            scheduler.getMaximumResourceCapability(),
-            submissionContext.getQueue(), scheduler);
+            scheduler.getMaximumResourceCapability());
       } catch (InvalidResourceRequestException e) {
         LOG.warn("RM app submission failed in validating AM resource request"
             + " for application " + submissionContext.getApplicationId(), e);
         throw e;
       }
-      
-      return amReq;
     }
-    
-    return null;
   }
 
   private boolean isApplicationInFinalState(RMAppState rmAppState) {

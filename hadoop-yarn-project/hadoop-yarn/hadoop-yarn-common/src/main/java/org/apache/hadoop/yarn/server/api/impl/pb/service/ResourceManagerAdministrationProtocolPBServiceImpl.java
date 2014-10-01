@@ -22,16 +22,8 @@ import java.io.IOException;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.AddLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.AddLabelsResponseProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.ClearAllLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.ClearAllLabelsResponseProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetGroupsForUserRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetGroupsForUserResponseProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetLabelsResponseProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetNodeToLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.GetNodeToLabelsResponseProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshAdminAclsRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshAdminAclsResponseProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshNodesRequestProto;
@@ -44,35 +36,17 @@ import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.Refre
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshSuperUserGroupsConfigurationResponseProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshUserToGroupsMappingsRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RefreshUserToGroupsMappingsResponseProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RemoveLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.RemoveLabelsResponseProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.SetNodeToLabelsRequestProto;
-import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.SetNodeToLabelsResponseProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.UpdateNodeResourceRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerServiceProtos.UpdateNodeResourceResponseProto;
 import org.apache.hadoop.yarn.server.api.ResourceManagerAdministrationProtocol;
 import org.apache.hadoop.yarn.server.api.ResourceManagerAdministrationProtocolPB;
-import org.apache.hadoop.yarn.server.api.protocolrecords.AddLabelsResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.ClearAllLabelsResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.GetLabelsResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.GetNodeToLabelsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshAdminAclsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshServiceAclsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsConfigurationResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveLabelsResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.SetNodeToLabelsResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.AddLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.AddLabelsResponsePBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.ClearAllLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.ClearAllLabelsResponsePBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.GetLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.GetLabelsResponsePBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.GetNodeToLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.GetNodeToLabelsResponsePBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshAdminAclsRequestPBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshAdminAclsResponsePBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshNodesRequestPBImpl;
@@ -85,10 +59,6 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshSuperUse
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshSuperUserGroupsConfigurationResponsePBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshUserToGroupsMappingsRequestPBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RefreshUserToGroupsMappingsResponsePBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RemoveLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.RemoveLabelsResponsePBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.SetNodeToLabelsRequestPBImpl;
-import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.SetNodeToLabelsResponsePBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.UpdateNodeResourceRequestPBImpl;
 import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.UpdateNodeResourceResponsePBImpl;
 
@@ -234,94 +204,4 @@ public class ResourceManagerAdministrationProtocolPBServiceImpl implements Resou
     }
   }
 
-  @Override
-  public AddLabelsResponseProto addLabels(RpcController controller,
-      AddLabelsRequestProto proto) throws ServiceException {
-    AddLabelsRequestPBImpl request = new AddLabelsRequestPBImpl(proto);
-    try {
-      AddLabelsResponse response = real.addLabels(request);
-      return ((AddLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public RemoveLabelsResponseProto removeLabels(
-      RpcController controller, RemoveLabelsRequestProto proto)
-      throws ServiceException {
-    RemoveLabelsRequestPBImpl request =
-        new RemoveLabelsRequestPBImpl(proto);
-    try {
-      RemoveLabelsResponse response = real.removeLabels(request);
-      return ((RemoveLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public SetNodeToLabelsResponseProto setNodeToLabels(
-      RpcController controller, SetNodeToLabelsRequestProto proto)
-      throws ServiceException {
-    SetNodeToLabelsRequestPBImpl request =
-        new SetNodeToLabelsRequestPBImpl(proto);
-    try {
-      SetNodeToLabelsResponse response = real.setNodeToLabels(request);
-      return ((SetNodeToLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public GetNodeToLabelsResponseProto getNodeToLabels(RpcController controller,
-      GetNodeToLabelsRequestProto proto) throws ServiceException {
-    GetNodeToLabelsRequestPBImpl request =
-        new GetNodeToLabelsRequestPBImpl(proto);
-    try {
-      GetNodeToLabelsResponse response = real.getNodeToLabels(request);
-      return ((GetNodeToLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public GetLabelsResponseProto getLabels(RpcController controller,
-      GetLabelsRequestProto proto) throws ServiceException {
-    GetLabelsRequestPBImpl request =
-        new GetLabelsRequestPBImpl(proto);
-    try {
-      GetLabelsResponse response = real.getLabels(request);
-      return ((GetLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-  
-  @Override
-  public ClearAllLabelsResponseProto clearAllLabels(RpcController controller,
-      ClearAllLabelsRequestProto proto) throws ServiceException {
-    ClearAllLabelsRequestPBImpl request =
-        new ClearAllLabelsRequestPBImpl(proto);
-    try {
-      ClearAllLabelsResponse response = real.clearAllLabels(request);
-      return ((ClearAllLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
 }

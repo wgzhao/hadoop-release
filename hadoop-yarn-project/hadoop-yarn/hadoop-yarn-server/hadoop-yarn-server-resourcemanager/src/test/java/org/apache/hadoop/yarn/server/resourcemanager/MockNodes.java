@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.resourcemanager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.net.Node;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -203,11 +202,7 @@ public class MockNodes {
     public long getLastHealthReportTime() {
       return lastHealthReportTime;
     }
-
-    @Override
-    public Set<String> getLabels() {
-      return null;
-    }
+    
   };
 
   private static RMNode buildRMNode(int rack, final Resource perNode, NodeState state, String httpAddr) {

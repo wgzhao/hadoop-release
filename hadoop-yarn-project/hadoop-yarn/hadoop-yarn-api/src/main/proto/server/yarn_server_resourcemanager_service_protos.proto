@@ -75,52 +75,6 @@ message UpdateNodeResourceRequestProto {
 message UpdateNodeResourceResponseProto {
 }
 
-message AddLabelsRequestProto {
-  repeated string labels = 1;
-}
-
-message AddLabelsResponseProto {
-}
-
-message RemoveLabelsRequestProto {
-  repeated string labels = 1;
-}
-
-message RemoveLabelsResponseProto {
-}
-
-message NodeToLabelsProto {
-  optional string node = 1;
-  repeated string labels = 2;
-}
-
-message SetNodeToLabelsRequestProto {
-  repeated NodeToLabelsProto nodeToLabels = 1;
-}
-
-message SetNodeToLabelsResponseProto {
-  
-}
-
-message GetNodeToLabelsRequestProto {
-}
-
-message GetNodeToLabelsResponseProto {
-  repeated NodeToLabelsProto nodeToLabels = 1;
-}
-
-message GetLabelsRequestProto {
-}
-
-message GetLabelsResponseProto {
-  repeated string labels = 1;
-}
-
-message ClearAllLabelsRequestProto {
-}
-
-message ClearAllLabelsResponseProto {
-}
 
 //////////////////////////////////////////////////////////////////
 ///////////// RM Failover related records ////////////////////////

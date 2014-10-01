@@ -81,7 +81,6 @@ public class TestNMClient {
   int nodeCount = 3;
   NMTokenCache nmTokenCache = null;
   
-  @SuppressWarnings("deprecation")
   @Before
   public void setup() throws YarnException, IOException {
     // start minicluster

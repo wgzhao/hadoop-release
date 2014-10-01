@@ -18,15 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +31,6 @@ import org.apache.hadoop.yarn.api.records.QueueACL;
 import org.apache.hadoop.yarn.api.records.QueueState;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
@@ -90,12 +81,6 @@ public class CapacitySchedulerConfiguration extends Configuration {
 
   @Private
   public static final String STATE = "state";
-  
-  @Private
-  public static final String LABELS = "labels";
-  
-  @Private
-  public static final String DEFAULT_LABEL_EXPRESSION = "default-label-expression";
 
   @Private
   public static final int DEFAULT_MAXIMUM_SYSTEM_APPLICATIIONS = 10000;
@@ -321,42 +306,6 @@ public class CapacitySchedulerConfiguration extends Configuration {
     String state = get(getQueuePrefix(queue) + STATE);
     return (state != null) ? 
         QueueState.valueOf(state.toUpperCase()) : QueueState.RUNNING;
-  }
-  
-  public void setLabels(String queue, Set<String> labels) {
-    if (labels == null) {
-      return;
-    }
-    String str = StringUtils.join(",", labels);
-    set(getQueuePrefix(queue) + LABELS, str);
-  }
-  
-  public Set<String> getLabels(String queue) {
-    String labelStr = get(getQueuePrefix(queue) + LABELS);
-    if (labelStr == null) {
-      return queue.equals(ROOT) ? NodeLabelManager.EMPTY_STRING_SET : null;
-    } else {
-      Set<String> set = new HashSet<String>();
-      for (String str : labelStr.split(",")) {
-        if (!str.trim().isEmpty()) {
-          set.add(str.trim().toLowerCase());
-        }
-      }
-      // if labels contains "*", only leave ANY behind
-      if (set.contains(NodeLabelManager.ANY)) {
-        set.clear();
-        set.add(NodeLabelManager.ANY);
-      }
-      return Collections.unmodifiableSet(set);
-    }
-  }
-  
-  public String getDefaultLabelExpression(String queue) {
-    return get(getQueuePrefix(queue) + DEFAULT_LABEL_EXPRESSION);
-  }
-  
-  public void setDefaultLabelExpression(String queue, String exp) {
-    set(getQueuePrefix(queue) + DEFAULT_LABEL_EXPRESSION, exp);
   }
   
   private static String getAclKey(QueueACL acl) {

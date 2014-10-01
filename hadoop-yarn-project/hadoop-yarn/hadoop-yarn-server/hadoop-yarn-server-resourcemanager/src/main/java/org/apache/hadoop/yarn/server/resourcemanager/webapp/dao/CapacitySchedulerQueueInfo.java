@@ -17,8 +17,6 @@
  */
 package org.apache.hadoop.yarn.server.resourcemanager.webapp.dao;
 
-import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -50,8 +48,6 @@ public class CapacitySchedulerQueueInfo {
   protected QueueState state;
   protected CapacitySchedulerQueueInfoList queues;
   protected ResourceInfo resourcesUsed;
-  protected float absActualCapacity;
-  protected LabelNamesInfo labels = new LabelNamesInfo();
 
   CapacitySchedulerQueueInfo() {
   };
@@ -73,13 +69,6 @@ public class CapacitySchedulerQueueInfo {
     queueName = q.getQueueName();
     state = q.getState();
     resourcesUsed = new ResourceInfo(q.getUsedResources());
-    absActualCapacity = cap(q.getAbsActualCapacity(), 0f, 1f) * 100;
-    
-    // add labels
-    Set<String> labelSet = q.getLabels();
-    if (labelSet != null) {
-      labels = new LabelNamesInfo(labelSet);
-    }
   }
 
   public float getCapacity() {
@@ -105,10 +94,6 @@ public class CapacitySchedulerQueueInfo {
   public float getAbsoluteUsedCapacity() {
     return absoluteUsedCapacity;
   }
-  
-  public float getAbsActualCapacity() {
-    return absActualCapacity;
-  }
 
   public int getNumApplications() {
     return numApplications;
@@ -132,10 +117,6 @@ public class CapacitySchedulerQueueInfo {
 
   public ResourceInfo getResourcesUsed() {
     return resourcesUsed;
-  }
-  
-  public LabelNamesInfo getLabels() {
-    return labels;
   }
 
   /**

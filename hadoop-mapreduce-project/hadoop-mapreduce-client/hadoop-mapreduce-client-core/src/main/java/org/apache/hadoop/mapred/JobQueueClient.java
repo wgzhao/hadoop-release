@@ -135,14 +135,6 @@ class JobQueueClient extends Configured implements Tool {
         jobQueueInfo.getQueueState()));
     writer.write(String.format(prefix + "Scheduling Info : %s \n",
         jobQueueInfo.getSchedulingInfo()));
-    if (jobQueueInfo.getLabels() != null) {
-      writer.write(String.format(prefix + "Labels : %s \n",
-          jobQueueInfo.getLabels()));
-    }
-    if (jobQueueInfo.getDefaultLabelExpression() != null) {
-      writer.write(String.format(prefix + "DefaultLabelExpression : %s \n",
-          jobQueueInfo.getDefaultLabelExpression()));
-    }
     List<JobQueueInfo> childQueues = jobQueueInfo.getChildren();
     if (childQueues != null && childQueues.size() > 0) {
       for (int i = 0; i < childQueues.size(); i++) {

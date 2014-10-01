@@ -19,10 +19,8 @@
 package org.apache.hadoop.yarn.api.records.impl.pb;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
@@ -46,7 +44,6 @@ public class QueueInfoPBImpl extends QueueInfo {
 
   List<ApplicationReport> applicationsList;
   List<QueueInfo> childQueuesList;
-  Set<String> labels;
   
   public QueueInfoPBImpl() {
     builder = QueueInfoProto.newBuilder();
@@ -284,10 +281,6 @@ public class QueueInfoPBImpl extends QueueInfo {
     if (this.applicationsList != null) {
       addApplicationsToProto();
     }
-    if (this.labels != null) {
-      builder.clearLabels();
-      builder.addAllLabels(this.labels);
-    }
   }
 
   private void mergeLocalToProto() {
@@ -329,43 +322,5 @@ public class QueueInfoPBImpl extends QueueInfo {
   private QueueStateProto convertToProtoFormat(QueueState queueState) {
     return ProtoUtils.convertToProtoFormat(queueState);
   }
-  
-  @Override
-  public void setLabels(Set<String> labels) {
-    maybeInitBuilder();
-    builder.clearLabels();
-    this.labels = labels;
-  }
-  
-  private void initLabels() {
-    if (this.labels != null) {
-      return;
-    }
-    QueueInfoProtoOrBuilder p = viaProto ? proto : builder;
-    this.labels = new HashSet<String>();
-    this.labels.addAll(p.getLabelsList());
-  }
 
-  @Override
-  public Set<String> getLabels() {
-    initLabels();
-    return this.labels;
-  }
-
-  @Override
-  public String getDefaultLabelExpression() {
-    QueueInfoProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.hasDefaultLabelExpression()) ? p.getDefaultLabelExpression()
-        : null;
-  }
-
-  @Override
-  public void setDefaultLabelExpression(String defaultLabelExpression) {
-    maybeInitBuilder();
-    if (defaultLabelExpression == null) {
-      builder.clearDefaultLabelExpression();
-      return;
-    }
-    builder.setDefaultLabelExpression(defaultLabelExpression);
-  }
 }
