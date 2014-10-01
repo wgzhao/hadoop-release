@@ -2554,7 +2554,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           clientMachine, create, overwrite, createParent, replication, 
           blockSize, suite, edek, logRetryCache);
       stat = dir.getFileInfo(src, false,
-          FSDirectory.isReservedRawName(srcArg), false);
+          FSDirectory.isReservedRawName(srcArg), true);
     } catch (StandbyException se) {
       skipSync = true;
       throw se;

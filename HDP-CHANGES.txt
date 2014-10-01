@@ -6,6 +6,9 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
   IMPROVEMENTS
 
+    HDFS-7153. Add storagePolicy to NN edit log during file creation.
+    (Arpit Agarwal). Cherry-pick commit ID 9e9e9cf from apache/trunk.
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
