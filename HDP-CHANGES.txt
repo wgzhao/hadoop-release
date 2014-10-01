@@ -20,7 +20,3 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
     HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
     System. (Shanyu Zhao via cnauroth)
-
-    BUG-23663 [HDFS-7155]. Bugfix in createLocatedFileStatus caused by bad
-    merge (Arpit Agarwal).
-
