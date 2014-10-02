@@ -21,6 +21,7 @@ package org.apache.hadoop.mapreduce;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobPriority;
@@ -485,7 +486,8 @@ public class TypeConverter {
       (queueInfo.getMaximumCapacity() < 0 ? "UNDEFINED" :
         queueInfo.getMaximumCapacity() * 100) + ", CurrentCapacity: " +
       queueInfo.getCurrentCapacity() * 100, fromYarn(queueInfo.getQueueState()),
-      TypeConverter.fromYarnApps(queueInfo.getApplications(), conf));
+      TypeConverter.fromYarnApps(queueInfo.getApplications(), conf),
+      queueInfo.getLabels(), queueInfo.getDefaultLabelExpression());
     List<QueueInfo> childQueues = new ArrayList<QueueInfo>();
     for(org.apache.hadoop.yarn.api.records.QueueInfo childQueue :
       queueInfo.getChildQueues()) {

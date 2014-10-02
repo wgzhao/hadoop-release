@@ -39,4 +39,10 @@ service ResourceManagerAdministrationProtocolService {
   rpc refreshServiceAcls(RefreshServiceAclsRequestProto) returns (RefreshServiceAclsResponseProto);
   rpc getGroupsForUser(GetGroupsForUserRequestProto) returns (GetGroupsForUserResponseProto);
   rpc updateNodeResource (UpdateNodeResourceRequestProto) returns (UpdateNodeResourceResponseProto);
+  rpc addLabels(AddLabelsRequestProto) returns (AddLabelsResponseProto);
+  rpc removeLabels(RemoveLabelsRequestProto) returns (RemoveLabelsResponseProto);
+  rpc setNodeToLabels(SetNodeToLabelsRequestProto) returns (SetNodeToLabelsResponseProto);
+  rpc getNodeToLabels(GetNodeToLabelsRequestProto) returns (GetNodeToLabelsResponseProto);
+  rpc getLabels(GetLabelsRequestProto) returns (GetLabelsResponseProto);
+  rpc clearAllLabels(ClearAllLabelsRequestProto) returns (ClearAllLabelsResponseProto);
 }

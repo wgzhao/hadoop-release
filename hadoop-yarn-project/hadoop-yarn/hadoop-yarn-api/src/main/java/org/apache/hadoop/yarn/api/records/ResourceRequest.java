@@ -70,12 +70,22 @@ public abstract class ResourceRequest implements Comparable<ResourceRequest> {
   @Stable
   public static ResourceRequest newInstance(Priority priority, String hostName,
       Resource capability, int numContainers, boolean relaxLocality) {
+    return newInstance(priority, hostName, capability, numContainers,
+        relaxLocality, null);
+  }
+  
+  @Public
+  @Stable
+  public static ResourceRequest newInstance(Priority priority, String hostName,
+      Resource capability, int numContainers, boolean relaxLocality,
+      String labelExpression) {
     ResourceRequest request = Records.newRecord(ResourceRequest.class);
     request.setPriority(priority);
     request.setResourceName(hostName);
     request.setCapability(capability);
     request.setNumContainers(numContainers);
     request.setRelaxLocality(relaxLocality);
+    request.setLabelExpression(labelExpression);
     return request;
   }
 
@@ -239,6 +249,29 @@ public abstract class ResourceRequest implements Comparable<ResourceRequest> {
   @Stable
   public abstract void setRelaxLocality(boolean relaxLocality);
   
+  /**
+   * Get Label expression for this Resource Request
+   * 
+   * @return label expression
+   */
+  @Public
+  @Stable
+  public abstract String getLabelExpression(); 
+  
+  /**
+   * Set label expression associated with this resource request. Now only
+   * support AND(&&), in the future will provide support for OR(||), NOT(!).
+   * 
+   * Examples: 
+   * - GPU && LARGE_MEM, ask for node has label GPU and LARGE_MEM together
+   * - "" (empty) means ask for node doesn't have label on it, this is default
+   * 
+   * @param labelExpression
+   */
+  @Public
+  @Stable
+  public abstract void setLabelExpression(String labelExpression);
+  
   @Override
   public int hashCode() {
     final int prime = 2153;
@@ -283,6 +316,20 @@ public abstract class ResourceRequest implements Comparable<ResourceRequest> {
         return false;
     } else if (!priority.equals(other.getPriority()))
       return false;
+    if (getLabelExpression() == null) {
+      if (other.getLabelExpression() != null) {
+        return false;
+      }
+    } else {
+      // do normalize on label expression before compare
+      String label1 = getLabelExpression().replaceAll("[\\t ]", "");
+      String label2 =
+          other.getLabelExpression() == null ? null : other
+              .getLabelExpression().replaceAll("[\\t ]", "");
+      if (!label1.equals(label2)) {
+        return false;
+      }
+    }
     return true;
   }
 

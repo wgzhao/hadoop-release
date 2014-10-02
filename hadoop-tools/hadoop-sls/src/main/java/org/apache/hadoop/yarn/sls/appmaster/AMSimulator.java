@@ -40,7 +40,6 @@ import org.apache.hadoop.yarn.api.protocolrecords
 import org.apache.hadoop.yarn.api.protocolrecords.SubmitApplicationRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-
 import org.apache.hadoop.yarn.api.protocolrecords
         .RegisterApplicationMasterRequest;
 import org.apache.hadoop.yarn.api.protocolrecords
@@ -67,7 +66,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.log4j.Logger;
-
 import org.apache.hadoop.yarn.sls.scheduler.ContainerSimulator;
 import org.apache.hadoop.yarn.sls.scheduler.ResourceSchedulerWrapper;
 import org.apache.hadoop.yarn.sls.SLSRunner;
@@ -229,6 +227,7 @@ public abstract class AMSimulator extends TaskRunner.Task {
   
   protected abstract void checkStop();
   
+  @SuppressWarnings("deprecation")
   private void submitApp()
           throws YarnException, InterruptedException, IOException {
     // ask for new application

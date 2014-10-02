@@ -423,6 +423,14 @@ public abstract class AbstractYarnScheduler
   public SchedulerNode getSchedulerNode(NodeId nodeId) {
     return nodes.get(nodeId);
   }
+  
+  public List<SchedulerNode> getSchedulerNodes() {
+    List<SchedulerNode> snodes = new ArrayList<SchedulerNode>();
+    for (N node : nodes.values()) {
+      snodes.add(node);
+    }
+    return snodes;
+  }
 
   @Override
   public synchronized void moveAllApps(String sourceQueue, String destQueue)

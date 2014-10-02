@@ -72,9 +72,18 @@ extends org.apache.hadoop.yarn.server.resourcemanager.scheduler.Queue {
   
   /**
    * Get the configured <em>capacity</em> of the queue.
-   * @return queue capacity
+   * @return configured queue capacity
    */
   public float getCapacity();
+  
+  /**
+   * Get actual <em>capacity</em> of the queue, this may be different from
+   * configured capacity when mis-config take place, like add labels to the
+   * cluster
+   * 
+   * @return actual queue capacity
+   */
+  public float getAbsActualCapacity();
 
   /**
    * Get capacity of the parent of the queue as a function of the 

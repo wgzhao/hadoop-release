@@ -18,17 +18,17 @@
 
 package org.apache.hadoop.yarn.api.records;
 
+import java.util.Set;
+
 import org.apache.hadoop.classification.InterfaceAudience.LimitedPrivate;
-import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
 import org.apache.hadoop.yarn.api.ApplicationMasterProtocol;
+import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterRequest;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Records;
-
-import java.util.Set;
 
 /**
  * <p><code>ApplicationSubmissionContext</code> represents all of the
@@ -72,7 +72,8 @@ public abstract class ApplicationSubmissionContext {
       Priority priority, ContainerLaunchContext amContainer,
       boolean isUnmanagedAM, boolean cancelTokensWhenComplete,
       int maxAppAttempts, Resource resource, String applicationType,
-      boolean keepContainers) {
+      boolean keepContainers, String appLabelExpression,
+      String amContainerLabelExpression) {
     ApplicationSubmissionContext context =
         Records.newRecord(ApplicationSubmissionContext.class);
     context.setApplicationId(applicationId);
@@ -88,6 +89,17 @@ public abstract class ApplicationSubmissionContext {
     context.setKeepContainersAcrossApplicationAttempts(keepContainers);
     return context;
   }
+  
+  public static ApplicationSubmissionContext newInstance(
+      ApplicationId applicationId, String applicationName, String queue,
+      Priority priority, ContainerLaunchContext amContainer,
+      boolean isUnmanagedAM, boolean cancelTokensWhenComplete,
+      int maxAppAttempts, Resource resource, String applicationType,
+      boolean keepContainers) {
+    return newInstance(applicationId, applicationName, queue, priority,
+        amContainer, isUnmanagedAM, cancelTokensWhenComplete, maxAppAttempts,
+        resource, applicationType, keepContainers, null, null);
+  }
 
   @Public
   @Stable
@@ -98,7 +110,7 @@ public abstract class ApplicationSubmissionContext {
       int maxAppAttempts, Resource resource, String applicationType) {
     return newInstance(applicationId, applicationName, queue, priority,
       amContainer, isUnmanagedAM, cancelTokensWhenComplete, maxAppAttempts,
-      resource, applicationType, false);
+      resource, applicationType, false, null, null);
   }
 
   @Public
@@ -111,6 +123,29 @@ public abstract class ApplicationSubmissionContext {
     return newInstance(applicationId, applicationName, queue, priority,
       amContainer, isUnmanagedAM, cancelTokensWhenComplete, maxAppAttempts,
       resource, null);
+  }
+  
+  @Public
+  @Stable
+  public static ApplicationSubmissionContext newInstance(
+      ApplicationId applicationId, String applicationName, String queue,
+      ContainerLaunchContext amContainer, boolean isUnmanagedAM,
+      boolean cancelTokensWhenComplete, int maxAppAttempts,
+      String applicationType, boolean keepContainers,
+      String appLabelExpression, ResourceRequest resourceRequest) {
+    ApplicationSubmissionContext context =
+        Records.newRecord(ApplicationSubmissionContext.class);
+    context.setApplicationId(applicationId);
+    context.setApplicationName(applicationName);
+    context.setQueue(queue);
+    context.setAMContainerSpec(amContainer);
+    context.setUnmanagedAM(isUnmanagedAM);
+    context.setCancelTokensWhenComplete(cancelTokensWhenComplete);
+    context.setMaxAppAttempts(maxAppAttempts);
+    context.setApplicationType(applicationType);
+    context.setKeepContainersAcrossApplicationAttempts(keepContainers);
+    context.setAMContainerResourceRequest(resourceRequest);
+    return context;
   }
 
   @Public
@@ -194,19 +229,21 @@ public abstract class ApplicationSubmissionContext {
   public abstract void setQueue(String queue);
   
   /**
+   * Please note this is DEPRECATED, please use <em>getPriority</em> in
+   * <em>getAMContainerResourceRequest</em> instead.
+   *  
    * Get the <code>Priority</code> of the application.
+   * 
    * @return <code>Priority</code> of the application
    */
-  @Public
-  @Stable
+  @Deprecated
   public abstract Priority getPriority();
 
   /**
    * Set the <code>Priority</code> of the application.
    * @param priority <code>Priority</code> of the application
    */
-  @Private
-  @Unstable
+  @Deprecated
   public abstract void setPriority(Priority priority);
 
   /**
@@ -289,14 +326,16 @@ public abstract class ApplicationSubmissionContext {
   public abstract void setMaxAppAttempts(int maxAppAttempts);
 
   /**
+   * Please note this is DEPRECATED, please use <em>getResource</em> in
+   * <em>getAMContainerResourceRequest</em> instead.
+   * 
    * Get the resource required by the <code>ApplicationMaster</code> for this
    * application.
    * 
    * @return the resource required by the <code>ApplicationMaster</code> for
    *         this application.
    */
-  @Public
-  @Stable
+  @Deprecated
   public abstract Resource getResource();
 
   /**
@@ -306,8 +345,7 @@ public abstract class ApplicationSubmissionContext {
    * @param resource the resource required by the <code>ApplicationMaster</code>
    * for this application.
    */
-  @Public
-  @Stable
+  @Deprecated
   public abstract void setResource(Resource resource);
   
   /**
@@ -379,6 +417,57 @@ public abstract class ApplicationSubmissionContext {
   @Public
   @Stable
   public abstract void setApplicationTags(Set<String> tags);
+  
+  /**
+   * Get label expression for this app
+   * 
+   * @return label expression for this app
+   */
+  @Public
+  @Stable
+  public abstract String getAppLabelExpression();
+  
+  /**
+   * Set label expression for the APP
+   * 
+   * By default, APP label expression is empty. This field can be overwrite by
+   * resource request label expression and AM container label expression
+   * 
+   * e.g.
+   * - APP label expression = "GPU && LARGE_MEM"
+   * - Resource Request label expression = "", it will be set "GPU && LARGE_MEM"
+   * - Resource Request label expression = "GPU && INFINI_BAND", 
+   *   it will be "GPU && INFINI_BAND"
+   * 
+   * As same as label expression AM container Resource Request 
+   */
+  @Public
+  @Stable
+  public abstract void setAppLabelExpression(String labelExpression);
+  
+  /**
+   * Get ResourceRequest of AM container, if this is not null, scheduler will
+   * use this to acquire resource for AM container.
+   * 
+   * If this is null, scheduler will assemble a ResourceRequest by using
+   * <em>getResource</em> and <em>getPriority</em> of
+   * <em>ApplicationSubmissionContext</em>.
+   * 
+   * Number of containers and Priority will be ignore.
+   * 
+   * @return ResourceRequest of AM container
+   */
+  @Public
+  @Stable
+  public abstract ResourceRequest getAMContainerResourceRequest();
+  
+  /**
+   * Set ResourceRequest of AM container
+   * @param request of AM container
+   */
+  @Public
+  @Stable
+  public abstract void setAMContainerResourceRequest(ResourceRequest request);
 
   /**
    * Get the attemptFailuresValidityInterval in milliseconds for the application

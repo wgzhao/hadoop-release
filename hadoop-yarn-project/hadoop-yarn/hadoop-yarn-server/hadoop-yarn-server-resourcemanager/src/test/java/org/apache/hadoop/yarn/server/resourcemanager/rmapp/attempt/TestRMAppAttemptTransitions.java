@@ -63,6 +63,7 @@ import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.api.records.YarnApplicationAttemptState;
 import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.EventHandler;
@@ -83,8 +84,8 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEventType;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppFailedAttemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppImpl;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppRunningOnNodeEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppRejectedEvent;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppRunningOnNodeEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerAllocatedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerFinishedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptLaunchFailedEvent;
@@ -229,6 +230,7 @@ public class TestRMAppAttemptTransitions {
     this.isSecurityEnabled = isSecurityEnabled;
   }
 
+  @SuppressWarnings("deprecation")
   @Before
   public void setUp() throws Exception {
     AuthenticationMethod authMethod = AuthenticationMethod.SIMPLE;
@@ -300,6 +302,7 @@ public class TestRMAppAttemptTransitions {
     Mockito.doReturn(resourceScheduler).when(spyRMContext).getScheduler();
 
 
+    final String user = MockApps.newUserName();
     final String queue = MockApps.newQueue();
     submissionContext = mock(ApplicationSubmissionContext.class);
     when(submissionContext.getQueue()).thenReturn(queue);
@@ -315,7 +318,11 @@ public class TestRMAppAttemptTransitions {
     application = mock(RMAppImpl.class);
     applicationAttempt =
         new RMAppAttemptImpl(applicationAttemptId, spyRMContext, scheduler,
-          masterService, submissionContext, new Configuration(), false);
+            masterService, submissionContext, new Configuration(), false,
+            BuilderUtils.newResourceRequest(
+                RMAppAttemptImpl.AM_CONTAINER_PRIORITY, ResourceRequest.ANY,
+                submissionContext.getResource(), 1));
+
     when(application.getCurrentAppAttempt()).thenReturn(applicationAttempt);
     when(application.getApplicationId()).thenReturn(applicationId);
     spyRMContext.getRMApps().put(application.getApplicationId(), application);
@@ -1399,13 +1406,16 @@ public class TestRMAppAttemptTransitions {
   }
 
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testContainersCleanupForLastAttempt() {
     // create a failed attempt.
     applicationAttempt =
         new RMAppAttemptImpl(applicationAttempt.getAppAttemptId(), spyRMContext,
           scheduler, masterService, submissionContext, new Configuration(),
-          true);
+          true, BuilderUtils.newResourceRequest(
+              RMAppAttemptImpl.AM_CONTAINER_PRIORITY, ResourceRequest.ANY,
+              submissionContext.getResource(), 1));
     when(submissionContext.getKeepContainersAcrossApplicationAttempts())
       .thenReturn(true);
     when(submissionContext.getMaxAppAttempts()).thenReturn(1);

@@ -126,6 +126,7 @@ public class TestReservations {
     containerTokenSecretManager.rollMasterKey();
     when(csContext.getContainerTokenSecretManager()).thenReturn(
         containerTokenSecretManager);
+    when(csContext.getRMContext()).thenReturn(rmContext);
 
     root = CapacityScheduler.parseQueue(csContext, csConf, null,
         CapacitySchedulerConfiguration.ROOT, queues, queues, TestUtils.spyHook);
