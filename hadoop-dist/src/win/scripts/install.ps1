@@ -435,6 +435,13 @@ function Main( $scriptDir )
         $mapredConfigs["mapred.output.compression.codec"] = "org.apache.hadoop.io.compress.GzipCodec"
     }
     Configure "mapreduce" $NodeInstallRoot $serviceCredential $mapredConfigs
+    $files = Get-ChildItem -Path "$NodeInstallRoot\hadoop*" -Recurse -Include "*-site.xml" -Force
+    Write-Log "Configuring *-site.xml to support FQDN"
+    foreach ($file in $files)
+    {
+        Write-Log "Changing $file"
+        UpdateFQDNConfig $file
+    }
     Write-Log "Install of Hadoop Core, HDFS, MapRed completed successfully"
 }
 
