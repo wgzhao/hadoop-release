@@ -52,51 +52,19 @@ public class LogCLIHelpers implements Configurable {
         YarnConfiguration.NM_REMOTE_APP_LOG_DIR,
         YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR));
     String suffix = LogAggregationUtils.getRemoteNodeLogDirSuffix(getConf());
-    Path remoteAppLogDir = LogAggregationUtils.getRemoteAppLogDir(
+    Path logPath = LogAggregationUtils.getRemoteNodeLogFileForApp(
         remoteRootLogDir, ConverterUtils.toApplicationId(appId), jobOwner,
-        suffix);
-    RemoteIterator<FileStatus> nodeFiles;
+        ConverterUtils.toNodeId(nodeId), suffix);
+    AggregatedLogFormat.LogReader reader;
     try {
-      Path qualifiedLogDir =
-          FileContext.getFileContext(getConf()).makeQualified(
-            remoteAppLogDir);
-      nodeFiles =
-          FileContext.getFileContext(qualifiedLogDir.toUri(), getConf())
-            .listStatus(remoteAppLogDir);
-    } catch (FileNotFoundException fnf) {
-      System.out.println("Logs not available at "
-          + remoteAppLogDir.toString());
+      reader = new AggregatedLogFormat.LogReader(getConf(), logPath);
+    } catch (FileNotFoundException fnfe) {
+      System.out.println("Logs not available at " + logPath.toString());
       System.out
           .println("Log aggregation has not completed or is not enabled.");
       return -1;
     }
-    boolean foundContainerLogs = false;
-    while (nodeFiles.hasNext()) {
-      FileStatus thisNodeFile = nodeFiles.next();
-      String fileName = thisNodeFile.getPath().getName();
-      if (fileName.contains(LogAggregationUtils.getNodeString(nodeId))
-          && !fileName.contains(LogAggregationUtils.TMP_FILE_SUFFIX)) {
-        AggregatedLogFormat.LogReader reader = null;
-        try {
-          reader =
-              new AggregatedLogFormat.LogReader(getConf(),
-                thisNodeFile.getPath());
-          if (dumpAContainerLogs(containerId, reader, System.out) > -1) {
-            foundContainerLogs = true;
-          }
-        } finally {
-          if (reader != null) {
-            reader.close();
-          }
-        }
-      }
-    }
-    if (!foundContainerLogs) {
-      System.out.println("Logs for container " + containerId
-          + " are not present in this log-file.");
-      return -1;
-    }
-    return 0;
+    return dumpAContainerLogs(containerId, reader, System.out);
   }
 
   @Private
@@ -113,6 +81,8 @@ public class LogCLIHelpers implements Configurable {
     }
 
     if (valueStream == null) {
+      System.out.println("Logs for container " + containerIdStr
+          + " are not present in this log-file.");
       return -1;
     }
 
@@ -149,47 +119,36 @@ public class LogCLIHelpers implements Configurable {
           .println("Log aggregation has not completed or is not enabled.");
       return -1;
     }
-    boolean foundAnyLogs = false;
     while (nodeFiles.hasNext()) {
       FileStatus thisNodeFile = nodeFiles.next();
-      if (!thisNodeFile.getPath().getName()
-        .contains(LogAggregationUtils.TMP_FILE_SUFFIX)) {
-        AggregatedLogFormat.LogReader reader =
-            new AggregatedLogFormat.LogReader(getConf(), thisNodeFile.getPath());
-        try {
+      AggregatedLogFormat.LogReader reader = new AggregatedLogFormat.LogReader(
+          getConf(), new Path(remoteAppLogDir, thisNodeFile.getPath().getName()));
+      try {
 
-          DataInputStream valueStream;
-          LogKey key = new LogKey();
-          valueStream = reader.next(key);
+        DataInputStream valueStream;
+        LogKey key = new LogKey();
+        valueStream = reader.next(key);
 
-          while (valueStream != null) {
-            String containerString =
-                "\n\nContainer: " + key + " on " + thisNodeFile.getPath().getName();
-            out.println(containerString);
-            out.println(StringUtils.repeat("=", containerString.length()));
-            while (true) {
-              try {
-                LogReader.readAContainerLogsForALogType(valueStream, out);
-                foundAnyLogs = true;
-              } catch (EOFException eof) {
-                break;
-              }
+        while (valueStream != null) {
+          String containerString = "\n\nContainer: " + key + " on "
+              + thisNodeFile.getPath().getName();
+          out.println(containerString);
+          out.println(StringUtils.repeat("=", containerString.length()));
+          while (true) {
+            try {
+              LogReader.readAContainerLogsForALogType(valueStream, out);
+            } catch (EOFException eof) {
+              break;
             }
-
-            // Next container
-            key = new LogKey();
-            valueStream = reader.next(key);
           }
-        } finally {
-          reader.close();
+
+          // Next container
+          key = new LogKey();
+          valueStream = reader.next(key);
         }
+      } finally {
+        reader.close();
       }
-    }
-    if (! foundAnyLogs) {
-      System.out.println("Logs not available at " + remoteAppLogDir.toString());
-      System.out
-          .println("Log aggregation has not completed or is not enabled.");
-      return -1;
     }
     return 0;
   }

@@ -42,7 +42,6 @@ import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
@@ -59,7 +58,7 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.eve
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.event.LogHandlerAppStartedEvent;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.event.LogHandlerContainerFinishedEvent;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.event.LogHandlerEvent;
-import com.google.common.annotations.VisibleForTesting;
+
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class LogAggregationService extends AbstractService implements
@@ -224,11 +223,6 @@ public class LogAggregationService extends AbstractService implements
         this.remoteRootLogDirSuffix);
   }
 
-  Path getRemoteAppLogDir(ApplicationId appId, String user) {
-    return LogAggregationUtils.getRemoteAppLogDir(this.remoteRootLogDir, appId,
-        user, this.remoteRootLogDirSuffix);
-  }
-
   private void createDir(FileSystem fs, Path path, FsPermission fsPerm)
       throws IOException {
     FsPermission dirPerm = new FsPermission(fsPerm);
@@ -293,7 +287,6 @@ public class LogAggregationService extends AbstractService implements
 
               createDir(remoteFS, appDir, APP_DIR_PERMISSIONS);
             }
-
           } catch (IOException e) {
             LOG.error("Failed to setup application log directory for "
                 + appId, e);
@@ -310,13 +303,11 @@ public class LogAggregationService extends AbstractService implements
   @SuppressWarnings("unchecked")
   private void initApp(final ApplicationId appId, String user,
       Credentials credentials, ContainerLogsRetentionPolicy logRetentionPolicy,
-      Map<ApplicationAccessType, String> appAcls,
-      LogAggregationContext logAggregationContext) {
+      Map<ApplicationAccessType, String> appAcls) {
     ApplicationEvent eventResponse;
     try {
       verifyAndCreateRemoteLogDir(getConfig());
-      initAppAggregator(appId, user, credentials, logRetentionPolicy, appAcls,
-          logAggregationContext);
+      initAppAggregator(appId, user, credentials, logRetentionPolicy, appAcls);
       eventResponse = new ApplicationEvent(appId,
           ApplicationEventType.APPLICATION_LOG_HANDLING_INITED);
     } catch (YarnRuntimeException e) {
@@ -329,8 +320,7 @@ public class LogAggregationService extends AbstractService implements
 
   protected void initAppAggregator(final ApplicationId appId, String user,
       Credentials credentials, ContainerLogsRetentionPolicy logRetentionPolicy,
-      Map<ApplicationAccessType, String> appAcls,
-      LogAggregationContext logAggregationContext) {
+      Map<ApplicationAccessType, String> appAcls) {
 
     // Get user's FileSystem credentials
     final UserGroupInformation userUgi =
@@ -342,9 +332,9 @@ public class LogAggregationService extends AbstractService implements
     // New application
     final AppLogAggregator appLogAggregator =
         new AppLogAggregatorImpl(this.dispatcher, this.deletionService,
-            getConfig(), nodeId, appId, userUgi, dirsHandler,
+            getConfig(), appId, userUgi, dirsHandler,
             getRemoteNodeLogFileForApp(appId, user), logRetentionPolicy,
-            appAcls, logAggregationContext, this.context);
+            appAcls);
     if (this.appLogAggregators.putIfAbsent(appId, appLogAggregator) != null) {
       throw new YarnRuntimeException("Duplicate initApp for " + appId);
     }
@@ -431,8 +421,7 @@ public class LogAggregationService extends AbstractService implements
         initApp(appStartEvent.getApplicationId(), appStartEvent.getUser(),
             appStartEvent.getCredentials(),
             appStartEvent.getLogRetentionPolicy(),
-            appStartEvent.getApplicationAcls(),
-            appStartEvent.getLogAggregationContext());
+            appStartEvent.getApplicationAcls());
         break;
       case CONTAINER_FINISHED:
         LogHandlerContainerFinishedEvent containerFinishEvent =
@@ -449,15 +438,5 @@ public class LogAggregationService extends AbstractService implements
         ; // Ignore
     }
 
-  }
-
-  @VisibleForTesting
-  public ConcurrentMap<ApplicationId, AppLogAggregator> getAppLogAggregators() {
-    return this.appLogAggregators;
-  }
-
-  @VisibleForTesting
-  public NodeId getNodeId() {
-    return this.nodeId;
   }
 }

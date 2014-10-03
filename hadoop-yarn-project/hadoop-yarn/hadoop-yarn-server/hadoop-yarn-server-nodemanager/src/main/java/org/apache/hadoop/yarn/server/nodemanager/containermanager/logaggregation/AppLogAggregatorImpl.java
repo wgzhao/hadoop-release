@@ -20,23 +20,15 @@ package org.apache.hadoop.yarn.server.nodemanager.containermanager.logaggregatio
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -44,26 +36,16 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
-import org.apache.hadoop.yarn.api.records.NodeId;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.logaggregation.ContainerLogsRetentionPolicy;
 import org.apache.hadoop.yarn.logaggregation.AggregatedLogFormat.LogKey;
 import org.apache.hadoop.yarn.logaggregation.AggregatedLogFormat.LogValue;
 import org.apache.hadoop.yarn.logaggregation.AggregatedLogFormat.LogWriter;
-import org.apache.hadoop.yarn.logaggregation.LogAggregationUtils;
-import org.apache.hadoop.yarn.server.nodemanager.Context;
 import org.apache.hadoop.yarn.server.nodemanager.DeletionService;
 import org.apache.hadoop.yarn.server.nodemanager.LocalDirsHandlerService;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.ApplicationEvent;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.ApplicationEventType;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 
 public class AppLogAggregatorImpl implements AppLogAggregator {
@@ -71,18 +53,18 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
   private static final Log LOG = LogFactory
       .getLog(AppLogAggregatorImpl.class);
   private static final int THREAD_SLEEP_TIME = 1000;
+  private static final String TMP_FILE_SUFFIX = ".tmp";
 
   private final LocalDirsHandlerService dirsHandler;
   private final Dispatcher dispatcher;
   private final ApplicationId appId;
-  private final NodeId nodeId;
   private final String applicationId;
   private boolean logAggregationDisabled = false;
   private final Configuration conf;
   private final DeletionService delService;
   private final UserGroupInformation userUgi;
   private final Path remoteNodeLogFileForApp;
-  private Path remoteNodeTmpLogFileForApp;
+  private final Path remoteNodeTmpLogFileForApp;
   private final ContainerLogsRetentionPolicy retentionPolicy;
 
   private final BlockingQueue<ContainerId> pendingContainers;
@@ -90,47 +72,53 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
   private final AtomicBoolean appAggregationFinished = new AtomicBoolean();
   private final AtomicBoolean aborted = new AtomicBoolean();
   private final Map<ApplicationAccessType, String> appAcls;
-  private final LogAggregationContext logAggregationContext;
-  private final Context context;
-  private int retentionSize;
-  private Set<Path> currentUploadedFiles = new HashSet<Path>();
-  private Set<String> alreadyUploadedLogs = new HashSet<String>();
-  private Set<String> currentExistingLogFiles = new HashSet<String>();
+
+  private LogWriter writer = null;
 
   public AppLogAggregatorImpl(Dispatcher dispatcher,
-      DeletionService deletionService, Configuration conf, NodeId nodeId,
-      ApplicationId appId, UserGroupInformation userUgi,
-      LocalDirsHandlerService dirsHandler, Path remoteNodeLogDirForApp,
+      DeletionService deletionService, Configuration conf, ApplicationId appId,
+      UserGroupInformation userUgi, LocalDirsHandlerService dirsHandler,
+      Path remoteNodeLogFileForApp,
       ContainerLogsRetentionPolicy retentionPolicy,
-      Map<ApplicationAccessType, String> appAcls,
-      LogAggregationContext logAggregationContext,
-      Context context) {
+      Map<ApplicationAccessType, String> appAcls) {
     this.dispatcher = dispatcher;
     this.conf = conf;
     this.delService = deletionService;
-    this.nodeId = nodeId;
     this.appId = appId;
     this.applicationId = ConverterUtils.toString(appId);
     this.userUgi = userUgi;
     this.dirsHandler = dirsHandler;
-    this.remoteNodeLogFileForApp = remoteNodeLogDirForApp;
+    this.remoteNodeLogFileForApp = remoteNodeLogFileForApp;
+    this.remoteNodeTmpLogFileForApp = getRemoteNodeTmpLogFileForApp();
     this.retentionPolicy = retentionPolicy;
     this.pendingContainers = new LinkedBlockingQueue<ContainerId>();
     this.appAcls = appAcls;
-    this.logAggregationContext = logAggregationContext;
-    this.context = context;
-    this.retentionSize =
-        conf.getInt(YarnConfiguration
-            .NM_LOG_AGGREGATION_RETAIN_RETENTION_SIZE_PER_APP,
-            YarnConfiguration
-            .DEFAULT_NM_LOG_AGGREGATION_RETAIN_RETENTION_SIZE_PER_APP);
-    if (this.retentionSize < 0) {
-      this.retentionSize = YarnConfiguration
-          .DEFAULT_NM_LOG_AGGREGATION_RETAIN_RETENTION_SIZE_PER_APP;
-    }
   }
 
-  private void uploadLogsForContainer(ContainerId containerId, LogWriter writer) {
+  private void uploadLogsForContainer(ContainerId containerId) {
+
+    if (this.logAggregationDisabled) {
+      return;
+    }
+
+    // Lazy creation of the writer
+    if (this.writer == null) {
+      LOG.info("Starting aggregate log-file for app " + this.applicationId
+          + " at " + this.remoteNodeTmpLogFileForApp);
+      try {
+        this.writer =
+            new LogWriter(this.conf, this.remoteNodeTmpLogFileForApp,
+                this.userUgi);
+        //Write ACLs once when and if the writer is created.
+        this.writer.writeApplicationACLs(appAcls);
+        this.writer.writeApplicationOwner(this.userUgi.getShortUserName());
+      } catch (IOException e) {
+        LOG.error("Cannot create writer for app " + this.applicationId
+            + ". Disabling log-aggregation for this app.", e);
+        this.logAggregationDisabled = true;
+        return;
+      }
+    }
 
     LOG.info("Uploading logs for container " + containerId
         + ". Current good log dirs are "
@@ -138,145 +126,12 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
     LogKey logKey = new LogKey(containerId);
     LogValue logValue =
         new LogValue(dirsHandler.getLogDirs(), containerId,
-          userUgi.getShortUserName(), this.logAggregationContext,
-          this.alreadyUploadedLogs);
+          userUgi.getShortUserName());
     try {
-      writer.append(logKey, logValue);
-    } catch (Exception e) {
+      this.writer.append(logKey, logValue);
+    } catch (IOException e) {
       LOG.error("Couldn't upload logs for " + containerId
           + ". Skipping this container.");
-      return;
-    }
-    currentUploadedFiles.addAll(logValue.getCurrentUpLoadedFilesPath());
-    alreadyUploadedLogs.addAll(logValue.getCurrentUpLoadedFileMeta());
-    currentExistingLogFiles.addAll(logValue.getAllExistingFilesMeta());
-  }
-
-  private void uploadLogsForContainers(Set<ContainerId> containers) {
-    if (this.logAggregationDisabled || containers.isEmpty()) {
-      return;
-    }
-    this.remoteNodeTmpLogFileForApp =
-        getRemoteNodeTmpLogFileForApp(this.remoteNodeLogFileForApp);
-
-    LogWriter writer = null;
-    try {
-      try {
-        writer =
-            new LogWriter(this.conf, this.remoteNodeTmpLogFileForApp,
-              this.userUgi);
-        // Write ACLs once when the writer is created.
-        writer.writeApplicationACLs(appAcls);
-        writer.writeApplicationOwner(this.userUgi.getShortUserName());
-
-      } catch (IOException e1) {
-        LOG.error("Cannot create writer for app " + this.applicationId
-            + ". Skip log upload this time. ");
-        return;
-      }
-
-      currentUploadedFiles.clear();
-      currentExistingLogFiles.clear();
-      for (ContainerId container : containers) {
-        uploadLogsForContainer(container, writer);
-      }
-
-      this.delService.delete(this.userUgi.getShortUserName(), null,
-        currentUploadedFiles.toArray(new Path[currentUploadedFiles.size()]));
-
-      // if any of the previous uoloaded logs have been deleted,
-      // we need to remove them from alreadyUploadedLogs
-      Iterable<String> mask =
-          Iterables.filter(alreadyUploadedLogs, new Predicate<String>() {
-            @Override
-            public boolean apply(String next) {
-              return currentExistingLogFiles.contains(next);
-            }
-          });
-
-      alreadyUploadedLogs = Sets.newHashSet(mask);
-
-      final Path renamedPath = logAggregationContext == null ||
-          logAggregationContext.getRollingIntervalSeconds() <= 0
-              ? remoteNodeLogFileForApp : new Path(
-                remoteNodeLogFileForApp.getParent(),
-                remoteNodeLogFileForApp.getName() + "_"
-                    + System.currentTimeMillis());
-      try {
-        userUgi.doAs(new PrivilegedExceptionAction<Object>() {
-          @Override
-          public Object run() throws Exception {
-            FileSystem remoteFS = FileSystem.get(conf);
-            if (remoteFS.exists(remoteNodeTmpLogFileForApp)
-                && currentUploadedFiles.size() > 0) {
-              remoteFS.rename(remoteNodeTmpLogFileForApp, renamedPath);
-            }
-            return null;
-          }
-        });
-        cleanOldLogs();
-      } catch (Exception e) {
-        LOG.error(
-          "Failed to move temporary log file to final location: ["
-              + remoteNodeTmpLogFileForApp + "] to ["
-              + renamedPath + "]", e);
-      }
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
-    }
-  }
-
-  private void cleanOldLogs() {
-    try {
-      final FileSystem remoteFS = FileSystem.get(conf);
-      Path appDir =
-          this.remoteNodeLogFileForApp.getParent().makeQualified(
-            remoteFS.getUri(), remoteFS.getWorkingDirectory());
-      Set<FileStatus> status =
-          new HashSet<FileStatus>(Arrays.asList(remoteFS.listStatus(appDir)));
-
-      Iterable<FileStatus> mask =
-          Iterables.filter(status, new Predicate<FileStatus>() {
-            @Override
-            public boolean apply(FileStatus next) {
-              return next.getPath().getName()
-                .contains(LogAggregationUtils.getNodeString(nodeId))
-                && !next.getPath().getName().contains(
-                    LogAggregationUtils.TMP_FILE_SUFFIX);
-            }
-          });
-      status = Sets.newHashSet(mask);
-      int numOfDeletion = status.size() - this.retentionSize;
-      if (numOfDeletion > 0) {
-        List<FileStatus> statusList = new ArrayList<FileStatus>(status);
-        Collections.sort(statusList, new Comparator<FileStatus>() {
-          public int compare(FileStatus s1, FileStatus s2) {
-            return s1.getModificationTime() < s2.getModificationTime() ? -1
-                : s1.getModificationTime() > s2.getModificationTime() ? 1 : 0;
-          }
-        });
-        final Set<FileStatus> removes = new HashSet<FileStatus>();
-        for (int iter = 0 ; iter< numOfDeletion; iter++) {
-          removes.add(statusList.get(iter));
-        }
-        userUgi.doAs(new PrivilegedExceptionAction<Object>() {
-          @Override
-          public Object run() throws Exception {
-            for (FileStatus remove : removes) {
-              try {
-                remoteFS.delete(remove.getPath(), false);
-              } catch (Exception ex) {
-                LOG.error("Failed to delete " + remove, ex);
-              }
-            }
-            return null;
-          }
-        });
-      }
-    } catch (Exception e) {
-      LOG.error("Failed to clean old logs", e);
     }
   }
 
@@ -294,20 +149,12 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
 
   @SuppressWarnings("unchecked")
   private void doAppLogAggregation() {
+    ContainerId containerId;
+
     while (!this.appFinishing.get() && !this.aborted.get()) {
       synchronized(this) {
         try {
-          if (this.logAggregationContext != null && this.logAggregationContext
-              .getRollingIntervalSeconds() > 0) {
-            wait(this.logAggregationContext.getRollingIntervalSeconds() * 1000);
-            if (this.appFinishing.get() || this.aborted.get()) {
-              break;
-            }
-            uploadLogsForContainers(this.context.getApplications()
-              .get(this.appId).getContainers().keySet());
-          } else {
-            wait(THREAD_SLEEP_TIME);
-          }
+          wait(THREAD_SLEEP_TIME);
         } catch (InterruptedException e) {
           LOG.warn("PendingContainers queue is interrupted");
           this.appFinishing.set(true);
@@ -319,13 +166,10 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
       return;
     }
 
-    // App is finished, upload the container logs.
-    Set<ContainerId> ids = new HashSet<ContainerId>();
-    ContainerId containerId;
+    // Application is finished. Finish pending-containers
     while ((containerId = this.pendingContainers.poll()) != null) {
-      ids.add(containerId);
+      uploadLogsForContainer(containerId);
     }
-    uploadLogsForContainers(ids);
 
     // Remove the local app-log-dirs
     List<String> rootLogDirs = dirsHandler.getLogDirs();
@@ -337,6 +181,26 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
     }
     this.delService.delete(this.userUgi.getShortUserName(), null,
         localAppLogDirs);
+
+    if (this.writer != null) {
+      this.writer.close();
+      LOG.info("Finished aggregate log-file for app " + this.applicationId);
+    }
+
+    try {
+      userUgi.doAs(new PrivilegedExceptionAction<Object>() {
+        @Override
+        public Object run() throws Exception {
+          FileSystem remoteFS = FileSystem.get(conf);
+          remoteFS.rename(remoteNodeTmpLogFileForApp, remoteNodeLogFileForApp);
+          return null;
+        }
+      });
+    } catch (Exception e) {
+      LOG.error("Failed to move temporary log file to final location: ["
+          + remoteNodeTmpLogFileForApp + "] to [" + remoteNodeLogFileForApp
+          + "]", e);
+    }
     
     this.dispatcher.getEventHandler().handle(
         new ApplicationEvent(this.appId,
@@ -344,9 +208,9 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
     this.appAggregationFinished.set(true);    
   }
 
-  private Path getRemoteNodeTmpLogFileForApp(Path remoteNodeLogDirForApp) {
+  private Path getRemoteNodeTmpLogFileForApp() {
     return new Path(remoteNodeLogFileForApp.getParent(),
-      (remoteNodeLogFileForApp.getName() + LogAggregationUtils.TMP_FILE_SUFFIX));
+        (remoteNodeLogFileForApp.getName() + TMP_FILE_SUFFIX));
   }
 
   private boolean shouldUploadLogs(ContainerId containerId,
@@ -401,13 +265,6 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
   public synchronized void abortLogAggregation() {
     LOG.info("Aborting log aggregation for " + this.applicationId);
     this.aborted.set(true);
-    this.notifyAll();
-  }
-
-  @Private
-  @VisibleForTesting
-  public synchronized void doLogAggregationOutOfBand() {
-    LOG.info("Do OutOfBand log aggregation");
     this.notifyAll();
   }
 }
