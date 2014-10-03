@@ -1099,6 +1099,122 @@ function UpdateXmlConfig(
     $xml.ReleasePath
 }
 
+function UpdateFQDNConfig(
+    [string]
+    [parameter( Position=0, Mandatory=$true )]
+    $fileName)
+{
+    $xml = [xml] (Get-Content $fileName)
+    $keywords = @("*.hosts","*address","*.url","*.hostname")
+    $values = $xml.SelectNodes('/configuration/property') 
+    foreach( $keyword in $keywords )
+    {
+        foreach ($value in $values)
+        {
+            if ($value.name -like "$keyword" )
+            {
+                Write-Log $value.name
+                switch ($keyword)
+                {
+                    "*.hostname"
+                    {
+                        try
+                        {
+                            $host = [string] (Get-FQDN $value.value)
+                        }
+                        catch
+                        {
+                            $host = [string] $value.value
+                        }
+                        $value.value =  $host
+                    }
+                    "*.hosts"
+                    {
+                        try
+                        {
+                            $host = [string] (Get-FQDN $value.value)
+                        }
+                        catch
+                        {
+                            $host = [string] $value.value
+                        }
+                        $value.value =  $host
+                    }
+                    "*address"
+                    {
+                        
+                        $split = $value.value -split(':')
+                        try
+                        {
+                            $host = [string] (Get-FQDN $split[0])
+                        }
+                        catch
+                        {
+                            $host = [string] $split[0]
+                        }
+                        if ($split[1] -eq $null)
+                        {
+                            $value.value = ($host)
+                        }
+                        else
+                        {
+                            $value.value = ($host+":"+$split[1])
+                        }
+                    }
+                    "*.url"
+                    {
+                        try
+                        {
+                            $url_split = $value.value -split('/')
+                            $split = $url_split[2] -split(':')
+                            try
+                            {
+                                $host = [string] (Get-FQDN $split[0])
+                            }
+                            catch
+                            {
+                                $host = [string] $split[0]
+                            }
+                            if ($split[1] -eq $null)
+                            {
+                                $url_split[2] = ($host)
+                            }
+                            else
+                            {
+                                $url_split[2] = ($host+":"+$split[1])
+                            }
+                            $value.value = $url_split -join '/'
+                        }
+                        catch{}
+                    }
+                }
+            }
+        }
+    }
+
+    $xml.Save($fileName)
+    $xml.ReleasePath
+}
+
+#------------------------------------------------------------------------------
+# Get the lowercase FQDN for the current host.
+#------------------------------------------------------------------------------
+function Get-LocalFQDN() {
+  $name = [System.Net.Dns]::GetHostName()
+  $entry = [System.Net.Dns]::GetHostEntry( $name )
+  $fqdn = $entry.HostName.ToLower()
+  return $fqdn
+}
+
+#------------------------------------------------------------------------------
+# Resolve the name via DNS and then converts result to lower case.
+#------------------------------------------------------------------------------
+function Get-FQDN( $name ) {
+  $entry = [System.Net.Dns]::GetHostEntry( $name )
+  $fqdn = $entry.HostName.ToLower()
+  return $fqdn
+}
+
 ### Helper routine that converts a path in url into a Windows path are are
 ### recognizable by normal Windows commands. For example:
 ###  file:///c:/hdfs/dn -> c:\hdfs\dn
@@ -2141,6 +2257,7 @@ Export-ModuleMember -Function CheckDataDirectories
 Export-ModuleMember -Function Get-AppendedPath
 Export-ModuleMember -Function IsSameHost
 Export-ModuleMember -Function ConvertToFileURI
+Export-ModuleMember -Function UpdateFQDNConfig
 ###
 ### Private API (exposed for test only)
 ###
