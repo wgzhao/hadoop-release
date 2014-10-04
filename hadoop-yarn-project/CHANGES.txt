@@ -761,7 +761,6 @@ Release 2.5.0 - 2014-08-11
 
     YARN-2011. Fix typo and warning in TestLeafQueue (Chen He via junping_du)
 
-
     YARN-2042. String shouldn't be compared using == in
     QueuePlacementRule#NestedUserQueue#getQueueForApp (Chen He via Sandy Ryza)
 
