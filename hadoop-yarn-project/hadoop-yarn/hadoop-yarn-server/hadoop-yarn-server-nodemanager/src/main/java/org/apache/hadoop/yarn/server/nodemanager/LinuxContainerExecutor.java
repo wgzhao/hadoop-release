@@ -193,9 +193,12 @@ public class LinuxContainerExecutor extends ContainerExecutor {
   @Override
   public void startLocalizer(Path nmPrivateContainerTokensPath,
       InetSocketAddress nmAddr, String user, String appId, String locId,
-      List<String> localDirs, List<String> logDirs)
+      LocalDirsHandlerService dirsHandler)
       throws IOException, InterruptedException {
 
+    List<String> localDirs = dirsHandler.getLocalDirs();
+    List<String> logDirs = dirsHandler.getLogDirs();
+    
     verifyUsernamePattern(user);
     String runAsUser = getRunAsUser(user);
     List<String> command = new ArrayList<String>();
@@ -218,15 +221,7 @@ public class LinuxContainerExecutor extends ContainerExecutor {
     if (javaLibPath != null) {
       command.add("-Djava.library.path=" + javaLibPath);
     }
-    command.add(ContainerLocalizer.class.getName());
-    command.add(user);
-    command.add(appId);
-    command.add(locId);
-    command.add(nmAddr.getHostName());
-    command.add(Integer.toString(nmAddr.getPort()));
-    for (String dir : localDirs) {
-      command.add(dir);
-    }
+    ContainerLocalizer.buildMainArgs(command, user, appId, locId, nmAddr, localDirs);
     String[] commandArray = command.toArray(new String[command.size()]);
     ShellCommandExecutor shExec = new ShellCommandExecutor(commandArray);
     if (LOG.isDebugEnabled()) {

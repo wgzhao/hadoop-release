@@ -32,6 +32,7 @@
 #define UNIX
 #endif
 
+
 /* A helper macro to 'throw' a java exception. */
 #define THROW(env, exception_name, message) \
   { \

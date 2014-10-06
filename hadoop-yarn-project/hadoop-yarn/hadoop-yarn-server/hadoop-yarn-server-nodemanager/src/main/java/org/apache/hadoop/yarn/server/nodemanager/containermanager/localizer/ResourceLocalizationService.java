@@ -1071,15 +1071,14 @@ public class ResourceLocalizationService extends CompositeService
         // 1) write credentials to private dir
         writeCredentials(nmPrivateCTokensPath);
         // 2) exec initApplication and wait
-        List<String> localDirs = dirsHandler.getLocalDirs();
-        List<String> logDirs = dirsHandler.getLogDirs();
         if (dirsHandler.areDisksHealthy()) {
           exec.startLocalizer(nmPrivateCTokensPath, localizationServerAddress,
               context.getUser(),
               ConverterUtils.toString(
                   context.getContainerId().
                   getApplicationAttemptId().getApplicationId()),
-              localizerId, localDirs, logDirs);
+              localizerId,
+              dirsHandler);
         } else {
           throw new IOException("All disks failed. "
               + dirsHandler.getDisksHealthReport());

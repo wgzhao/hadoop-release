@@ -3,6 +3,9 @@
 *.iws
 *.orig
 *.rej
+*.sdf
+*.suo
+*.vcxproj.user
 .idea
 .svn
 .classpath
