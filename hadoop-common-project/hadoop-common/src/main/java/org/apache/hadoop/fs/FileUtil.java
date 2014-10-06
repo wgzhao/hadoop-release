@@ -1186,11 +1186,6 @@ public class FileUtil {
     return fileNames;
   }  
   
-  public static String createJarWithClassPath(String inputClassPath, Path pwd,
-      Map<String, String> callerEnv) throws IOException {
-    return createJarWithClassPath(inputClassPath, pwd, pwd, callerEnv);
-  }
-  
   /**
    * Create a jar file at the given path, containing a manifest with a classpath
    * that references all specified entries.
@@ -1215,14 +1210,12 @@ public class FileUtil {
    * 
    * @param inputClassPath String input classpath to bundle into the jar manifest
    * @param pwd Path to working directory to save jar
-   * @param targetDir path to where the jar execution will have its working dir
    * @param callerEnv Map<String, String> caller's environment variables to use
    *   for expansion
    * @return String absolute path to new jar
    * @throws IOException if there is an I/O error while writing the jar file
    */
   public static String createJarWithClassPath(String inputClassPath, Path pwd,
-      Path targetDir,
       Map<String, String> callerEnv) throws IOException {
     // Replace environment variables, case-insensitive on Windows
     @SuppressWarnings("unchecked")
@@ -1264,7 +1257,7 @@ public class FileUtil {
         // Append just this entry
         File fileCpEntry = null;
         if(!new Path(classPathEntry).isAbsolute()) {
-          fileCpEntry = new File(targetDir.toString(), classPathEntry);
+          fileCpEntry = new File(workingDir, classPathEntry);
         }
         else {
           fileCpEntry = new File(classPathEntry);

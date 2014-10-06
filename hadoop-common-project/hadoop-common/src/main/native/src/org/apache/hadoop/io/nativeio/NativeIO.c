@@ -49,7 +49,6 @@
 
 #include "file_descriptor.h"
 #include "errno_enum.h"
-#include "winutils_process_stub.h"
 
 #define MMAP_PROT_READ org_apache_hadoop_io_nativeio_NativeIO_POSIX_MMAP_PROT_READ
 #define MMAP_PROT_WRITE org_apache_hadoop_io_nativeio_NativeIO_POSIX_MMAP_PROT_WRITE
@@ -69,13 +68,8 @@ static jmethodID nioe_ctor;
 // Please see HADOOP-7156 for details.
 jobject pw_lock_object;
 
-/*
- * Throw a java.IO.IOException, generating the message from errno.
- * NB. this is also used form winutils_process_stub.c
- */
-extern void throw_ioe(JNIEnv* env, int errnum);
-
 // Internal functions
+static void throw_ioe(JNIEnv* env, int errnum);
 #ifdef UNIX
 static ssize_t get_pw_buflen();
 #endif
@@ -219,7 +213,7 @@ static int map_fadvise_flag(jint flag) {
  */
 JNIEXPORT void JNICALL
 Java_org_apache_hadoop_io_nativeio_NativeIO_initNative(
-  JNIEnv *env, jclass clazz) {
+	JNIEnv *env, jclass clazz) {
   stat_init(env, clazz);
   PASS_EXCEPTIONS_GOTO(env, error);
   nioe_init(env);
@@ -230,12 +224,6 @@ Java_org_apache_hadoop_io_nativeio_NativeIO_initNative(
   errno_enum_init(env);
   PASS_EXCEPTIONS_GOTO(env, error);
 #endif
-
-#ifdef WINDOWS
-  winutils_process_stub_init(env);
-  PASS_EXCEPTIONS_GOTO(env, error);
-#endif
-
   return;
 error:
   // these are all idempodent and safe to call even if the
@@ -247,9 +235,6 @@ error:
   fd_deinit(env);
 #ifdef UNIX
   errno_enum_deinit(env);
-#endif
-#ifdef WINDOWS
-  winutils_process_stub_deinit(env);
 #endif
 }
 
@@ -814,7 +799,7 @@ cleanup:
 /*
  * Throw a java.IO.IOException, generating the message from errno.
  */
-void throw_ioe(JNIEnv* env, int errnum)
+static void throw_ioe(JNIEnv* env, int errnum)
 {
 #ifdef UNIX
   char message[80];
@@ -1156,352 +1141,6 @@ JNIEnv *env, jclass clazz)
     INT64_MAX : rlim.rlim_cur;
 #endif
 }
-
-
-/*
- * Class:     org_apache_hadoop_io_nativeio_NativeIO
- * Method:    createTaskAsUser
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String)Lorg/apache/hadoop/io/nativeio/NativeIO$WinutilsProcessStub
- */
-JNIEXPORT jobject JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_createTaskAsUser0(JNIEnv* env,
-  jclass clazz, jstring jcwd, jstring jjobName, jstring juser, jstring jpidFile, jstring jcmdLine) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function createTaskAsUser is not supported on Unix");
-    return NULL;
-#endif
-
-#ifdef WINDOWS
-  LPCWSTR cwd = NULL, jobName = NULL, 
-    user = NULL, pidFile = NULL, cmdLine = NULL;
-  DWORD dwError = ERROR_SUCCESS;
-  HANDLE hProcess = INVALID_HANDLE_VALUE, 
-     hThread = INVALID_HANDLE_VALUE, 
-     hStdIn = INVALID_HANDLE_VALUE, 
-     hStdOut = INVALID_HANDLE_VALUE, 
-     hStdErr = INVALID_HANDLE_VALUE;
-  jobject ret = NULL;
-
-  cwd = (LPCWSTR) (*env)->GetStringChars(env, jcwd, NULL);
-  if (!cwd) goto done; // exception was thrown
-
-  jobName = (LPCWSTR) (*env)->GetStringChars(env, jjobName, NULL);
-  if (!jobName) goto done; // exception was thrown
-
-  user = (LPCWSTR) (*env)->GetStringChars(env, juser, NULL);
-  if (!user) goto done; // exception was thrown
-
-  pidFile = (LPCWSTR) (*env)->GetStringChars(env, jpidFile, NULL);
-  if (!pidFile) goto done; // exception was thrown
-
-  cmdLine = (LPCWSTR) (*env)->GetStringChars(env, jcmdLine, NULL);
-  if (!cmdLine) goto done; // exception was thrown
-
-  LogDebugMessage(L"createTaskAsUser: jcwd:%s job:%s juser:%s pid:%s cmd:%s\n",
-    cwd, jobName, user, pidFile, cmdLine);
-  
-  dwError = RpcCall_TaskCreateAsUser(cwd, jobName, user, pidFile, cmdLine, 
-    &hProcess, &hThread, &hStdIn, &hStdOut, &hStdErr);
-
-  if (ERROR_SUCCESS == dwError) {
-    ret = winutils_process_stub_create(env, (jlong) hProcess, (jlong) hThread,
-      (jlong) hStdIn, (jlong) hStdOut, (jlong) hStdErr);
-
-    if (NULL == ret) {
-      TerminateProcess(hProcess, EXIT_FAILURE);
-      CloseHandle(hThread);
-      CloseHandle(hProcess);
-      CloseHandle(hStdIn);
-      CloseHandle(hStdOut);
-      CloseHandle(hStdErr);
-    }
-  }
-
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-
-  if (cwd)     (*env)->ReleaseStringChars(env, jcwd, cwd);
-  if (jobName) (*env)->ReleaseStringChars(env, jjobName, jobName);
-  if (user)    (*env)->ReleaseStringChars(env, juser, user);
-  if (pidFile) (*env)->ReleaseStringChars(env, jpidFile, pidFile);
-  if (cmdLine) (*env)->ReleaseStringChars(env, jcmdLine, cmdLine);
-
-  return ret;
-  
-#endif
-}
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedKillTaskImpl
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedKillTaskImpl(JNIEnv* env,
-  jclass clazz, jstring jtask_name) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedSetOwner0 is not supported on Unix");
-    return;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR task_name = NULL;
-  DWORD dwError;
-
-  task_name = (LPCWSTR) (*env)->GetStringChars(env, jtask_name, NULL);
-  if (!task_name) goto done; // exception was thrown
-
-
-  dwError = RpcCall_WinutilsKillTask(task_name);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (task_name)     (*env)->ReleaseStringChars(env, jtask_name, task_name);
-
-#endif
-
-}
-
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedChownImpl
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedChownImpl(JNIEnv* env,
-  jclass clazz, jstring jpath, jstring juser, jstring jgroup) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedSetOwner0 is not supported on Unix");
-    return;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR path = NULL, user = NULL, group = NULL;
-  DWORD dwError;
-
-  path = (LPCWSTR) (*env)->GetStringChars(env, jpath, NULL);
-  if (!path) goto done; // exception was thrown
-
-  if (juser) {
-    user = (LPCWSTR) (*env)->GetStringChars(env, juser, NULL);
-    if (!user) goto done; // exception was thrown
-  }
-
-  if (jgroup) {
-    group = (LPCWSTR) (*env)->GetStringChars(env, jgroup, NULL);
-    if (!group) goto done; // exception was thrown
-  }
-
-  dwError = RpcCall_WinutilsChown(path, user, group);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (path)     (*env)->ReleaseStringChars(env, jpath, path);
-  if (user)     (*env)->ReleaseStringChars(env, juser, user);
-  if (group)     (*env)->ReleaseStringChars(env, jgroup, group);
-
-#endif
-
-}
-
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedMkDirImpl
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedMkDirImpl(JNIEnv* env,
-  jclass clazz, jstring jpath) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedMkDirImpl is not supported on Unix");
-    return;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR path = NULL, user = NULL, group = NULL;
-  DWORD dwError;
-
-  path = (LPCWSTR) (*env)->GetStringChars(env, jpath, NULL);
-  if (!path) goto done; // exception was thrown
-
-  dwError = RpcCall_WinutilsMkDir(path);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (path)     (*env)->ReleaseStringChars(env, jpath, path);
-
-#endif
-
-}
-
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedChmodImpl
- * Signature: (Ljava/lang/String;I)V
- */
-JNIEXPORT void JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedChmodImpl(JNIEnv* env,
-  jclass clazz, jstring jpath, jint jmode) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedChmodImpl is not supported on Unix");
-    return;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR path = NULL;
-  DWORD dwError;
-
-  path = (LPCWSTR) (*env)->GetStringChars(env, jpath, NULL);
-  if (!path) goto done; // exception was thrown
-
-  dwError = RpcCall_WinutilsChmod(path, (int) jmode);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (path)     (*env)->ReleaseStringChars(env, jpath, path);
-
-#endif
-
-}
-
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedCopyImpl
- * Signature: (I;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V
- */
-JNIEXPORT void JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedCopyImpl(JNIEnv* env,
-  jclass clazz, jint joperation, jstring jsourcePath, jstring jdestinationPath, jboolean replaceExisting) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedCopyImpl is not supported on Unix");
-    return;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR sourcePath = NULL, destinationPath = NULL;
-  DWORD dwError;
-
-  sourcePath = (LPCWSTR) (*env)->GetStringChars(env, jsourcePath, NULL);
-  if (!sourcePath) goto done; // exception was thrown
-
-  destinationPath = (LPCWSTR) (*env)->GetStringChars(env, jdestinationPath, NULL);
-  if (!destinationPath) goto done; // exception was thrown
-
-  dwError = RpcCall_WinutilsMoveFile((INT) joperation, sourcePath, destinationPath, (BOOL) replaceExisting);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (sourcePath)     (*env)->ReleaseStringChars(env, jsourcePath, sourcePath);
-  if (destinationPath)     (*env)->ReleaseStringChars(env, jdestinationPath, destinationPath);
-#endif
-}
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedCreateImpl
- * Signature: (Ljava/lang/String;J;J;J;J)J
- */
-JNIEXPORT jlong JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedCreateImpl(JNIEnv* env,
-  jclass clazz, jstring jpath, jlong jdesired_access, jlong jshare_mode, jlong jcreation_disposition, jlong jflags) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedCreateImpl is not supported on Unix");
-    return 0;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR path = NULL;
-  DWORD dwError;
-  HANDLE hFile = INVALID_HANDLE_VALUE;
-
-  path = (LPCWSTR) (*env)->GetStringChars(env, jpath, NULL);
-  if (!path) goto done; // exception was thrown
-
-  dwError = RpcCall_WinutilsCreateFile(path, 
-    (DWORD) jdesired_access, (DWORD) jshare_mode, (DWORD) jcreation_disposition, (DWORD) jflags,
-    &hFile);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (path)     (*env)->ReleaseStringChars(env, jpath, path);
-  return hFile;
-#endif
-}
-
-/*
- * Class:     Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated
- * Method:    elevatedDeletePathImpl
- * Signature: (Ljava/lang/String;Z)Z
- */
-JNIEXPORT jboolean JNICALL
-Java_org_apache_hadoop_io_nativeio_NativeIO_00024Elevated_elevatedDeletePathImpl(JNIEnv* env,
-  jclass clazz, jstring jpath, jboolean jIsDir) {
-#ifdef UNIX
-    THROW(env, "java/io/IOException",
-      "The function elevatedDeleteFileImpl is not supported on Unix");
-    return  JNI_FALSE;
-#endif
-
-#ifdef WINDOWS
-
-  LPCWSTR path = NULL;
-  DWORD dwError;
-  BOOL deleted = FALSE;
-
-  path = (LPCWSTR) (*env)->GetStringChars(env, jpath, NULL);
-  if (!path) goto done; // exception was thrown
-
-  dwError = RpcCall_WinutilsDeletePath(path, (BOOL) jIsDir, &deleted);
-
-  if (dwError != ERROR_SUCCESS) {
-    throw_ioe (env, dwError);
-  }
-
-done:
-  if (path)     (*env)->ReleaseStringChars(env, jpath, path);
-  return (jboolean) deleted;
-#endif
-}
-
 
 /**
  * vim: sw=2: ts=2: et:

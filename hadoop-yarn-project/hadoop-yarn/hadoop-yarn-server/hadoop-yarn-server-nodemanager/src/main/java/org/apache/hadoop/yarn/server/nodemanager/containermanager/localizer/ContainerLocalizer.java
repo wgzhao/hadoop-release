@@ -312,31 +312,6 @@ public class ContainerLocalizer {
     status.addAllResources(currentResources);
     return status;
   }
-  
-  /**
-   * Adds the ContainerLocalizer arguments for a @{link ShellCommandExecutor},
-   * as expected by ContainerLocalizer.main
-   * @param command the current ShellCommandExecutor command line
-   * @param user localization user
-   * @param appId localized app id
-   * @param locId localizer id
-   * @param nmAddr nodemanager address
-   * @param localDirs list of local dirs
-   */
-  public static void buildMainArgs(List<String> command,
-      String user, String appId, String locId,
-      InetSocketAddress nmAddr, List<String> localDirs) {
-    
-    command.add(ContainerLocalizer.class.getName());
-    command.add(user);
-    command.add(appId);
-    command.add(locId);
-    command.add(nmAddr.getHostName());
-    command.add(Integer.toString(nmAddr.getPort()));
-    for(String dir : localDirs) {
-      command.add(dir);
-    }
-  }
 
   public static void main(String[] argv) throws Throwable {
     Thread.setDefaultUncaughtExceptionHandler(new YarnUncaughtExceptionHandler());
@@ -369,13 +344,10 @@ public class ContainerLocalizer {
           new ContainerLocalizer(FileContext.getLocalFSFileContext(), user,
               appId, locId, localDirs,
               RecordFactoryProvider.getRecordFactory(null));
-      int nRet = localizer.runLocalization(nmAddr);
-      LOG.info(String.format("nRet: %d", nRet));
-      System.exit(nRet);
+      System.exit(localizer.runLocalization(nmAddr));
     } catch (Throwable e) {
       // Print error to stdout so that LCE can use it.
       e.printStackTrace(System.out);
-      LOG.error("Exception in main:", e);
       throw e;
     }
   }

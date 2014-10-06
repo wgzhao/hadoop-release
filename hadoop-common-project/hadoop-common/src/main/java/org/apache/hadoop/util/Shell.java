@@ -643,18 +643,6 @@ abstract public class Shell {
     }
   }
   
-  public interface CommandExecutor {
-
-    void execute() throws IOException;
-
-    int getExitCode() throws IOException;
-
-    String getOutput() throws IOException;
-
-    void close();
-    
-  }
-  
   /**
    * A simple shell command executor.
    * 
@@ -663,7 +651,7 @@ abstract public class Shell {
    * directory and the environment remains unchanged. The output of the command 
    * is stored as-is and is expected to be small.
    */
-  public static class ShellCommandExecutor extends Shell implements CommandExecutor {
+  public static class ShellCommandExecutor extends Shell {
     
     private String[] command;
     private StringBuffer output;
@@ -754,10 +742,6 @@ abstract public class Shell {
         builder.append(' ');
       }
       return builder.toString();
-    }
-
-    @Override
-    public void close() {
     }
   }
   

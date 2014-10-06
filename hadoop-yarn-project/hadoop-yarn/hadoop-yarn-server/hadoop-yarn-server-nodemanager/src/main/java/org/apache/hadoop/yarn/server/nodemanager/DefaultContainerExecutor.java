@@ -19,7 +19,6 @@
 package org.apache.hadoop.yarn.server.nodemanager;
 
 import com.google.common.base.Optional;
-
 import static org.apache.hadoop.fs.CreateFlag.CREATE;
 import static org.apache.hadoop.fs.CreateFlag.OVERWRITE;
 
@@ -32,11 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.UnsupportedFileSystemException;
@@ -44,7 +41,6 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.Shell.ExitCodeException;
-import org.apache.hadoop.util.Shell.CommandExecutor;
 import org.apache.hadoop.util.Shell.ShellCommandExecutor;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -65,7 +61,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
 
   private static final int WIN_MAX_PATH = 260;
 
-  protected final FileContext lfs;
+  private final FileContext lfs;
 
   public DefaultContainerExecutor() {
     try {
@@ -79,43 +75,32 @@ public class DefaultContainerExecutor extends ContainerExecutor {
     this.lfs = lfs;
   }
 
-  protected void copyFile(Path src, Path dst, String owner) throws IOException {
-    lfs.util().copy(src, dst);
-  }
-  
-  protected void setScriptExecutable(Path script, String owner) throws IOException {
-    lfs.setPermission(script, ContainerExecutor.TASK_LAUNCH_SCRIPT_PERMISSION);
-  }
-
   @Override
   public void init() throws IOException {
     // nothing to do or verify here
   }
-
+  
   @Override
   public synchronized void startLocalizer(Path nmPrivateContainerTokensPath,
       InetSocketAddress nmAddr, String user, String appId, String locId,
-      LocalDirsHandlerService dirsHandler)
+      List<String> localDirs, List<String> logDirs)
       throws IOException, InterruptedException {
 
-    List<String> localDirs = dirsHandler.getLocalDirs();
-    List<String> logDirs = dirsHandler.getLogDirs();
-    
     ContainerLocalizer localizer =
         new ContainerLocalizer(lfs, user, appId, locId, getPaths(localDirs),
             RecordFactoryProvider.getRecordFactory(getConf()));
-    
+
     createUserLocalDirs(localDirs, user);
     createUserCacheDirs(localDirs, user);
     createAppDirs(localDirs, user, appId);
-    createAppLogDirs(appId, logDirs, user);
+    createAppLogDirs(appId, logDirs);
 
     // TODO: Why pick first app dir. The same in LCE why not random?
     Path appStorageDir = getFirstApplicationDir(localDirs, user, appId);
 
     String tokenFn = String.format(ContainerLocalizer.TOKEN_FILE_NAME_FMT, locId);
     Path tokenDst = new Path(appStorageDir, tokenFn);
-    copyFile(nmPrivateContainerTokensPath, tokenDst, user);
+    lfs.util().copy(nmPrivateContainerTokensPath, tokenDst);
     LOG.info("Copying from " + nmPrivateContainerTokensPath + " to " + tokenDst);
     lfs.setWorkingDirectory(appStorageDir);
     LOG.info("CWD set to " + appStorageDir + " = " + lfs.getWorkingDirectory());
@@ -128,7 +113,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       Path nmPrivateContainerScriptPath, Path nmPrivateTokensPath,
       String userName, String appId, Path containerWorkDir,
       List<String> localDirs, List<String> logDirs) throws IOException {
-    
+
     FsPermission dirPerm = new FsPermission(APPDIR_PERM);
     ContainerId containerId = container.getContainerId();
 
@@ -144,30 +129,30 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       Path appCacheDir = new Path(userdir, ContainerLocalizer.APPCACHE);
       Path appDir = new Path(appCacheDir, appIdStr);
       Path containerDir = new Path(appDir, containerIdStr);
-      createDir(containerDir, dirPerm, true, userName);
+      createDir(containerDir, dirPerm, true);
     }
 
     // Create the container log-dirs on all disks
-    createContainerLogDirs(appIdStr, containerIdStr, logDirs, userName);
+    createContainerLogDirs(appIdStr, containerIdStr, logDirs);
 
     Path tmpDir = new Path(containerWorkDir,
         YarnConfiguration.DEFAULT_CONTAINER_TEMP_DIR);
-    createDir(tmpDir, dirPerm, false, userName);
-
-
-    // copy container tokens to work dir
-    Path tokenDst =
-      new Path(containerWorkDir, ContainerLaunch.FINAL_CONTAINER_TOKENS_FILE);
-    copyFile(nmPrivateTokensPath, tokenDst, userName);
+    createDir(tmpDir, dirPerm, false);
 
     // copy launch script to work dir
     Path launchDst =
         new Path(containerWorkDir, ContainerLaunch.CONTAINER_SCRIPT);
-    copyFile(nmPrivateContainerScriptPath, launchDst, userName);
+    lfs.util().copy(nmPrivateContainerScriptPath, launchDst);
+
+    // copy container tokens to work dir
+    Path tokenDst =
+      new Path(containerWorkDir, ContainerLaunch.FINAL_CONTAINER_TOKENS_FILE);
+    lfs.util().copy(nmPrivateTokensPath, tokenDst);
 
     // Create new local launch wrapper script
-    LocalWrapperScriptBuilder sb = getLocalWrapperScriptBuilder(
-        containerIdStr, containerWorkDir); 
+    LocalWrapperScriptBuilder sb = Shell.WINDOWS ?
+      new WindowsLocalWrapperScriptBuilder(containerIdStr, containerWorkDir) :
+      new UnixLocalWrapperScriptBuilder(containerWorkDir);
 
     // Fail fast if attempting to launch the wrapper script would fail due to
     // Windows path length limitation.
@@ -188,19 +173,25 @@ public class DefaultContainerExecutor extends ContainerExecutor {
           + " was marked as inactive. Returning terminated error");
       return ExitCode.TERMINATED.getExitCode();
     }
-    
+
     // create log dir under app
     // fork script
-    Shell.CommandExecutor shExec = null;
+    ShellCommandExecutor shExec = null;
     try {
-      setScriptExecutable(launchDst, userName);
-      setScriptExecutable(sb.getWrapperScriptPath(), userName);
+      lfs.setPermission(launchDst,
+          ContainerExecutor.TASK_LAUNCH_SCRIPT_PERMISSION);
+      lfs.setPermission(sb.getWrapperScriptPath(),
+          ContainerExecutor.TASK_LAUNCH_SCRIPT_PERMISSION);
 
-      shExec = buildCommandExecutor(sb.getWrapperScriptPath().toString(),
-          containerIdStr, userName, pidFile, this.getConf(),
+      // Setup command to run
+      String[] command = getRunCommand(sb.getWrapperScriptPath().toString(),
+        containerIdStr, this.getConf());
+
+      LOG.info("launchContainer: " + Arrays.toString(command));
+      shExec = new ShellCommandExecutor(
+          command,
           new File(containerWorkDir.toUri().getPath()),
-          container.getLaunchContext().getEnvironment());
-      
+          container.getLaunchContext().getEnvironment());      // sanitized env
       if (isContainerActive(containerId)) {
         shExec.execute();
       }
@@ -245,33 +236,12 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       }
       return exitCode;
     } finally {
-      if (shExec != null) shExec.close();
+      ; //
     }
     return 0;
   }
 
-  protected CommandExecutor buildCommandExecutor(String wrapperScriptPath, String containerIdStr,
-      String userName, Path pidFile, Configuration conf, File wordDir, Map<String, String> environment) 
-          throws IOException {
-    
-    String[] command = getRunCommand(wrapperScriptPath,
-        containerIdStr, userName, pidFile, this.getConf());
-
-      LOG.info("launchContainer: " + Arrays.toString(command));
-      return new ShellCommandExecutor(
-          command,
-          wordDir,
-          environment); 
-  }
-
-  protected LocalWrapperScriptBuilder getLocalWrapperScriptBuilder(
-      String containerIdStr, Path containerWorkDir) {
-   return  Shell.WINDOWS ?
-       new WindowsLocalWrapperScriptBuilder(containerIdStr, containerWorkDir) :
-       new UnixLocalWrapperScriptBuilder(containerWorkDir);
-  }
-
-  protected abstract class LocalWrapperScriptBuilder {
+  private abstract class LocalWrapperScriptBuilder {
 
     private final Path wrapperScriptPath;
 
@@ -438,7 +408,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
    * @param signal signal to send
    * (for logging).
    */
-  protected void killContainer(String pid, Signal signal) throws IOException {
+  private void killContainer(String pid, Signal signal) throws IOException {
     new ShellCommandExecutor(Shell.getSignalKillCommand(signal.getValue(), pid))
       .execute();
   }
@@ -479,7 +449,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
    * $logdir/$user/$appId */
   static final short LOGDIR_PERM = (short)0710;
 
-  protected Path getFirstApplicationDir(List<String> localDirs, String user,
+  private Path getFirstApplicationDir(List<String> localDirs, String user,
       String appId) {
     return getApplicationDir(new Path(localDirs.get(0)), user, appId);
   }
@@ -502,8 +472,8 @@ public class DefaultContainerExecutor extends ContainerExecutor {
         ContainerLocalizer.FILECACHE);
   }
 
-  protected void createDir(Path dirPath, FsPermission perms,
-      boolean createParent, String user) throws IOException {
+  private void createDir(Path dirPath, FsPermission perms,
+      boolean createParent) throws IOException {
     lfs.mkdir(dirPath, perms, createParent);
     if (!perms.equals(perms.applyUMask(lfs.getUMask()))) {
       lfs.setPermission(dirPath, perms);
@@ -523,7 +493,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
     for (String localDir : localDirs) {
       // create $local.dir/usercache/$user and its immediate parent
       try {
-        createDir(getUserCacheDir(new Path(localDir), user), userperms, true, user);
+        createDir(getUserCacheDir(new Path(localDir), user), userperms, true);
       } catch (IOException e) {
         LOG.warn("Unable to create the user directory : " + localDir, e);
         continue;
@@ -559,7 +529,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       Path localDirPath = new Path(localDir);
       final Path appDir = getAppcacheDir(localDirPath, user);
       try {
-        createDir(appDir, appCachePerms, true, user);
+        createDir(appDir, appCachePerms, true);
         appcacheDirStatus = true;
       } catch (IOException e) {
         LOG.warn("Unable to create app cache directory : " + appDir, e);
@@ -567,7 +537,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       // create $local.dir/usercache/$user/filecache
       final Path distDir = getFileCacheDir(localDirPath, user);
       try {
-        createDir(distDir, fileperms, true, user);
+        createDir(distDir, fileperms, true);
         distributedCacheDirStatus = true;
       } catch (IOException e) {
         LOG.warn("Unable to create file cache directory : " + distDir, e);
@@ -600,7 +570,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       Path fullAppDir = getApplicationDir(new Path(localDir), user, appId);
       // create $local.dir/usercache/$user/appcache/$appId
       try {
-        createDir(fullAppDir, appperms, true, user);
+        createDir(fullAppDir, appperms, true);
         initAppDirStatus = true;
       } catch (IOException e) {
         LOG.warn("Unable to create app directory " + fullAppDir.toString(), e);
@@ -616,7 +586,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
   /**
    * Create application log directories on all disks.
    */
-  void createAppLogDirs(String appId, List<String> logDirs, String user)
+  void createAppLogDirs(String appId, List<String> logDirs)
       throws IOException {
 
     boolean appLogDirStatus = false;
@@ -625,7 +595,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       // create $log.dir/$appid
       Path appLogDir = new Path(rootLogDir, appId);
       try {
-        createDir(appLogDir, appLogDirPerms, true, user);
+        createDir(appLogDir, appLogDirPerms, true);
       } catch (IOException e) {
         LOG.warn("Unable to create the app-log directory : " + appLogDir, e);
         continue;
@@ -642,7 +612,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
    * Create application log directories on all disks.
    */
   void createContainerLogDirs(String appId, String containerId,
-      List<String> logDirs, String user) throws IOException {
+      List<String> logDirs) throws IOException {
 
     boolean containerLogDirStatus = false;
     FsPermission containerLogDirPerms = new FsPermission(LOGDIR_PERM);
@@ -651,7 +621,7 @@ public class DefaultContainerExecutor extends ContainerExecutor {
       Path appLogDir = new Path(rootLogDir, appId);
       Path containerLogDir = new Path(appLogDir, containerId);
       try {
-        createDir(containerLogDir, containerLogDirPerms, true, user);
+        createDir(containerLogDir, containerLogDirPerms, true);
       } catch (IOException e) {
         LOG.warn("Unable to create the container-log directory : "
             + appLogDir, e);

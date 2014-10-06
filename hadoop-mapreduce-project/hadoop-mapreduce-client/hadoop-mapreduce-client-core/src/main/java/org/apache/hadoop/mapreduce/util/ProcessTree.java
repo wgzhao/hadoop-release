@@ -296,7 +296,7 @@ public class ProcessTree {
       return false;
     } catch (IOException ioe) {
       LOG.warn("Error executing shell command "
-          + shexec.toString() + ioe);
+          + Arrays.toString(shexec.getExecString()) + ioe);
       return false;
     }
     return (shexec.getExitCode() == 0 ? true : false);
@@ -321,7 +321,7 @@ public class ProcessTree {
       return false;
     } catch (IOException ioe) {
       LOG.warn("Error executing shell command "
-          + shexec.toString() + ioe);
+          + Arrays.toString(shexec.getExecString()) + ioe);
       return false;
     }
     return (shexec.getExitCode() == 0 ? true : false);

@@ -813,7 +813,7 @@ public class TestResourceLocalizationService {
       ArgumentCaptor<Path> tokenPathCaptor = ArgumentCaptor.forClass(Path.class);
       verify(exec).startLocalizer(tokenPathCaptor.capture(),
           isA(InetSocketAddress.class), eq("user0"), eq(appStr), eq(ctnrStr),
-          isA(LocalDirsHandlerService.class));
+          isA(List.class), isA(List.class));
       Path localizationTokenPath = tokenPathCaptor.getValue();
 
       // heartbeat from localizer

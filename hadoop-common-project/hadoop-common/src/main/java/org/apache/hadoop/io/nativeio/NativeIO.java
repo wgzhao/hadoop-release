@@ -22,8 +22,6 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -36,7 +34,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.HardLink;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SecureIOUtils.AlreadyExistsException;
 import org.apache.hadoop.util.NativeCodeLoader;
 import org.apache.hadoop.util.Shell;
@@ -506,8 +503,6 @@ public class NativeIO {
     public static final long FILE_BEGIN = 0;
     public static final long FILE_CURRENT = 1;
     public static final long FILE_END = 2;
-    
-    public static final long FILE_ATTRIBUTE_NORMAL = 0x00000080L;
 
     /** Wrapper around CreateFile() on Windows */
     public static native FileDescriptor createFile(String path,
@@ -851,169 +846,4 @@ public class NativeIO {
 
   private static native void link0(String src, String dst)
       throws NativeIOException;
-  
-  public static class Elevated {
-    private static final int MOVE_FILE = 1;
-    private static final int COPY_FILE = 2;
-
-    public static void mkdir(Path dirName) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for mkdir");
-      }
-      elevatedMkDirImpl(dirName.toString());
-    }
-    
-    private static native void elevatedMkDirImpl(String dirName) throws IOException;
-    
-    public static void chown(Path fileName, String user, String group) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for chown");
-      }
-      elevatedChownImpl(fileName.toString(), user, group);
-    }
-    
-    private static native void elevatedChownImpl(String fileName, String user, String group) throws IOException;
-    
-    public static void move(Path src, Path dst, boolean replaceExisting) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for move");
-      }
-      elevatedCopyImpl(MOVE_FILE, src.toString(), dst.toString(), replaceExisting);
-    }
-    
-    public static void copy(Path src, Path dst, boolean replaceExisting) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for copy");
-      }
-      elevatedCopyImpl(COPY_FILE, src.toString(), dst.toString(), replaceExisting);
-    }
-    
-    private static native void elevatedCopyImpl(int operation, String src, String dst, boolean replaceExisting) throws IOException;
-    
-    public static void chmod(Path fileName, int mode) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for chmod");
-      }
-      elevatedChmodImpl(fileName.toString(), mode);
-    }
-    
-    private static native void elevatedChmodImpl(String path, int mode) throws IOException;
-    
-    public static void killTask(String containerName) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for killTask");
-      }
-      elevatedKillTaskImpl(containerName);
-    }
-    
-    private static native void elevatedKillTaskImpl(String containerName) throws IOException;
-
-    public static OutputStream create(Path f, boolean append)  throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for create");
-      }
-      
-      long desiredAccess = Windows.GENERIC_WRITE;
-      long shareMode = 0L;
-      long creationDisposition = append ? Windows.OPEN_ALWAYS : Windows.CREATE_ALWAYS;
-      long flags = Windows.FILE_ATTRIBUTE_NORMAL;
-      
-      String fileName = f.toString();
-      fileName = fileName.replace('/', '\\');
-      
-      long hFile = elevatedCreateImpl(
-          fileName, desiredAccess, shareMode, creationDisposition, flags);
-      return new FileOutputStream(
-          WinutilsProcessStub.getFileDescriptorFromHandle(hFile));
-    }
-    
-    private static native long elevatedCreateImpl(String path, long desiredAccess, long shareMode,
-        long creationDisposition, long flags) throws IOException;
-    
-    
-    public static boolean deleteFile(Path path) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for deleteFile");
-      }
-      
-      return elevatedDeletePathImpl(path.toString(), false);
-    }
-
-    public static boolean deleteDirectory(Path path) throws IOException {
-      if (!nativeLoaded) {
-        throw new IOException("NativeIO libraries are required for deleteDirectory");
-      }
-      
-      return elevatedDeletePathImpl(path.toString(), true);
-    }
-
-    public native static boolean elevatedDeletePathImpl(String path, boolean isDir) throws IOException;
-  }
-  
-  /**
-   * Wraps a process started by the winutils service helper.
-   *
-   */
-  public static class WinutilsProcessStub extends Process {
-    
-    private final long hProcess;
-    private final long hThread;
-    private boolean disposed = false;
-    
-    private final InputStream stdErr;
-    private final InputStream stdOut;
-    private final OutputStream stdIn;
-    
-    public WinutilsProcessStub(long hProcess, long hThread, long hStdIn, long hStdOut, long hStdErr) {
-      this.hProcess = hProcess;
-      this.hThread = hThread;
-      
-      this.stdIn = new FileOutputStream(getFileDescriptorFromHandle(hStdIn));
-      this.stdOut = new FileInputStream(getFileDescriptorFromHandle(hStdOut));
-      this.stdErr = new FileInputStream(getFileDescriptorFromHandle(hStdErr));
-    }
-    
-    public static native FileDescriptor getFileDescriptorFromHandle(long handle);
-    
-    @Override
-    public native void destroy();
-    
-    @Override
-    public native int exitValue();
-    
-    @Override
-    public InputStream getErrorStream() {
-      return stdErr;
-    }
-    @Override
-    public InputStream getInputStream() {
-      return stdOut;
-    }
-    @Override
-    public OutputStream getOutputStream() {
-      return stdIn;
-    }
-    @Override
-    public native int waitFor() throws InterruptedException;
-
-    public synchronized native void dispose();
-
-    public native void resume() throws NativeIOException;
-  }
-  
-  public synchronized static WinutilsProcessStub createTaskAsUser(
-      String cwd, String jobName, String user, String pidFile, String cmdLine)
-    throws IOException {
-    if (!nativeLoaded) {
-      throw new IOException("NativeIO libraries are required for createTaskAsUser");
-    }
-    synchronized(Shell.WindowsProcessLaunchLock) {
-      return createTaskAsUser0(cwd, jobName, user, pidFile, cmdLine);
-    }
-  }
-
-  private static native WinutilsProcessStub createTaskAsUser0(
-    String cwd, String jobName, String user, String pidFile, String cmdLine)
-    throws NativeIOException;
-  
 }

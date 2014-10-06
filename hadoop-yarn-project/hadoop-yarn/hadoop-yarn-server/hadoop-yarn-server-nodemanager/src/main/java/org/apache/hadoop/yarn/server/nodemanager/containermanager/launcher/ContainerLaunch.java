@@ -212,9 +212,7 @@ public class ContainerLaunch implements Callable<Integer> {
                   + Path.SEPARATOR
                   + String.format(ContainerLocalizer.TOKEN_FILE_NAME_FMT,
                       containerIdStr));
-      Path nmPrivateClasspathJarDir = 
-          dirsHandler.getLocalPathForWrite(
-              getContainerPrivateDir(appIdStr, containerIdStr));
+
       DataOutputStream containerScriptOutStream = null;
       DataOutputStream tokensOutStream = null;
 
@@ -265,7 +263,7 @@ public class ContainerLaunch implements Callable<Integer> {
                 FINAL_CONTAINER_TOKENS_FILE).toUri().getPath());
         // Sanitize the container's environment
         sanitizeEnv(environment, containerWorkDir, appDirs, containerLogDirs,
-          localResources, nmPrivateClasspathJarDir);
+          localResources);
         
         // Write out the environment
         writeLaunchEnv(containerScriptOutStream, environment, localResources,
@@ -660,8 +658,7 @@ public class ContainerLaunch implements Callable<Integer> {
   
   public void sanitizeEnv(Map<String, String> environment, Path pwd,
       List<Path> appDirs, List<String> containerLogDirs,
-      Map<Path, List<String>> resources,
-      Path nmPrivateClasspathJarDir) throws IOException {
+      Map<Path, List<String>> resources) throws IOException {
     /**
      * Non-modifiable environment variables
      */
@@ -725,7 +722,6 @@ public class ContainerLaunch implements Callable<Integer> {
     // TODO: Remove Windows check and use this approach on all platforms after
     // additional testing.  See YARN-358.
     if (Shell.WINDOWS) {
-      
       String inputClassPath = environment.get(Environment.CLASSPATH.name());
       if (inputClassPath != null && !inputClassPath.isEmpty()) {
         StringBuilder newClassPath = new StringBuilder(inputClassPath);
@@ -767,12 +763,10 @@ public class ContainerLaunch implements Callable<Integer> {
         Map<String, String> mergedEnv = new HashMap<String, String>(
           System.getenv());
         mergedEnv.putAll(environment);
-        
+
         String classPathJar = FileUtil.createJarWithClassPath(
-          newClassPath.toString(), nmPrivateClasspathJarDir, pwd, mergedEnv);
-        // In a secure cluster the classpath jar must be localized to grant access
-        Path localizedClassPathJar = exec.localizeClasspathJar(new Path(classPathJar), pwd, container.getUser());
-        environment.put(Environment.CLASSPATH.name(), localizedClassPathJar.toString());
+          newClassPath.toString(), pwd, mergedEnv);
+        environment.put(Environment.CLASSPATH.name(), classPathJar);
       }
     }
     // put AuxiliaryService data to environment
