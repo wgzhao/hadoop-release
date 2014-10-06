@@ -1872,7 +1872,7 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
       // Check if the directory/container has the blob items.
       //
       for (ListBlobItem blobItem : objects) {
-        if (blobItem instanceof CloudBlockBlobWrapper) {
+        if (blobItem instanceof CloudBlockBlobWrapper || blobItem instanceof CloudPageBlobWrapper) {
           LOG.debug(
               "Found blob as a directory-using this file under it to infer its properties " +
                   blobItem.getUri());
