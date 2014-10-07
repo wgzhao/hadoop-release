@@ -235,6 +235,8 @@ Release 2.6.0 - 2014-11-15
 
     HADOOP-11153. Make number of KMS threads configurable. (wang)
 
+    HADOOP-11007. Reinstate building of ant tasks support. (jlowe via kihwal)
+
     HADOOP-11184. Update Hadoop's lz4 to version r123. (cmccabe)
 
     HADOOP-11181. Generalized o.a.h.s.t.d.DelegationTokenManager to handle all
