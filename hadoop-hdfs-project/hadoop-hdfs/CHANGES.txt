@@ -529,9 +529,6 @@ Release 2.6.0 - UNRELEASED
     HDFS-7148. TestEncryptionZones#testIsEncryptedMethod fails on branch-2
     after archival storage merge. (wang)
 
-    HDFS-7172. Test data files may be checked out of git with incorrect line
-    endings, causing test failures in TestHDFSCLI. (Chris Nauroth via wheat9)
-
     HDFS-7178. Additional unit test for replica write with full disk.
     (Arpit Agarwal)
 
@@ -552,6 +549,12 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7176. The namenode usage message doesn't include "-rollingupgrade
     started" (cmccabe)
+
+    HDFS-7172. Test data files may be checked out of git with incorrect line
+    endings, causing test failures in TestHDFSCLI. (Chris Nauroth via wheat9)
+
+    HDFS-7203. Concurrent appending to the same file can cause data corruption
+    (kihwal)
 
     BREAKDOWN OF HDFS-6134 AND HADOOP-10150 SUBTASKS AND RELATED JIRAS
   
