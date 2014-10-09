@@ -241,6 +241,8 @@ Release 2.6.0 - UNRELEASED
     proxy-users on Delegation-token management operations. (Zhijie Shen via
     vinodkv)
 
+    HADOOP-11178. Fix findbugs exclude file. (Arun Suresh via wang)
+
   OPTIMIZATIONS
 
     HADOOP-10838. Byte array native checksumming. (James Thomas via todd)
