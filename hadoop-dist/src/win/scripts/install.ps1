@@ -209,7 +209,7 @@ function Main( $scriptDir )
         $coreConfigs["io.compression.codec.lzo.class"] = "com.hadoop.compression.lzo.LzoCodec"
     }
     if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes")){
-        $coreConfigs["io.compression.codecs"] = "org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec"
+        $coreConfigs["io.compression.codecs"] = "org.apache.hadoop.io.compress.GzipCodec,com.hadoop.compression.lzo.LzoCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec"
     }
     if ($ENV:DEFAULT_FS -eq "ASV"){
         Write-Log "ASV usage detected. Configuring HDP to use ASV as default filesystem"
