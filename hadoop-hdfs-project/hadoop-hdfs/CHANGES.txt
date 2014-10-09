@@ -297,6 +297,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-7195. Update user doc of secure mode about Datanodes don't require root
     or jsvc. (cnauroth)
 
+    HDFS-7217. Better batching of IBRs. (kihwal)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
