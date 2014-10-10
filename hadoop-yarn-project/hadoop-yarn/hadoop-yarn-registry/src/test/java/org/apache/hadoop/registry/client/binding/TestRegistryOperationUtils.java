@@ -38,10 +38,19 @@ public class TestRegistryOperationUtils extends Assert {
   public void testUsernameExtractionCurrentuser() throws Throwable {
     String whoami = RegistryUtils.getCurrentUsernameUnencoded("");
     String ugiUser = UserGroupInformation.getCurrentUser().getShortUserName();
-
     assertEquals(ugiUser, whoami);
-
   }
 
+  @Test
+  public void testShortenUsername() throws Throwable {
+    assertEquals("hbase",
+        RegistryUtils.shortenUsername("hbase@HADOOP.APACHE.ORG"));
+    assertEquals("hbase",
+        RegistryUtils.shortenUsername("hbase/localhost@HADOOP.APACHE.ORG"));
+    assertEquals("hbase",
+        RegistryUtils.shortenUsername("hbase"));
+    assertEquals("hbase user",
+        RegistryUtils.shortenUsername("hbase user"));
+  }
 
 }
