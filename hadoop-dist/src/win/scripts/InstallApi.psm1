@@ -741,7 +741,7 @@ function UninstallHdfs(
     ### Stop and delete services
     ###
     $services = @("namenode", "datanode", "secondarynamenode")
-    if ((Test-Path ENV:HA) -and ($ENV:HA -eq "yes"))
+    if ((Test-Path ENV:IS_HDFS_HA) -and ($ENV:IS_HDFS_HA -eq "yes"))
     {
         $services+=@("journalnode","zkfc")
     }
