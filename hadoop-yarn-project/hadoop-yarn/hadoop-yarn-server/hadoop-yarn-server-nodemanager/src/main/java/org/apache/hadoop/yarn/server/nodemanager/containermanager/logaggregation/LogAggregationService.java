@@ -332,11 +332,27 @@ public class LogAggregationService extends AbstractService implements
       Map<ApplicationAccessType, String> appAcls,
       LogAggregationContext logAggregationContext) {
 
-    // Get user's FileSystem credentials
-    final UserGroupInformation userUgi =
-        UserGroupInformation.createRemoteUser(user);
-    if (credentials != null) {
-      userUgi.addCredentials(credentials);
+    final UserGroupInformation userUgi;
+    boolean sliderSecureEnabled =
+        getConfig().getBoolean(YarnConfiguration.YARN_SLIDER_SECURE_ENABLE,
+          YarnConfiguration.DEFAULT_YARN_SLIDER_SECURE_ENABLE);
+    if (UserGroupInformation.isSecurityEnabled() && sliderSecureEnabled) {
+      try {
+        // For long running service, create a proxy user so that user's hdfs
+        // delegation token is not required to upload the logs, as the token
+        // will expire eventually.
+        userUgi =
+            UserGroupInformation.createProxyUser(user,
+              UserGroupInformation.getLoginUser());
+      } catch (IOException e) {
+        throw new YarnRuntimeException(e);
+      }
+    } else {
+      // Get user's FileSystem credentials
+      userUgi = UserGroupInformation.createRemoteUser(user);
+      if (credentials != null) {
+        userUgi.addCredentials(credentials);
+      }
     }
 
     // New application

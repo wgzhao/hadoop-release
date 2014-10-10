@@ -1124,6 +1124,12 @@
     <value>${hadoop.tmp.dir}/yarn-nm-recovery</value>
   </property>
 
+  <property>
+    <description>Short-term config to enable slider secure. </description>
+    <name>yarn.slider-secure.enable</name>
+    <value>false</value>
+  </property>
+
   <!--Map Reduce configuration-->
   <property>
     <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
