@@ -394,8 +394,9 @@ public class ClientNamenodeProtocolServerSideTranslatorPB implements
       HdfsFileStatus result = server.create(req.getSrc(),
           PBHelper.convert(req.getMasked()), req.getClientName(),
           PBHelper.convertCreateFlag(req.getCreateFlag()), req.getCreateParent(),
-          (short) req.getReplication(), req.getBlockSize(), 
-          PBHelper.convertCipherSuiteProtos(req.getCipherSuitesList()));
+          (short) req.getReplication(), req.getBlockSize(),
+          PBHelper.convertCryptoProtocolVersions(
+              req.getCryptoProtocolVersionList()));
 
       if (result != null) {
         return CreateResponseProto.newBuilder().setFs(PBHelper.convert(result))
@@ -1339,7 +1340,9 @@ public class ClientNamenodeProtocolServerSideTranslatorPB implements
       GetEZForPathResponseProto.Builder builder =
           GetEZForPathResponseProto.newBuilder();
       final EncryptionZone ret = server.getEZForPath(req.getSrc());
-      builder.setZone(PBHelper.convert(ret));
+      if (ret != null) {
+        builder.setZone(PBHelper.convert(ret));
+      }
       return builder.build();
     } catch (IOException e) {
       throw new ServiceException(e);

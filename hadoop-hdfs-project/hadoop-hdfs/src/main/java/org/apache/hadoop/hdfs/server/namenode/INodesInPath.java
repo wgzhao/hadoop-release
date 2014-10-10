@@ -261,7 +261,8 @@ public class INodesInPath {
    */
   private boolean isSnapshot;
   /**
-   * Index of {@link INodeDirectoryWithSnapshot} for snapshot path, else -1
+   * index of the {@link Snapshot.Root} node in the inodes array,
+   * -1 for non-snapshot paths.
    */
   private int snapshotRootIndex;
   /**
@@ -311,15 +312,20 @@ public class INodesInPath {
   }
 
   /**
-   * @return the whole inodes array including the null elements.
+   * @return a new array of inodes excluding the null elements introduced by
+   * snapshot path elements. E.g., after resolving path "/dir/.snapshot",
+   * {@link #inodes} is {/, dir, null}, while the returned array only contains
+   * inodes of "/" and "dir". Note the length of the returned array is always
+   * equal to {@link #capacity}.
    */
   INode[] getINodes() {
-    if (capacity < inodes.length) {
-      INode[] newNodes = new INode[capacity];
-      System.arraycopy(inodes, 0, newNodes, 0, capacity);
-      inodes = newNodes;
+    if (capacity == inodes.length) {
+      return inodes;
     }
-    return inodes;
+
+    INode[] newNodes = new INode[capacity];
+    System.arraycopy(inodes, 0, newNodes, 0, capacity);
+    return newNodes;
   }
   
   /**
@@ -340,8 +346,8 @@ public class INodesInPath {
   }
   
   /**
-   * @return index of the {@link INodeDirectoryWithSnapshot} in
-   *         {@link #inodes} for snapshot path, else -1.
+   * @return index of the {@link Snapshot.Root} node in the inodes array,
+   * -1 for non-snapshot paths.
    */
   int getSnapshotRootIndex() {
     return this.snapshotRootIndex;

@@ -144,7 +144,7 @@ function Main( $scriptDir )
             }
             if (($role -eq "NAMENODE") -or ($role -eq "NN_HA_STANDBY_NAMENODE")) {
                 $hdfsroles = $hdfsroles+" "+"namenode"
-                if ($ENV:HA -ieq "yes") {
+                if ($ENV:IS_HDFS_HA -ieq "yes") {
                     $hdfsroles = $hdfsroles+" "+"zkfc"
                 }
             }
@@ -154,7 +154,7 @@ function Main( $scriptDir )
             if ($role -eq "SECONDARYNAMENODE" ) {
                 $hdfsroles = $hdfsroles+" "+"secondarynamenode"
             }
-            if (($role -eq "RM_HA_STANDBY_RESOURCEMANAGER" ) -and ($ENV:HA -ieq "yes")) {
+            if (($role -eq "RM_HA_STANDBY_RESOURCEMANAGER" ) -and ($ENV:IS_HDFS_HA -ieq "yes")) {
                 $hdfsroles = $hdfsroles+" "+"zkfc"
                 $yarnRoles = $yarnRoles+" "+"resourcemanager"
                 $yarnRoles = $yarnRoles+" "+"timelineserver"
@@ -195,7 +195,11 @@ function Main( $scriptDir )
     ### Prepare the proxyuser hosts
     $proxyHostsList = @()
     $proxyHostsList += GetIPAddress $ENV:HIVE_SERVER_HOST
-    $proxyHostsList += GetIPAddress $ENV:OOZIE_SERVER_HOST
+	$oozie_hosts = ($ENV:OOZIE_SERVER_HOST.Split(",") | foreach { $_.Trim() })
+    foreach ($shost in $oozie_hosts)
+    {
+        $proxyHostsList += GetIPAddress $shost
+    }
     $proxyHostsList += GetIPAddress $ENV:WEBHCAT_HOST
     $proxyHostsList = $proxyHostsList | Select -Uniq
     $proxyHosts = ($proxyHostsList -Join ',')
@@ -209,7 +213,7 @@ function Main( $scriptDir )
         $coreConfigs["io.compression.codec.lzo.class"] = "com.hadoop.compression.lzo.LzoCodec"
     }
     if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes")){
-        $coreConfigs["io.compression.codecs"] = "org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec"
+        $coreConfigs["io.compression.codecs"] = "org.apache.hadoop.io.compress.GzipCodec,com.hadoop.compression.lzo.LzoCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec"
     }
     if ($ENV:DEFAULT_FS -eq "ASV"){
         Write-Log "ASV usage detected. Configuring HDP to use ASV as default filesystem"
@@ -233,7 +237,7 @@ function Main( $scriptDir )
            Write-Log "HDFS usage detected. Configuring HDP to use HDFS as default filesystem"
            $coreConfigs["fs.defaultFS"] = "hdfs://${ENV:NAMENODE_HOST}:8020"
 
-       if ($ENV:HA -ieq "yes") {
+       if ($ENV:IS_HDFS_HA -ieq "yes") {
           $coreConfigs["fs.defaultFS"] = "hdfs://${ENV:NN_HA_CLUSTER_NAME}"
           $zookeeperNodes = $zookeeperNodes = $env:ZOOKEEPER_HOSTS.Replace(",",":2181,")
           $zookeeperNodes = $zookeeperNodes + ":2181"
@@ -308,7 +312,7 @@ function Main( $scriptDir )
         "dfs.hosts" = "${hadoopInstallDir}\etc\hadoop\dfs.include";
         "dfs.hosts.exclude" = "${hadoopInstallDir}\etc\hadoop\dfs.exclude";
         "dfs.support.append" = "true"}
-      if ($ENV:HA -ieq "yes") {
+      if ($ENV:IS_HDFS_HA -ieq "yes") {
           $hdfsConfigs["dfs.nameservices"] = "${ENV:NN_HA_CLUSTER_NAME}"
           $hdfsConfigs["dfs.ha.namenodes.${ENV:NN_HA_CLUSTER_NAME}"] = "nn1,nn2"
           $hdfsConfigs["dfs.namenode.rpc-address.${ENV:NN_HA_CLUSTER_NAME}.nn1"] = "${ENV:NAMENODE_HOST}:8020"
@@ -337,6 +341,9 @@ function Main( $scriptDir )
       if ($ENV:DEFAULT_FS -eq "ASV"){
           $hdfsConfigs["dfs.namenode.rpc-address"] = "${ENV:NAMENODE_HOST}:9000"
       }
+      if ($ENV:ONEBOX -eq "yes"){
+          $hdfsConfigs["dfs.permissions.enabled"] = "false"
+      }      
 
     Configure "Hdfs" $NodeInstallRoot $serviceCredential $hdfsConfigs
 
@@ -385,7 +392,7 @@ function Main( $scriptDir )
         "yarn.nodemanager.log-dirs" = "$NMAndMRLogDir" ;
         "yarn.nodemanager.local-dirs" = "$NMAndMRLocalDir" ;
         "yarn.timeline-service.hostname" = "${ENV:RESOURCEMANAGER_HOST}".ToLower() }
-    if ($ENV:HA -ieq "yes") {
+    if ($ENV:IS_HDFS_HA -ieq "yes") {
         $yarnConfigs += @{
         "yarn.resourcemanager.ha.enabled" = "true";
         "yarn.resourcemanager.ha.rm-ids" = "rm1,rm2";
@@ -424,7 +431,7 @@ function Main( $scriptDir )
         "mapreduce.map.java.opts" = "-Xmx756m";
         "mapreduce.cluster.local.dir" = "$NMAndMRLocalDir" }
 
-    if ((Test-Path ENV:HA) -and ($ENV:HA -ieq "yes")) {
+    if ((Test-Path ENV:IS_HDFS_HA) -and ($ENV:IS_HDFS_HA -ieq "yes")) {
         $mapredConfigs["mapreduce.am.max-attempts"] = "20"
     }
     if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes")) {

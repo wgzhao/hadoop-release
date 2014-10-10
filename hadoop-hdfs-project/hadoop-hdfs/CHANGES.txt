@@ -263,6 +263,40 @@ Release 2.6.0 - UNRELEASED
     HDFS-6894. Add XDR parser method for each NFS response.
     (Brandon Li via wheat9)
 
+    HDFS-7139. Unit test for creating encryption zone on root path. (Zhe Zhang via wang)
+
+    HDFS-7138. Fix hftp to work with encryption. (clamb via wang)
+
+    HDFS-6808. Add command line option to ask DataNode reload configuration.
+    (Lei Xu via Colin Patrick McCabe)
+   
+    HDFS-6987. Move CipherSuite xattr information up to the encryption zone
+    root. (Zhe Zhang via wang)
+
+    HDFS-7077. Separate CipherSuite from crypto protocol version. (wang)
+
+    HDFS-6956. Allow dynamically changing the tracing level in Hadoop servers
+    (cmccabe)
+
+    HDFS-7156. Update fsck documentation. (Masahiro Yamaguch via shv)
+
+    HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
+
+    HDFS-6519. Document oiv_legacy command (Akira AJISAKA via aw)
+
+    HDFS-4165. Faulty sanity check in FsDirectory.unprotectedSetQuota.
+    (Binglin Chang via suresh)
+
+    HDFS-7104. Fix and clarify INodeInPath getter functions. (Zhe Zhang via wang)
+
+    HDFS-7124. Remove EncryptionZoneManager.NULL_EZ. (clamb via wang)
+
+    HDFS-6779. Add missing version subcommand for hdfs.
+    (Sasaki Toru via wheat9)
+
+    HDFS-7195. Update user doc of secure mode about Datanodes don't require root
+    or jsvc. (cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
@@ -272,6 +306,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-6865. Byte array native checksumming on client side
     (James Thomas via todd)
+
+    HDFS-7122. Use of ThreadLocal<Random> results in poor block placement.
+    (wang)
 
   BUG FIXES
 
@@ -495,11 +532,32 @@ Release 2.6.0 - UNRELEASED
     HDFS-7148. TestEncryptionZones#testIsEncryptedMethod fails on branch-2
     after archival storage merge. (wang)
 
-    HDFS-7172. Test data files may be checked out of git with incorrect line
-    endings, causing test failures in TestHDFSCLI. (Chris Nauroth via wheat9)
+    HDFS-7178. Additional unit test for replica write with full disk.
+    (Arpit Agarwal)
+
+    HDFS-6754. TestNamenodeCapacityReport may sometimes fail due to lack of
+    retry. (Mit Desai via kihwal)
 
     HDFS-7178. Additional unit test for replica write with full disk.
     (Arpit Agarwal)
+
+    HDFS-7179. DFSClient should instantiate a KeyProvider, not a
+    KeyProviderCryptoExtension. (wang)
+
+    HDFS-7181. Remove incorrect precondition check on key length in
+    FileEncryptionInfo. (wang)
+
+    HDFS-7162. Wrong path when deleting through fuse-dfs a file which already
+    exists in trash (Chenging Liu via cmccabe)
+
+    HDFS-7176. The namenode usage message doesn't include "-rollingupgrade
+    started" (cmccabe)
+
+    HDFS-7172. Test data files may be checked out of git with incorrect line
+    endings, causing test failures in TestHDFSCLI. (Chris Nauroth via wheat9)
+
+    HDFS-7203. Concurrent appending to the same file can cause data corruption
+    (kihwal)
 
     BREAKDOWN OF HDFS-6134 AND HADOOP-10150 SUBTASKS AND RELATED JIRAS
   
@@ -646,6 +704,11 @@ Release 2.6.0 - UNRELEASED
     HDFS-7131. During HA upgrade, JournalNode should create a new committedTxnId
     file in the current directory. (jing9)
 
+    HDFS-7128. Decommission slows way down when it gets towards the end.
+    (Ming Ma via cnauroth)
+
+    HDFS-6534. Fix build on macosx: HDFS parts (Binglin Chang via aw)
+
   BREAKDOWN OF HDFS-6584 ARCHIVAL STORAGE
 
     HDFS-6677. Change INodeFile and FSImage to support storage policy ID.
@@ -734,6 +797,11 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-6904. YARN unable to renew delegation token fetched via webhdfs due to
     incorrect service port (jitendra)
+
+    HDFS-6664. HDFS permissions guide documentation states incorrect default
+    group mapping class. (Ray Chiang via aw)
+
+    HDFS-4227. Document dfs.namenode.resource.*  (Daisuke Kobayashi via aw)
 
 Release 2.5.1 - 2014-09-05
 
