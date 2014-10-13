@@ -325,7 +325,7 @@ function InstallCore(
 
     Write-Log "Setting the HADOOP_YARN_HOME environment variable at machine scope to `"$hadoopInstallToDir`""
     [Environment]::SetEnvironmentVariable("HADOOP_YARN_HOME", "$hadoopInstallToDir", [EnvironmentVariableTarget]::Machine)
-    $ENV:HADOOP_MAPRED_HOME = "$hadoopInstallToDir"
+    $ENV:HADOOP_YARN_HOME = "$hadoopInstallToDir"
 
     Write-Log "Setting the HDFS_AUDIT_LOGGER environment variable at machine scope to `"INFO,RFAAUDIT`""
     [Environment]::SetEnvironmentVariable("HDFS_AUDIT_LOGGER", "INFO,RFAAUDIT", [EnvironmentVariableTarget]::Machine)
