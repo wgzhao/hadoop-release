@@ -61,7 +61,6 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
-import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Priority;
@@ -78,7 +77,6 @@ import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
 
 /**
@@ -172,10 +170,6 @@ public class Client {
   private boolean keepContainers = false;
 
   private long attemptFailuresValidityInterval = -1;
-
-  private String logAggregationIncludePattern = "";
-  private String logAggregationExcludePattern = "";
-  private long logRollingIntervalSeconds = 0;
 
   // Debug flag
   boolean debugFlag = false;
@@ -280,14 +274,6 @@ public class Client {
       "the validityInterval into failure count. " +
       "If failure count reaches to maxAppAttempts, " +
       "the application will be failed.");
-    opts.addOption("logAggregationIncludePattern", true, "It uses Java Regex "
-        + "to filter the log files which match the defined include pattern "
-        + "and those log files will be uploaded.");
-    opts.addOption("logAggregationExcludePattern", true, "It uses Java Regex "
-        + "to filter the log files which match the defined exclude pattern "
-        + "and those log files will not be uploaded.");
-    opts.addOption("logRollingIntervalSeconds", true, "how often the "
-        + "logAggregationSerivce uploads container logs in seconds.");
     opts.addOption("debug", false, "Dump out debug information");
     opts.addOption("domain", true, "ID of the timeline domain where the "
         + "timeline entities will be put");
@@ -427,16 +413,6 @@ public class Client {
         Long.parseLong(cliParser.getOptionValue(
           "attempt_failures_validity_interval", "-1"));
 
-    if (cliParser.hasOption("logAggregationIncludePattern")) {
-      logAggregationIncludePattern =
-          cliParser.getOptionValue("logAggregationIncludePattern");
-    }
-    if (cliParser.hasOption("logAggregationExcludePattern")) {
-      logAggregationExcludePattern =
-          cliParser.getOptionValue("logAggregationExcludePattern");
-    }
-    logRollingIntervalSeconds = Long.parseLong(cliParser.getOptionValue(
-      "logRollingIntervalSeconds", "-1"));
     log4jPropFile = cliParser.getOptionValue("log_properties", "");
 
     // Get timeline domain options
@@ -543,18 +519,6 @@ public class Client {
         .setAttemptFailuresValidityInterval(attemptFailuresValidityInterval);
     }
 
-    LogAggregationContext logAggregationContext =
-        Records.newRecord(LogAggregationContext.class);
-    if (!logAggregationIncludePattern.isEmpty()) {
-      logAggregationContext.setIncludePattern(logAggregationIncludePattern);
-    }
-    if (!logAggregationExcludePattern.isEmpty()) {
-      logAggregationContext.setExcludePattern(logAggregationExcludePattern);
-    }
-    if (logRollingIntervalSeconds > 0) {
-      logAggregationContext.setRollingIntervalSeconds(logRollingIntervalSeconds);
-    }
-    appContext.setLogAggregationContext(logAggregationContext);
     // set local resources for the application master
     // local files or archives as needed
     // In this scenario, the jar file for the application master is part of the local resources			
