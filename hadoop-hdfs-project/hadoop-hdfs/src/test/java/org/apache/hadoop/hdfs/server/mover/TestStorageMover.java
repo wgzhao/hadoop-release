@@ -44,6 +44,7 @@ import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.StorageType;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
+import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.HdfsLocatedFileStatus;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
@@ -100,9 +101,9 @@ public class TestStorageMover {
     DEFAULT_CONF.setLong(DFSConfigKeys.DFS_MOVER_MOVEDWINWIDTH_KEY, 2000L);
 
     DEFAULT_POLICIES = BlockStoragePolicySuite.createDefaultSuite();
-    HOT = DEFAULT_POLICIES.getPolicy("HOT");
-    WARM = DEFAULT_POLICIES.getPolicy("WARM");
-    COLD = DEFAULT_POLICIES.getPolicy("COLD");
+    HOT = DEFAULT_POLICIES.getPolicy(HdfsConstants.HOT_STORAGE_POLICY_NAME);
+    WARM = DEFAULT_POLICIES.getPolicy(HdfsConstants.WARM_STORAGE_POLICY_NAME);
+    COLD = DEFAULT_POLICIES.getPolicy(HdfsConstants.COLD_STORAGE_POLICY_NAME);
     TestBalancer.initTestSetup();
     Dispatcher.setDelayAfterErrors(1000L);
   }
@@ -201,14 +202,6 @@ public class TestStorageMover {
       this.policies = DEFAULT_POLICIES;
     }
 
-    MigrationTest(ClusterScheme cScheme, NamespaceScheme nsScheme,
-        BlockStoragePolicySuite policies) {
-      this.clusterScheme = cScheme;
-      this.nsScheme = nsScheme;
-      this.conf = clusterScheme.conf;
-      this.policies = policies;
-    }
-
     /**
      * Set up the cluster and start NameNode and DataNodes according to the
      * corresponding scheme.
@@ -273,9 +266,6 @@ public class TestStorageMover {
       }
       if (verifyAll) {
         verifyNamespace();
-      } else {
-        // TODO verify according to the given path list
-
       }
     }
 
@@ -666,8 +656,8 @@ public class TestStorageMover {
 
   private void setVolumeFull(DataNode dn, StorageType type) {
     List<? extends FsVolumeSpi> volumes = dn.getFSDataset().getVolumes();
-    for (int j = 0; j < volumes.size(); ++j) {
-      FsVolumeImpl volume = (FsVolumeImpl) volumes.get(j);
+    for (FsVolumeSpi v : volumes) {
+      FsVolumeImpl volume = (FsVolumeImpl) v;
       if (volume.getStorageType() == type) {
         LOG.info("setCapacity to 0 for [" + volume.getStorageType() + "]"
             + volume.getStorageID());

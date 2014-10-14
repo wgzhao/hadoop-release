@@ -299,6 +299,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7217. Better batching of IBRs. (kihwal)
 
+    HDFS-7228. Add an SSD policy into the default BlockStoragePolicySuite.
+    (jing9)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
