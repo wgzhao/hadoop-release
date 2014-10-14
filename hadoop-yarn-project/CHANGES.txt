@@ -515,6 +515,8 @@ Release 2.6.0 - UNRELEASED
     YARN-2598 GHS should show N/A instead of null for the inaccessible information
     (Zhijie Shen via mayank)
 
+    YARN-2651. Spun off LogRollingInterval from LogAggregationContext. (Xuan Gong
+    via zjshen)
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
