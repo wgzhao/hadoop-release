@@ -61,6 +61,7 @@ import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
+import org.apache.hadoop.registry.client.api.RegistryConstants;
 import org.apache.hadoop.yarn.label.FileSystemNodeLabelManager;
 import org.apache.hadoop.yarn.label.MemoryNodeLabelManager;
 import org.apache.hadoop.yarn.label.NodeLabelManager;
@@ -76,6 +77,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.RMState;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStoreFactory;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.Recoverable;
+import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEventType;
@@ -162,6 +164,11 @@ public class ResourceManager extends CompositeService implements Recoverable {
   private AppReportFetcher fetcher = null;
   protected ResourceTrackerService resourceTracker;
 
+  /**
+   * Registry service
+   */
+  protected RMRegistryService registry;
+
   @VisibleForTesting
   protected String webAppAddress;
   private ConfigurationProvider configurationProvider = null;
@@ -236,6 +243,15 @@ public class ResourceManager extends CompositeService implements Recoverable {
     if (this.rmContext.isHAEnabled()) {
       HAUtil.verifyAndSetConfiguration(this.conf);
     }
+
+    boolean registryEnabled = conf.getBoolean(RegistryConstants.KEY_REGISTRY_ENABLED,
+        RegistryConstants.DEFAULT_REGISTRY_ENABLED);
+    if (registryEnabled) {
+      registry = new RMRegistryService(rmContext);
+      addService(registry);
+      rmContext.setRegistry(registry);
+    }
+
     createAndInitActiveServices();
 
     webAppAddress = WebAppUtils.getWebAppBindURL(this.conf,

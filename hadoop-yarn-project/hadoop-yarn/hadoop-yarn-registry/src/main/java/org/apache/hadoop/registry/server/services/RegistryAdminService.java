@@ -171,16 +171,20 @@ public class RegistryAdminService extends RegistryOperationsService {
    * as needed
    * @return the future which will indicate whether or not the operation
    * succeeded —and propagate any exceptions
-   * @throws IOException
    */
   public Future<Boolean> createDirAsync(final String path,
       final List<ACL> acls,
-      final boolean createParents) throws IOException {
+      final boolean createParents) {
     return submit(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
-        return maybeCreate(path, CreateMode.PERSISTENT,
-            acls, createParents);
+        try {
+          return maybeCreate(path, CreateMode.PERSISTENT,
+              acls, createParents);
+        } catch (IOException e) {
+          LOG.warn("Exception creating path {}: {}", path, e);
+          throw e;
+        }
       }
     });
   }
@@ -188,7 +192,7 @@ public class RegistryAdminService extends RegistryOperationsService {
   /**
    * Init operation sets up the system ACLs.
    * @param conf configuration of the service
-   * @throws Exception
+   * @throws Exception on a failure to initialize.
    */
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
@@ -205,7 +209,7 @@ public class RegistryAdminService extends RegistryOperationsService {
 
   /**
    * Start the service, including creating base directories with permissions
-   * @throws Exception
+   * @throws Exceptionn on a failure to start.
    */
   @Override
   protected void serviceStart() throws Exception {
@@ -227,8 +231,6 @@ public class RegistryAdminService extends RegistryOperationsService {
       LOG.error(" Failure {}", e, e);
       LOG.error(message);
 
-      // TODO: this is something temporary to deal with the problem
-      // that jenkins is failing this test
       throw new NoPathPermissionsException(e.getPath().toString(), message, e);
     }
   }
@@ -507,15 +509,24 @@ public class RegistryAdminService extends RegistryOperationsService {
       this.purgePolicy = purgePolicy;
     }
 
+    /**
+     * Execute a purge operation. Exceptions are caught, logged and rethrown.
+     * @return the number of records purged
+     */
     @Override
     public Integer call() throws Exception {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Executing {}", this);
+      try {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Executing {}", this);
+        }
+        return purge(path,
+            selector,
+            purgePolicy,
+            callback);
+      } catch (Exception e) {
+        LOG.warn("Exception in {}: {}", this, e, e);
+        throw e;
       }
-      return purge(path,
-          selector,
-          purgePolicy,
-          callback);
     }
 
     @Override

@@ -98,7 +98,7 @@ public class TestUtils {
           new AMRMTokenSecretManager(conf, null),
           new RMContainerTokenSecretManager(conf),
           new NMTokenSecretManagerInRM(conf),
-          new ClientToAMTokenSecretManagerInRM(), writer);
+          new ClientToAMTokenSecretManagerInRM(), writer, null);
     NodeLabelManager nlm = mock(NodeLabelManager.class);
     when(
         nlm.getQueueResource(any(String.class), any(Set.class),
