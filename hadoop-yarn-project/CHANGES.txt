@@ -307,6 +307,9 @@ Release 2.6.0 - UNRELEASED
     YARN-2629. Made the distributed shell use the domain-based timeline ACLs.
     (zjshen)
 
+    YARN-2312. Deprecated old ContainerId#getId API and updated MapReduce to
+    use ContainerId#getContainerId instead. (Tsuyoshi OZAWA via jianhe)
+
   OPTIMIZATIONS
 
   BUG FIXES
