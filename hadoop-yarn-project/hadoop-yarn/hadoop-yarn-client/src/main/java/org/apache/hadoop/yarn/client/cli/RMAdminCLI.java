@@ -18,22 +18,12 @@
 
 package org.apache.hadoop.yarn.client.cli;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.conf.Configuration;
@@ -51,24 +41,13 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
-import org.apache.hadoop.yarn.label.FileSystemNodeLabelManager;
-import org.apache.hadoop.yarn.label.NodeLabelConfiguration;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
-import org.apache.hadoop.yarn.label.NodeLabelManagerFactory;
 import org.apache.hadoop.yarn.server.api.ResourceManagerAdministrationProtocol;
-import org.apache.hadoop.yarn.server.api.protocolrecords.AddLabelsRequest;
-import org.apache.hadoop.yarn.server.api.protocolrecords.GetLabelsRequest;
-import org.apache.hadoop.yarn.server.api.protocolrecords.GetNodeToLabelsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshAdminAclsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshServiceAclsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsConfigurationRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsRequest;
-import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveLabelsRequest;
-import org.apache.hadoop.yarn.server.api.protocolrecords.SetNodeToLabelsRequest;
-
-import com.google.common.collect.ImmutableMap;
 
 @Private
 @Unstable
@@ -76,7 +55,6 @@ public class RMAdminCLI extends HAAdmin {
 
   private final RecordFactory recordFactory = 
     RecordFactoryProvider.getRecordFactory(null);
-  private static final Log LOG = LogFactory.getLog(RMAdminCLI.class);
 
   protected final static Map<String, UsageInfo> ADMIN_USAGE =
       ImmutableMap.<String, UsageInfo>builder()
@@ -100,19 +78,7 @@ public class RMAdminCLI extends HAAdmin {
           .put("-help", new UsageInfo("[cmd]",
               "Displays help for the given command or all commands if none " +
                   "is specified."))
-          .put("-addLabels",
-              new UsageInfo("[labels splitted by ',']", "Add labels"))
-          .put("-removeLabels",
-              new UsageInfo("[labels splitted by ',']", "Remove labels"))
-          .put("-setNodeToLabels",
-              new UsageInfo("[node1:label1,label2,label3;node2:label2,label3]",
-                  "set node to labels"))
-          .put("-getNodeToLabels", new UsageInfo("", 
-              "Get node to label mappings"))
-          .put("-getLabels", new UsageInfo("", "Get labels in the cluster"))
-          .put("-loadLabelsConfigFile",
-              new UsageInfo("[path/to to node-label.xml]", "Load labels config file"))
-              .build();
+          .build();
 
   public RMAdminCLI() {
     super();
@@ -236,26 +202,10 @@ public class RMAdminCLI extends HAAdmin {
 
   }
 
-  protected ResourceManagerAdministrationProtocol createAdminProtocol()
-      throws IOException {
-    return createAdminProtocol(false);
-  }
-  
-  protected ResourceManagerAdministrationProtocol
-      createAdminProtocolDoNotRetry() throws IOException {
-    return createAdminProtocol(true);
-  }
-  
-  protected ResourceManagerAdministrationProtocol createAdminProtocol(
-      boolean doNotRetry) throws IOException {
+  protected ResourceManagerAdministrationProtocol createAdminProtocol() throws IOException {
     // Get the current configuration
     final YarnConfiguration conf = new YarnConfiguration(getConf());
-    if (doNotRetry) {
-      conf.setInt("ipc.client.connect.max.retries", 0);
-      conf.setInt(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, 0);
-    }
-    return ClientRMProxy.createRMProxy(conf,
-        ResourceManagerAdministrationProtocol.class);
+    return ClientRMProxy.createRMProxy(conf, ResourceManagerAdministrationProtocol.class);
   }
   
   private int refreshQueues() throws IOException, YarnException {
@@ -335,186 +285,6 @@ public class RMAdminCLI extends HAAdmin {
     return 0;
   }
   
-  private NodeLabelManager getLocalNodeLabelManagerInstance()
-      throws IOException {
-    NodeLabelManager localMgr =
-        NodeLabelManagerFactory.getNodeLabelManager(getConf());
-    if (!(localMgr instanceof FileSystemNodeLabelManager)) {
-      String msg =
-          "Acquired NodeLabelManager doesn't have ability to recover, "
-              + " RMAdmin CLI will exit";
-      LOG.error(msg);
-      throw new IOException(msg);
-    }
-
-    localMgr.init(getConf());
-    localMgr.start();
-
-    return localMgr;
-  }
-  
-  private int addLabels(String args) throws IOException, YarnException {
-    Set<String> labels = new HashSet<String>();
-    for (String p : args.split(",")) {
-      labels.add(p);
-    }
-
-    return addLabels(labels);
-  }
-
-  private int addLabels(Set<String> labels) throws IOException, YarnException {
-    ResourceManagerAdministrationProtocol adminProtocol =
-        createAdminProtocolDoNotRetry();
-
-    try {
-      AddLabelsRequest request = AddLabelsRequest.newInstance(labels);
-      adminProtocol.addLabels(request);
-    } catch (ConnectException e) {
-      LOG.info("Failed to connect to RM, try to use standalone NodeLabelManager");
-      NodeLabelManager mgr = getLocalNodeLabelManagerInstance();
-      mgr.persistAddingLabels(labels);
-      mgr.stop();
-    }
-
-    return 0;
-  }
-
-  private int removeLabels(String args) throws IOException, YarnException {
-    ResourceManagerAdministrationProtocol adminProtocol =
-        createAdminProtocolDoNotRetry();
-    Set<String> labels = new HashSet<String>();
-    for (String p : args.split(",")) {
-      labels.add(p);
-    }
-
-    try {
-      RemoveLabelsRequest request = RemoveLabelsRequest.newInstance(labels);
-      adminProtocol.removeLabels(request);
-    } catch (ConnectException e) {
-      LOG.info("Failed to connect to RM, try to use standalone NodeLabelManager");
-      NodeLabelManager mgr = getLocalNodeLabelManagerInstance();
-      mgr.persistRemovingLabels(labels);
-      mgr.stop();
-    }
-    
-    return 0;
-  }
-
-  private int getNodeToLabels() throws IOException, YarnException {
-    ResourceManagerAdministrationProtocol adminProtocol =
-        createAdminProtocolDoNotRetry();
-
-    Map<String, Set<String>> nodeToLabels = null;
-    try {
-      nodeToLabels =
-          adminProtocol.getNodeToLabels(GetNodeToLabelsRequest.newInstance())
-              .getNodeToLabels();
-    } catch (ConnectException e) {
-      LOG.info("Failed to connect to RM, try to use standalone NodeLabelManager");
-      NodeLabelManager mgr = getLocalNodeLabelManagerInstance();
-      nodeToLabels = mgr.getNodesToLabels();
-      mgr.stop();
-    }
-    
-    for (String host : sortSet(nodeToLabels.keySet())) {
-      System.out.println(String.format("Host=%s, Labels=[%s]", host,
-          StringUtils.join(sortSet(nodeToLabels.get(host)).iterator(), ",")));
-    }
-    return 0;
-  }
-
-  private int getLabels() throws IOException, YarnException {
-    ResourceManagerAdministrationProtocol adminProto =
-        createAdminProtocolDoNotRetry();
-
-    Set<String> labels = null;
-    try {
-      labels = adminProto.getLabels(GetLabelsRequest.newInstance()).getLabels();
-    } catch (ConnectException e) {
-      LOG.info("Failed to connect to RM, try to use standalone NodeLabelManager");
-      NodeLabelManager mgr = getLocalNodeLabelManagerInstance();
-      labels = mgr.getLabels();
-      mgr.stop();
-    }
-
-    System.out.println(String.format("Labels=%s",
-        StringUtils.join(sortSet(labels).iterator(), ",")));
-    return 0;
-  }
-  
-  private int loadLabelsConfigFile(String configFile) throws IOException,
-      YarnException {
-    File file = new File(configFile);
-    if (!file.exists() || file.isDirectory()) {
-      LOG.error(String.format("ConfigFile=%s, doesn't exist or it's a dir",
-          configFile));
-      return -1;
-    }
-    
-    NodeLabelConfiguration nodeLabelConfig =
-        new NodeLabelConfiguration(file.getAbsolutePath());
-    
-    int rc;
-    if (0 != (rc = addLabels(nodeLabelConfig.getLabels()))) {
-      return rc;
-    }
-    return setNodeToLabels(nodeLabelConfig.getNodeToLabels());
-  }
-  
-  private List<String> sortSet(Set<String> labels) {
-    List<String> list = new ArrayList<String>();
-    list.addAll(labels);
-    Collections.sort(list);
-    return list;
-  }
-
-  private int setNodeToLabels(String args) throws IOException, YarnException {
-    Map<String, Set<String>> map = new HashMap<String, Set<String>>();
-
-    for (String nodeToLabels : args.split(";")) {
-      if (!nodeToLabels.contains(":")) {
-        throw new IOException(
-            "Format is incorrect, should be node:label1,label2...");
-      }
-      String[] split = nodeToLabels.split(":");
-      String node = split[0];
-      String labels = split.length == 1 ? null : split[1];
-
-      if (node.trim().isEmpty()) {
-        throw new IOException("node name cannot be empty");
-      }
-
-      map.put(node, new HashSet<String>());
-      
-      if (labels != null) {
-        for (String label : labels.split(",")) {
-          if (!label.trim().isEmpty()) {
-            map.get(node).add(label.trim().toLowerCase());
-          }
-        }
-      }
-    }
-
-    return setNodeToLabels(map);
-  }
-
-  private int setNodeToLabels(Map<String, Set<String>> map) throws IOException,
-      YarnException {
-    ResourceManagerAdministrationProtocol adminProtocol =
-        createAdminProtocolDoNotRetry();
-    try {
-      SetNodeToLabelsRequest request = SetNodeToLabelsRequest.newInstance(map);
-      adminProtocol.setNodeToLabels(request);
-    } catch (ConnectException e) {
-      LOG.info("Failed to connect to RM, try to use standalone NodeLabelManager");
-      NodeLabelManager mgr = getLocalNodeLabelManagerInstance();
-      mgr.persistNodeToLabelsChanges(map);
-      mgr.stop();
-    }
-
-    return 0;
-  }
-  
   @Override
   public int run(String[] args) throws Exception {
     YarnConfiguration yarnConf =
@@ -581,38 +351,6 @@ public class RMAdminCLI extends HAAdmin {
       } else if ("-getGroups".equals(cmd)) {
         String[] usernames = Arrays.copyOfRange(args, i, args.length);
         exitCode = getGroups(usernames);
-      } else if ("-addLabels".equals(cmd)) {
-        if (i >= args.length) {
-          System.err.println("Labels is not specified");
-          exitCode = -1;
-        } else {
-          exitCode = addLabels(args[i]);
-        }
-      } else if ("-removeLabels".equals(cmd)) {
-        if (i >= args.length) {
-          System.err.println("Labels is not specified");
-          exitCode = -1;
-        } else {
-          exitCode = removeLabels(args[i]);
-        }
-      } else if ("-setNodeToLabels".equals(cmd)) {
-        if (i >= args.length) {
-          System.err.println("Labels is not specified");
-          exitCode = -1;
-        } else {
-          exitCode = setNodeToLabels(args[i]);
-        }
-      } else if ("-getNodeToLabels".equals(cmd)) {
-        exitCode = getNodeToLabels();
-      } else if ("-getLabels".equals(cmd)) {
-        exitCode = getLabels();
-      } else if ("-loadLabelsConfigFile".equals(cmd)) {
-        if (i >= args.length) {
-          System.err.println("label config file is not specified");
-          exitCode = -1;
-        } else {
-          exitCode = loadLabelsConfigFile(args[i]);
-        }
       } else {
         exitCode = -1;
         System.err.println(cmd.substring(1) + ": Unknown command");

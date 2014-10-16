@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.PrivilegedExceptionAction;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -179,7 +179,6 @@ public class TestApplicationACLs {
     verifyAdministerQueueUserAccess();
   }
 
-  @SuppressWarnings("deprecation")
   private ApplicationId submitAppAndGetAppId(AccessControlList viewACL,
       AccessControlList modifyACL) throws Exception {
     SubmitApplicationRequest submitRequest = recordFactory

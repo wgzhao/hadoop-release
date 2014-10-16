@@ -135,52 +135,34 @@ public class MockAM {
   public void addContainerToBeReleased(ContainerId containerId) {
     releases.add(containerId);
   }
-  
   public AllocateResponse allocate(
       String host, int memory, int numContainers,
       List<ContainerId> releases) throws Exception {
-    return allocate(host, memory, numContainers, releases, null);
-  }
-  
-  public AllocateResponse allocate(
-      String host, int memory, int numContainers,
-      List<ContainerId> releases, String labelExpression) throws Exception {
-    List<ResourceRequest> reqs =
-        createReq(new String[] { host }, memory, 1, numContainers,
-            labelExpression);
+    List<ResourceRequest> reqs = createReq(new String[]{host}, memory, 1, numContainers);
     return allocate(reqs, releases);
-  }
-  
-  public List<ResourceRequest> createReq(String[] hosts, int memory, int priority,
-      int containers) throws Exception {
-    return createReq(hosts, memory, priority, containers, null);
   }
 
   public List<ResourceRequest> createReq(String[] hosts, int memory, int priority,
-      int containers, String labelExpression) throws Exception {
+      int containers) throws Exception {
     List<ResourceRequest> reqs = new ArrayList<ResourceRequest>();
     for (String host : hosts) {
       ResourceRequest hostReq = createResourceReq(host, memory, priority,
-          containers, labelExpression);
+          containers);
       reqs.add(hostReq);
       ResourceRequest rackReq = createResourceReq("/default-rack", memory,
-          priority, containers, labelExpression);
+          priority, containers);
       reqs.add(rackReq);
     }
 
     ResourceRequest offRackReq = createResourceReq(ResourceRequest.ANY, memory,
-        priority, containers, labelExpression);
+        priority, containers);
     reqs.add(offRackReq);
     return reqs;
-  }
-  
-  public ResourceRequest createResourceReq(String resource, int memory, int priority,
-      int containers) throws Exception {
-    return createResourceReq(resource, memory, priority, containers, null);
+
   }
 
   public ResourceRequest createResourceReq(String resource, int memory, int priority,
-      int containers, String labelExpression) throws Exception {
+      int containers) throws Exception {
     ResourceRequest req = Records.newRecord(ResourceRequest.class);
     req.setResourceName(resource);
     req.setNumContainers(containers);
@@ -190,9 +172,6 @@ public class MockAM {
     Resource capability = Records.newRecord(Resource.class);
     capability.setMemory(memory);
     req.setCapability(capability);
-    if (labelExpression != null) {
-     req.setLabelExpression(labelExpression); 
-    }
     return req;
   }
 

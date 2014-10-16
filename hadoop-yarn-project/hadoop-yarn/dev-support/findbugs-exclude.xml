@@ -188,21 +188,6 @@
     </Or>
     <Bug pattern="IS2_INCONSISTENT_SYNC" />
   </Match>
-  <Match>
-    <Class name="org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.AbstractCSQueue" />
-    <Or>
-      <Field name="absoluteCapacity" />
-      <Field name="absoluteMaxCapacity" />
-      <Field name="acls" />
-      <Field name="capacity" />
-      <Field name="maximumCapacity" />
-      <Field name="state" />
-      <Field name="labelManager" />
-      <Field name="defaultLabelExpression" />
-      <Field name="labels" />
-    </Or>
-    <Bug pattern="IS2_INCONSISTENT_SYNC" />
-  </Match>
   <!-- Inconsistent sync warning - scheduleAsynchronously is only initialized once and never changed -->
   <Match>
     <Class name="org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler" />

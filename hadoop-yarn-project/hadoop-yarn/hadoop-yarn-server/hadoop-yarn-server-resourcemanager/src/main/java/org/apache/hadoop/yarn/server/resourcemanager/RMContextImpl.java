@@ -32,7 +32,6 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.conf.ConfigurationProvider;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWriter;
 import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublisher;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.NullRMStateStore;
@@ -90,7 +89,6 @@ public class RMContextImpl implements RMContext {
   private RMApplicationHistoryWriter rmApplicationHistoryWriter;
   private SystemMetricsPublisher systemMetricsPublisher;
   private ConfigurationProvider configurationProvider;
-  private NodeLabelManager nodeLabelManager;
   private long epoch;
   private Clock systemClock = new SystemClock();
   private long schedulerRecoveryStartTime = 0;
@@ -395,16 +393,6 @@ public class RMContextImpl implements RMContext {
 
   void setEpoch(long epoch) {
     this.epoch = epoch;
-  }
-
-  @Override
-  public NodeLabelManager getNodeLabelManager() {
-    return nodeLabelManager;
-  }
-  
-  @Override
-  public void setNodeLabelManager(NodeLabelManager mgr) {
-    nodeLabelManager = mgr;
   }
 
   public void setSchedulerRecoveryStartAndWaitTime(long waitTime) {

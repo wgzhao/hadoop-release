@@ -962,7 +962,10 @@ public class TestCapacityScheduler {
     YarnConfiguration conf = new YarnConfiguration();
     CapacityScheduler cs = new CapacityScheduler();
     cs.setConf(conf);
-    RMContext rmContext = TestUtils.getMockRMContext();
+    RMContextImpl rmContext =  new RMContextImpl(null, null, null, null, null,
+        null, new RMContainerTokenSecretManager(conf),
+        new NMTokenSecretManagerInRM(conf),
+        new ClientToAMTokenSecretManagerInRM(), null);
     cs.setRMContext(rmContext);
     CapacitySchedulerConfiguration csConf =
         new CapacitySchedulerConfiguration();

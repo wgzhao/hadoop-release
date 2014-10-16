@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmnode;
 
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.net.Node;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -136,11 +135,4 @@ public interface RMNode {
    * @return containerUpdates accumulated across NM heartbeats.
    */
   public List<UpdatedContainerInfo> pullContainerUpdates();
-  
-  /**
-   * Get set of labels in this node
-   * 
-   * @return labels in this node
-   */
-  public Set<String> getLabels();
 }

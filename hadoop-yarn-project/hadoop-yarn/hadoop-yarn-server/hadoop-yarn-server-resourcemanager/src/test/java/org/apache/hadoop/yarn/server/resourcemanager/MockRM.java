@@ -183,43 +183,27 @@ public class MockRM extends ResourceManager {
     return launchAndRegisterAM(app, this, nm);
   }
 
-  public boolean waitForState(MockNM nm, ContainerId containerId,
+  public void waitForState(MockNM nm, ContainerId containerId,
       RMContainerState containerState) throws Exception {
-    // default is wait for 30,000 ms
-    return waitForState(nm, containerId, containerState, 30 * 1000);
-  }
-  
-  public boolean waitForState(MockNM nm, ContainerId containerId,
-      RMContainerState containerState, int timeoutMillisecs) throws Exception {
     RMContainer container = getResourceScheduler().getRMContainer(containerId);
     int timeoutSecs = 0;
-    while(container == null && timeoutSecs++ < timeoutMillisecs / 100) {
+    while(container == null && timeoutSecs++ < 100) {
       nm.nodeHeartbeat(true);
       container = getResourceScheduler().getRMContainer(containerId);
       System.out.println("Waiting for container " + containerId + " to be allocated.");
       Thread.sleep(100);
-      
-      if (timeoutMillisecs <= timeoutSecs * 100) {
-        return false;
-      }
     }
     Assert.assertNotNull("Container shouldn't be null", container);
-    while (!containerState.equals(container.getState())
-        && timeoutSecs++ < timeoutMillisecs / 100) {
+    timeoutSecs = 0;
+    while (!containerState.equals(container.getState()) && timeoutSecs++ < 40) {
       System.out.println("Container : " + containerId + " State is : "
           + container.getState() + " Waiting for state : " + containerState);
       nm.nodeHeartbeat(true);
-      Thread.sleep(100);
-      
-      if (timeoutMillisecs <= timeoutSecs * 100) {
-        return false;
-      }
+      Thread.sleep(300);
     }
-    
     System.out.println("Container State is : " + container.getState());
     Assert.assertEquals("Container state is not correct (timedout)",
       containerState, container.getState());
-    return true;
   }
 
   // get new application id
@@ -335,7 +319,6 @@ public class MockRM extends ResourceManager {
       false, null, 0, logAggregationContext);
   }
 
-  @SuppressWarnings("deprecation")
   public RMApp submitApp(int masterMemory, String name, String user,
       Map<ApplicationAccessType, String> acls, boolean unmanaged, String queue,
       int maxAppAttempts, Credentials ts, String appType,

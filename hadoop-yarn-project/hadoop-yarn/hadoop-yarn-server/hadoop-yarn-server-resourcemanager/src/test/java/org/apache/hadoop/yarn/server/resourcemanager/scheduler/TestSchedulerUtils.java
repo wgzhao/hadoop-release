@@ -21,18 +21,13 @@ package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +46,6 @@ import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceBlacklistRequest;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
@@ -61,7 +55,6 @@ import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.InvalidResourceBlacklistRequestException;
 import org.apache.hadoop.yarn.exceptions.InvalidResourceRequestException;
 import org.apache.hadoop.yarn.ipc.YarnRPC;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.server.resourcemanager.MockNM;
 import org.apache.hadoop.yarn.server.resourcemanager.TestAMAuthorization.MockRMWithAMS;
 import org.apache.hadoop.yarn.server.resourcemanager.TestAMAuthorization.MyContainerManager;
@@ -80,8 +73,6 @@ import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.collect.Sets;
 
 public class TestSchedulerUtils {
 
@@ -182,220 +173,69 @@ public class TestSchedulerUtils {
     assertEquals(1, ask.getCapability().getVirtualCores());
     assertEquals(2048, ask.getCapability().getMemory());
   }
-  
+
   @Test (timeout = 30000)
-  public void testValidateResourceRequestWithErrorLabelsPermission()
-      throws IOException {
-    // mock queue and scheduler
-    YarnScheduler scheduler = mock(YarnScheduler.class);
-    Set<String> labels = Sets.newHashSet("x", "y");
-    QueueInfo queueInfo = mock(QueueInfo.class);
-    when(queueInfo.getQueueName()).thenReturn("queue");
-    when(queueInfo.getLabels()).thenReturn(labels);
-    when(scheduler.getQueueInfo(any(String.class), anyBoolean(), anyBoolean()))
-        .thenReturn(queueInfo);
-    
+  public void testValidateResourceRequest() {
     Resource maxResource = Resources.createResource(
         YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
         YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
 
-    // queue has labels, success
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      resReq.setLabelExpression("x");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("x && y");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("y");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression(" ");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-    } catch (InvalidResourceRequestException e) {
-      e.printStackTrace();
-      fail("Should be valid when request labels is a subset of queue labels");
-    }
-    
-    // queue has labels, failed
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      resReq.setLabelExpression("z");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      fail("Should fail");
-    } catch (InvalidResourceRequestException e) {
-    }
-    
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      resReq.setLabelExpression("x && y && z");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      fail("Should fail");
-    } catch (InvalidResourceRequestException e) {
-    }
-    
-    // queue doesn't have label, succeed
-    labels.clear();
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("  ");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-    } catch (InvalidResourceRequestException e) {
-      e.printStackTrace();
-      fail("Should be valid when request labels is empty");
-    }
-    
-    // queue doesn't have label, failed
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      resReq.setLabelExpression("x");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      fail("Should fail");
-    } catch (InvalidResourceRequestException e) {
-    }
-    
-    // queue is "*", always succeeded
-    labels.add(NodeLabelManager.ANY);
-    try {
-      Resource resource = Resources.createResource(
-          0,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq = BuilderUtils.newResourceRequest(
-          mock(Priority.class), ResourceRequest.ANY, resource, 1);
-      resReq.setLabelExpression("x");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("x && y && z");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-      
-      resReq.setLabelExpression("z");
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, "queue",
-          scheduler);
-    } catch (InvalidResourceRequestException e) {
-      e.printStackTrace();
-      fail("Should be valid when request labels is empty");
-    }
-  }
-
-  @Test (timeout = 30000)
-  public void testValidateResourceRequest() {
-    YarnScheduler mockScheduler = mock(YarnScheduler.class);
-
-    Resource maxResource =
-        Resources.createResource(
-            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
-            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
-
     // zero memory
     try {
-      Resource resource =
-          Resources.createResource(0,
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          0,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
     } catch (InvalidResourceRequestException e) {
       fail("Zero memory should be accepted");
     }
 
     // zero vcores
     try {
-      Resource resource =
-          Resources.createResource(
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 0);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+          0);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
     } catch (InvalidResourceRequestException e) {
       fail("Zero vcores should be accepted");
     }
 
     // max memory
     try {
-      Resource resource =
-          Resources.createResource(
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
     } catch (InvalidResourceRequestException e) {
       fail("Max memory should be accepted");
     }
 
     // max vcores
     try {
-      Resource resource =
-          Resources.createResource(
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
     } catch (InvalidResourceRequestException e) {
       fail("Max vcores should not be accepted");
     }
 
     // negative memory
     try {
-      Resource resource =
-          Resources.createResource(-1,
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          -1,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
       fail("Negative memory should not be accepted");
     } catch (InvalidResourceRequestException e) {
       // expected
@@ -403,14 +243,12 @@ public class TestSchedulerUtils {
 
     // negative vcores
     try {
-      Resource resource =
-          Resources.createResource(
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB, -1);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+          -1);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
       fail("Negative vcores should not be accepted");
     } catch (InvalidResourceRequestException e) {
       // expected
@@ -418,15 +256,12 @@ public class TestSchedulerUtils {
 
     // more than max memory
     try {
-      Resource resource =
-          Resources.createResource(
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB + 1,
-              YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB + 1,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
       fail("More than max memory should not be accepted");
     } catch (InvalidResourceRequestException e) {
       // expected
@@ -434,16 +269,13 @@ public class TestSchedulerUtils {
 
     // more than max vcores
     try {
-      Resource resource =
-          Resources
-              .createResource(
-                  YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
-                  YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES + 1);
-      ResourceRequest resReq =
-          BuilderUtils.newResourceRequest(mock(Priority.class),
-              ResourceRequest.ANY, resource, 1);
-      SchedulerUtils.validateResourceRequest(resReq, maxResource, null,
-          mockScheduler);
+      Resource resource = Resources.createResource(
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+          YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES
+          + 1);
+      ResourceRequest resReq = BuilderUtils.newResourceRequest(
+          mock(Priority.class), ResourceRequest.ANY, resource, 1);
+      SchedulerUtils.validateResourceRequest(resReq, maxResource);
       fail("More than max vcores should not be accepted");
     } catch (InvalidResourceRequestException e) {
       // expected

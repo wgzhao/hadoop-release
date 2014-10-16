@@ -95,7 +95,6 @@ public class TestParentQueue {
     thenReturn(CapacityScheduler.queueComparator);
     when(csContext.getResourceCalculator()).
     thenReturn(resourceComparator);
-    when(csContext.getRMContext()).thenReturn(rmContext);
   }
   
   private static final String A = "a";

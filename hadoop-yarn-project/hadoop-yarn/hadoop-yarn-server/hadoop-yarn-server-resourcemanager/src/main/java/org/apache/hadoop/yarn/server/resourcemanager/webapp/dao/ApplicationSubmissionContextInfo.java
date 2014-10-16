@@ -71,12 +71,6 @@ public class ApplicationSubmissionContextInfo {
   @XmlElementWrapper(name = "application-tags")
   @XmlElement(name = "tag")
   Set<String> tags;
-  
-  @XmlElement(name = "app-label-expression")
-  String appLabelExpression;
-  
-  @XmlElement(name = "am-container-label-expression")
-  String amContainerLabelExpression;
 
   public ApplicationSubmissionContextInfo() {
     applicationId = "";
@@ -89,8 +83,6 @@ public class ApplicationSubmissionContextInfo {
     keepContainers = false;
     applicationType = "";
     tags = new HashSet<String>();
-    appLabelExpression = "";
-    amContainerLabelExpression = "";
   }
 
   public String getApplicationId() {
@@ -139,14 +131,6 @@ public class ApplicationSubmissionContextInfo {
 
   public Set<String> getApplicationTags() {
     return tags;
-  }
-  
-  public String getAppLabelExpression() {
-    return appLabelExpression;
-  }
-  
-  public String getAMContainerLabelExpression() {
-    return amContainerLabelExpression;
   }
 
   public void setApplicationId(String applicationId) {
@@ -198,12 +182,5 @@ public class ApplicationSubmissionContextInfo {
   public void setApplicationTags(Set<String> tags) {
     this.tags = tags;
   }
-  
-  public void setAppLabelExpression(String appLabelExpression) {
-    this.appLabelExpression = appLabelExpression;
-  }
 
-  public void setAMContainerLabelExpression(String labelExpression) {
-    this.amContainerLabelExpression = labelExpression;
-  }
 }

@@ -44,7 +44,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.YarnScheduler;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
@@ -85,11 +84,9 @@ public class RMServerUtils {
    * requested memory/vcore is non-negative and not greater than max
    */
   public static void validateResourceRequests(List<ResourceRequest> ask,
-      Resource maximumResource, String queueName, YarnScheduler scheduler)
-      throws InvalidResourceRequestException {
+      Resource maximumResource) throws InvalidResourceRequestException {
     for (ResourceRequest resReq : ask) {
-      SchedulerUtils.validateResourceRequest(resReq, maximumResource,
-          queueName, scheduler);
+      SchedulerUtils.validateResourceRequest(resReq, maximumResource);
     }
   }
 
@@ -140,13 +137,12 @@ public class RMServerUtils {
    * passed {@link AccessControlList}
    * @param acl the {@link AccessControlList} to check against
    * @param method the method name to be logged
-   * @param module, like AdminService or NodeLabelManager
    * @param LOG the logger to use
    * @return {@link UserGroupInformation} of the current user
    * @throws IOException
    */
   public static UserGroupInformation verifyAccess(
-      AccessControlList acl, String method, String module, final Log LOG)
+      AccessControlList acl, String method, final Log LOG)
       throws IOException {
     UserGroupInformation user;
     try {
@@ -163,7 +159,7 @@ public class RMServerUtils {
           " to call '" + method + "'");
 
       RMAuditLogger.logFailure(user.getShortUserName(), method,
-          acl.toString(), module,
+          acl.toString(), "AdminService",
           RMAuditLogger.AuditConstants.UNAUTHORIZED_USER);
 
       throw new AccessControlException("User " + user.getShortUserName() +

@@ -43,12 +43,13 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 
+import org.junit.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosName;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.MockApps;
 import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
@@ -79,6 +80,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
+import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -90,7 +92,6 @@ import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.QueueACL;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
@@ -123,7 +124,6 @@ import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -315,7 +315,7 @@ public class TestClientRMService {
         mock(ApplicationSubmissionContext.class);
     YarnConfiguration config = new YarnConfiguration();
     RMAppAttemptImpl rmAppAttemptImpl = new RMAppAttemptImpl(attemptId,
-        rmContext, yarnScheduler, null, asContext, config, false, null);
+        rmContext, yarnScheduler, null, asContext, config, false);
     ApplicationResourceUsageReport report = rmAppAttemptImpl
         .getApplicationResourceUsageReport();
     assertEquals(report, RMServerUtils.DUMMY_APPLICATION_RESOURCE_USAGE_REPORT);
@@ -1043,7 +1043,6 @@ public class TestClientRMService {
     return mockSubmitAppRequest(appId, name, queue, tags, false);
   }
 
-  @SuppressWarnings("deprecation")
   private SubmitApplicationRequest mockSubmitAppRequest(ApplicationId appId,
         String name, String queue, Set<String> tags, boolean unmanaged) {
 
@@ -1133,32 +1132,26 @@ public class TestClientRMService {
       final long memorySeconds, final long vcoreSeconds) {
     ApplicationSubmissionContext asContext = mock(ApplicationSubmissionContext.class);
     when(asContext.getMaxAppAttempts()).thenReturn(1);
-
-    RMAppImpl app =
-        spy(new RMAppImpl(applicationId3, rmContext, config, null, null,
-            queueName, asContext, yarnScheduler, null,
-            System.currentTimeMillis(), "YARN", null,
-            BuilderUtils.newResourceRequest(
-                RMAppAttemptImpl.AM_CONTAINER_PRIORITY, ResourceRequest.ANY,
-                Resource.newInstance(1024, 1), 1)){
-                  @Override
-                  public ApplicationReport createAndGetApplicationReport(
-                      String clientUserName, boolean allowAccess) {
-                    ApplicationReport report = super.createAndGetApplicationReport(
-                        clientUserName, allowAccess);
-                    ApplicationResourceUsageReport usageReport = 
-                        report.getApplicationResourceUsageReport();
-                    usageReport.setMemorySeconds(memorySeconds);
-                    usageReport.setVcoreSeconds(vcoreSeconds);
-                    report.setApplicationResourceUsageReport(usageReport);
-                    return report;
-                  }
-              });
-
+    RMAppImpl app = spy(new RMAppImpl(applicationId3, rmContext, config, null,
+        null, queueName, asContext, yarnScheduler, null,
+        System.currentTimeMillis(), "YARN", null) {
+              @Override
+              public ApplicationReport createAndGetApplicationReport(
+                  String clientUserName, boolean allowAccess) {
+                ApplicationReport report = super.createAndGetApplicationReport(
+                    clientUserName, allowAccess);
+                ApplicationResourceUsageReport usageReport = 
+                    report.getApplicationResourceUsageReport();
+                usageReport.setMemorySeconds(memorySeconds);
+                usageReport.setVcoreSeconds(vcoreSeconds);
+                report.setApplicationResourceUsageReport(usageReport);
+                return report;
+              }
+          });
     ApplicationAttemptId attemptId = ApplicationAttemptId.newInstance(
         ApplicationId.newInstance(123456, 1), 1);
     RMAppAttemptImpl rmAppAttemptImpl = spy(new RMAppAttemptImpl(attemptId,
-        rmContext, yarnScheduler, null, asContext, config, false, null));
+        rmContext, yarnScheduler, null, asContext, config, false));
     Container container = Container.newInstance(
         ContainerId.newInstance(attemptId, 1), null, "", null, null, null);
     RMContainerImpl containerimpl = spy(new RMContainerImpl(container,

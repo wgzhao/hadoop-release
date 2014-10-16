@@ -34,7 +34,6 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.label.NodeLabelManager;
 import org.apache.hadoop.yarn.server.resourcemanager.MockNodes;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContextImpl;
@@ -163,7 +162,7 @@ public class TestRMWebApp {
     for (RMNode node : deactivatedNodes) {
       deactivatedNodesMap.put(node.getHostName(), node);
     }
-    RMContext rmContext = new RMContextImpl(null, null, null, null,
+   return new RMContextImpl(null, null, null, null,
        null, null, null, null, null, null) {
       @Override
       public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
@@ -178,9 +177,6 @@ public class TestRMWebApp {
         return nodesMap;
       }
     };
-    NodeLabelManager nlm = mock(NodeLabelManager.class);
-    rmContext.setNodeLabelManager(nlm);
-    return rmContext;
   }
 
   public static ResourceManager mockRm(int apps, int racks, int nodes,
@@ -207,13 +203,10 @@ public class TestRMWebApp {
 
     CapacityScheduler cs = new CapacityScheduler();
     cs.setConf(new YarnConfiguration());
-    NodeLabelManager nlm = mock(NodeLabelManager.class);
-    RMContext rmContext = new RMContextImpl(null, null, null, null, null,
+    cs.setRMContext(new RMContextImpl(null, null, null, null, null,
         null, new RMContainerTokenSecretManager(conf),
         new NMTokenSecretManagerInRM(conf),
-        new ClientToAMTokenSecretManagerInRM(), null);
-    rmContext.setNodeLabelManager(nlm);
-    cs.setRMContext(rmContext);
+        new ClientToAMTokenSecretManagerInRM(), null));
     cs.init(conf);
     return cs;
   }
