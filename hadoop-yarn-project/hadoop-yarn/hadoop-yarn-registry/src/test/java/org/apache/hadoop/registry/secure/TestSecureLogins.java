@@ -99,25 +99,12 @@ public class TestSecureLogins extends AbstractSecureRegistryTest {
                                 ALICE_CLIENT_CONTEXT,
                                 keytab_alice);
 
-    try {
-      logLoginDetails(ALICE_LOCALHOST, client);
-      String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
-      assertNotNull("Unset: "+ Environment.JAAS_CONF_KEY, confFilename);
-      String config = FileUtils.readFileToString(new File(confFilename));
-      LOG.info("{}=\n{}", confFilename, config);
-      RegistrySecurity.setZKSaslClientProperties(ALICE, ALICE_CLIENT_CONTEXT);
-    } finally {
-      client.logout();
-    }
-  }
-
-  @Test
-  public void testZKServerContextLogin() throws Throwable {
-    LoginContext client = login(ZOOKEEPER_LOCALHOST,
-                                ZOOKEEPER_SERVER_CONTEXT,
-                                keytab_zk);
-    logLoginDetails(ZOOKEEPER_LOCALHOST, client);
-
+    logLoginDetails(ALICE_LOCALHOST, client);
+    String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
+    assertNotNull("Unset: "+ Environment.JAAS_CONF_KEY, confFilename);
+    String config = FileUtils.readFileToString(new File(confFilename));
+    LOG.info("{}=\n{}", confFilename, config);
+    RegistrySecurity.setZKSaslClientProperties(ALICE, ALICE_CLIENT_CONTEXT);
     client.logout();
   }
 

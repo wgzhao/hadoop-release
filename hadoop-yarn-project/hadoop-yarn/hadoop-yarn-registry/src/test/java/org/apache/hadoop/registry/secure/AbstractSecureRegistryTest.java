@@ -46,7 +46,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
@@ -320,16 +319,11 @@ public class AbstractSecureRegistryTest extends RegistryTestHelper {
    * @param keytab keytab
    * @return the logged in context
    * @throws LoginException failure to log in
-   * @throws FileNotFoundException no keytab
    */
   protected LoginContext login(String principal,
-      String context, File keytab) throws LoginException,
-      FileNotFoundException {
+      String context, File keytab) throws LoginException {
     LOG.info("Logging in as {} in context {} with keytab {}",
         principal, context, keytab);
-    if (!keytab.exists()) {
-      throw new FileNotFoundException(keytab.getAbsolutePath());
-    }
     Set<Principal> principals = new HashSet<Principal>();
     principals.add(new KerberosPrincipal(principal));
     Subject subject = new Subject(false, principals, new HashSet<Object>(),

@@ -249,6 +249,9 @@ public class CuratorService extends CompositeService
     synchronized (CuratorService.class) {
       // set the security options
 
+      //log them
+      securityConnectionDiagnostics = buildSecurityDiagnostics();
+
       // build up the curator itself
       CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder();
       builder.ensembleProvider(ensembleProvider)
@@ -261,8 +264,7 @@ public class CuratorService extends CompositeService
 
       // set up the builder AND any JVM context
       registrySecurity.applySecurityEnvironment(builder);
-      //log them
-      securityConnectionDiagnostics = buildSecurityDiagnostics();
+
       framework = builder.build();
       framework.start();
     }
@@ -273,7 +275,7 @@ public class CuratorService extends CompositeService
   @Override
   public String toString() {
     return super.toString()
-           + " " + bindingDiagnosticDetails();
+           + bindingDiagnosticDetails();
   }
 
   /**
@@ -384,9 +386,7 @@ public class CuratorService extends CompositeService
       ioe = new PathIsNotEmptyDirectoryException(path);
     } else if (exception instanceof KeeperException.AuthFailedException) {
       ioe = new AuthenticationFailedException(path,
-          "Authentication Failed: " + exception
-          + "; " + securityConnectionDiagnostics,
-          exception);
+          "Authentication Failed: " + exception, exception);
     } else if (exception instanceof KeeperException.NoChildrenForEphemeralsException) {
       ioe = new NoChildrenForEphemeralsException(path,
           "Cannot create a path under an ephemeral node: " + exception,
