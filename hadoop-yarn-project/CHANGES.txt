@@ -100,9 +100,6 @@ Release 2.6.0 - UNRELEASED
     YARN-2446. Augmented Timeline service APIs to start taking in domains as a
     parameter while posting entities and events. (Zhijie Shen via vinodkv)
 
-    YARN-913. Add a way to register long-lived services in a YARN cluster.
-    (stevel)
-
   IMPROVEMENTS
 
     YARN-2242. Improve exception information on AM launch crashes. (Li Lu 
@@ -508,15 +505,12 @@ Release 2.6.0 - UNRELEASED
 
     YARN-2662. TestCgroupsLCEResourcesHandler leaks file descriptors. (cnauroth)
 
-  BREAKDOWN OF YARN-913 SUBTASKS AND RELATED JIRAS
-
-    YARN-2652 Add hadoop-yarn-registry package under hadoop-yarn. (stevel)
-
     YARN-2598 GHS should show N/A instead of null for the inaccessible information
     (Zhijie Shen via mayank)
 
     YARN-2651. Spun off LogRollingInterval from LogAggregationContext. (Xuan Gong
     via zjshen)
+
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
