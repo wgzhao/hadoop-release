@@ -28,6 +28,3 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
     HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
     System. (Shanyu Zhao via cnauroth)
-
-    HDFS-5089. When a LayoutVersion support SNAPSHOT, it must support
-    FSIMAGE_NAME_OPTIMIZATION.  (szetszwo)
