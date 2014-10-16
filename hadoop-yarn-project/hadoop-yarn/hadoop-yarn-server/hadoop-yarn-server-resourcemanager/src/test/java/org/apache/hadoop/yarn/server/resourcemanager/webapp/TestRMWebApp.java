@@ -164,7 +164,7 @@ public class TestRMWebApp {
       deactivatedNodesMap.put(node.getHostName(), node);
     }
     RMContext rmContext = new RMContextImpl(null, null, null, null,
-       null, null, null, null, null, null, null) {
+       null, null, null, null, null, null) {
       @Override
       public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
         return applicationsMaps;
@@ -211,7 +211,7 @@ public class TestRMWebApp {
     RMContext rmContext = new RMContextImpl(null, null, null, null, null,
         null, new RMContainerTokenSecretManager(conf),
         new NMTokenSecretManagerInRM(conf),
-        new ClientToAMTokenSecretManagerInRM(), null, null);
+        new ClientToAMTokenSecretManagerInRM(), null);
     rmContext.setNodeLabelManager(nlm);
     cs.setRMContext(rmContext);
     cs.init(conf);

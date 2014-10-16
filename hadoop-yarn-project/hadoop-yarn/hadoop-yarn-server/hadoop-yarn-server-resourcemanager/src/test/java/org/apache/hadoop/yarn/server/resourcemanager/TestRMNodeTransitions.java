@@ -105,8 +105,7 @@ public class TestRMNodeTransitions {
     
     rmContext =
         new RMContextImpl(rmDispatcher, null, null, null,
-            mock(DelegationTokenRenewer.class), null, null, null, null, null,
-            null);
+            mock(DelegationTokenRenewer.class), null, null, null, null, null);
     NodesListManager nodesListManager = mock(NodesListManager.class);
     HostsFileReader reader = mock(HostsFileReader.class);
     when(nodesListManager.getHostsReader()).thenReturn(reader);
