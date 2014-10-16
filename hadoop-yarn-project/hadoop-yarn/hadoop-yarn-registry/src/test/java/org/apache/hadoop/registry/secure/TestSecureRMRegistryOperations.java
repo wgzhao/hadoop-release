@@ -138,6 +138,8 @@ public class TestSecureRMRegistryOperations extends AbstractSecureRegistryTest {
 
     assertFalse("RegistrySecurity.isClientSASLEnabled()==true",
         RegistrySecurity.isClientSASLEnabled());
+    assertFalse("ZooKeeperSaslClient.isEnabled()==true",
+        ZooKeeperSaslClient.isEnabled());
     operations.list(PATH_SYSTEM_SERVICES);
   }
 
