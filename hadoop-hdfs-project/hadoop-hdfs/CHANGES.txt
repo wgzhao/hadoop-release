@@ -26,6 +26,8 @@ Release 2.5.0 - UNRELEASED
     HDFS-6595. Allow the maximum threads for balancing on datanodes to be
     configurable. (Benoy Antony via szetszwo)
 
+    HDFS-6293. Issues with OIV processing PB-based fsimages. (kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES 
