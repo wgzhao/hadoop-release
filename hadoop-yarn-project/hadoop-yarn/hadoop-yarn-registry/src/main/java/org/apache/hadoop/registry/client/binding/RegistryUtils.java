@@ -58,44 +58,21 @@ public class RegistryUtils {
   /**
    * Buld the user path -switches to the system path if the user is "".
    * It also cross-converts the username to ascii via punycode
-   * @param username username or ""
+   * @param shortname username or ""
    * @return the path to the user
    */
-  public static String homePathForUser(String username) {
-    Preconditions.checkArgument(username != null, "null user");
+  public static String homePathForUser(String shortname) {
+    Preconditions.checkArgument(shortname != null, "null user");
 
     // catch recursion
-    if (username.startsWith(RegistryConstants.PATH_USERS)) {
-      return username;
+    if (shortname.startsWith(RegistryConstants.PATH_USERS)) {
+      return shortname;
     }
-    if (username.isEmpty()) {
+    if (shortname.isEmpty()) {
       return RegistryConstants.PATH_SYSTEM_SERVICES;
     }
-
-    // shorten the user name by stripping kerberos overhead
-    // if it is still present
-    String shortname = shortenUsername(username);
-
     return RegistryPathUtils.join(RegistryConstants.PATH_USERS,
         encodeForRegistry(shortname));
-  }
-
-  /**
-   * Strip the realm off a username if needed, and any "/" trail
-   * @param username user
-   * @return the shortened username
-   */
-  public static String shortenUsername(String username) {
-    String shortname = username;
-    int atSymbol = shortname.indexOf('@');
-    if (atSymbol > 0) {
-      shortname = shortname.substring(0, atSymbol);
-    }
-    int slashSymbol = shortname.indexOf('/');
-    if (slashSymbol > 0) {
-      shortname = shortname.substring(0, slashSymbol);
-    }
-    return shortname;
   }
 
   /**

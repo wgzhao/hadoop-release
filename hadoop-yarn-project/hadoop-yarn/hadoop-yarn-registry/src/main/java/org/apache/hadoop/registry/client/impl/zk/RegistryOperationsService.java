@@ -83,12 +83,12 @@ public class RegistryOperationsService extends CuratorService
   }
 
   /**
-   * Validate a path
+   * Validate a path ... this includes checking that they are DNS-valid
    * @param path path to validate
    * @throws InvalidPathnameException if a path is considered invalid
    */
   protected void validatePath(String path) throws InvalidPathnameException {
-    // currently no checks are performed
+    RegistryPathUtils.validateElementsAsDNS(path);
   }
 
   @Override
