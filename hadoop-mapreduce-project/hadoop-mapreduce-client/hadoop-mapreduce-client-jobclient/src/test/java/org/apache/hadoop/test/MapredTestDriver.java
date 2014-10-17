@@ -41,6 +41,9 @@ import org.apache.hadoop.fs.DFSCIOTest;
 import org.apache.hadoop.fs.DistributedFSCheck;
 import org.apache.hadoop.io.FileBench;
 import org.apache.hadoop.fs.JHLogAnalyzer;
+import org.apache.hadoop.fs.loadGenerator.DataGenerator;
+import org.apache.hadoop.fs.loadGenerator.LoadGenerator;
+import org.apache.hadoop.fs.loadGenerator.StructureGenerator;
 import org.apache.hadoop.fs.slive.SliveTest;
 
 /**
@@ -107,6 +110,12 @@ public class MapredTestDriver {
       "Single process HDFS and MR cluster.");
       pgd.addClass("largesorter", LargeSorter.class,
           "Large-Sort tester");
+      pgd.addClass("NNloadGenerator", LoadGenerator.class,
+          "Generate load on Namenode");
+      pgd.addClass("NNstructureGenerator", StructureGenerator.class,
+          "Generate the structure to be used by NNdatagenerator");
+      pgd.addClass("NNdataGenerator", DataGenerator.class,
+          "Generate the data to be used by NNloadGenerator");
     } catch(Throwable e) {
       e.printStackTrace();
     }
