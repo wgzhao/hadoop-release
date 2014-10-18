@@ -302,6 +302,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-7228. Add an SSD policy into the default BlockStoragePolicySuite.
     (jing9)
 
+    HDFS-7260. Change DFSOutputStream.MAX_PACKETS to be configurable. (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
