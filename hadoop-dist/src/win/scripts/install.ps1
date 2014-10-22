@@ -390,6 +390,9 @@ function Main( $scriptDir )
         "yarn.resourcemanager.webapp.https.address" = "${ENV:RESOURCEMANAGER_HOST}:8088".ToLower();
         "yarn.log.server.url" = "http://${ENV:RESOURCEMANAGER_HOST}:19888/jobhistory/logs".ToLower();
         "yarn.nodemanager.log-dirs" = "$NMAndMRLogDir" ;
+        "yarn.timeline-service.generic-application-history.store-class" = "org.apache.hadoop.yarn.server.applicationhistoryservice.NullApplicationHistoryStore" ;
+        "yarn.timeline-service.enabled" = "true" ;
+        "yarn.timeline-service.leveldb-timeline-store.path" = "$ENV:HADOOP_LOG_DIR\timeline" ;
         "yarn.nodemanager.local-dirs" = "$NMAndMRLocalDir" ;
         "yarn.timeline-service.hostname" = "${ENV:RESOURCEMANAGER_HOST}".ToLower() }
     if ($ENV:IS_HDFS_HA -ieq "yes") {
