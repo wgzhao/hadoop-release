@@ -39,4 +39,5 @@ public class DataNodeFaultInjector {
   public void getHdfsBlocksMetadata() {}
 
   public void sendShortCircuitShmResponse() throws IOException {}
+  public void writeBlockAfterFlush() throws IOException {}
 }

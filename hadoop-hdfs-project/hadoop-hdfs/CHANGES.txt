@@ -88,6 +88,8 @@ Release 2.7.0
     HDFS-7213. processIncrementalBlockReport performance degradation.
     (Eric Payne via kihwal)
 
+    HDFS-7222. Expose DataNode network errors as a metric. (Charles Lamb via wang)
+
   OPTIMIZATIONS
 
   BUG FIXES
