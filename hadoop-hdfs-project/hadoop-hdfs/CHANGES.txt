@@ -304,6 +304,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7260. Change DFSOutputStream.MAX_PACKETS to be configurable. (szetszwo)
 
+    HDFS-6988. Improve HDFS-6581 eviction configuration (Xiaoyu Yao via Colin
+    P. McCabe)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
