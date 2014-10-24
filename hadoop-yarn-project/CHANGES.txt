@@ -351,7 +351,7 @@ Release 2.6.0 - UNRELEASED
 
     YARN-2682. Updated WindowsSecureContainerExecutor to not use
     DefaultContainerExecutor#getFirstApplicationDir and use getWorkingDir()
-    instead. (Zhihai Xu via jianhe) 
+    instead. (Zhihai Xu via jianhe)
 
     YARN-2209. Replaced AM resync/shutdown command with corresponding exceptions and
     made related MR changes. (Jian He via zjshen)
