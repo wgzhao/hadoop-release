@@ -94,11 +94,14 @@ Release 2.6.0 - UNRELEASED
     YARN-2581. Passed LogAggregationContext to NM via ContainerTokenIdentifier.
     (Xuan Gong via zjshen)
 
+    YARN-1063. Augmented Hadoop common winutils to have the ability to create
+    containers as domain users. (Remus Rusanu via vinodkv)
+
     YARN-2613. Support retry in NMClient for rolling-upgrades. (Jian He via 
     junping_du)
 
-    YARN-1063. Augmented Hadoop common winutils to have the ability to create
-    containers as domain users. (Remus Rusanu via vinodkv)
+    YARN-1972. Added a secure container-executor for Windows. (Remus Rusanu via
+    vinodkv)
 
     YARN-2446. Augmented Timeline service APIs to start taking in domains as a
     parameter while posting entities and events. (Zhijie Shen via vinodkv)
@@ -106,6 +109,8 @@ Release 2.6.0 - UNRELEASED
     YARN-2468. Enhanced NodeManager to support log handling APIs (YARN-2569) for
     use by long running services. (Xuan Gong via vinodkv)
 
+    YARN-1051. Add a system for creating reservations of cluster capacity.
+    (see breakdown below)
 
     YARN-913. Add a way to register long-lived services in a YARN cluster.
     (stevel)
@@ -121,9 +126,6 @@ Release 2.6.0 - UNRELEASED
     YARN-2501. Enhanced AMRMClient library to support requests against node
     labels. (Wangda Tan via vinodkv)
 
-    YARN-1972. Added a secure container-executor for Windows. (Remus Rusanu via
-    vinodkv)
-
     YARN-2656. Made RM web services authentication filter support proxy user.
     (Varun Vasudev and Zhijie Shen via zjshen)
 
@@ -135,9 +137,6 @@ Release 2.6.0 - UNRELEASED
 
     YARN-2504. Enhanced RM Admin CLI to support management of node-labels.
     (Wangda Tan via vinodkv)
-
-    YARN-1972. Added a secure container-executor for Windows. (Remus Rusanu via
-    vinodkv)
 
     YARN-2198. Remove the need to run NodeManager as privileged account for
     Windows Secure Container Executor. (Remus Rusanu via jianhe)
@@ -313,17 +312,14 @@ Release 2.6.0 - UNRELEASED
     YARN-2562. Changed ContainerId#toString() to be more readable. (Tsuyoshi
     OZAWA via jianhe)
 
-    YARN-2629. Made the distributed shell use the domain-based timeline ACLs.
-    (zjshen)
-
-    YARN-2583. Modified AggregatedLogDeletionService to be able to delete rolling
-    aggregated logs. (Xuan Gong via zjshen)
-
     YARN-2615. Changed ClientToAMTokenIdentifier/RM(Timeline)DelegationTokenIdentifier
     to use protobuf as payload. (Junping Du via jianhe)
 
     YARN-2629. Made the distributed shell use the domain-based timeline ACLs.
     (zjshen)
+
+    YARN-2583. Modified AggregatedLogDeletionService to be able to delete rolling
+    aggregated logs. (Xuan Gong via zjshen)
 
     YARN-2312. Deprecated old ContainerId#getId API and updated MapReduce to
     use ContainerId#getContainerId instead. (Tsuyoshi OZAWA via jianhe)
@@ -585,11 +581,6 @@ Release 2.6.0 - UNRELEASED
     YARN-2628. Capacity scheduler with DominantResourceCalculator carries out
     reservation even though slots are free. (Varun Vasudev via jianhe)
 
-    YARN-2662. TestCgroupsLCEResourcesHandler leaks file descriptors. (cnauroth)
-
-    YARN-2598 GHS should show N/A instead of null for the inaccessible information
-    (Zhijie Shen via mayank)
-
     YARN-2651. Spun off LogRollingInterval from LogAggregationContext. (Xuan Gong
     via zjshen)
 
@@ -698,11 +689,11 @@ Release 2.6.0 - UNRELEASED
     YARN-2701. Potential race condition in startLocalizer when using
     LinuxContainerExecutor. (Xuan Gong via jianhe)
 
-    YARN-2720. Windows: Wildcard classpath variables not expanded against
-    resources contained in archives. (Craig Welch via cnauroth)
-
     YARN-2717. Avoided duplicate logging when container logs are not found. (Xuan
     Gong via zjshen)
+
+    YARN-2720. Windows: Wildcard classpath variables not expanded against
+    resources contained in archives. (Craig Welch via cnauroth)
 
     YARN-2721. Suppress NodeExist exception thrown by ZKRMStateStore when it
     retries creating znode. (Jian He via zjshen)
@@ -969,6 +960,7 @@ Release 2.5.0 - 2014-08-11
     HADOOP-10562 (Ming Ma via Arpit Agarwal)
 
     YARN-2011. Fix typo and warning in TestLeafQueue (Chen He via junping_du)
+
 
     YARN-2042. String shouldn't be compared using == in
     QueuePlacementRule#NestedUserQueue#getQueueForApp (Chen He via Sandy Ryza)
