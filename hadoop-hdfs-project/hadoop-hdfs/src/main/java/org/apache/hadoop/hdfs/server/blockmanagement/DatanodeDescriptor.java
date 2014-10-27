@@ -223,11 +223,11 @@ public class DatanodeDescriptor extends DatanodeInfo {
    */
   private boolean disallowed = false;
 
-  // The number of replication work pending before targets are determined
-  private int PendingReplicationWithoutTargets = 0;
-
   // HB processing can use it to tell if it is the first HB since DN restarted
   private boolean heartbeatedSinceRegistration = false;
+
+  // The number of replication work pending before targets are determined
+  private int PendingReplicationWithoutTargets = 0;
 
   /**
    * DatanodeDescriptor constructor
