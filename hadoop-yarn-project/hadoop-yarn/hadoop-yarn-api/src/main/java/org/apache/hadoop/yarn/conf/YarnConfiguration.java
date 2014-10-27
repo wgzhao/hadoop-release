@@ -1157,11 +1157,6 @@ public class YarnConfiguration extends Configuration {
    */
   public static final boolean DEFAULT_YARN_MINICLUSTER_FIXED_PORTS = false;
 
-  public static final String YARN_SLIDER_SECURE_ENABLE = YARN_PREFIX
-      + "slider-secure.enable";
-
-  public static final boolean DEFAULT_YARN_SLIDER_SECURE_ENABLE = false;
-
   /**
    * Whether the NM should use RPC to connect to the RM. Default is false.
    * Can be set to true only when using fixed ports.

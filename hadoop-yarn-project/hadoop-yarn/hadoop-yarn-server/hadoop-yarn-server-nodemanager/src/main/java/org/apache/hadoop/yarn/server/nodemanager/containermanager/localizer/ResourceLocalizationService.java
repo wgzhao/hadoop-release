@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,13 +58,11 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.UnsupportedFileSystemException;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -86,6 +83,7 @@ import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
+import org.apache.hadoop.yarn.ipc.RPCUtil;
 import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.proto.YarnProtos.LocalResourceProto;
 import org.apache.hadoop.yarn.proto.YarnServerNodemanagerRecoveryProtos.LocalizedResourceProto;
@@ -1080,7 +1078,7 @@ public class ResourceLocalizationService extends CompositeService
 
         // 0) init queue, etc.
         // 1) write credentials to private dir
-        writeCredentials(nmPrivateCTokensPath, context.getUser());
+        writeCredentials(nmPrivateCTokensPath);
         // 2) exec initApplication and wait
         List<String> localDirs = getInitializedLocalDirs();
         List<String> logDirs = getInitializedLogDirs();
@@ -1112,57 +1110,11 @@ public class ResourceLocalizationService extends CompositeService
       }
     }
 
-    // Get new token from hdfs for long running service.
-    private Credentials getNewDelegationToken(final Credentials credentials,
-        final String user) throws IOException {
-      Iterator<Token<? extends TokenIdentifier>> iter =
-          credentials.getAllTokens().iterator();
-      while (iter.hasNext()) {
-        Token<? extends TokenIdentifier> oldToken = iter.next();
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(oldToken);
-        }
-        // remove the old hdfs token
-        if (oldToken.getKind().equals(new Text("HDFS_DELEGATION_TOKEN"))) {
-          LOG.info("remove hdfs token " + oldToken);
-          iter.remove();
-        }
-      }
-      UserGroupInformation proxyUser =
-          UserGroupInformation.createProxyUser(user,
-            UserGroupInformation.getLoginUser());
-      Token<?>[] newTokens = proxyUser.doAs(new PrivilegedAction<Token<?>[]>() {
-        @Override
-        public Token<?>[] run() {
-          try {
-            return FileSystem.get(getConfig()).addDelegationTokens(user,
-              credentials);
-          } catch (IOException e) {
-            throw new YarnRuntimeException(e);
-          }
-        }
-      });
-      if (newTokens.length > 0) {
-        for (Token<?> newToken : newTokens) {
-          LOG.info("add new token " + newToken);
-        }
-      }
-
-      return credentials;
-    }
-
-    private void writeCredentials(Path nmPrivateCTokensPath, String user)
+    private void writeCredentials(Path nmPrivateCTokensPath)
         throws IOException {
       DataOutputStream tokenOut = null;
       try {
         Credentials credentials = context.getCredentials();
-        boolean sliderSecureEnabled =
-            getConfig().getBoolean(YarnConfiguration.YARN_SLIDER_SECURE_ENABLE,
-              YarnConfiguration.DEFAULT_YARN_SLIDER_SECURE_ENABLE);
-        if (UserGroupInformation.isSecurityEnabled() && sliderSecureEnabled) {
-          getNewDelegationToken(credentials, user);
-        }
-
         FileContext lfs = getLocalFileContext(getConfig());
         tokenOut =
             lfs.create(nmPrivateCTokensPath, EnumSet.of(CREATE, OVERWRITE));
