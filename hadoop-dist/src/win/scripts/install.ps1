@@ -404,7 +404,6 @@ function Main( $scriptDir )
         "yarn.client.failover-proxy-provider" = "org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider";
         "yarn.resourcemanager.ha.automatic-failover.zk-base-path" = "/yarn-leader-election";
         "yarn.resourcemanager.cluster-id" = "$ENV:RM_HA_CLUSTER_NAME".ToLower();
-        "yarn.web-proxy.address" = "$ENV:COMPUTERNAME".ToLower();
         "yarn.resourcemanager.ha.automatic-failover.enabled" = "true";
         "yarn.resourcemanager.ha.automatic-failover.embedded" = "true"
         "yarn.resourcemanager.am.max-attempts" = "20";
