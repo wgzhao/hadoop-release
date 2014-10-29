@@ -657,6 +657,9 @@ Release 2.6.0 - UNRELEASED
     HADOOP-11170. ZKDelegationTokenSecretManager fails to renewToken created by 
     a peer. (Arun Suresh and Gregory Chanan via kasha)
 
+    HADOOP-11068. Match hadoop.auth cookie format to jetty output.
+    (Gregory Chanan via cnauroth)
+
 Release 2.5.1 - 2014-09-05
 
   INCOMPATIBLE CHANGES
