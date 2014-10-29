@@ -697,6 +697,9 @@ Release 2.6.0 - 2014-11-15
     HADOOP-11068. Match hadoop.auth cookie format to jetty output.
     (Gregory Chanan via cnauroth)
 
+    HADOOP-9740. Fix FsShell '-text' command to be able to read Avro
+    files stored in HDFS and other filesystems. (Allan Yan via jlowe)
+
     HADOOP-11217. Disable SSLv3 in KMS. (Robert Kanter via kasha)
 
     HADOOP-11243. SSLFactory shouldn't allow SSLv3. (Wei Yan via kasha)
