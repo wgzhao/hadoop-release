@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -72,12 +73,32 @@ public class RegistryUtils {
       return RegistryConstants.PATH_SYSTEM_SERVICES;
     }
 
-    // shorten the user name by stripping kerberos overhead
-    // if it is still present
-    String shortname = shortenUsername(username);
+    // convert username to registry name
+    String convertedName = convertUsername(username);
 
     return RegistryPathUtils.join(RegistryConstants.PATH_USERS,
-        encodeForRegistry(shortname));
+        encodeForRegistry(convertedName));
+  }
+
+  /**
+   * Convert the username to that which can be used for registry
+   * entries. Lower cases it,
+   * Strip the kerberos realm off a username if needed, and any "/" hostname
+   * entries
+   * @param username user
+   * @return the converted username
+   */
+  public static String convertUsername(String username) {
+    String converted= username.toLowerCase(Locale.ENGLISH);
+    int atSymbol = converted.indexOf('@');
+    if (atSymbol > 0) {
+      converted = converted.substring(0, atSymbol);
+    }
+    int slashSymbol = converted.indexOf('/');
+    if (slashSymbol > 0) {
+      converted = converted.substring(0, slashSymbol);
+    }
+    return converted;
   }
 
   /**

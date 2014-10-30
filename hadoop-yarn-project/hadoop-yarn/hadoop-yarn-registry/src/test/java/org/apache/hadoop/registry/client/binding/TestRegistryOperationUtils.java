@@ -44,13 +44,13 @@ public class TestRegistryOperationUtils extends Assert {
   @Test
   public void testShortenUsername() throws Throwable {
     assertEquals("hbase",
-        RegistryUtils.shortenUsername("hbase@HADOOP.APACHE.ORG"));
+        RegistryUtils.convertUsername("hbase@HADOOP.APACHE.ORG"));
     assertEquals("hbase",
-        RegistryUtils.shortenUsername("hbase/localhost@HADOOP.APACHE.ORG"));
+        RegistryUtils.convertUsername("hbase/localhost@HADOOP.APACHE.ORG"));
     assertEquals("hbase",
-        RegistryUtils.shortenUsername("hbase"));
+        RegistryUtils.convertUsername("hbase"));
     assertEquals("hbase user",
-        RegistryUtils.shortenUsername("hbase user"));
+        RegistryUtils.convertUsername("hbase user"));
   }
 
 }

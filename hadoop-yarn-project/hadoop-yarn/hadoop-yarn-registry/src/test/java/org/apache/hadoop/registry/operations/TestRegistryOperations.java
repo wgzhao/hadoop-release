@@ -322,5 +322,11 @@ public class TestRegistryOperations extends AbstractRegistryTest {
     operations.mknode(
         RegistryUtils.homePathForUser("hbase/localhost@HADOOP.APACHE.ORG"),
         true);
+    home = RegistryUtils.homePathForUser("ADMINISTRATOR/127.0.0.1");
+    assertTrue("No 'administrator' in " + home, home.contains("administrator"));
+    operations.mknode(
+        home,
+        true);
+
   }
 }
