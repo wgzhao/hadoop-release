@@ -101,6 +101,9 @@ Release 2.7.0
     (Eric Payne via kihwal)
 
     HDFS-7222. Expose DataNode network errors as a metric. (Charles Lamb via wang)
+    
+    HDFS-6917. Add an hdfs debug command to validate blocks, call recoverlease,
+    etc. (cmccabe)
 
   OPTIMIZATIONS
 

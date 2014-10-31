@@ -49,6 +49,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-6888. Allow selectively audit logging ops. (Contributed by Chen He)
 
+    HDFS-6917. Add an hdfs debug command to validate blocks, call
+    recoverlease, etc. (Contributed by Colin Patrick McCabe)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
