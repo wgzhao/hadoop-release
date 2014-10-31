@@ -304,6 +304,9 @@ Release 2.6.0 - UNRELEASED
     HDFS-6988. Improve HDFS-6581 eviction configuration (Xiaoyu Yao via Colin
     P. McCabe)
 
+    HDFS-6385. Show when block deletion will start after NameNode startup in
+    WebUI. (cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
