@@ -312,6 +312,9 @@ Release 2.6.0 - UNRELEASED
 
     HDFS-7230. Add rolling downgrade documentation. (szetszwo via jing9)
 
+    HDFS-7276. Limit the number of byte arrays used by DFSOutputStream and
+    provide a mechanism for recycling arrays. (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-6690. Deduplicate xattr names in memory. (wang)
