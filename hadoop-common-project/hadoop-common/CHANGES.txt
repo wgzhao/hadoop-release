@@ -243,6 +243,9 @@ Release 2.6.0 - UNRELEASED
     proxy-users on Delegation-token management operations. (Zhijie Shen via
     vinodkv)
 
+    HADOOP-11254. Changed visibility of AccessControlList to be public for
+    consumption by ecosystem. (Zhijie Shen via vinodkv)
+
   OPTIMIZATIONS
 
     HADOOP-10838. Byte array native checksumming. (James Thomas via todd)
