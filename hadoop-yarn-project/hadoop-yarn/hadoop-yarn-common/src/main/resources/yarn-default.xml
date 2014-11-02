@@ -1390,3 +1390,4 @@
     <name>yarn.nodemanager.log-aggregation.roll-monitoring-interval-seconds</name>
     <value>-1</value>
   </property>
+</configuration>
