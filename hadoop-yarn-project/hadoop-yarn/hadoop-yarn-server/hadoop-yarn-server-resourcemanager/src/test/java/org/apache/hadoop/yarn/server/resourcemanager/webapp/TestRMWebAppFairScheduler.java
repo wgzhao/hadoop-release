@@ -150,7 +150,7 @@ public class TestRMWebAppFairScheduler {
     }
 
     return new RMContextImpl(null, null, null, null,
-        null, null, null, null, null, null) {
+        null, null, null, null, null, null, null) {
       @Override
       public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
         return applicationsMaps;
@@ -173,7 +173,7 @@ public class TestRMWebAppFairScheduler {
     fs.setRMContext(new RMContextImpl(null, null, null, null, null,
         null, new RMContainerTokenSecretManager(conf),
         new NMTokenSecretManagerInRM(conf),
-        new ClientToAMTokenSecretManagerInRM(), null));
+        new ClientToAMTokenSecretManagerInRM(), null, null));
     fs.init(conf);
     return fs;
   }
