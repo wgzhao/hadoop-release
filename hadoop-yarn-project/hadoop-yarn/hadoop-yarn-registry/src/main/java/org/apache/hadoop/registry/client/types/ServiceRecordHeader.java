@@ -16,36 +16,44 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.registry.client.exceptions;
+package org.apache.hadoop.registry.client.types;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.registry.client.types.ServiceRecord;
-import org.apache.hadoop.registry.client.types.ServiceRecordHeader;
 
 /**
- * Raised if there is no {@link ServiceRecord} resolved at the end
- * of the specified path, for reasons such as:
- * <ul>
- *   <li>There wasn't enough data to contain a Service Record.</li>
- *   <li>The start of the data did not match the {@link ServiceRecordHeader}
- *   header.</li>
- * </ul>
- *
- * There may be valid data of some form at the end of the path, but it does
- * not appear to be a Service Record.
+ * Service record header; access to the byte array kept private
+ * to avoid findbugs warnings of mutability
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class NoRecordException extends RegistryIOException {
+public class ServiceRecordHeader {
+  /**
+   * Header of a service record:  "jsonservicerec"
+   * By making this over 12 bytes long, we can auto-determine which entries
+   * in a listing are too short to contain a record without getting their data
+   */
+  private static final byte[] RECORD_HEADER = {
+      'j', 's', 'o', 'n',
+      's', 'e', 'r', 'v', 'i', 'c', 'e',
+      'r', 'e', 'c'
+  };
 
-  public NoRecordException(String path, String error) {
-    super(path, error);
+  /**
+   * Get the length of the record header
+   * @return the header length
+   */
+  public static int getLength() {
+    return RECORD_HEADER.length;
   }
 
-  public NoRecordException(String path,
-      String error,
-      Throwable cause) {
-    super(path, error, cause);
+  /**
+   * Get a clone of the record header
+   * @return the new record header.
+   */
+  public static byte[] getData() {
+    byte[] h = new byte[RECORD_HEADER.length];
+    System.arraycopy(RECORD_HEADER, 0, h, 0, RECORD_HEADER.length);
+    return h;
   }
 }

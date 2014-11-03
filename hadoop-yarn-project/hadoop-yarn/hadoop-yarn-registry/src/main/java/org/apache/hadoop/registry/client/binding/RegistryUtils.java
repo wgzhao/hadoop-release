@@ -33,6 +33,7 @@ import org.apache.hadoop.registry.client.exceptions.NoRecordException;
 import org.apache.hadoop.registry.client.impl.zk.RegistryInternalConstants;
 import org.apache.hadoop.registry.client.types.RegistryPathStatus;
 import org.apache.hadoop.registry.client.types.ServiceRecord;
+import org.apache.hadoop.registry.client.types.ServiceRecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -331,7 +332,7 @@ public class RegistryUtils {
       Collection<RegistryPathStatus> stats) throws IOException {
     Map<String, ServiceRecord> results = new HashMap<String, ServiceRecord>(stats.size());
     for (RegistryPathStatus stat : stats) {
-      if (stat.size > ServiceRecord.RECORD_TYPE.length()) {
+      if (stat.size > ServiceRecordHeader.getLength()) {
         // maybe has data
         String path = join(parentpath, stat.path);
         try {
@@ -361,6 +362,7 @@ public class RegistryUtils {
    * <p>
    * @param operations operation support for fetches
    * @param parentpath path of the parent of all the entries
+   * @param stats a map of name:value mappings.
    * @return a possibly empty map of fullpath:record.
    * @throws IOException for any IO Operation that wasn't ignored.
    */
@@ -378,6 +380,7 @@ public class RegistryUtils {
    * <p>
    * @param operations operation support for fetches
    * @param parentpath path of the parent of all the entries
+   * @param stats a map of name:value mappings.
    * @return a possibly empty map of fullpath:record.
    * @throws IOException for any IO Operation that wasn't ignored.
    */
@@ -397,7 +400,7 @@ public class RegistryUtils {
    */
   public static class ServiceRecordMarshal extends JsonSerDeser<ServiceRecord> {
     public ServiceRecordMarshal() {
-      super(ServiceRecord.class);
+      super(ServiceRecord.class, ServiceRecordHeader.getData());
     }
   }
 }
