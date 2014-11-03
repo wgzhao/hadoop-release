@@ -615,6 +615,9 @@ public class NativeAzureFileSystem extends FileSystem {
   static final String AZURE_OUTPUT_STREAM_BUFFER_SIZE_PROPERTY_NAME =
       "fs.azure.output.stream.buffer.size";
 
+  public static final String SKIP_AZURE_METRICS_PROPERTY_NAME =
+      "fs.azure.skip.metrics";
+
   private class NativeAzureFsInputStream extends FSInputStream {
     private InputStream in;
     private final String key;
@@ -998,13 +1001,16 @@ public class NativeAzureFileSystem extends FileSystem {
       store = createDefaultStore(conf);
     }
 
-    // Make sure the metrics system is available before interacting with Azure
-    AzureFileSystemMetricsSystem.fileSystemStarted();
-    metricsSourceName = newMetricsSourceName();
-    String sourceDesc = "Azure Storage Volume File System metrics";
     instrumentation = new AzureFileSystemInstrumentation(conf);
-    AzureFileSystemMetricsSystem.registerSource(metricsSourceName, sourceDesc,
-        instrumentation);
+    if(!conf.getBoolean(SKIP_AZURE_METRICS_PROPERTY_NAME, false)) {
+      // Make sure the metrics system is available before interacting with Azure
+      AzureFileSystemMetricsSystem.fileSystemStarted();
+      metricsSourceName = newMetricsSourceName();
+      String sourceDesc = "Azure Storage Volume File System metrics";
+      AzureFileSystemMetricsSystem.registerSource(metricsSourceName, sourceDesc,
+          instrumentation);
+    }
+
     store.initialize(uri, conf, instrumentation);
     setConf(conf);
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
@@ -2180,8 +2186,10 @@ public class NativeAzureFileSystem extends FileSystem {
 
     long startTime = System.currentTimeMillis();
 
-    AzureFileSystemMetricsSystem.unregisterSource(metricsSourceName);
-    AzureFileSystemMetricsSystem.fileSystemClosed();
+    if(!getConf().getBoolean(SKIP_AZURE_METRICS_PROPERTY_NAME, false)) {
+      AzureFileSystemMetricsSystem.unregisterSource(metricsSourceName);
+      AzureFileSystemMetricsSystem.fileSystemClosed();
+    }
 
     if (LOG.isDebugEnabled()) {
         LOG.debug("Submitting metrics when file system closed took "
