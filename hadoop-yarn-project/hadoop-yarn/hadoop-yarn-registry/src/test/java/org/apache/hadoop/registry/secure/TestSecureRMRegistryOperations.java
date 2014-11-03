@@ -47,7 +47,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.hadoop.registry.client.api.RegistryConstants.*;
 
@@ -104,7 +103,6 @@ public class TestSecureRMRegistryOperations extends AbstractSecureRegistryTest {
             operations.init(secureConf);
             LOG.info(operations.bindingDiagnosticDetails());
             operations.start();
-            operations.getRootPathsFuture().get(30, TimeUnit.SECONDS);
             return operations;
           }
         });

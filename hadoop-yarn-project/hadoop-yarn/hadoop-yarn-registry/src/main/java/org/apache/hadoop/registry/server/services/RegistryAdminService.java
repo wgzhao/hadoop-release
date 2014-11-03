@@ -93,19 +93,6 @@ public class RegistryAdminService extends RegistryOperationsService {
   protected final ExecutorService executor;
 
   /**
-   * Future of the root path creation operation schedule on 
-   * service <code>start()</code>
-   */
-  private Future<Void> rootPathsFuture;
-
-  /**
-   * Flag set to true when registry setup is completed —that is, when the
-   * root directories have been created. If that operation fails, this
-   * flag will remain false.
-   */
-  private volatile boolean registrySetupCompleted;
-
-  /**
    * Construct an instance of the service
    * @param name service name
    */
@@ -192,13 +179,8 @@ public class RegistryAdminService extends RegistryOperationsService {
     return submit(new Callable<Boolean>() {
       @Override
       public Boolean call() throws Exception {
-        try {
-          return maybeCreate(path, CreateMode.PERSISTENT,
-              acls, createParents);
-        } catch (IOException e) {
-          LOG.warn("Exception creating path {}: {}", path, e);
-          throw e;
-        }
+        return maybeCreate(path, CreateMode.PERSISTENT,
+            acls, createParents);
       }
     });
   }
@@ -206,7 +188,7 @@ public class RegistryAdminService extends RegistryOperationsService {
   /**
    * Init operation sets up the system ACLs.
    * @param conf configuration of the service
-   * @throws Exception on a failure to initialize.
+   * @throws Exception
    */
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
@@ -223,65 +205,14 @@ public class RegistryAdminService extends RegistryOperationsService {
 
   /**
    * Start the service, including creating base directories with permissions
-   * @throws Exceptionn on a failure to start.
+   * @throws Exception
    */
   @Override
   protected void serviceStart() throws Exception {
     super.serviceStart();
     // create the root directories
-    rootPathsFuture = asyncCreateRootRegistryPaths();
-  }
-
-  /**
-   * Asynchronous operation to create the root directories
-   * @return the future which can be used to await the outcome of this
-   * operation
-   */
-  @VisibleForTesting
-  public Future<Void> asyncCreateRootRegistryPaths() {
-    return submit(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        createRootRegistryPaths();
-        return null;
-      }
-    });
-  }
-
-  /**
-   * Get the outcome of the asynchronous directory creation operation
-   * @return the blocking future. If the service has not started this will
-   * be null.
-   */
-  public Future<Void> getRootPathsFuture() {
-    return rootPathsFuture;
-  }
-
-  /**
-   * Query if the registry has been set up successfully. This will be false
-   * if the operation has not been started, is underway, or if it failed.
-   * @return the current setup completion flag.
-   */
-  public boolean isRegistrySetupCompleted() {
-    return registrySetupCompleted;
-  }
-
-  /**
-   * Create the initial registry paths
-   * @throws IOException any failure
-   */
-  private void createRootRegistryPaths() throws IOException {
-
     try {
-      List<ACL> systemACLs = getRegistrySecurity().getSystemACLs();
-      LOG.info("System ACLs {}",
-          RegistrySecurity.aclsToString(systemACLs));
-      maybeCreate("", CreateMode.PERSISTENT, systemACLs, false);
-      maybeCreate(PATH_USERS, CreateMode.PERSISTENT,
-          systemACLs, false);
-      maybeCreate(PATH_SYSTEM_SERVICES,
-          CreateMode.PERSISTENT,
-          systemACLs, false);
+      createRootRegistryPaths();
     } catch (NoPathPermissionsException e) {
 
       String message = String.format(Locale.ENGLISH,
@@ -296,9 +227,28 @@ public class RegistryAdminService extends RegistryOperationsService {
       LOG.error(" Failure {}", e, e);
       LOG.error(message);
 
+      // TODO: this is something temporary to deal with the problem
+      // that jenkins is failing this test
       throw new NoPathPermissionsException(e.getPath().toString(), message, e);
     }
-    registrySetupCompleted = true;
+  }
+
+  /**
+   * Create the initial registry paths
+   * @throws IOException any failure
+   */
+  @VisibleForTesting
+  public void createRootRegistryPaths() throws IOException {
+
+    List<ACL> systemACLs = getRegistrySecurity().getSystemACLs();
+    LOG.info("System ACLs {}",
+        RegistrySecurity.aclsToString(systemACLs));
+    maybeCreate("", CreateMode.PERSISTENT, systemACLs, false);
+    maybeCreate(PATH_USERS, CreateMode.PERSISTENT,
+        systemACLs, false);
+    maybeCreate(PATH_SYSTEM_SERVICES,
+        CreateMode.PERSISTENT,
+        systemACLs, false);
   }
 
   /**
@@ -557,24 +507,15 @@ public class RegistryAdminService extends RegistryOperationsService {
       this.purgePolicy = purgePolicy;
     }
 
-    /**
-     * Execute a purge operation. Exceptions are caught, logged and rethrown.
-     * @return the number of records purged
-     */
     @Override
     public Integer call() throws Exception {
-      try {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Executing {}", this);
-        }
-        return purge(path,
-            selector,
-            purgePolicy,
-            callback);
-      } catch (Exception e) {
-        LOG.warn("Exception in {}: {}", this, e, e);
-        throw e;
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Executing {}", this);
       }
+      return purge(path,
+          selector,
+          purgePolicy,
+          callback);
     }
 
     @Override

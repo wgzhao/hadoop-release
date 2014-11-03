@@ -30,9 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Abstract registry tests .. inits the field {@link #registry}
@@ -48,21 +45,13 @@ public class AbstractRegistryTest extends AbstractZKRegistryTest {
   protected RegistryOperations operations;
 
   @Before
-  public void setupRegistry() throws
-      IOException,
-      InterruptedException,
-      ExecutionException,
-      TimeoutException {
+  public void setupRegistry() throws IOException {
     registry = new RMRegistryOperationsService("yarnRegistry");
     operations = registry;
     registry.init(createRegistryConfiguration());
     registry.start();
-    // await root directory creation completion
-    registry.getRootPathsFuture().get(30, TimeUnit.SECONDS);
-    // then purge the paths to clean up any existing entries
-    registry.delete("/", true);
-    // and rebuild
-    registry.asyncCreateRootRegistryPaths().get(30, TimeUnit.SECONDS);
+    operations.delete("/", true);
+    registry.createRootRegistryPaths();
     addToTeardown(registry);
   }
 

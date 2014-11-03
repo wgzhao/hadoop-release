@@ -38,7 +38,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublis
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.NullRMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
-import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSystem;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AMLivelinessMonitor;
@@ -104,7 +103,6 @@ public class RMContextImpl implements RMContext {
   private long schedulerRecoveryWaitTime = 0;
   private boolean printLog = true;
   private boolean isSchedulerReady = false;
-  private RMRegistryService registry;
 
   private static final Log LOG = LogFactory.getLog(RMContextImpl.class);
 
@@ -127,8 +125,7 @@ public class RMContextImpl implements RMContext {
       RMContainerTokenSecretManager containerTokenSecretManager,
       NMTokenSecretManagerInRM nmTokenSecretManager,
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
-      RMApplicationHistoryWriter rmApplicationHistoryWriter,
-      RMRegistryService registry) {
+      RMApplicationHistoryWriter rmApplicationHistoryWriter) {
     this();
     this.setDispatcher(rmDispatcher);
     this.setContainerAllocationExpirer(containerAllocationExpirer);
@@ -140,7 +137,6 @@ public class RMContextImpl implements RMContext {
     this.setNMTokenSecretManager(nmTokenSecretManager);
     this.setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
     this.setRMApplicationHistoryWriter(rmApplicationHistoryWriter);
-    this.setRegistry(registry);
 
     RMStateStore nullStore = new NullRMStateStore();
     nullStore.setRMDispatcher(rmDispatcher);
@@ -455,14 +451,5 @@ public class RMContextImpl implements RMContext {
 
   public ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps() {
     return systemCredentials;
-  }
-
-  @Override
-  public RMRegistryService getRegistry() {
-    return registry;
-  }
-
-  void setRegistry(RMRegistryService registry) {
-    this.registry = registry;
   }
 }

@@ -206,7 +206,7 @@ public class TestRMAppTransitions {
           new RMContainerTokenSecretManager(conf),
           new NMTokenSecretManagerInRM(conf),
           new ClientToAMTokenSecretManagerInRM(),
-          writer, null);
+          writer);
     ((RMContextImpl)realRMContext).setStateStore(store);
     publisher = mock(SystemMetricsPublisher.class);
     ((RMContextImpl)realRMContext).setSystemMetricsPublisher(publisher);
