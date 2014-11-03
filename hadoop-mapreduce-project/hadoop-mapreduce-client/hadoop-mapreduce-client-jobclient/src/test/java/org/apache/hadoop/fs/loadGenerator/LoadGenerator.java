@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,9 +30,9 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
@@ -40,10 +41,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Options.CreateOpts;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.UnsupportedFileSystemException;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -59,8 +62,6 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
-import org.apache.hadoop.fs.Options.CreateOpts;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -166,6 +167,8 @@ public class LoadGenerator extends Configured implements Tool {
   private static Random r = null;
   private static long seed = 0;
   private static String scriptFile = null;
+  static final String FLAGFILE_DEFAULT = "/tmp/flagFile";
+  private static Path flagFile = new Path(FLAGFILE_DEFAULT);
   final private String hostname;
   final private static String USAGE = "java LoadGenerator\n" +
       "-readProbability <read probability>\n" +
@@ -176,7 +179,8 @@ public class LoadGenerator extends Configured implements Tool {
       "-elapsedTime <elapsedTimeInSecs>\n" +
       "-startTime <startTimeInMillis>\n" +
       "-mr <numMapJobs> <outputDir>\n" +
-      "-scriptFile <filename>";
+      "-scriptFile <filename>\n" +
+      "-flagFile <filename>";
   
   // Constant "keys" used to communicate between map and reduce
   final private static Text OPEN_EXECTIME = new Text("OpenExecutionTime");
@@ -203,7 +207,7 @@ public class LoadGenerator extends Configured implements Tool {
   final private static String LG_NUMMAPTASKS = "LG.numMapTasks";
   final private static String LG_ELAPSEDTIME = "LG.elapsedTime";
   final private static String LG_STARTTIME = "LG.startTime";
-  
+  final private static String LG_FLAGFILE = "LG.flagFile";
 
 
   private final byte[] WRITE_CONTENTS = new byte[4096];
@@ -404,7 +408,18 @@ public class LoadGenerator extends Configured implements Tool {
     }
     return exitCode;
   }
-  
+    
+  boolean stopFileCreated() {
+    try {
+      fc.getFileStatus(flagFile);
+    } catch (FileNotFoundException e) {
+      return false;
+    } catch (IOException e) {
+      LOG.error("Got error when checking if file exists:" + flagFile, e);
+    }
+    LOG.info("Flag file was created. Stopping the test.");
+    return true;
+  }
   
  /**
   * This is the main function - run threads to generate load on NN
@@ -426,6 +441,13 @@ public class LoadGenerator extends Configured implements Tool {
           ioe.getLocalizedMessage());
       return -1;
     }
+    try {
+    LOG.info("try deleting file:" + flagFile + " before test.");
+      
+      fc.delete(flagFile, false);
+    } catch (IOException ignore) {
+    }
+    
     int status = initFileDirTables();
     if (status != 0) {
       return status;
@@ -438,29 +460,45 @@ public class LoadGenerator extends Configured implements Tool {
       threads[i].start();
     }
     
-    if (durations[0] > 0) { // There is a fixed run time
-      while(shouldRun) {
-        Thread.sleep(durations[currentIndex] * 1000);
-        totalTime += durations[currentIndex];
-        
-        // Are we on the final line of the script?
-        if( (currentIndex + 1) == durations.length) {
-          shouldRun = false;
-        } else {
-          if(LOG.isDebugEnabled()) {
-            LOG.debug("Moving to index " + currentIndex + ": r = "
-                + readProbs[currentIndex] + ", w = " + writeProbs
-                + " for duration " + durations[currentIndex]);
+    if (durations[0] > 0) {
+      if (durations.length == 1) {// There is a fixed run time
+        while (shouldRun) {
+          Thread.sleep(2000);
+          totalTime += 2;
+          if (totalTime >= durations[0] || stopFileCreated()) {
+            shouldRun = false;
           }
-          currentIndex++;
+        }
+      } else {
+        // script run
+
+        while (shouldRun) {
+          Thread.sleep(durations[currentIndex] * 1000);
+          totalTime += durations[currentIndex];
+          // Are we on the final line of the script?
+          if ((currentIndex + 1) == durations.length || stopFileCreated()) {
+            shouldRun = false;
+          } else {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Moving to index " + currentIndex + ": r = "
+                  + readProbs[currentIndex] + ", w = " + writeProbs
+                  + " for duration " + durations[currentIndex]);
+            }
+            currentIndex++;
+          }
         }
       }
-    } 
+    }
     
     if(LOG.isDebugEnabled()) {
       LOG.debug("Done with testing.  Waiting for threads to finish.");
     }
+    try {
+      LOG.info("try deleting file:" + flagFile + " after test.");
 
+      fc.delete(flagFile, false);
+    } catch (IOException ignore) {
+    }
     boolean failed = false;
     for (DFSClientThread thread : threads) {
       thread.join();
@@ -573,7 +611,11 @@ public class LoadGenerator extends Configured implements Tool {
             System.err.println(USAGE);
             return -1;
           }
-        } else { 
+        }  else if (args[i].equals("-flagFile")) {
+          LOG.info("got flagFile:" + flagFile);
+
+          flagFile = new Path(args[++i]);
+        }else { 
           System.err.println(USAGE);
           ToolRunner.printGenericCommandUsage(System.err);
           return -1;
@@ -762,8 +804,7 @@ public class LoadGenerator extends Configured implements Tool {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(new Configuration(),
-        new LoadGenerator(), args);
+    int res = ToolRunner.run(new Configuration(), new LoadGenerator(), args);
     System.exit(res);
   }
 
@@ -780,7 +821,7 @@ public class LoadGenerator extends Configured implements Tool {
         numMapTasks + " mapTasks;  Output to file " + mrOutDir);
 
 
-    Configuration conf = new Configuration();
+    Configuration conf = new Configuration(getConf());
     
     // First set all the args of LoadGenerator as Conf vars to pass to MR tasks
 
@@ -800,6 +841,7 @@ public class LoadGenerator extends Configured implements Tool {
     if (scriptFile != null) {
       conf.set(LG_SCRIPTFILE , scriptFile);
     }
+    conf.set(LG_FLAGFILE, flagFile.toString());
     
     // Now set the necessary conf variables that apply to run MR itself.
     JobConf jobConf = new JobConf(conf, LoadGenerator.class);
@@ -933,6 +975,13 @@ public class LoadGenerator extends Configured implements Tool {
       progressThread.start();
       try {
         new LoadGenerator(jobConf).generateLoadOnNN();
+        try {
+          fc.delete(flagFile, false);
+        } catch (FileNotFoundException ignore) {
+        } catch (IOException e) {
+          LOG.error("Got error when deleting file:"+flagFile, e);
+          throw e;
+        }
         System.out
             .println("Finished generating load on NN, sending results to the reducer");
         printResults(System.out);
@@ -983,6 +1032,7 @@ public class LoadGenerator extends Configured implements Tool {
       durations[0] = conf.getLong(LG_ELAPSEDTIME, 0);
       startTime = conf.getLong(LG_STARTTIME, 0);
       scriptFile = conf.get(LG_SCRIPTFILE, null);
+      flagFile = new Path(conf.get(LG_FLAGFILE, FLAGFILE_DEFAULT));
       if (durations[0] > 0 && scriptFile != null) {
         System.err.println("Cannot specify both ElapsedTime and ScriptFile, exiting");
         System.exit(-1);
