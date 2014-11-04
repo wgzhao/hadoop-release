@@ -207,6 +207,12 @@ goto :eof
   set CLASS=org.apache.hadoop.yarn.client.cli.NodeCLI
   set YARN_OPTS=%YARN_OPTS% %YARN_CLIENT_OPTS%
   goto :eof
+
+:cluster
+  set CLASS=org.apache.hadoop.yarn.client.cli.ClusterCLI
+  set YARN_OPTS=%YARN_OPTS% %YARN_CLIENT_OPTS%
+  goto :eof
+
 :historyserver
   @echo DEPRECATED: Use of this command to start the timeline server is deprecated. 1>&2
   @echo Instead use the timelineserver command for it. 1>&2
@@ -321,6 +327,7 @@ goto :eof
   @echo   applicationattempt   prints applicationattempt(s) report
   @echo   container            prints container(s) report
   @echo   node                 prints node report(s)
+  @echo   cluster              print cluster information
   @echo   logs                 dump container logs
   @echo   classpath            prints the class path needed to get the
   @echo                        Hadoop jar and the required libraries

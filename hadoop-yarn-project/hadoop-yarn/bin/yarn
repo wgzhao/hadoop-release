@@ -79,6 +79,7 @@ function print_usage(){
   echo "                                        report"
   echo "  container                             prints container(s) report"
   echo "  node                                  prints node report(s)"
+  echo "  cluster                               print cluster information"
   echo "  logs                                  dump container logs"
   echo "  classpath                             prints the class path needed to"
   echo "                                        get the Hadoop jar and the"
@@ -265,6 +266,9 @@ elif [ "$COMMAND" = "logs" ] ; then
   YARN_OPTS="$YARN_OPTS $YARN_CLIENT_OPTS"
 elif [ "$COMMAND" = "daemonlog" ] ; then
   CLASS=org.apache.hadoop.log.LogLevel
+  YARN_OPTS="$YARN_OPTS $YARN_CLIENT_OPTS"
+elif [ "$COMMAND" = "cluster" ] ; then
+  CLASS=org.apache.hadoop.yarn.client.cli.ClusterCLI
   YARN_OPTS="$YARN_OPTS $YARN_CLIENT_OPTS"
 else
   CLASS=$COMMAND
