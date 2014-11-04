@@ -147,7 +147,7 @@ public class RMRegistryService extends CompositeService {
         RMAppAttemptContainerFinishedEvent cfe =
             (RMAppAttemptContainerFinishedEvent) event;
         ContainerId containerId = cfe.getContainerStatus().getContainerId();
-        registryOperations.onAMContainerFinished(containerId);
+        registryOperations.onContainerFinished(containerId);
         break;
 
       default:
