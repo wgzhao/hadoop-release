@@ -34,7 +34,7 @@
   <description>Apache Hadoop HttpFS</description>
 
   <properties>
-    <tomcat.version>6.0.36</tomcat.version>
+    <tomcat.version>6.0.41</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.revision>REVISION NOT AVAIL</httpfs.source.revision>
@@ -45,7 +45,7 @@
     </httpfs.tomcat.dist.dir>
     <kerberos.realm>LOCALHOST</kerberos.realm>
     <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
-    <tomcat.download.url>http://archive.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz</tomcat.download.url>
+    <tomcat.download.url>http://dist.apache.org/repos/dist/release/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz</tomcat.download.url>
   </properties>
 
   <dependencies>
