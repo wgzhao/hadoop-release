@@ -441,12 +441,6 @@ public class LoadGenerator extends Configured implements Tool {
           ioe.getLocalizedMessage());
       return -1;
     }
-    try {
-    LOG.info("try deleting file:" + flagFile + " before test.");
-      
-      fc.delete(flagFile, false);
-    } catch (IOException ignore) {
-    }
     
     int status = initFileDirTables();
     if (status != 0) {
@@ -493,12 +487,7 @@ public class LoadGenerator extends Configured implements Tool {
     if(LOG.isDebugEnabled()) {
       LOG.debug("Done with testing.  Waiting for threads to finish.");
     }
-    try {
-      LOG.info("try deleting file:" + flagFile + " after test.");
-
-      fc.delete(flagFile, false);
-    } catch (IOException ignore) {
-    }
+    
     boolean failed = false;
     for (DFSClientThread thread : threads) {
       thread.join();
@@ -613,7 +602,6 @@ public class LoadGenerator extends Configured implements Tool {
           }
         }  else if (args[i].equals("-flagFile")) {
           LOG.info("got flagFile:" + flagFile);
-
           flagFile = new Path(args[++i]);
         }else { 
           System.err.println(USAGE);
@@ -975,13 +963,6 @@ public class LoadGenerator extends Configured implements Tool {
       progressThread.start();
       try {
         new LoadGenerator(jobConf).generateLoadOnNN();
-        try {
-          fc.delete(flagFile, false);
-        } catch (FileNotFoundException ignore) {
-        } catch (IOException e) {
-          LOG.error("Got error when deleting file:"+flagFile, e);
-          throw e;
-        }
         System.out
             .println("Finished generating load on NN, sending results to the reducer");
         printResults(System.out);
