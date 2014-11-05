@@ -201,6 +201,12 @@ public class ResourceManager extends CompositeService implements Recoverable {
     this.conf = conf;
     this.rmContext = new RMContextImpl();
     
+    // Set HA configuration should be done before login
+    this.rmContext.setHAEnabled(HAUtil.isHAEnabled(this.conf));
+    if (this.rmContext.isHAEnabled()) {
+      HAUtil.verifyAndSetConfiguration(this.conf);
+    }
+    
     // Set UGI and do login
     // If security is enabled, use login user
     // If security is not enabled, use current user
@@ -252,11 +258,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
     adminService = createAdminService();
     addService(adminService);
     rmContext.setRMAdminService(adminService);
-
-    this.rmContext.setHAEnabled(HAUtil.isHAEnabled(this.conf));
-    if (this.rmContext.isHAEnabled()) {
-      HAUtil.verifyAndSetConfiguration(this.conf);
-    }
 
     boolean registryEnabled = conf.getBoolean(RegistryConstants.KEY_REGISTRY_ENABLED,
         RegistryConstants.DEFAULT_REGISTRY_ENABLED);
