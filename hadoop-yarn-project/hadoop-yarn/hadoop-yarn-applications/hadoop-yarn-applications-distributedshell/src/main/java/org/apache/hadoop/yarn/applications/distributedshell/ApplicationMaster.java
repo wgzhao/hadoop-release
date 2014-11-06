@@ -739,7 +739,7 @@ public class ApplicationMaster {
         }
       }
       
-      if (numCompletedContainers.get() == numTotalContainers) {
+      if (numCompletedContainers.get() >= numTotalContainers) {
         done = true;
       }
     }
