@@ -840,9 +840,6 @@ Release 2.6.0 - UNRELEASED
     YARN-2744. Fixed CapacityScheduler to validate node-labels correctly against
     queues. (Wangda Tan via vinodkv)
 
-    YARN-2803. MR distributed cache not working correctly on Windows after
-    NodeManager privileged account changes. (Craig Welch via cnauroth)
-
     YARN-2823. Fixed ResourceManager app-attempt state machine to inform
     schedulers about previous finished attempts of a running appliation to avoid
     expectation mismatch w.r.t transferred containers. (Jian He via vinodkv)
@@ -854,6 +851,12 @@ Release 2.6.0 - UNRELEASED
     (Wangda Tan via vinodkv)
 
     YARN-2827. Fixed bugs in "yarn queue" CLI. (Wangda Tan via vinodkv).
+
+    YARN-2803. MR distributed cache not working correctly on Windows after
+    NodeManager privileged account changes. (Craig Welch via cnauroth)
+
+    YARN-2753. Fixed a bunch of bugs in the NodeLabelsManager classes. (Zhihai xu
+    via vinodkv)
 
 Release 2.5.2 - UNRELEASED
 
