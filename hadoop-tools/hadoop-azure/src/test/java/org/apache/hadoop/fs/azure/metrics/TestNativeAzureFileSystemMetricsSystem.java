@@ -41,6 +41,7 @@ public class TestNativeAzureFileSystemMetricsSystem {
    * @throws Exception 
    */
   @Test
+  @Ignore
   public void testMetricsAcrossFileSystems()
       throws Exception {
     AzureBlobStorageTestAccount a1, a2, a3;
