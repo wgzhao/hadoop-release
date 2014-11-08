@@ -818,6 +818,29 @@ class OpenFileCtx {
     return ret;
   }
   
+  // Check if the to-commit range is sequential
+  @VisibleForTesting
+  synchronized boolean checkSequential(final long commitOffset,
+      final long nextOffset) {
+    Preconditions.checkState(commitOffset >= nextOffset, "commitOffset "
+        + commitOffset + " less than nextOffset " + nextOffset);
+    long offset = nextOffset;
+    Iterator<OffsetRange> it = pendingWrites.descendingKeySet().iterator();
+    while (it.hasNext()) {
+      OffsetRange range = it.next();
+      if (range.getMin() != offset) {
+        // got a hole
+        return false;
+      }
+      offset = range.getMax();
+      if (offset > commitOffset) {
+        return true;
+      }
+    }
+    // there is gap between the last pending write and commitOffset
+    return false;
+  }
+
   @VisibleForTesting
   synchronized COMMIT_STATUS checkCommitInternal(long commitOffset,
       Channel channel, int xid, Nfs3FileAttributes preOpAttr, boolean fromRead) {
@@ -843,7 +866,8 @@ class OpenFileCtx {
       return COMMIT_STATUS.COMMIT_ERROR;
     }
     if (LOG.isDebugEnabled()) {
-      LOG.debug("getFlushedOffset=" + flushed + " commitOffset=" + commitOffset);
+      LOG.debug("getFlushedOffset=" + flushed + " commitOffset=" + commitOffset
+          + "nextOffset=" + nextOffset.get());
     }
 
     // Handle large file upload
@@ -851,13 +875,12 @@ class OpenFileCtx {
       long co = (commitOffset > 0) ? commitOffset : pendingWrites.firstEntry()
           .getKey().getMax() - 1;
 
-      if (co <= flushed) {
+      if (co < nextOffset.get()) {
         return COMMIT_STATUS.COMMIT_DO_SYNC;
-      } else if (co < nextOffset.get()) {
+      } else if (checkSequential(co, nextOffset.get())) {
         if (!fromRead) {
           // let client retry the same request, add pending commit to sync later
-          CommitCtx commitCtx = new CommitCtx(commitOffset, channel, xid,
-              preOpAttr);
+          CommitCtx commitCtx = new CommitCtx(co, channel, xid, preOpAttr);
           pendingCommits.put(commitOffset, commitCtx);
         }
         if (LOG.isDebugEnabled()) {
