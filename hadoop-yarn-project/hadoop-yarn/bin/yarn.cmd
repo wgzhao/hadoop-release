@@ -153,7 +153,7 @@ if "%1" == "--service" (
 
   set yarncommands=resourcemanager nodemanager proxyserver rmadmin version jar ^
      application applicationattempt container node logs daemonlog historyserver ^
-     timelineserver
+     timelineserver cluster queue
   for %%i in ( %yarncommands% ) do (
     if %yarn-command% == %%i set yarncommand=true
   )
