@@ -24,6 +24,7 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.jobhistory.EventType;
 import org.apache.hadoop.mapreduce.jobhistory.TestJobHistoryEventHandler;
 import org.apache.hadoop.mapreduce.v2.MiniMRYarnCluster;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -31,6 +32,8 @@ import org.apache.hadoop.yarn.server.timeline.TimelineStore;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assume.assumeFalse;
 
 public class TestMRTimelineEventHandling {
 
@@ -90,6 +93,7 @@ public class TestMRTimelineEventHandling {
   @Test
   public void testMapreduceJobTimelineServiceEnabled()
       throws Exception {
+    assumeFalse(Shell.WINDOWS);
     Configuration conf = new YarnConfiguration();
     conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
     conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_EMIT_TIMELINE_DATA, false);

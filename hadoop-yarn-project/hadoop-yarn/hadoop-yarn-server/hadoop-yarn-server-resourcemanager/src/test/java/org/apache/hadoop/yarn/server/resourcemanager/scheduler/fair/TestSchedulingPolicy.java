@@ -20,7 +20,9 @@ package org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.DominantResourceFairnessPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FairSharePolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FifoPolicy;
@@ -75,6 +77,7 @@ public class TestSchedulingPolicy {
    */
   @Test(timeout = 1000)
   public void testIsApplicableTo() throws AllocationConfigurationException {
+    assumeFalse(Shell.WINDOWS);
     final String ERR = "Broken SchedulingPolicy#isApplicableTo";
     
     // fifo

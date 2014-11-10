@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.service.ServiceStateException;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.protocolrecords.StartContainerRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -217,6 +219,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testContainerStorage() throws IOException {
+    assumeFalse(Shell.WINDOWS);
     // test empty when no state
     List<RecoveredContainerState> recoveredContainers =
         stateStore.loadContainersState();
@@ -635,6 +638,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testDeletionTaskStorage() throws IOException {
+    assumeFalse(Shell.WINDOWS);
     // test empty when no state
     RecoveredDeletionServiceState state =
         stateStore.loadDeletionServiceState();
@@ -689,6 +693,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testNMTokenStorage() throws IOException {
+    assumeFalse(Shell.WINDOWS);
     // test empty when no state
     RecoveredNMTokensState state = stateStore.loadNMTokensState();
     assertNull(state.getCurrentMasterKey());
@@ -758,6 +763,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testContainerTokenStorage() throws IOException {
+    assumeFalse(Shell.WINDOWS);
     // test empty when no state
     RecoveredContainerTokensState state =
         stateStore.loadContainerTokensState();

@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.server;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.apache.hadoop.minikdc.KerberosSecurityTestcase;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.SecretManager.InvalidToken;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
 import org.apache.hadoop.yarn.api.protocolrecords.GetContainerStatusesRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetContainerStatusesResponse;
@@ -144,6 +146,7 @@ public class TestContainerManagerSecurity extends KerberosSecurityTestcase {
   
   @Test (timeout = 120000)
   public void testContainerManager() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     try {
       yarnCluster = new MiniYARNCluster(TestContainerManagerSecurity.class
           .getName(), 1, 1, 1);

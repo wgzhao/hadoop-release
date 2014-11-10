@@ -84,6 +84,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assume.assumeFalse;
+
 public class TestContainerManager extends BaseContainerManagerTest {
 
   public TestContainerManager() throws UnsupportedFileSystemException {
@@ -257,6 +259,7 @@ public class TestContainerManager extends BaseContainerManagerTest {
   @Test
   public void testContainerLaunchAndStop() throws IOException,
       InterruptedException, YarnException {
+    assumeFalse(Shell.WINDOWS);
     containerManager.start();
 
     File scriptFile = Shell.appendScriptExtension(tmpDir, "scriptFile");

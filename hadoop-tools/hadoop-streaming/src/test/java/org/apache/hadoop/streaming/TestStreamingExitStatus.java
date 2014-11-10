@@ -18,9 +18,11 @@
 
 package org.apache.hadoop.streaming;
 
+import org.apache.hadoop.util.Shell;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.*;
 import java.util.*;
@@ -88,21 +90,25 @@ public class TestStreamingExitStatus
 
   @Test
   public void testMapFailOk() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     runStreamJob(false, true);
   }
 
   @Test
   public void testMapFailNotOk() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     runStreamJob(true, true);
   }
 
   @Test
   public void testReduceFailOk() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     runStreamJob(false, false);
   }
   
   @Test
   public void testReduceFailNotOk() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     runStreamJob(true, false);
   }  
   

@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
@@ -50,6 +51,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assume.assumeFalse;
 
 public class TestContainerResourceUsage {
 
@@ -248,6 +251,7 @@ public class TestContainerResourceUsage {
 
   @Test(timeout = 60000)
   public void testUsageAfterAMRestartWithMultipleContainers() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     amRestartTests(false);
   }
 

@@ -29,9 +29,11 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.lib.db.DBInputFormat.DBInputSplit;
 import org.apache.hadoop.mapreduce.lib.db.DBInputFormat.NullDBWritable;
 import org.apache.hadoop.mapreduce.lib.db.DataDrivenDBInputFormat.DataDrivenDBInputSplit;
+import org.apache.hadoop.util.Shell;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.Mockito.*;
 
 public class TestDbClasses {
@@ -51,6 +53,7 @@ public class TestDbClasses {
 
   @Test(timeout = 1000)
   public void testDataDrivenDBInputFormat() throws Exception {
+    assumeFalse(Shell.WINDOWS);
     JobContext jobContext = mock(JobContext.class);
     Configuration configuration = new Configuration();
     configuration.setInt(MRJobConfig.NUM_MAPS, 1);
