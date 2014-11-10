@@ -78,6 +78,7 @@ import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -373,6 +374,7 @@ public class TestFsDatasetCache {
   }
 
   @Test(timeout=600000)
+  @Ignore
   public void testUncachingBlocksBeforeCachingFinishes() throws Exception {
     LOG.info("beginning testUncachingBlocksBeforeCachingFinishes");
     final int NUM_BLOCKS = 5;
