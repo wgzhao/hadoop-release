@@ -35,6 +35,7 @@ import org.apache.hadoop.hdfs.MiniDFSNNTopology;
 import static org.apache.hadoop.hdfs.server.datanode.DataBlockScanner.SLEEP_PERIOD_MS;
 import org.apache.log4j.Level;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.fail;
 
