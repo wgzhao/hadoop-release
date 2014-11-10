@@ -94,6 +94,7 @@ public class TestMultipleNNDataBlockScanner {
   }
   
   @Test(timeout=120000)
+  @Ignore
   public void testBlockScannerAfterRefresh() throws IOException,
       InterruptedException {
     setUp();
@@ -146,6 +147,7 @@ public class TestMultipleNNDataBlockScanner {
   }
   
   @Test(timeout=120000)
+  @Ignore
   public void testBlockScannerAfterRestart() throws IOException,
       InterruptedException {
     setUp();

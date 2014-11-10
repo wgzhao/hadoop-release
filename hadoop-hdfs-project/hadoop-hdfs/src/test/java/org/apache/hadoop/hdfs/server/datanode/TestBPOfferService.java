@@ -55,6 +55,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.test.PathUtils;
 import org.apache.log4j.Level;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -163,6 +164,7 @@ public class TestBPOfferService {
    * sends block reports to both, etc.
    */
   @Test
+  @Ignore
   public void testBasicFunctionality() throws Exception {
     BPOfferService bpos = setupBPOSForNNs(mockNN1, mockNN2);
     bpos.start();
