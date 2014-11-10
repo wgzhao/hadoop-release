@@ -26,6 +26,8 @@ Release 2.7.1 - UNRELEASED
     HADOOP-11291. Log the cause of SASL connection failures.
     (Stephen Chu via cnauroth)
 
+    HADOOP-10786. Fix UGI#reloginFromKeytab on Java 8. (Stephen Chu via wheat9)
+
   OPTIMIZATIONS
 
   BUG FIXES
@@ -421,8 +423,6 @@ Release 2.6.0 - 2014-11-18
     better maintenance (Yongjun Zhang via brandonli)
 
     HADOOP-11247. Fix a couple javac warnings in NFS. (Brandon Li via wheat9)
-
-    HADOOP-10786. Fix UGI#reloginFromKeytab on Java 8. (Stephen Chu via wheat9)
 
   BUG FIXES
 
