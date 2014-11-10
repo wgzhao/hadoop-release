@@ -224,7 +224,7 @@ public class TestWrites {
 
     // Test request with non zero commit offset
     ctx.setActiveStatusForTest(true);
-    Mockito.when(fos.getPos()).thenReturn((long) 9);
+    Mockito.when(fos.getPos()).thenReturn((long) 8);
     ctx.setNextOffsetForTest(10);
     COMMIT_STATUS status = ctx.checkCommitInternal(5, null, 1, attr, false);
     Assert.assertTrue(status == COMMIT_STATUS.COMMIT_DO_SYNC);
@@ -252,13 +252,19 @@ public class TestWrites {
     
     //Mockito.when(fos.getPos()).thenReturn((long) 6);
     ret = ctx.checkCommitInternal(9, ch, 1, attr, false);
-    Assert.assertTrue(ret == COMMIT_STATUS.COMMIT_DO_SYNC);
-    Assert.assertTrue(commits.size() == 1);
+    Assert.assertTrue(ret == COMMIT_STATUS.COMMIT_SPECIAL_WAIT);
+    Assert.assertTrue(commits.size() == 2);
 
-    // Empty pending writes
+    // Empty pending writes. nextOffset=10, flushed pos=8
     ctx.getPendingWritesForTest().remove(new OffsetRange(10, 15));
     ret = ctx.checkCommit(dfsClient, 0, ch, 1, attr, false);
+    Assert.assertTrue(ret == COMMIT_STATUS.COMMIT_SPECIAL_WAIT);
+    
+    // Empty pending writes
+    ctx.setNextOffsetForTest((long) 8); // flushed pos = 8
+    ret = ctx.checkCommit(dfsClient, 0, ch, 1, attr, false);
     Assert.assertTrue(ret == COMMIT_STATUS.COMMIT_FINISHED);
+    
   }
   
   @Test
@@ -284,6 +290,7 @@ public class TestWrites {
     ctx.getPendingWritesForTest().put(new OffsetRange(0, 10),
         new WriteCtx(null, 0, 0, 0, null, null, null, 0, false, null));
     Mockito.when(fos.getPos()).thenReturn((long) 10);
+    ctx.setNextOffsetForTest((long)10);
     status = ctx.checkCommitInternal(5, null, 1, attr, false);
     Assert.assertTrue(status == COMMIT_STATUS.COMMIT_DO_SYNC);
   }
@@ -315,7 +322,7 @@ public class TestWrites {
     assertEquals( COMMIT_STATUS.COMMIT_INACTIVE_CTX, ret);
     assertEquals(Nfs3Status.NFS3_OK, wm.commitBeforeRead(dfsClient, h, 0));
     
-    ctx.getPendingWritesForTest().put(new OffsetRange(5, 10),
+    ctx.getPendingWritesForTest().put(new OffsetRange(10, 15),
         new WriteCtx(null, 0, 0, 0, null, null, null, 0, false, null));
     ret = ctx.checkCommit(dfsClient, 0, ch, 1, attr, true);
     assertEquals(COMMIT_STATUS.COMMIT_INACTIVE_WITH_PENDING_WRITE, ret);
@@ -324,6 +331,7 @@ public class TestWrites {
     // Test request with non zero commit offset
     ctx.setActiveStatusForTest(true);
     Mockito.when(fos.getPos()).thenReturn((long) 10);
+    ctx.setNextOffsetForTest((long)10);
     COMMIT_STATUS status = ctx.checkCommitInternal(5, ch, 1, attr, false);
     assertEquals(COMMIT_STATUS.COMMIT_DO_SYNC, status);
     // Do_SYNC state will be updated to FINISHED after data sync
@@ -353,7 +361,7 @@ public class TestWrites {
     assertEquals(Nfs3Status.NFS3ERR_JUKEBOX, wm.commitBeforeRead(dfsClient, h, 0));
 
     // Empty pending writes
-    ctx.getPendingWritesForTest().remove(new OffsetRange(5, 10));
+    ctx.getPendingWritesForTest().remove(new OffsetRange(10, 15));
     ret = ctx.checkCommit(dfsClient, 0, ch, 1, attr, true);
     assertEquals(COMMIT_STATUS.COMMIT_FINISHED, ret);
     assertEquals(Nfs3Status.NFS3_OK, wm.commitBeforeRead(dfsClient, h, 0));
@@ -402,10 +410,10 @@ public class TestWrites {
     assertEquals(Nfs3Status.NFS3_OK, wm.commitBeforeRead(dfsClient, h, 5));
  
     status = ctx.checkCommitInternal(9, ch, 1, attr, true);
-    assertTrue(status == COMMIT_STATUS.COMMIT_DO_SYNC);
+    assertTrue(status == COMMIT_STATUS.COMMIT_SPECIAL_WAIT);
     ret = ctx.checkCommit(dfsClient, 9, ch, 1, attr, true);
-    assertEquals(COMMIT_STATUS.COMMIT_FINISHED, ret);
-    assertEquals(Nfs3Status.NFS3_OK, wm.commitBeforeRead(dfsClient, h, 9));
+    assertEquals(COMMIT_STATUS.COMMIT_SPECIAL_WAIT, ret);
+    assertEquals(Nfs3Status.NFS3ERR_JUKEBOX, wm.commitBeforeRead(dfsClient, h, 9));
 
     ConcurrentNavigableMap<Long, CommitCtx> commits = ctx
         .getPendingCommitsForTest();
@@ -425,8 +433,8 @@ public class TestWrites {
     // Empty pending writes
     ctx.getPendingWritesForTest().remove(new OffsetRange(10, 15));
     ret = ctx.checkCommit(dfsClient, 0, ch, 1, attr, true);
-    assertEquals(COMMIT_STATUS.COMMIT_FINISHED, ret);
-    assertEquals(Nfs3Status.NFS3_OK, wm.commitBeforeRead(dfsClient, h, 0));
+    assertEquals(COMMIT_STATUS.COMMIT_SPECIAL_WAIT, ret);
+    assertEquals(Nfs3Status.NFS3ERR_JUKEBOX, wm.commitBeforeRead(dfsClient, h, 0));
   }
   
   private void waitWrite(RpcProgramNfs3 nfsd, FileHandle handle, int maxWaitTime)
