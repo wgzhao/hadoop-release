@@ -77,3 +77,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2917. Fixed potential deadlock when system.exit is called in
     AsyncDispatcher. (Rohith Sharmaks via jianhe)
+
+    YARN-570. Time strings are formated in different timezone. (Akira Ajisaka
+    and Peng Zhang via kasha)
