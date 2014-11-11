@@ -1,6 +1,21 @@
 Hadoop Change Log
 
-Release 2.6.0 - UNRELEASED
+Release 2.7.0 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    HADOOP-9576. Changed NetUtils#wrapException to throw EOFException instead
+    of wrapping it as IOException. (Steve Loughran via jianhe)
+
+Release 2.6.0 - 2014-11-15
 
   INCOMPATIBLE CHANGES
 
