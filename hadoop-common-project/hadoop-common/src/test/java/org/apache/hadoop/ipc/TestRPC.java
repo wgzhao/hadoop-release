@@ -70,6 +70,8 @@ import org.apache.hadoop.security.token.SecretManager;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.test.MetricsAsserts;
 import org.apache.hadoop.test.MockitoUtil;
+import org.apache.hadoop.util.Shell;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -702,6 +704,7 @@ public class TestRPC {
 
   @Test
   public void testErrorMsgForInsecureClient() throws IOException {
+    Assume.assumeTrue(!Shell.WINDOWS);
     Configuration serverConf = new Configuration(conf);
     SecurityUtil.setAuthenticationMethod(AuthenticationMethod.KERBEROS,
                                          serverConf);

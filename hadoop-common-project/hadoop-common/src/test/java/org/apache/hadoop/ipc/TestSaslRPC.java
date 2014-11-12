@@ -84,6 +84,7 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.security.token.TokenInfo;
 import org.apache.hadoop.security.token.TokenSelector;
+import org.apache.hadoop.util.Shell;
 import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -719,7 +720,9 @@ public class TestSaslRPC {
     assertAuthEquals(BadToken,   getAuthMethod(KERBEROS, SIMPLE, UseToken.INVALID));
     
     // doesn't try SASL
-    assertAuthEquals(Denied(SIMPLE), getAuthMethod(SIMPLE, TOKEN));
+    if (!Shell.WINDOWS) {
+      assertAuthEquals(Denied(SIMPLE), getAuthMethod(SIMPLE, TOKEN));
+    }
     // does try SASL
     assertAuthEquals(No(TOKEN),      getAuthMethod(SIMPLE, TOKEN, UseToken.OTHER));
     assertAuthEquals(TOKEN,          getAuthMethod(SIMPLE, TOKEN, UseToken.VALID));
@@ -779,7 +782,9 @@ public class TestSaslRPC {
   @Test
   public void testTokenOnlyServer() throws Exception {
     // simple client w/o tokens won't try SASL, so server denies
-    assertAuthEquals(Denied(SIMPLE), getAuthMethod(SIMPLE,   TOKEN));
+    if (!Shell.WINDOWS) {
+      assertAuthEquals(Denied(SIMPLE), getAuthMethod(SIMPLE,   TOKEN));
+    }
     assertAuthEquals(No(TOKEN),      getAuthMethod(SIMPLE,   TOKEN, UseToken.OTHER));
     assertAuthEquals(No(TOKEN),      getAuthMethod(KERBEROS, TOKEN));
     assertAuthEquals(No(TOKEN),      getAuthMethod(KERBEROS, TOKEN, UseToken.OTHER));
@@ -809,7 +814,9 @@ public class TestSaslRPC {
   @Test
   public void testKerberosServer() throws Exception {
     // doesn't try SASL
-    assertAuthEquals(Denied(SIMPLE),     getAuthMethod(SIMPLE,   KERBEROS));
+    if (!Shell.WINDOWS) {
+      assertAuthEquals(Denied(SIMPLE),     getAuthMethod(SIMPLE,   KERBEROS));
+    }
     // does try SASL
     assertAuthEquals(No(TOKEN,KERBEROS), getAuthMethod(SIMPLE,   KERBEROS, UseToken.OTHER));
     // no tgt

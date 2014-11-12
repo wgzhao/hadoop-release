@@ -35,6 +35,7 @@ import org.apache.hadoop.hdfs.protocol.datatransfer.ReplaceDatanodeOnFailure.Pol
 import org.apache.hadoop.io.IOUtils;
 import org.apache.log4j.Level;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -113,6 +114,7 @@ public class TestReplaceDatanodeOnFailure {
   /** Test replace datanode on failure. */
   @Test
   public void testReplaceDatanodeOnFailure() throws Exception {
+    Assume.assumeTrue(!Path.WINDOWS);
     final Configuration conf = new HdfsConfiguration();
     
     //always replace a datanode

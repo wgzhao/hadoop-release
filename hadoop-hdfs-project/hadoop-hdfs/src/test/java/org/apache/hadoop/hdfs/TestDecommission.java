@@ -50,6 +50,7 @@ import org.apache.hadoop.hdfs.server.namenode.NameNodeAdapter;
 import org.apache.hadoop.test.PathUtils;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -902,6 +903,7 @@ public class TestDecommission {
   @Test(timeout=360000)
   public void testIncludeByRegistrationName() throws IOException,
       InterruptedException {
+    Assume.assumeTrue(!Path.WINDOWS);
     Configuration hdfsConf = new Configuration(conf);
     // Any IPv4 address starting with 127 functions as a "loopback" address
     // which is connected to the current host.  So by choosing 127.0.0.100
