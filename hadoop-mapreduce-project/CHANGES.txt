@@ -240,6 +240,9 @@ Release 2.6.0 - 2014-11-15
     MAPREDUCE-6048. Fixed TestJavaSerialization failure. (Varun Vasudev via
     jianhe)
 
+    MAPREDUCE-6156. Fetcher - connect() doesn't handle connection refused
+    correctly (Junping Du via jlowe)
+
 Release 2.5.2 - 2014-11-10
 
   INCOMPATIBLE CHANGES
