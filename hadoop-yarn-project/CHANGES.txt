@@ -18,9 +18,6 @@ Release 2.7.0 - UNRELEASED
     YARN-2254. TestRMWebServicesAppsModification should run against both 
     CS and FS. (Zhihai Xu via kasha)
 
-    YARN-2853. Fixed a bug in ResourceManager causing apps to hang when the user
-    kill request races with ApplicationMaster finish. (Jian He via vinodkv)
-
 Release 2.6.0 - 2014-11-15
 
   INCOMPATIBLE CHANGES
@@ -97,14 +94,11 @@ Release 2.6.0 - 2014-11-15
     YARN-2581. Passed LogAggregationContext to NM via ContainerTokenIdentifier.
     (Xuan Gong via zjshen)
 
-    YARN-1063. Augmented Hadoop common winutils to have the ability to create
-    containers as domain users. (Remus Rusanu via vinodkv)
-
     YARN-2613. Support retry in NMClient for rolling-upgrades. (Jian He via 
     junping_du)
 
-    YARN-1972. Added a secure container-executor for Windows. (Remus Rusanu via
-    vinodkv)
+    YARN-1063. Augmented Hadoop common winutils to have the ability to create
+    containers as domain users. (Remus Rusanu via vinodkv)
 
     YARN-2446. Augmented Timeline service APIs to start taking in domains as a
     parameter while posting entities and events. (Zhijie Shen via vinodkv)
@@ -140,6 +134,9 @@ Release 2.6.0 - 2014-11-15
 
     YARN-2504. Enhanced RM Admin CLI to support management of node-labels.
     (Wangda Tan via vinodkv)
+
+    YARN-1972. Added a secure container-executor for Windows. (Remus Rusanu via
+    vinodkv)
 
     YARN-2198. Remove the need to run NodeManager as privileged account for
     Windows Secure Container Executor. (Remus Rusanu via jianhe)
@@ -619,9 +616,6 @@ Release 2.6.0 - 2014-11-15
     YARN-2628. Capacity scheduler with DominantResourceCalculator carries out
     reservation even though slots are free. (Varun Vasudev via jianhe)
 
-    YARN-2651. Spun off LogRollingInterval from LogAggregationContext. (Xuan Gong
-    via zjshen)
-
     YARN-2685. Fixed a bug in CommonNodeLabelsManager that caused wrong resource
     tracking per label when a host runs multiple node-managers. (Wangda Tan via
     vinodkv)
@@ -898,6 +892,9 @@ Release 2.6.0 - 2014-11-15
     YARN-2846. Incorrect persist exit code for running containers in
     reacquireContainer() that interrupted by NodeManager restart. (Junping Du
     via jlowe)
+
+    YARN-2853. Fixed a bug in ResourceManager causing apps to hang when the user
+    kill request races with ApplicationMaster finish. (Jian He via vinodkv)
 
 Release 2.5.2 - 2014-11-10
 
