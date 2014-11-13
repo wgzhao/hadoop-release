@@ -1,21 +1,6 @@
 Hadoop MapReduce Change Log
 
-Release 2.7.0 - UNRELEASED
-
-  INCOMPATIBLE CHANGES
-
-  NEW FEATURES
-
-  IMPROVEMENTS
-
-  OPTIMIZATIONS
-
-  BUG FIXES
-
-    MAPREDUCE-5875. Make Counter limits consistent across JobClient, 
-    MRAppMaster, and YarnChild. (Gera Shegalov via kasha)
-
-Release 2.6.0 - 2014-11-15
+Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
 

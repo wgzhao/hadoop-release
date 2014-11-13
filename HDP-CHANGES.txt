@@ -1,4 +1,4 @@
-Changes only in Hortonworks github and not in apache and hence not covered by CHANGES.txt.
+Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered by CHANGES.txt.
 
   INCOMPATIBLE CHANGES
 
@@ -18,6 +18,9 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
     HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
     Cherry-picked commit ID b38e52b from apache/trunk.
 
+    YARN-1979. TestDirectoryCollection fails when the umask is unusual.
+    (Vinod Kumar Vavilapalli and Tsuyoshi OZAWA via junping_du)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
@@ -28,3 +31,7 @@ Changes only in Hortonworks github and not in apache and hence not covered by CH
 
     HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
     System. (Shanyu Zhao via cnauroth)
+
+    YARN-2254. TestRMWebServicesAppsModification should run against both 
+    CS and FS. (Zhihai Xu via kasha)
+
