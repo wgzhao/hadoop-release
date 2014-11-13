@@ -43,6 +43,9 @@ Release 2.7.0 - UNRELEASED
 
   NEW FEATURES
 
+    HADOOP-7984. Add hadoop --loglevel option to change log level.
+    (Akira AJISAKA via cnauroth)
+
     HADOOP-11490. Expose truncate API via FileSystem and shell command.
     (Milan Desai via shv)
 

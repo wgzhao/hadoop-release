@@ -64,6 +64,10 @@ if "%1" == "--config" (
   shift
   shift
 )
+if "%1" == "--loglevel" (
+  shift
+  shift
+)
 
 if "%1" == "--service" (
   set service_entry=true
@@ -300,6 +304,10 @@ goto :eof
     shift
     shift
   )
+  if "%1" == "--loglevel" (
+    shift
+    shift
+  )
   if "%1" == "--service" (
     shift
   )
@@ -320,7 +328,7 @@ goto :eof
   goto :eof
 
 :print_usage
-  @echo Usage: yarn [--config confdir] COMMAND
+  @echo Usage: yarn [--config confdir] [--loglevel loglevel] COMMAND
   @echo        where COMMAND is one of:
   @echo   resourcemanager      run the ResourceManager
   @echo   nodemanager          run a nodemanager on each slave

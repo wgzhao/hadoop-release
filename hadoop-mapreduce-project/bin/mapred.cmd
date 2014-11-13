@@ -56,6 +56,10 @@ if "%1" == "--config" (
   shift
   shift
 )
+if "%1" == "--loglevel" (
+  shift
+  shift
+)
 
 if "%1" == "--service" (
   shift
@@ -195,6 +199,10 @@ goto :eof
     shift
     shift
   )
+  if "%1" == "--loglevel" (
+    shift
+    shift
+  )
   if "%1" == "--service" (
     shift
   )
@@ -231,7 +239,7 @@ goto :eof
   goto print_usage
 
 :print_usage
-  @echo Usage: mapred [--config confdir] COMMAND
+  @echo Usage: mapred [--config confdir] [--loglevel loglevel] COMMAND
   @echo        where COMMAND is one of:
   @echo   pipes                run a Pipes job
   @echo   job                  manipulate MapReduce jobs

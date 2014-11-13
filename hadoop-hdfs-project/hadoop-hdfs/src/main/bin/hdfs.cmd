@@ -53,6 +53,10 @@ if "%1" == "--config" (
   shift
   shift
 )
+if "%1" == "--loglevel" (
+  shift
+  shift
+)
 
 if "%1" == "--service" (
   set service_entry=true
@@ -203,6 +207,10 @@ goto :eof
     shift
     shift
   )
+  if "%1" == "--loglevel" (
+    shift
+    shift
+  )
   if "%1" == "--service" (
     shift
   )
@@ -224,7 +232,7 @@ goto :eof
   goto :eof
 
 :print_usage
-  @echo Usage: hdfs [--config confdir] COMMAND
+  @echo Usage: hdfs [--config confdir] [--loglevel loglevel] COMMAND
   @echo        where COMMAND is one of:
   @echo   dfs                  run a filesystem command on the file systems supported in Hadoop.
   @echo   namenode -format     format the DFS filesystem
