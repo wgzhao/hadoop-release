@@ -23,6 +23,9 @@ Release 2.7.1 - UNRELEASED
 
   IMPROVEMENTS
 
+    HADOOP-11291. Log the cause of SASL connection failures.
+    (Stephen Chu via cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES
