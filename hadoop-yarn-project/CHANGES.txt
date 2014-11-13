@@ -11,20 +11,12 @@ Release 2.7.0 - UNRELEASED
     YARN-1979. TestDirectoryCollection fails when the umask is unusual.
     (Vinod Kumar Vavilapalli and Tsuyoshi OZAWA via junping_du)
 
-    YARN-2635. TestRM, TestRMRestart, TestClientToAMTokens should run 
-    with both CS and FS. (Wei Yan and kasha via kasha)
-
   OPTIMIZATIONS
 
   BUG FIXES
 
     YARN-2254. TestRMWebServicesAppsModification should run against both 
     CS and FS. (Zhihai Xu via kasha)
-
-    YARN-2841. RMProxy should retry EOFException. (Jian He via xgong)
-
-    YARN-2843. Fixed NodeLabelsManager to trim inputs for hosts and labels so
-    as to make them work correctly. (Wangda Tan via vinodkv)
 
     YARN-2853. Fixed a bug in ResourceManager causing apps to hang when the user
     kill request races with ApplicationMaster finish. (Jian He via vinodkv)
@@ -367,7 +359,7 @@ Release 2.6.0 - 2014-11-15
 
     YARN-2682. Updated WindowsSecureContainerExecutor to not use
     DefaultContainerExecutor#getFirstApplicationDir and use getWorkingDir()
-    instead. (Zhihai Xu via jianhe)
+    instead. (Zhihai Xu via jianhe) 
 
     YARN-2209. Replaced AM resync/shutdown command with corresponding exceptions and
     made related MR changes. (Jian He via zjshen)
@@ -397,6 +389,9 @@ Release 2.6.0 - 2014-11-15
 
     YARN-2818. Removed the now unnecessary user entity injection from Timeline
     service given we now have domains. (Zhijie Shen via vinodkv)
+
+    YARN-2635. TestRM, TestRMRestart, TestClientToAMTokens should run 
+    with both CS and FS. (Wei Yan and kasha via kasha)
 
   OPTIMIZATIONS
 
@@ -891,6 +886,11 @@ Release 2.6.0 - 2014-11-15
     YARN-2834. Fixed ResourceManager to ignore token-renewal failures on recovery
     consistent with the (somewhat incorrect) behaviour in the non-recovery case.
     (Jian He via vinodkv)
+
+    YARN-2841. RMProxy should retry EOFException. (Jian He via xgong)
+
+    YARN-2843. Fixed NodeLabelsManager to trim inputs for hosts and labels so
+    as to make them work correctly. (Wangda Tan via vinodkv)
 
     YARN-2794. Fixed log messages about distributing system-credentials. (Jian He via
     zjshen)
