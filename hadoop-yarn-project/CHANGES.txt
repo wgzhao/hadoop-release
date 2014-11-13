@@ -26,6 +26,9 @@ Release 2.7.0 - UNRELEASED
     YARN-2843. Fixed NodeLabelsManager to trim inputs for hosts and labels so
     as to make them work correctly. (Wangda Tan via vinodkv)
 
+    YARN-2853. Fixed a bug in ResourceManager causing apps to hang when the user
+    kill request races with ApplicationMaster finish. (Jian He via vinodkv)
+
 Release 2.6.0 - 2014-11-15
 
   INCOMPATIBLE CHANGES
