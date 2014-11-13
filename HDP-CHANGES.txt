@@ -145,3 +145,6 @@ The changes also include jiras that are yet to become available in later apache 
 
     YARN-2459. RM crashes if App gets rejected for any reason and HA is enabled.
     Contributed by Jian He & Mayank Bansal.
+
+    HDFS-7385. ThreadLocal used in FSEditLog class causes FSImage permission mess
+    up. (jiangyu via cnauroth)
