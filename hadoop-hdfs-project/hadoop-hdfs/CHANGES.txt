@@ -624,6 +624,8 @@ Release 2.6.0 - UNRELEASED
     HDFS-7383. DataNode.requestShortCircuitFdsForRead may throw 
     NullPointerException. (szetszwo via suresh)
 
+    HDFS-7391. Renable SSLv2Hello in HttpFS. (rkanter via acmurthy)
+
     BREAKDOWN OF HDFS-6581 SUBTASKS AND RELATED JIRAS
   
       HDFS-6921. Add LazyPersist flag to FileStatus. (Arpit Agarwal)
