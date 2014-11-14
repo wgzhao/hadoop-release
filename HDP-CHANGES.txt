@@ -210,3 +210,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2874. Dead lock in DelegationTokenRenewer which blocks RM to execute
     any further apps. (Naganarasimha G R via kasha)
+
+    YARN-2816. NM fail to start with NPE during container recovery.
+    (Zhihai Xu via jlowe)
