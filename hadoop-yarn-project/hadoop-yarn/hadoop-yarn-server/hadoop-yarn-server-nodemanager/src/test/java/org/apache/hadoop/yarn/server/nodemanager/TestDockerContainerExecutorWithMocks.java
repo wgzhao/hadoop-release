@@ -69,7 +69,6 @@ public class TestDockerContainerExecutorWithMocks {
 
   @Before
   public void setup() {
-    assumeTrue(!Path.WINDOWS);
     File f = new File("./src/test/resources/mock-container-executor");
     if(!FileUtil.canExecute(f)) {
       FileUtil.setExecutable(f, true);
@@ -109,6 +108,7 @@ public class TestDockerContainerExecutorWithMocks {
 
   @Test(expected = IllegalStateException.class)
   public void testContainerInitSecure() throws IOException {
+    assumeTrue(!Path.WINDOWS);
     dockerContainerExecutor.getConf().set(
         CommonConfigurationKeys.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
     dockerContainerExecutor.init();
@@ -116,6 +116,7 @@ public class TestDockerContainerExecutorWithMocks {
 
   @Test(expected = IllegalArgumentException.class)
   public void testContainerLaunchNullImage() throws IOException {
+    assumeTrue(!Path.WINDOWS);
     String appSubmitter = "nobody";
     String appId = "APP_ID";
     String containerId = "CONTAINER_ID";
@@ -148,6 +149,7 @@ public class TestDockerContainerExecutorWithMocks {
 
   @Test(expected = IllegalArgumentException.class)
   public void testContainerLaunchInvalidImage() throws IOException {
+    assumeTrue(!Path.WINDOWS);
     String appSubmitter = "nobody";
     String appId = "APP_ID";
     String containerId = "CONTAINER_ID";
@@ -180,6 +182,7 @@ public class TestDockerContainerExecutorWithMocks {
 
   @Test
   public void testContainerLaunch() throws IOException {
+    assumeTrue(!Path.WINDOWS);
     String appSubmitter = "nobody";
     String appId = "APP_ID";
     String containerId = "CONTAINER_ID";

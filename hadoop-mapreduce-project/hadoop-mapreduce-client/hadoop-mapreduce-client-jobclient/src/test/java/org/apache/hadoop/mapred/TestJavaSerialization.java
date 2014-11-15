@@ -188,5 +188,12 @@ public class TestJavaSerialization extends TestCase {
                       new Utils.OutputFileUtils.OutputFilesFilter()));
     assertEquals(1, outputFiles.length);
   }
+  
+  @Override
+  protected void runTest() throws Throwable {
+    if(!Shell.WINDOWS) {
+      super.runTest();
+    }
+  }
 
 }
