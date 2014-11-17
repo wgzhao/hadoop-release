@@ -198,3 +198,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2905. AggregatedLogsBlock page can infinitely loop if the aggregated
     log file is corrupted
+
+    YARN-2414. RM web UI: app page will crash if app is failed before any
+    attempt has been created. Contributed by Wangda Tan
