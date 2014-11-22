@@ -38,3 +38,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7503. Namenode restart after large deletions can cause slow
     processReport. (Arpit Agarwal)
 
+    HDFS-7425. NameNode block deletion logging uses incorrect appender.
+    (cnauroth)
