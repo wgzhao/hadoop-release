@@ -671,4 +671,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     Backport YARN-1984. LeveldbTimelineStore does not handle db exceptions properly
     (xgong)
+   
+    Backport YARN-2165. Timeline server should validate the numeric configuration values
+    (xgong)
 
