@@ -175,3 +175,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-47725. (Patch) Include HDFS balancer fixes HDFS-8818, HDFS-8824 and
     HDFS-8826. (Tsz Wo Nicholas Sze)
 
+    YARN-2906. CapacitySchedulerPage shows HTML tags for a queue's Active Users.
+    Contributed by Jason Lowe
