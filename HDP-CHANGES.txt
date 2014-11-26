@@ -192,3 +192,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7960. The full block report should prune zombie storages even if
     they're not empty. (cmccabe and Eddy Xu via wang)
+
+    YARN-2906. CapacitySchedulerPage shows HTML tags for a queue's Active Users.
+    Contributed by Jason Lowe
