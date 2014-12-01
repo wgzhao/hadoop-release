@@ -464,7 +464,9 @@
   </target>
   
   <target name="compile-rcc-compiler" depends="init, record-parser">
-    <javac 
+    <property name="myclasspath" refid="classpath"/>
+    <echo message="Classpath = ${myclasspath}"/>
+    <javac
         encoding="${build.encoding}" 
         srcdir="${core.src.dir}"
         includes="org/apache/hadoop/record/compiler/**/*.java"

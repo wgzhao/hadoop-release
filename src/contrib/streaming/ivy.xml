@@ -36,14 +36,14 @@
       name="junit"
       rev="${junit.version}"
       conf="common->default"/>
-    <dependency org="org.mortbay.jetty"
+    <!--<dependency org="org.mortbay.jetty"
       name="jetty-util"
       rev="${jetty-util.version}"
       conf="common->master"/>
     <dependency org="org.mortbay.jetty"
       name="jetty"
       rev="${jetty.version}"
-      conf="common->default"/>
+      conf="common->default"/>-->
 
     <dependency org="asm"
       name="asm"
