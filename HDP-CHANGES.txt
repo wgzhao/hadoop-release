@@ -195,3 +195,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2906. CapacitySchedulerPage shows HTML tags for a queue's Active Users.
     Contributed by Jason Lowe
+
+    YARN-2905. AggregatedLogsBlock page can infinitely loop if the aggregated
+    log file is corrupted
