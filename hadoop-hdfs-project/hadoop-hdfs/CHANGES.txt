@@ -280,6 +280,9 @@ Release 2.7.0
     HDFS-8070. Pre-HDFS-7915 DFSClient cannot use short circuit on
     post-HDFS-7915 DataNode (cmccabe)
 
+    HDFS-7448. TestBookKeeperHACheckpoints fails in trunk build.
+    (Akira Ajisaka via stevel)
+
     BREAKDOWN OF HDFS-7584 SUBTASKS AND RELATED JIRAS
 
     HDFS-7960. The full block report should prune zombie storages even if
