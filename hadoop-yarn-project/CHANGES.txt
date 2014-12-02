@@ -266,6 +266,7 @@ Release 2.7.0 - 2015-04-20
     YARN-2136. Changed RMStateStore to ignore store opearations when fenced.
     (Varun Saxena via jianhe)
 
+<<<<<<< HEAD
     YARN-1156. Enhance NodeManager AllocatedGB and AvailableGB metrics 
     for aggregation of decimal values. (Tsuyoshi OZAWA via junping_du)
 
@@ -488,6 +489,8 @@ Release 2.7.0 - 2015-04-20
     YARN-3273. Improve scheduler UI to facilitate scheduling analysis and
     debugging. (Rohith Sharmaks via jianhe)
 
+=======
+>>>>>>> 5067ac0... YARN-2136. Changed RMStateStore to ignore store opearations when fenced. Contributed by Varun Saxena
   OPTIMIZATIONS
 
     YARN-2990. FairScheduler's delay-scheduling always waits for node-local and 
