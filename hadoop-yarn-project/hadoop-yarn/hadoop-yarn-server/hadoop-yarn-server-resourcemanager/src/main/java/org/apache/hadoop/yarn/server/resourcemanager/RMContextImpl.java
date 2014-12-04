@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.ha.HAServiceProtocol;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.yarn.LocalConfigurationProvider;
@@ -107,6 +109,8 @@ public class RMContextImpl implements RMContext {
   private RMRegistryService registry;
 
   private static final Log LOG = LogFactory.getLog(RMContextImpl.class);
+
+  private Configuration yarnConfiguration;
 
   /**
    * Default constructor. To be used in conjunction with setter methods for
@@ -464,5 +468,14 @@ public class RMContextImpl implements RMContext {
 
   void setRegistry(RMRegistryService registry) {
     this.registry = registry;
+  }
+
+  @Override
+  public Configuration getYarnConfiguration() {
+    return this.yarnConfiguration;
+  }
+
+  public void setYarnConfiguration(Configuration yarnConfiguration) {
+    this.yarnConfiguration=yarnConfiguration;
   }
 }

@@ -267,6 +267,8 @@ public class ResourceManager extends CompositeService implements Recoverable {
       rmContext.setRegistry(registry);
     }
 
+    rmContext.setYarnConfiguration(conf);
+
     createAndInitActiveServices();
 
     webAppAddress = WebAppUtils.getWebAppBindURL(this.conf,
