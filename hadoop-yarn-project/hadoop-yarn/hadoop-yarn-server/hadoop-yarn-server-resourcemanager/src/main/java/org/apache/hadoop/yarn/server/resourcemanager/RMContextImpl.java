@@ -20,6 +20,7 @@ package org.apache.hadoop.yarn.server.resourcemanager;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.ha.HAServiceProtocol;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
@@ -66,6 +67,7 @@ public class RMContextImpl implements RMContext {
 
   private RMActiveServiceContext activeServiceContext;
 
+  private Configuration yarnConfiguration;
   private SystemMetricsPublisher systemMetricsPublisher;
   private RMApplicationHistoryWriter rmApplicationHistoryWriter;
 
@@ -409,5 +411,14 @@ public class RMContextImpl implements RMContext {
   @Unstable
   void setActiveServiceContext(RMActiveServiceContext activeServiceContext) {
     this.activeServiceContext = activeServiceContext;
+  }
+
+  @Override
+  public Configuration getYarnConfiguration() {
+    return this.yarnConfiguration;
+  }
+
+  public void setYarnConfiguration(Configuration yarnConfiguration) {
+    this.yarnConfiguration=yarnConfiguration;
   }
 }

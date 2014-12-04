@@ -27,13 +27,15 @@ Release 2.6.2 - UNRELEASED
 
   BUG FIXES
 
-Release 2.6.2 - UNRELEASED
+Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
 
   IMPROVEMENTS
+
+    YARN-2301. Improved yarn container command. (Naganarasimha G R via jianhe)
 
   OPTIMIZATIONS
 
