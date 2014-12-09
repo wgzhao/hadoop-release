@@ -70,3 +70,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-26133/YARN-2683. Service registry config options: document and move to
     core-default. Contributed by Steve Loughran.
 
+    HDFS-7489. Incorrect locking in FsVolumeList#checkDirs can hang datanodes
+    (Noah Lorang via Colin P. McCabe)
+
