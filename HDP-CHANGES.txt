@@ -74,3 +74,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     has Full Control permissions. (cnauroth)
 
     HDFS-7514. TestTextCommand fails on Windows. (Arpit Agarwal)
+
+    YARN-2917. Fixed potential deadlock when system.exit is called in
+    AsyncDispatcher. (Rohith Sharmaks via jianhe)
