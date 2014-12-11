@@ -38,6 +38,9 @@ comanche-branch-1 release branched from condor-branch-1 (SHA1 bb0bbd77479125307c
     HADOOP-10562. Namenode exits on exception without printing stack trace
     in AbstractDelegationTokenSecretManager (Backported by Arpit Agarwal)
 
+    HDFS-7503. Namenode restart after large deletions can cause slow
+    processReport (Arpit Agarwal)
+
   Snapshot related changes
 
     Changes with Apache jira in trunk/branch-2
