@@ -1661,6 +1661,8 @@ public class BlockManager {
     final long startTime = Time.now(); //after acquiring write lock
     final long endTime;
     DatanodeDescriptor node;
+    Collection<Block> invalidatedBlocks = null;
+
     try {
       node = datanodeManager.getDatanode(nodeID);
       if (node == null || !node.isAlive) {
@@ -1689,7 +1691,7 @@ public class BlockManager {
         // ordinary block reports.  This shortens restart times.
         processFirstBlockReport(node, storage.getStorageID(), newReport);
       } else {
-        processReport(node, storage, newReport);
+        invalidatedBlocks = processReport(node, storage, newReport);
       }
       
       // Now that we have an up-to-date block report, we know that any
@@ -1706,6 +1708,14 @@ public class BlockManager {
     } finally {
       endTime = Time.now();
       namesystem.writeUnlock();
+    }
+
+    if (invalidatedBlocks != null) {
+      for (Block b : invalidatedBlocks) {
+        blockLog.info("BLOCK* processReport: " + b + " on " + node
+                          + " size " + b.getNumBytes()
+                          + " does not belong to any file");
+      }
     }
 
     // Log the block report processing stats from Namenode perspective
@@ -1750,7 +1760,8 @@ public class BlockManager {
     }
   }
   
-  private void processReport(final DatanodeDescriptor node,
+  private Collection<Block> processReport(
+      final DatanodeDescriptor node,
       final DatanodeStorage storage,
       final BlockListAsLongs report) throws IOException {
     // Normal case:
@@ -1782,14 +1793,13 @@ public class BlockManager {
           + " of " + numBlocksLogged + " reported.");
     }
     for (Block b : toInvalidate) {
-      blockLog.info("BLOCK* processReport: "
-          + b + " on " + node + " size " + b.getNumBytes()
-          + " does not belong to any file");
       addToInvalidates(b, node);
     }
     for (BlockToMarkCorrupt b : toCorrupt) {
       markBlockAsCorrupt(b, node, storage.getStorageID());
     }
+
+    return toInvalidate;
   }
 
   /**

@@ -148,3 +148,7 @@ The changes also include jiras that are yet to become available in later apache 
 
     HDFS-7385. ThreadLocal used in FSEditLog class causes FSImage permission mess
     up. (jiangyu via cnauroth)
+
+    HDFS-7503. Namenode restart after large deletions can cause slow
+    processReport. (Arpit Agarwal)
+
