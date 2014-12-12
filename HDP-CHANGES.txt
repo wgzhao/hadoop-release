@@ -35,3 +35,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-2254. TestRMWebServicesAppsModification should run against both 
     CS and FS. (Zhihai Xu via kasha)
 
+    HDFS-7503. Namenode restart after large deletions can cause slow
+    processReport. (Arpit Agarwal)
+
