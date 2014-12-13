@@ -128,6 +128,8 @@ Release 2.6.1 - UNRELEASED
     HDFS-7398. Reset cached thread-local FSEditLogOp's on every
     FSEditLog#logEdit. (Gera Shegalov via cnauroth)
 
+    HDFS-7426. Change nntop JMX format to be a JSON blob. (wang)
+
   OPTIMIZATIONS
 
   BUG FIXES
