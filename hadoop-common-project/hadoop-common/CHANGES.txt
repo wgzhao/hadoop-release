@@ -48,6 +48,9 @@ Release 2.7.0 - UNRELEASED
 
   OPTIMIZATIONS
 
+    HADOOP-11238. Update the NameNode's Group Cache in the background when
+    possible (Chris Li via Colin P. McCabe)
+
   BUG FIXES
 
     HADOOP-11595. Add default implementation for AbstractFileSystem#truncate. (yliu)
