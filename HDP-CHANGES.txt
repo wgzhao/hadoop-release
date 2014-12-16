@@ -18,6 +18,11 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7093. Add config key to restrict setStoragePolicy. (Arpit Agarwal)
     Cherry-picked commit ID b38e52b from apache/trunk.
 
+    HADOOP-9629. Support Windows Azure Storage - Blob as a file system in Hadoop.
+    (Dexter Bradshaw, Mostafa Elhemali, Xi Fang, Johannes Klein, David Lao,
+    Mike Liddell, Chuan Liu, Lengning Liu, Ivan Mitic, Michael Rys,
+    Alexander Stojanovic, Brian Swan, and Min Wei via cnauroth)
+
     YARN-1979. TestDirectoryCollection fails when the umask is unusual.
     (Vinod Kumar Vavilapalli and Tsuyoshi OZAWA via junping_du)
 
@@ -31,6 +36,30 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
     System. (Shanyu Zhao via cnauroth)
+
+    HADOOP-10689. InputStream is not closed in
+    AzureNativeFileSystemStore#retrieve(). (Chen He via cnauroth)
+
+    HADOOP-10690. Lack of synchronization on access to InputStream in
+    NativeAzureFileSystem#NativeAzureFsInputStream#close().
+    (Chen He via cnauroth)
+
+    HADOOP-10728. Metrics system for Windows Azure Storage Filesystem.
+    (Dexter Bradshaw, Mostafa Elhemali, Xi Fang, Johannes Klein, David Lao,
+    Mike Liddell, Chuan Liu, Lengning Liu, Ivan Mitic, Michael Rys,
+    Alexander Stojanovich, Brian Swan, and Min Wei via cnauroth)
+
+    HADOOP-10840. Fix OutOfMemoryError caused by metrics system in Azure File
+    System. (Shanyu Zhao via cnauroth)
+
+    HADOOP-10809. hadoop-azure: page blob support. (Dexter Bradshaw,
+    Mostafa Elhemali, Eric Hanson, and Mike Liddell via cnauroth)
+
+    HADOOP-11188. hadoop-azure: automatically expand page blobs when they become
+    full. (Eric Hanson via cnauroth)
+
+    HADOOP-11248. Add hadoop configuration to disable Azure Filesystem metrics
+    collection. (Shanyu Zhao via cnauroth)
 
     YARN-2254. TestRMWebServicesAppsModification should run against both 
     CS and FS. (Zhihai Xu via kasha)
