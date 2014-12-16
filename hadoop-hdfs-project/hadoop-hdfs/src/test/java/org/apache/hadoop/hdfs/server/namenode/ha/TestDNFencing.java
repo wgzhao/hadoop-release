@@ -161,7 +161,12 @@ public class TestDNFencing {
     
     banner("Metadata after nodes have all block-reported");
     doMetasave(nn2);
-    
+
+    // Force a rescan of postponedMisreplicatedBlocks.
+    BlockManager nn2BM = nn2.getNamesystem().getBlockManager();
+    BlockManagerTestUtil.checkHeartbeat(nn2BM);
+    BlockManagerTestUtil.rescanPostponedMisreplicatedBlocks(nn2BM);
+
     // The blocks should no longer be postponed.
     assertEquals(0, nn2.getNamesystem().getPostponedMisreplicatedBlocks());
     
@@ -247,7 +252,12 @@ public class TestDNFencing {
     
     banner("Metadata after nodes have all block-reported");
     doMetasave(nn2);
-    
+
+    // Force a rescan of postponedMisreplicatedBlocks.
+    BlockManager nn2BM = nn2.getNamesystem().getBlockManager();
+    BlockManagerTestUtil.checkHeartbeat(nn2BM);
+    BlockManagerTestUtil.rescanPostponedMisreplicatedBlocks(nn2BM);
+
     // The block should no longer be postponed.
     assertEquals(0, nn2.getNamesystem().getPostponedMisreplicatedBlocks());
     
@@ -343,6 +353,11 @@ public class TestDNFencing {
     banner("Metadata after nodes have all block-reported");
     doMetasave(nn2);
     
+    // Force a rescan of postponedMisreplicatedBlocks.
+    BlockManager nn2BM = nn2.getNamesystem().getBlockManager();
+    BlockManagerTestUtil.checkHeartbeat(nn2BM);
+    BlockManagerTestUtil.rescanPostponedMisreplicatedBlocks(nn2BM);
+
     // The block should no longer be postponed.
     assertEquals(0, nn2.getNamesystem().getPostponedMisreplicatedBlocks());
     
