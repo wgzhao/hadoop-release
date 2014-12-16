@@ -69,3 +69,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7425. NameNode block deletion logging uses incorrect appender.
     (cnauroth)
+
+    HADOOP-11321. copyToLocal cannot save a file to an SMB share unless the user
+    has Full Control permissions. (cnauroth)
