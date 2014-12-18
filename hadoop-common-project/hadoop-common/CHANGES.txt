@@ -74,6 +74,8 @@ Release 2.7.0 - UNRELEASED
     HADOOP-11248. Add hadoop configuration to disable Azure Filesystem metrics
     collection. (Shanyu Zhao via cnauroth)
 
+    HADOOP-11421. Add IOUtils#listDirectory (cmccabe)
+
   OPTIMIZATIONS
 
     HADOOP-11323. WritableComparator#compare keeps reference to byte array.
@@ -254,6 +256,9 @@ Release 2.7.0 - UNRELEASED
     (Chen He via cnauroth)
 
     HADOOP-10946. Fix a bunch of typos in log messages (Ray Chiang via aw)
+
+    HADOOP-11358. Tests for encryption/decryption with IV calculation
+    overflow. (yliu)
 
 Release 2.6.0 - 2014-11-18
 

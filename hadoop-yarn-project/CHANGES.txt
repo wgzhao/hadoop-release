@@ -33,6 +33,8 @@ Release 2.7.0 - UNRELEASED
     YARN-2880. Added a test to make sure node labels will be recovered
     if RM restart is enabled. (Rohith Sharmaks via jianhe)
 
+    YARN-2203. [YARN-1492] Web UI for cache manager. (Chris Trezzo via kasha)
+
   IMPROVEMENTS
 
     YARN-2950. Change message to mandate, not suggest JS requirement on UI.
@@ -103,6 +105,9 @@ Release 2.7.0 - UNRELEASED
 
     YARN-2762. Fixed RMAdminCLI to trim and check node-label related arguments
     before sending to RM. (Rohith Sharmaks via jianhe)
+
+    YARN-2972. DelegationTokenRenewer thread pool never expands. (Jason Lowe
+    via junping_du)
 
   OPTIMIZATIONS
 
@@ -198,6 +203,12 @@ Release 2.7.0 - UNRELEASED
 
     YARN-2914. [YARN-1492] Potential race condition in Singleton implementation of 
     SharedCacheUploaderMetrics, CleanerMetrics, ClientSCMMetrics. (Varun Saxena via kasha)
+
+    YARN-2964. FSLeafQueue#assignContainer - document the reason for using both write and
+    read locks. (Tsuyoshi Ozawa via kasha)
+
+    YARN-2944. InMemorySCMStore can not be instantiated with ReflectionUtils#newInstance.
+    (Chris Trezzo via kasha)
 
 Release 2.6.0 - 2014-11-18
 
