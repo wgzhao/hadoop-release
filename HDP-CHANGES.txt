@@ -80,3 +80,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-570. Time strings are formated in different timezone. (Akira Ajisaka
     and Peng Zhang via kasha)
+
+    YARN-2964. RM prematurely cancels tokens for jobs that submit jobs (oozie)
+    (Jian He via jlowe)
