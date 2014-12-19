@@ -83,3 +83,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2964. RM prematurely cancels tokens for jobs that submit jobs (oozie)
     (Jian He via jlowe)
+
+    HDFS-7443. BUG-29367. Datanode upgrade to BLOCKID_BASED_LAYOUT fails if
+    duplicate block files are present in the same volume. (cmccabe)
+
