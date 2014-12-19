@@ -154,6 +154,21 @@ public class JobClient extends CLI {
   public static enum TaskStatusFilter { NONE, KILLED, FAILED, SUCCEEDED, ALL }
   private TaskStatusFilter taskOutputFilter = TaskStatusFilter.FAILED; 
   
+  //How many times to retry the getjob call on failure
+  public static final String MAPREDUCE_JOBCLIENT_GETJOB_MAX_RETRY_KEY = 
+      "mapreduce.jobclient.getjob.max.retry";
+  public static final int MAPREDUCE_JOBCLIENT_GETJOB_MAX_RETRY_DEFAULT = 30;
+  
+  //How long to wait between getjob retries on failure
+  public static final String MAPREDUCE_JOBCLIENT_GETJOB_RETRY_INTERVAL_KEY = 
+      "mapreduce.jobclient.getjob.retry.interval";
+  public static final long MAPREDUCE_JOBCLIENT_GETJOB_RETRY_INTERVAL_DEFAULT =
+      2000;
+      
+  private int getJobMaxRetry = MAPREDUCE_JOBCLIENT_GETJOB_MAX_RETRY_DEFAULT;
+  private long getJobRetryInterval =
+      MAPREDUCE_JOBCLIENT_GETJOB_RETRY_INTERVAL_DEFAULT;
+  
   static{
     ConfigUtil.loadResources();
   }
@@ -469,6 +484,14 @@ public class JobClient extends CLI {
     setConf(conf);
     cluster = new Cluster(conf);
     clientUgi = UserGroupInformation.getCurrentUser();
+    
+    getJobMaxRetry = conf.getInt(MAPREDUCE_JOBCLIENT_GETJOB_MAX_RETRY_KEY,
+      MAPREDUCE_JOBCLIENT_GETJOB_MAX_RETRY_DEFAULT);
+    
+    getJobRetryInterval =
+      conf.getLong(MAPREDUCE_JOBCLIENT_GETJOB_RETRY_INTERVAL_KEY,
+        MAPREDUCE_JOBCLIENT_GETJOB_RETRY_INTERVAL_DEFAULT);
+    
   }
 
   /**
@@ -581,16 +604,8 @@ public class JobClient extends CLI {
       }
     });
   }
-  /**
-   * Get an {@link RunningJob} object to track an ongoing job.  Returns
-   * null if the id does not correspond to any known job.
-   * 
-   * @param jobid the jobid of the job.
-   * @return the {@link RunningJob} handle to track the job, null if the 
-   *         <code>jobid</code> doesn't correspond to any known job.
-   * @throws IOException
-   */
-  public RunningJob getJob(final JobID jobid) throws IOException {
+
+  private RunningJob getJobInner(final JobID jobid) throws IOException {
     try {
       
       Job job = getJobUsingCluster(jobid);
@@ -605,6 +620,28 @@ public class JobClient extends CLI {
       throw new IOException(ie);
     }
     return null;
+  }
+  
+  /**
+   * Get an {@link RunningJob} object to track an ongoing job.  Returns
+   * null if the id does not correspond to any known job.
+   * 
+   * @param jobid the jobid of the job.
+   * @return the {@link RunningJob} handle to track the job, null if the 
+   *         <code>jobid</code> doesn't correspond to any known job.
+   * @throws IOException
+   */
+  public RunningJob getJob(final JobID jobid) throws IOException {
+     for (int i = 0;i < getJobMaxRetry;i++) {
+       RunningJob job = getJobInner(jobid);
+       if (job != null) {
+         return job;
+       }
+       try {
+         Thread.sleep(getJobRetryInterval);
+       } catch (Exception e) { }
+     }
+     return null;
   }
 
   /**@deprecated Applications should rather use {@link #getJob(JobID)}. 
