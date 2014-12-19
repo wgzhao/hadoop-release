@@ -61,6 +61,9 @@ Release 2.7.0 - UNRELEASED
     HADOOP-11648. Set DomainSocketWatcher thread name explicitly.
     (Liang Xie via ozawa)
 
+    HADOOP-11430. Add GenericTestUtils#disableLog, GenericTestUtils#setLogLevel
+    (cmccabe)
+
   OPTIMIZATIONS
 
     HADOOP-11238. Update the NameNode's Group Cache in the background when
