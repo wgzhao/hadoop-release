@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azure;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudBlobWrapper;
@@ -25,8 +26,6 @@ import org.apache.hadoop.fs.azure.StorageInterface.CloudBlobWrapper;
 import com.microsoft.windowsazure.storage.AccessCondition;
 import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.blob.CloudBlob;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An Azure blob lease that automatically renews itself indefinitely
@@ -57,7 +56,7 @@ public class SelfRenewingLease {
   private static final Log LOG = LogFactory.getLog(SelfRenewingLease.class);
 
   // Used to allocate thread serial numbers in thread name
-  private static AtomicInteger threadNumber = new AtomicInteger(0);
+  private static volatile int threadNumber = 0;
 
 
   // Time to wait to retry getting the lease in milliseconds
@@ -100,7 +99,7 @@ public class SelfRenewingLease {
 
     // A Renewer running should not keep JVM from exiting, so make it a daemon.
     renewer.setDaemon(true);
-    renewer.setName("AzureLeaseRenewer-" + threadNumber.getAndIncrement());
+    renewer.setName("AzureLeaseRenewer-" + threadNumber++);
     renewer.start();
     LOG.debug("Acquired lease " + leaseID + " on " + blob.getUri()
         + " managed by thread " + renewer.getName());
