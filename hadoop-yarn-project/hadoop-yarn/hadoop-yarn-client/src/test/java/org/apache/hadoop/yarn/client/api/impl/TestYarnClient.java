@@ -49,6 +49,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptReportRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptReportResponse;
@@ -115,6 +116,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Assume;
 
 public class TestYarnClient {
 
@@ -873,6 +875,8 @@ public class TestYarnClient {
 
   @Test
   public void testReservationAPIs() {
+
+    Assume.assumeFalse(Shell.WINDOWS);
     // initialize
     CapacitySchedulerConfiguration conf = new CapacitySchedulerConfiguration();
     ReservationSystemTestUtil.setupQueueConfiguration(conf);
