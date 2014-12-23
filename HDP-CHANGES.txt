@@ -204,3 +204,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2992. ZKRMStateStore crashes due to session expiry. Contributed by
     Karthik Kambatla
+
+    YARN-2340. Fixed NPE when queue is stopped during RM restart. Contributed
+    by Rohith Sharmaks
