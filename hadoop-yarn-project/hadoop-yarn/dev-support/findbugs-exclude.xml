@@ -391,4 +391,9 @@
     <Bug pattern="UI_INHERITANCE_UNSAFE_GETRESOURCE"/>
   </Match>
 
+  <!-- Ignore EI_EXPOSE_REP2 in timeline service -->
+  <Match>
+    <Class name="org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils$KeyParser" />
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
 </FindBugsFilter>
