@@ -201,3 +201,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2414. RM web UI: app page will crash if app is failed before any
     attempt has been created. Contributed by Wangda Tan
+
+    YARN-2992. ZKRMStateStore crashes due to session expiry. Contributed by
+    Karthik Kambatla
