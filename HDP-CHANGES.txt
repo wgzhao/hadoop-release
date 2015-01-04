@@ -249,3 +249,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8767. RawLocalFileSystem.listStatus() returns null for UNIX pipefile.
     (kanaka kumar avvaru via wheat9)
 
+    YARN-2922. ConcurrentModificationException in CapacityScheduler's LeafQueue.
+    (Rohith Sharmaks via ozawa)
+
