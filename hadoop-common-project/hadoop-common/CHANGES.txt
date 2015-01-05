@@ -67,6 +67,9 @@ Release 2.7.0 - UNRELEASED
     HADOOP-11430. Add GenericTestUtils#disableLog, GenericTestUtils#setLogLevel
     (cmccabe)
 
+    HADOOP-11390 Metrics 2 ganglia provider to include hostname in
+    unresolved address problems. (Varun Saxena via stevel)
+
   OPTIMIZATIONS
 
     HADOOP-11238. Update the NameNode's Group Cache in the background when
