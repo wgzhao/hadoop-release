@@ -41,3 +41,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-62322. HADOOP-11238. Update the NameNode's Group Cache in the background
     when possible (Chris Li via Colin P. McCabe)
+
+    BUG-62322. HADOOP-11402. Negative user-to-group cache entries are never cleared for
+    never-again-accessed users
