@@ -152,3 +152,6 @@ The changes also include jiras that are yet to become available in later apache 
     HDFS-7503. Namenode restart after large deletions can cause slow
     processReport. (Arpit Agarwal)
 
+    HDFS-7560. ACLs removed by removeDefaultAcl() will be back after NameNode
+    restart/failover. (Vinayakumar B via cnauroth)
+
