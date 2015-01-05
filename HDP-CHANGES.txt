@@ -58,3 +58,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7443. BUG-29367. Datanode upgrade to BLOCKID_BASED_LAYOUT fails if
     duplicate block files are present in the same volume. (cmccabe)
 
+    HDFS-7560. ACLs removed by removeDefaultAcl() will be back after NameNode
+    restart/failover. (Vinayakumar B via cnauroth)
+
