@@ -64,3 +64,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7560. ACLs removed by removeDefaultAcl() will be back after NameNode
     restart/failover. (Vinayakumar B via cnauroth)
 
+    BUG-26128/YARN-2571. RM to support YARN registry. Contributed by Steve
+    Loughran.
+
+    BUG-26133/YARN-2683. Service registry config options: document and move to
+    core-default. Contributed by Steve Loughran.
+
