@@ -61,6 +61,9 @@ Release 2.7.0 - UNRELEASED
     HDFS-7575. Upgrade should generate a unique storage ID for each
     volume. (Arpit Agarwal)
 
+    HDFS-7596. NameNode should prune dead storages from storageMap.
+    (Arpit Agarwal via cnauroth)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
