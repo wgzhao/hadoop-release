@@ -152,6 +152,8 @@ Release 2.6.1 - UNRELEASED
 
     HDFS-7426. Change nntop JMX format to be a JSON blob. (wang)
 
+    HDFS-7182. JMX metrics aren't accessible when NN is busy. (Ming Ma via jing9)
+
   OPTIMIZATIONS
 
   BUG FIXES
