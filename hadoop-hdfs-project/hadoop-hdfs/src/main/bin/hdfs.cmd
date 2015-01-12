@@ -184,7 +184,7 @@ goto :eof
   goto :eof
 
 :storagepolicies
-  set CLASS=org.apache.hadoop.hdfs.tools.GetStoragePolicies
+  set CLASS=org.apache.hadoop.hdfs.tools.StoragePolicyAdmin
   goto :eof
 
 :makeServiceXml
@@ -252,7 +252,7 @@ goto :eof
   @echo 						Use -help to see options
   @echo   cacheadmin           configure the HDFS cache
   @echo   mover                run a utility to move block replicas across storage types
-  @echo   storagepolicies      get all the existing block storage policies
+  @echo   storagepolicies      list/get/set block storage policies
   @echo.
   @echo Most commands print help when invoked w/o parameters.
 
