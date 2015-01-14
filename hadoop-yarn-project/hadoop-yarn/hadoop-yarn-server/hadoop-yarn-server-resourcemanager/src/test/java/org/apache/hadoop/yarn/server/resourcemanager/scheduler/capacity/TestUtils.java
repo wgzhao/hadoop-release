@@ -49,6 +49,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublis
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAllocationExpirer;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerNode;
 import org.apache.hadoop.yarn.server.resourcemanager.security.AMRMTokenSecretManager;
@@ -122,7 +123,7 @@ public class TestUtils {
     rmContext.setNodeLabelManager(nlm);
     rmContext.setRMApplicationHistoryWriter(mock(RMApplicationHistoryWriter.class));
     rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
-
+    rmContext.setScheduler(mock(ResourceScheduler.class));
     return rmContext;
   }
   
