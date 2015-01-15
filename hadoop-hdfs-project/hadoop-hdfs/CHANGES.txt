@@ -83,6 +83,8 @@ Release 2.7.0
     HDFS-7890. Improve information on Top users for metrics in
     RollingWindowsManager and lower log level (J.Andreina via vinayakumarb)
 
+    HDFS-7457. DatanodeID generates excessive garbage. (daryn via kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES
