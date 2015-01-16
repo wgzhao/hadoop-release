@@ -247,6 +247,12 @@ Release 2.7.0 - UNRELEASED
 
     HDFS-7457. DatanodeID generates excessive garbage. (daryn via kihwal)
 
+    HDFS-7189. Add trace spans for DFSClient metadata operations. (Colin P.
+    McCabe via yliu)
+
+    HDFS-7591. hdfs classpath command should support same options as hadoop
+    classpath. (Varun Saxena via Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-7454. Reduce memory footprint for AclEntries in NameNode.
@@ -440,6 +446,12 @@ Release 2.7.0 - UNRELEASED
 
     HDFS-7585. Get TestEnhancedByteBufferAccess working on CPU architectures
     with page sizes other than 4096 (Sam Liu via Colin P. McCabe)
+
+    HDFS-7635. Remove TestCorruptFilesJsp from branch-2. (cnauroth)
+
+    HDFS-7632. MiniDFSCluster configures DataNode data directories incorrectly if
+    using more than 1 DataNode and more than 2 storage locations per DataNode.
+    (cnauroth)
 
 Release 2.6.1 - UNRELEASED
 
