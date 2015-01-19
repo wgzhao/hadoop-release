@@ -539,6 +539,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     inodeId.setCurrentValue(INodeId.LAST_RESERVED_ID);
     snapshotManager.clearSnapshottableDirs();
     cacheManager.clear();
+    blockManager.clear();
   }
 
   @VisibleForTesting
