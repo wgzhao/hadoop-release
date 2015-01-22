@@ -58,6 +58,9 @@ Release 2.7.0 - UNRELEASED
     HDFS-7999. FsDatasetImpl#createTemporary sometimes holds the FSDatasetImpl
     lock for a very long time (sinago via cmccabe)
 
+    HDFS-7575. Upgrade should generate a unique storage ID for each
+    volume. (Arpit Agarwal)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
