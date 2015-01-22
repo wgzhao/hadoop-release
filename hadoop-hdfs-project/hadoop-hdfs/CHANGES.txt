@@ -82,6 +82,9 @@ Release 2.6.1 - UNRELEASED
     HDFS-3443. Fix NPE when namenode transition to active during startup by
     adding checkNNStartup() in NameNodeRpcServer.  (Vinayakumar B via szetszwo)
 
+    HDFS-7575. Upgrade should generate a unique storage ID for each
+    volume. (Arpit Agarwal)
+
     HDFS-4882. Prevent the Namenode's LeaseManager from looping forever in
     checkLeases (Ravi Prakash via Colin P. McCabe)
 
