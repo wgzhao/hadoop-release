@@ -6,6 +6,8 @@ Release 2.7.0 - UNRELEASED
 
   NEW FEATURES
 
+    HDFS-3107. Introduce truncate. (Plamen Jeliazkov via shv)
+
   IMPROVEMENTS
 
     HDFS-7470. SecondaryNameNode need twice memory when calling
