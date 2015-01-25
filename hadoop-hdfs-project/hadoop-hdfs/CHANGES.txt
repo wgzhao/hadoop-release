@@ -15,6 +15,20 @@ Release 2.7.0 - UNRELEASED
     HDFS-7470. SecondaryNameNode need twice memory when calling
     reloadFromImageFile. (zhaoyunjiong via cnauroth)
 
+    HDFS-7606. Fix potential NPE in INodeFile.getBlocks(). (Byron Wong via shv)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+Release 2.6.1 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
   OPTIMIZATIONS
 
   BUG FIXES
