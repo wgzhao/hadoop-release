@@ -39,6 +39,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.fs.XAttr;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
+import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo;
 import org.apache.hadoop.hdfs.protocol.CachePoolInfo;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
@@ -87,6 +88,7 @@ import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.SetStoragePolicyOp;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.SetXAttrOp;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.SymlinkOp;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.TimesOp;
+import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.TruncateOp;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.UpdateBlocksOp;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.UpdateMasterKeyOp;
 import org.apache.hadoop.hdfs.server.namenode.JournalSet.JournalAndStream;
@@ -894,6 +896,21 @@ public class FSEditLog implements LogsPurgeable {
       .setPath(src)
       .setTimestamp(timestamp);
     logRpcIds(op, toLogRpcIds);
+    logEdit(op);
+  }
+  
+  /**
+   * Add truncate file record to edit log
+   */
+  void logTruncate(String src, String clientName, String clientMachine,
+                   long size, long timestamp, Block truncateBlock) {
+    TruncateOp op = TruncateOp.getInstance(cache.get())
+      .setPath(src)
+      .setClientName(clientName)
+      .setClientMachine(clientMachine)
+      .setNewLength(size)
+      .setTimestamp(timestamp)
+      .setTruncateBlock(truncateBlock);
     logEdit(op);
   }
 

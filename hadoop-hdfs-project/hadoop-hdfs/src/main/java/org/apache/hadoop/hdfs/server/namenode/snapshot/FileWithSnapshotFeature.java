@@ -155,18 +155,19 @@ public class FileWithSnapshotFeature implements INode.Feature {
         AclStorage.removeAclFeature(aclFeature);
       }
     }
-    
-    collectBlocksAndClear(file, collectedBlocks, removedINodes);
-    
+
+    getDiffs().combineAndCollectSnapshotBlocks(
+        file, removed, collectedBlocks, removedINodes);
+
     long dsDelta = oldDiskspace - file.diskspaceConsumed();
     return Quota.Counts.newInstance(0, dsDelta);
   }
-  
+
   /**
    * If some blocks at the end of the block list no longer belongs to
    * any inode, collect them and update the block list.
    */
-  private void collectBlocksAndClear(final INodeFile file,
+  public void collectBlocksAndClear(final INodeFile file,
       final BlocksMapUpdateInfo info, final List<INode> removedINodes) {
     // check if everything is deleted.
     if (isCurrentFileDeleted() && getDiffs().asList().isEmpty()) {
@@ -175,47 +176,19 @@ public class FileWithSnapshotFeature implements INode.Feature {
     }
     // find max file size.
     final long max;
+    FileDiff diff = getDiffs().getLast();
     if (isCurrentFileDeleted()) {
-      final FileDiff last = getDiffs().getLast();
-      max = last == null? 0: last.getFileSize();
+      max = diff == null? 0: diff.getFileSize();
     } else { 
       max = file.computeFileSize();
     }
 
-    collectBlocksBeyondMax(file, max, info);
-  }
-
-  private void collectBlocksBeyondMax(final INodeFile file, final long max,
-      final BlocksMapUpdateInfo collectedBlocks) {
-    final BlockInfo[] oldBlocks = file.getBlocks();
-    if (oldBlocks != null) {
-      //find the minimum n such that the size of the first n blocks > max
-      int n = 0;
-      for(long size = 0; n < oldBlocks.length && max > size; n++) {
-        size += oldBlocks[n].getNumBytes();
-      }
-      
-      // starting from block n, the data is beyond max.
-      if (n < oldBlocks.length) {
-        // resize the array.  
-        final BlockInfo[] newBlocks;
-        if (n == 0) {
-          newBlocks = BlockInfo.EMPTY_ARRAY;
-        } else {
-          newBlocks = new BlockInfo[n];
-          System.arraycopy(oldBlocks, 0, newBlocks, 0, n);
-        }
-        
-        // set new blocks
-        file.setBlocks(newBlocks);
-
-        // collect the blocks beyond max.  
-        if (collectedBlocks != null) {
-          for(; n < oldBlocks.length; n++) {
-            collectedBlocks.addDeleteBlock(oldBlocks[n]);
-          }
-        }
-      }
-    }
+    // Collect blocks that should be deleted
+    FileDiff last = diffs.getLast();
+    BlockInfo[] snapshotBlocks = last == null ? null : last.getBlocks();
+    if(snapshotBlocks == null)
+      file.collectBlocksBeyondMax(max, info);
+    else
+      file.collectBlocksBeyondSnapshot(snapshotBlocks, info);
   }
 }

@@ -19,6 +19,10 @@ Release 2.7.0 - UNRELEASED
     
     HDFS-7449. Add metrics to NFS gateway (brandonli)
 
+    HDFS-3107. Introduce truncate. (Plamen Jeliazkov via shv)
+
+    HDFS-7056. Snapshot support for truncate. (Plamen Jeliazkov and shv)
+
   IMPROVEMENTS
 
     HDFS-7055. Add tracing to DFSInputStream (cmccabe)
@@ -482,6 +486,19 @@ Release 2.7.0 - UNRELEASED
     (Ming Ma via cnauroth)
 
     HDFS-7644. minor typo in HttpFS doc (Charles Lamb via aw)
+
+    HDFS-7606. Fix potential NPE in INodeFile.getBlocks(). (Byron Wong via shv)
+
+    HDFS-7638: Small fix and few refinements for FSN#truncate. (yliu)
+
+    HDFS-7634. Disallow truncation of Lazy persist files. (Yi Liu via
+    Arpit Agarwal)
+
+    HDFS-7643. Test case to ensure lazy persist files cannot be truncated.
+    (Yi Liu via Arpit Agarwal)
+
+    HDFS-7659. truncate should check negative value of the new length.
+    (Yi Liu via shv)
 
 Release 2.6.1 - UNRELEASED
 

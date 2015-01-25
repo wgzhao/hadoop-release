@@ -951,7 +951,81 @@ public class FSDirectory implements Closeable {
   public INodeMap getINodeMap() {
     return inodeMap;
   }
-  
+
+  /**
+   * FSEditLogLoader implementation.
+   * Unlike FSNamesystem.truncate, this will not schedule block recovery.
+   */
+  void unprotectedTruncate(String src, String clientName, String clientMachine,
+                           long newLength, long mtime, Block truncateBlock)
+      throws UnresolvedLinkException, QuotaExceededException,
+      SnapshotAccessControlException, IOException {
+    INodesInPath iip = getINodesInPath(src, true);
+    INodeFile file = iip.getLastINode().asFile();
+    BlocksMapUpdateInfo collectedBlocks = new BlocksMapUpdateInfo();
+    boolean onBlockBoundary =
+        unprotectedTruncate(iip, newLength, collectedBlocks, mtime);
+
+    if(! onBlockBoundary) {
+      BlockInfo oldBlock = file.getLastBlock();
+      Block tBlk =
+      getFSNamesystem().prepareFileForTruncate(iip,
+          clientName, clientMachine, file.computeFileSize() - newLength,
+          truncateBlock);
+      assert Block.matchingIdAndGenStamp(tBlk, truncateBlock) &&
+          tBlk.getNumBytes() == truncateBlock.getNumBytes() :
+          "Should be the same block.";
+      if(oldBlock.getBlockId() != tBlk.getBlockId() &&
+         !file.isBlockInLatestSnapshot(oldBlock)) {
+        getBlockManager().removeBlockFromMap(oldBlock);
+      }
+    }
+    assert onBlockBoundary == (truncateBlock == null) :
+      "truncateBlock is null iff on block boundary: " + truncateBlock;
+    getFSNamesystem().removeBlocksAndUpdateSafemodeTotal(collectedBlocks);
+  }
+
+  boolean truncate(INodesInPath iip, long newLength,
+                   BlocksMapUpdateInfo collectedBlocks,
+                   long mtime)
+      throws IOException {
+    writeLock();
+    try {
+      return unprotectedTruncate(iip, newLength, collectedBlocks, mtime);
+    } finally {
+      writeUnlock();
+    }
+  }
+
+  /**
+   * Truncate has the following properties:
+   * 1.) Any block deletions occur now.
+   * 2.) INode length is truncated now – new clients can only read up to
+   * the truncated length.
+   * 3.) INode will be set to UC and lastBlock set to UNDER_RECOVERY.
+   * 4.) NN will trigger DN truncation recovery and waits for DNs to report.
+   * 5.) File is considered UNDER_RECOVERY until truncation recovery completes.
+   * 6.) Soft and hard Lease expiration require truncation recovery to complete.
+   *
+   * @return true if on the block boundary or false if recovery is need
+   */
+  boolean unprotectedTruncate(INodesInPath iip, long newLength,
+                              BlocksMapUpdateInfo collectedBlocks,
+                              long mtime) throws IOException {
+    assert hasWriteLock();
+    INodeFile file = iip.getLastINode().asFile();
+    int latestSnapshot = iip.getLatestSnapshotId();
+    file.recordModification(latestSnapshot, true);
+    long oldDiskspace = file.diskspaceConsumed();
+    long remainingLength =
+        file.collectBlocksBeyondMax(newLength, collectedBlocks);
+    file.excludeSnapshotBlocks(latestSnapshot, collectedBlocks);
+    file.setModificationTime(mtime);
+    updateCount(iip, 0, file.diskspaceConsumed() - oldDiskspace, true);
+    // return whether on a block boundary
+    return (remainingLength - newLength) == 0;
+  }
+
   /**
    * This method is always called with writeLock of FSDirectory held.
    */

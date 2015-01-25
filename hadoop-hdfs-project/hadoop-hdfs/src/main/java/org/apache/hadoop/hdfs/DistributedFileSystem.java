@@ -626,7 +626,13 @@ public class DistributedFileSystem extends FileSystem {
       }.resolve(this, absDst);
     }
   }
-  
+
+  @Override
+  public boolean truncate(Path f, final long newLength) throws IOException {
+    statistics.incrementWriteOps(1);
+    return dfs.truncate(getPathName(f), newLength);
+  }
+
   @Override
   public boolean delete(Path f, final boolean recursive) throws IOException {
     statistics.incrementWriteOps(1);
