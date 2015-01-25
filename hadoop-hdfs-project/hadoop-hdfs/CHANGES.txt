@@ -21,6 +21,8 @@ Release 2.7.0 - UNRELEASED
 
   BUG FIXES
 
+    HDFS-7638: Small fix and few refinements for FSN#truncate. (yliu)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
