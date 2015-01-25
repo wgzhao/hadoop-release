@@ -299,6 +299,11 @@ public class INodesInPath {
     return isSnapshot ? snapshotId : Snapshot.CURRENT_STATE_ID;
   }
 
+  /** @return the full path in string form */
+  public String getPath() {
+    return DFSUtil.byteArray2PathString(path);
+  }
+
   private void setSnapshotId(int sid) {
     snapshotId = sid;
   }

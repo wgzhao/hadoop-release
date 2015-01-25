@@ -1731,6 +1731,30 @@ public class FSDirectory implements Closeable {
     }
   }
 
+  /** Updates namespace and diskspace consumed for all
+   * directories until the parent directory of file represented by path.
+   *
+   * @param iip the INodesInPath instance containing all the INodes for
+   *            updating quota usage
+   * @param nsDelta the delta change of namespace
+   * @param dsDelta the delta change of diskspace
+   * @throws QuotaExceededException if the new count violates any quota limit
+   * @throws FileNotFoundException if path does not exist.
+   */
+  void updateSpaceConsumed(INodesInPath iip, long nsDelta, long dsDelta)
+      throws QuotaExceededException, FileNotFoundException,
+          UnresolvedLinkException, SnapshotAccessControlException {
+    writeLock();
+    try {
+      if (iip.getLastINode() == null) {
+        throw new FileNotFoundException("Path not found: " + iip.getPath());
+      }
+      updateCount(iip, nsDelta, dsDelta, true);
+    } finally {
+      writeUnlock();
+    }
+  }
+  
   private void updateCount(INodesInPath iip, long nsDelta, long dsDelta,
       boolean checkQuota) throws QuotaExceededException {
     updateCount(iip, iip.getINodes().length - 1, nsDelta, dsDelta, checkQuota);
@@ -2206,19 +2230,31 @@ public class FSDirectory implements Closeable {
    * Unlike FSNamesystem.truncate, this will not schedule block recovery.
    */
   void unprotectedTruncate(String src, String clientName, String clientMachine,
-                           long newLength, long mtime)
+                           long newLength, long mtime, Block truncateBlock)
       throws UnresolvedLinkException, QuotaExceededException,
       SnapshotAccessControlException, IOException {
     INodesInPath iip = getINodesInPath(src, true);
+    INodeFile file = iip.getLastINode().asFile();
     BlocksMapUpdateInfo collectedBlocks = new BlocksMapUpdateInfo();
     boolean onBlockBoundary =
         unprotectedTruncate(iip, newLength, collectedBlocks, mtime);
 
     if(! onBlockBoundary) {
-      INodeFile file = iip.getLastINode().asFile();
-      getFSNamesystem().prepareFileForWrite(src, file, clientName,
-          clientMachine, false, iip.getLatestSnapshotId(), false);
+      BlockInfo oldBlock = file.getLastBlock();
+      Block tBlk =
+      getFSNamesystem().prepareFileForTruncate(iip,
+          clientName, clientMachine, file.computeFileSize() - newLength,
+          truncateBlock);
+      assert Block.matchingIdAndGenStamp(tBlk, truncateBlock) &&
+          tBlk.getNumBytes() == truncateBlock.getNumBytes() :
+          "Should be the same block.";
+      if(oldBlock.getBlockId() != tBlk.getBlockId() &&
+         !file.isBlockInLatestSnapshot(oldBlock)) {
+        getBlockManager().removeBlockFromMap(oldBlock);
+      }
     }
+    assert onBlockBoundary == (truncateBlock == null) :
+      "truncateBlock is null iff on block boundary: " + truncateBlock;
     getFSNamesystem().removeBlocksAndUpdateSafemodeTotal(collectedBlocks);
   }
 
@@ -2237,7 +2273,8 @@ public class FSDirectory implements Closeable {
   /**
    * Truncate has the following properties:
    * 1.) Any block deletions occur now.
-   * 2.) INode length is truncated now – clients can only read up to new length.
+   * 2.) INode length is truncated now – new clients can only read up to
+   * the truncated length.
    * 3.) INode will be set to UC and lastBlock set to UNDER_RECOVERY.
    * 4.) NN will trigger DN truncation recovery and waits for DNs to report.
    * 5.) File is considered UNDER_RECOVERY until truncation recovery completes.
@@ -2250,20 +2287,16 @@ public class FSDirectory implements Closeable {
                               long mtime) throws IOException {
     assert hasWriteLock();
     INodeFile file = iip.getLastINode().asFile();
+    int latestSnapshot = iip.getLatestSnapshotId();
+    file.recordModification(latestSnapshot, true);
     long oldDiskspace = file.diskspaceConsumed();
     long remainingLength =
         file.collectBlocksBeyondMax(newLength, collectedBlocks);
+    file.excludeSnapshotBlocks(latestSnapshot, collectedBlocks);
     file.setModificationTime(mtime);
     updateCount(iip, 0, file.diskspaceConsumed() - oldDiskspace, true);
-    // If on block boundary, then return
-    long lastBlockDelta = remainingLength - newLength;
-    if(lastBlockDelta == 0)
-      return true;
-    // Set new last block length
-    BlockInfo lastBlock = file.getLastBlock();
-    assert lastBlock.getNumBytes() - lastBlockDelta > 0 : "wrong block size";
-    lastBlock.setNumBytes(lastBlock.getNumBytes() - lastBlockDelta);
-    return false;
+    // return whether on a block boundary
+    return (remainingLength - newLength) == 0;
   }
 
   /**
@@ -2565,7 +2598,7 @@ public class FSDirectory implements Closeable {
           fileNode.computeFileSizeNotIncludingLastUcBlock() : size;
 
       loc = getFSNamesystem().getBlockManager().createLocatedBlocks(
-          fileNode.getBlocks(), fileSize, isUc, 0L, size, false,
+          fileNode.getBlocks(snapshot), fileSize, isUc, 0L, size, false,
           inSnapshot, feInfo);
       if (loc == null) {
         loc = new LocatedBlocks();

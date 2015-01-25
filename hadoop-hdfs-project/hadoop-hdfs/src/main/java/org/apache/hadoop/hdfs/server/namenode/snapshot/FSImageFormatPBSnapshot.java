@@ -36,6 +36,10 @@ import java.util.Map;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.fs.permission.PermissionStatus;
+import org.apache.hadoop.hdfs.protocol.Block;
+import org.apache.hadoop.hdfs.protocol.proto.HdfsProtos.BlockProto;
+import org.apache.hadoop.hdfs.protocolPB.PBHelper;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfo;
 import org.apache.hadoop.hdfs.server.namenode.AclFeature;
 import org.apache.hadoop.hdfs.server.namenode.FSDirectory;
 import org.apache.hadoop.hdfs.server.namenode.FSImageFormatPBINode;
@@ -62,10 +66,10 @@ import org.apache.hadoop.hdfs.server.namenode.INodeReference.WithCount;
 import org.apache.hadoop.hdfs.server.namenode.INodeReference.WithName;
 import org.apache.hadoop.hdfs.server.namenode.INodeWithAdditionalFields;
 import org.apache.hadoop.hdfs.server.namenode.SaveNamespaceContext;
+import org.apache.hadoop.hdfs.server.namenode.XAttrFeature;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.DirectoryWithSnapshotFeature.DirectoryDiff;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.DirectoryWithSnapshotFeature.DirectoryDiffList;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.Snapshot.Root;
-import org.apache.hadoop.hdfs.server.namenode.XAttrFeature;
 import org.apache.hadoop.hdfs.util.Diff.ListType;
 
 import com.google.common.base.Preconditions;
@@ -226,6 +230,20 @@ public class FSImageFormatPBSnapshot {
 
         FileDiff diff = new FileDiff(pbf.getSnapshotId(), copy, null,
             pbf.getFileSize());
+        List<BlockProto> bpl = pbf.getBlocksList();
+        BlockInfo[] blocks = new BlockInfo[bpl.size()];
+        for(int j = 0, e = bpl.size(); j < e; ++j) {
+          Block blk = PBHelper.convert(bpl.get(j));
+          BlockInfo storedBlock =  fsn.getBlockManager().getStoredBlock(blk);
+          if(storedBlock == null) {
+            storedBlock = fsn.getBlockManager().addBlockCollection(
+                new BlockInfo(blk, copy.getFileReplication()), file);
+          }
+          blocks[j] = storedBlock;
+        }
+        if(blocks.length > 0) {
+          diff.setBlocks(blocks);
+        }
         diffs.addFirst(diff);
       }
       file.addSnapshotFeature(diffs);
@@ -467,6 +485,11 @@ public class FSImageFormatPBSnapshot {
           SnapshotDiffSection.FileDiff.Builder fb = SnapshotDiffSection.FileDiff
               .newBuilder().setSnapshotId(diff.getSnapshotId())
               .setFileSize(diff.getFileSize());
+          if(diff.getBlocks() != null) {
+            for(Block block : diff.getBlocks()) {
+              fb.addBlocks(PBHelper.convert(block));
+            }
+          }
           INodeFileAttributes copy = diff.snapshotINode;
           if (copy != null) {
             fb.setName(ByteString.copyFrom(copy.getLocalNameBytes()))
