@@ -26,6 +26,9 @@ Release 2.7.2 - UNRELEASED
     YARN-4092. Fixed UI redirection to print useful messages when both RMs are
     in standby mode. (Xuan Gong via jianhe)
 
+    YARN-3092. Created a common ResourceUsage class to track labeled resource
+    usages in Capacity Scheduler. (Wangda Tan via jianhe)
+
   OPTIMIZATIONS
 
   BUG FIXES
