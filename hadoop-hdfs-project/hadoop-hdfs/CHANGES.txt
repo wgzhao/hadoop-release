@@ -34,6 +34,8 @@ Release 2.7.0 - UNRELEASED
 
     HDFS-7676. Fix TestFileTruncate to avoid bug of HDFS-7611. (shv)
 
+    HDFS-7677. DistributedFileSystem#truncate should resolve symlinks. (yliu)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
