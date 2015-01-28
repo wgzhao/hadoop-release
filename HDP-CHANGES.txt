@@ -158,3 +158,5 @@ The changes also include jiras that are yet to become available in later apache 
     HDFS-6507. Improve DFSAdmin to support HA cluster better.
     (Zesheng Wu via vinayakumarb)
 
+    HDFS-6693. TestDFSAdminWithHA fails on windows ( vinayakumarb )
+
