@@ -73,3 +73,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7489. Incorrect locking in FsVolumeList#checkDirs can hang datanodes
     (Noah Lorang via Colin P. McCabe)
 
+    YARN-3103. AMRMClientImpl does not update AMRM token properly. (Jason Lowe
+    via jianhe)
+
