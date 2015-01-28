@@ -76,3 +76,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-3103. AMRMClientImpl does not update AMRM token properly. (Jason Lowe
     via jianhe)
 
+    MAPREDUCE-6230. Fixed RMContainerAllocator to update the new AMRMToken
+    service name properly. Contributed by Jason Lowe
+
