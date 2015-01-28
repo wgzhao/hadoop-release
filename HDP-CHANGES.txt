@@ -155,3 +155,6 @@ The changes also include jiras that are yet to become available in later apache 
     HDFS-7560. ACLs removed by removeDefaultAcl() will be back after NameNode
     restart/failover. (Vinayakumar B via cnauroth)
 
+    HDFS-6507. Improve DFSAdmin to support HA cluster better.
+    (Zesheng Wu via vinayakumarb)
+
