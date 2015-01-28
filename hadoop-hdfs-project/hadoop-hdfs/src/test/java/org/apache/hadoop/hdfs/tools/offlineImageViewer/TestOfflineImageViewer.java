@@ -20,11 +20,16 @@ package org.apache.hadoop.hdfs.tools.offlineImageViewer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
@@ -36,6 +41,9 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +58,7 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileSystemTestHelper;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -326,6 +335,54 @@ public class TestOfflineImageViewer {
       // shutdown the viewer
       viewer.shutdown();
     }
+  }
+
+  @Test
+  public void testPBDelimitedWriter() throws IOException, InterruptedException {
+    testPBDelimitedWriter("");  // Test in memory db.
+    testPBDelimitedWriter(
+        new FileSystemTestHelper().getTestRootDir() + "/delimited.db");
+  }
+
+  private void testPBDelimitedWriter(String db)
+      throws IOException, InterruptedException {
+    final String DELIMITER = "\t";
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    PrintWriter o = new PrintWriter(output);
+    try {
+      PBImageDelimitedTextWriter v =
+          new PBImageDelimitedTextWriter(o, DELIMITER, db);
+      v.visit(new RandomAccessFile(originalFsimage, "r"));
+    } finally {
+      o.close();
+    }
+
+    Set<String> fileNames = new HashSet<String>();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(
+        new ByteArrayInputStream(output.toByteArray())));
+    try {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        System.out.println(line);
+        String[] fields = line.split(DELIMITER);
+        assertEquals(12, fields.length);
+        fileNames.add(fields[0]);
+      }
+    } finally {
+      reader.close();
+    }
+
+    // writtenFiles does not contain root directory and "invalid XML char" dir.
+    for (Iterator<String> it = fileNames.iterator(); it.hasNext(); ) {
+      String filename = it.next();
+      if (filename.startsWith("/dirContainingInvalidXMLChar")) {
+        it.remove();
+      } else if (filename.equals("/")) {
+        it.remove();
+      }
+    }
+    assertEquals(writtenFiles.keySet(), fileNames);
   }
 
   private static void compareFile(FileStatus expected, FileStatus status) {

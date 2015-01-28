@@ -6,6 +6,8 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
+    HDFS-6673. Add delimited format support to PB OIV tool. (Eddy Xu via wang)
+
   IMPROVEMENTS
 
   OPTIMIZATIONS
