@@ -163,3 +163,6 @@ The changes also include jiras that are yet to become available in later apache 
     HDFS-6443. Fix MiniQJMHACluster related test failures. (Zesheng Wu via
     Arpit Agarwal)
 
+    HADOOP-11509. change parsing sequence in GenericOptionsParser to parse
+    -D parameters before -files. (xgong)
+
