@@ -79,3 +79,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     MAPREDUCE-6230. Fixed RMContainerAllocator to update the new AMRMToken
     service name properly. Contributed by Jason Lowe
 
+    HADOOP-11509. change parsing sequence in GenericOptionsParser to parse
+    -D parameters before -files. (xgong)
+
