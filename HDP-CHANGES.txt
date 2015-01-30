@@ -166,3 +166,6 @@ The changes also include jiras that are yet to become available in later apache 
     HADOOP-11509. change parsing sequence in GenericOptionsParser to parse
     -D parameters before -files. (xgong)
 
+    HADOOP-11523. StorageException complaining " no lease ID" when updating
+    FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
+
