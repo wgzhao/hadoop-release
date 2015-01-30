@@ -50,6 +50,8 @@ Release 2.7.0
     HADOOP-11648. Set DomainSocketWatcher thread name explicitly.
     (Liang Xie via ozawa)
 
+    HDFS-7706. Switch BlockManager logging to use slf4j. (wang)
+
   OPTIMIZATIONS
 
   BUG FIXES

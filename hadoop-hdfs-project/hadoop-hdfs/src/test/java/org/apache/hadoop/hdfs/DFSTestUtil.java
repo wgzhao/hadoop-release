@@ -80,6 +80,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.VersionInfo;
+import org.apache.log4j.Level;
 import org.junit.Assume;
 
 import java.io.*;
@@ -1634,5 +1635,30 @@ public class DFSTestUtil {
     // Update the FEATURES map with the new layout version.
     LayoutVersion.updateMap(DataNodeLayoutVersion.FEATURES,
                             new LayoutVersion.LayoutFeature[] { feature });
+  }
+
+  /**
+   * Wait for datanode to reach alive or dead state for waitTime given in
+   * milliseconds.
+   */
+  public static void waitForDatanodeState(
+      final MiniDFSCluster cluster, final String nodeID,
+      final boolean alive, int waitTime)
+      throws TimeoutException, InterruptedException {
+    GenericTestUtils.waitFor(new Supplier<Boolean>() {
+      @Override
+      public Boolean get() {
+        FSNamesystem namesystem = cluster.getNamesystem();
+        final DatanodeDescriptor dd = BlockManagerTestUtil.getDatanode(
+            namesystem, nodeID);
+        return (dd.isAlive == alive);
+      }
+    }, 100, waitTime);
+  }
+
+  public static void setNameNodeLogLevel(Level level) {
+    GenericTestUtils.setLogLevel(LogFactory.getLog(FSNamesystem.class), level);
+    GenericTestUtils.setLogLevel(LogFactory.getLog(BlockManager.class), level);
+    GenericTestUtils.setLogLevel(NameNode.stateChangeLog, level);
   }
 }
