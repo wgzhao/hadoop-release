@@ -448,8 +448,8 @@ public class TestFileTruncate {
       fs.truncate(p, -1);
       fail("Truncate must fail for a negative new length.");
     } catch (HadoopIllegalArgumentException expected) {
-      GenericTestUtils.assertExceptionContains(
-          "Cannot truncate to a negative file size", expected);
+      assertTrue(expected.getMessage().contains(
+          "Cannot truncate to a negative file size"));
     }
 
     cluster.shutdownDataNodes();
