@@ -82,3 +82,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-11509. change parsing sequence in GenericOptionsParser to parse
     -D parameters before -files. (xgong)
 
+    HADOOP-11523. StorageException complaining " no lease ID" when updating
+    FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
+
