@@ -52,6 +52,8 @@ Release 2.7.0
 
     HDFS-7706. Switch BlockManager logging to use slf4j. (wang)
 
+    HDFS-7712. Switch blockStateChangeLog to use slf4j. (wang)
+
   OPTIMIZATIONS
 
   BUG FIXES
