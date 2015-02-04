@@ -99,6 +99,8 @@ Release 2.7.0
     HDFS-8038. PBImageDelimitedTextWriter#getEntry output HDFS path in
     platform-specific format. (Xiaoyu Yao via cnauroth)
 
+    HDFS-7734. Class cast exception in NameNode#main. (yliu via wang)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
