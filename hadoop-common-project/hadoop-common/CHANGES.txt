@@ -10,6 +10,9 @@ Release 2.8.0 - UNRELEASED
 
   OPTIMIZATIONS
 
+    HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
+    via aw)
+
   BUG FIXES
 
 Release 2.7.1 - UNRELEASED
