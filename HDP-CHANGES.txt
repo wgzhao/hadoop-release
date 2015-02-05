@@ -85,3 +85,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-11523. StorageException complaining " no lease ID" when updating
     FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
 
+    BUG-31164. HDFS-7733. NFS: readdir/readdirplus return null directory
+    attribute on failure.
+
