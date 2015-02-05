@@ -171,3 +171,5 @@ The changes also include jiras that are yet to become available in later apache 
 
     BUG-31148. (2.1) Backport HDFS-7045 to HDP 2.1.
 
+    BUG-31096. HDFS-7733. (2.1) NFS: readdir/readdirplus return null
+    directory attribute on failure.

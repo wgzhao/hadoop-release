@@ -1407,7 +1407,9 @@ public class RpcProgramNfs3 extends RpcProgram implements Nfs3Interface {
       if ((cookieVerf != 0) && (cookieVerf != dirStatus.getModificationTime())) {
         LOG.error("CookierVerf mismatch. request cookierVerf:" + cookieVerf
             + " dir cookieVerf:" + dirStatus.getModificationTime());
-        return new READDIR3Response(Nfs3Status.NFS3ERR_BAD_COOKIE);
+        return new READDIR3Response(
+            Nfs3Status.NFS3ERR_BAD_COOKIE,
+            Nfs3Utils.getFileAttr(dfsClient, dirFileIdPath, iug));
       }
 
       if (cookie == 0) {
@@ -1549,7 +1551,10 @@ public class RpcProgramNfs3 extends RpcProgram implements Nfs3Interface {
       if ((cookieVerf != 0) && (cookieVerf != dirStatus.getModificationTime())) {
         LOG.error("CookierVerf mismatch. request cookierVerf:" + cookieVerf
             + " dir cookieVerf:" + dirStatus.getModificationTime());
-        return new READDIRPLUS3Response(Nfs3Status.NFS3ERR_BAD_COOKIE);
+        return new READDIRPLUS3Response(
+            Nfs3Status.NFS3ERR_BAD_COOKIE,
+            Nfs3Utils.getFileAttr(dfsClient, dirFileIdPath, iug),
+            0, null);
       }
 
       if (cookie == 0) {
