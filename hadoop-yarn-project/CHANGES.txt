@@ -98,6 +98,9 @@ Release 2.6.1 - UNRELEASED
     YARN-3978. Configurably turn off the saving of container info in Generic AHS
     (Eric Payne via jeagles)
 
+    YARN-3145. Fixed ConcurrentModificationException on CapacityScheduler
+    ParentQueue#getQueueUserAclInfo. (Tsuyoshi OZAWA via jianhe)
+
 Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
