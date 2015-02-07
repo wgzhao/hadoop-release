@@ -19,6 +19,10 @@ Release 2.7.0 - UNRELEASED
 
     HDFS-7606. Fix potential NPE in INodeFile.getBlocks(). (Byron Wong via shv)
 
+    HDFS-7738. Revise the exception message for recover lease; add more truncate
+    tests such as truncate with HA setup, negative tests, truncate with other
+    operations and multiple truncates.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
