@@ -752,6 +752,7 @@ Release 2.7.0 - 2015-04-20
     YARN-3094. Reset timer for liveness monitors after RM recovery. (Jun Gong
     via jianhe)
 
+<<<<<<< HEAD
     YARN-2971. RM uses conf instead of token service address to renew timeline
     delegation tokens (jeagles)
 
@@ -905,9 +906,14 @@ Release 2.7.0 - 2015-04-20
     YARN-3466. Fix RM nodes web page to sort by node HTTP-address, #containers 
     and node-label column (Jason Lowe via wangda)
 
+<<<<<<< HEAD
 >>>>>>> b34825b... YARN-3753. RM failed to come up with "java.io.IOException: Wait for ZKClient creation timed out". Contributed by Jian He
 =======
 >>>>>>> 57a0382... YARN-3369. Missing NullPointer check in AppSchedulingInfo causes RM to die. (Brahma Reddy Battula via wangda)
+=======
+=======
+>>>>>>> 6146680... YARN-3094. Reset timer for liveness monitors after RM recovery. Contributed by Jun Gong
+>>>>>>> f8a099b... YARN-3094. Reset timer for liveness monitors after RM recovery. Contributed by Jun Gong
 Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
