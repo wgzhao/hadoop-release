@@ -46,6 +46,9 @@ Release 2.6.1 - UNRELEASED
 
   BUG FIXES
 
+    MAPREDUCE-6237. Multiple mappers with DBInputFormat don't work because of
+    reusing conections. (Kannan Rajah via ozawa)
+
     MAPREDUCE-6166. Reducers do not validate checksum of map outputs when
     fetching directly to disk. (Eric Payne via gera)
 
