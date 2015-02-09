@@ -1627,6 +1627,15 @@ function ConfigureCore(
     ### Apply core-site.xml configuration changes
     ###
     $coreSiteXmlFile = Join-Path $hadoopInstallToDir "etc\hadoop\core-site.xml"
+
+    ###Temporary hack to avoid the breaking change between TFS and HDP. Once the TFS changes are checked in, this hack will be removed.
+    foreach($keyprovider in $configs.keys){ if ( $keyprovider -like 'fs.azure.account.keyprovider*'){break}}
+    $azurejarFolder = Join-Path $hadoopInstallToDir "share/hadoop/common"
+    if (Test-Path $azurejarFolder/hadoop-azure*.jar)
+    {
+       $configs[$keyprovider]="org.apache.hadoop.fs.azure.ShellDecryptionKeyProvider"
+    }
+
     UpdateXmlConfig $coreSiteXmlFile $configs
 
     if ($aclAllFolders)
