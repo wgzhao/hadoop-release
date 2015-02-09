@@ -1016,8 +1016,17 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12658. Clear javadoc and check style issues around DomainSocket
     (Kai Zheng via umamahesh)
 
+<<<<<<< HEAD
     HADOOP-12604. Exception may be swallowed in KMSClientProvider.
     (Yongjun Zhang)
+||||||| parent of 3d0e2e5... HADOOP-8934. Shell command ls should include sort options (Jonathan Allen via aw)
+  IMPROVEMENTS
+=======
+    HADOOP-8934. Shell command ls should include sort options (Jonathan Allen
+    via aw)
+
+  IMPROVEMENTS
+>>>>>>> 3d0e2e5... HADOOP-8934. Shell command ls should include sort options (Jonathan Allen via aw)
 
     HADOOP-12696. Add tests for S3Filesystem Contract (Matt Paduano via raviprak)
 
