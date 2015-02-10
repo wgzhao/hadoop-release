@@ -88,3 +88,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-31164. HDFS-7733. NFS: readdir/readdirplus return null directory
     attribute on failure.
 
+    YARN-2246. Made the proxy tracking URL always be
+    http(s)://proxy addr:port/proxy/<appId> to avoid duplicate sections. (Devaraj
+    K via zjshen)
