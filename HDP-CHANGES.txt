@@ -91,3 +91,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-2246. Made the proxy tracking URL always be
     http(s)://proxy addr:port/proxy/<appId> to avoid duplicate sections. (Devaraj
     K via zjshen)
+
+    HDFS-7714. Simultaneous restart of HA NameNodes and DataNode can cause
+    DataNode to register successfully with only one NameNode.(vinayakumarb)
