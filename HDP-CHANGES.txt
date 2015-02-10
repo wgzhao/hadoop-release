@@ -173,3 +173,6 @@ The changes also include jiras that are yet to become available in later apache 
 
     BUG-31096. HDFS-7733. (2.1) NFS: readdir/readdirplus return null
     directory attribute on failure.
+
+    HDFS-7714. Simultaneous restart of HA NameNodes and DataNode can cause
+    DataNode to register successfully with only one NameNode.(vinayakumarb)
