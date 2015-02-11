@@ -13,6 +13,8 @@ Release 2.7.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HADOOP-11579. Documentation for truncate. (shv)
+
   OPTIMIZATIONS
 
   BUG FIXES
