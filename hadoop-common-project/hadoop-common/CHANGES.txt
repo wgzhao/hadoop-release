@@ -1252,6 +1252,7 @@ Release 2.8.0 - UNRELEASED
     HADOOP-10582. Fix the test case for copying to non-existent dir in
     TestFsShellCopy. (Kousuke Saruta via aajisaka)
 
+<<<<<<< HEAD
     HADOOP-11581. Multithreaded correctness Warnings
     #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
 
@@ -1732,6 +1733,14 @@ Release 2.7.2 - UNRELEASED
     (Larry McCay via cnauroth)
 
 Release 2.7.1 - 2015-07-06 
+||||||| parent of 6c4aa89... HADOOP-11581. Multithreaded correctness Warnings #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
+Release 2.7.1 - UNRELEASED
+=======
+    HADOOP-11581. Multithreaded correctness Warnings
+    #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
+
+Release 2.7.1 - UNRELEASED
+>>>>>>> 6c4aa89... HADOOP-11581. Multithreaded correctness Warnings #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
 
   INCOMPATIBLE CHANGES
 
