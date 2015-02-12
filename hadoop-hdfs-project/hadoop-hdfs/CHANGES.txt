@@ -122,6 +122,9 @@ Release 2.7.0
 
     HDFS-7734. Class cast exception in NameNode#main. (yliu via wang)
 
+    HDFS-7704. DN heartbeat to Active NN may be blocked and expire if
+    connection to Standby NN continues to time out (Rushabh Shah via kihwal)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
