@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -626,16 +625,14 @@ public abstract class INode implements Diff.Element<byte[]>, FSInodeInfo {
     return DFSUtil.compareBytes(getLocalNameBytes(), o);
   }
 
-  public boolean equals(Object o) {
-    if (!(o instanceof INode)) {
+  public boolean equals(Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null || !(that instanceof INode)) {
       return false;
     }
-    // Null name is used for InodeMap lookup. Use id for equality in that case
-    INode thatInode = (INode) o;
-    byte[] name = this.getLocalNameBytes();
-    byte[] thatName = thatInode.getLocalNameBytes();
-    return thatName == null ? this.getId() == thatInode.getId() : Arrays
-        .equals(name, thatName);
+    return getId() == ((INode) that).getId();
   }
 
   public int hashCode() {

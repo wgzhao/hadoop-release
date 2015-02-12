@@ -2487,13 +2487,13 @@ public class FSNamesystem implements FSConstants, FSNamesystemMBean, FSClusterSt
       if (!dir.delete(src, collectedBlocks, removedINodes)) {
         return false;
       }
+      dir.removeFromInodeMap(removedINodes);
     }
     
     // Log directory deletion to editlog
     getEditLog().logSync();
     removeBlocks(collectedBlocks); // Incremental deletion of blocks
     collectedBlocks.clear();
-    dir.removeFromInodeMap(removedINodes);
     removedINodes.clear();
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* delete: " + src

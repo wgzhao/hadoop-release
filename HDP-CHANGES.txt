@@ -41,6 +41,8 @@ comanche-branch-1 release branched from condor-branch-1 (SHA1 bb0bbd77479125307c
     HDFS-7503. Namenode restart after large deletions can cause slow
     processReport (Arpit Agarwal)
 
+    BUG-31150. INodeMap may be corrupted in branch-1.3. (Jing Zhao)
+
   Snapshot related changes
 
     Changes with Apache jira in trunk/branch-2
