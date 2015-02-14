@@ -94,3 +94,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7714. Simultaneous restart of HA NameNodes and DataNode can cause
     DataNode to register successfully with only one NameNode.(vinayakumarb)
+
+    HDFS-7611. deleteSnapshot and delete of a file can leave orphaned blocks
+    in the blocksMap on NameNode restart. (jing9)
