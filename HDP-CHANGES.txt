@@ -97,3 +97,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7611. deleteSnapshot and delete of a file can leave orphaned blocks
     in the blocksMap on NameNode restart. (jing9)
+
+    YARN-3207. Secondary filter matches entites which do not have the key being
+    filtered for. (Zhijie Shen via xgong)
