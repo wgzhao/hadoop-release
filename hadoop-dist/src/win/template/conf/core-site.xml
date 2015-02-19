@@ -140,4 +140,8 @@
     <name>hadoop.rpc.protection</name>
     <value>authentication</value>
   </property>
+  <property>
+    <name>fs.AbstractFileSystem.wasb.impl</name>
+    <value>org.apache.hadoop.fs.azure.Wasb</value>
+  </property>
 </configuration>
