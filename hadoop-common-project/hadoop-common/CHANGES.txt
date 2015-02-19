@@ -30,6 +30,7 @@ Release 2.7.0 - UNRELEASED
 
   BUG FIXES
 
+    HADOOP-11595. Add default implementation for AbstractFileSystem#truncate. (yliu)
 
 Release 2.6.0 - 2014-11-18
 
