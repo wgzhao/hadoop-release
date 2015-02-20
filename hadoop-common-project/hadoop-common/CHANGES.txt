@@ -210,6 +210,8 @@ Release 2.7.0 - UNRELEASED
     HADOOP-11440. Use "test.build.data" instead of "build.test.dir" for testing
     in ClientBaseWithFixes. (Kengo Seki via aajisaka)
 
+    HADOOP-11607. Reduce log spew in S3AFileSystem. (Lei (Eddy) Xu via stevel)
+
   OPTIMIZATIONS
 
     HADOOP-11323. WritableComparator#compare keeps reference to byte array.
@@ -569,6 +571,9 @@ Release 2.7.0 - UNRELEASED
 
     HADOOP-9087. Queue size metric for metric sinks isn't actually maintained
     (Akira AJISAKA via jlowe)
+
+    HADOOP-11604. Prevent ConcurrentModificationException while closing domain
+    sockets during shutdown of DomainSocketWatcher thread. (cnauroth)
 
 Release 2.6.1 - UNRELEASED
 
