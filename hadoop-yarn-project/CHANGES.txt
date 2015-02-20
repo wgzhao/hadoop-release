@@ -8,6 +8,8 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    YARN-3230. Clarify application states on the web UI. (Jian He via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
