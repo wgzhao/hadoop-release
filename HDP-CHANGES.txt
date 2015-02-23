@@ -176,3 +176,6 @@ The changes also include jiras that are yet to become available in later apache 
 
     HDFS-7714. Simultaneous restart of HA NameNodes and DataNode can cause
     DataNode to register successfully with only one NameNode.(vinayakumarb)
+
+    HDFS-7009. Active NN and standby NN have different live nodes.
+    (Ming Ma via cnauroth)
