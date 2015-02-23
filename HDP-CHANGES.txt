@@ -129,3 +129,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3207. Secondary filter matches entites which do not have the key being
     filtered for. (Zhijie Shen via xgong)
+
+    HDFS-7009. Active NN and standby NN have different live nodes.
+    (Ming Ma via cnauroth)
