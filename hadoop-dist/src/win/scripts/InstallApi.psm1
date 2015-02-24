@@ -1623,6 +1623,17 @@ function ConfigureCore(
         throw "ConfigureCore: InstallCore must be called before ConfigureCore"
     }
 
+    ### In latest Hadoop version there was an incompatible change where ShellDecryptionKeyProvider path
+    ### changed. As we want to be backward compatible let's map the old value to the new value transparently
+    ### to our clients.
+    foreach( $configItem in $($configs.keys) )
+    {
+        if ( $configs[$configItem] -imatch "org.apache.hadoop.fs.azurenative.ShellDecryptionKeyProvider" )
+        {
+             $configs[$configItem] = "org.apache.hadoop.fs.azure.ShellDecryptionKeyProvider"
+        }
+    }
+
     ###
     ### Apply core-site.xml configuration changes
     ###
