@@ -64,7 +64,7 @@ public class FileDiffList extends
     List<FileDiff> diffs = this.asList();
     int i = Collections.binarySearch(diffs, snapshotId);
     BlockInfo[] blocks = null;
-    for(i = i >= 0 ? i : -i; i < diffs.size(); i--) {
+    for(i = i >= 0 ? i : -i-2; i >= 0; i--) {
       blocks = diffs.get(i).getBlocks();
       if(blocks != null) {
         break;

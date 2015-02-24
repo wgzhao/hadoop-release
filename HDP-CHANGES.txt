@@ -135,3 +135,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HADOOP-11629. WASB filesystem should not start BandwidthGaugeUpdater if
     fs.azure.skip.metrics set to true. (Shanyu Zhao via cnauroth)
+
+    HDFS-7831. Fix the starting index and end condition of the loop in
+    FileDiffList.findEarlierSnapshotBlocks(). (Konstantin Shvachko via jing9)
