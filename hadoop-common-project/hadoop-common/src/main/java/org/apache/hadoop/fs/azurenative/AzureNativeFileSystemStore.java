@@ -360,7 +360,7 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
       throw new IllegalArgumentException("Null instrumentation");
     }
     this.instrumentation = instrumentation;
-    this.bandwidthGaugeUpdater = new BandwidthGaugeUpdater(instrumentation);
+
     if (null == this.storageInteractionLayer) {
       this.storageInteractionLayer = new StorageInterfaceImpl();
     }
@@ -374,7 +374,13 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
     // Check that configuration object is non-null.
     //
     if (null == conf) {
-      throw new IllegalArgumentException("Cannot initialize WASB file system, URI is null");
+      throw new IllegalArgumentException("Cannot initialize WASB file system, conf is null");
+    }
+
+    if(!conf.getBoolean(
+        NativeAzureFileSystem.SKIP_AZURE_METRICS_PROPERTY_NAME, false)) {
+      //If not skip azure metrics, create bandwidthGaugeUpdater
+      this.bandwidthGaugeUpdater = new BandwidthGaugeUpdater(instrumentation);
     }
 
     // Incoming parameters validated.  Capture the URI and the job configuration object.
@@ -1760,10 +1766,13 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
       SelfThrottlingIntercept.hook(operationContext, selfThrottlingReadFactor, selfThrottlingWriteFactor);
     }
 
-    ResponseReceivedMetricUpdater.hook(
-       operationContext,
-       instrumentation,
-       bandwidthGaugeUpdater);
+    if(bandwidthGaugeUpdater != null) {
+      //bandwidthGaugeUpdater is null when we config to skip azure metrics
+      ResponseReceivedMetricUpdater.hook(
+         operationContext,
+         instrumentation,
+         bandwidthGaugeUpdater);
+    }
 
     // Bind operation context to receive send request callbacks on this operation.
     // If reads concurrent to OOB writes are allowed, the interception will reset
@@ -2575,7 +2584,10 @@ class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
   @Override
   public void close() {
-    bandwidthGaugeUpdater.close();
+    if(bandwidthGaugeUpdater != null) {
+      bandwidthGaugeUpdater.close();
+      bandwidthGaugeUpdater = null;
+    }
   }
 
   @Override
