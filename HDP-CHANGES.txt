@@ -132,3 +132,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7009. Active NN and standby NN have different live nodes.
     (Ming Ma via cnauroth)
+
+    HADOOP-11629. WASB filesystem should not start BandwidthGaugeUpdater if
+    fs.azure.skip.metrics set to true. (Shanyu Zhao via cnauroth)
