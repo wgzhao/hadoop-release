@@ -138,3 +138,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7831. Fix the starting index and end condition of the loop in
     FileDiffList.findEarlierSnapshotBlocks(). (Konstantin Shvachko via jing9)
+
+    YARN-3239. WebAppProxy does not support a final tracking url which has
+    query fragments and params (Jian He via jlowe)
