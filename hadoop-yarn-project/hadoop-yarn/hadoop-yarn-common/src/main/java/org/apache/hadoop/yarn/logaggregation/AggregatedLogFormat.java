@@ -250,7 +250,7 @@ public class AggregatedLogFormat {
             userUgi.doAs(new PrivilegedExceptionAction<FSDataOutputStream>() {
               @Override
               public FSDataOutputStream run() throws Exception {
-                FileContext fc = FileContext.getFileContext(conf);
+                FileContext fc = FileContext.getFileContext(remoteAppLogFile.toUri(), conf);
                 fc.setUMask(APP_LOG_FILE_UMASK);
                 return fc.create(
                     remoteAppLogFile,
@@ -336,7 +336,8 @@ public class AggregatedLogFormat {
 
     public LogReader(Configuration conf, Path remoteAppLogFile)
         throws IOException {
-      FileContext fileContext = FileContext.getFileContext(conf);
+      FileContext fileContext =
+          FileContext.getFileContext(remoteAppLogFile.toUri(), conf);
       this.fsDataIStream = fileContext.open(remoteAppLogFile);
       reader =
           new TFile.Reader(this.fsDataIStream, fileContext.getFileStatus(

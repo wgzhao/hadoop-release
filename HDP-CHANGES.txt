@@ -179,3 +179,6 @@ The changes also include jiras that are yet to become available in later apache 
 
     HDFS-7009. Active NN and standby NN have different live nodes.
     (Ming Ma via cnauroth)
+
+    YARN-42. Yarn.nodemanager.remote-app-log-dir could not be configured to fully
+    qualified path. (xgong)
