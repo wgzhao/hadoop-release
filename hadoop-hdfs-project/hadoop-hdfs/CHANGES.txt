@@ -46,6 +46,9 @@ Release 2.7.0 - UNRELEASED
 
     HDFS-7677. DistributedFileSystem#truncate should resolve symlinks. (yliu)
 
+    HDFS-7843. A truncated file is corrupted after rollback from a rolling
+    upgrade.  (szetszwo)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES

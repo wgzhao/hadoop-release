@@ -2519,6 +2519,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     if(!isUpgradeFinalized()) {
       return true;
     }
+    if (isRollingUpgrade()) {
+      return true;
+    }
     return file.isBlockInLatestSnapshot(blk);
   }
 
