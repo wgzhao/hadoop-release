@@ -746,4 +746,7 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String IGNORE_SECURE_PORTS_FOR_TESTING_KEY =
       "ignore.secure.ports.for.testing";
   public static final boolean IGNORE_SECURE_PORTS_FOR_TESTING_DEFAULT = false;
+
+  public static final String DFS_ALLOW_TRUNCATE_KEY = "dfs.allow.truncate";
+  public static final boolean DFS_ALLOW_TRUNCATE_DEFAULT = false;
 }

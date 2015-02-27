@@ -23,6 +23,8 @@ import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_TRASH_INTERV
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_TRASH_INTERVAL_KEY;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.IO_FILE_BUFFER_SIZE_DEFAULT;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.IO_FILE_BUFFER_SIZE_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_ALLOW_TRUNCATE_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_ALLOW_TRUNCATE_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_BLOCK_SIZE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_BLOCK_SIZE_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_BYTES_PER_CHECKSUM_DEFAULT;
@@ -422,6 +424,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   // whether setStoragePolicy is allowed.
   private final boolean isStoragePolicyEnabled;
 
+  // whether truncate is allowed
+  private final boolean isTruncateAllowed;
+
   private String nameserviceId;
 
   private RollingUpgradeInfo rollingUpgradeInfo = null;
@@ -803,6 +808,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       this.isStoragePolicyEnabled =
           conf.getBoolean(DFS_STORAGE_POLICY_ENABLED_KEY,
                           DFS_STORAGE_POLICY_ENABLED_DEFAULT);
+
+      this.isTruncateAllowed = conf.getBoolean(DFS_ALLOW_TRUNCATE_KEY,
+          DFS_ALLOW_TRUNCATE_DEFAULT);
 
       this.fsOwner = UserGroupInformation.getCurrentUser();
       this.fsOwnerShortUserName = fsOwner.getShortUserName();
@@ -2350,6 +2358,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
                       String clientName, String clientMachine,
                       long mtime)
       throws IOException, UnresolvedLinkException {
+    if (!isTruncateAllowed) {
+      throw new UnsupportedOperationException("Truncate is not allowed!");
+    }
     String src = srcArg;
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* NameSystem.truncate: src="

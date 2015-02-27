@@ -69,8 +69,8 @@ public class NameNodeLayoutVersion {
     CREATE_OVERWRITE(-58, "Use single editlog record for " +
       "creating file with overwrite"),
     XATTRS_NAMESPACE_EXT(-59, "Increase number of xattr namespaces"),
-    BLOCK_STORAGE_POLICY(-60, "Block Storage policy"),
-    TRUNCATE(-61, "Truncate");
+    BLOCK_STORAGE_POLICY(-60, "Block Storage policy");
+    // TODO: temporarily not bumping NN layoutversion for truncate
 
     private final FeatureInfo info;
 
