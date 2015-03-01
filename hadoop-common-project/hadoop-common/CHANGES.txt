@@ -1783,6 +1783,9 @@ Release 2.7.1 - UNRELEASED
     HADOOP-12481. JWTRedirectAuthenticationHandler doesn't Retain Original Query
     String (Larry McCay via cnauroth)
 
+    HADOOP-10774. Update KerberosTestUtils for hadoop-auth tests when using
+    IBM Java (sangamesh via aw)
+
   OPTIMIZATIONS
 
     HADOOP-11812. Implement listLocatedStatus for ViewFileSystem to speed up
