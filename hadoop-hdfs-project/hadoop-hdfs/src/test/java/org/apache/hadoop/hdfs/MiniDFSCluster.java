@@ -1985,6 +1985,16 @@ public class MiniDFSCluster implements AutoCloseable {
     return null;
   }
 
+  public byte[] readBlockOnDataNodeAsBytes(int i, ExtendedBlock block)
+      throws IOException {
+    assert (i >= 0 && i < dataNodes.size()) : "Invalid datanode "+i;
+    File blockFile = getBlockFile(i, block);
+    if (blockFile != null && blockFile.exists()) {
+      return DFSTestUtil.readFileAsBytes(blockFile);
+    }
+    return null;
+  }
+
   /**
    * Corrupt a block on a particular datanode.
    *
