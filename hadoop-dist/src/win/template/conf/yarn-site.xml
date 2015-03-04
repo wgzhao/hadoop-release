@@ -59,7 +59,7 @@
   </property>
   <property>
     <name>yarn.nodemanager.remote-app-log-dir</name>
-    <value>/app-logs</value>
+    <value>${fs.defaultFS}/app-logs</value>
   </property>
   <property>
     <name>yarn.nodemanager.remote-app-log-dir-suffix</name>
