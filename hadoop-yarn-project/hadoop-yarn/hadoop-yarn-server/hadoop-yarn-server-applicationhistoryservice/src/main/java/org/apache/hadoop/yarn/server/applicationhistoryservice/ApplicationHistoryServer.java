@@ -270,7 +270,7 @@ public class ApplicationHistoryServer extends CompositeService {
                           WebAppUtils.getAHSWebAppURLWithoutScheme(conf));
     LOG.info("Instantiating AHSWebApp at " + bindAddress);
     try {
-      AHSWebApp ahsWebApp = new AHSWebApp(timelineDataManager, historyManager);
+      AHSWebApp ahsWebApp = new AHSWebApp(timelineDataManager, ahsClientService);
       webApp =
           WebApps
             .$for("applicationhistory", ApplicationHistoryClientService.class,

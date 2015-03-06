@@ -28,13 +28,17 @@ import static org.apache.hadoop.yarn.webapp.view.JQueryUI.C_PROGRESSBAR_VALUE;
 
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.math.LongRange;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.yarn.api.ApplicationBaseProtocol;
+import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationsRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
-import org.apache.hadoop.yarn.server.api.ApplicationContext;
 import org.apache.hadoop.yarn.server.webapp.dao.AppInfo;
 import org.apache.hadoop.yarn.webapp.BadRequestException;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
@@ -46,12 +50,13 @@ import com.google.inject.Inject;
 
 public class AppsBlock extends HtmlBlock {
 
-  protected ApplicationContext appContext;
+  private static final Log LOG = LogFactory.getLog(AppsBlock.class);
+  protected ApplicationBaseProtocol appBaseProt;
 
   @Inject
-  AppsBlock(ApplicationContext appContext, ViewContext ctx) {
+  AppsBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx) {
     super(ctx);
-    this.appContext = appContext;
+    this.appBaseProt = appBaseProt;
   }
 
   @Override
@@ -65,17 +70,18 @@ public class AppsBlock extends HtmlBlock {
           .th(".finishtime", "FinishTime").th(".state", "State")
           .th(".finalstatus", "FinalStatus").th(".progress", "Progress")
           .th(".ui", "Tracking UI")._()._().tbody();
-    Collection<YarnApplicationState> reqAppStates = null;
+    EnumSet<YarnApplicationState> reqAppStates =
+        EnumSet.noneOf(YarnApplicationState.class);
     String reqStateString = $(APP_STATE);
     if (reqStateString != null && !reqStateString.isEmpty()) {
       String[] appStateStrings = reqStateString.split(",");
-      reqAppStates = new HashSet<YarnApplicationState>(appStateStrings.length);
       for (String stateString : appStateStrings) {
-        reqAppStates.add(YarnApplicationState.valueOf(stateString));
+        reqAppStates.add(YarnApplicationState.valueOf(stateString.trim()));
       }
     }
 
     UserGroupInformation callerUGI = getCallerUGI();
+
     String appsNumStr = $(APPS_NUM);
     long appsTempNum = Long.MAX_VALUE;
     if (appsNumStr != null && !appsNumStr.isEmpty()) {
@@ -112,16 +118,19 @@ public class AppsBlock extends HtmlBlock {
 
     Collection<ApplicationReport> appReports;
     try {
+      final GetApplicationsRequest request =
+          GetApplicationsRequest.newInstance(reqAppStates);
+      request.setLimit(appsNum);
+      request.setStartRange(new LongRange(
+          appStartedTimeBegain, appStartedTimeEnd));
       if (callerUGI == null) {
-        appReports = appContext.getApplications(appsNum, appStartedTimeBegain,
-            appStartedTimeEnd).values();
+        appReports = appBaseProt.getApplications(request).getApplicationList();
       } else {
         appReports = callerUGI.doAs(
             new PrivilegedExceptionAction<Collection<ApplicationReport>> () {
           @Override
           public Collection<ApplicationReport> run() throws Exception {
-            return appContext.getApplications(appsNum, appStartedTimeBegain,
-                appStartedTimeEnd).values();
+            return appBaseProt.getApplications(request).getApplicationList();
           }
         });
       }
@@ -133,12 +142,15 @@ public class AppsBlock extends HtmlBlock {
     }
     StringBuilder appsTableData = new StringBuilder("[\n");
     for (ApplicationReport appReport : appReports) {
-      if (reqAppStates != null
+      // TODO: remove the following condition. It is still here because
+      // the history side implementation of ApplicationBaseProtocol
+      // hasn't filtering capability (YARN-1819).
+      if (!reqAppStates.isEmpty()
           && !reqAppStates.contains(appReport.getYarnApplicationState())) {
         continue;
       }
       AppInfo app = new AppInfo(appReport);
-      String percent = String.format("%.1f", app.getProgress() * 100.0F);
+      String percent = String.format("%.1f", app.getProgress());
       // AppID numerical value parsed by parseHadoopID in yarn.dt.plugins.js
       appsTableData
         .append("[\"<a href='")
@@ -163,7 +175,7 @@ public class AppsBlock extends HtmlBlock {
             .getQueue()))).append("\",\"").append(app.getStartedTime())
         .append("\",\"").append(app.getFinishedTime())
         .append("\",\"")
-        .append(app.getAppState())
+        .append(app.getAppState() == null ? UNAVAILABLE : app.getAppState())
         .append("\",\"")
         .append(app.getFinalAppStatus())
         .append("\",\"")
@@ -172,13 +184,21 @@ public class AppsBlock extends HtmlBlock {
         .append(C_PROGRESSBAR).append("' title='").append(join(percent, '%'))
         .append("'> ").append("<div class='").append(C_PROGRESSBAR_VALUE)
         .append("' style='").append(join("width:", percent, '%'))
-        .append("'> </div> </div>").append("\",\"<a href='");
+        .append("'> </div> </div>").append("\",\"<a ");
 
       String trackingURL =
-          app.getTrackingUrl() == null ? "#" : app.getTrackingUrl();
+          app.getTrackingUrl() == null || app.getTrackingUrl() == UNAVAILABLE
+              ? null : app.getTrackingUrl();
 
-      appsTableData.append(trackingURL).append("'>").append("History")
-        .append("</a>\"],\n");
+      String trackingUI =
+          app.getTrackingUrl() == null || app.getTrackingUrl() == UNAVAILABLE
+              ? "Unassigned"
+              : app.getAppState() == YarnApplicationState.FINISHED
+                  || app.getAppState() == YarnApplicationState.FAILED
+                  || app.getAppState() == YarnApplicationState.KILLED
+                  ? "History" : "ApplicationMaster";
+      appsTableData.append(trackingURL == null ? "#" : "href='" + trackingURL)
+        .append("'>").append(trackingUI).append("</a>\"],\n");
 
     }
     if (appsTableData.charAt(appsTableData.length() - 2) == ',') {
