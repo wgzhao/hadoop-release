@@ -61,12 +61,14 @@ class StorageInterfaceImpl extends StorageInterface {
 
   @Override
   public void setRetryPolicyFactory(final RetryPolicyFactory retryPolicyFactory) {
-    serviceClient.setRetryPolicyFactory(retryPolicyFactory);
+    serviceClient.getDefaultRequestOptions().setRetryPolicyFactory(
+            retryPolicyFactory);
   }
 
   @Override
   public void setTimeoutInMs(int timeoutInMs) {
-    serviceClient.setTimeoutInMs(timeoutInMs);
+    serviceClient.getDefaultRequestOptions().setTimeoutIntervalInMs(
+            timeoutInMs);
   }
 
   @Override

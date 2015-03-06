@@ -156,3 +156,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3227. Timeline renew delegation token fails when RM user's TGT is expired
     (Zhijie Shen via xgong)
+
+    HADOOP-11642. Upgrade azure sdk version from 0.6.0 to 2.0.0.
+    (Shashank Khandelwal and Ivan Mitic via cnauroth)
