@@ -147,3 +147,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-32378. NN went down during RB test due to storage version mismatch.
     (jing9)
+
+    HDFS-7855. Datanode should not trust the generation stamp provided by
+    client. (Tsz Wo Nicholas Sze)
