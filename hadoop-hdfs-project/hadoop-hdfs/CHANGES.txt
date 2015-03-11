@@ -76,6 +76,9 @@ Release 2.7.0
 
     HDFS-7706. Switch BlockManager logging to use slf4j. (wang)
 
+    HDFS-7491. Add incremental blockreport latency to
+    DN metrics. Contributed by Ming Ma.
+
     HDFS-7712. Switch blockStateChangeLog to use slf4j. (wang)
 
     HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
