@@ -58,7 +58,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.SUCCEEDED,
               job.getJobStatus().getState().getValue());
       TimelineEntities entities = ts.getEntities("MAPREDUCE_JOB", null, null,
-              null, null, null, null, null, null);
+              null, null, null, null, null, null, null);
       Assert.assertEquals(1, entities.getEntities().size());
       TimelineEntity tEntity = entities.getEntities().get(0);
       Assert.assertEquals(job.getID().toString(), tEntity.getEntityId());
@@ -73,7 +73,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.FAILED,
               job.getJobStatus().getState().getValue());
       entities = ts.getEntities("MAPREDUCE_JOB", null, null, null, null, null,
-              null, null, null);
+              null, null, null, null);
       Assert.assertEquals(2, entities.getEntities().size());
       tEntity = entities.getEntities().get(0);
       Assert.assertEquals(job.getID().toString(), tEntity.getEntityId());
@@ -113,7 +113,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.SUCCEEDED,
           job.getJobStatus().getState().getValue());
       TimelineEntities entities = ts.getEntities("MAPREDUCE_JOB", null, null,
-          null, null, null, null, null, null);
+          null, null, null, null, null, null, null);
       Assert.assertEquals(0, entities.getEntities().size());
 
       conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_EMIT_TIMELINE_DATA, true);
@@ -121,7 +121,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.SUCCEEDED,
           job.getJobStatus().getState().getValue());
       entities = ts.getEntities("MAPREDUCE_JOB", null, null, null, null, null,
-          null, null, null);
+          null, null, null, null);
       Assert.assertEquals(1, entities.getEntities().size());
       TimelineEntity tEntity = entities.getEntities().get(0);
       Assert.assertEquals(job.getID().toString(), tEntity.getEntityId());
@@ -152,7 +152,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.SUCCEEDED,
           job.getJobStatus().getState().getValue());
       TimelineEntities entities = ts.getEntities("MAPREDUCE_JOB", null, null,
-          null, null, null, null, null, null);
+          null, null, null, null, null, null, null);
       Assert.assertEquals(0, entities.getEntities().size());
 
       conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_EMIT_TIMELINE_DATA, true);
@@ -160,7 +160,7 @@ public class TestMRTimelineEventHandling {
       Assert.assertEquals(JobStatus.SUCCEEDED,
           job.getJobStatus().getState().getValue());
       entities = ts.getEntities("MAPREDUCE_JOB", null, null, null, null, null,
-          null, null, null);
+          null, null, null, null);
       Assert.assertEquals(1, entities.getEntities().size());
       TimelineEntity tEntity = entities.getEntities().get(0);
       Assert.assertEquals(job.getID().toString(), tEntity.getEntityId());
