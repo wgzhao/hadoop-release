@@ -2420,6 +2420,21 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throw new UnsupportedOperationException(
           "Cannot truncate lazy persist file " + src);
     }
+
+    // Check if the file is already being truncated with the same length
+    final BlockInfo last = file.getLastBlock();
+    if (last != null && last.getBlockUCState() == BlockUCState.UNDER_RECOVERY) {
+      final Block truncateBlock
+          = ((BlockInfoUnderConstruction)last).getTruncateBlock();
+      if (truncateBlock != null) {
+        final long truncateLength = file.computeFileSize(false, false)
+            + truncateBlock.getNumBytes();
+        if (newLength == truncateLength) {
+          return false;
+        }
+      }
+    }
+
     // Opening an existing file for truncate. May need lease recovery.
     recoverLeaseInternal(RecoverLeaseOp.TRUNCATE_FILE,
         file, src, clientName, clientMachine, false);

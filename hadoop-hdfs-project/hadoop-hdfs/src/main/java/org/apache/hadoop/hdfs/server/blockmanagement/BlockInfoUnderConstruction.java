@@ -385,6 +385,7 @@ public class BlockInfoUnderConstruction extends BlockInfo {
 
   private void appendUCParts(StringBuilder sb) {
     sb.append("{blockUCState=").append(blockUCState)
+      .append(", truncateBlock=" + truncateBlock)
       .append(", primaryNodeIndex=").append(primaryNodeIndex)
       .append(", replicas=[");
     if (replicas != null) {
