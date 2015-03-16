@@ -1,0 +1,11 @@
+Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered by CHANGES.txt.
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  BUG FIXES
+
+    BUG-5700. NameNode should shut down if out of memory error occurs. (cnauroth)
