@@ -1193,7 +1193,8 @@ public class CapacityScheduler extends
   protected synchronized void completedContainer(RMContainer rmContainer,
       ContainerStatus containerStatus, RMContainerEventType event) {
     if (rmContainer == null) {
-      LOG.info("Null container completed...");
+      LOG.info("Container " + containerStatus.getContainerId() +
+          " completed with event " + event);
       return;
     }
     
@@ -1205,7 +1206,7 @@ public class CapacityScheduler extends
     ApplicationId appId =
         container.getId().getApplicationAttemptId().getApplicationId();
     if (application == null) {
-      LOG.info("Container " + container + " of" + " unknown application "
+      LOG.info("Container " + container + " of" + " finished application "
           + appId + " completed with event " + event);
       return;
     }
