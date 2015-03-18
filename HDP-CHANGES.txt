@@ -4713,3 +4713,7 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    BUG-117384. HADOOP-11722. Some Instances of Services using
+    ZKDelegationTokenSecretManager go down when old token cannot be deleted.
+    Contributed by Arun Suresh.
