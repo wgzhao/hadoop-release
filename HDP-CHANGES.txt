@@ -172,3 +172,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8072. Reserved RBW space is not released if client terminates
     while writing block. (Arpit Agarwal)
 
+    MAPREDUCE-6275. Race condition in FileOutputCommitter v2 for user-specified
+    task output subdirs. Contributed by Gera Shegalov and Siqi Li
