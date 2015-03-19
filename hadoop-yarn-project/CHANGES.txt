@@ -22,6 +22,15 @@ Release 2.8.0 - UNRELEASED
     YARN-3243. CapacityScheduler should pass headroom from parent to children
     to make sure ParentQueue obey its capacity limits. (Wangda Tan via jianhe)
 
+<<<<<<< HEAD
+=======
+    YARN-3273. Improve scheduler UI to facilitate scheduling analysis and
+    debugging. (Rohith Sharmaks via jianhe)
+
+    YARN-3357. Move TestFifoScheduler to FIFO package. (Rohith Sharmaks 
+    via devaraj)
+
+>>>>>>> a888dac... YARN-3357. Move TestFifoScheduler to FIFO package. Contributed by Rohith
   OPTIMIZATIONS
 
   BUG FIXES
