@@ -344,11 +344,9 @@ class StorageInterfaceImpl extends StorageInterface {
     }
 
     @Override
-    public void startCopyFromBlob(URI source,
-        OperationContext opContext)
-            throws StorageException, URISyntaxException {
-      blob.startCopyFromBlob(source,
-          null, null, null, opContext);
+    public void startCopyFromBlob(URI source, BlobRequestOptions options,
+      OperationContext opContext) throws StorageException, URISyntaxException {
+      blob.startCopyFromBlob(source, null, null, options, opContext);
     }
 
     @Override
