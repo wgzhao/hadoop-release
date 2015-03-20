@@ -30,7 +30,13 @@ Release 2.8.0 - UNRELEASED
     YARN-3357. Move TestFifoScheduler to FIFO package. (Rohith Sharmaks 
     via devaraj)
 
+<<<<<<< HEAD
 >>>>>>> a888dac... YARN-3357. Move TestFifoScheduler to FIFO package. Contributed by Rohith
+=======
+    YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to
+    track used-resources-by-label. (Wangda Tan via jianhe)
+
+>>>>>>> a3a155a... YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to track used-resources-by-label. Contributed by Wangda Tan
   OPTIMIZATIONS
 
   BUG FIXES
