@@ -41,6 +41,9 @@ Release 2.8.0 - UNRELEASED
     MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader
     and IndexOutOfBoundsException. (Junping Du via vvasudev)
 
+    MAPREDUCE-6213. NullPointerException caused by job history server addr not
+    resolvable. (Peng Zhang via harsh)
+
 Release 2.7.3 - UNRELEASED
 
     MAPREDUCE-6540. TestMRTimelineEventHandling fails (sjlee)
