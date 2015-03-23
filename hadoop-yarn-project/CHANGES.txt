@@ -40,7 +40,16 @@ Release 2.8.0 - UNRELEASED
     YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to
     track used-resources-by-label. (Wangda Tan via jianhe)
 
+<<<<<<< HEAD
 >>>>>>> a3a155a... YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to track used-resources-by-label. Contributed by Wangda Tan
+=======
+    YARN-3350. YARN RackResolver spams logs with messages at info level. 
+    (Wilfred Spiegelenburg via junping_du)
+
+    YARN-2868. FairScheduler: Metric for latency to allocate first container 
+    for an application. (Ray Chiang via kasha)
+
+>>>>>>> 4e0c487... YARN-2868. FairScheduler: Metric for latency to allocate first container for an application. (Ray Chiang via kasha)
   OPTIMIZATIONS
 
   BUG FIXES
