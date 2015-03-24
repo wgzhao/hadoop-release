@@ -62,8 +62,11 @@ public class TestDFSOutputStream {
     DFSOutputStream dos = (DFSOutputStream) Whitebox.getInternalState(os,
         "wrappedStream");
     @SuppressWarnings("unchecked")
+    DataStreamer streamer = (DataStreamer) Whitebox
+        .getInternalState(dos, "streamer");
+    @SuppressWarnings("unchecked")
     AtomicReference<IOException> ex = (AtomicReference<IOException>) Whitebox
-        .getInternalState(dos, "lastException");
+        .getInternalState(streamer, "lastException");
     Assert.assertEquals(null, ex.get());
 
     dos.close();
@@ -114,26 +117,25 @@ public class TestDFSOutputStream {
     DFSClient client = mock(DFSClient.class);
     when(client.getConf()).thenReturn(dfsClientConf);
     client.clientRunning = true;
-    DFSOutputStream out = mock(DFSOutputStream.class);
-    LinkedList<DFSPacket> dataQueue = new LinkedList<>();
-    Whitebox.setInternalState(out, "dfsClient", client);
-    Whitebox.setInternalState(out, "dataQueue", dataQueue);
-    Whitebox.setInternalState(out, "lastException", new AtomicReference<>());
-    DFSOutputStream.DataStreamer stream = out.new DataStreamer(
+    DataStreamer stream = new DataStreamer(
         mock(HdfsFileStatus.class),
-        mock(ExtendedBlock.class));
+        mock(ExtendedBlock.class),
+        client,
+        "foo", null, null, null, null);
 
     DataOutputStream blockStream = mock(DataOutputStream.class);
     doThrow(new IOException()).when(blockStream).flush();
     Whitebox.setInternalState(stream, "blockStream", blockStream);
     Whitebox.setInternalState(stream, "stage",
-                              BlockConstructionStage.PIPELINE_CLOSE);
+        BlockConstructionStage.PIPELINE_CLOSE);
+    @SuppressWarnings("unchecked")
+    LinkedList<DFSPacket> dataQueue = (LinkedList<DFSPacket>)
+        Whitebox.getInternalState(stream, "dataQueue");
     @SuppressWarnings("unchecked")
     ArrayList<DatanodeInfo> congestedNodes = (ArrayList<DatanodeInfo>)
         Whitebox.getInternalState(stream, "congestedNodes");
     congestedNodes.add(mock(DatanodeInfo.class));
     DFSPacket packet = mock(DFSPacket.class);
-    when(packet.getTraceParents()).thenReturn(new long[] {});
     dataQueue.add(packet);
     stream.run();
     Assert.assertTrue(congestedNodes.isEmpty());
