@@ -1304,7 +1304,7 @@ public class TestFsck {
 
       // corrupt replicas
       block = DFSTestUtil.getFirstBlock(dfs, path);
-      File blockFile = MiniDFSCluster.getBlockFile(0, block);
+      File blockFile = cluster.getBlockFile(0, block);
       if (blockFile != null && blockFile.exists()) {
         RandomAccessFile raFile = new RandomAccessFile(blockFile, "rw");
         FileChannel channel = raFile.getChannel();
