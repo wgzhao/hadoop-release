@@ -190,6 +190,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-7931. DistributedFileSystem should not look for keyProvider in
     cache if Encryption is disabled (asuresh)
 
+    HDFS-7928. Scanning blocks from disk during rolling upgrade startup takes
+    a lot of time if disks are busy (Rushabh S Shah via kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES

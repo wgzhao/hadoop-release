@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.StorageType;
+import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.VolumeChoosingPolicy;
@@ -434,9 +435,10 @@ class FsVolumeList {
         bpid + ": " + totalTimeTaken + "ms");
   }
   
-  void removeBlockPool(String bpid) {
+  void removeBlockPool(String bpid, Map<DatanodeStorage, BlockListAsLongs>
+      blocksPerVolume) {
     for (FsVolumeImpl v : volumes.get()) {
-      v.shutdownBlockPool(bpid);
+      v.shutdownBlockPool(bpid, blocksPerVolume.get(v.toDatanodeStorage()));
     }
   }
 
