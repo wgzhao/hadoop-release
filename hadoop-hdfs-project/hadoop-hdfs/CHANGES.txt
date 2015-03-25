@@ -35,6 +35,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-7608: hdfs dfsclient newConnectedPeer has no write
     timeout (Xiaoyu Yao via Colin P. McCabe)
 
+    HDFS-7928. Scanning blocks from disk during rolling upgrade startup takes
+    a lot of time if disks are busy. Contributed by Rushabh Shah.
 
   OPTIMIZATIONS
 
