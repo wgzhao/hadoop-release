@@ -37,6 +37,8 @@ Release 2.7.1 - UNRELEASED
     HDFS-7933. fsck should also report decommissioning replicas.
     (Xiaoyu Yao via cnauroth)
 
+    HDFS-7990. IBR delete ack should not be delayed. (daryn via kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES
