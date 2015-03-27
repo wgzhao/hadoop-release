@@ -460,7 +460,11 @@ function UninstallCore(
     Write-Log "Removing Hadoop `"$hadoopInstallToDir`""
     $cmd = "rd /s /q `"$hadoopInstallToDir`""
     Invoke-Cmd $cmd
-
+    
+    ###
+    ###
+    StopAndDeleteHadoopService "hadoop-winutils"
+    
     Write-Log "Removing the HADOOP_HOME, HADOOP_CONF_DIR and HADOOP_COMMON_HOME environment variables"
     [Environment]::SetEnvironmentVariable( "HADOOP_HOME", $null, [EnvironmentVariableTarget]::Machine )
     [Environment]::SetEnvironmentVariable("HADOOP_COMMON_HOME", $null, [EnvironmentVariableTarget]::Machine)
