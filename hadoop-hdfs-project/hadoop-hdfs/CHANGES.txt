@@ -34,6 +34,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-7933. fsck should also report decommissioning replicas.
     (Xiaoyu Yao via cnauroth)
 
+    HDFS-7645. Rolling upgrade is restoring blocks from trash multiple times.
+    (Vinayakumar B and Keisuke Ogiwara via Arpit Agarwal)
+
   OPTIMIZATIONS
 
   BUG FIXES
