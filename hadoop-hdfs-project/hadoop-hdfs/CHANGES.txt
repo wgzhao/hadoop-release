@@ -26,6 +26,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
+    HDFS-4396. Add START_MSG/SHUTDOWN_MSG for ZKFC
+    (Liang Xie via harsh)
+
   OPTIMIZATIONS
 
   BUG FIXES
