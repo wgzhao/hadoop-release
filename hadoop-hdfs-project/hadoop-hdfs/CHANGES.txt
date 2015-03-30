@@ -69,6 +69,9 @@ Release 2.7.0
 
     HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
 
+    HDFS-7890. Improve information on Top users for metrics in
+    RollingWindowsManager and lower log level (J.Andreina via vinayakumarb)
+
   OPTIMIZATIONS
 
   BUG FIXES
