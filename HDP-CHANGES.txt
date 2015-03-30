@@ -23,3 +23,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     found error. (cnauroth)
 
     BUG-34216. Support downgrade before finalize in Dal. (cnauroth)
+
+    HDFS-7890. Improve information on Top users for metrics in
+    RollingWindowsManager and lower log level. (J.Andreina via Vinayakumar B)
+
