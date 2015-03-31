@@ -36,6 +36,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptReport;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -62,7 +63,7 @@ public class ApplicationCLI extends YarnCLI {
     "%30s\t%20s\t%35s\t%35s"
       + System.getProperty("line.separator");
   private static final String CONTAINER_PATTERN = 
-    "%30s\t%20s\t%20s\t%20s\t%20s\t%35s"
+    "%30s\t%20s\t%20s\t%20s\t%20s\t%20s\t%35s"
       + System.getProperty("line.separator");
 
   private static final String APP_TYPE_CMD = "appTypes";
@@ -173,7 +174,7 @@ public class ApplicationCLI extends YarnCLI {
           if (types != null) {
             for (String type : types) {
               if (!type.trim().isEmpty()) {
-                appTypes.add(type.toUpperCase().trim());
+                appTypes.add(StringUtils.toUpperCase(type).trim());
               }
             }
           }
@@ -191,8 +192,8 @@ public class ApplicationCLI extends YarnCLI {
                   break;
                 }
                 try {
-                  appStates.add(YarnApplicationState.valueOf(state
-                      .toUpperCase().trim()));
+                  appStates.add(YarnApplicationState.valueOf(
+                      StringUtils.toUpperCase(state).trim()));
                 } catch (IllegalArgumentException ex) {
                   sysout.println("The application state " + state
                       + " is invalid.");
@@ -354,6 +355,9 @@ public class ApplicationCLI extends YarnCLI {
       containerReportStr.println(containerReport.getLogUrl());
       containerReportStr.print("\tHost : ");
       containerReportStr.println(containerReport.getAssignedNode());
+      containerReportStr.print("\tNodeHttpAddress : ");
+      containerReportStr.println(containerReport.getNodeHttpAddress() == null
+          ? "N/A" : containerReport.getNodeHttpAddress());
       containerReportStr.print("\tDiagnostics : ");
       containerReportStr.print(containerReport.getDiagnosticsInfo());
     } else {
@@ -594,7 +598,7 @@ public class ApplicationCLI extends YarnCLI {
         .getContainers(ConverterUtils.toApplicationAttemptId(appAttemptId));
     writer.println("Total number of containers " + ":" + appsReport.size());
     writer.printf(CONTAINER_PATTERN, "Container-Id", "Start Time",
-        "Finish Time", "State", "Host", "LOG-URL");
+        "Finish Time", "State", "Host", "Node Http Address", "LOG-URL");
     for (ContainerReport containerReport : appsReport) {
       writer.printf(
           CONTAINER_PATTERN,
@@ -602,7 +606,9 @@ public class ApplicationCLI extends YarnCLI {
           Times.format(containerReport.getCreationTime()),
           Times.format(containerReport.getFinishTime()),      
           containerReport.getContainerState(), containerReport
-              .getAssignedNode(), containerReport.getLogUrl());
+              .getAssignedNode(), containerReport.getNodeHttpAddress() == null
+                  ? "N/A" : containerReport.getNodeHttpAddress(),
+          containerReport.getLogUrl());
     }
     writer.flush();
   }

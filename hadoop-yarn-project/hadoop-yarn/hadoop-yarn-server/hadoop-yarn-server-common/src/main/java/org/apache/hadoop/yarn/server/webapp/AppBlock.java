@@ -21,15 +21,8 @@ package org.apache.hadoop.yarn.server.webapp;
 import static org.apache.hadoop.yarn.util.StringHelper.join;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APPLICATION_ID;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.WEB_UI_TYPE;
-import static org.apache.hadoop.yarn.webapp.view.JQueryUI._EVEN;
-import static org.apache.hadoop.yarn.webapp.view.JQueryUI._INFO_WRAP;
-import static org.apache.hadoop.yarn.webapp.view.JQueryUI._ODD;
-import static org.apache.hadoop.yarn.webapp.view.JQueryUI._TH;
-
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,12 +36,9 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetContainerReportRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptReport;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.ContainerNotFoundException;
@@ -57,10 +47,8 @@ import org.apache.hadoop.yarn.server.webapp.dao.AppInfo;
 import org.apache.hadoop.yarn.server.webapp.dao.ContainerInfo;
 import org.apache.hadoop.yarn.util.Apps;
 import org.apache.hadoop.yarn.util.Times;
-import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.hadoop.yarn.webapp.YarnWebParams;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.DIV;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TABLE;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TBODY;
 import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
@@ -73,9 +61,11 @@ public class AppBlock extends HtmlBlock {
   private static final Log LOG = LogFactory.getLog(AppBlock.class);
   protected ApplicationBaseProtocol appBaseProt;
   protected Configuration conf;
+  protected ApplicationId appID = null;
 
   @Inject
-  AppBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx, Configuration conf) {
+  protected AppBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx,
+      Configuration conf) {
     super(ctx);
     this.appBaseProt = appBaseProt;
     this.conf = conf;
@@ -90,7 +80,6 @@ public class AppBlock extends HtmlBlock {
       return;
     }
 
-    ApplicationId appID = null;
     try {
       appID = Apps.toAppID(aid);
     } catch (Exception e) {
@@ -217,31 +206,7 @@ public class AppBlock extends HtmlBlock {
       return;
     }
 
-    //TODO:YARN-3284
-    //The preemption metrics will be exposed from ApplicationReport
-    // and ApplicationAttemptReport
-    ApplicationResourceUsageReport usageReport =
-        appReport.getApplicationResourceUsageReport();
-    DIV<Hamlet> pdiv = html.
-        _(InfoBlock.class).
-        div(_INFO_WRAP);
-    info("Application Overview").clear();
-    info("Application Metrics")
-        ._("Total Resource Preempted:",
-          Resources.none()) // TODO: YARN-3284
-        ._("Total Number of Non-AM Containers Preempted:",
-          String.valueOf(0)) // TODO: YARN-3284
-        ._("Total Number of AM Containers Preempted:",
-          String.valueOf(0)) // TODO: YARN-3284
-        ._("Resource Preempted from Current Attempt:",
-          Resources.none()) // TODO: YARN-3284
-        ._("Number of Non-AM Containers Preempted from Current Attempt:",
-          0) // TODO: YARN-3284
-        ._("Aggregate Resource Allocation:",
-          String.format("%d MB-seconds, %d vcore-seconds", usageReport == null
-            ? 0 : usageReport.getMemorySeconds(), usageReport == null ? 0
-            : usageReport.getVcoreSeconds()));
-    pdiv._();
+    createApplicationMetricsTable(html);
 
     html._(InfoBlock.class);
 
@@ -289,15 +254,12 @@ public class AppBlock extends HtmlBlock {
       }
       long startTime = 0L;
       String logsLink = null;
+      String nodeLink = null;
       if (containerReport != null) {
         ContainerInfo container = new ContainerInfo(containerReport);
         startTime = container.getStartedTime();
         logsLink = containerReport.getLogUrl();
-      }
-      String nodeLink = null;
-      if (appAttempt.getHost() != null && appAttempt.getRpcPort() >= 0
-          && appAttempt.getRpcPort() < 65536) {
-        nodeLink = appAttempt.getHost() + ":" + appAttempt.getRpcPort();
+        nodeLink = containerReport.getNodeHttpAddress();
       }
       // AppAttemptID numerical value parsed by parseHadoopID in
       // yarn.dt.plugins.js
@@ -308,8 +270,8 @@ public class AppBlock extends HtmlBlock {
         .append(appAttempt.getAppAttemptId())
         .append("</a>\",\"")
         .append(startTime)
-        .append("\",\"<a href='")
-        .append("#") // TODO: replace with node http address (YARN-1884)
+        .append("\",\"<a ")
+        .append(nodeLink == null ? "#" : "href='" + nodeLink)
         .append("'>")
         .append(nodeLink == null ? "N/A" : StringEscapeUtils
             .escapeJavaScript(StringEscapeUtils.escapeHtml(nodeLink)))
@@ -325,83 +287,6 @@ public class AppBlock extends HtmlBlock {
     html.script().$type("text/javascript")
       ._("var attemptsTableData=" + attemptsTableData)._();
 
-    tbody._()._();
-
-    createContainerLocalityTable(html); //TODO:YARN-3284
-    createResourceRequestsTable(html, null); //TODO:YARN-3284
-  }
-
-  //TODO: YARN-3284
-  //The containerLocality metrics will be exposed from AttemptReport
-  private void createContainerLocalityTable(Block html) {
-    int totalAllocatedContainers = 0; //TODO: YARN-3284
-    int[][] localityStatistics = new int[0][0];//TODO:YARN-3284
-    DIV<Hamlet> div = html.div(_INFO_WRAP);
-    TABLE<DIV<Hamlet>> table =
-        div.h3(
-          "Total Allocated Containers: "
-              + totalAllocatedContainers).h3("Each table cell"
-            + " represents the number of NodeLocal/RackLocal/OffSwitch containers"
-            + " satisfied by NodeLocal/RackLocal/OffSwitch resource requests.").table(
-          "#containerLocality");
-    table.
-      tr().
-        th(_TH, "").
-        th(_TH, "Node Local Request").
-        th(_TH, "Rack Local Request").
-        th(_TH, "Off Switch Request").
-      _();
-
-    String[] containersType =
-        { "Num Node Local Containers (satisfied by)", "Num Rack Local Containers (satisfied by)",
-            "Num Off Switch Containers (satisfied by)" };
-    boolean odd = false;
-    for (int i = 0; i < localityStatistics.length; i++) {
-      table.tr((odd = !odd) ? _ODD : _EVEN).td(containersType[i])
-        .td(String.valueOf(localityStatistics[i][0]))
-        .td(i == 0 ? "" : String.valueOf(localityStatistics[i][1]))
-        .td(i <= 1 ? "" : String.valueOf(localityStatistics[i][2]))._();
-    }
-    table._();
-    div._();
-  }
-
-  //TODO:YARN-3284
-  //The resource requests metrics will be exposed from attemptReport
-  private void createResourceRequestsTable(Block html, List<ResourceRequest> resouceRequests) {
-    TBODY<TABLE<Hamlet>> tbody =
-        html.table("#ResourceRequests").thead().tr()
-          .th(".priority", "Priority")
-          .th(".resourceName", "ResourceName")
-          .th(".totalResource", "Capability")
-          .th(".numContainers", "NumContainers")
-          .th(".relaxLocality", "RelaxLocality")
-          .th(".nodeLabelExpression", "NodeLabelExpression")._()._().tbody();
-
-    Resource totalResource = Resource.newInstance(0, 0);
-    if (resouceRequests != null) {
-      for (ResourceRequest request : resouceRequests) {
-        if (request.getNumContainers() == 0) {
-          continue;
-        }
-
-        tbody.tr()
-          .td(String.valueOf(request.getPriority()))
-          .td(request.getResourceName())
-          .td(String.valueOf(request.getCapability()))
-          .td(String.valueOf(request.getNumContainers()))
-          .td(String.valueOf(request.getRelaxLocality()))
-          .td(request.getNodeLabelExpression() == null ? "N/A" : request
-              .getNodeLabelExpression())._();
-        if (request.getResourceName().equals(ResourceRequest.ANY)) {
-          Resources.addTo(totalResource,
-            Resources.multiply(request.getCapability(),
-              request.getNumContainers()));
-        }
-      }
-    }
-    html.div().$class("totalResourceRequests")
-      .h3("Total Outstanding Resource Requests: " + totalResource)._();
     tbody._()._();
   }
 
@@ -429,5 +314,10 @@ public class AppBlock extends HtmlBlock {
       return "Application has not completed yet.";
     }
     return status.toString();
+  }
+
+  // The preemption metrics only need to be shown in RM WebUI
+  protected void createApplicationMetricsTable(Block html) {
+
   }
 }

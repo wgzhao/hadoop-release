@@ -78,6 +78,15 @@ Release 2.7.0 - UNRELEASED
     MAPREDUCE-6267. Refactor JobSubmitter#copyAndConfigureFiles into it's own 
     class. (Chris Trezzo via kasha)
 
+    MAPREDUCE-6263. Configurable timeout between YARNRunner terminate the 
+    application and forcefully kill. (Eric Payne via junping_du)
+
+    MAPREDUCE-6265. Make ContainerLauncherImpl.INITIAL_POOL_SIZE configurable 
+    to better control to launch/kill containers. (Zhihai Xu via ozawa)
+
+    MAPREDUCE-6292. Use org.junit package instead of junit.framework in
+    TestCombineFileInputFormat. (aajisaka)
+
   OPTIMIZATIONS
 
     MAPREDUCE-6169. MergeQueue should release reference to the current item 
@@ -85,6 +94,9 @@ Release 2.7.0 - UNRELEASED
     (Zhihai Xu via kasha)
 
     MAPREDUCE-6059. Speed up history server startup time (Siqi Li via aw)
+
+    MAPREDUCE-4815. Speed up FileOutputCommitter#commitJob for many output
+    files. (Siqi Li via gera)
 
   BUG FIXES
 
@@ -120,9 +132,6 @@ Release 2.7.0 - UNRELEASED
 
     MAPREDUCE-6045. need close the DataInputStream after open it in
     TestMapReduce.java (zxu via rkanter)
-
-    MAPREDUCE-6199. AbstractCounters are not reset completely on
-    deserialization (adhoot via rkanter)
 
     MAPREDUCE-6206. TestAggregatedTransferRate fails on non-US systems (Jens
     Rabe via jlowe)
@@ -167,7 +176,18 @@ Release 2.7.0 - UNRELEASED
     Reddy Battula via ozawa)
 
     MAPREDUCE-5657. [JDK8] Fix Javadoc errors caused by incorrect or illegal
-    tags in doc comments. (Akira AJISAKA via ozawa)
+    tags in doc comments. (Akira AJISAKA and Andrew Purtell via ozawa)
+
+    MAPREDUCE-4742. Fix typo in nnbench#displayUsage. (Liang Xie via ozawa)
+
+    MAPREDUCE-6277. Job can post multiple history files if attempt loses
+    connection to the RM (Chang Li via jlowe)
+
+    MAPREDUCE-6275. Race condition in FileOutputCommitter v2 for
+    user-specified task output subdirs (Gera Shegalov and Siqi Li via jlowe)
+
+    MAPREDUCE-6285. ClientServiceDelegate should not retry upon
+    AuthenticationException. (Jonathan Eagles via ozawa)
 
 Release 2.6.1 - UNRELEASED
 
@@ -385,9 +405,6 @@ Release 2.6.0 - 2014-11-18
     MAPREDUCE-6123. TestCombineFileInputFormat incorrectly starts 2
     MiniDFSCluster instances. (cnauroth)
 
-    MAPREDUCE-5875. Make Counter limits consistent across JobClient, 
-    MRAppMaster, and YarnChild. (Gera Shegalov via kasha)
-
     MAPREDUCE-6125. TestContainerLauncherImpl sometimes fails (Mit Desai via
     jlowe)
 
@@ -432,7 +449,6 @@ Release 2.5.2 - 2014-11-19
   OPTIMIZATIONS
 
   BUG FIXES
-
 
 Release 2.5.1 - 2014-09-05
 

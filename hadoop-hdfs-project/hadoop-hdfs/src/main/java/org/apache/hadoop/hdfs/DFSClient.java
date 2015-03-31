@@ -339,6 +339,8 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     final long shortCircuitCacheStaleThresholdMs;
 
     final long keyProviderCacheExpiryMs;
+    public BlockReaderFactory.FailureInjector brfFailureInjector =
+      new BlockReaderFactory.FailureInjector();
 
     public Conf(Configuration conf) {
       // The hdfsTimeout is currently the same as the ipc timeout 
@@ -874,7 +876,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
       if (filesBeingWritten.isEmpty()) {
         return;
       }
-      lastLeaseRenewal = Time.now();
+      lastLeaseRenewal = Time.monotonicNow();
     }
   }
 
@@ -891,7 +893,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
         return true;
       } catch (IOException e) {
         // Abort if the lease has already expired. 
-        final long elapsed = Time.now() - getLastLeaseRenewal();
+        final long elapsed = Time.monotonicNow() - getLastLeaseRenewal();
         if (elapsed > HdfsConstants.LEASE_HARDLIMIT_PERIOD) {
           LOG.warn("Failed to renew lease for " + clientName + " for "
               + (elapsed/1000) + " seconds (>= hard-limit ="
@@ -1009,7 +1011,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
    * @see ClientProtocol#getServerDefaults()
    */
   public FsServerDefaults getServerDefaults() throws IOException {
-    long now = Time.now();
+    long now = Time.monotonicNow();
     if (now - serverDefaultsLastUpdate > SERVER_DEFAULTS_VALIDITY_PERIOD) {
       serverDefaults = namenode.getServerDefaults();
       serverDefaultsLastUpdate = now;
@@ -1816,10 +1818,10 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     try {
       LastBlockWithStatus blkWithStatus = namenode.append(src, clientName,
           new EnumSetWritable<>(flag, CreateFlag.class));
-      return DFSOutputStream.newStreamForAppend(this, src,
-          flag.contains(CreateFlag.NEW_BLOCK),
-          buffersize, progress, blkWithStatus.getLastBlock(),
-          blkWithStatus.getFileStatus(), dfsClientConf.createChecksum(), favoredNodes);
+      return DFSOutputStream.newStreamForAppend(this, src, flag, buffersize,
+          progress, blkWithStatus.getLastBlock(),
+          blkWithStatus.getFileStatus(), dfsClientConf.createChecksum(),
+          favoredNodes);
     } catch(RemoteException re) {
       throw re.unwrapRemoteException(AccessControlException.class,
                                      FileNotFoundException.class,
@@ -3086,6 +3088,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
       throw new IllegalArgumentException("Don't support Quota for storage type : "
         + type.toString());
     }
+    TraceScope scope = getPathTraceScope("setQuotaByStorageType", src);
     try {
       namenode.setQuota(src, HdfsConstants.QUOTA_DONT_SET, quota, type);
     } catch (RemoteException re) {
@@ -3094,6 +3097,8 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
         QuotaByStorageTypeExceededException.class,
         UnresolvedPathException.class,
         SnapshotAccessControlException.class);
+    } finally {
+      scope.close();
     }
   }
   /**

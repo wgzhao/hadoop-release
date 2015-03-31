@@ -281,6 +281,7 @@ public class JsonUtil {
     m.put("cacheCapacity", datanodeinfo.getCacheCapacity());
     m.put("cacheUsed", datanodeinfo.getCacheUsed());
     m.put("lastUpdate", datanodeinfo.getLastUpdate());
+    m.put("lastUpdateMonotonic", datanodeinfo.getLastUpdateMonotonic());
     m.put("xceiverCount", datanodeinfo.getXceiverCount());
     m.put("networkLocation", datanodeinfo.getNetworkLocation());
     m.put("adminState", datanodeinfo.getAdminState().name());
@@ -379,6 +380,7 @@ public class JsonUtil {
         getLong(m, "cacheCapacity", 0l),
         getLong(m, "cacheUsed", 0l),
         getLong(m, "lastUpdate", 0l),
+        getLong(m, "lastUpdateMonotonic", 0l),
         getInt(m, "xceiverCount", 0),
         getString(m, "networkLocation", ""),
         AdminStates.valueOf(getString(m, "adminState", "NORMAL")));
@@ -551,8 +553,9 @@ public class JsonUtil {
     final long spaceConsumed = ((Number) m.get("spaceConsumed")).longValue();
     final long spaceQuota = ((Number) m.get("spaceQuota")).longValue();
 
-    return new ContentSummary(length, fileCount, directoryCount,
-        quota, spaceConsumed, spaceQuota);
+    return new ContentSummary.Builder().length(length).fileCount(fileCount).
+        directoryCount(directoryCount).quota(quota).spaceConsumed(spaceConsumed).
+        spaceQuota(spaceQuota).build();
   }
 
   /** Convert a MD5MD5CRC32FileChecksum to a Json string. */

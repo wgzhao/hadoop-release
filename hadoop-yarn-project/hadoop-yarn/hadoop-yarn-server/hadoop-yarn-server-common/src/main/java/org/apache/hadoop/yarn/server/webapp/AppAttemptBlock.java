@@ -19,7 +19,6 @@ package org.apache.hadoop.yarn.server.webapp;
 
 import static org.apache.hadoop.yarn.util.StringHelper.join;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APPLICATION_ATTEMPT_ID;
-
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 
@@ -43,13 +42,13 @@ import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TABLE;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TBODY;
 import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
 import org.apache.hadoop.yarn.webapp.view.InfoBlock;
-
 import com.google.inject.Inject;
 
 public class AppAttemptBlock extends HtmlBlock {
 
   private static final Log LOG = LogFactory.getLog(AppAttemptBlock.class);
   protected ApplicationBaseProtocol appBaseProt;
+  protected ApplicationAttemptId appAttemptId = null;
 
   @Inject
   public AppAttemptBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx) {
@@ -65,7 +64,6 @@ public class AppAttemptBlock extends HtmlBlock {
       return;
     }
 
-    ApplicationAttemptId appAttemptId = null;
     try {
       appAttemptId = ConverterUtils.toApplicationAttemptId(attemptid);
     } catch (IllegalArgumentException e) {
@@ -175,6 +173,9 @@ public class AppAttemptBlock extends HtmlBlock {
       return;
     }
 
+    createAttemptHeadRoomTable(html);
+    html._(InfoBlock.class);
+
     // Container Table
     TBODY<TABLE<Hamlet>> tbody =
         html.table("#containers").thead().tr().th(".id", "Container ID")
@@ -191,12 +192,14 @@ public class AppAttemptBlock extends HtmlBlock {
         .append(url("container", container.getContainerId()))
         .append("'>")
         .append(container.getContainerId())
-        .append("</a>\",\"<a href='")
-        .append("#") // TODO: replace with node http address (YARN-1884)
+        .append("</a>\",\"<a ")
+        .append(
+          container.getNodeHttpAddress() == null ? "#" : "href='"
+              + container.getNodeHttpAddress())
         .append("'>")
-        .append(container.getAssignedNodeId() == null ? "N/A" :
+        .append(container.getNodeHttpAddress() == null ? "N/A" :
             StringEscapeUtils.escapeJavaScript(StringEscapeUtils
-                .escapeHtml(container.getAssignedNodeId())))
+                .escapeHtml(container.getNodeHttpAddress())))
         .append("</a>\",\"")
         .append(container.getContainerExitStatus()).append("\",\"<a href='")
         .append(container.getLogUrl() == null ?
@@ -223,5 +226,9 @@ public class AppAttemptBlock extends HtmlBlock {
       }
     }
     return false;
+  }
+
+  protected void createAttemptHeadRoomTable(Block html) {
+    
   }
 }

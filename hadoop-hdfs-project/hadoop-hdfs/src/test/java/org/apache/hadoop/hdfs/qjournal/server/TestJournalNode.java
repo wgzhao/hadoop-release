@@ -169,11 +169,6 @@ public class TestJournalNode {
     assertTrue("Bad contents: " + pageContents,
         pageContents.contains(
             "Hadoop:service=JournalNode,name=JvmMetrics"));
-    
-    // Check JSP page.
-    pageContents = DFSTestUtil.urlGet(
-        new URL(urlRoot + "/journalstatus.jsp"));
-    assertTrue(pageContents.contains("JournalNode"));
 
     // Create some edits on server side
     byte[] EDITS_DATA = QJMTestUtil.createTxnData(1, 3);
@@ -275,6 +270,7 @@ public class TestJournalNode {
   public void testFailToStartWithBadConfig() throws Exception {
     Configuration conf = new Configuration();
     conf.set(DFSConfigKeys.DFS_JOURNALNODE_EDITS_DIR_KEY, "non-absolute-path");
+    conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTP_ADDRESS_KEY, "0.0.0.0:0");
     assertJNFailsToStart(conf, "should be an absolute path");
     
     // Existing file which is not a directory 

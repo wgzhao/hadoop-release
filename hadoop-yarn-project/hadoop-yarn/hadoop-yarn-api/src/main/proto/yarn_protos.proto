@@ -98,6 +98,7 @@ message ContainerReportProto {
   optional string log_url = 8;
   optional int32 container_exit_status = 9;
   optional ContainerStateProto container_state = 10;
+  optional string node_http_address = 11;
 }
 
 enum YarnApplicationStateProto {
@@ -313,6 +314,8 @@ message ApplicationSubmissionContextProto {
 message LogAggregationContextProto {
  optional string include_pattern = 1 [default = ".*"];
  optional string exclude_pattern = 2 [default = ""];
+ optional string rolled_logs_include_pattern = 3 [default = ""];
+ optional string rolled_logs_exclude_pattern = 4 [default = ".*"];
 }
 
 enum ApplicationAccessTypeProto {
