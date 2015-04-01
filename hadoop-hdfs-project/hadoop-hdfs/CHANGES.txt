@@ -354,6 +354,9 @@ Release 2.7.2 - 2016-01-25
     HDFS-8099. Change "DFSInputStream has been closed already" message to
     debug log level (Charles Lamb via Colin P. McCabe)
 
+    HDFS-7978. Add LOG.isDebugEnabled() guard for some LOG.debug(..).
+    (Walter Su via wang)
+
   OPTIMIZATIONS
 
     HDFS-8656. Preserve compatibility of ClientProtocol#rollingUpgrade after

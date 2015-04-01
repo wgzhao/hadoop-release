@@ -352,8 +352,10 @@ public class FileJournalManager implements JournalManager {
     for (EditLogFile elf : elfs) {
       if (elf.isInProgress()) {
         if (!inProgressOk) {
-          LOG.debug("passing over " + elf + " because it is in progress " +
-              "and we are ignoring in-progress logs.");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("passing over " + elf + " because it is in progress " +
+                "and we are ignoring in-progress logs.");
+          }
           continue;
         }
         try {
@@ -366,9 +368,11 @@ public class FileJournalManager implements JournalManager {
       }
       if (elf.lastTxId < fromTxId) {
         assert elf.lastTxId != HdfsConstants.INVALID_TXID;
-        LOG.debug("passing over " + elf + " because it ends at " +
-            elf.lastTxId + ", but we only care about transactions " +
-            "as new as " + fromTxId);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("passing over " + elf + " because it ends at " +
+              elf.lastTxId + ", but we only care about transactions " +
+              "as new as " + fromTxId);
+        }
         continue;
       }
       EditLogFileInputStream elfis = new EditLogFileInputStream(elf.getFile(),
