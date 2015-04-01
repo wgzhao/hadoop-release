@@ -64,6 +64,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows.
     (Kiran Kumar M R via Xiaoyu Yao)
 
+    HDFS-6945. BlockManager should remove a block from excessReplicateMap and
+    decrement ExcessBlocks metric when the block is removed. (aajisaka)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
