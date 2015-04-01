@@ -69,7 +69,14 @@ Release 2.8.0 - UNRELEASED
 
 Release 2.7.1 - UNRELEASED
 
+<<<<<<< HEAD
   INCOMPATIBLE CHANGES
+=======
+    YARN-3248. Display count of nodes blacklisted by apps in the web UI.
+    (Varun Vasudev via xgong)
+
+  OPTIMIZATIONS
+>>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
   NEW FEATURES
 
@@ -870,6 +877,7 @@ Release 2.7.0 - UNRELEASED
     Kambatla via vinodkv)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     YARN-3430. Made headroom data available on app attempt page of RM WebUI.
     (Xuan Gong via zjshen)
 
@@ -883,6 +891,8 @@ Release 2.7.0 - UNRELEASED
     (Varun Vasudev via xgong)
 >>>>>>> e26b6e5... YARN-3248. Display count of nodes blacklisted by apps in the web UI.
 
+=======
+>>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
