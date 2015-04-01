@@ -130,7 +130,18 @@ Release 2.7.0 - 2015-04-20
     YARN-3383. AdminService should use "warn" instead of "info" to log exception 
     when operation fails. (Li Lu via wangda)
 
+<<<<<<< HEAD
 >>>>>>> 2962902... YARN-3383. AdminService should use warn instead of info to log exception when operation fails. (Li Lu via wangda)
+=======
+    YARN-3400. [JDK 8] Build Failure due to unreported exceptions in
+    RPCUtil (rkanter)
+
+    YARN-3412. RM tests should use MockRM where possible. (kasha)
+
+    YARN-3425. NPE from RMNodeLabelsManager.serviceStop when 
+    NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
+
+>>>>>>> 865be70... YARN-3425. NPE from RMNodeLabelsManager.serviceStop when NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
