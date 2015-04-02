@@ -21,6 +21,10 @@ Release 2.8.0 - UNRELEASED
     YARN-3345. Add non-exclusive node label API. (Wangda Tan via jianhe)
 >>>>>>> 9c494ce... YARN-3345. Add non-exclusive node label API. Contributed by Wangda Tan
 
+    YARN-3365. Enhanced NodeManager to support using the 'tc' tool via
+    container-executor for outbound network traffic control. (Sidharta Seethana
+    via vinodkv)
+
   IMPROVEMENTS
 
     YARN-3243. CapacityScheduler should pass headroom from parent to children
