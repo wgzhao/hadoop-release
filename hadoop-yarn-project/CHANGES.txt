@@ -6,6 +6,10 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
+    YARN-3365. Enhanced NodeManager to support using the 'tc' tool via
+    container-executor for outbound network traffic control. (Sidharta Seethana
+    via vinodkv)
+
   IMPROVEMENTS
 
   OPTIMIZATIONS
