@@ -145,7 +145,16 @@ Release 2.7.0 - 2015-04-20
     YARN-3425. NPE from RMNodeLabelsManager.serviceStop when 
     NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
 
+<<<<<<< HEAD
 >>>>>>> 865be70... YARN-3425. NPE from RMNodeLabelsManager.serviceStop when NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
+=======
+    YARN-3415. Non-AM containers can be counted towards amResourceUsage of a
+    Fair Scheduler queue (Zhihai Xu via Sandy Ryza)
+
+    YARN-3435. AM container to be allocated Appattempt AM container shown as null.
+    (Bibin A Chundatt via xgong)
+
+>>>>>>> 1eb6d74... YARN-3435. AM container to be allocated Appattempt AM container shown as
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
