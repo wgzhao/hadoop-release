@@ -55,6 +55,9 @@ Release 2.7.0 - UNRELEASED
     HDFS-7926. NameNode implementation of ClientProtocol.truncate(..) is not 
     idempotent (Tsz Wo Nicholas Sze via brandonli)
 
+    HDFS-7999. FsDatasetImpl#createTemporary sometimes holds the FSDatasetImpl
+    lock for a very long time (sinago via cmccabe)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
