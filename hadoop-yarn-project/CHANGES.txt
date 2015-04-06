@@ -155,6 +155,7 @@ Release 2.7.0 - 2015-04-20
     (Bibin A Chundatt via xgong)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1eb6d74... YARN-3435. AM container to be allocated Appattempt AM container shown as
 =======
     YARN-2666. TestFairScheduler.testContinuousScheduling fails Intermittently.
@@ -166,6 +167,11 @@ Release 2.7.0 - 2015-04-20
     YARN-3110. Few issues in ApplicationHistory web ui. (Naganarasimha G R via xgong)
 
 >>>>>>> 7941cc5... YARN-3110. Few issues in ApplicationHistory web ui. Contributed by Naganarasimha G R
+=======
+    YARN-2666. TestFairScheduler.testContinuousScheduling fails Intermittently.
+    (Zhihai Xu via ozawa)
+
+>>>>>>> d2b2d76... TestFairScheduler.testContinuousScheduling fails Intermittently. Contributed by Zhihai Xu.
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
