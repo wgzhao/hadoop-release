@@ -4,6 +4,10 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
   NEW FEATURES
 
+   HDFS-8008. Support client-side back off when the datanodes are congested. (wheat9)
+
+   HDFS-8009. Signal congestion on the DataNode. (wheat9)
+
   IMPROVEMENTS
 
   BUG FIXES
