@@ -79,6 +79,15 @@ Release 2.7.1 - UNRELEASED
     YARN-3248. Display count of nodes blacklisted by apps in the web UI.
     (Varun Vasudev via xgong)
 
+<<<<<<< HEAD
+=======
+    YARN-2901. Add errors and warning metrics page to RM, NM web UI. 
+    (Varun Vasudev via wangda)
+
+    YARN-3294. Allow dumping of Capacity Scheduler debug logs via
+    web UI for a fixed time period. (Varun Vasudev via xgong)
+
+>>>>>>> 0522d69... YARN-3294. Allow dumping of Capacity Scheduler debug logs via web UI for
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
