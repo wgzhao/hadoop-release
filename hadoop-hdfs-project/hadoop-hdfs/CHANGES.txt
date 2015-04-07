@@ -90,6 +90,9 @@ Release 2.7.0
     HDFS-7533. Datanode sometimes does not shutdown on receiving upgrade
     shutdown command (Eric Payne via kihwal)
 
+    HDFS-8038. PBImageDelimitedTextWriter#getEntry output HDFS path in
+    platform-specific format. (Xiaoyu Yao via cnauroth)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
