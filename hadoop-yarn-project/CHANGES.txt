@@ -192,7 +192,13 @@ Release 2.7.0 - 2015-04-20
     YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called.
     (Bibin A Chundatt via ozawa)
 
+<<<<<<< HEAD
 >>>>>>> ac32fa1... YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called. Contributed by Bibin A Chundatt.
+=======
+    YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender.
+    (Varun Vasudev via wangda)
+
+>>>>>>> 97244b1... YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender. (Varun Vasudev via wangda)
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
