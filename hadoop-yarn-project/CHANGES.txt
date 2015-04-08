@@ -175,12 +175,18 @@ Release 2.7.0 - 2015-04-20
 
     YARN-3110. Few issues in ApplicationHistory web ui. (Naganarasimha G R via xgong)
 
+<<<<<<< HEAD
 >>>>>>> 7941cc5... YARN-3110. Few issues in ApplicationHistory web ui. Contributed by Naganarasimha G R
 =======
     YARN-2666. TestFairScheduler.testContinuousScheduling fails Intermittently.
     (Zhihai Xu via ozawa)
 
 >>>>>>> d2b2d76... TestFairScheduler.testContinuousScheduling fails Intermittently. Contributed by Zhihai Xu.
+=======
+    YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called.
+    (Bibin A Chundatt via ozawa)
+
+>>>>>>> ac32fa1... YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called. Contributed by Bibin A Chundatt.
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
