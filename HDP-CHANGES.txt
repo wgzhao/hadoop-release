@@ -165,3 +165,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3393. Getting application(s) goes wrong when app finishes before
     starting the attempt. (Zhijie Shen via xgong)
+
+    HDFS-8072. Reserved RBW space is not released if client terminates
+    while writing block. (Arpit Agarwal)
+
