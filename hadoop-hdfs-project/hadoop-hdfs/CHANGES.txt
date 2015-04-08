@@ -58,6 +58,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
 
+    HDFS-8046. Allow better control of getContentSummary (kihwal)
+
   OPTIMIZATIONS
 
   BUG FIXES
