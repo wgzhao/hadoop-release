@@ -131,6 +131,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-8451. DFSClient probe for encryption testing interprets empty URI
     property for "enabled". (Steve Loughran via xyao)
 
+    HDFS-8091: ACLStatus and XAttributes should be presented to
+    INodeAttributesProvider before returning to client (asuresh)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
