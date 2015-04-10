@@ -181,6 +181,9 @@ Release 2.7.1
 
   IMPROVEMENTS
 
+    HDFS-7931. DistributedFileSystem should not look for keyProvider in
+    cache if Encryption is disabled (asuresh)
+
   BUG FIXES
 
     HDFS-8595. TestCommitBlockSynchronization fails with NPE. (Arpit agarwal)
