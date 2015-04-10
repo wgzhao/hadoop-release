@@ -88,12 +88,18 @@ Release 2.7.1 - UNRELEASED
     YARN-3294. Allow dumping of Capacity Scheduler debug logs via
     web UI for a fixed time period. (Varun Vasudev via xgong)
 
+<<<<<<< HEAD
 >>>>>>> 0522d69... YARN-3294. Allow dumping of Capacity Scheduler debug logs via web UI for
 =======
     YARN-2901. Add errors and warning metrics page to RM, NM web UI. 
     (Varun Vasudev via wangda)
 
 >>>>>>> 405aead... YARN-2901. Add errors and warning metrics page to RM, NM web UI. (Varun Vasudev via wangda)
+=======
+    YARN-3293. Track and display capacity scheduler health metrics
+    in web UI. (Varun Vasudev via xgong)
+
+>>>>>>> f5b4916... YARN-3293. Track and display capacity scheduler health metrics in web
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
