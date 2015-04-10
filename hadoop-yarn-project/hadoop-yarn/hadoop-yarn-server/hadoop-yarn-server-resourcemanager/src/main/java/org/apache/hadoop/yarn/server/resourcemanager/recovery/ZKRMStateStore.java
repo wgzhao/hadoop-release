@@ -394,7 +394,7 @@ public class ZKRMStateStore extends RMStateStore {
     String versionNodePath = getNodePath(zkRootNodePath, VERSION_NODE);
     byte[] data =
         ((VersionPBImpl) CURRENT_VERSION_INFO).getProto().toByteArray();
-    if (existsWithRetries(versionNodePath, true) != null) {
+    if (existsWithRetries(versionNodePath, false) != null) {
       setDataWithRetries(versionNodePath, data, -1);
     } else {
       createWithRetries(versionNodePath, data, zkAcl, CreateMode.PERSISTENT);
@@ -405,8 +405,8 @@ public class ZKRMStateStore extends RMStateStore {
   protected synchronized Version loadVersion() throws Exception {
     String versionNodePath = getNodePath(zkRootNodePath, VERSION_NODE);
 
-    if (existsWithRetries(versionNodePath, true) != null) {
-      byte[] data = getDataWithRetries(versionNodePath, true);
+    if (existsWithRetries(versionNodePath, false) != null) {
+      byte[] data = getDataWithRetries(versionNodePath, false);
       Version version =
           new VersionPBImpl(VersionProto.parseFrom(data));
       return version;
@@ -418,9 +418,9 @@ public class ZKRMStateStore extends RMStateStore {
   public synchronized long getAndIncrementEpoch() throws Exception {
     String epochNodePath = getNodePath(zkRootNodePath, EPOCH_NODE);
     long currentEpoch = 0;
-    if (existsWithRetries(epochNodePath, true) != null) {
+    if (existsWithRetries(epochNodePath, false) != null) {
       // load current epoch
-      byte[] data = getDataWithRetries(epochNodePath, true);
+      byte[] data = getDataWithRetries(epochNodePath, false);
       Epoch epoch = new EpochPBImpl(EpochProto.parseFrom(data));
       currentEpoch = epoch.getEpoch();
       // increment epoch and store it
@@ -450,7 +450,7 @@ public class ZKRMStateStore extends RMStateStore {
 
   private void loadAMRMTokenSecretManagerState(RMState rmState)
       throws Exception {
-    byte[] data = getDataWithRetries(amrmTokenSecretManagerRoot, true);
+    byte[] data = getDataWithRetries(amrmTokenSecretManagerRoot, false);
     if (data == null) {
       LOG.warn("There is no data saved");
       return;
@@ -473,10 +473,10 @@ public class ZKRMStateStore extends RMStateStore {
 
   private void loadRMDelegationKeyState(RMState rmState) throws Exception {
     List<String> childNodes =
-        getChildrenWithRetries(dtMasterKeysRootPath, true);
+        getChildrenWithRetries(dtMasterKeysRootPath, false);
     for (String childNodeName : childNodes) {
       String childNodePath = getNodePath(dtMasterKeysRootPath, childNodeName);
-      byte[] childData = getDataWithRetries(childNodePath, true);
+      byte[] childData = getDataWithRetries(childNodePath, false);
 
       if (childData == null) {
         LOG.warn("Content of " + childNodePath + " is broken.");
@@ -518,11 +518,11 @@ public class ZKRMStateStore extends RMStateStore {
 
   private void loadRMDelegationTokenState(RMState rmState) throws Exception {
     List<String> childNodes =
-        getChildrenWithRetries(delegationTokensRootPath, true);
+        getChildrenWithRetries(delegationTokensRootPath, false);
     for (String childNodeName : childNodes) {
       String childNodePath =
           getNodePath(delegationTokensRootPath, childNodeName);
-      byte[] childData = getDataWithRetries(childNodePath, true);
+      byte[] childData = getDataWithRetries(childNodePath, false);
 
       if (childData == null) {
         LOG.warn("Content of " + childNodePath + " is broken.");
@@ -554,10 +554,10 @@ public class ZKRMStateStore extends RMStateStore {
   }
 
   private synchronized void loadRMAppState(RMState rmState) throws Exception {
-    List<String> childNodes = getChildrenWithRetries(rmAppRoot, true);
+    List<String> childNodes = getChildrenWithRetries(rmAppRoot, false);
     for (String childNodeName : childNodes) {
       String childNodePath = getNodePath(rmAppRoot, childNodeName);
-      byte[] childData = getDataWithRetries(childNodePath, true);
+      byte[] childData = getDataWithRetries(childNodePath, false);
       if (childNodeName.startsWith(ApplicationId.appIdStrPrefix)) {
         // application
         if (LOG.isDebugEnabled()) {
@@ -594,7 +594,7 @@ public class ZKRMStateStore extends RMStateStore {
     for (String attemptIDStr : attempts) {
       if (attemptIDStr.startsWith(ApplicationAttemptId.appAttemptIdStrPrefix)) {
         String attemptPath = getNodePath(appPath, attemptIDStr);
-        byte[] attemptData = getDataWithRetries(attemptPath, true);
+        byte[] attemptData = getDataWithRetries(attemptPath, false);
 
         ApplicationAttemptId attemptId =
             ConverterUtils.toApplicationAttemptId(attemptIDStr);
@@ -653,7 +653,7 @@ public class ZKRMStateStore extends RMStateStore {
     }
     byte[] appStateData = appStateDataPB.getProto().toByteArray();
 
-    if (existsWithRetries(nodeUpdatePath, true) != null) {
+    if (existsWithRetries(nodeUpdatePath, false) != null) {
       setDataWithRetries(nodeUpdatePath, appStateData, -1);
     } else {
       createWithRetries(nodeUpdatePath, appStateData, zkAcl,
@@ -696,7 +696,7 @@ public class ZKRMStateStore extends RMStateStore {
     }
     byte[] attemptStateData = attemptStateDataPB.getProto().toByteArray();
 
-    if (existsWithRetries(nodeUpdatePath, true) != null) {
+    if (existsWithRetries(nodeUpdatePath, false) != null) {
       setDataWithRetries(nodeUpdatePath, attemptStateData, -1);
     } else {
       createWithRetries(nodeUpdatePath, attemptStateData, zkAcl,
@@ -747,7 +747,7 @@ public class ZKRMStateStore extends RMStateStore {
       LOG.debug("Removing RMDelegationToken_"
           + rmDTIdentifier.getSequenceNumber());
     }
-    if (existsWithRetries(nodeRemovePath, true) != null) {
+    if (existsWithRetries(nodeRemovePath, false) != null) {
       opList.add(Op.delete(nodeRemovePath, -1));
     } else {
       LOG.debug("Attempted to delete a non-existing znode " + nodeRemovePath);
@@ -763,7 +763,7 @@ public class ZKRMStateStore extends RMStateStore {
     String nodeRemovePath =
         getNodePath(delegationTokensRootPath, DELEGATION_TOKEN_PREFIX
             + rmDTIdentifier.getSequenceNumber());
-    if (existsWithRetries(nodeRemovePath, true) == null) {
+    if (existsWithRetries(nodeRemovePath, false) == null) {
       // in case znode doesn't exist
       addStoreOrUpdateOps(
           opList, rmDTIdentifier, renewDate, latestSequenceNumber, false);
@@ -842,7 +842,7 @@ public class ZKRMStateStore extends RMStateStore {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Removing RMDelegationKey_" + delegationKey.getKeyId());
     }
-    if (existsWithRetries(nodeRemovePath, true) != null) {
+    if (existsWithRetries(nodeRemovePath, false) != null) {
       doMultiWithRetries(Op.delete(nodeRemovePath, -1));
     } else {
       LOG.debug("Attempted to delete a non-existing znode " + nodeRemovePath);
@@ -851,8 +851,8 @@ public class ZKRMStateStore extends RMStateStore {
 
   @Override
   public synchronized void deleteStore() throws Exception {
-    if (existsWithRetries(zkRootNodePath, true) != null) {
-      deleteWithRetries(zkRootNodePath, true);
+    if (existsWithRetries(zkRootNodePath, false) != null) {
+      deleteWithRetries(zkRootNodePath, false);
     }
   }
 
