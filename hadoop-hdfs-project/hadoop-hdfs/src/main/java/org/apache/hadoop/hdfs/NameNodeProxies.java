@@ -41,7 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DFSClient.Conf;
+import org.apache.hadoop.hdfs.client.impl.DfsClientConf;
+import org.apache.hadoop.hdfs.protocol.AlreadyBeingCreatedException;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolPB;
@@ -177,12 +178,12 @@ public class NameNodeProxies {
           UserGroupInformation.getCurrentUser(), true, fallbackToSimpleAuth);
     } else {
       // HA case
-      Conf config = new Conf(conf);
+      DfsClientConf config = new DfsClientConf(conf);
       T proxy = (T) RetryProxy.create(xface, failoverProxyProvider,
           RetryPolicies.failoverOnNetworkException(
-              RetryPolicies.TRY_ONCE_THEN_FAIL, config.maxFailoverAttempts,
-              config.maxRetryAttempts, config.failoverSleepBaseMillis,
-              config.failoverSleepMaxMillis));
+              RetryPolicies.TRY_ONCE_THEN_FAIL, config.getMaxFailoverAttempts(),
+              config.getMaxRetryAttempts(), config.getFailoverSleepBaseMillis(),
+              config.getFailoverSleepMaxMillis()));
 
       Text dtService;
       if (failoverProxyProvider.useLogicalURI()) {

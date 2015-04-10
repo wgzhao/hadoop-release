@@ -249,6 +249,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-8117. More accurate verification in SimulatedFSDataset: replace
     DEFAULT_DATABYTE with patterned data. (Zhe Zhang via wang)
 
+    HDFS-8100. Refactor DFSClient.Conf to a standalone class and separates
+    short-circuit related conf to ShortCircuitConf.  (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)

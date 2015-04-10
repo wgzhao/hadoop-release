@@ -666,7 +666,7 @@ public class TestShortCircuitCache {
 
     // The second read should fail, and we should only have 1 segment and 1 slot
     // left.
-    fs.getClient().getConf().brfFailureInjector =
+    fs.getClient().getConf().getShortCircuitConf().brfFailureInjector =
         new TestCleanupFailureInjector();
     try {
       DFSTestUtil.readFileBuffer(fs, TEST_PATH2);
@@ -761,7 +761,7 @@ public class TestShortCircuitCache {
         new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
     cluster.waitActive();
     DistributedFileSystem fs = cluster.getFileSystem();
-    fs.getClient().getConf().brfFailureInjector =
+    fs.getClient().getConf().getShortCircuitConf().brfFailureInjector =
         new TestPreReceiptVerificationFailureInjector();
     final Path TEST_PATH1 = new Path("/test_file1");
     DFSTestUtil.createFile(fs, TEST_PATH1, 4096, (short)1, 0xFADE2);
