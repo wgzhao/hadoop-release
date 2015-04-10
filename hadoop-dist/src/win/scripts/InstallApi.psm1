@@ -1913,7 +1913,16 @@ function ConfigureYarn(
     ###
     $capacitySchedulerXmlFile = Join-Path $hadoopInstallToDir "etc\hadoop\capacity-scheduler.xml"
     [hashtable]$configs = ConfigureCapacityScheduler $capacitySchedulerXmlFile $configs
-
+    
+    ###
+    ### Enable recovery by default
+    ###
+    $configs +=@{
+    "yarn.resourcemanager.recovery.enabled"="true";
+    "yarn.resourcemanager.work-preserving-recovery.enabled"="true";
+    "yarn.nodemanager.recovery.enabled"="true"
+    }
+    
     ###
     ### Apply configuration changes to yarn-site.xml
     ###
