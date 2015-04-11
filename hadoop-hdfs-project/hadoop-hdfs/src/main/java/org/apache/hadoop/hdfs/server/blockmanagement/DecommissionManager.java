@@ -79,7 +79,7 @@ class DecommissionManager {
         }
       }
     }
-    
+
     private void check() {
       final DatanodeManager dm = blockmanager.getDatanodeManager();
       int count = 0;

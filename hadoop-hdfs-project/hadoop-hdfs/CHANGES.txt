@@ -2,8 +2,6 @@ Hadoop HDFS Change Log
 
 Release 2.8.0 - UNRELEASED
 
-  INCOMPATIBLE CHANGE
-
   NEW FEATURES
     
     HDFS-7278. Add a command that allows sysadmins to manually trigger full
@@ -37,6 +35,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-7928. Scanning blocks from disk during rolling upgrade startup takes
     a lot of time if disks are busy. Contributed by Rushabh Shah.
+
+    HDFS-7933. fsck should also report decommissioning replicas.
+    (Xiaoyu Yao via cnauroth)
 
   OPTIMIZATIONS
 

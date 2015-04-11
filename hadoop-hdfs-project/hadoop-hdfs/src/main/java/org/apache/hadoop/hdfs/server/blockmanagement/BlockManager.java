@@ -537,7 +537,7 @@ public class BlockManager {
     // not included in the numReplicas.liveReplicas() count
     assert containingLiveReplicasNodes.size() >= numReplicas.liveReplicas();
     int usableReplicas = numReplicas.liveReplicas() +
-                         numReplicas.decommissionedReplicas();
+                         numReplicas.decommissionedAndDecommissioning();
     
     if (block instanceof BlockInfo) {
       BlockCollection bc = ((BlockInfo) block).getBlockCollection();
@@ -548,7 +548,7 @@ public class BlockManager {
     out.print(block + ((usableReplicas > 0)? "" : " MISSING") + 
               " (replicas:" +
               " l: " + numReplicas.liveReplicas() +
-              " d: " + numReplicas.decommissionedReplicas() +
+              " d: " + numReplicas.decommissionedAndDecommissioning() +
               " c: " + numReplicas.corruptReplicas() +
               " e: " + numReplicas.excessReplicas() + ") "); 
 
@@ -724,7 +724,7 @@ public class BlockManager {
     // Remove block from replication queue.
     NumberReplicas replicas = countNodes(ucBlock);
     neededReplications.remove(ucBlock, replicas.liveReplicas(),
-        replicas.decommissionedReplicas(), getReplication(ucBlock));
+        replicas.decommissionedAndDecommissioning(), getReplication(ucBlock));
     pendingReplications.remove(ucBlock);
 
     // remove this block from the list of pending blocks to be deleted. 
@@ -1610,6 +1610,7 @@ public class BlockManager {
     DatanodeDescriptor srcNode = null;
     int live = 0;
     int decommissioned = 0;
+    int decommissioning = 0;
     int corrupt = 0;
     int excess = 0;
     
@@ -1621,9 +1622,11 @@ public class BlockManager {
       int countableReplica = storage.getState() == State.NORMAL ? 1 : 0; 
       if ((nodesCorrupt != null) && (nodesCorrupt.contains(node)))
         corrupt += countableReplica;
-      else if (node.isDecommissionInProgress() || node.isDecommissioned())
+      else if (node.isDecommissionInProgress()) {
+        decommissioning += countableReplica;
+      } else if (node.isDecommissioned()) {
         decommissioned += countableReplica;
-      else if (excessBlocks != null && excessBlocks.contains(block)) {
+      } else if (excessBlocks != null && excessBlocks.contains(block)) {
         excess += countableReplica;
       } else {
         nodesContainingLiveReplicas.add(storage);
@@ -1663,7 +1666,8 @@ public class BlockManager {
         srcNode = node;
     }
     if(numReplicas != null)
-      numReplicas.initialize(live, decommissioned, corrupt, excess, 0);
+      numReplicas.initialize(live, decommissioned, decommissioning, corrupt,
+          excess, 0);
     return srcNode;
   }
 
@@ -1682,7 +1686,7 @@ public class BlockManager {
                                  num.liveReplicas())) {
             neededReplications.add(timedOutItems[i],
                                    num.liveReplicas(),
-                                   num.decommissionedReplicas(),
+                                   num.decommissionedAndDecommissioning(),
                                    getReplication(timedOutItems[i]));
           }
         }
@@ -2518,7 +2522,7 @@ public class BlockManager {
     short fileReplication = bc.getBlockReplication();
     if (!isNeededReplication(storedBlock, fileReplication, numCurrentReplica)) {
       neededReplications.remove(storedBlock, numCurrentReplica,
-          num.decommissionedReplicas(), fileReplication);
+          num.decommissionedAndDecommissioning(), fileReplication);
     } else {
       updateNeededReplications(storedBlock, curReplicaDelta, 0);
     }
@@ -2746,7 +2750,7 @@ public class BlockManager {
     // add to under-replicated queue if need to be
     if (isNeededReplication(block, expectedReplication, numCurrentReplica)) {
       if (neededReplications.add(block, numCurrentReplica, num
-          .decommissionedReplicas(), expectedReplication)) {
+          .decommissionedAndDecommissioning(), expectedReplication)) {
         return MisReplicationResult.UNDER_REPLICATED;
       }
     }
@@ -3162,6 +3166,7 @@ public class BlockManager {
    */
   public NumberReplicas countNodes(Block b) {
     int decommissioned = 0;
+    int decommissioning = 0;
     int live = 0;
     int corrupt = 0;
     int excess = 0;
@@ -3171,7 +3176,9 @@ public class BlockManager {
       final DatanodeDescriptor node = storage.getDatanodeDescriptor();
       if ((nodesCorrupt != null) && (nodesCorrupt.contains(node))) {
         corrupt++;
-      } else if (node.isDecommissionInProgress() || node.isDecommissioned()) {
+      } else if (node.isDecommissionInProgress()) {
+        decommissioning++;
+      } else if (node.isDecommissioned()) {
         decommissioned++;
       } else {
         LightWeightLinkedSet<Block> blocksExcess = excessReplicateMap.get(node
@@ -3186,7 +3193,7 @@ public class BlockManager {
         stale++;
       }
     }
-    return new NumberReplicas(live, decommissioned, corrupt, excess, stale);
+    return new NumberReplicas(live, decommissioned, decommissioning, corrupt, excess, stale);
   }
 
   /** 
@@ -3392,13 +3399,13 @@ public class BlockManager {
       int curExpectedReplicas = getReplication(block);
       if (isNeededReplication(block, curExpectedReplicas, repl.liveReplicas())) {
         neededReplications.update(block, repl.liveReplicas(), repl
-            .decommissionedReplicas(), curExpectedReplicas, curReplicasDelta,
-            expectedReplicasDelta);
+            .decommissionedAndDecommissioning(), curExpectedReplicas,
+            curReplicasDelta, expectedReplicasDelta);
       } else {
         int oldReplicas = repl.liveReplicas()-curReplicasDelta;
         int oldExpectedReplicas = curExpectedReplicas-expectedReplicasDelta;
-        neededReplications.remove(block, oldReplicas, repl.decommissionedReplicas(),
-                                  oldExpectedReplicas);
+        neededReplications.remove(block, oldReplicas,
+            repl.decommissionedAndDecommissioning(), oldExpectedReplicas);
       }
     } finally {
       namesystem.writeUnlock();
@@ -3417,7 +3424,7 @@ public class BlockManager {
       final NumberReplicas n = countNodes(block);
       if (isNeededReplication(block, expected, n.liveReplicas())) { 
         neededReplications.add(block, n.liveReplicas(),
-            n.decommissionedReplicas(), expected);
+            n.decommissionedAndDecommissioning(), expected);
       } else if (n.liveReplicas() > expected) {
         processOverReplicatedBlock(block, expected, null, null);
       }
