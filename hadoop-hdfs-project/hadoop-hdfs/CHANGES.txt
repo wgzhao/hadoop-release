@@ -28,6 +28,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-7931. DistributedFileSystem should not look for keyProvider in
     cache if Encryption is disabled (asuresh)
 
+    HDFS-7933. fsck should also report decommissioning replicas.
+    (Xiaoyu Yao via cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES
