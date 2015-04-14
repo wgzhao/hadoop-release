@@ -31,6 +31,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3348. Add a 'yarn top' tool to help understand cluster usage. (Varun
     Vasudev via jianhe)
 
+    YARN-3347. Improve YARN log command to get AMContainer logs as well as 
+    running containers logs. (Xuan Gong via junping_du)
+
   IMPROVEMENTS
 
     YARN-3243. CapacityScheduler should pass headroom from parent to children
