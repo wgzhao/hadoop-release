@@ -216,7 +216,37 @@ Release 2.7.0 - 2015-04-20
     YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender.
     (Varun Vasudev via wangda)
 
+<<<<<<< HEAD
 >>>>>>> 97244b1... YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender. (Varun Vasudev via wangda)
+=======
+    YARN-2890. MiniYarnCluster should turn on timeline service if
+    configured to do so. (Mit Desai via hitesh)
+
+    YARN-3465. Use LinkedHashMap to preserve order of resource requests. 
+    (Zhihai Xu via kasha)
+
+    YARN-3382. Some of UserMetricsInfo metrics are incorrectly set to root
+    queue metrics. (Rohit Agarwal via jianhe)
+
+    YARN-3472. Fixed possible leak in DelegationTokenRenewer#allTokens.
+    (Rohith Sharmaks via jianhe)
+
+    YARN-3266. RMContext#inactiveNodes should have NodeId as map key.
+    (Chengbing Liu via jianhe)
+
+Release 2.7.1 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+>>>>>>> 81bbee6... YARN-3266. RMContext#inactiveNodes should have NodeId as map key. Contributed by Chengbing Liu
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
 
