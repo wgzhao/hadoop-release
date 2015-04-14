@@ -76,6 +76,9 @@ Release 2.6.1 - UNRELEASED
     HDFS-3443. Fix NPE when namenode transition to active during startup by
     adding checkNNStartup() in NameNodeRpcServer.  (Vinayakumar B via szetszwo)
 
+    HDFS-4882. Prevent the Namenode's LeaseManager from looping forever in
+    checkLeases (Ravi Prakash via Colin P. McCabe)
+
 Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
