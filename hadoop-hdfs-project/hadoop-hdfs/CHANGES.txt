@@ -12,6 +12,9 @@ Release 2.8.0 - UNRELEASED
 
   BUG FIXES
 
+    HDFS-7701. Support reporting per storage type quota and usage
+    with hadoop/hdfs shell. (Peter Shi via Arpit Agarwal)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
