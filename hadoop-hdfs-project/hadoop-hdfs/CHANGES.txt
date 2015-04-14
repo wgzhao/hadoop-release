@@ -46,6 +46,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8219. setStoragePolicy with folder behavior is different after cluster restart.
     (surendra singh lilhore via Xiaoyu Yao)
 
+    HDFS-8055. NullPointerException when topology script is
+    missing. Contributed by Anu Engineer.
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES

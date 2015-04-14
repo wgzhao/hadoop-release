@@ -19,6 +19,11 @@
 package org.apache.hadoop.hdfs.server.blockmanagement;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,14 +35,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
+import org.apache.hadoop.hdfs.StorageType;
+import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
+import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
+import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
 import org.apache.hadoop.net.DNSToSwitchMapping;
+import org.apache.hadoop.util.Shell;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class TestDatanodeManager {
@@ -210,4 +221,124 @@ public class TestDatanodeManager {
     public void reloadCachedMappings(List<String> names) {  
     }
   }
+
+  /**
+   * This test creates a LocatedBlock with 5 locations, sorts the locations
+   * based on the network topology, and ensures the locations are still aligned
+   * with the storage ids and storage types.
+   */
+  @Test
+  public void testSortLocatedBlocks() throws IOException, URISyntaxException {
+    HelperFunction(null);
+  }
+
+  /**
+   * Execute a functional topology script and make sure that helper
+   * function works correctly
+   *
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  @Test
+  public void testgoodScript() throws IOException, URISyntaxException {
+    HelperFunction("/" + Shell.appendScriptExtension("topology-script"));
+  }
+
+
+  /**
+   * Run a broken script and verify that helper function is able to
+   * ignore the broken script and work correctly
+   *
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  @Test
+  public void testBadScript() throws IOException, URISyntaxException {
+    HelperFunction("/"+ Shell.appendScriptExtension("topology-broken-script"));
+  }
+
+
+  /**
+   * Helper function that tests the DatanodeManagers SortedBlock function
+   * we invoke this function with and without topology scripts
+   *
+   * @param scriptFileName - Script Name or null
+   *
+   * @throws URISyntaxException
+   * @throws IOException
+   */
+  public void HelperFunction(String scriptFileName)
+    throws URISyntaxException, IOException {
+    // create the DatanodeManager which will be tested
+    Configuration conf = new Configuration();
+    FSNamesystem fsn = Mockito.mock(FSNamesystem.class);
+    Mockito.when(fsn.hasWriteLock()).thenReturn(true);
+    if (scriptFileName != null && !scriptFileName.isEmpty()) {
+      URL shellScript = getClass().getResource(scriptFileName);
+      Path resourcePath = Paths.get(shellScript.toURI());
+      FileUtil.setExecutable(resourcePath.toFile(), true);
+      conf.set(DFSConfigKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
+        resourcePath.toString());
+    }
+    DatanodeManager dm = new DatanodeManager(Mockito.mock(BlockManager.class),
+      fsn, conf);
+
+    // register 5 datanodes, each with different storage ID and type
+    DatanodeInfo[] locs = new DatanodeInfo[5];
+    String[] storageIDs = new String[5];
+    StorageType[] storageTypes = new StorageType[]{
+      StorageType.ARCHIVE,
+      StorageType.DEFAULT,
+      StorageType.DISK,
+      StorageType.RAM_DISK,
+      StorageType.SSD
+    };
+    for (int i = 0; i < 5; i++) {
+      // register new datanode
+      String uuid = "UUID-" + i;
+      String ip = "IP-" + i;
+      DatanodeRegistration dr = Mockito.mock(DatanodeRegistration.class);
+      Mockito.when(dr.getDatanodeUuid()).thenReturn(uuid);
+      Mockito.when(dr.getIpAddr()).thenReturn(ip);
+      Mockito.when(dr.getXferAddr()).thenReturn(ip + ":9000");
+      Mockito.when(dr.getXferPort()).thenReturn(9000);
+      Mockito.when(dr.getSoftwareVersion()).thenReturn("version1");
+      dm.registerDatanode(dr);
+
+      // get location and storage information
+      locs[i] = dm.getDatanode(uuid);
+      storageIDs[i] = "storageID-" + i;
+    }
+
+    // set first 2 locations as decomissioned
+    locs[0].setDecommissioned();
+    locs[1].setDecommissioned();
+
+    // create LocatedBlock with above locations
+    ExtendedBlock b = new ExtendedBlock("somePoolID", 1234);
+    LocatedBlock block = new LocatedBlock(b, locs, storageIDs, storageTypes);
+    List<LocatedBlock> blocks = new ArrayList<LocatedBlock>();
+    blocks.add(block);
+
+    final String targetIp = locs[4].getIpAddr();
+
+    // sort block locations
+    dm.sortLocatedBlocks(targetIp, blocks);
+
+    // check that storage IDs/types are aligned with datanode locs
+    DatanodeInfo[] sortedLocs = block.getLocations();
+    storageIDs = block.getStorageIDs();
+    storageTypes = block.getStorageTypes();
+    assertThat(sortedLocs.length, is(5));
+    assertThat(storageIDs.length, is(5));
+    assertThat(storageTypes.length, is(5));
+    // Ensure the local node is first.
+    assertThat(sortedLocs[0].getIpAddr(), is(targetIp));
+    // Ensure the two decommissioned DNs were moved to the end.
+    assertThat(sortedLocs[sortedLocs.length - 1].getAdminState(),
+      is(DatanodeInfo.AdminStates.DECOMMISSIONED));
+    assertThat(sortedLocs[sortedLocs.length - 2].getAdminState(),
+      is(DatanodeInfo.AdminStates.DECOMMISSIONED));
+  }
 }
+
