@@ -15,6 +15,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7701. Support reporting per storage type quota and usage
     with hadoop/hdfs shell. (Peter Shi via Arpit Agarwal)
 
+    HDFS-8055. NullPointerException when topology script is missing.
+    (Anu Engineer via cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -65,6 +68,26 @@ Release 2.7.1 - UNRELEASED
     HDFS-6666. Abort NameNode and DataNode startup if security is enabled but
     block access token is not enabled. (Vijay Bhat via cnauroth)
 
+Release 2.7.1 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+    HDFS-8081. Split getAdditionalBlock() into two methods. (shv)
+
+    HDFS-7931. DistributedFileSystem should not look for keyProvider in
+    cache if Encryption is disabled (asuresh)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+Release 2.7.0 - UNRELEASED
+
+>>>>>>> c7ebecf... HDFS-8055. NullPointerException when topology script is missing. Contributed by Anu Engineer.
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
