@@ -32,6 +32,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-2190. Added CPU and memory limit options to the default container
     executor for Windows containers. (Chuan Liu via jianhe)
 
+    MAPREDUCE-4815. Speed up FileOutputCommitter#commitJob for many output files.
+    (Siqi Li via gera)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
