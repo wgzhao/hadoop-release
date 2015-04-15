@@ -26,7 +26,19 @@ if "%HADOOP_BIN_PATH:~`%" == "\" (
   set HADOOP_BIN_PATH=%HADOOP_BIN_PATH:~0,-1%
 )
 
-  if not defined HADOOP_ROOT_LOGGER (
+@rem Determine log file name.
+@rem If we're being called by --service we need to use %2.
+@rem If we're being called with --config and --service we need to use %4.
+@rem Otherwise use %1
+if "%1" == "--service" (
+  set HADOOP_LOGFILE=mapred-%2-%computername%.log
+) else if "%1" == "--config" (
+  if "%3" == "--service" (
+    set HADOOP_LOGFILE=mapred-%4-%computername%.log
+  )
+)
+
+if not defined HADOOP_ROOT_LOGGER (
     set HADOOP_ROOT_LOGGER=INFO,DRFA
   )
 )
@@ -193,6 +205,9 @@ goto :eof
   )
   if "%1" == "--loglevel" (
     shift
+    shift
+  )
+  if "%1" == "--service" (
     shift
   )
   shift

@@ -305,6 +305,7 @@ goto :eof
 
 @rem This changes %1, %2 etc. Hence those cannot be used after calling this.
 :make_command_arguments
+  if [%2] == [] goto :eof
   if "%1" == "--config" (
     shift
     shift
@@ -313,7 +314,9 @@ goto :eof
     shift
     shift
   )
-  if [%2] == [] goto :eof
+  if "%1" == "--service" (
+    shift
+  )
   shift
   set _yarnarguments=
   :MakeCmdArgsLoop 
