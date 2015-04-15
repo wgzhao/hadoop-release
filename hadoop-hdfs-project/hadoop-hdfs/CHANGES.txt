@@ -246,6 +246,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-8099. Change "DFSInputStream has been closed already" message to
     debug log level (Charles Lamb via Colin P. McCabe)
 
+    HDFS-8117. More accurate verification in SimulatedFSDataset: replace
+    DEFAULT_DATABYTE with patterned data. (Zhe Zhang via wang)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
