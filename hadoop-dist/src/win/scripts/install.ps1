@@ -395,11 +395,19 @@ function Main( $scriptDir )
         "yarn.timeline-service.leveldb-timeline-store.path" = "$ENV:HADOOP_LOG_DIR\timeline" ;
         "yarn.nodemanager.local-dirs" = "$NMAndMRLocalDir" ;
         "yarn.timeline-service.hostname" = "${ENV:RESOURCEMANAGER_HOST}".ToLower() }
+     
+    ###
+    ### Enable recovery by default
+    ###
+    $yarnConfigs +=@{
+        "yarn.resourcemanager.recovery.enabled"="true";
+        "yarn.resourcemanager.work-preserving-recovery.enabled"="true";
+        "yarn.nodemanager.recovery.enabled"="true"
+    }
     if ($ENV:IS_HDFS_HA -ieq "yes") {
         $yarnConfigs += @{
         "yarn.resourcemanager.ha.enabled" = "true";
         "yarn.resourcemanager.ha.rm-ids" = "rm1,rm2";
-        "yarn.resourcemanager.recovery.enabled" = "true";
         "yarn.resourcemanager.store.class" = "org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore";
         "yarn.client.failover-proxy-provider" = "org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider";
         "yarn.resourcemanager.ha.automatic-failover.zk-base-path" = "/yarn-leader-election";
