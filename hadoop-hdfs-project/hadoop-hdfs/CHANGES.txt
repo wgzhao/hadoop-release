@@ -50,6 +50,8 @@ Release 2.7.1 - UNRELEASED
 
     HDFS-7990. IBR delete ack should not be delayed. (daryn via kihwal)
 
+    HDFS-8144. Split TestLazyPersistFiles into multiple tests. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
   BUG FIXES
