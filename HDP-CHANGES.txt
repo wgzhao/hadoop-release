@@ -174,3 +174,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     MAPREDUCE-6275. Race condition in FileOutputCommitter v2 for user-specified
     task output subdirs. Contributed by Gera Shegalov and Siqi Li
+
+    HDFS-8127. NameNode Failover during HA upgrade can cause DataNode to finalize
+    upgrade. (jing9)
