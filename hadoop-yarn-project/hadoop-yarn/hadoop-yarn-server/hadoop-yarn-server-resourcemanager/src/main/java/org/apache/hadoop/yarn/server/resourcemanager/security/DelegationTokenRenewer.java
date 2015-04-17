@@ -79,6 +79,7 @@ public class DelegationTokenRenewer extends AbstractService {
   
   private static final Log LOG = 
       LogFactory.getLog(DelegationTokenRenewer.class);
+  @VisibleForTesting
   public static final Text HDFS_DELEGATION_KIND =
       new Text("HDFS_DELEGATION_TOKEN");
   public static final String SCHEME = "hdfs";
@@ -448,6 +449,9 @@ public class DelegationTokenRenewer extends AbstractService {
           LOG.info(applicationId + " found existing hdfs token " + token);
           hasHdfsToken = true;
         }
+        if (skipTokenRenewal(token)) {
+          continue;
+        }
 
         DelegationTokenToRenew dttr = allTokens.get(token);
         if (dttr == null) {
@@ -541,14 +545,26 @@ public class DelegationTokenRenewer extends AbstractService {
       return super.cancel();
     }
   }
-  
+
+  /*
+   * Skip renewing token if the renewer of the token is set to ""
+   * Caller is expected to have examined that token.isManaged() returns
+   * true before calling this method.
+   */
+  private boolean skipTokenRenewal(Token<?> token)
+      throws IOException {
+    @SuppressWarnings("unchecked")
+    Text renewer = ((Token<AbstractDelegationTokenIdentifier>)token).
+        decodeIdentifier().getRenewer();
+    return (renewer != null && renewer.toString().equals(""));
+  }
+
   /**
    * set task to renew the token
    */
   @VisibleForTesting
   protected void setTimerForTokenRenewal(DelegationTokenToRenew token)
       throws IOException {
-      
     // calculate timer time
     long expiresIn = token.expirationDate - System.currentTimeMillis();
     long renewIn = token.expirationDate - expiresIn/10; // little bit before the expiration

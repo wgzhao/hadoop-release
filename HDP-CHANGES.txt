@@ -1655,3 +1655,7 @@ ATS V1.5:
     cmccabe)
 
     BUG-61637. YARN-5337. Fix Dshell OOM issues. (Jian He via junping_du)
+
+    YARN-3021. YARN's delegation-token handling disallows certain trust setups 
+    to operate properly over DistCp. (Yongjun Zhang via jianhe)
+
