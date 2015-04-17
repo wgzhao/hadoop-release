@@ -134,7 +134,13 @@ Release 2.7.1 - UNRELEASED
 
     YARN-3404. Display queue name on application page. (Ryu Kobayashi via jianhe)
 
+<<<<<<< HEAD
 >>>>>>> 58f99b7... YARN-3404. Display queue name on application page. Contributed by Ryu Kobayashi
+=======
+    YARN-2696. Queue sorting in CapacityScheduler should consider node label.
+    (Wangda Tan via jianhe)
+
+>>>>>>> 57eb07d... YARN-2696. Queue sorting in CapacityScheduler should consider node label. Contributed by Wangda Tan
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
