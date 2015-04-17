@@ -140,7 +140,13 @@ Release 2.7.1 - UNRELEASED
     YARN-2696. Queue sorting in CapacityScheduler should consider node label.
     (Wangda Tan via jianhe)
 
+<<<<<<< HEAD
 >>>>>>> 57eb07d... YARN-2696. Queue sorting in CapacityScheduler should consider node label. Contributed by Wangda Tan
+=======
+    YARN-3451. Display attempt start time and elapsed time on the web UI.
+    (Rohith Sharmaks via jianhe)
+
+>>>>>>> 9827da9... YARN-3451. Display attempt start time and elapsed time on the web UI. Contributed by Rohith Sharmaks
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
