@@ -1165,3 +1165,6 @@ ATS V1.5:
     BUG-55336. MAPREDUCE-6670. TestJobListCache#testEviction sometimes fails on
     Windows with timeout. Contributed by Gergely Novák. (cherry picked from
     commit de96d7c88a42cd54bd88ce2de63122998e967efa)
+
+    BUG-55808/YARN-3021. YARN's delegation-token handling disallows certain
+    trust setups to operate properly over DistCp. (Yongjun Zhang via jianhe)
