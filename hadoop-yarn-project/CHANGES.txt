@@ -269,6 +269,18 @@ Release 2.7.0 - 2015-04-20
     YARN-3266. RMContext#inactiveNodes should have NodeId as map key.
     (Chengbing Liu via jianhe)
 
+<<<<<<< HEAD
+=======
+    YARN-3436. Fix URIs in documantion of YARN web service REST APIs.
+    (Bibin A Chundatt via ozawa)
+
+    YARN-3021. YARN's delegation-token handling disallows certain trust setups
+    to operate properly over DistCp. (Yongjun Zhang via jianhe)
+
+    YARN-3493. RM fails to come up with error "Failed to load/recover state" 
+    when mem settings are changed. (Jian He via wangda)
+
+>>>>>>> e7cbecd... YARN-3493. RM fails to come up with error "Failed to load/recover state" when mem settings are changed. (Jian He via wangda)
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
