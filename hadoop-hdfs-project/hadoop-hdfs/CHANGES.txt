@@ -32,6 +32,11 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8219. setStoragePolicy with folder behavior is different after cluster restart.
     (surendra singh lilhore via Xiaoyu Yao)
+
+    HDFS-8144. Split TestLazyPersistFiles into multiple tests. (Arpit Agarwal)
+
+    HDFS-8152. Refactoring of lazy persist storage cases. (Arpit Agarwal)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -49,8 +54,6 @@ Release 2.7.1 - UNRELEASED
     (Xiaoyu Yao via cnauroth)
 
     HDFS-7990. IBR delete ack should not be delayed. (daryn via kihwal)
-
-    HDFS-8144. Split TestLazyPersistFiles into multiple tests. (Arpit Agarwal)
 
   OPTIMIZATIONS
 
