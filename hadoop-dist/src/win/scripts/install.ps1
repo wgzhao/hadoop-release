@@ -408,6 +408,12 @@ function Main( $scriptDir )
         "yarn.timeline-service.recovery.enabled" = "true" ;
         "yarn.timeline-service.leveldb-state-store.path" = "$ENV:HADOOP_LOG_DIR\timeline-state" ;
     }
+
+    $zookeeperNodes = $env:ZOOKEEPER_HOSTS.Replace(",",":2181,")
+    $zookeeperNodes = $zookeeperNodes + ":2181"
+
+    $yarnConfigs["yarn.resourcemanager.zk-address"] = $zookeeperNodes
+
     if ($ENV:IS_HDFS_HA -ieq "yes") {
         $yarnConfigs += @{
         "yarn.resourcemanager.ha.enabled" = "true";
@@ -416,18 +422,12 @@ function Main( $scriptDir )
         "yarn.resourcemanager.ha.automatic-failover.zk-base-path" = "/yarn-leader-election";
         "yarn.resourcemanager.cluster-id" = "$ENV:RM_HA_CLUSTER_NAME".ToLower();
         "yarn.resourcemanager.ha.automatic-failover.enabled" = "true";
-        "yarn.resourcemanager.ha.automatic-failover.embedded" = "true"
+        "yarn.resourcemanager.ha.automatic-failover.embedded" = "true";
         "yarn.resourcemanager.am.max-attempts" = "20";
         "yarn.resourcemanager.hostname.rm2" = "$ENV:RM_HA_STANDBY_RESOURCEMANAGER_HOST".ToLower();
         "yarn.resourcemanager.hostname.rm1" = "$ENV:RESOURCEMANAGER_HOST".ToLower()
         }
-
-    $zookeeperNodes = $env:ZOOKEEPER_HOSTS.Replace(",",":2181,")
-    $zookeeperNodes = $zookeeperNodes + ":2181"
-
-    $yarnConfigs["yarn.resourcemanager.zk-address"] = $zookeeperNodes
-
-   }
+  }
     Configure "Yarn" $NodeInstallRoot $serviceCredential $yarnConfigs
     ###
     ### Install and Configure MapRed
