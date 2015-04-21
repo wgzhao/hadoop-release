@@ -177,10 +177,3 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-8127. NameNode Failover during HA upgrade can cause DataNode to finalize
     upgrade. (jing9)
-
-    BUG-34958. HDFS-7575. Upgrade should generate a unique storage ID for
-    each volume. (Arpit Agarwal)
-
-    BUG-34958. HDFS-7596. NameNode should prune dead storages from storageMap
-    (Arpit Agarwal via Chris Nauroth)
-
