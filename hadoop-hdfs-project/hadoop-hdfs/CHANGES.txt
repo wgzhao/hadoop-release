@@ -113,6 +113,10 @@ Release 2.7.1 - UNRELEASED
     HDFS-8273. FSNamesystem#Delete() should not call logSync() when holding the
     lock. (wheat9)
 
+    HDFS-7993. Provide each Replica details in fsck (J.Andreina via vinayakumarb)
+
+Release 2.7.1 - UNRELEASED
+
   INCOMPATIBLE CHANGES
 
   NEW FEATURES

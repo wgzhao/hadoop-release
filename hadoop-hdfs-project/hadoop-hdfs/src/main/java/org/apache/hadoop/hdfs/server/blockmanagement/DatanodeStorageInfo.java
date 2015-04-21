@@ -152,7 +152,7 @@ public class DatanodeStorageInfo {
     this.blockReportCount = blockReportCount;
   }
 
-  boolean areBlockContentsStale() {
+  public boolean areBlockContentsStale() {
     return blockContentsStale;
   }
 
@@ -202,11 +202,11 @@ public class DatanodeStorageInfo {
     return getState() == State.FAILED && numBlocks != 0;
   }
 
-  String getStorageID() {
+  public String getStorageID() {
     return storageID;
   }
 
-  StorageType getStorageType() {
+  public StorageType getStorageType() {
     return storageType;
   }
 
