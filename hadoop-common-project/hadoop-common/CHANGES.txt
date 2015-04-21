@@ -56,6 +56,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11031. Design Document for Credential Provider API.
     (Larry McCay via cnauroth)
 
+    HADOOP-11827. Speed-up distcp buildListing() using threadpool
+    (Zoran Dimitrijevic via raviprak)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
