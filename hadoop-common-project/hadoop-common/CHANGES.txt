@@ -15,6 +15,9 @@ Release 2.8.0 - UNRELEASED
 
   BUG FIXES
 
+    HADOOP-11859. PseudoAuthenticationHandler fails with httpcomponents v4.4.
+    (Eugene Koifman via jitendra)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
