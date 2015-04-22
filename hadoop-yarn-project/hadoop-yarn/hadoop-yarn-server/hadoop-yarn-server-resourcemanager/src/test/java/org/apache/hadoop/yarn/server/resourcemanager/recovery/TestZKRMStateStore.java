@@ -145,6 +145,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
     testEpoch(zkTester);
     testAppDeletion(zkTester);
     testDeleteStore(zkTester);
+    testRemoveApplication(zkTester);
     testAMRMTokenSecretManagerStateStore(zkTester);
   }
 
