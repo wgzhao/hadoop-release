@@ -155,7 +155,13 @@ Release 2.7.1 - UNRELEASED
     YARN-3494. Expose AM resource limit and usage in CS QueueMetrics. (Rohith
     Sharmaks via jianhe)
 
+<<<<<<< HEAD
 >>>>>>> dc4698b... YARN-3494. Expose AM resource limit and usage in CS QueueMetrics. Contributed by Rohith Sharmaks
+=======
+    YARN-3503. Expose disk utilization percentage and bad local and log dir 
+    counts in NM metrics. (Varun Vasudev via jianhe)
+
+>>>>>>> 613a783... YARN-3503. Expose disk utilization percentage and bad local and log dir counts in NM metrics. Contributed by Varun Vasudev
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
