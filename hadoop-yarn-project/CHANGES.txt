@@ -13,6 +13,10 @@ Release 2.8.0 - UNRELEASED
     YARN-3443. Create a 'ResourceHandler' subsystem to ease addition of support 
     for new resource types on the NM. (Sidharta Seethana via junping_du)
 
+    YARN-3366. Enhanced NodeManager to support classifying/shaping outgoing
+    network bandwidth traffic originating from YARN containers (Sidharta Seethana
+    via vinodkv)
+
   IMPROVEMENTS
 
   OPTIMIZATIONS
