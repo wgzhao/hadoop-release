@@ -30,8 +30,14 @@ Release 2.7.1 - UNRELEASED
 
   BUG FIXES
 
-    HADOOP-11837. After HADOOP-11754, oozie fails to stop cleanly. 
-    (Bowen Zhang via jitendra)
+    HADOOP-11868. Invalid user logins trigger large backtraces in server log
+    (Chang Li via jlowe)
+
+    HADOOP-11872. "hadoop dfs" command prints message about using "yarn jar" on
+    Windows(branch-2 only) (Varun Vasudev via cnauroth)
+
+    HADOOP-11730. Regression: s3n read failure recovery broken.
+    (Takenori Sato via stevel)
 
 Release 2.7.0 - 2015-04-20
 
