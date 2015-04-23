@@ -940,3 +940,6 @@ covered by CHANGES.txt.
     BUG-47098. HDFS-8626. Reserved RBW space is not released if creation of
     RBW File fails. (Kanaka Kumar Avvaru via Arpit Agarwal)
 
+    YARN-3522. Fixed DistributedShell to instantiate TimeLineClient as the
+    correct user. (Zhijie Shen via jianhe)
+
