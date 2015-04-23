@@ -408,7 +408,7 @@ public class TestRMAdminCLI {
     String[] args =
         { "-addToClusterNodeLabels", "x,y", "-directlyAccessNodeLabelStore" };
     assertEquals(0, rmAdminCLI.run(args));
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().containsAll(
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().containsAll(
         ImmutableSet.of("x", "y")));
     
     // reset localNodeLabelsManager
@@ -420,7 +420,7 @@ public class TestRMAdminCLI {
         new String[] { "-addToClusterNodeLabels",
             "-directlyAccessNodeLabelStore", "x,y" };
     assertEquals(0, rmAdminCLI.run(args));
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().containsAll(
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().containsAll(
         ImmutableSet.of("x", "y")));
     
     // local node labels manager will be close after running
@@ -434,7 +434,7 @@ public class TestRMAdminCLI {
     assertEquals(0, rmAdminCLI.run(args));
     
     // localNodeLabelsManager shouldn't accessed
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().isEmpty());
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().isEmpty());
     
     // remote node labels manager accessed
     assertTrue(remoteAdminServiceAccessed);
@@ -446,7 +446,7 @@ public class TestRMAdminCLI {
     String[] args =
         { "-addToClusterNodeLabels", "x", "-directlyAccessNodeLabelStore" };
     assertEquals(0, rmAdminCLI.run(args));
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().containsAll(
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().containsAll(
         ImmutableSet.of("x")));
     
     // no labels, should fail
@@ -472,19 +472,61 @@ public class TestRMAdminCLI {
         new String[] { "-addToClusterNodeLabels", ",x,,",
             "-directlyAccessNodeLabelStore" };
     assertEquals(0, rmAdminCLI.run(args));
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().containsAll(
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().containsAll(
         ImmutableSet.of("x")));
   }
   
   @Test
+  public void testAddToClusterNodeLabelsWithExclusivitySetting()
+      throws Exception {
+    // Parenthese not match
+    String[] args = new String[] { "-addToClusterNodeLabels", "x(" };
+    assertTrue(0 != rmAdminCLI.run(args));
+
+    args = new String[] { "-addToClusterNodeLabels", "x)" };
+    assertTrue(0 != rmAdminCLI.run(args));
+
+    // Not expected key=value specifying inner parentese
+    args = new String[] { "-addToClusterNodeLabels", "x(key=value)" };
+    assertTrue(0 != rmAdminCLI.run(args));
+
+    // Not key is expected, but value not
+    args = new String[] { "-addToClusterNodeLabels", "x(exclusive=)" };
+    assertTrue(0 != rmAdminCLI.run(args));
+
+    // key=value both set
+    args =
+        new String[] { "-addToClusterNodeLabels",
+            "w,x(exclusive=true), y(exclusive=false),z()",
+            "-directlyAccessNodeLabelStore" };
+    assertTrue(0 == rmAdminCLI.run(args));
+
+    assertTrue(dummyNodeLabelsManager.isExclusiveNodeLabel("w"));
+    assertTrue(dummyNodeLabelsManager.isExclusiveNodeLabel("x"));
+    assertFalse(dummyNodeLabelsManager.isExclusiveNodeLabel("y"));
+    assertTrue(dummyNodeLabelsManager.isExclusiveNodeLabel("z"));
+
+    // key=value both set, and some spaces need to be handled
+    args =
+        new String[] { "-addToClusterNodeLabels",
+            "a (exclusive= true) , b( exclusive =false),c  ",
+            "-directlyAccessNodeLabelStore" };
+    assertTrue(0 == rmAdminCLI.run(args));
+
+    assertTrue(dummyNodeLabelsManager.isExclusiveNodeLabel("a"));
+    assertFalse(dummyNodeLabelsManager.isExclusiveNodeLabel("b"));
+    assertTrue(dummyNodeLabelsManager.isExclusiveNodeLabel("c"));
+  }
+
+  @Test
   public void testRemoveFromClusterNodeLabels() throws Exception {
     // Successfully remove labels
-    dummyNodeLabelsManager.addToCluserNodeLabels(ImmutableSet.of("x", "y"));
+    dummyNodeLabelsManager.addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y"));
     String[] args =
         { "-removeFromClusterNodeLabels", "x,,y",
             "-directlyAccessNodeLabelStore" };
     assertEquals(0, rmAdminCLI.run(args));
-    assertTrue(dummyNodeLabelsManager.getClusterNodeLabels().isEmpty());
+    assertTrue(dummyNodeLabelsManager.getClusterNodeLabelNames().isEmpty());
     
     // no labels, should fail
     args = new String[] { "-removeFromClusterNodeLabels" };
@@ -509,7 +551,7 @@ public class TestRMAdminCLI {
   public void testReplaceLabelsOnNode() throws Exception {
     // Successfully replace labels
     dummyNodeLabelsManager
-        .addToCluserNodeLabels(ImmutableSet.of("x", "y", "Y"));
+        .addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y", "Y"));
     String[] args =
         { "-replaceLabelsOnNode",
             "node1:8000,x node2:8000=y node3,x node4=Y",
@@ -544,7 +586,7 @@ public class TestRMAdminCLI {
   @Test
   public void testReplaceMultipleLabelsOnSingleNode() throws Exception {
     // Successfully replace labels
-    dummyNodeLabelsManager.addToCluserNodeLabels(ImmutableSet.of("x", "y"));
+    dummyNodeLabelsManager.addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y"));
     String[] args =
         { "-replaceLabelsOnNode", "node1,x,y",
             "-directlyAccessNodeLabelStore" };
