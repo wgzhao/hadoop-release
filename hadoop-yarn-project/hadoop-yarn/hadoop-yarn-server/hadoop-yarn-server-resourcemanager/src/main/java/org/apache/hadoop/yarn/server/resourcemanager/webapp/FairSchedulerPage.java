@@ -224,7 +224,7 @@ public class FairSchedulerPage extends RmView {
 
   @Override
   protected String initAppsTable() {
-    return WebPageUtils.appsTableInit(true);
+    return WebPageUtils.appsTableInit(true, false);
   }
 
   static String percent(float f) {
