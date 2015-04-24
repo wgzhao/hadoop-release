@@ -338,9 +338,16 @@ Release 2.7.1 - UNRELEASED
 
   BUG FIXES
 
+<<<<<<< HEAD
 >>>>>>> 81bbee6... YARN-3266. RMContext#inactiveNodes should have NodeId as map key. Contributed by Chengbing Liu
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
+=======
+    YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
+    invoked (Brahma Reddy Battula via jlowe)
+
+Release 2.7.0 - 2015-04-20
+>>>>>>> cf41546... YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore invoked. Contributed by Brahma Reddy Battula
 
   INCOMPATIBLE CHANGES
 
