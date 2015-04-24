@@ -325,7 +325,21 @@ Release 2.7.0 - 2015-04-20
     YARN-3434. Interaction between reservations and userlimit can result in 
     significant ULF violation (tgraves)
 
+<<<<<<< HEAD
 >>>>>>> 1cd2fcf... YARN-3434. Interaction between reservations and userlimit can result in significant ULF violation
+=======
+    YARN-3516. killing ContainerLocalizer action doesn't take effect when
+    private localizer receives FETCH_FAILURE status.(zhihai xu via xgong)
+
+    YARN-3387. Previous AM's container completed status couldn't pass to current
+    AM if AM and RM restarted during the same time. (sandflee via jianhe)
+
+    YARN-3444. Fix typo capabililty. (Gabor Liptak via aajisaka)
+
+    YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
+    invoked (Brahma Reddy Battula via jlowe)
+
+>>>>>>> bd750f1... Fix commit version for YARN-3537
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -339,6 +353,7 @@ Release 2.7.1 - UNRELEASED
   BUG FIXES
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 81bbee6... YARN-3266. RMContext#inactiveNodes should have NodeId as map key. Contributed by Chengbing Liu
 Release 2.7.0 - UNRELEASED
 >>>>>>> f40f174... YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to fully qualified path. Contributed by Xuan Gong
@@ -346,6 +361,8 @@ Release 2.7.0 - UNRELEASED
     YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
     invoked (Brahma Reddy Battula via jlowe)
 
+=======
+>>>>>>> bd750f1... Fix commit version for YARN-3537
 Release 2.7.0 - 2015-04-20
 >>>>>>> cf41546... YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore invoked. Contributed by Brahma Reddy Battula
 
