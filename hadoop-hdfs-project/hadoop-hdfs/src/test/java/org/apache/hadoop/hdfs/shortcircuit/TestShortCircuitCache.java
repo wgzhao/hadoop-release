@@ -43,14 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.BlockReaderFactory;
-import org.apache.hadoop.hdfs.BlockReaderTestUtil;
-import org.apache.hadoop.hdfs.DFSClient;
-import org.apache.hadoop.hdfs.DFSInputStream;
-import org.apache.hadoop.hdfs.DFSTestUtil;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hdfs.ExtendedBlockId;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.*;
 import org.apache.hadoop.hdfs.net.DomainPeer;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
@@ -695,7 +688,7 @@ public class TestShortCircuitCache {
     TemporarySocketDirectory sockDir = new TemporarySocketDirectory();
     Configuration conf = createShortCircuitConf(
         "testDataXceiverHandlesRequestShortCircuitShmFailure", sockDir);
-    conf.setLong(HdfsClientConfigKeys.Read.ShortCircuit.STREAMS_CACHE_EXPIRY_MS_KEY,
+    conf.setLong(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_STREAMS_CACHE_EXPIRY_MS_KEY,
         1000000000L);
     MiniDFSCluster cluster =
         new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
@@ -762,13 +755,13 @@ public class TestShortCircuitCache {
     Configuration conf = createShortCircuitConf(
         "testPreReceiptVerificationDfsClientCanDoScr", sockDir);
     conf.setLong(
-        HdfsClientConfigKeys.Read.ShortCircuit.STREAMS_CACHE_EXPIRY_MS_KEY,
+        DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_STREAMS_CACHE_EXPIRY_MS_KEY,
         1000000000L);
     MiniDFSCluster cluster =
         new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
     cluster.waitActive();
     DistributedFileSystem fs = cluster.getFileSystem();
-    fs.getClient().getConf().getShortCircuitConf().brfFailureInjector =
+    fs.getClient().getConf().brfFailureInjector =
         new TestPreReceiptVerificationFailureInjector();
     final Path TEST_PATH1 = new Path("/test_file1");
     DFSTestUtil.createFile(fs, TEST_PATH1, 4096, (short)1, 0xFADE2);
