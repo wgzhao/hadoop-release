@@ -176,7 +176,15 @@ Release 2.7.1 - UNRELEASED
     YARN-3503. Expose disk utilization percentage and bad local and log dir 
     counts in NM metrics. (Varun Vasudev via jianhe)
 
+<<<<<<< HEAD
 >>>>>>> 613a783... YARN-3503. Expose disk utilization percentage and bad local and log dir counts in NM metrics. Contributed by Varun Vasudev
+=======
+    YARN-3511. Add errors and warnings page to ATS. (Varun Vasudev via xgong)
+
+    YARN-3406. Display count of running containers in the RM's Web UI.
+    (Ryu Kobayashi via ozawa)
+
+>>>>>>> 3884948... YARN-3406. Display count of running containers in the RM's Web UI. Contributed by Ryu Kobayashi.
   OPTIMIZATIONS
 >>>>>>> 5e4d457... YARN-3248. Correct fix version from branch-2.7 to branch-2.8 in the change log.
 
