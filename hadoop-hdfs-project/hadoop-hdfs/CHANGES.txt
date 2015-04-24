@@ -61,6 +61,12 @@ Release 2.7.0 - UNRELEASED
     HDFS-7999. FsDatasetImpl#createTemporary sometimes holds the FSDatasetImpl
     lock for a very long time (sinago via cmccabe)
 
+    HDFS-7579. Improve log reporting during block report rpc failure.
+    (Charles Lamb via cnauroth)
+
+    HDFS-7960. The full block report should prune zombie storages even if
+    they're not empty. (cmccabe and Eddy Xu via wang)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
