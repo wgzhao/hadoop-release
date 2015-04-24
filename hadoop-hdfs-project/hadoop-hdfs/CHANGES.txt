@@ -68,7 +68,8 @@ Release 2.7.1 - UNRELEASED
     HDFS-6666. Abort NameNode and DataNode startup if security is enabled but
     block access token is not enabled. (Vijay Bhat via cnauroth)
 
-Release 2.7.1 - UNRELEASED
+    HDFS-8070. Pre-HDFS-7915 DFSClient cannot use short circuit on
+    post-HDFS-7915 DataNode (cmccabe)
 
   INCOMPATIBLE CHANGES
 
