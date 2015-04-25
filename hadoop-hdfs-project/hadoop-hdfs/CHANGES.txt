@@ -576,6 +576,9 @@ Release 2.7.1 - 2015-07-06
 
     HDFS-7993. Provide each Replica details in fsck (J.Andreina via vinayakumarb)
 
+    HDFS-8247. TestDiskspaceQuotaUpdate#testAppendOverTypeQuota is failing.
+    (Xiaoyu Yao via cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
