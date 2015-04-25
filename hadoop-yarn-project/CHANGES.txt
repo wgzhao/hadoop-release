@@ -69,7 +69,13 @@ Release 2.8.0 - UNRELEASED
 
     YARN-3319. Implement a FairOrderingPolicy. (Craig Welch via wangda)
 
+<<<<<<< HEAD
 >>>>>>> 9692bcc... YARN-3319. Implement a FairOrderingPolicy. (Craig Welch via wangda)
+=======
+    YARN-2498. Respect labels in preemption policy of capacity scheduler for
+    inter-queue preemption. (Wangda Tan via jianhe)
+
+>>>>>>> 9bf09b3... YARN-2498. Respect labels in preemption policy of capacity scheduler for inter-queue preemption. Contributed by Wangda Tan
   IMPROVEMENTS
 
     YARN-3243. CapacityScheduler should pass headroom from parent to children
