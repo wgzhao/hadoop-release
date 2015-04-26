@@ -1158,7 +1158,8 @@ public class NameNode implements NameNodeStatusMXBean {
             LOG.trace("copying op: " + op);
           }
           if (!segmentOpen) {
-            newSharedEditLog.startLogSegment(op.txid, false);
+            newSharedEditLog.startLogSegment(op.txid, false,
+                fsns.getEffectiveLayoutVersion());
             segmentOpen = true;
           }
 
@@ -1481,6 +1482,17 @@ public class NameNode implements NameNodeStatusMXBean {
         new NameNode(conf);
         terminate(0);
         return null;
+      }
+      case ROLLINGUPGRADE: {
+        // Truncate was backported to HDP 2.2, gated by an optional configuration
+        // property, without bumping the layout version.  Because of this,
+        // downgrade cannot be supported.
+        if (conf.getBoolean("dfs.allow.truncate", false)) {
+          LOG.error("{} not supported if dfs.allow.truncate is true.", startOpt);
+          terminate(1);
+          return null;
+        }
+        // intentional fall-through
       }
       default: {
         DefaultMetricsSystem.initialize("NameNode");

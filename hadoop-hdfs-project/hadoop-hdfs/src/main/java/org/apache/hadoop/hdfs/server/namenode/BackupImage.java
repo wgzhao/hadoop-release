@@ -366,7 +366,7 @@ public class BackupImage extends FSImage {
       }
     }
     editLog.setNextTxId(txid);
-    editLog.startLogSegment(txid, false);
+    editLog.startLogSegment(txid, false, namesystem.getEffectiveLayoutVersion());
     if (bnState == BNState.DROP_UNTIL_NEXT_ROLL) {
       setState(BNState.JOURNAL_ONLY);
     }

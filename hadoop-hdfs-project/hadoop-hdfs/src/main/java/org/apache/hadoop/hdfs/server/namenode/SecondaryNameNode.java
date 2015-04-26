@@ -1072,6 +1072,8 @@ public class SecondaryNameNode implements Runnable,
     Checkpointer.rollForwardByApplyingLogs(manifest, dstImage, dstNamesystem);
     // The following has the side effect of purging old fsimages/edit logs.
     dstImage.saveFSImageInAllDirs(dstNamesystem, dstImage.getLastAppliedTxId());
-    dstStorage.writeAll();
+    if (!dstNamesystem.isRollingUpgrade()) {
+      dstStorage.writeAll();
+    }
   }
 }

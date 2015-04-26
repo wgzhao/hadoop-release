@@ -35,6 +35,8 @@ public class NameNodeLayoutVersion {
 
   public static final int CURRENT_LAYOUT_VERSION
       = LayoutVersion.getCurrentLayoutVersion(Feature.values());
+  public static final int MINIMUM_COMPATIBLE_LAYOUT_VERSION
+      = LayoutVersion.getMinimumCompatibleLayoutVersion(Feature.values());
 
   static {
     LayoutVersion.updateMap(FEATURES, LayoutVersion.Feature.values());
@@ -63,40 +65,43 @@ public class NameNodeLayoutVersion {
    * </ul>
    */
   public static enum Feature implements LayoutFeature {
-    ROLLING_UPGRADE(-55, -53, "Support rolling upgrade", false),
-    EDITLOG_LENGTH(-56, "Add length field to every edit log op"),
-    XATTRS(-57, "Extended attributes"),
-    CREATE_OVERWRITE(-58, "Use single editlog record for " +
+    ROLLING_UPGRADE(-55, -53, -55, "Support rolling upgrade", false),
+    EDITLOG_LENGTH(-56, -56, "Add length field to every edit log op"),
+    XATTRS(-57, -57, "Extended attributes"),
+    CREATE_OVERWRITE(-58, -58, "Use single editlog record for " +
       "creating file with overwrite"),
-    XATTRS_NAMESPACE_EXT(-59, "Increase number of xattr namespaces"),
-    BLOCK_STORAGE_POLICY(-60, "Block Storage policy"),
-    TRUNCATE(-61, "Truncate"),
-    APPEND_NEW_BLOCK(-62, "Support appending to new block"),
-    QUOTA_BY_STORAGE_TYPE(-63, "Support quota for specific storage types");
+    XATTRS_NAMESPACE_EXT(-59, -59, "Increase number of xattr namespaces"),
+    BLOCK_STORAGE_POLICY(-60, -60, "Block Storage policy"),
+    TRUNCATE(-61, -60, "Truncate"),
+    APPEND_NEW_BLOCK(-62, -60, "Support appending to new block"),
+    QUOTA_BY_STORAGE_TYPE(-63, -60, "Support quota for specific storage types");
 
     private final FeatureInfo info;
 
     /**
      * Feature that is added at layout version {@code lv} - 1. 
      * @param lv new layout version with the addition of this feature
+     * @param minCompatLV minimium compatible layout version
      * @param description description of the feature
      */
-    Feature(final int lv, final String description) {
-      this(lv, lv + 1, description, false);
+    Feature(final int lv, int minCompatLV, final String description) {
+      this(lv, lv + 1, minCompatLV, description, false);
     }
 
     /**
      * NameNode feature that is added at layout version {@code ancestoryLV}.
      * @param lv new layout version with the addition of this feature
      * @param ancestorLV layout version from which the new lv is derived from.
+     * @param minCompatLV minimum compatible layout version
      * @param description description of the feature
      * @param reserved true when this is a layout version reserved for previous
      *        versions
      * @param features set of features that are to be enabled for this version
      */
-    Feature(final int lv, final int ancestorLV, final String description,
-        boolean reserved, Feature... features) {
-      info = new FeatureInfo(lv, ancestorLV, description, reserved, features);
+    Feature(final int lv, final int ancestorLV, int minCompatLV,
+        final String description, boolean reserved, Feature... features) {
+      info = new FeatureInfo(lv, ancestorLV, minCompatLV, description, reserved,
+          features);
     }
     
     @Override
