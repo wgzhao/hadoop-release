@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.DataOutputStream;
@@ -43,6 +44,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.security.authorize.ProxyUsers;
 import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
+import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.conf.HAUtil;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -52,6 +54,9 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshServiceAclsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsConfigurationRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveFromClusterNodeLabelsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.ReplaceLabelsOnNodeRequest;
+import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacitySchedulerConfiguration;
 import org.junit.After;
@@ -59,6 +64,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 public class TestRMAdminService {
 
@@ -749,6 +756,67 @@ public class TestRMAdminService {
         resourceManager.stop();
       }
     }
+  }
+
+  @Test
+  public void testModifyLabelsOnNodesWithDistributedConfigurationDisabled()
+      throws IOException, YarnException {
+    // create RM and set it's ACTIVE
+    MockRM rm = new MockRM();
+    ((RMContextImpl) rm.getRMContext())
+        .setHAServiceState(HAServiceState.ACTIVE);
+    RMNodeLabelsManager labelMgr = rm.rmContext.getNodeLabelManager();
+
+    // by default, distributed configuration for node label is disabled, this
+    // should pass
+    labelMgr.addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y"));
+    rm.adminService.replaceLabelsOnNode(ReplaceLabelsOnNodeRequest
+        .newInstance(ImmutableMap.of(NodeId.newInstance("host", 0),
+            (Set<String>) ImmutableSet.of("x"))));
+    rm.close();
+  }
+
+  @Test(expected = YarnException.class)
+  public void testModifyLabelsOnNodesWithDistributedConfigurationEnabled()
+      throws IOException, YarnException {
+    // create RM and set it's ACTIVE, and set distributed node label
+    // configuration to true
+    MockRM rm = new MockRM();
+    rm.adminService.isDistributedNodeLabelConfiguration = true;
+
+    ((RMContextImpl) rm.getRMContext())
+        .setHAServiceState(HAServiceState.ACTIVE);
+    RMNodeLabelsManager labelMgr = rm.rmContext.getNodeLabelManager();
+
+    // by default, distributed configuration for node label is disabled, this
+    // should pass
+    labelMgr.addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y"));
+    rm.adminService.replaceLabelsOnNode(ReplaceLabelsOnNodeRequest
+        .newInstance(ImmutableMap.of(NodeId.newInstance("host", 0),
+            (Set<String>) ImmutableSet.of("x"))));
+    rm.close();
+  }
+
+  @Test
+  public void testRemoveClusterNodeLabelsWithDistributedConfigurationEnabled()
+      throws IOException, YarnException {
+    // create RM and set it's ACTIVE
+    MockRM rm = new MockRM();
+    ((RMContextImpl) rm.getRMContext())
+        .setHAServiceState(HAServiceState.ACTIVE);
+    RMNodeLabelsManager labelMgr = rm.rmContext.getNodeLabelManager();
+    rm.adminService.isDistributedNodeLabelConfiguration = true;
+
+    // by default, distributed configuration for node label is disabled, this
+    // should pass
+    labelMgr.addToCluserNodeLabelsWithDefaultExclusivity(ImmutableSet.of("x", "y"));
+    rm.adminService
+        .removeFromClusterNodeLabels(RemoveFromClusterNodeLabelsRequest
+            .newInstance((Set<String>) ImmutableSet.of("x")));
+
+    Set<String> clusterNodeLabels = labelMgr.getClusterNodeLabelNames();
+    assertEquals(1,clusterNodeLabels.size());
+    rm.close();
   }
 
   private String writeConfigurationXML(Configuration conf, String confXMLName)

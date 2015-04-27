@@ -362,7 +362,13 @@ Release 2.7.0 - 2015-04-20
     YARN-3530. ATS throws exception on trying to filter results without otherinfo.
     (zhijie shen via xgong)
 
+<<<<<<< HEAD
 >>>>>>> 0e8af40... YARN-3530. ATS throws exception on trying to filter results without
+=======
+    YARN-2740. Fix NodeLabelsManager to properly handle node label modifications 
+    when distributed node label configuration enabled. (Naganarasimha G R via wangda)
+
+>>>>>>> 8ee632c... YARN-2740. Fix NodeLabelsManager to properly handle node label modifications when distributed node label configuration enabled. (Naganarasimha G R via wangda)
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
