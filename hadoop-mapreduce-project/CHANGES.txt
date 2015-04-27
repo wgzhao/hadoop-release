@@ -12,6 +12,57 @@ Release 2.8.0 - UNRELEASED
 
   BUG FIXES
 
+<<<<<<< HEAD
+=======
+    MAPREDUCE-6314. TestPipeApplication fails on trunk.
+    (Varun Vasudev via harsh)
+
+    MAPREDUCE-5448. MapFileOutputFormat#getReaders bug with hidden
+    files/folders. (Maysam Yabandeh via harsh)
+
+    MAPREDUCE-6213. NullPointerException caused by job history server addr not
+    resolvable. (Peng Zhang via harsh)
+
+    MAPREDUCE-6281. Fix javadoc in Terasort. (Albert Chu via ozawa)
+
+    MAPREDUCE-6242. Progress report log is incredibly excessive in 
+    application master. (Varun Saxena via devaraj)
+
+    MAPREDUCE-6294. Remove an extra parameter described in Javadoc of
+    TockenCache. (Brahma Reddy Battula via ozawa)
+
+    MAPREDUCE-5875. Make Counter limits consistent across JobClient, 
+    MRAppMaster, and YarnChild. (Gera Shegalov via kasha)
+
+    MAPREDUCE-6199. AbstractCounters are not reset completely on
+    deserialization (adhoot via rkanter)
+
+    MAPREDUCE-6286. A typo in HistoryViewer makes some code useless, which
+    causes counter limits are not reset correctly.
+    (Zhihai Xu via harsh)
+
+    MAPREDUCE-4844. Counters / AbstractCounters have constant references not
+    declared final. (Brahma Reddy Battula via gera)
+
+    MAPREDUCE-6266. Job#getTrackingURL should consistently return a proper URL
+    (rchiang via rkanter)
+
+    MAPREDUCE-6293. Set job classloader on uber-job's LocalContainerLauncher
+    event thread. (Sangjin Lee via gera)
+
+    MAPREDUCE-6297. Task Id of the failed task in diagnostics should link to
+    the task page. (Siqi Li via gera)
+
+    MAPREDUCE-6330. Fix typo in Task Attempt API's URL in documentations.
+    (Ryu Kobayashi via ozawa)
+
+    MAPREDUCE-6333. TestEvents,TestAMWebServicesTasks,TestAppController are
+    broken due to MAPREDUCE-6297. (Siqi Li via gera)
+
+    MAPREDUCE-6252. JobHistoryServer should not fail when encountering a 
+    missing directory. (Craig Welch via devaraj)
+
+>>>>>>> 84ae265... MAPREDUCE-6252. JobHistoryServer should not fail when encountering a
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
