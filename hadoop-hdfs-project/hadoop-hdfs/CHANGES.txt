@@ -96,7 +96,6 @@ Release 2.7.1 - UNRELEASED
 
 Release 2.7.0 - UNRELEASED
 
->>>>>>> c7ebecf... HDFS-8055. NullPointerException when topology script is missing. Contributed by Anu Engineer.
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
