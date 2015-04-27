@@ -353,7 +353,16 @@ Release 2.7.0 - 2015-04-20
     YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
     invoked (Brahma Reddy Battula via jlowe)
 
+<<<<<<< HEAD
 >>>>>>> bd750f1... Fix commit version for YARN-3537
+=======
+    YARN-3464. Race condition in LocalizerRunner kills localizer before 
+    localizing all resources. (Zhihai Xu via kasha)
+
+    YARN-3530. ATS throws exception on trying to filter results without otherinfo.
+    (zhijie shen via xgong)
+
+>>>>>>> 0e8af40... YARN-3530. ATS throws exception on trying to filter results without
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
