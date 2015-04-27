@@ -81,6 +81,7 @@ Release 2.7.1 - UNRELEASED
     which is a regression from MR1 (zxu via rkanter)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     MAPREDUCE-6324. Fixed MapReduce uber jobs to not fail the udpate of AM-RM
     tokens when they roll-over. (Jason Lowe via vinodkv)
@@ -92,6 +93,11 @@ Release 2.7.1 - UNRELEASED
     IOException during InMemoryMapOutput shuffle handler (Eric Payne via jlowe)
 
 >>>>>>> ea82857... MAPREDUCE-6334. Fetcher#copyMapOutput is leaking usedMemory upon IOException during InMemoryMapOutput shuffle handler. Contributed by Eric Payne
+=======
+    MAPREDUCE-6324. Fixed MapReduce uber jobs to not fail the udpate of AM-RM
+    tokens when they roll-over. (Jason Lowe via vinodkv)
+
+>>>>>>> 32dc13d... MAPREDUCE-6324. Fixed MapReduce uber jobs to not fail the udpate of AM-RM tokens when they roll-over. Contributed by Jason Lowe.
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
