@@ -29,6 +29,18 @@ Release 2.7.1 - UNRELEASED
     MAPREDUCE-6238. MR2 can't run local jobs with -libjars command options
     which is a regression from MR1 (zxu via rkanter)
 
+<<<<<<< HEAD
+=======
+    MAPREDUCE-6324. Fixed MapReduce uber jobs to not fail the udpate of AM-RM
+    tokens when they roll-over. (Jason Lowe via vinodkv)
+
+    MAPREDUCE-6252. JobHistoryServer should not fail when encountering a 
+    missing directory. (Craig Welch via devaraj)
+
+    MAPREDUCE-6334. Fetcher#copyMapOutput is leaking usedMemory upon
+    IOException during InMemoryMapOutput shuffle handler (Eric Payne via jlowe)
+
+>>>>>>> ea82857... MAPREDUCE-6334. Fetcher#copyMapOutput is leaking usedMemory upon IOException during InMemoryMapOutput shuffle handler. Contributed by Eric Payne
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
