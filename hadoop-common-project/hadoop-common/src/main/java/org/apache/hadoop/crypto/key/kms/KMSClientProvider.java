@@ -17,10 +17,13 @@
  */
 package org.apache.hadoop.crypto.key.kms;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.KeyProvider;
+import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension;
+import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.CryptoExtension;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.EncryptedKeyVersion;
 import org.apache.hadoop.crypto.key.KeyProviderDelegationTokenExtension;
 import org.apache.hadoop.crypto.key.KeyProviderFactory;
@@ -42,36 +45,14 @@ import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-
-import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension;
-import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.CryptoExtension;
-
-import com.google.common.base.Preconditions;
 
 /**
  * KMS client <code>KeyProvider</code> implementation.
@@ -773,25 +754,44 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
   }
 
   @Override
-  public Token<?>[] addDelegationTokens(String renewer,
+  public Token<?>[] addDelegationTokens(final String renewer,
       Credentials credentials) throws IOException {
     Token<?>[] tokens = null;
     Text dtService = getDelegationTokenService();
     Token<?> token = credentials.getToken(dtService);
     if (token == null) {
-      URL url = createURL(null, null, null, null);
-      DelegationTokenAuthenticatedURL authUrl =
+      final URL url = createURL(null, null, null, null);
+      final DelegationTokenAuthenticatedURL authUrl =
           new DelegationTokenAuthenticatedURL(configurator);
       try {
-        token = authUrl.getDelegationToken(url, authToken, renewer);
+        // 'actualUGI' is the UGI of the user creating the client 
+        // It is possible that the creator of the KMSClientProvier
+        // calls this method on behalf of a proxyUser (the doAsUser).
+        // In which case this call has to be made as the proxy user.
+        UserGroupInformation currentUgi = UserGroupInformation.getCurrentUser();
+        final String doAsUser = (currentUgi.getAuthenticationMethod() ==
+            UserGroupInformation.AuthenticationMethod.PROXY)
+                                ? currentUgi.getShortUserName() : null;
+
+        token = actualUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
+          @Override
+          public Token<?> run() throws Exception {
+            // Not using the cached token here.. Creating a new token here
+            // everytime.
+            return authUrl.getDelegationToken(url,
+                new DelegationTokenAuthenticatedURL.Token(), renewer, doAsUser);
+          }
+        });
         if (token != null) {
           credentials.addToken(token.getService(), token);
           tokens = new Token<?>[] { token };
         } else {
           throw new IOException("Got NULL as delegation token");
         }
-      } catch (AuthenticationException ex) {
-        throw new IOException(ex);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (Exception e) {
+        throw new IOException(e);
       }
     }
     return tokens;
