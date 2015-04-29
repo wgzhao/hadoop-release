@@ -61,7 +61,7 @@ param(
     [String]
     $yarnRoles = "nodemanager resourcemanager timelineserver",
     [String]
-    $mapredRoles = "jobhistoryserver",
+    $mapredRoles = "historyserver",
     [Switch]
     $skipNamenodeFormat = $false
     )
@@ -116,7 +116,7 @@ function Main( $scriptDir )
     ### files will be in-use and installation can fail
     ###
     Write-Log "Stopping MapRed services if already running before proceeding with install"
-    StopService "mapreduce" "jobhistoryserver"
+    StopService "mapreduce" "historyserver"
 
     Write-Log "Stoppping Yarn services if already running before proceeding with Install"
     StopService "yarn" "resourcemanager nodemanager timelineserver"
@@ -134,7 +134,7 @@ function Main( $scriptDir )
         if ((iex `$'ENV:IS_'$role) -eq ("yes"))
         {
             if ($role -eq "RESOURCEMANAGER" ) {
-                $mapredRoles = $mapredRoles+" "+"jobhistoryserver"
+                $mapredRoles = $mapredRoles+" "+"historyserver"
                 $yarnRoles = $yarnRoles+" "+"resourcemanager"
                 $yarnRoles = $yarnRoles+" "+"timelineserver"
             }

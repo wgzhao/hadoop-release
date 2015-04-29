@@ -803,12 +803,12 @@ function InstallMapRed(
 
     if( $mapredRole -eq $null )
     {
-        $mapredRole = "jobclient jobhistoryserver"
+        $mapredRole = "jobclient historyserver"
     }
 
     $mapredRole = $mapredRole.Trim()
     ### Verify that mapredRole are in the supported set
-    CheckRole $mapredRole @("jobclient","jobhistoryserver")
+    CheckRole $mapredRole @("jobclient","historyserver")
 
     $HDP_INSTALL_PATH, $HDP_RESOURCES_DIR = Initialize-InstallationEnv $ScriptDir "hadoop-@version@.winpkg.log"
     Test-JavaHome
@@ -855,9 +855,9 @@ function InstallMapRed(
             Write-Log "Creating service config ${hadoopInstallToBin}\$service.xml"
             $cmd = "$hadoopInstallToBin\mapred.cmd --service $service > `"$hadoopInstallToBin\$service.xml`""
             Invoke-CmdChk $cmd
-            if ( $service -eq "jobhistoryserver")
+            if ( $service -eq "historyserver")
             {
-                Write-Log "Reanming 'Apache Hadoop jobhistoryserver' to 'Apache Hadoop MapReduce JobHistoryServer'"
+                Write-Log "Renaming 'Apache Hadoop historyserver' to 'Apache Hadoop MapReduce JobHistoryServer'"
                 $cmd="$ENV:WINDIR\system32\sc.exe config $service DisplayName= " +'"Apache Hadoop MapReduce JobHistoryServer"'
                 Invoke-CmdChk $cmd
             }
@@ -894,7 +894,7 @@ function UninstallMapRed(
     ###
     ### Stop and delete services
     ###
-    foreach( $service in ("jobhistoryserver"))
+    foreach( $service in ("historyserver"))
     {
         StopAndDeleteHadoopService $service
     }
@@ -1819,7 +1819,7 @@ function ConfigureMapRed(
     ###
     ### Apply configuration changes to service xmls
     ###
-    foreach( $service in ("jobclient", "jobhistoryserver"))
+    foreach( $service in ("jobclient", "historyserver"))
     {
         $serviceXmlFile = Join-Path $hadoopInstallToDir "bin\$service.xml"
         # Apply configs only if the service xml exist
@@ -2203,7 +2203,7 @@ function StartService(
     elseif ( $component -eq "mapred" )
     {
         ### Verify that roles are in the supported set
-        CheckRole $roles @("jobhistoryserver")
+        CheckRole $roles @("historyserver")
 
         foreach ( $role in $roles.Split(" ") )
         {
@@ -2281,7 +2281,7 @@ function StopService(
     elseif ( $component -eq "mapreduce" )
     {
         ### Verify that roles are in the supported set
-        CheckRole $roles @("jobhistoryserver")
+        CheckRole $roles @("historyserver")
 
         foreach ( $role in $roles -Split("\s+") )
         {
