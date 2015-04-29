@@ -88,6 +88,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-8269. getBlockLocations() does not resolve the .reserved path and
     generates incorrect edit logs when updating the atime. (wheat9)
 
+    HDFS-8273. FSNamesystem#Delete() should not call logSync() when holding the
+    lock. (wheat9)
+
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
@@ -103,7 +106,7 @@ Release 2.7.1 - UNRELEASED
 
   BUG FIXES
 
-Release 2.7.0 - UNRELEASED
+Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
 
