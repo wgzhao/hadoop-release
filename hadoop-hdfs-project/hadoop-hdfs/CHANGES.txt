@@ -85,6 +85,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-8070. Pre-HDFS-7915 DFSClient cannot use short circuit on
     post-HDFS-7915 DataNode (cmccabe)
 
+    HDFS-8269. getBlockLocations() does not resolve the .reserved path and
+    generates incorrect edit logs when updating the atime. (wheat9)
+
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
