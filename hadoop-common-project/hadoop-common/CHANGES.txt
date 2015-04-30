@@ -62,6 +62,8 @@ Release 2.7.1 - UNRELEASED
     HADOOP-11934. Use of JavaKeyStoreProvider in LdapGroupsMapping causes
     infinite loop. (Larry McCay via cnauroth)
 
+    HADOOP-11891. OsSecureRandom should lazily fill its reservoir (asuresh)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
