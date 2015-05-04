@@ -3134,6 +3134,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
                                    boolean writeToEditLog,
                                    int latestSnapshot, boolean logRetryCache)
       throws IOException {
+    final INodesInPath iip = dir.getINodesInPath4Write(src);
+    final long dsDelta = verifyDiskSpaceQuotaForUCBlock(file, iip);
     file.recordModification(latestSnapshot);
     final INodeFile cons = file.toUnderConstruction(leaseHolder, clientMachine);
 
@@ -3142,10 +3144,15 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     
     LocatedBlock ret =
         blockManager.convertLastBlockToUnderConstruction(file, 0);
-    if (ret != null) {
-      // update the quota: use the preferred block size for UC block
-      final long diff = file.getPreferredBlockSize() - ret.getBlockSize();
-      dir.updateSpaceConsumed(src, 0, diff * file.getBlockReplication());
+    if (ret != null && dsDelta != 0) {
+      Preconditions.checkState(dsDelta > 0,
+          "appending to a block with size larger than the preferred block size");
+      dir.writeLock();
+      try {
+        dir.updateSpaceConsumed(iip, 0, dsDelta);
+      } finally {
+        dir.writeUnlock();
+      }
     }
 
     if (writeToEditLog) {
@@ -3154,6 +3161,34 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     return ret;
   }
 
+  /**
+   * Verify quota when using the preferred block size for UC block. This is
+   * used by append.
+   * @throws QuotaExceededException when violating the storage quota
+   * @return expected disk space quota usage update. 0 means no change or
+   *         no need to update quota usage later
+   */
+  private long verifyDiskSpaceQuotaForUCBlock(INodeFile file, INodesInPath iip)
+      throws QuotaExceededException {
+    if (!isImageLoaded() || dir.shouldSkipQuotaChecks()) {
+      // Do not check quota if editlog is still being processed
+      return 0;
+    }
+    BlockInfo lastBlock = file.getLastBlock();
+    if (lastBlock != null) {
+      final long diff = file.getPreferredBlockSize() - lastBlock.getNumBytes();
+      final long delta = diff * file.getBlockReplication();
+      dir.readLock();
+      try {
+        FSDirectory.verifyQuota(iip.getINodes(), iip.length() - 1, 0, delta, null);
+        return delta;
+      } finally {
+        dir.readUnlock();
+      }
+    }
+    return 0;
+  }
+  
   /**
    * Recover lease;
    * Immediately revoke the lease of the current lease holder and start lease

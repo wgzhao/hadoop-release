@@ -213,3 +213,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2816. NM fail to start with NPE during container recovery.
     (Zhihai Xu via jlowe)
+
+    HDFS-7587 [BUG-35869]. Edit log corruption can happen if append fails with
+    a quota violation. (Rewrite of HDFS-7587 fix for 2.2. jing9 via
+    Arpit Agarwal)

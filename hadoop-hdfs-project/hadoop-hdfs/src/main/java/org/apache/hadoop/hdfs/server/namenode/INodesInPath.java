@@ -304,6 +304,10 @@ public class INodesInPath {
     return DFSUtil.byteArray2PathString(path);
   }
 
+  public int length() {
+    return inodes.length;
+  }
+  
   private void setSnapshotId(int sid) {
     snapshotId = sid;
   }

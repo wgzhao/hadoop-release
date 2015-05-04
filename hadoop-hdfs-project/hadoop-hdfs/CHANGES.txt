@@ -61,6 +61,9 @@ Release 2.7.0 - UNRELEASED
     HDFS-7999. FsDatasetImpl#createTemporary sometimes holds the FSDatasetImpl
     lock for a very long time (sinago via cmccabe)
 
+    HDFS-7587. Edit log corruption can happen if append fails with a quota
+    violation. (jing9)
+
     HDFS-7579. Improve log reporting during block report rpc failure.
     (Charles Lamb via cnauroth)
 
