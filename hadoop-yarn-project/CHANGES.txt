@@ -173,6 +173,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3654. ContainerLogsPage web UI should not have meta-refresh. (Xuan Gong
     via jianhe)
 
+    YARN-3552. RM Web UI shows -1 running containers for completed apps
+    (Rohith via jlowe)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
