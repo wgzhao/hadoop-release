@@ -58,6 +58,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8593. Calculation of effective layout version mishandles comparison to
     current layout version in storage. (cnauroth)
 
+    HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows.
+    (Kiran Kumar M R via Xiaoyu Yao)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
