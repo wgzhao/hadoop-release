@@ -220,6 +220,9 @@ Release 2.7.1 - UNRELEASED
     YARN-3485. FairScheduler headroom calculation doesn't consider 
     maxResources for Fifo and FairShare policies. (kasha)
 
+    YARN-3301. Fixed the format issue of the new RM attempt web page.
+    (Xuan Gong via jianhe)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
