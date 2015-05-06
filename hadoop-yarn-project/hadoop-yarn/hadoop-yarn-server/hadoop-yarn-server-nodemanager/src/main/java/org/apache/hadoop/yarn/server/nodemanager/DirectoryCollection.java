@@ -48,9 +48,12 @@ import org.apache.hadoop.util.DiskChecker;
 /**
  * Manages a list of local storage directories.
  */
-class DirectoryCollection {
+public class DirectoryCollection {
   private static final Log LOG = LogFactory.getLog(DirectoryCollection.class);
 
+  /**
+   * The enum defines disk failure type.
+   */
   public enum DiskErrorCause {
     DISK_FULL, OTHER
   }
@@ -63,6 +66,13 @@ class DirectoryCollection {
       this.cause = cause;
       this.message = message;
     }
+  }
+
+  /**
+   * The interface provides a callback when localDirs is changed.
+   */
+  public interface DirsChangeListener {
+    void onDirsChanged();
   }
 
   /**
@@ -94,6 +104,8 @@ class DirectoryCollection {
   private long diskUtilizationSpaceCutoff;
 
   private int goodDirsDiskUtilizationPercentage;
+
+  private Set<DirsChangeListener> dirsChangeListeners;
 
   /**
    * Create collection for the directories specified. No check for free space.
@@ -170,6 +182,20 @@ class DirectoryCollection {
                 : utilizationPercentageCutOff);
     diskUtilizationSpaceCutoff =
         utilizationSpaceCutOff < 0 ? 0 : utilizationSpaceCutOff;
+
+    dirsChangeListeners = new HashSet<DirsChangeListener>();
+  }
+
+  synchronized void registerDirsChangeListener(
+      DirsChangeListener listener) {
+    if (dirsChangeListeners.add(listener)) {
+      listener.onDirsChanged();
+    }
+  }
+
+  synchronized void deregisterDirsChangeListener(
+      DirsChangeListener listener) {
+    dirsChangeListeners.remove(listener);
   }
 
   /**
@@ -398,6 +424,11 @@ class DirectoryCollection {
         }
       }
       setGoodDirsDiskUtilizationPercentage();
+      if (setChanged) {
+        for (DirsChangeListener listener : dirsChangeListeners) {
+          listener.onDirsChanged();
+        }
+      }
       return setChanged;
     } finally {
       this.writeLock.unlock();

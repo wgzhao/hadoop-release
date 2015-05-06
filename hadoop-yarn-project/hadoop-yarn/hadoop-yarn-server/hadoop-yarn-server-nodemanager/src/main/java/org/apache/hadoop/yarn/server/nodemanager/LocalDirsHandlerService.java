@@ -40,6 +40,7 @@ import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
+import org.apache.hadoop.yarn.server.nodemanager.DirectoryCollection.DirsChangeListener;
 import org.apache.hadoop.yarn.server.nodemanager.metrics.NodeManagerMetrics;
 
 /**
@@ -194,6 +195,22 @@ public class LocalDirsHandlerService extends AbstractService {
       dirsHandlerScheduler.cancel();
     }
     super.serviceStop();
+  }
+
+  public void registerLocalDirsChangeListener(DirsChangeListener listener) {
+    localDirs.registerDirsChangeListener(listener);
+  }
+
+  public void registerLogDirsChangeListener(DirsChangeListener listener) {
+    logDirs.registerDirsChangeListener(listener);
+  }
+
+  public void deregisterLocalDirsChangeListener(DirsChangeListener listener) {
+    localDirs.deregisterDirsChangeListener(listener);
+  }
+
+  public void deregisterLogDirsChangeListener(DirsChangeListener listener) {
+    logDirs.deregisterDirsChangeListener(listener);
   }
 
   /**
