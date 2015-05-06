@@ -188,6 +188,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3552. RM Web UI shows -1 running containers for completed apps
     (Rohith via jlowe)
 
+    YARN-3580. [JDK8] TestClientRMService.testGetLabelsToNodes fails. (Robert Kanter
+    via junping_du)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
