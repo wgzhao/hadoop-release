@@ -80,6 +80,7 @@ Release 2.7.1 - UNRELEASED
     YARN-3385. Fixed a race-condition in ResourceManager's ZooKeeper based
     state-store to avoid crashing on duplicate deletes. (Zhihai Xu via vinodkv)
 
+<<<<<<< HEAD
     YARN-3358. Audit log not present while refreshing Service ACLs. 
     (Varun Saxena via devaraj)
 
@@ -151,6 +152,8 @@ Release 2.7.1 - UNRELEASED
     YARN-3753. RM failed to come up with "java.io.IOException: Wait for
     ZKClient creation timed out”. (Jian He via xgong)
 
+=======
+>>>>>>> 3d1d551... YARN-3385. Fixed a race-condition in ResourceManager's ZooKeeper based state-store to avoid crashing on duplicate deletes. Contributed by Zhihai Xu.
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
