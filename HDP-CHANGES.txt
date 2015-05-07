@@ -675,3 +675,15 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     Backport YARN-2165. Timeline server should validate the numeric configuration values
     (xgong)
 
+    Backport YARN-3207. secondary filter matches entites which do not have the key being
+    filtered for. (xgong)
+
+    Backport YARN-3267. Timelineserver applies the ACL rules after applying the limit on
+    the number of records. (xgong)
+
+    Backport YARN-3530. ATS throws exception on trying to filter results without
+    otherinfo. (xgong)
+
+    Backport YARN-3448. Add Rolling Time To Lives Level DB Plugin Capabilities. (xgong)
+
+

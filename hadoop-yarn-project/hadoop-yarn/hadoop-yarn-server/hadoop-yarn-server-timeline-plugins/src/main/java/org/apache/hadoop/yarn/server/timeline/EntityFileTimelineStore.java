@@ -61,6 +61,7 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.server.timeline.TimelineDataManager.CheckAcl;
 import org.apache.hadoop.yarn.server.timeline.security.TimelineACLsManager;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.JsonFactory;
@@ -865,12 +866,13 @@ public class EntityFileTimelineStore extends AbstractService implements Timeline
   public TimelineEntities getEntities(String entityType, Long limit,
       Long windowStart, Long windowEnd, String fromId, Long fromTs,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters,
-      EnumSet<Field> fieldsToRetrieve) throws IOException {
+      EnumSet<Field> fieldsToRetrieve, CheckAcl checkAcl) throws IOException {
     LOG.debug("getEntities type={} primary={}", entityType, primaryFilter);
     Object arg = (primaryFilter == null) ? null : primaryFilter.getValue();
     TimelineStore store = getTimelineStoreForRead(entityType, arg);
     return store.getEntities(entityType, limit, windowStart, windowEnd,
-        fromId, fromTs, primaryFilter, secondaryFilters, fieldsToRetrieve);
+        fromId, fromTs, primaryFilter, secondaryFilters, fieldsToRetrieve,
+        checkAcl);
   }
 
   @Override

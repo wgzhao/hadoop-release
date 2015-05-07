@@ -191,6 +191,13 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
+
+    <!-- 'mvn dependency:analyze' fails to detect use of this dependency -->
+    <dependency>
+      <groupId>de.ruedigermoeller</groupId>
+      <artifactId>fst</artifactId>
+      <version>2.24</version>
+    </dependency>
   </dependencies>
 
   <build>
