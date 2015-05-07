@@ -442,8 +442,10 @@ function Main( $scriptDir )
         "mapreduce.jobhistory.address" = "${ENV:RESOURCEMANAGER_HOST}:10020";
         "mapreduce.jobhistory.webapp.address" = "${ENV:RESOURCEMANAGER_HOST}:19888";
         "mapreduce.jobhistory.webapp.https.address" = "${ENV:RESOURCEMANAGER_HOST}:19888";
-        "mapreduce.reduce.java.opts" = "-Xmx756m";
-        "mapreduce.map.java.opts" = "-Xmx756m";
+        "mapreduce.reduce.java.opts" = "-Xmx1024m";
+        "mapreduce.map.java.opts" = "-Xmx1024m";
+        "mapreduce.map.memory.mb" = "1500";
+        "mapreduce.reduce.memory.mb" = "1500";
         "mapreduce.cluster.local.dir" = "$NMAndMRLocalDir" }
 
     if ((Test-Path ENV:IS_HDFS_HA) -and ($ENV:IS_HDFS_HA -ieq "yes")) {
