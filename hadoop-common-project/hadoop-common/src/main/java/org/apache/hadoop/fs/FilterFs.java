@@ -377,4 +377,22 @@ public abstract class FilterFs extends AbstractFileSystem {
       throws IOException {
     return myFs.getStoragePolicy(src);
   }
+
+  @Override
+  public Path createSnapshot(final Path path, final String snapshotName)
+      throws IOException {
+    return myFs.createSnapshot(path, snapshotName);
+  }
+
+  @Override
+  public void renameSnapshot(final Path path, final String snapshotOldName,
+      final String snapshotNewName) throws IOException {
+    myFs.renameSnapshot(path, snapshotOldName, snapshotNewName);
+  }
+
+  @Override
+  public void deleteSnapshot(final Path path, final String snapshotName)
+      throws IOException {
+    myFs.deleteSnapshot(path, snapshotName);
+  }
 }
