@@ -619,3 +619,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
     is deleted from different process. (Dushyanth Chickabasapa via cnauroth)
+
+    YARN-3600. AM container link is broken (on a killed application, at least)
+    (Naganarasimha G R via tgraves)
