@@ -46,7 +46,8 @@ if [[ $# -ge 1 ]]; then
       dataStartOpt="$startOpt"
     ;;
     *)
-      hadoop_exit_with_usage 1
+      echo $usage
+      exit 1
     ;;
   esac
 fi
