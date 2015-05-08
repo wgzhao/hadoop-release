@@ -119,6 +119,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3406. Display count of running containers in the RM's Web UI.
     (Ryu Kobayashi via ozawa)
 
+    YARN-3593. Add label-type and Improve "DEFAULT_PARTITION" in Node Labels Page. 
+    (Naganarasimha G R via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
