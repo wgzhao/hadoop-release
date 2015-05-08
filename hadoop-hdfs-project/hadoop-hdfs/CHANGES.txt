@@ -104,6 +104,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
     before editLogStream initialization. (Surendra Singh Lilhore via xyao)
 
+    HDFS-8311. DataStreamer.transfer() should timeout the socket InputStream.
+    (Esteban Gutierrez via Yongjun Zhang)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
