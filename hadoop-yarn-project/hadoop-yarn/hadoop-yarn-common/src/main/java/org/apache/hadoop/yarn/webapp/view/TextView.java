@@ -40,7 +40,7 @@ public abstract class TextView extends View {
   }
 
   /**
-   * Print strings as is (no newline, a la php echo).
+   * Print strings escaping html.
    * @param args the strings to print
    */
   public void echo(Object... args) {
