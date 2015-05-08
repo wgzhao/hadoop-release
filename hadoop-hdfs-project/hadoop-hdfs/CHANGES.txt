@@ -241,6 +241,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9358. TestNodeCount#testNodeCount timed out.
     (Masatake Iwasaki via waltersu4549)
 
+    HDFS-8097. TestFileTruncate is failing intermittently. (Contributed by Rakesh R)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
