@@ -44,7 +44,8 @@ class FSDirDeleteOp {
    */
   static long delete(
       FSDirectory fsd, INodesInPath iip, BlocksMapUpdateInfo collectedBlocks,
-      List<INode> removedINodes, long mtime) throws IOException {
+      List<INode> removedINodes, List<Long> removedUCFiles,
+      long mtime) throws IOException {
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* FSDirectory.delete: " + iip.getPath());
     }
@@ -57,7 +58,7 @@ class FSDirDeleteOp {
         List<INodeDirectory> snapshottableDirs = new ArrayList<>();
         FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
         filesRemoved = unprotectedDelete(fsd, iip, collectedBlocks,
-                                         removedINodes, mtime);
+                                         removedINodes, removedUCFiles, mtime);
         fsd.getFSNamesystem().removeSnapshottableDirs(snapshottableDirs);
       }
     } finally {
@@ -115,6 +116,7 @@ class FSDirDeleteOp {
     FSNamesystem fsn = fsd.getFSNamesystem();
     BlocksMapUpdateInfo collectedBlocks = new BlocksMapUpdateInfo();
     List<INode> removedINodes = new ChunkedArrayList<>();
+    List<Long> removedUCFiles = new ChunkedArrayList<>();
 
     final INodesInPath iip = fsd.getINodesInPath4Write(
         FSDirectory.normalizePath(src), false);
@@ -124,11 +126,11 @@ class FSDirDeleteOp {
     List<INodeDirectory> snapshottableDirs = new ArrayList<>();
     FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
     long filesRemoved = unprotectedDelete(
-        fsd, iip, collectedBlocks, removedINodes, mtime);
+        fsd, iip, collectedBlocks, removedINodes, removedUCFiles, mtime);
     fsn.removeSnapshottableDirs(snapshottableDirs);
 
     if (filesRemoved >= 0) {
-      fsn.removeLeasesAndINodes(src, removedINodes, false);
+      fsn.removeLeasesAndINodes(removedUCFiles, removedINodes, false);
       fsn.removeBlocksAndUpdateSafemodeTotal(collectedBlocks);
     }
   }
@@ -153,18 +155,19 @@ class FSDirDeleteOp {
     FSDirectory fsd = fsn.getFSDirectory();
     BlocksMapUpdateInfo collectedBlocks = new BlocksMapUpdateInfo();
     List<INode> removedINodes = new ChunkedArrayList<>();
+    List<Long> removedUCFiles = new ChunkedArrayList<>();
 
     long mtime = now();
     // Unlink the target directory from directory tree
     long filesRemoved = delete(
-        fsd, iip, collectedBlocks, removedINodes, mtime);
+        fsd, iip, collectedBlocks, removedINodes, removedUCFiles, mtime);
     if (filesRemoved < 0) {
       return null;
     }
     fsd.getEditLog().logDelete(src, mtime, logRetryCache);
     incrDeletedFileCount(filesRemoved);
 
-    fsn.removeLeasesAndINodes(src, removedINodes, true);
+    fsn.removeLeasesAndINodes(removedUCFiles, removedINodes, true);
 
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* Namesystem.delete: "
@@ -201,12 +204,13 @@ class FSDirDeleteOp {
    * @param iip the inodes resolved from the path
    * @param collectedBlocks blocks collected from the deleted path
    * @param removedINodes inodes that should be removed from inodeMap
+   * @param removedUCFiles inodes whose leases need to be released
    * @param mtime the time the inode is removed
    * @return the number of inodes deleted; 0 if no inodes are deleted.
    */
   private static long unprotectedDelete(
       FSDirectory fsd, INodesInPath iip, BlocksMapUpdateInfo collectedBlocks,
-      List<INode> removedINodes, long mtime) {
+      List<INode> removedINodes, List<Long> removedUCFiles, long mtime) {
     assert fsd.hasWriteLock();
 
     // check if target node exists
@@ -237,11 +241,11 @@ class FSDirDeleteOp {
     // collect block and update quota
     if (!targetNode.isInLatestSnapshot(latestSnapshot)) {
       targetNode.destroyAndCollectBlocks(fsd.getBlockStoragePolicySuite(),
-        collectedBlocks, removedINodes);
+        collectedBlocks, removedINodes, removedUCFiles);
     } else {
       QuotaCounts counts = targetNode.cleanSubtree(
         fsd.getBlockStoragePolicySuite(), CURRENT_STATE_ID,
-          latestSnapshot, collectedBlocks, removedINodes);
+          latestSnapshot, collectedBlocks, removedINodes, removedUCFiles);
       removed = counts.getNameSpace();
       fsd.updateCountNoQuotaCheck(iip, iip.length() -1, counts.negation());
     }

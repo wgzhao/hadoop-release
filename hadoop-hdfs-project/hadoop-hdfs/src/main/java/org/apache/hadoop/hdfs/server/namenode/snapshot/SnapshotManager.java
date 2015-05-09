@@ -227,7 +227,7 @@ public class SnapshotManager implements SnapshotStatsMXBean {
   /**
    * Delete a snapshot for a snapshottable directory
    * @param snapshotName Name of the snapshot to be deleted
-   * @param collectedBlocks Used to collect information to update blocksMap 
+   * @param collectedBlocks Used to collect information to update blocksMap
    * @throws IOException
    */
   public void deleteSnapshot(final INodesInPath iip, final String snapshotName,
@@ -265,7 +265,7 @@ public class SnapshotManager implements SnapshotStatsMXBean {
   public int getNumSnapshots() {
     return numSnapshots.get();
   }
-  
+
   void setNumSnapshots(int num) {
     numSnapshots.set(num);
   }
