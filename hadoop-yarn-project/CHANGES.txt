@@ -206,6 +206,11 @@ Release 2.8.0 - UNRELEASED
 
     YARN-4287. Capacity Scheduler: Rack Locality improvement (Nathan Roberts via wangda)
 
+    YARN-1912. ResourceLocalizer started without any jvm memory control.
+    (Masatake Iwasaki via xgong)
+
+  OPTIMIZATIONS
+
     YARN-3946. Update exact reason as to why a submitted app is in ACCEPTED state to 
     app's diagnostic message. (Naganarasimha G R via wangda)
 
