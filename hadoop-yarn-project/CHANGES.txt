@@ -155,9 +155,6 @@ Release 2.8.0 - UNRELEASED
     YARN-3136. Fixed a synchronization problem of
     AbstractYarnScheduler#getTransferredContainers. (Sunil G via jianhe)
 
-    YARN-3434. Interaction between reservations and userlimit can result in 
-    significant ULF violation (tgraves)
-
     YARN-3387. Previous AM's container completed status couldn't pass to current
     AM if AM and RM restarted during the same time. (sandflee via jianhe)
 
@@ -231,6 +228,9 @@ Release 2.7.1 - UNRELEASED
 
     YARN-3301. Fixed the format issue of the new RM attempt web page.
     (Xuan Gong via jianhe)
+
+    YARN-3434. Interaction between reservations and userlimit can result in 
+    significant ULF violation (tgraves)
 
 Release 2.7.0 - 2015-04-20
 
