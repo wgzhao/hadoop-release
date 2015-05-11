@@ -33,6 +33,9 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HDFS-7916. 'reportBadBlocks' from datanodes to standby Node BPServiceActor 
+    goes for infinite loop. Contributed by Rushabh Shah.
+
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
 
     HDFS-8818. Changes the global moveExecutor to per datanode executors and

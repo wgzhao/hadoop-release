@@ -961,3 +961,6 @@ covered by CHANGES.txt.
 
     BUG-76078. HDFS-9572. Prevent DataNode log spam if a client connects on the
     data transfer port but sends no data. (cnauroth)
+
+    BUG-77682. HDFS-7916. 'reportBadBlocks' from datanodes to standby Node
+    BPServiceActor goes for infinite loop. Contributed by Rushabh Shah.
