@@ -225,6 +225,9 @@ Release 2.7.1 - UNRELEASED
     YARN-3579. CommonNodeLabelsManager should support NodeLabel instead of string 
     label name when getting node-to-label/label-to-label mappings. (Sunil G via wangda)
 
+    YARN-3489. RMServerUtils.validateResourceRequests should only obtain queue 
+    info once. (Varun Saxena via wangda)
+
   OPTIMIZATIONS
 
     YARN-3006. Improve the error message when attempting manual failover with 
