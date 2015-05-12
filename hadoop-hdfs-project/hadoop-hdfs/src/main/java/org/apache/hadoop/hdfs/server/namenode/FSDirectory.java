@@ -522,7 +522,7 @@ public class FSDirectory implements Closeable {
 
       // check quota limits and updated space consumed
       updateCount(inodesInPath, 0, fileINode.getPreferredBlockSize(),
-          fileINode.getBlockReplication(), true);
+          fileINode.getPreferredBlockReplication(), true);
 
       // associate new last block for the file
       BlockInfoContiguousUnderConstruction blockInfo =
@@ -579,7 +579,7 @@ public class FSDirectory implements Closeable {
 
     // update space consumed
     updateCount(iip, 0, -fileNode.getPreferredBlockSize(),
-        fileNode.getBlockReplication(), true);
+        fileNode.getPreferredBlockReplication(), true);
     return true;
   }
 
