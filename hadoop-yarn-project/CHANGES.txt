@@ -194,6 +194,8 @@ Release 2.8.0 - UNRELEASED
     YARN-3946. Update exact reason as to why a submitted app is in ACCEPTED state to 
     app's diagnostic message. (Naganarasimha G R via wangda)
 
+    YARN-3521. Support return structured NodeLabel objects in REST API (Sunil G via wangda)
+
     YARN-3363. add localization and container launch time to ContainerMetrics at NM to
     show these timing information for each active container. (zxu via rkanter)
 

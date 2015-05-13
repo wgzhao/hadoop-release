@@ -1368,3 +1368,6 @@ ATS V1.5:
 
     BUG-57007. HDFS-9917. IBR accumulate more objects when SNN was down for
     sometime. (Contributed by Brahma Reddy Battula)
+
+    YARN-3521. Support return structured NodeLabel objects in REST API. (Sunil G via wangda)
+
