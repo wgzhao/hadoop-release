@@ -178,6 +178,9 @@ Release 2.7.1 - UNRELEASED
 
   IMPROVEMENTS
 
+    YARN-3539. Updated timeline server documentation and marked REST APIs evolving.
+    (Steve Loughran via zjshen)
+
   OPTIMIZATIONS
 
     YARN-3006. Improve the error message when attempting manual failover with 
