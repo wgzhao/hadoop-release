@@ -25,11 +25,6 @@ if [ -n "$HADOOP_HOME" ]; then
   DEFAULT_LIBEXEC_DIR="$HADOOP_HOME"/libexec
 fi
 
-cygwin=false
-case "$(uname)" in
-CYGWIN*) cygwin=true;;
-esac
-
 HADOOP_LIBEXEC_DIR=${HADOOP_LIBEXEC_DIR:-$DEFAULT_LIBEXEC_DIR}
 if [ -e ${HADOOP_LIBEXEC_DIR}/mapred-config.sh ]; then
   . ${HADOOP_LIBEXEC_DIR}/mapred-config.sh

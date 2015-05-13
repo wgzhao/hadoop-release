@@ -35,11 +35,6 @@ if [ -n "$HADOOP_HOME" ]; then
   DEFAULT_LIBEXEC_DIR="$HADOOP_HOME"/libexec
 fi
 
-cygwin=false
-case "$(uname)" in
-CYGWIN*) cygwin=true;;
-esac
-
 HADOOP_LIBEXEC_DIR=${HADOOP_LIBEXEC_DIR:-$DEFAULT_LIBEXEC_DIR}
 . $HADOOP_LIBEXEC_DIR/hdfs-config.sh
 
