@@ -140,9 +140,6 @@ Release 2.8.0 - UNRELEASED
 
     YARN-3110. Few issues in ApplicationHistory web ui. (Naganarasimha G R via xgong)
 
-    YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called.
-    (Bibin A Chundatt via ozawa)
-
     YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender.
     (Varun Vasudev via wangda)
 
@@ -154,9 +151,6 @@ Release 2.8.0 - UNRELEASED
 
     YARN-3387. Previous AM's container completed status couldn't pass to current
     AM if AM and RM restarted during the same time. (sandflee via jianhe)
-
-    YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
-    invoked (Brahma Reddy Battula via jlowe)
 
     YARN-3530. ATS throws exception on trying to filter results without otherinfo.
     (zhijie shen via xgong)
@@ -177,6 +171,9 @@ Release 2.7.1 - UNRELEASED
   NEW FEATURES
 
   IMPROVEMENTS
+
+    YARN-3243. CapacityScheduler should pass headroom from parent to children
+    to make sure ParentQueue obey its capacity limits. (Wangda Tan via jianhe)
 
     YARN-3539. Updated timeline server documentation and marked REST APIs evolving.
     (Steve Loughran via zjshen)
@@ -232,15 +229,6 @@ Release 2.7.1 - UNRELEASED
     YARN-3301. Fixed the format issue of the new RM attempt web page.
     (Xuan Gong via jianhe)
 
-    YARN-3434. Interaction between reservations and userlimit can result in 
-    significant ULF violation (tgraves)
-
-    YARN-3493. RM fails to come up with error "Failed to load/recover state" 
-    when mem settings are changed. (Jian He via wangda)
-
-    YARN-3626. On Windows localized resources are not moved to the front
-    of the classpath when they should be. (Craig Welch via xgong)
-
     YARN-3385. Fixed a race-condition in ResourceManager's ZooKeeper based
     state-store to avoid crashing on duplicate deletes. (Zhihai Xu via vinodkv)
 
@@ -252,6 +240,21 @@ Release 2.7.1 - UNRELEASED
 
     YARN-3476. Nodemanager can fail to delete local logs if log aggregation
     fails (Rohith via jlowe)
+
+    YARN-3434. Interaction between reservations and userlimit can result in 
+    significant ULF violation (tgraves)
+
+    YARN-3493. RM fails to come up with error "Failed to load/recover state" 
+    when mem settings are changed. (Jian He via wangda)
+
+    YARN-3626. On Windows localized resources are not moved to the front
+    of the classpath when they should be. (Craig Welch via xgong)
+
+    YARN-3457. NPE when NodeManager.serviceInit fails and stopRecoveryStore called.
+    (Bibin A Chundatt via ozawa)
+
+    YARN-3537. NPE when NodeManager.serviceInit fails and stopRecoveryStore
+    invoked (Brahma Reddy Battula via jlowe)
 
 Release 2.7.0 - 2015-04-20
 
