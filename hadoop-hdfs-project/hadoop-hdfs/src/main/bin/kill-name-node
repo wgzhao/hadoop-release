@@ -8,7 +8,7 @@
 # that catches OutOfMemoryError, so we need to use this script to kill it
 # externally.
 
-NNPID=$("$JAVA_HOME"/bin/jps | grep -E '^[0-9]+\s+NameNode$' | awk '{print $1}')
+NNPID=$("$JAVA_HOME"/bin/jps | grep -E '^[0-9]+[ ]+NameNode$' | awk '{print $1}')
 
 if [ $? -gt 0 ]; then
   echo "ERROR: Command failed while looking for NameNode PID."

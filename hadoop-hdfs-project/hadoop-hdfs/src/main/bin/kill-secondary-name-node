@@ -8,7 +8,7 @@
 # contains legacy code that catches OutOfMemoryError, so we need to use this
 # script to kill it externally.
 
-SNNPID=$("$JAVA_HOME"/bin/jps | grep -E '^[0-9]+\s+SecondaryNameNode$' | awk '{print $1}')
+SNNPID=$("$JAVA_HOME"/bin/jps | grep -E '^[0-9]+[ ]+SecondaryNameNode$' | awk '{print $1}')
 
 if [ $? -gt 0 ]; then
   echo "ERROR: Command failed while looking for SecondaryNameNode PID."
