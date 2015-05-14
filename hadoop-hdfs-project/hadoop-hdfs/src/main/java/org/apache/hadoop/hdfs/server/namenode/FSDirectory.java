@@ -61,7 +61,6 @@ import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeStorageInfo;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.BlockUCState;
 import org.apache.hadoop.hdfs.server.namenode.INode.BlocksMapUpdateInfo;
-import org.apache.hadoop.hdfs.server.namenode.snapshot.FileWithSnapshotFeature;
 import org.apache.hadoop.hdfs.util.ByteArray;
 import org.apache.hadoop.hdfs.util.EnumCounters;
 import org.apache.hadoop.security.AccessControlException;
@@ -671,6 +670,23 @@ public class FSDirectory implements Closeable {
       updateCount(iip, nsDelta, ssDelta, replication, true);
     } finally {
       writeUnlock();
+    }
+  }
+
+  public void updateCount(INodesInPath iip, INode.QuotaDelta quotaDelta,
+      boolean check) throws QuotaExceededException {
+    QuotaCounts counts = quotaDelta.getCountsCopy();
+    updateCount(iip, iip.length() - 1, counts.negation(), check);
+    Map<INode, QuotaCounts> deltaInOtherPaths = quotaDelta.getUpdateMap();
+    for (Map.Entry<INode, QuotaCounts> entry : deltaInOtherPaths.entrySet()) {
+      INodesInPath path = INodesInPath.fromINode(entry.getKey());
+      updateCount(path, path.length() - 1, entry.getValue().negation(), check);
+    }
+    for (Map.Entry<INodeDirectory, QuotaCounts> entry :
+        quotaDelta.getQuotaDirMap().entrySet()) {
+      INodeDirectory quotaDir = entry.getKey();
+      quotaDir.getDirectoryWithQuotaFeature().addSpaceConsumed2Cache(
+          entry.getValue().negation());
     }
   }
 

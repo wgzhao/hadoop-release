@@ -22,6 +22,7 @@ import org.apache.hadoop.fs.PathIsNotEmptyDirectoryException;
 import org.apache.hadoop.fs.UnresolvedLinkException;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hdfs.server.namenode.INode.BlocksMapUpdateInfo;
+import org.apache.hadoop.hdfs.server.namenode.INode.ReclaimContext;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.util.ChunkedArrayList;
 
@@ -42,24 +43,26 @@ class FSDirDeleteOp {
    * @param removedINodes INodes that should be removed from inodeMap
    * @return the number of files that have been removed
    */
-  static long delete(
-      FSDirectory fsd, INodesInPath iip, BlocksMapUpdateInfo collectedBlocks,
-      List<INode> removedINodes, List<Long> removedUCFiles,
-      long mtime) throws IOException {
+  static long delete(FSDirectory fsd, INodesInPath iip,
+      BlocksMapUpdateInfo collectedBlocks, List<INode> removedINodes,
+      List<Long> removedUCFiles, long mtime) throws IOException {
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* FSDirectory.delete: " + iip.getPath());
     }
-    final long filesRemoved;
+    long filesRemoved = -1;
     fsd.writeLock();
     try {
-      if (!deleteAllowed(iip, iip.getPath()) ) {
-        filesRemoved = -1;
-      } else {
+      if (deleteAllowed(iip, iip.getPath()) ) {
         List<INodeDirectory> snapshottableDirs = new ArrayList<>();
         FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
-        filesRemoved = unprotectedDelete(fsd, iip, collectedBlocks,
-                                         removedINodes, removedUCFiles, mtime);
+        ReclaimContext context = new ReclaimContext(
+            fsd.getBlockStoragePolicySuite(), collectedBlocks, removedINodes,
+            removedUCFiles);
+        if (unprotectedDelete(fsd, iip, context, mtime)) {
+          filesRemoved = context.quotaDelta().getNsDelta();
+        }
         fsd.getFSNamesystem().removeSnapshottableDirs(snapshottableDirs);
+        fsd.updateCount(iip, context.quotaDelta(), false);
       }
     } finally {
       fsd.writeUnlock();
@@ -125,11 +128,13 @@ class FSDirDeleteOp {
     }
     List<INodeDirectory> snapshottableDirs = new ArrayList<>();
     FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
-    long filesRemoved = unprotectedDelete(
-        fsd, iip, collectedBlocks, removedINodes, removedUCFiles, mtime);
+    boolean filesRemoved = unprotectedDelete(fsd, iip,
+        new ReclaimContext(fsd.getBlockStoragePolicySuite(),
+            collectedBlocks, removedINodes, removedUCFiles),
+        mtime);
     fsn.removeSnapshottableDirs(snapshottableDirs);
 
-    if (filesRemoved >= 0) {
+    if (filesRemoved) {
       fsn.removeLeasesAndINodes(removedUCFiles, removedINodes, false);
       fsn.removeBlocksAndUpdateSafemodeTotal(collectedBlocks);
     }
@@ -202,21 +207,18 @@ class FSDirDeleteOp {
    * Delete a path from the name space
    * Update the count at each ancestor directory with quota
    * @param iip the inodes resolved from the path
-   * @param collectedBlocks blocks collected from the deleted path
-   * @param removedINodes inodes that should be removed from inodeMap
-   * @param removedUCFiles inodes whose leases need to be released
+   * @param reclaimContext used to collect blocks and inodes to be removed
    * @param mtime the time the inode is removed
-   * @return the number of inodes deleted; 0 if no inodes are deleted.
+   * @return true if there are inodes deleted
    */
-  private static long unprotectedDelete(
-      FSDirectory fsd, INodesInPath iip, BlocksMapUpdateInfo collectedBlocks,
-      List<INode> removedINodes, List<Long> removedUCFiles, long mtime) {
+  private static boolean unprotectedDelete(FSDirectory fsd, INodesInPath iip,
+      ReclaimContext reclaimContext, long mtime) {
     assert fsd.hasWriteLock();
 
     // check if target node exists
     INode targetNode = iip.getLastINode();
     if (targetNode == null) {
-      return -1;
+      return false;
     }
 
     // record modification
@@ -226,36 +228,25 @@ class FSDirDeleteOp {
     // Remove the node from the namespace
     long removed = fsd.removeLastINode(iip);
     if (removed == -1) {
-      return -1;
+      return false;
     }
 
     // set the parent's modification time
     final INodeDirectory parent = targetNode.getParent();
     parent.updateModificationTime(mtime, latestSnapshot);
 
-    fsd.updateCountForDelete(targetNode, iip);
-    if (removed == 0) {
-      return 0;
-    }
-
     // collect block and update quota
-    INode.ReclaimContext reclaimContext = new INode.ReclaimContext(
-        fsd.getBlockStoragePolicySuite(), collectedBlocks,
-        removedINodes, removedUCFiles);
     if (!targetNode.isInLatestSnapshot(latestSnapshot)) {
       targetNode.destroyAndCollectBlocks(reclaimContext);
     } else {
-      QuotaCounts counts = targetNode.cleanSubtree(reclaimContext,
-          CURRENT_STATE_ID, latestSnapshot);
-      removed = counts.getNameSpace();
-      fsd.updateCountNoQuotaCheck(iip, iip.length() -1, counts.negation());
+      targetNode.cleanSubtree(reclaimContext, CURRENT_STATE_ID, latestSnapshot);
     }
 
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* FSDirectory.unprotectedDelete: "
           + iip.getPath() + " is removed");
     }
-    return removed;
+    return true;
   }
 
   /**
