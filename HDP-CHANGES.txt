@@ -35,6 +35,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     MAPREDUCE-4815. Speed up FileOutputCommitter#commitJob for many output files.
     (Siqi Li via gera)
 
+    HADOOP-11960. Enable Azure-Storage Client Side logging.
+    (Dushyanth via cnauroth)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
