@@ -220,7 +220,7 @@ public class ReservationSystemTestUtil {
         Mockito.spy(new RMContextImpl(null, null, null, null, null, null,
             new RMContainerTokenSecretManager(conf),
             new NMTokenSecretManagerInRM(conf),
-            new ClientToAMTokenSecretManagerInRM(), null));
+            new ClientToAMTokenSecretManagerInRM(), null, null, null));
 
     RMNodeLabelsManager nlm = mock(RMNodeLabelsManager.class);
     when(

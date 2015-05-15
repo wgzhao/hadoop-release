@@ -35,6 +35,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublis
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.NullRMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
+import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSystem;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AMLivelinessMonitor;
@@ -95,6 +96,7 @@ public class RMActiveServiceContext {
   private RMApplicationHistoryWriter rmApplicationHistoryWriter;
   private SystemMetricsPublisher systemMetricsPublisher;
   private RMNodeLabelsManager nodeLabelManager;
+  private RMRegistryService registry;
   private long epoch;
   private Clock systemClock = new SystemClock();
   private long schedulerRecoveryStartTime = 0;
@@ -118,7 +120,8 @@ public class RMActiveServiceContext {
       NMTokenSecretManagerInRM nmTokenSecretManager,
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
       RMApplicationHistoryWriter rmApplicationHistoryWriter,
-      ResourceScheduler scheduler) {
+      ResourceScheduler scheduler,
+      RMRegistryService registry) {
     this();
     this.setContainerAllocationExpirer(containerAllocationExpirer);
     this.setAMLivelinessMonitor(amLivelinessMonitor);
@@ -453,5 +456,17 @@ public class RMActiveServiceContext {
   @Unstable
   public ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps() {
     return systemCredentials;
+  }
+
+  @Private
+  @Unstable
+  public RMRegistryService getRegistry() {
+    return registry;
+  }
+
+  @Private
+  @Unstable
+  public void setRegistry(RMRegistryService registry) {
+    this.registry = registry;
   }
 }

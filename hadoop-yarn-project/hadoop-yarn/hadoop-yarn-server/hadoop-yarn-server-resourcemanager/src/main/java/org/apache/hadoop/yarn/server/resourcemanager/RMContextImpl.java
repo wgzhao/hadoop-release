@@ -35,6 +35,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWri
 import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublisher;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
+import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSystem;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AMLivelinessMonitor;
@@ -88,7 +89,9 @@ public class RMContextImpl implements RMContext {
       NMTokenSecretManagerInRM nmTokenSecretManager,
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
       RMApplicationHistoryWriter rmApplicationHistoryWriter,
-      ResourceScheduler scheduler) {
+      ResourceScheduler scheduler, 
+      RMRegistryService registry) {
+
     this();
     this.setDispatcher(rmDispatcher);
     setActiveServiceContext(new RMActiveServiceContext(rmDispatcher,
@@ -96,7 +99,8 @@ public class RMContextImpl implements RMContext {
         delegationTokenRenewer, appTokenSecretManager,
         containerTokenSecretManager, nmTokenSecretManager,
         clientToAMTokenSecretManager, rmApplicationHistoryWriter,
-        scheduler));
+        scheduler,
+        registry));
 
     ConfigurationProvider provider = new LocalConfigurationProvider();
     setConfigurationProvider(provider);
@@ -125,6 +129,7 @@ public class RMContextImpl implements RMContext {
       nmTokenSecretManager,
       clientToAMTokenSecretManager,
       rmApplicationHistoryWriter,
+      null, 
       null);
   }
 
@@ -437,5 +442,14 @@ public class RMContextImpl implements RMContext {
 
   public void setYarnConfiguration(Configuration yarnConfiguration) {
     this.yarnConfiguration=yarnConfiguration;
+  }
+
+  @Override
+  public RMRegistryService getRegistry() {
+    return activeServiceContext.getRegistry();
+  }
+
+  void setRegistry(RMRegistryService registry) {
+    activeServiceContext.setRegistry(registry);
   }
 }

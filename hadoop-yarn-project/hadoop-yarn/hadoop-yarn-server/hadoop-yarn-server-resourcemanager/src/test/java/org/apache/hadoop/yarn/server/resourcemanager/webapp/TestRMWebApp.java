@@ -180,7 +180,7 @@ public class TestRMWebApp {
     }
 
     RMContextImpl rmContext = new RMContextImpl(null, null, null, null,
-        null, null, null, null, null, null) {
+        null, null, null, null, null, null, null, null) {
        @Override
        public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
          return applicationsMaps;
