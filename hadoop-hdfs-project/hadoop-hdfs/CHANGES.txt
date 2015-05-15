@@ -423,6 +423,8 @@ Release 2.7.2 - 2016-01-25
     HDFS-7978. Add LOG.isDebugEnabled() guard for some LOG.debug(..).
     (Walter Su via wang)
 
+    HDFS-6888. Allow selectively audit logging ops (Chen He via vinayakumarb)
+
   OPTIMIZATIONS
 
     HDFS-8656. Preserve compatibility of ClientProtocol#rollingUpgrade after

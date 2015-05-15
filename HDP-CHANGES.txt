@@ -4395,3 +4395,5 @@ ATS V1.5:
 
     BUG-78934. HDFS-11641. Reduce cost of audit logging by using FileStatus
     instead of HdfsFileStatus. Contributed by Daryn Sharp.
+
+    BUG-87495. Allow selectively audit logging ops (Contributed by Chen He)
