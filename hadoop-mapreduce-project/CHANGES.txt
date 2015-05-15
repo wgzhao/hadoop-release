@@ -1,5 +1,21 @@
 Hadoop MapReduce Change Log
 
+Release 2.7.1 - 2015-07-06
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to
+    avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
+    (zhihai xu via devaraj)
+
 Release 2.6.0 - 2014-11-18
 
   INCOMPATIBLE CHANGES
