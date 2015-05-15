@@ -33,6 +33,10 @@ Release 2.7.1 - 2015-07-06
     MAPREDUCE-6238. MR2 can't run local jobs with -libjars command options
     which is a regression from MR1 (zxu via rkanter)
 
+    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to
+    avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
+    (zhihai xu via devaraj)
+
 Release 2.6.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
