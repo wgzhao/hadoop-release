@@ -163,11 +163,6 @@ Release 2.8.0 - UNRELEASED
 
     YARN-3343. Increased TestCapacitySchedulerNodeLabelUpdate#testNodeUpdate
     timeout. (Rohith Sharmaks via jianhe)
-    
-    MAPREDUCE-6251. Added a new config for JobClient to retry JobStatus calls so
-    that they don't fail on history-server backed by DFSes with not so strong
-    guarantees. (Craig Welch via vinodkv)
-
 
 Release 2.7.1 - UNRELEASED
 
