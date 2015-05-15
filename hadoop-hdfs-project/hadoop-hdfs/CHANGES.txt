@@ -39,6 +39,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-7933. fsck should also report decommissioning replicas.
     (Xiaoyu Yao via cnauroth)
 
+    HDFS-6888. Allow selectively audit logging ops (Chen He via vinayakumarb)    
+
   OPTIMIZATIONS
 
   BUG FIXES
