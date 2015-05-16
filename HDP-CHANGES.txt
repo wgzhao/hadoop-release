@@ -8,6 +8,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
    HDFS-8009. Signal congestion on the DataNode. (wheat9)
 
+   BUG-26128/YARN-2571 RM to support YARN registry
+
   IMPROVEMENTS
 
   BUG FIXES
