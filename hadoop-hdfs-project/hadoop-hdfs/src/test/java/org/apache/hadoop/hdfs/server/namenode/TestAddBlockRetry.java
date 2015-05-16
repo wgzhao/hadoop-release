@@ -38,6 +38,7 @@ import org.apache.hadoop.io.EnumSetWritable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * Race between two threads simultaneously calling
@@ -79,17 +80,24 @@ public class TestAddBlockRetry {
     final NamenodeProtocols nn = cluster.getNameNodeRpc();
 
     // create file
-    nn.create(src, FsPermission.getFileDefault(),
-        "clientName",
-        new EnumSetWritable<CreateFlag>(EnumSet.of(CreateFlag.CREATE)),
-        true, (short)3, 1024, null);
+    nn.create(src, FsPermission.getFileDefault(), "clientName",
+        new EnumSetWritable<CreateFlag>(EnumSet.of(CreateFlag.CREATE)), true,
+        (short) 3, 1024, null);
 
     // start first addBlock()
     LOG.info("Starting first addBlock for " + src);
     LocatedBlock[] onRetryBlock = new LocatedBlock[1];
-    DatanodeStorageInfo targets[] = ns.getNewBlockTargets(
-        src, INodeId.GRANDFATHER_INODE_ID, "clientName",
-        null, null, null, onRetryBlock);
+    ns.readLock();
+    FSDirWriteFileOp.ValidateAddBlockResult r;
+    FSPermissionChecker pc = Mockito.mock(FSPermissionChecker.class);
+    try {
+      r = FSDirWriteFileOp.validateAddBlock(ns, pc, src,
+          INodeId.GRANDFATHER_INODE_ID, "clientName", null, onRetryBlock);
+    } finally {
+      ns.readUnlock();
+    }
+    DatanodeStorageInfo targets[] = FSDirWriteFileOp
+        .chooseTargetForNewBlock(ns.getBlockManager(), src, null, null, r);
     assertNotNull("Targets must be generated", targets);
 
     // run second addBlock()
@@ -104,8 +112,14 @@ public class TestAddBlockRetry {
     assertEquals("Wrong replication", REPLICATION, lb2.getLocations().length);
 
     // continue first addBlock()
-    LocatedBlock newBlock = ns.storeAllocatedBlock(
-        src, INodeId.GRANDFATHER_INODE_ID, "clientName", null, targets);
+    ns.writeLock();
+    LocatedBlock newBlock;
+    try {
+      newBlock = FSDirWriteFileOp.storeAllocatedBlock(ns, src,
+          INodeId.GRANDFATHER_INODE_ID, "clientName", null, targets);
+    } finally {
+      ns.writeUnlock();
+    }
     assertEquals("Blocks are not equal", lb2.getBlock(), newBlock.getBlock());
 
     // check locations
