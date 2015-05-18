@@ -149,6 +149,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-42254. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
+    BUG-43181. HDFS-4185. Add a metric for number of active leases
+    (Rakesh R via raviprak)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)

@@ -31,6 +31,7 @@ import java.util.Random;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
@@ -483,5 +484,59 @@ public class TestNameNodeMetrics {
     MetricsRecordBuilder rbNew = getMetrics(NN_METRICS);
     assertTrue(MetricsAsserts.getLongCounter("TransactionsNumOps", rbNew) >
         startWriteCounter);
+  }
+
+  /**
+   * Test metrics indicating the number of active clients and the files under
+   * construction
+   */
+  @Test(timeout = 60000)
+  public void testNumActiveClientsAndFilesUnderConstructionMetrics()
+      throws Exception {
+    final Path file1 = getTestPath("testFileAdd1");
+    createFile(file1, 100, (short) 3);
+    assertGauge("NumActiveClients", 0L, getMetrics(NS_METRICS));
+    assertGauge("NumFilesUnderConstruction", 0L, getMetrics(NS_METRICS));
+
+    Path file2 = new Path("/testFileAdd2");
+    FSDataOutputStream output2 = fs.create(file2);
+    output2.writeBytes("Some test data");
+    assertGauge("NumActiveClients", 1L, getMetrics(NS_METRICS));
+    assertGauge("NumFilesUnderConstruction", 1L, getMetrics(NS_METRICS));
+
+    Path file3 = new Path("/testFileAdd3");
+    FSDataOutputStream output3 = fs.create(file3);
+    output3.writeBytes("Some test data");
+    assertGauge("NumActiveClients", 1L, getMetrics(NS_METRICS));
+    assertGauge("NumFilesUnderConstruction", 2L, getMetrics(NS_METRICS));
+
+    // create another DistributedFileSystem client
+    DistributedFileSystem fs1 = (DistributedFileSystem) cluster
+        .getNewFileSystemInstance(0);
+    try {
+      Path file4 = new Path("/testFileAdd4");
+      FSDataOutputStream output4 = fs1.create(file4);
+      output4.writeBytes("Some test data");
+      assertGauge("NumActiveClients", 2L, getMetrics(NS_METRICS));
+      assertGauge("NumFilesUnderConstruction", 3L, getMetrics(NS_METRICS));
+
+      Path file5 = new Path("/testFileAdd35");
+      FSDataOutputStream output5 = fs1.create(file5);
+      output5.writeBytes("Some test data");
+      assertGauge("NumActiveClients", 2L, getMetrics(NS_METRICS));
+      assertGauge("NumFilesUnderConstruction", 4L, getMetrics(NS_METRICS));
+
+      output2.close();
+      output3.close();
+      assertGauge("NumActiveClients", 1L, getMetrics(NS_METRICS));
+      assertGauge("NumFilesUnderConstruction", 2L, getMetrics(NS_METRICS));
+
+      output4.close();
+      output5.close();
+      assertGauge("NumActiveClients", 0L, getMetrics(NS_METRICS));
+      assertGauge("NumFilesUnderConstruction", 0L, getMetrics(NS_METRICS));
+    } finally {
+      fs1.close();
+    }
   }
 }
