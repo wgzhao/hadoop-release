@@ -63,6 +63,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3448. Added a rolling time-to-live LevelDB timeline store implementation.
     (Jonathan Eagles via zjshen)
 
+    YARN-3541. Add version info on timeline service / generic history web UI
+    and REST API. (Zhijie Shen via xgong)
+
   IMPROVEMENTS
 
     YARN-1880. Cleanup TestApplicationClientProtocolOnHA
