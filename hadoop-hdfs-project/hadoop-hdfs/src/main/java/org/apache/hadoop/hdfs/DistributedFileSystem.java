@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -563,6 +564,7 @@ public class DistributedFileSystem extends FileSystem {
    * @param src The source path referring to either a directory or a file.
    * @param policyName The name of the storage policy.
    */
+  @Override
   public void setStoragePolicy(final Path src, final String policyName)
       throws IOException {
     statistics.incrementWriteOps(1);
@@ -578,14 +580,8 @@ public class DistributedFileSystem extends FileSystem {
       @Override
       public Void next(final FileSystem fs, final Path p)
           throws IOException {
-        if (fs instanceof DistributedFileSystem) {
-          ((DistributedFileSystem) fs).setStoragePolicy(p, policyName);
-          return null;
-        } else {
-          throw new UnsupportedOperationException(
-              "Cannot perform setStoragePolicy on a non-DistributedFileSystem: "
-                  + src + " -> " + p);
-        }
+        fs.setStoragePolicy(p, policyName);
+        return null;
       }
     }.resolve(this, absF);
   }
@@ -649,7 +645,20 @@ public class DistributedFileSystem extends FileSystem {
     storageStatistics.incrementOpCounter(OpType.GET_BYTES_WITH_FUTURE_GS);
     return dfs.getBytesInFutureBlocks();
   }
+
   /** Get all the existing storage policies */
+  @Override
+  public Collection<BlockStoragePolicy> getAllStoragePolicies()
+      throws IOException {
+    return Arrays.asList(dfs.getStoragePolicies());
+  }
+
+  /**
+   * Deprecated. Prefer {@link FileSystem#getAllStoragePolicies()}
+   * @return
+   * @throws IOException
+   */
+  @Deprecated
   public BlockStoragePolicy[] getStoragePolicies() throws IOException {
     statistics.incrementReadOps(1);
     storageStatistics.incrementOpCounter(OpType.GET_STORAGE_POLICIES);

@@ -2631,8 +2631,6 @@ public abstract class FileSystem extends Configured implements Closeable {
         + " doesn't support removeXAttr");
   }
 
-
-
   /**
    * Get the root directory of Trash for current user when the path specified
    * is deleted.
@@ -2679,6 +2677,33 @@ public abstract class FileSystem extends Configured implements Closeable {
       LOG.warn("Cannot get all trash roots", e);
     }
     return ret;
+  }
+
+  /**
+   * Set the storage policy for a given file or directory.
+   *
+   * @param src file or directory path.
+   * @param policyName the name of the target storage policy. The list
+   *                   of supported Storage policies can be retrieved
+   *                   via {@link #getAllStoragePolicies}.
+   * @throws IOException
+   */
+  public void setStoragePolicy(final Path src, final String policyName)
+      throws IOException {
+    throw new UnsupportedOperationException(getClass().getSimpleName()
+        + " doesn't support setStoragePolicy");
+  }
+
+  /**
+   * Retrieve all the storage policies supported by this file system.
+   *
+   * @return all storage policies supported by this filesystem.
+   * @throws IOException
+   */
+  public Collection<? extends BlockStoragePolicySpi> getAllStoragePolicies()
+      throws IOException {
+    throw new UnsupportedOperationException(getClass().getSimpleName()
+        + " doesn't support getAllStoragePolicies");
   }
 
   // making it volatile to be able to do a double checked locking

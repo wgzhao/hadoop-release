@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -376,6 +377,18 @@ class ChRootedFs extends AbstractFileSystem {
   public void deleteSnapshot(Path snapshotDir, String snapshotName)
       throws IOException {
     myFs.deleteSnapshot(fullPath(snapshotDir), snapshotName);
+  }
+
+  @Override
+  public void setStoragePolicy(Path path, String policyName)
+    throws IOException {
+    myFs.setStoragePolicy(fullPath(path), policyName);
+  }
+
+  @Override
+  public Collection<? extends BlockStoragePolicySpi> getAllStoragePolicies()
+      throws IOException {
+    return myFs.getAllStoragePolicies();
   }
 
   @Override

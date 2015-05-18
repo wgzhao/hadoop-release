@@ -214,6 +214,12 @@ public class TestHarFileSystem {
 
     public Collection<FileStatus> getTrashRoots(boolean allUsers) throws IOException;
     StorageStatistics getStorageStatistics();
+
+    public void setStoragePolicy(Path src, String policyName)
+        throws IOException;
+
+    public Collection<? extends BlockStoragePolicySpi> getAllStoragePolicies()
+        throws IOException;
   }
 
   @Test

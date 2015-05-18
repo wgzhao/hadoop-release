@@ -628,4 +628,16 @@ public class FilterFileSystem extends FileSystem {
   public Collection<FileStatus> getTrashRoots(boolean allUsers) {
     return fs.getTrashRoots(allUsers);
   }
+
+  @Override
+  public void setStoragePolicy(Path src, String policyName)
+      throws IOException {
+    fs.setStoragePolicy(src, policyName);
+  }
+
+  @Override
+  public Collection<? extends BlockStoragePolicySpi> getAllStoragePolicies()
+      throws IOException {
+    return fs.getAllStoragePolicies();
+  }
 }
