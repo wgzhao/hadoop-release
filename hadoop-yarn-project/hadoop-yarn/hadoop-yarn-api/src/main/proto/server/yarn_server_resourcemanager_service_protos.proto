@@ -90,7 +90,7 @@ message RemoveFromClusterNodeLabelsResponseProto {
 }
 
 message ReplaceLabelsOnNodeRequestProto {
-  repeated NodeIdToLabelsProto nodeToLabels = 1;
+  repeated NodeIdToLabelsNameProto nodeToLabels = 1;
 }
 
 message ReplaceLabelsOnNodeResponseProto {
@@ -98,6 +98,11 @@ message ReplaceLabelsOnNodeResponseProto {
 }
 
 message UpdateNodeLabelsResponseProto {
+}
+
+message NodeIdToLabelsNameProto {
+  optional NodeIdProto nodeId = 1;
+  repeated string nodeLabels = 2;
 }
 
 //////////////////////////////////////////////////////////////////
