@@ -16,6 +16,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9711. Integrate CSRF prevention filter in WebHDFS. (cnauroth)
 
+    HDFS-8131. Implement a space balanced block placement policy (Liu Shaohui
+    via kihwal)
+
   IMPROVEMENTS
 
     HDFS-8965. Harden edit log reading code against out of memory errors (cmccabe)
