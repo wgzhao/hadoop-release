@@ -154,6 +154,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-6300. Prevent multiple balancers from running simultaneously
     (Rakesh R via vinayakumarb)
 
+    HDFS-8404. Pending block replication can get stuck using older genstamp
+    (Nathan Roberts via kihwal)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
