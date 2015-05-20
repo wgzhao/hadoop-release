@@ -306,6 +306,9 @@ Release 2.7.1 - UNRELEASED
     YARN-2918. RM should not fail on startup if queue's configured labels do
     not exist in cluster-node-labels. (Wangda Tan via jianhe)
 
+    YARN-3609. Load node labels from storage inside RM serviceStart. (Wangda
+    Tan via jianhe)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
