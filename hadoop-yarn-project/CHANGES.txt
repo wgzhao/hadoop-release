@@ -273,6 +273,9 @@ Release 2.7.1 - UNRELEASED
     YARN-3677. Fix findbugs warnings in yarn-server-resourcemanager.
     (Vinod Kumar Vavilapalli via ozawa)
 
+    YARN-3681. yarn cmd says "could not find main class 'queue'" in windows.
+    (Craig Welch and Varun Saxena via xgong)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
