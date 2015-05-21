@@ -32,6 +32,8 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Container;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.hadoop.yarn.server.nodemanager.executor.ContainerStartContext;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,9 +165,16 @@ public class TestDockerContainerExecutor {
     Path pidFile = new Path(workDir, "pid.txt");
 
     exec.activateContainer(cId, pidFile);
-    return exec.launchContainer(container, scriptPath, tokensPath,
-        appSubmitter, appId, workDir, dirsHandler.getLocalDirs(),
-        dirsHandler.getLogDirs());
+    return exec.launchContainer(new ContainerStartContext.Builder()
+        .setContainer(container)
+        .setNmPrivateContainerScriptPath(scriptPath)
+        .setNmPrivateTokensPath(tokensPath)
+        .setUser(appSubmitter)
+        .setAppId(appId)
+        .setContainerWorkDir(workDir)
+        .setLocalDirs(dirsHandler.getLocalDirs())
+        .setLogDirs(dirsHandler.getLogDirs())
+        .build());
   }
 
   private String writeScriptFile(Map<String, String> launchCtxEnv, String... cmd) throws IOException {

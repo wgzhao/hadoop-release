@@ -56,6 +56,7 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.ContainerLocalizer;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.ResourceLocalizationService;
+import org.apache.hadoop.yarn.server.nodemanager.executor.LocalizerStartContext;
 
 /**
  * Windows secure container executor (WSCE).
@@ -645,13 +646,16 @@ public class WindowsSecureContainerExecutor extends DefaultContainerExecutor {
   }
 
  @Override
- public void startLocalizer(Path nmPrivateContainerTokens,
-     InetSocketAddress nmAddr, String user, String appId, String locId,
-     LocalDirsHandlerService dirsHandler) throws IOException,
+ public void startLocalizer(LocalizerStartContext ctx) throws IOException,
      InterruptedException {
-   
-     List<String> localDirs = dirsHandler.getLocalDirs();
-     List<String> logDirs = dirsHandler.getLogDirs();
+   Path nmPrivateContainerTokensPath = ctx.getNmPrivateContainerTokens();
+   InetSocketAddress nmAddr = ctx.getNmAddr();
+   String user = ctx.getUser();
+   String appId = ctx.getAppId();
+   String locId = ctx.getLocId();
+   LocalDirsHandlerService dirsHandler = ctx.getDirsHandler();
+   List<String> localDirs = dirsHandler.getLocalDirs();
+   List<String> logDirs = dirsHandler.getLogDirs();
      
      Path classpathJarPrivateDir = dirsHandler.getLocalPathForWrite(
          ResourceLocalizationService.NM_PRIVATE_DIR);
@@ -665,7 +669,7 @@ public class WindowsSecureContainerExecutor extends DefaultContainerExecutor {
      String tokenFn = String.format(
          ContainerLocalizer.TOKEN_FILE_NAME_FMT, locId);
      Path tokenDst = new Path(appStorageDir, tokenFn);
-     copyFile(nmPrivateContainerTokens, tokenDst, user);
+     copyFile(nmPrivateContainerTokensPath, tokenDst, user);
 
      File cwdApp = new File(appStorageDir.toString());
      if (LOG.isDebugEnabled()) {
@@ -728,7 +732,7 @@ public class WindowsSecureContainerExecutor extends DefaultContainerExecutor {
      }
    }
  
-   @Override
+  @Override
   protected CommandExecutor buildCommandExecutor(String wrapperScriptPath,
       String containerIdStr, String userName, Path pidFile, Resource resource,
       File wordDir, Map<String, String> environment) throws IOException {

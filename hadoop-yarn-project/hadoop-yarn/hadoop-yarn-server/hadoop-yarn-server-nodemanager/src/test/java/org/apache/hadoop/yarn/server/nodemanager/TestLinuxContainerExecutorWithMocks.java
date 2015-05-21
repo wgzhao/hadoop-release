@@ -50,6 +50,11 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Container;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.ContainerDiagnosticsUpdateEvent;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.linux.privileged.PrivilegedOperation;
+import org.apache.hadoop.yarn.server.nodemanager.executor.ContainerSignalContext;
+import org.apache.hadoop.yarn.server.nodemanager.executor.ContainerStartContext;
+import org.apache.hadoop.yarn.server.nodemanager.executor.DeletionAsUserContext;
+import org.apache.hadoop.yarn.server.nodemanager.executor.LocalizerStartContext;
+
 import org.junit.Assert;
 import org.junit.After;
 import org.junit.Before;
@@ -131,9 +136,16 @@ public class TestLinuxContainerExecutorWithMocks {
     Path pidFile = new Path(workDir, "pid.txt");
 
     mockExec.activateContainer(cId, pidFile);
-    int ret = mockExec.launchContainer(container, scriptPath, tokensPath,
-        appSubmitter, appId, workDir, dirsHandler.getLocalDirs(),
-        dirsHandler.getLogDirs());
+    int ret = mockExec.launchContainer(new ContainerStartContext.Builder()
+        .setContainer(container)
+        .setNmPrivateContainerScriptPath(scriptPath)
+        .setNmPrivateTokensPath(tokensPath)
+        .setUser(appSubmitter)
+        .setAppId(appId)
+        .setContainerWorkDir(workDir)
+        .setLocalDirs(dirsHandler.getLocalDirs())
+        .setLogDirs(dirsHandler.getLogDirs())
+        .build());
     assertEquals(0, ret);
     assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
         appSubmitter, cmd, appId, containerId,
@@ -187,7 +199,15 @@ public class TestLinuxContainerExecutorWithMocks {
     Path nmPrivateCTokensPath= new Path("file:///bin/nmPrivateCTokensPath");
  
     try {
-      mockExec.startLocalizer(nmPrivateCTokensPath, address, "test", "application_0", "12345", dirsHandler);
+      mockExec.startLocalizer(new LocalizerStartContext.Builder()
+          .setNmPrivateContainerTokens(nmPrivateCTokensPath)
+          .setNmAddr(address)
+          .setUser("test")
+          .setAppId("application_0")
+          .setLocId("12345")
+          .setDirsHandler(dirsHandler)
+          .build());
+
       List<String> result=readMockParams();
       Assert.assertEquals(result.size(), 17);
       Assert.assertEquals(result.get(0), YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER);
@@ -279,9 +299,17 @@ public class TestLinuxContainerExecutorWithMocks {
     Path pidFile = new Path(workDir, "pid.txt");
 
     mockExec.activateContainer(cId, pidFile);
-    int ret = mockExec.launchContainer(container, scriptPath, tokensPath,
-        appSubmitter, appId, workDir, dirsHandler.getLocalDirs(),
-        dirsHandler.getLogDirs());
+    int ret = mockExec.launchContainer(new ContainerStartContext.Builder()
+        .setContainer(container)
+        .setNmPrivateContainerScriptPath(scriptPath)
+        .setNmPrivateTokensPath(tokensPath)
+        .setUser(appSubmitter)
+        .setAppId(appId)
+        .setContainerWorkDir(workDir)
+        .setLocalDirs(dirsHandler.getLocalDirs())
+        .setLogDirs(dirsHandler.getLogDirs())
+        .build());
+
     Assert.assertNotSame(0, ret);
     assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
         appSubmitter, cmd, appId, containerId,
@@ -311,7 +339,11 @@ public class TestLinuxContainerExecutorWithMocks {
     ContainerExecutor.Signal signal = ContainerExecutor.Signal.QUIT;
     String sigVal = String.valueOf(signal.getValue());
     
-    mockExec.signalContainer(appSubmitter, "1000", signal);
+    mockExec.signalContainer(new ContainerSignalContext.Builder()
+        .setUser(appSubmitter)
+        .setPid("1000")
+        .setSignal(signal)
+        .build());
     assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
         appSubmitter, cmd, "1000", sigVal),
         readMockParams());
@@ -327,24 +359,41 @@ public class TestLinuxContainerExecutorWithMocks {
     Path baseDir0 = new Path("/grid/0/BaseDir");
     Path baseDir1 = new Path("/grid/1/BaseDir");
 
-    mockExec.deleteAsUser(appSubmitter, dir);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, "/tmp/testdir"),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setSubDir(dir)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, "/tmp/testdir"),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, null);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, ""),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, ""),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, testFile, baseDir0, baseDir1);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, testFile.toString(), baseDir0.toString(), baseDir1.toString()),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setSubDir(testFile)
+        .setBasedirs(baseDir0, baseDir1)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, testFile.toString(), baseDir0.toString(),
+            baseDir1.toString()),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, null, baseDir0, baseDir1);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, "", baseDir0.toString(), baseDir1.toString()),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setBasedirs(baseDir0, baseDir1)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, "", baseDir0.toString(), baseDir1.toString()),
         readMockParams());
 
     File f = new File("./src/test/resources/mock-container-executer-with-error");
@@ -356,22 +405,38 @@ public class TestLinuxContainerExecutorWithMocks {
     conf.set(YarnConfiguration.NM_LINUX_CONTAINER_EXECUTOR_PATH, executorPath);
     mockExec.setConf(conf);
 
-    mockExec.deleteAsUser(appSubmitter, dir);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, "/tmp/testdir"),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setSubDir(dir)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, "/tmp/testdir"),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, null);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, ""),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, ""),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, testFile, baseDir0, baseDir1);
-    assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
-        appSubmitter, cmd, testFile.toString(), baseDir0.toString(), baseDir1.toString()),
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setSubDir(testFile)
+        .setBasedirs(baseDir0, baseDir1)
+        .build());
+    assertEquals(
+        Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
+            appSubmitter, cmd, testFile.toString(), baseDir0.toString(),
+            baseDir1.toString()),
         readMockParams());
 
-    mockExec.deleteAsUser(appSubmitter, null, baseDir0, baseDir1);
+    mockExec.deleteAsUser(new DeletionAsUserContext.Builder()
+        .setUser(appSubmitter)
+        .setBasedirs(baseDir0, baseDir1)
+        .build());
     assertEquals(Arrays.asList(YarnConfiguration.DEFAULT_NM_NONSECURE_MODE_LOCAL_USER,
         appSubmitter, cmd, "", baseDir0.toString(), baseDir1.toString()),
         readMockParams());
