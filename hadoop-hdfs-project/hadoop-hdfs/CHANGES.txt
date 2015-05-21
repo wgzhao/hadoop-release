@@ -119,6 +119,9 @@ Release 2.7.1 - UNRELEASED
 
   BUG FIXES
 
+    HDFS-8451. DFSClient probe for encryption testing interprets empty URI
+    property for "enabled". (Steve Loughran via xyao)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
