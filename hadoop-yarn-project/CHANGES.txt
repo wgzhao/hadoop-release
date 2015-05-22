@@ -194,6 +194,8 @@ Release 2.8.0 - UNRELEASED
     YARN-3580. [JDK8] TestClientRMService.testGetLabelsToNodes fails. (Robert Kanter
     via junping_du)
 
+    YARN-3707. RM Web UI queue filter doesn't work. (Wangda Tan via jianhe)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
