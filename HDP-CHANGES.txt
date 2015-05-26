@@ -2966,3 +2966,6 @@ ATS V1.5:
 
     BUG-65466. HDFS-9276. Failed to Update HDFS Delegation Token for long running application in HA mode.
     Contributed by Liangliang Gu and John Zhuge
+
+    BUG-65466. HADOOP-8751. NPE in Token.toString() when Token is constructed using null identifier. Contributed by kanaka kumar avvaru.
+
