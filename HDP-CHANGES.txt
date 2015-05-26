@@ -854,3 +854,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-55701. HDFS-9276. Failed to Update HDFS Delegation Token for long
     running application in HA mode. Contributed by Liangliang Gu and John Zhuge
+
+    BUG-55701. HADOOP-8751. NPE in Token.toString() when Token is constructed using null identifier.
+    Contributed by kanaka kumar avvaru.
+
