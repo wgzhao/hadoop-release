@@ -134,6 +134,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3583. Support of NodeLabel object instead of plain String 
     in YarnClient side. (Sunil G via wangda)
 
+    YARN-3581. Deprecate -directlyAccessNodeLabelStore in RMAdminCLI. 
+    (Naganarasimha G R via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
