@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
-import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfoContiguous;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfo;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class TestLeaseManager {
     PermissionStatus p = new PermissionStatus(
         "dummy", "dummy", new FsPermission((short) 0777));
     return new INodeFile(
-        inodeId, "/foo".getBytes(), p, 0L, 0L, BlockInfoContiguous.EMPTY_ARRAY,
+        inodeId, "/foo".getBytes(), p, 0L, 0L, BlockInfo.EMPTY_ARRAY,
         (short) 1, 1L);
   }
 }

@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
-import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfoContiguous;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfo;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
 import org.apache.hadoop.util.Daemon;
 
@@ -113,11 +113,11 @@ public class LeaseManager {
             + " is not under construction but has lease.");
         continue;
       }
-      BlockInfoContiguous[] blocks = cons.getBlocks();
+      BlockInfo[] blocks = cons.getBlocks();
       if(blocks == null) {
         continue;
       }
-      for(BlockInfoContiguous b : blocks) {
+      for(BlockInfo b : blocks) {
         if(!b.isComplete())
           numUCBlocks++;
       }

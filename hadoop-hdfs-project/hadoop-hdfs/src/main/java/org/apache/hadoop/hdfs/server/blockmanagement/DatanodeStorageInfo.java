@@ -80,10 +80,10 @@ public class DatanodeStorageInfo {
   /**
    * Iterates over the list of blocks belonging to the data-node.
    */
-  class BlockIterator implements Iterator<BlockInfoContiguous> {
-    private BlockInfoContiguous current;
+  class BlockIterator implements Iterator<BlockInfo> {
+    private BlockInfo current;
 
-    BlockIterator(BlockInfoContiguous head) {
+    BlockIterator(BlockInfo head) {
       this.current = head;
     }
 
@@ -91,8 +91,8 @@ public class DatanodeStorageInfo {
       return current != null;
     }
 
-    public BlockInfoContiguous next() {
-      BlockInfoContiguous res = current;
+    public BlockInfo next() {
+      BlockInfo res = current;
       current = current.getNext(current.findStorageInfo(DatanodeStorageInfo.this));
       return res;
     }
@@ -112,7 +112,7 @@ public class DatanodeStorageInfo {
   private volatile long remaining;
   private long blockPoolUsed;
 
-  private volatile BlockInfoContiguous blockList = null;
+  private volatile BlockInfo blockList = null;
   private int numBlocks = 0;
 
   // The ID of the last full block report which updated this storage.
@@ -226,7 +226,7 @@ public class DatanodeStorageInfo {
     return blockPoolUsed;
   }
 
-  public AddBlockResult addBlock(BlockInfoContiguous b) {
+  public AddBlockResult addBlock(BlockInfo b) {
     // First check whether the block belongs to a different storage
     // on the same DN.
     AddBlockResult result = AddBlockResult.ADDED;
@@ -251,7 +251,7 @@ public class DatanodeStorageInfo {
     return result;
   }
 
-  public boolean removeBlock(BlockInfoContiguous b) {
+  public boolean removeBlock(BlockInfo b) {
     blockList = b.listRemove(blockList, this);
     if (b.removeStorage(this)) {
       numBlocks--;
@@ -265,7 +265,7 @@ public class DatanodeStorageInfo {
     return numBlocks;
   }
   
-  Iterator<BlockInfoContiguous> getBlockIterator() {
+  Iterator<BlockInfo> getBlockIterator() {
     return new BlockIterator(blockList);
 
   }
@@ -274,7 +274,7 @@ public class DatanodeStorageInfo {
    * Move block to the head of the list of blocks belonging to the data-node.
    * @return the index of the head of the blockList
    */
-  int moveBlockToHead(BlockInfoContiguous b, int curIndex, int headIndex) {
+  int moveBlockToHead(BlockInfo b, int curIndex, int headIndex) {
     blockList = b.moveBlockToHead(blockList, this, curIndex, headIndex);
     return curIndex;
   }
@@ -284,7 +284,7 @@ public class DatanodeStorageInfo {
    * @return the head of the blockList
    */
   @VisibleForTesting
-  BlockInfoContiguous getBlockListHeadForTesting(){
+  BlockInfo getBlockListHeadForTesting(){
     return blockList;
   }
 

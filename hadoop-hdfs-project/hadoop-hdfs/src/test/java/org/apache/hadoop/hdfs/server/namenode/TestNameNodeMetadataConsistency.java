@@ -24,7 +24,7 @@ import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
-import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfoContiguous;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfo;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -94,7 +94,7 @@ public class TestNameNodeMetadataConsistency {
 
     // Simulate  Namenode forgetting a Block
     cluster.restartNameNode(true);
-    BlockInfoContiguous bInfo = cluster.getNameNode().getNamesystem().getBlockManager
+    BlockInfo bInfo = cluster.getNameNode().getNamesystem().getBlockManager
         ().getStoredBlock(block.getLocalBlock());
     cluster.getNameNode().getNamesystem().writeLock();
     cluster.getNameNode().getNamesystem().getBlockManager()
@@ -158,7 +158,7 @@ public class TestNameNodeMetadataConsistency {
 
     // Simulate  Namenode forgetting a Block
     cluster.restartNameNode(true);
-    BlockInfoContiguous bInfo = cluster.getNameNode().getNamesystem().getBlockManager
+    BlockInfo bInfo = cluster.getNameNode().getNamesystem().getBlockManager
         ().getStoredBlock(block.getLocalBlock());
     cluster.getNameNode().getNamesystem().writeLock();
     cluster.getNameNode().getNamesystem().getBlockManager()
