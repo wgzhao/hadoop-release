@@ -82,7 +82,8 @@ if "%1" == "--service" (
       exit /b
     )
   )
-  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin mover storagepolicies classpath
+
+  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin mover storagepolicies classpath crypto
   for %%i in ( %hdfscommands% ) do (
     if %hdfs-command% == %%i set hdfscommand=true
   )
@@ -202,6 +203,10 @@ goto :eof
   set CLASS=org.apache.hadoop.hdfs.tools.StoragePolicyAdmin
   goto :eof
 
+:crypto
+  set CLASS=org.apache.hadoop.hdfs.tools.CryptoAdmin
+  goto :eof
+
 :makeServiceXml
   set arguments=%*
   @echo ^<service^>
@@ -269,6 +274,7 @@ goto :eof
   @echo   lsSnapshottableDir   list all snapshottable dirs owned by the current user
   @echo 						Use -help to see options
   @echo   cacheadmin           configure the HDFS cache
+  @echo   crypto               configure HDFS encryption zones
   @echo   mover                run a utility to move block replicas across storage types
   @echo   storagepolicies      list/get/set block storage policies
   @echo.
