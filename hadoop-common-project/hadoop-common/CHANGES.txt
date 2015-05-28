@@ -56,6 +56,9 @@ Release 2.7.1 - UNRELEASED
     HADOOP-11966. Variable cygwin is undefined in hadoop-config.sh when executed
     through hadoop-daemon.sh. (cnauroth)
 
+    HADOOP-11959. WASB should configure client side socket timeout in storage
+    client blob request options. (Ivan Mitic via cnauroth)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
