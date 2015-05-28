@@ -225,6 +225,9 @@ Release 2.7.1 - UNRELEASED
     YARN-3579. CommonNodeLabelsManager should support NodeLabel instead of string 
     label name when getting node-to-label/label-to-label mappings. (Sunil G via wangda)
 
+    YARN-3723. Need to clearly document primaryFilter and otherInfo value type.
+    (Zhijie Shen via xgong)
+
     YARN-3489. RMServerUtils.validateResourceRequests should only obtain queue 
     info once. (Varun Saxena via wangda)
 
