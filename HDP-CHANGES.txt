@@ -223,3 +223,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HADOOP-11959. WASB should configure client side socket timeout in storage
     client blob request options. (Ivan Mitic via cnauroth)
+
+    MAPREDUCE-6361. NPE issue in shuffle caused by concurrent issue between
+    copySucceeded() in one thread and copyFailed() in another thread on the
+    same host. (Junping Du via ozawa)
