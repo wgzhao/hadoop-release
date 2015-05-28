@@ -214,6 +214,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4761. NMs reconnecting with changed capabilities can lead to wrong cluster
     resource calculations on fair scheduler. (Sangjin Lee via zxu)
 
+    YARN-3722. Merge multiple TestWebAppUtils into o.a.h.yarn.webapp.util.TestWebAppUtils.
+    (Masatake Iwasaki via devaraj)
+
   OPTIMIZATIONS
 
   BUG FIXES
