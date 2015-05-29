@@ -1866,7 +1866,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   void concat(String target, String [] srcs, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     waitForLoadingFSImage();
     HdfsFileStatus stat = null;
     boolean success = false;
@@ -2371,7 +2370,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     boolean skipSync = false;
     HdfsFileStatus stat = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     if (blockSize < minBlockSize) {
       throw new IOException("Specified block size is less than configured" +
           " minimum value (" + DFSConfigKeys.DFS_NAMENODE_MIN_BLOCK_SIZE_KEY
@@ -2977,7 +2975,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     LocatedBlock lb = null;
     HdfsFileStatus stat = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     writeLock();
     try {
@@ -3660,7 +3657,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   boolean renameTo(String src, String dst, boolean logRetryCache)
       throws IOException {
     waitForLoadingFSImage();
-    checkOperation(OperationCategory.WRITE);
     FSDirRenameOp.RenameOldResult ret = null;
     writeLock();
     try {
@@ -3686,7 +3682,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
                 boolean logRetryCache, Options.Rename... options)
       throws IOException {
     waitForLoadingFSImage();
-    checkOperation(OperationCategory.WRITE);
     Map.Entry<BlocksMapUpdateInfo, HdfsFileStatus> res = null;
     writeLock();
     try {
@@ -3723,7 +3718,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   boolean delete(String src, boolean recursive, boolean logRetryCache)
       throws IOException {
     waitForLoadingFSImage();
-    checkOperation(OperationCategory.WRITE);
     BlocksMapUpdateInfo toRemovedBlocks = null;
     writeLock();
     boolean ret = false;
@@ -6362,8 +6356,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       String clientName, ExtendedBlock oldBlock, ExtendedBlock newBlock,
       DatanodeID[] newNodes, String[] newStorageIDs, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
-
     LOG.info("updatePipeline(" + oldBlock.getLocalBlock()
              + ", newGS=" + newBlock.getGenerationStamp()
              + ", newLength=" + newBlock.getNumBytes()
@@ -7396,7 +7388,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void renameSnapshot(
       String path, String snapshotOldName, String snapshotNewName,
       boolean logRetryCache) throws IOException {
-    checkOperation(OperationCategory.WRITE);
     boolean success = false;
     writeLock();
     try {
@@ -7480,7 +7471,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   void deleteSnapshot(String snapshotRoot, String snapshotName,
       boolean logRetryCache) throws IOException {
-    checkOperation(OperationCategory.WRITE);
     boolean success = false;
     writeLock();
     BlocksMapUpdateInfo blocksToBeDeleted = null;
@@ -7739,7 +7729,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   long addCacheDirective(CacheDirectiveInfo directive,
                          EnumSet<CacheFlag> flags, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     CacheDirectiveInfo effectiveDirective = null;
     if (!flags.contains(CacheFlag.FORCE)) {
       cacheManager.waitForRescanIfNeeded();
@@ -7770,7 +7759,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void modifyCacheDirective(CacheDirectiveInfo directive,
       EnumSet<CacheFlag> flags, boolean logRetryCache) throws IOException {
-    checkOperation(OperationCategory.WRITE);
     boolean success = false;
     if (!flags.contains(CacheFlag.FORCE)) {
       cacheManager.waitForRescanIfNeeded();
@@ -7797,7 +7785,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   }
 
   void removeCacheDirective(long id, boolean logRetryCache) throws IOException {
-    checkOperation(OperationCategory.WRITE);
     boolean success = false;
     writeLock();
     try {
@@ -7839,7 +7826,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void addCachePool(CachePoolInfo req, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     writeLock();
     boolean success = false;
     String poolInfoStr = null;
@@ -7863,7 +7849,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void modifyCachePool(CachePoolInfo req, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     writeLock();
     boolean success = false;
     try {
@@ -7887,7 +7872,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void removeCachePool(String cachePoolName, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     writeLock();
     boolean success = false;
     try {
@@ -8085,7 +8069,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     String src = srcArg;
     HdfsFileStatus resultingStat = null;
     checkSuperuserPrivilege();
-    checkOperation(OperationCategory.WRITE);
     final byte[][] pathComponents =
       FSDirectory.getPathComponentsForReservedPath(src);
     FSPermissionChecker pc = getPermissionChecker();
@@ -8171,7 +8154,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void setXAttr(String src, XAttr xAttr, EnumSet<XAttrSetFlag> flag,
                 boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     HdfsFileStatus auditStat = null;
     writeLock();
     try {
@@ -8219,7 +8201,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void removeXAttr(String src, XAttr xAttr, boolean logRetryCache)
       throws IOException {
-    checkOperation(OperationCategory.WRITE);
     HdfsFileStatus auditStat = null;
     writeLock();
     try {
