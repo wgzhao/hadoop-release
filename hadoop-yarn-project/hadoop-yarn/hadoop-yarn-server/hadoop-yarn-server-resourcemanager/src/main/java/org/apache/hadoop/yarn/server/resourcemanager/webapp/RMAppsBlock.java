@@ -59,6 +59,8 @@ public class RMAppsBlock extends AppsBlock {
           .th(".finishtime", "FinishTime").th(".state", "State")
           .th(".finalstatus", "FinalStatus")
           .th(".runningcontainer", "Running Containers")
+          .th(".allocatedCpu", "Allocated CPU VCores")
+          .th(".allocatedMemory", "Allocated Memory MB")
           .th(".progress", "Progress")
           .th(".ui", "Tracking UI").th(".blacklisted", "Blacklisted Nodes")._()
           ._().tbody();
@@ -112,6 +114,12 @@ public class RMAppsBlock extends AppsBlock {
         .append(app.getFinalAppStatus())
         .append("\",\"")
         .append(String.valueOf(app.getRunningContainers()))
+        .append("\",\"")
+        .append(app.getAllocatedCpuVcores() == -1 ? "N/A" : String
+            .valueOf(app.getAllocatedCpuVcores()))
+        .append("\",\"")
+        .append(app.getAllocatedMemoryMB() == -1 ? "N/A" : String
+            .valueOf(app.getAllocatedMemoryMB()))
         .append("\",\"")
         // Progress bar
         .append("<br title='").append(percent).append("'> <div class='")
