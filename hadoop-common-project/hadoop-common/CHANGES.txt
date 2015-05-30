@@ -1086,6 +1086,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12622. Improve the loggings in RetryPolicies and RetryInvocationHandler.
     (Junping Du via jianhe)
 
+    HADOOP-12043. Display warning if defaultFs is not set when running fs
+    commands. (Lei Xu via wang)
+
   OPTIMIZATIONS
 
     HADOOP-11785. Reduce the number of listStatus operation in distcp
