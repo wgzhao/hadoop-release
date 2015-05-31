@@ -354,6 +354,23 @@ function InstallCore(
     Invoke-CmdChk $xcopy_cmd
 
     ###
+    ###  Copy Third party jars and hadoop third party support jars
+    ###
+
+    Write-Log "Copying the aws-java-sdk, azure-storage, hadoop-aws and hadoop-azure jar from tools\lib to common\lib"
+    $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\aws-java-sdk*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
+    Invoke-CmdChk $xcopy_cmd
+
+    $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\azure-storage*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
+    Invoke-CmdChk $xcopy_cmd
+
+    $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\hadoop-aws*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
+    Invoke-CmdChk $xcopy_cmd
+
+    $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\hadoop-azure*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
+    Invoke-CmdChk $xcopy_cmd
+
+    ###
     ###  Copy template config files
     ###
     $xcopy_cmd = "xcopy /EIYF `"$HDP_INSTALL_PATH\..\template\conf\*.xml`" `"$hadoopInstallToDir\etc\hadoop`""
