@@ -227,3 +227,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     MAPREDUCE-6361. NPE issue in shuffle caused by concurrent issue between
     copySucceeded() in one thread and copyFailed() in another thread on the
     same host. (Junping Du via ozawa)
+
+    YARN-3700. Made generic history service load a number of latest applications
+    according to the parameter or the configuration. (Xuan Gong via zjshen)

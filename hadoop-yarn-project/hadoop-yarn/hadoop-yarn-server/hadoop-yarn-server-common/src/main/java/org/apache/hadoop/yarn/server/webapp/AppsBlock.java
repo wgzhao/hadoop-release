@@ -20,6 +20,7 @@ package org.apache.hadoop.yarn.server.webapp;
 
 import static org.apache.hadoop.yarn.util.StringHelper.join;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APP_STATE;
+import static org.apache.hadoop.yarn.webapp.YarnWebParams.APPS_NUM;
 import static org.apache.hadoop.yarn.webapp.view.JQueryUI.C_PROGRESSBAR;
 import static org.apache.hadoop.yarn.webapp.view.JQueryUI.C_PROGRESSBAR_VALUE;
 
@@ -72,16 +73,22 @@ public class AppsBlock extends HtmlBlock {
     }
 
     UserGroupInformation callerUGI = getCallerUGI();
+    String appsNumStr = $(APPS_NUM);
+    long appsTempNum = Long.MAX_VALUE;
+    if (appsNumStr != null && !appsNumStr.isEmpty()) {
+      appsTempNum = Long.parseLong(appsNumStr);
+    }
+    final long appsNum = appsTempNum;
     Collection<ApplicationReport> appReports;
     try {
       if (callerUGI == null) {
-        appReports = appContext.getAllApplications().values();
+        appReports = appContext.getApplications(appsNum).values();
       } else {
         appReports = callerUGI.doAs(
             new PrivilegedExceptionAction<Collection<ApplicationReport>> () {
           @Override
           public Collection<ApplicationReport> run() throws Exception {
-            return appContext.getAllApplications().values();
+            return appContext.getApplications(appsNum).values();
           }
         });
       }

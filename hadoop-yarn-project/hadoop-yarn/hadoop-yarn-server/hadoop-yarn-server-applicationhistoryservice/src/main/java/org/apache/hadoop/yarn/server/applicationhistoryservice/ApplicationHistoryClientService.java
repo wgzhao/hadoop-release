@@ -185,7 +185,7 @@ public class ApplicationHistoryClientService extends AbstractService {
         GetApplicationsRequest request) throws YarnException, IOException {
       GetApplicationsResponse response =
           GetApplicationsResponse.newInstance(new ArrayList<ApplicationReport>(
-            history.getAllApplications().values()));
+            history.getApplications(request.getLimit()).values()));
       return response;
     }
 
