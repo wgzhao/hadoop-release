@@ -38,6 +38,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-11960. Enable Azure-Storage Client Side logging.
     (Dushyanth via cnauroth)
 
+    HADOOP-10597. RPC Server signals backoff to clients when all request queues
+    are full. (Ming Ma via Arpit Agarwal)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
