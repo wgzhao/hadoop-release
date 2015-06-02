@@ -96,6 +96,9 @@ Release 2.6.1 - UNRELEASED
     HDFS-7035. Make adding a new data directory to the DataNode an atomic
     operation and improve error handling (Lei Xu via Colin P. McCabe)
 
+    HDFS-7398. Reset cached thread-local FSEditLogOp's on every
+    FSEditLog#logEdit. (Gera Shegalov via cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES
