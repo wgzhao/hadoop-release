@@ -233,3 +233,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3700. Made generic history service load a number of latest applications
     according to the parameter or the configuration. (Xuan Gong via zjshen)
+
+    HDFS-7609. Avoid retry cache collision when Standby NameNode loading edits.
+    (Ming Ma via jing9)

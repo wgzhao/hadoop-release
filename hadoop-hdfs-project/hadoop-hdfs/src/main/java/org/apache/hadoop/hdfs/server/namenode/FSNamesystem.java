@@ -1968,6 +1968,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
    */
   void concat(String target, String [] srcs) 
       throws IOException, UnresolvedLinkException {
+    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return; // Return previous response
@@ -2014,7 +2015,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
     HdfsFileStatus resultingStat = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     waitForLoadingFSImage();
     writeLock();
     try {
@@ -2210,6 +2210,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     if (!FileSystem.areSymlinksEnabled()) {
       throw new UnsupportedOperationException("Symlinks not supported");
     }
+    checkOperation(OperationCategory.WRITE);
     if (!DFSUtil.isValidName(link)) {
       throw new InvalidPathException("Invalid link name: " + link);
     }
@@ -2242,7 +2243,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     }
     HdfsFileStatus resultingStat = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(link);
     writeLock();
     try {
@@ -2740,6 +2740,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throws AccessControlException, SafeModeException,
       FileAlreadyExistsException, UnresolvedLinkException,
       FileNotFoundException, ParentNotDirectoryException, IOException {
+    checkOperation(OperationCategory.WRITE);
     HdfsFileStatus status = null;
     CacheEntryWithPayload cacheEntry = RetryCache.waitForCompletion(retryCache,
         null);
@@ -2794,7 +2795,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     boolean skipSync = false;
     HdfsFileStatus stat = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     if (blockSize < minBlockSize) {
       throw new IOException("Specified block size is less than configured" +
           " minimum value (" + DFSConfigKeys.DFS_NAMENODE_MIN_BLOCK_SIZE_KEY
@@ -3332,6 +3332,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throws AccessControlException, SafeModeException,
       FileAlreadyExistsException, FileNotFoundException,
       ParentNotDirectoryException, IOException {
+    checkOperation(OperationCategory.WRITE);
     LocatedBlock lb = null;
     CacheEntryWithPayload cacheEntry = RetryCache.waitForCompletion(retryCache,
         null);
@@ -3372,7 +3373,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
     LocatedBlock lb = null;
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     writeLock();
     try {
@@ -4012,6 +4012,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   @Deprecated
   boolean renameTo(String src, String dst) 
       throws IOException, UnresolvedLinkException {
+    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return true; // Return previous response
@@ -4041,7 +4042,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throw new IOException("Invalid name: " + dst);
     }
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     byte[][] srcComponents = FSDirectory.getPathComponentsForReservedPath(src);
     byte[][] dstComponents = FSDirectory.getPathComponentsForReservedPath(dst);
     boolean status = false;
@@ -4103,6 +4103,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   /** Rename src to dst */
   void renameTo(final String srcArg, final String dstArg,
       Options.Rename... options) throws IOException, UnresolvedLinkException {
+    checkOperation(OperationCategory.WRITE);
     String src = srcArg;
     String dst = dstArg;
     if (NameNode.stateChangeLog.isDebugEnabled()) {
@@ -4113,8 +4114,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throw new InvalidPathException("Invalid name: " + dst);
     }
     final FSPermissionChecker pc = getPermissionChecker();
-    
-    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return; // Return previous response
@@ -4182,6 +4181,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   boolean delete(String src, boolean recursive)
       throws AccessControlException, SafeModeException,
       UnresolvedLinkException, IOException {
+    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return true; // Return previous response
@@ -4238,7 +4238,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     BlocksMapUpdateInfo collectedBlocks = new BlocksMapUpdateInfo();
     List<INode> removedINodes = new ChunkedArrayList<INode>();
     FSPermissionChecker pc = getPermissionChecker();
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     boolean ret = false;
 
@@ -9158,6 +9157,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   void createEncryptionZone(final String src, final String keyName)
     throws IOException, UnresolvedLinkException,
       SafeModeException, AccessControlException {
+    checkOperation(OperationCategory.WRITE);
     final CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return; // Return previous response
@@ -9202,7 +9202,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     String src = srcArg;
     HdfsFileStatus resultingStat = null;
     checkSuperuserPrivilege();
-    checkOperation(OperationCategory.WRITE);
     final byte[][] pathComponents =
       FSDirectory.getPathComponentsForReservedPath(src);
     writeLock();
@@ -9300,6 +9299,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   void setXAttr(String src, XAttr xAttr, EnumSet<XAttrSetFlag> flag)
       throws AccessControlException, SafeModeException,
       UnresolvedLinkException, IOException {
+    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return; // Return previous response
@@ -9325,7 +9325,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     FSPermissionChecker pc = getPermissionChecker();
     XAttrPermissionFilter.checkPermissionForApi(pc, xAttr,
         FSDirectory.isReservedRawName(src));
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     writeLock();
     try {
@@ -9463,6 +9462,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
    * @throws IOException
    */
   void removeXAttr(String src, XAttr xAttr) throws IOException {
+    checkOperation(OperationCategory.WRITE);
     CacheEntry cacheEntry = RetryCache.waitForCompletion(retryCache);
     if (cacheEntry != null && cacheEntry.isSuccess()) {
       return; // Return previous response
@@ -9487,7 +9487,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     FSPermissionChecker pc = getPermissionChecker();
     XAttrPermissionFilter.checkPermissionForApi(pc, xAttr,
         FSDirectory.isReservedRawName(src));
-    checkOperation(OperationCategory.WRITE);
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     writeLock();
     try {
