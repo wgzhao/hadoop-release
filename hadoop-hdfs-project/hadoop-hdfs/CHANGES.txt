@@ -76,6 +76,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-8215. Refactor NamenodeFsck#check method.  (Takanobu Asanuma
     via szetszwo)
 
+    HDFS-8521. Add VisibleForTesting annotation to
+    BlockPoolSlice#selectReplicaToDelete. (cmccabe)
+
   OPTIMIZATIONS
 
   BUG FIXES
