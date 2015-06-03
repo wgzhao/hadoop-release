@@ -608,3 +608,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-48071. YARN-4140. RM container allocation delayed incase of app 
     submitted to Nodelabel partition. (Bibin A Chundatt via wangda)
 
+    YARN-3751. Fixed AppInfo to check if used resources are null. (Sunil G via
+    Zhijie Shen)
+
