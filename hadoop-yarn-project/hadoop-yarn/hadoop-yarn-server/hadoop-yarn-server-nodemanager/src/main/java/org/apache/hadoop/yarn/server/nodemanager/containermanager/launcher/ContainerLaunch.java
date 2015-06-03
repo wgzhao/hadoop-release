@@ -726,8 +726,29 @@ public class ContainerLaunch implements Callable<Integer> {
     if (Shell.WINDOWS) {
       
       String inputClassPath = environment.get(Environment.CLASSPATH.name());
+
       if (inputClassPath != null && !inputClassPath.isEmpty()) {
-        StringBuilder newClassPath = new StringBuilder(inputClassPath);
+
+        //On non-windows, localized resources
+        //from distcache are available via the classpath as they were placed
+        //there but on windows they are not available when the classpath
+        //jar is created and so they "are lost" and have to be explicitly
+        //added to the classpath instead.  This also means that their position
+        //is lost relative to other non-distcache classpath entries which will
+        //break things like mapreduce.job.user.classpath.first.  An environment
+        //variable can be set to indicate that distcache entries should come
+        //first
+
+        boolean preferLocalizedJars = Boolean.valueOf(
+          environment.get(Environment.CLASSPATH_PREPEND_DISTCACHE.name())
+          );
+
+        boolean needsSeparator = false;
+        StringBuilder newClassPath = new StringBuilder();
+        if (!preferLocalizedJars) {
+          newClassPath.append(inputClassPath);
+          needsSeparator = true;
+        }
 
         // Localized resources do not exist at the desired paths yet, because the
         // container launch script has not run to create symlinks yet.  This
@@ -741,7 +762,12 @@ public class ContainerLaunch implements Callable<Integer> {
 
           for (String linkName : entry.getValue()) {
             // Append resource.
-            newClassPath.append(File.pathSeparator).append(pwd.toString())
+            if (needsSeparator) {
+              newClassPath.append(File.pathSeparator);
+            } else {
+              needsSeparator = true;
+            }
+            newClassPath.append(pwd.toString())
               .append(Path.SEPARATOR).append(linkName);
 
             // FileUtil.createJarWithClassPath must use File.toURI to convert
@@ -757,6 +783,12 @@ public class ContainerLaunch implements Callable<Integer> {
               newClassPath.append(Path.SEPARATOR);
             }
           }
+        }
+        if (preferLocalizedJars) {
+          if (needsSeparator) {
+            newClassPath.append(File.pathSeparator);
+          }
+          newClassPath.append(inputClassPath);
         }
 
         // When the container launches, it takes the parent process's environment

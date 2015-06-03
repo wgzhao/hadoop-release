@@ -376,6 +376,9 @@ Release 2.6.0 - 2014-11-18
 
   BUG FIXES
 
+    YARN-3626. On Windows localized resources are not moved to the front
+    of the classpath when they should be. (Craig Welch via xgong)
+
     YARN-2251. Avoid negative elapsed time in JHS/MRAM web UI and services.
     (Zhijie Shen via junping_du)
 

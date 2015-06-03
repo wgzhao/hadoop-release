@@ -592,6 +592,7 @@ public class YarnConfiguration extends Configuration {
       ApplicationConstants.Environment.HADOOP_COMMON_HOME.key(),
       ApplicationConstants.Environment.HADOOP_HDFS_HOME.key(),
       ApplicationConstants.Environment.HADOOP_CONF_DIR.key(),
+      ApplicationConstants.Environment.CLASSPATH_PREPEND_DISTCACHE.key(),
       ApplicationConstants.Environment.HADOOP_YARN_HOME.key()));
   
   /** address of node manager IPC.*/
