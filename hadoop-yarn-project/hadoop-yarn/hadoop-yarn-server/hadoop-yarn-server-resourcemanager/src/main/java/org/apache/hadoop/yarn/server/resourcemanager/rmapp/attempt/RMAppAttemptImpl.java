@@ -1490,9 +1490,9 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
       append("\n");
     if (this.getTrackingUrl() != null) {
       diagnosticsBuilder.append("For more detailed output,").append(
-        " check application tracking page:").append(
+        " check the application tracking page: ").append(
         this.getTrackingUrl()).append(
-        "Then, click on links to logs of each attempt.\n");
+        " Then click on links to logs of each attempt.\n");
     }
     diagnosticsBuilder.append("Diagnostics: ").append(status.getDiagnostics())
         .append("Failing this attempt");
