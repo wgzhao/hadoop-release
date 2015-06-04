@@ -271,6 +271,9 @@ Release 2.7.1 - 2015-07-06
     that method doesn't modify the FsPermission (Bibin A Chundatt via Colin P.
     McCabe)
 
+    HADOOP-12058. Fix dead links to DistCp and Hadoop Archives pages.
+    (Kazuho Fujii via aajisaka)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
