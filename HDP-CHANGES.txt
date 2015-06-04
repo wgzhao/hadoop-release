@@ -777,3 +777,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-47201. Fix Debian build break in DNS.java (Arpit Agarwal)
 
+    YARN-3766. Fixed the apps table column error of generic history web UI.
+    (Xuan Gong via zjshen)
+
