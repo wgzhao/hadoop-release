@@ -1220,3 +1220,6 @@ ATS V1.5:
 
     YARN-3873. PendingApplications in LeafQueue should also use OrderingPolicy. 
     (Sunil G via wangda)
+
+    YARN-1462. AHS API and other AHS changes to handle tags for completed MR jobs. 
+    Contributed by Xuan Gong

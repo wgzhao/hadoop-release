@@ -108,7 +108,7 @@ public class SystemMetricsPublisher extends CompositeService {
               app.getQueue(),
               app.getSubmitTime(),
               createdTime,
-              app.getCallerContext()));
+              app.getCallerContext(), app.getApplicationTags()));
     }
   }
 
@@ -269,6 +269,8 @@ public class SystemMetricsPublisher extends CompositeService {
       }
     }
 
+    entityInfo.put(ApplicationMetricsConstants.APP_TAGS_INFO,
+        event.getAppTags());
     entity.setOtherInfo(entityInfo);
     TimelineEvent tEvent = new TimelineEvent();
     tEvent.setEventType(
