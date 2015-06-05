@@ -47,6 +47,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12366. expose calculated paths (aw)
 
+    HADOOP-12059. S3Credentials should support use of CredentialProvider.
+    (Sean Busbey via wang)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
