@@ -29,7 +29,9 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.timeline.TimelineStore;
 
+import org.apache.zookeeper.Shell;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class TestMRTimelineEventHandling {
@@ -90,6 +92,7 @@ public class TestMRTimelineEventHandling {
   @Test
   public void testMapreduceJobTimelineServiceEnabled()
       throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     Configuration conf = new YarnConfiguration();
     conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
     conf.setBoolean(MRJobConfig.MAPREDUCE_JOB_EMIT_TIMELINE_DATA, false);

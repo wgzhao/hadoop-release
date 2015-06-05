@@ -91,8 +91,10 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.TestUtils;
 import org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.DelegationTokenToRenew;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -1063,6 +1065,7 @@ public class TestDelegationTokenRenewer {
   // complete
   @Test (timeout = 30000)
   public void testCancelWithMultipleAppSubmissions() throws Exception{
+    Assume.assumeFalse(Shell.WINDOWS);
     MockRM rm = new TestSecurityMockRM(conf, null);
     rm.start();
     final MockNM nm1 =

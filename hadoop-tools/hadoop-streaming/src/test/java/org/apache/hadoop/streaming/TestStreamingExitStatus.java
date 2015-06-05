@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.streaming;
 
+import org.apache.zookeeper.Shell;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
@@ -88,21 +90,25 @@ public class TestStreamingExitStatus
 
   @Test
   public void testMapFailOk() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     runStreamJob(false, true);
   }
 
   @Test
   public void testMapFailNotOk() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     runStreamJob(true, true);
   }
 
   @Test
   public void testReduceFailOk() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     runStreamJob(false, false);
   }
   
   @Test
   public void testReduceFailNotOk() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     runStreamJob(true, false);
   }  
   

@@ -132,8 +132,10 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.FairOrderi
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -2692,6 +2694,7 @@ public class TestCapacityScheduler {
   
   @Test
   public void testQueueHierarchyPendingResourceUpdate() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     Configuration conf =
         TestUtils.getConfigurationWithQueueLabels(new Configuration(false));
     conf.setBoolean(YarnConfiguration.NODE_LABELS_ENABLED, true);

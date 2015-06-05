@@ -24,6 +24,8 @@ import static org.junit.Assert.assertTrue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.DominantResourceFairnessPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FairSharePolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FifoPolicy;
+import org.apache.zookeeper.Shell;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -75,6 +77,7 @@ public class TestSchedulingPolicy {
    */
   @Test(timeout = 1000)
   public void testIsApplicableTo() throws AllocationConfigurationException {
+    Assume.assumeFalse(Shell.WINDOWS);
     final String ERR = "Broken SchedulingPolicy#isApplicableTo";
     
     // fifo

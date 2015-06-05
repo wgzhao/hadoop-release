@@ -119,7 +119,9 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.eve
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.zookeeper.Shell;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -1281,11 +1283,13 @@ public class TestLogAggregationService extends BaseContainerManagerTest {
 
   @Test (timeout = 50000)
   public void testLogAggregationServiceWithInterval() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     testLogAggregationService(false);
   }
 
   @Test (timeout = 50000)
   public void testLogAggregationServiceWithRetention() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     testLogAggregationService(true);
   }
 

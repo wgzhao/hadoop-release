@@ -31,7 +31,9 @@ import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.mapreduce.SleepJob;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,6 +62,7 @@ public class TestLocalJobSubmission {
    */
   @Test
   public void testLocalJobLibjarsOption() throws IOException {
+    Assume.assumeFalse(Shell.WINDOWS);
     Path jarPath = makeJar(new Path(TEST_ROOT_DIR, "test.jar"));
 
     Configuration conf = new Configuration();

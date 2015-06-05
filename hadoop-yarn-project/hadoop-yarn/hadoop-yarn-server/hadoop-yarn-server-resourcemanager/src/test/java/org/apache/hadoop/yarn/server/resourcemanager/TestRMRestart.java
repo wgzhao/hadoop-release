@@ -106,8 +106,10 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -1724,6 +1726,9 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
   @SuppressWarnings("resource")
   @Test (timeout = 60000)
   public void testQueueMetricsOnRMRestart() throws Exception {
+    if(getSchedulerType().equals(SchedulerType.FAIR)) {
+      Assume.assumeFalse(Shell.WINDOWS);
+    }
     conf.setInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
         YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS);
     MemoryRMStateStore memStore = new MemoryRMStateStore();

@@ -74,8 +74,10 @@ import org.apache.hadoop.yarn.server.security.BaseNMTokenSecretManager;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,6 +146,10 @@ public class TestContainerManagerSecurity extends KerberosSecurityTestcase {
   
   @Test (timeout = 120000)
   public void testContainerManager() throws Exception {
+    if (conf.get(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION)
+      .equals("simple")) {
+      Assume.assumeFalse(Shell.WINDOWS);
+    }
     try {
       yarnCluster = new MiniYARNCluster(TestContainerManagerSecurity.class
           .getName(), 1, 1, 1);

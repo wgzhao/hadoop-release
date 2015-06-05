@@ -58,8 +58,10 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -226,6 +228,10 @@ public class TestAMAuthorization {
 
   @Test
   public void testUnauthorizedAccess() throws Exception {
+    if (!conf.get(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION)
+      .equals(UserGroupInformation.AuthenticationMethod.KERBEROS.toString())) {
+      Assume.assumeFalse(Shell.WINDOWS);
+    }
     MyContainerManager containerManager = new MyContainerManager();
     rm = new MockRMWithAMS(conf, containerManager);
     rm.start();

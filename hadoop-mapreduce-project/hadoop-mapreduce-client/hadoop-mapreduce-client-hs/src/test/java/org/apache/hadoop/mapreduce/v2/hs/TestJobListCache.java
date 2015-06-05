@@ -24,6 +24,8 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 import org.apache.hadoop.mapreduce.v2.hs.HistoryFileManager.HistoryFileInfo;
 import org.apache.hadoop.mapreduce.v2.hs.HistoryFileManager.JobListCache;
 import org.apache.hadoop.mapreduce.v2.util.MRBuilderUtils;
+import org.apache.zookeeper.Shell;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,6 +35,7 @@ public class TestJobListCache {
 
   @Test (timeout = 1000)
   public void testAddExisting() {
+    Assume.assumeFalse(Shell.WINDOWS);
     JobListCache cache = new JobListCache(2, 1000);
 
     JobId jobId = MRBuilderUtils.newJobId(1, 1, 1);

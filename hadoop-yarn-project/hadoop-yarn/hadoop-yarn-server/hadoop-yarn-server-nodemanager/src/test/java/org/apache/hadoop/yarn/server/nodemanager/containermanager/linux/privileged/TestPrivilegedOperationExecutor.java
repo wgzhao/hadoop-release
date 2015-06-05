@@ -24,7 +24,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.zookeeper.Shell;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -89,6 +91,7 @@ public class TestPrivilegedOperationExecutor {
 
   @Test
   public void testExecutorPath() {
+    Assume.assumeFalse(Shell.WINDOWS);
     String containerExePath = PrivilegedOperationExecutor
         .getContainerExecutorExecutablePath(nullConf);
 

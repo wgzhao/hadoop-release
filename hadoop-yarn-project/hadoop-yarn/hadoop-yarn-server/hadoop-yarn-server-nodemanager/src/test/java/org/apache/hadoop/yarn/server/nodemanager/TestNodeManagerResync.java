@@ -63,8 +63,10 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Cont
 import org.apache.hadoop.yarn.server.nodemanager.metrics.NodeManagerMetrics;
 import org.apache.hadoop.yarn.server.security.ApplicationACLsManager;
 import org.apache.hadoop.yarn.server.utils.YarnServerBuilderUtils;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -215,6 +217,7 @@ public class TestNodeManagerResync {
   // statuses again when it re-register with RM.
   @Test
   public void testNMSentContainerStatusOnResync() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     final ContainerStatus testCompleteContainer =
         TestNodeStatusUpdater.createContainerStatus(2, ContainerState.COMPLETE);
     final Container container =

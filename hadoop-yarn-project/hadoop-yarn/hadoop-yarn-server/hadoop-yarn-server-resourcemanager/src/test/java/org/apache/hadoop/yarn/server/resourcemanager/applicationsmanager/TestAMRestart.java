@@ -57,7 +57,9 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.Capacity
 import org.apache.hadoop.yarn.util.ControlledClock;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.SystemClock;
+import org.apache.zookeeper.Shell;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class TestAMRestart {
@@ -594,6 +596,7 @@ public class TestAMRestart {
 
   @Test (timeout = 50000)
   public void testRMAppAttemptFailuresValidityInterval() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     YarnConfiguration conf = new YarnConfiguration();
     conf.setClass(YarnConfiguration.RM_SCHEDULER, CapacityScheduler.class,
       ResourceScheduler.class);

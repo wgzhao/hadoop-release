@@ -36,6 +36,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.serializer.JavaSerializationComparator;
 import org.apache.hadoop.mapreduce.MRConfig;
+import org.apache.zookeeper.Shell;
+import org.junit.Assume;
 
 public class TestJavaSerialization extends TestCase {
 
@@ -92,6 +94,7 @@ public class TestJavaSerialization extends TestCase {
   }
   
   public void testMapReduceJob() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
 
     JobConf conf = new JobConf(TestJavaSerialization.class);
     conf.setJobName("JavaSerialization");
@@ -150,6 +153,7 @@ public class TestJavaSerialization extends TestCase {
    *
    */
   public void testWriteToSequencefile() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     JobConf conf = new JobConf(TestJavaSerialization.class);
     conf.setJobName("JavaSerialization");
 

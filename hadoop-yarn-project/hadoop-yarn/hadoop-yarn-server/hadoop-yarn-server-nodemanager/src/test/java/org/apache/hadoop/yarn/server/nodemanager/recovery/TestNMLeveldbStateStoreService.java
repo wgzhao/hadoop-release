@@ -75,8 +75,10 @@ import org.apache.hadoop.yarn.server.security.BaseContainerTokenSecretManager;
 import org.apache.hadoop.yarn.server.security.BaseNMTokenSecretManager;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.zookeeper.Shell;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -219,6 +221,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testContainerStorage() throws IOException {
+    Assume.assumeFalse(Shell.WINDOWS);
     // test empty when no state
     List<RecoveredContainerState> recoveredContainers =
         stateStore.loadContainersState();
@@ -698,6 +701,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testNMTokenStorage() throws IOException {
+    Assume.assumeFalse(Shell.WINDOWS);
     // test empty when no state
     RecoveredNMTokensState state = stateStore.loadNMTokensState();
     assertNull(state.getCurrentMasterKey());
@@ -767,6 +771,7 @@ public class TestNMLeveldbStateStoreService {
 
   @Test
   public void testContainerTokenStorage() throws IOException {
+    Assume.assumeFalse(Shell.WINDOWS);
     // test empty when no state
     RecoveredContainerTokensState state =
         stateStore.loadContainerTokensState();

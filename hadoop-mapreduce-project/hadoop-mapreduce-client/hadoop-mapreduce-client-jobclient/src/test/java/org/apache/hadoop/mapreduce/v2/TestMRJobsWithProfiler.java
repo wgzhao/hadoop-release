@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.zookeeper.Shell;
 import org.junit.AfterClass;
 import org.junit.Assert;
 
@@ -40,6 +41,7 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -113,6 +115,7 @@ public class TestMRJobsWithProfiler {
 
   @Test (timeout = 150000)
   public void testDifferentProfilers() throws Exception {
+    Assume.assumeFalse(Shell.WINDOWS);
     LOG.info("Starting testDefaultProfiler");
     testProfilerInternal(false);
   }

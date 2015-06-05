@@ -29,6 +29,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.util.NodeManagerHardwareUtils;
 import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -105,6 +106,7 @@ public class TestContainerExecutor {
   }
 
   @Test (timeout = 5000)
+  @Ignore // test fixed as part of YARN-160
   public void testRunCommandWithCpuAndMemoryResources() {
     // Windows only test
     assumeTrue(Shell.WINDOWS);
