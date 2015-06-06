@@ -41,7 +41,7 @@ Release 2.8.0 - UNRELEASED
     configured zero. (Surendra Singh Lilhore via Arpit Agarwal)
 
     HDFS-8229. LAZY_PERSIST file gets deleted after NameNode restart.
-    (Surendra Singh Lilhore via Arpit Agarwal) 
+    (Surendra Singh Lilhore via Arpit Agarwal)
 
     HDFS-7609. Avoid retry cache collision when Standby NameNode loading edits.
     (Ming Ma via jing9)
@@ -186,6 +186,8 @@ Release 2.7.1 - UNRELEASED
 
     HDFS-7890. Improve information on Top users for metrics in
     RollingWindowsManager and lower log level (J.Andreina via vinayakumarb)
+
+    HDFS-8522. Change heavily recorded NN logs from INFO to DEBUG level. (xyao)
 
 Release 2.7.0 - 2015-04-20
 
