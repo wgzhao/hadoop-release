@@ -62,6 +62,19 @@ public class NameNodeLayoutVersion {
    * its immediate predecessor, use the constructor where a specific ancestor
    * can be passed.
    * </li>
+   * <li>Specify a minimum compatible layout version.  The minimum compatible
+   * layout version is the earliest prior version to which a downgrade is
+   * possible after initiating rolling upgrade.  If the feature cannot satisfy
+   * compatibility with any prior version, then set its minimum compatible
+   * lqyout version to itself to indicate that downgrade is impossible.
+   * Satisfying compatibility might require adding logic to the new feature to
+   * reject operations or handle them differently while rolling upgrade is in
+   * progress.  In general, it's possible to satisfy compatiblity for downgrade
+   * if the new feature just involves adding new edit log ops.  Deeper
+   * structural changes, such as changing the way we place files in the metadata
+   * directories, might be incompatible.  Feature implementations should strive
+   * for compatibility, because it's in the best interest of our users to
+   * support downgrade.
    * </ul>
    */
   public static enum Feature implements LayoutFeature {

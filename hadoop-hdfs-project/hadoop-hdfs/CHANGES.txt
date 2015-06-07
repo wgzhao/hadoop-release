@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
+    in more rolling upgrade use cases. (cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES

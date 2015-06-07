@@ -318,7 +318,7 @@ public class FSEditLog implements LogsPurgeable {
       IOUtils.cleanup(LOG, streams.toArray(new EditLogInputStream[0]));
       throw new IllegalStateException(error);
     }
-
+    
     startLogSegment(segmentTxId, true, layoutVersion);
     assert state == State.IN_SEGMENT : "Bad state: " + state;
   }
