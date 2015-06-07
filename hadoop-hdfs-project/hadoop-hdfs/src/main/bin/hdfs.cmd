@@ -83,7 +83,7 @@ if "%1" == "--service" (
     )
   )
 
-  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin mover storagepolicies classpath crypto
+  set hdfscommands=dfs namenode secondarynamenode journalnode zkfc datanode dfsadmin haadmin fsck balancer jmxget oiv oev fetchdt getconf groups snapshotDiff lsSnapshottableDir cacheadmin mover storagepolicies classpath crypto debug
   for %%i in ( %hdfscommands% ) do (
     if %hdfs-command% == %%i set hdfscommand=true
   )
@@ -207,6 +207,11 @@ goto :eof
   set CLASS=org.apache.hadoop.hdfs.tools.CryptoAdmin
   goto :eof
 
+:debug
+  set CLASS=org.apache.hadoop.hdfs.tools.DebugAdmin
+  goto :eof
+
+
 :makeServiceXml
   set arguments=%*
   @echo ^<service^>
@@ -280,4 +285,5 @@ goto :eof
   @echo.
   @echo Most commands print help when invoked w/o parameters.
 
+@rem There are also debug commands, but they don't show up in this listing.
 endlocal

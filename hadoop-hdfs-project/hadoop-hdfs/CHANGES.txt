@@ -52,6 +52,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8431. hdfs crypto class not found in Windows.
     (Anu Engineer via cnauroth)
 
+    HDFS-8539. Hdfs doesnt have class 'debug' in windows.
+    (Anu Engineer via cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
