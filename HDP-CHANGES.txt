@@ -236,3 +236,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7609. Avoid retry cache collision when Standby NameNode loading edits.
     (Ming Ma via jing9)
+
+    YARN-3764. CapacityScheduler should forbid moving LeafQueue from one parent
+    to another. (Wangda Tan via jianhe)
