@@ -3425,3 +3425,5 @@ ATS V1.5:
 
     BUG-68611. YARN-5923. Unable to access logs for a running application if
     YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
+
+    HADOOP-12054. RPC client should not retry for InvalidToken exceptions.
