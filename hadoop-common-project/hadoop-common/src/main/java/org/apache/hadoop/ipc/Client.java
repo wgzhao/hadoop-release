@@ -1471,7 +1471,13 @@ public class Client {
           }
         });
       } catch (ExecutionException e) {
-        throw new IOException(e);
+        Throwable cause = e.getCause();
+        // the underlying exception should normally be IOException
+        if (cause instanceof IOException) {
+          throw (IOException) cause;
+        } else {
+          throw new IOException(cause);
+        }
       }
       if (connection.addCall(call)) {
         break;
