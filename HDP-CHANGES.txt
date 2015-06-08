@@ -3405,3 +3405,8 @@ ATS V1.5:
     BUG-73035. Skip TestUberAM#testSleepJobWithMultipleReducers which failed intermitently in slow environment.
 
     HADOOP-13433 Race in UGI.reloginFromKeytab. (Duo Zhang via xiao)
+
+    CUST-221/YARN-6145. Improve log message on fail over. Contributed by Jian He.
+
+    HADOOP-12054. RPC client should not retry for InvalidToken exceptions. 
+    (Contributed by Varun Saxena)
