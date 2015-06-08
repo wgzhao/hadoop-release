@@ -75,6 +75,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8542. WebHDFS getHomeDirectory behavior does not match specification.
     (Kanaka Kumar Avvaru via jghoman)
 
+    HDFS-8554. TestDatanodeLayoutUpgrade fails on Windows. (cnauroth)
+
     HDFS-8055. NullPointerException when topology script is
     missing. Contributed by Anu Engineer.
 
