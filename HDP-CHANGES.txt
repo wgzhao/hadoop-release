@@ -3022,3 +3022,6 @@ ATS V1.5:
    RM failover provider.
 
    CUST-221/YARN-6145. Improve log message on fail over. Contributed by Jian He.
+
+   HADOOP-12054. RPC client should not retry for InvalidToken exceptions.
+   (Contributed by Varun Saxena)
