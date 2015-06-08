@@ -157,6 +157,8 @@ Release 2.8.0 - UNRELEASED
     TestSWebHdfsFileContextMainOperations fail due to invalid HDFS path on
     Windows. (cnauroth)
 
+    HDFS-8554. TestDatanodeLayoutUpgrade fails on Windows. (cnauroth)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
