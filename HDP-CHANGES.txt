@@ -239,3 +239,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3764. CapacityScheduler should forbid moving LeafQueue from one parent
     to another. (Wangda Tan via jianhe)
+
+    HADOOP-12073. Azure FileSystem PageBlobInputStream does not return -1 on
+    EOF. (Ivan Mitic via cnauroth)
