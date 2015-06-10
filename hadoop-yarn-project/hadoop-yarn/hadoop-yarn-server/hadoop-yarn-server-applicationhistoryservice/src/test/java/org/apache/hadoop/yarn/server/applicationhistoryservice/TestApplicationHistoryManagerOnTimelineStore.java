@@ -326,9 +326,18 @@ public class TestApplicationHistoryManagerOnTimelineStore {
   @Test
   public void testGetApplications() throws Exception {
     Collection<ApplicationReport> apps =
-        historyManager.getApplications(Long.MAX_VALUE).values();
+        historyManager.getApplications(Long.MAX_VALUE, 0L, Long.MAX_VALUE)
+          .values();
     Assert.assertNotNull(apps);
     Assert.assertEquals(SCALE + 1, apps.size());
+
+    
+    // Get apps by given appStartedTime period
+    apps =
+        historyManager.getApplications(Long.MAX_VALUE, 2147483653L,
+          Long.MAX_VALUE).values();
+    Assert.assertNotNull(apps);
+    Assert.assertEquals(2, apps.size());
   }
 
   @Test

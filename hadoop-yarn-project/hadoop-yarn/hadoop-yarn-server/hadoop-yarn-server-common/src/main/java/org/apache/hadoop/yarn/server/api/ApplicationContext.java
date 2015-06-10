@@ -44,17 +44,20 @@ public interface ApplicationContext {
       throws YarnException, IOException;
 
   /**
-   * This method returns the given number of Application
-   * {@link ApplicationReport}s
+   * This method returns the given number of Application in the
+   * given appStartedTime period {@link ApplicationReport}s.
    * 
    * @param appsNum
+   * @param appStartedTimeBegin
+   * @param appStartedTimeEnd
    *
    * @return map of {@link ApplicationId} to {@link ApplicationReport}s.
    * @throws YarnException
    * @throws IOException
    */
-  Map<ApplicationId, ApplicationReport> getApplications(long appsNum)
-      throws YarnException, IOException;
+  Map<ApplicationId, ApplicationReport> getApplications(long appsNum,
+      long appStartedTimeBegin, long appStartedTimeEnd) throws YarnException,
+      IOException;
 
   /**
    * Application can have multiple application attempts

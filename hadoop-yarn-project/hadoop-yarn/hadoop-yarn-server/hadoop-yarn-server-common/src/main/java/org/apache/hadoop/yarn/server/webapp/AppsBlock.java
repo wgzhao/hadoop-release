@@ -20,6 +20,8 @@ package org.apache.hadoop.yarn.server.webapp;
 
 import static org.apache.hadoop.yarn.util.StringHelper.join;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APP_STATE;
+import static org.apache.hadoop.yarn.webapp.YarnWebParams.APP_START_TIME_BEGIN;
+import static org.apache.hadoop.yarn.webapp.YarnWebParams.APP_START_TIME_END;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APPS_NUM;
 import static org.apache.hadoop.yarn.webapp.view.JQueryUI.C_PROGRESSBAR;
 import static org.apache.hadoop.yarn.webapp.view.JQueryUI.C_PROGRESSBAR_VALUE;
@@ -34,6 +36,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.server.api.ApplicationContext;
 import org.apache.hadoop.yarn.server.webapp.dao.AppInfo;
+import org.apache.hadoop.yarn.webapp.BadRequestException;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TABLE;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TBODY;
@@ -79,16 +82,46 @@ public class AppsBlock extends HtmlBlock {
       appsTempNum = Long.parseLong(appsNumStr);
     }
     final long appsNum = appsTempNum;
+
+    String appStartedTimeBegainStr = $(APP_START_TIME_BEGIN);
+    long appStartedTimeBegainTemp = 0;
+    if (appStartedTimeBegainStr != null && !appStartedTimeBegainStr.isEmpty()) {
+      appStartedTimeBegainTemp = Long.parseLong(appStartedTimeBegainStr);
+      if (appStartedTimeBegainTemp < 0) {
+        throw new BadRequestException(
+          "app.started-time.begin must be greater than 0");
+      }
+    }
+    final long appStartedTimeBegain = appStartedTimeBegainTemp;
+
+    String appStartedTimeEndStr = $(APP_START_TIME_END);
+    long appStartedTimeEndTemp = Long.MAX_VALUE;
+    if (appStartedTimeEndStr != null && !appStartedTimeEndStr.isEmpty()) {
+      appStartedTimeEndTemp = Long.parseLong(appStartedTimeEndStr);
+      if (appStartedTimeEndTemp < 0) {
+        throw new BadRequestException(
+          "app.started-time.end must be greater than 0");
+      }
+    }
+    final long appStartedTimeEnd = appStartedTimeEndTemp;
+
+    if (appStartedTimeBegain > appStartedTimeEnd) {
+      throw new BadRequestException(
+        "app.started-time.end must be greater than app.started-time.begin");
+    }
+
     Collection<ApplicationReport> appReports;
     try {
       if (callerUGI == null) {
-        appReports = appContext.getApplications(appsNum).values();
+        appReports = appContext.getApplications(appsNum, appStartedTimeBegain,
+            appStartedTimeEnd).values();
       } else {
         appReports = callerUGI.doAs(
             new PrivilegedExceptionAction<Collection<ApplicationReport>> () {
           @Override
           public Collection<ApplicationReport> run() throws Exception {
-            return appContext.getApplications(appsNum).values();
+            return appContext.getApplications(appsNum, appStartedTimeBegain,
+                appStartedTimeEnd).values();
           }
         });
       }

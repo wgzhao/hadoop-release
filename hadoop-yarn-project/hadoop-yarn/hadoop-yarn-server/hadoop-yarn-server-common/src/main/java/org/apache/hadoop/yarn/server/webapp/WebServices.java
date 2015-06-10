@@ -65,7 +65,6 @@ public class WebServices {
       String startedEnd, String finishBegin, String finishEnd,
       Set<String> applicationTypes) {
     UserGroupInformation callerUGI = getUser(req);
-    boolean checkStart = false;
     boolean checkEnd = false;
     boolean checkAppTypes = false;
     boolean checkAppStates = false;
@@ -87,14 +86,12 @@ public class WebServices {
     final long appsNum = countNum;
 
     if (startedBegin != null && !startedBegin.isEmpty()) {
-      checkStart = true;
       sBegin = Long.parseLong(startedBegin);
       if (sBegin < 0) {
         throw new BadRequestException("startedTimeBegin must be greater than 0");
       }
     }
     if (startedEnd != null && !startedEnd.isEmpty()) {
-      checkStart = true;
       sEnd = Long.parseLong(startedEnd);
       if (sEnd < 0) {
         throw new BadRequestException("startedTimeEnd must be greater than 0");
@@ -138,17 +135,21 @@ public class WebServices {
       checkAppStates = true;
     }
 
+    final long startedBeginFinal = sBegin;
+    final long startedEndFinal = sEnd;
     AppsInfo allApps = new AppsInfo();
     Collection<ApplicationReport> appReports = null;
     try {
       if (callerUGI == null) {
-        appReports = appContext.getApplications(appsNum).values();
+        appReports = appContext.getApplications(appsNum, startedBeginFinal,
+            startedEndFinal).values();
       } else {
         appReports = callerUGI.doAs(
             new PrivilegedExceptionAction<Collection<ApplicationReport>> () {
           @Override
           public Collection<ApplicationReport> run() throws Exception {
-            return appContext.getApplications(appsNum).values();
+            return appContext.getApplications(appsNum, startedBeginFinal,
+                startedEndFinal).values();
           }
         });
       }
@@ -185,10 +186,6 @@ public class WebServices {
         continue;
       }
 
-      if (checkStart
-          && (appReport.getStartTime() < sBegin || appReport.getStartTime() > sEnd)) {
-        continue;
-      }
       if (checkEnd
           && (appReport.getFinishTime() < fBegin || appReport.getFinishTime() > fEnd)) {
         continue;
