@@ -13,6 +13,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
 
+    HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
+
   OPTIMIZATIONS
 
   BUG FIXES
