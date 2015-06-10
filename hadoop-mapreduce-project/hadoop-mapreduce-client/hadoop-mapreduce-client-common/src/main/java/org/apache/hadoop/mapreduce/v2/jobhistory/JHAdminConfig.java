@@ -239,4 +239,11 @@ public class JHAdminConfig {
   public static final String MR_HISTORY_XFS_OPTIONS = MR_HISTORY_XFS_PREFIX +
       "xframe-options";
 
+  /**
+   * Number of characters allowed for job name in Job History Server web page.
+   */
+  public static final String MR_HS_JOBNAME_LIMIT = MR_HISTORY_PREFIX
+      + "jobname.limit";
+  public static final int DEFAULT_MR_HS_JOBNAME_LIMIT = 50;
+
 }
