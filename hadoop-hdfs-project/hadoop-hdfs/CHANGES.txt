@@ -8,6 +8,8 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
+
   OPTIMIZATIONS
 
   BUG FIXES
