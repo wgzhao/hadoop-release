@@ -57,7 +57,6 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Preconditions;
 
@@ -176,10 +175,16 @@ public class Balancer {
       + "\n\t[-exclude [-f <hosts-file> | comma-sperated list of hosts]]"
       + "\tExcludes the specified datanodes."
       + "\n\t[-include [-f <hosts-file> | comma-sperated list of hosts]]"
-      + "\tIncludes only the specified datanodes.";
+      + "\tIncludes only the specified datanodes."
+      + "\n\t[-runDuringUpgrade]"
+      + "\tWhether to run the balancer during an ongoing HDFS upgrade."
+      + "This is usually not desired since it will not affect used space "
+      + "on over-utilized machines.";
   
   private final Dispatcher dispatcher;
+  private final NameNodeConnector nnc;
   private final BalancingPolicy policy;
+  private final boolean runDuringUpgrade;
   private final double threshold;
   
   // all data node lists
@@ -223,11 +228,13 @@ public class Balancer {
         DFSConfigKeys.DFS_DATANODE_BALANCE_MAX_NUM_CONCURRENT_MOVES_KEY,
         DFSConfigKeys.DFS_DATANODE_BALANCE_MAX_NUM_CONCURRENT_MOVES_DEFAULT);
 
+    this.nnc = theblockpool;
     this.dispatcher = new Dispatcher(theblockpool, p.nodesToBeIncluded,
         p.nodesToBeExcluded, movedWinWidth, moverThreads, dispatcherThreads,
         maxConcurrentMovesPerNode, conf);
     this.threshold = p.threshold;
     this.policy = p.policy;
+    this.runDuringUpgrade = p.runDuringUpgrade;
   }
   
   private static long getCapacity(DatanodeStorageReport report, StorageType t) {
@@ -289,7 +296,7 @@ public class Balancer {
           if (thresholdDiff <= 0) { // within threshold
             aboveAvgUtilized.add(s);
           } else {
-            overLoadedBytes += precentage2bytes(thresholdDiff, capacity);
+            overLoadedBytes += percentage2bytes(thresholdDiff, capacity);
             overUtilized.add(s);
           }
           g = s;
@@ -298,7 +305,7 @@ public class Balancer {
           if (thresholdDiff <= 0) { // within threshold
             belowAvgUtilized.add(g);
           } else {
-            underLoadedBytes += precentage2bytes(thresholdDiff, capacity);
+            underLoadedBytes += percentage2bytes(thresholdDiff, capacity);
             underUtilized.add(g);
           }
         }
@@ -320,17 +327,17 @@ public class Balancer {
   private static long computeMaxSize2Move(final long capacity, final long remaining,
       final double utilizationDiff, final double threshold) {
     final double diff = Math.min(threshold, Math.abs(utilizationDiff));
-    long maxSizeToMove = precentage2bytes(diff, capacity);
+    long maxSizeToMove = percentage2bytes(diff, capacity);
     if (utilizationDiff < 0) {
       maxSizeToMove = Math.min(remaining, maxSizeToMove);
     }
     return Math.min(MAX_SIZE_TO_MOVE, maxSizeToMove);
   }
 
-  private static long precentage2bytes(double precentage, long capacity) {
-    Preconditions.checkArgument(precentage >= 0,
-        "precentage = " + precentage + " < 0");
-    return (long)(precentage * capacity / 100.0);
+  private static long percentage2bytes(double percentage, long capacity) {
+    Preconditions.checkArgument(percentage >= 0, "percentage = %s < 0",
+        percentage);
+    return (long)(percentage * capacity / 100.0);
   }
 
   /* log the over utilized & under utilized nodes */
@@ -512,6 +519,12 @@ public class Balancer {
         LOG.info( "Need to move "+ StringUtils.byteDesc(bytesLeftToMove)
             + " to make the cluster balanced." );
       }
+
+      // Should not run the balancer during an unfinalized upgrade, since moved
+      // blocks are not deleted on the source datanode.
+      if (!runDuringUpgrade && nnc.isUpgrading()) {
+        return newResult(ExitStatus.UNFINALIZED_UPGRADE, bytesLeftToMove, -1);
+      }
       
       /* Decide all the nodes that will participate in the block move and
        * the number of bytes that need to be moved from one node to another
@@ -629,7 +642,8 @@ public class Balancer {
   static class Parameters {
     static final Parameters DEFAULT = new Parameters(
         BalancingPolicy.Node.INSTANCE, 10.0,
-        Collections.<String> emptySet(), Collections.<String> emptySet());
+        Collections.<String> emptySet(), Collections.<String> emptySet(),
+        false);
 
     final BalancingPolicy policy;
     final double threshold;
@@ -637,21 +651,32 @@ public class Balancer {
     Set<String> nodesToBeExcluded;
     //include only these nodes in balancing operations
     Set<String> nodesToBeIncluded;
+    /**
+     * Whether to run the balancer during upgrade.
+     */
+    final boolean runDuringUpgrade;
 
     Parameters(BalancingPolicy policy, double threshold,
-        Set<String> nodesToBeExcluded, Set<String> nodesToBeIncluded) {
+        Set<String> nodesToBeExcluded, Set<String> nodesToBeIncluded,
+        boolean runDuringUpgrade) {
       this.policy = policy;
       this.threshold = threshold;
       this.nodesToBeExcluded = nodesToBeExcluded;
       this.nodesToBeIncluded = nodesToBeIncluded;
+      this.runDuringUpgrade = runDuringUpgrade;
     }
 
     @Override
     public String toString() {
-      return Balancer.class.getSimpleName() + "." + getClass().getSimpleName()
-          + "[" + policy + ", threshold=" + threshold +
-          ", number of nodes to be excluded = "+ nodesToBeExcluded.size() +
-          ", number of nodes to be included = "+ nodesToBeIncluded.size() +"]";
+      return String.format("%s.%s [%s,"
+              + " threshold = %s,"
+              + "number of nodes to be excluded = %s,"
+              + " number of nodes to be included = %s,"
+              + " run during upgrade = %s]",
+          Balancer.class.getSimpleName(), getClass().getSimpleName(),
+          policy, threshold,
+          nodesToBeExcluded.size(), nodesToBeIncluded.size(),
+          runDuringUpgrade);
     }
   }
 
@@ -690,6 +715,7 @@ public class Balancer {
       double threshold = Parameters.DEFAULT.threshold;
       Set<String> nodesTobeExcluded = Parameters.DEFAULT.nodesToBeExcluded;
       Set<String> nodesTobeIncluded = Parameters.DEFAULT.nodesToBeIncluded;
+      boolean runDuringUpgrade = Parameters.DEFAULT.runDuringUpgrade;
 
       if (args != null) {
         try {
@@ -743,6 +769,12 @@ public class Balancer {
                } else {
                 nodesTobeIncluded = Util.parseHostList(args[i]);
               }
+            } else if ("-runDuringUpgrade".equalsIgnoreCase(args[i])) {
+              runDuringUpgrade = true;
+              LOG.info("Will run the balancer even during an ongoing HDFS "
+                  + "upgrade. Most users will not want to run the balancer "
+                  + "during an upgrade since it will not affect used space "
+                  + "on over-utilized machines.");
             } else {
               throw new IllegalArgumentException("args = "
                   + Arrays.toString(args));
@@ -756,7 +788,8 @@ public class Balancer {
         }
       }
       
-      return new Parameters(policy, threshold, nodesTobeExcluded, nodesTobeIncluded);
+      return new Parameters(policy, threshold,
+          nodesTobeExcluded, nodesTobeIncluded, runDuringUpgrade);
     }
 
     private static void printUsage(PrintStream out) {
