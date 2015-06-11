@@ -64,6 +64,7 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenRenewer;
 import org.apache.hadoop.security.token.delegation.DelegationKey;
 import org.apache.hadoop.test.GenericTestUtils;
+import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.api.protocolrecords.SubmitApplicationRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
@@ -91,7 +92,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.TestUtils;
 import org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.DelegationTokenToRenew;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
-import org.apache.zookeeper.Shell;
+import org.apache.hadoop.yarn.util.Records;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -1026,16 +1027,16 @@ public class TestDelegationTokenRenewer {
     credentials.addToken(userText1, token1);
 
     // submit app1 with a token, set cancelTokenWhenComplete to false;
-    RMApp app1 =
-        rm.submitApp(200, "name", "user", null, false, null, 2, credentials,
-          null, true, false, false, null, 0, null, false);
+    Resource resource = Records.newRecord(Resource.class);
+    resource.setMemory(200);
+    RMApp app1 = rm.submitApp(resource, "name", "user", null, false, null, 2,
+        credentials, null, true, false, false, null, 0, null, false);
     MockAM am1 = MockRM.launchAndRegisterAM(app1, rm, nm1);
     rm.waitForState(app1.getApplicationId(), RMAppState.RUNNING);
 
     // submit app2 with the same token, set cancelTokenWhenComplete to true;
-    RMApp app2 =
-        rm.submitApp(200, "name", "user", null, false, null, 2, credentials,
-          null, true, false, false, null, 0, null, true);
+    RMApp app2 = rm.submitApp(resource, "name", "user", null, false, null, 2,
+        credentials, null, true, false, false, null, 0, null, true);
     MockAM am2 = MockRM.launchAndRegisterAM(app2, rm, nm1);
     rm.waitForState(app2.getApplicationId(), RMAppState.RUNNING);
     MockRM.finishAMAndVerifyAppState(app2, rm, nm1, am2);
@@ -1092,8 +1093,10 @@ public class TestDelegationTokenRenewer {
     Assert.assertTrue(renewer.getAllTokens().isEmpty());
     Assert.assertFalse(Renewer.cancelled);
 
+    Resource resource = Records.newRecord(Resource.class);
+    resource.setMemory(200);
     RMApp app1 =
-        rm.submitApp(200, "name", "user", null, false, null, 2, credentials,
+        rm.submitApp(resource, "name", "user", null, false, null, 2, credentials,
           null, true, false, false, null, 0, null, true);
     MockAM am1 = MockRM.launchAndRegisterAM(app1, rm, nm1);
     rm.waitForState(app1.getApplicationId(), RMAppState.RUNNING);
@@ -1101,9 +1104,8 @@ public class TestDelegationTokenRenewer {
     DelegationTokenToRenew dttr = renewer.getAllTokens().get(token1);
     Assert.assertNotNull(dttr);
     Assert.assertTrue(dttr.referringAppIds.contains(app1.getApplicationId()));
-    RMApp app2 =
-        rm.submitApp(200, "name", "user", null, false, null, 2, credentials,
-          null, true, false, false, null, 0, null, true);
+    RMApp app2 = rm.submitApp(resource, "name", "user", null, false, null, 2,
+        credentials, null, true, false, false, null, 0, null, true);
     MockAM am2 = MockRM.launchAndRegisterAM(app2, rm, nm1);
     rm.waitForState(app2.getApplicationId(), RMAppState.RUNNING);
     Assert.assertTrue(renewer.getAllTokens().containsKey(token1));
@@ -1119,9 +1121,8 @@ public class TestDelegationTokenRenewer {
     Assert.assertFalse(dttr.isTimerCancelled());
     Assert.assertFalse(Renewer.cancelled);
 
-    RMApp app3 =
-        rm.submitApp(200, "name", "user", null, false, null, 2, credentials,
-          null, true, false, false, null, 0, null, true);
+    RMApp app3 = rm.submitApp(resource, "name", "user", null, false, null, 2,
+        credentials, null, true, false, false, null, 0, null, true);
     MockAM am3 = MockRM.launchAndRegisterAM(app3, rm, nm1);
     rm.waitForState(app3.getApplicationId(), RMAppState.RUNNING);
     Assert.assertTrue(renewer.getAllTokens().containsKey(token1));
