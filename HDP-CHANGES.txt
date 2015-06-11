@@ -1434,3 +1434,6 @@ ATS V1.5:
 
     BUG-58511. YARN-4893. Fix intermittent failures in TestRMAdminService.
     (Brahma Reddy Battula via junping_du)
+
+    HADOOP-12074. in Shell.java#runCommand() rethrow InterruptedException as
+    InterruptedIOException (Lavkesh Lahngir via vinayakumarb)
