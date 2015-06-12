@@ -198,6 +198,9 @@ Release 2.7.1 - UNRELEASED
 
     HDFS-8522. Change heavily recorded NN logs from INFO to DEBUG level. (xyao)
 
+    HDFS-8572. DN always uses HTTP/localhost@REALM principals in SPNEGO.
+    (wheat9)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
