@@ -37,6 +37,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8911. NameNode Metric : Add Editlog counters as a JMX metric.
     (Anu Engineer via Arpit Agarwal)
 
+    HDFS-7923. The DataNodes should rate-limit their full block reports by
+    asking the NN on heartbeat messages (cmccabe)
+
   OPTIMIZATIONS
 
   BUG FIXES
