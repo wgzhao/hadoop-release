@@ -55,6 +55,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8539. Hdfs doesnt have class 'debug' in windows.
     (Anu Engineer via cnauroth)
 
+    HDFS-8593. Calculation of effective layout version mishandles comparison to
+    current layout version in storage. (cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
