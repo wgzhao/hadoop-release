@@ -81,6 +81,18 @@ Release 2.7.2
     HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
     flawed. (Kihwal Lee via Yi Liu)
 
+Release 2.7.1
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  BUG FIXES
+
+    HDFS-8595. TestCommitBlockSynchronization fails with NPE. (Arpit agarwal)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES

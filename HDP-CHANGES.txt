@@ -379,3 +379,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8070. Pre-HDFS-7915 DFSClient cannot use short circuit on
     post-HDFS-7915 DataNode. (Colin Patrick McCabe)
 
+    HDFS-8595. TestCommitBlockSynchronization fails with NPE (Arpit Agarwal)
+
