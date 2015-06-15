@@ -3220,7 +3220,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
    * @param src the path of the file to start lease recovery
    * @param holder the lease holder's name
    * @param clientMachine the client machine's name
-   * @return true if the file is already closed
+   * @return true if the file is already closed or
+   *         if the lease can be released and the file can be closed.
    * @throws IOException
    */
   boolean recoverLease(String src, String holder, String clientMachine)
@@ -3246,7 +3247,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         checkPathAccess(pc, src, FsAction.WRITE);
       }
   
-      recoverLeaseInternal(RecoverLeaseOp.RECOVER_LEASE,
+      return recoverLeaseInternal(RecoverLeaseOp.RECOVER_LEASE,
           inode, src, holder, clientMachine, true);
     } catch (StandbyException se) {
       skipSync = true;
@@ -3259,7 +3260,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         getEditLog().logSync();
       }
     }
-    return false;
   }
 
   private enum RecoverLeaseOp {
@@ -3275,7 +3275,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     }
   }
 
-  void recoverLeaseInternal(RecoverLeaseOp op, INodeFile fileInode,
+  boolean recoverLeaseInternal(RecoverLeaseOp op, INodeFile fileInode,
       String src, String holder, String clientMachine, boolean force)
       throws IOException {
     assert hasWriteLock();
@@ -3312,7 +3312,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         // close only the file src
         LOG.info("recoverLease: " + lease + ", src=" + src +
           " from client " + clientName);
-        internalReleaseLease(lease, src, holder);
+        return internalReleaseLease(lease, src, holder);
       } else {
         assert lease.getHolder().equals(clientName) :
           "Current lease holder " + lease.getHolder() +
@@ -3324,11 +3324,13 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         if (lease.expiredSoftLimit()) {
           LOG.info("startFile: recover " + lease + ", src=" + src + " client "
               + clientName);
-          boolean isClosed = internalReleaseLease(lease, src, null);
-          if(!isClosed)
+          if (internalReleaseLease(lease, src, null)) {
+            return true;
+          } else {
             throw new RecoveryInProgressException(
                 op.getExceptionMessage(src, holder, clientMachine,
                     "lease recovery is in progress. Try again later."));
+          }
         } else {
           final BlockInfo lastBlock = fileInode.getLastBlock();
           if (lastBlock != null
@@ -3345,6 +3347,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           }
         }
       }
+    } else {
+      return true;
     }
   }
 

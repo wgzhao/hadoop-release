@@ -106,6 +106,9 @@ Release 2.7.1
 
     HDFS-8595. TestCommitBlockSynchronization fails with NPE. (Arpit agarwal)
 
+    HDFS-8576. Lease recovery should return true if the lease can be released
+    and the file can be closed. (J.Andreina via szetszwo)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES

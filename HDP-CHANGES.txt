@@ -699,3 +699,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43789. HDFS-6945. BlockManager should remove a block from
     excessReplicateMap and decrement ExcessBlocks metric when the block is
     removed. (aajisaka)
+
+    BUG-44268. HDFS-8576. Lease recovery should return true if the lease can be
+    released and the file can be closed. (J.Andreina via szetszwo)
+
