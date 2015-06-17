@@ -255,6 +255,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4252. Log container-executor invocation details when exit code is non-zero.
     (Sidharta Seethana via vvasudev)
 
+    YARN-3148. Allow CORS related headers to passthrough in WebAppProxyServlet.
+    (Varun Saxena via devaraj)
+
   OPTIMIZATIONS
 
   BUG FIXES

@@ -3112,3 +3112,5 @@ ATS V1.5:
     HDFS-11307. The rpc to portmap service for NFS has hardcoded timeout. Contributed by
     Mukul Kumar Singh.
 
+    BUG-72118. YARN-3148. Allow CORS related headers to passthrough in
+    WebAppProxyServlet. Contributed by Varun Saxena.
