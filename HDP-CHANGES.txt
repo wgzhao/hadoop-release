@@ -3014,3 +3014,6 @@ ATS V1.5:
 
     BUG-65978. YARN-3591. Resource localization on a bad disk causes subsequent
     containers failure. Contributed by Lavkesh Lahngir.
+    
+    BUG-72118. YARN-3148. Allow CORS related headers to passthrough in
+    WebAppProxyServlet. Contributed by Varun Saxena.
