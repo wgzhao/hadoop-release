@@ -18,17 +18,6 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager;
 
-import static org.junit.Assert.fail;
-
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
@@ -37,12 +26,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ha.HAServiceProtocol;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.ha.HAServiceProtocol.StateChangeRequestInfo;
+import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.GroupMappingServiceProvider;
 import org.apache.hadoop.security.Groups;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.security.authorize.ProxyUsers;
 import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
+import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.conf.HAUtil;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -58,6 +49,18 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class TestRMAdminService {
@@ -117,8 +120,8 @@ public class TestRMAdminService {
 
     try {
       rm.adminService.refreshQueues(RefreshQueuesRequest.newInstance());
-      Assert.assertEquals(maxAppsBefore, cs.getConfiguration()
-          .getMaximumSystemApplications());
+      assertEquals(maxAppsBefore,
+          cs.getConfiguration().getMaximumSystemApplications());
     } catch (Exception ex) {
       fail("Using localConfigurationProvider. Should not get any exception.");
     }
@@ -153,7 +156,7 @@ public class TestRMAdminService {
     rm.adminService.refreshQueues(RefreshQueuesRequest.newInstance());
 
     int maxAppsAfter = cs.getConfiguration().getMaximumSystemApplications();
-    Assert.assertEquals(maxAppsAfter, 5000);
+    assertEquals(maxAppsAfter, 5000);
     Assert.assertTrue(maxAppsAfter != maxAppsBefore);
   }
 
@@ -200,7 +203,9 @@ public class TestRMAdminService {
         rm.adminService.getAccessControlList().getAclString().trim();
 
     Assert.assertTrue(!aclStringAfter.equals(aclStringBefore));
-    Assert.assertEquals(aclStringAfter, "world:anyone:rwcda");
+    assertEquals(aclStringAfter,
+        "world:anyone:rwcda," + UserGroupInformation.getCurrentUser()
+            .getShortUserName());
   }
 
   @Test
@@ -300,10 +305,9 @@ public class TestRMAdminService {
       AccessControlList accessList =
           manager.getProtocolsAcls(protocolClass);
       if (protocolClass == protocol) {
-        Assert.assertEquals(accessList.getAclString(),
-            aclString);
+        assertEquals(accessList.getAclString(), aclString);
       } else {
-        Assert.assertEquals(accessList.getAclString(), "*");
+        assertEquals(accessList.getAclString(), "*");
       }
     }
   }
@@ -563,14 +567,14 @@ public class TestRMAdminService {
       int maxApps =
           ((CapacityScheduler) rm1.getRMContext().getScheduler())
               .getConfiguration().getMaximumSystemApplications();
-      Assert.assertEquals(maxApps, 5000);
+      assertEquals(maxApps, 5000);
 
       // Before failover happens, the maxApps is
       // still the default value on the standby rm : rm2
       int maxAppsBeforeFailOver =
           ((CapacityScheduler) rm2.getRMContext().getScheduler())
               .getConfiguration().getMaximumSystemApplications();
-      Assert.assertEquals(maxAppsBeforeFailOver, 10000);
+      assertEquals(maxAppsBeforeFailOver, 10000);
 
       // Do the failover
       rm1.adminService.transitionToStandby(requestInfo);
@@ -584,7 +588,7 @@ public class TestRMAdminService {
           ((CapacityScheduler) rm2.getRMContext().getScheduler())
               .getConfiguration().getMaximumSystemApplications();
 
-      Assert.assertEquals(maxAppsAfter, 5000);
+      assertEquals(maxAppsAfter, 5000);
     } finally {
       if (rm1 != null) {
         rm1.stop();
@@ -685,13 +689,15 @@ public class TestRMAdminService {
       String aclStringAfter =
           resourceManager.adminService.getAccessControlList()
               .getAclString().trim();
-      Assert.assertEquals(aclStringAfter, "world:anyone:rwcda");
+      assertEquals(aclStringAfter,
+          "world:anyone:rwcda," + UserGroupInformation.getCurrentUser()
+              .getShortUserName());
 
       // validate values for queue configuration
       CapacityScheduler cs =
           (CapacityScheduler) resourceManager.getRMContext().getScheduler();
       int maxAppsAfter = cs.getConfiguration().getMaximumSystemApplications();
-      Assert.assertEquals(maxAppsAfter, 5000);
+      assertEquals(maxAppsAfter, 5000);
 
       // verify service Acls for AdminService
       ServiceAuthorizationManager adminServiceServiceManager =
@@ -749,6 +755,47 @@ public class TestRMAdminService {
         resourceManager.stop();
       }
     }
+  }
+
+  /* For verifying fix for YARN-3804 */
+  @Test
+  public void testRefreshAclWithDaemonUser() throws Exception {
+    String daemonUser =
+        UserGroupInformation.getCurrentUser().getShortUserName();
+    configuration.set(YarnConfiguration.RM_CONFIGURATION_PROVIDER_CLASS,
+        "org.apache.hadoop.yarn.FileSystemBasedConfigurationProvider");
+
+    uploadDefaultConfiguration();
+    YarnConfiguration yarnConf = new YarnConfiguration();
+    yarnConf.set(YarnConfiguration.YARN_ADMIN_ACL, daemonUser + "xyz");
+    uploadConfiguration(yarnConf, "yarn-site.xml");
+
+    try {
+      rm = new MockRM(configuration);
+      rm.init(configuration);
+      rm.start();
+    } catch(Exception ex) {
+      fail("Should not get any exceptions");
+    }
+
+    assertEquals(daemonUser + "xyz," + daemonUser,
+        rm.adminService.getAccessControlList().getAclString().trim());
+
+    yarnConf = new YarnConfiguration();
+    yarnConf.set(YarnConfiguration.YARN_ADMIN_ACL, daemonUser + "abc");
+    uploadConfiguration(yarnConf, "yarn-site.xml");
+    try {
+      rm.adminService.refreshAdminAcls(RefreshAdminAclsRequest.newInstance());
+    } catch (YarnException e) {
+      if (e.getCause() != null &&
+          e.getCause() instanceof AccessControlException) {
+        fail("Refresh should not have failed due to incorrect ACL");
+      }
+      throw e;
+    }
+
+    assertEquals(daemonUser + "abc," + daemonUser,
+        rm.adminService.getAccessControlList().getAclString().trim());
   }
 
   private String writeConfigurationXML(Configuration conf, String confXMLName)
