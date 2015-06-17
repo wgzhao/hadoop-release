@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.hdfs.util.LightWeightLinkedSet;
 
@@ -37,7 +36,7 @@ import org.apache.hadoop.hdfs.util.LightWeightLinkedSet;
  *
  * <p/>
  * The policy for choosing which priority to give added blocks
- * is implemented in {@link #getPriority(Block, int, int, int, int)}.
+ * is implemented in {@link #getPriority(BlockInfo, int, int, int, int)}.
  * </p>
  * <p>The queue order is as follows:</p>
  * <ol>
@@ -64,7 +63,7 @@ import org.apache.hadoop.hdfs.util.LightWeightLinkedSet;
  *   blocks that are not corrupt higher priority.</li>
  * </ol>
  */
-class UnderReplicatedBlocks implements Iterable<Block> {
+class UnderReplicatedBlocks implements Iterable<BlockInfo> {
   /** The total number of queues : {@value} */
   static final int LEVEL = 5;
   /** The queue with the highest priority: {@value} */
@@ -80,8 +79,8 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   /** The queue for corrupt blocks: {@value} */
   static final int QUEUE_WITH_CORRUPT_BLOCKS = 4;
   /** the queues themselves */
-  private List<LightWeightLinkedSet<Block>> priorityQueues
-      = new ArrayList<LightWeightLinkedSet<Block>>(LEVEL);
+  private final List<LightWeightLinkedSet<BlockInfo>> priorityQueues
+      = new ArrayList<>(LEVEL);
 
   /** The number of corrupt blocks with replication factor 1 */
   private int corruptReplOneBlocks = 0;
@@ -89,7 +88,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   /** Create an object. */
   UnderReplicatedBlocks() {
     for (int i = 0; i < LEVEL; i++) {
-      priorityQueues.add(new LightWeightLinkedSet<Block>());
+      priorityQueues.add(new LightWeightLinkedSet<BlockInfo>());
     }
   }
 
@@ -133,8 +132,8 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   }
 
   /** Check if a block is in the neededReplication queue */
-  synchronized boolean contains(Block block) {
-    for(LightWeightLinkedSet<Block> set : priorityQueues) {
+  synchronized boolean contains(BlockInfo block) {
+    for(LightWeightLinkedSet<BlockInfo> set : priorityQueues) {
       if (set.contains(block)) {
         return true;
       }
@@ -143,12 +142,11 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   }
 
   /** Return the priority of a block
-   * @param block a under replicated block
    * @param curReplicas current number of replicas of the block
    * @param expectedReplicas expected number of replicas of the block
    * @return the priority for the blocks, between 0 and ({@link #LEVEL}-1)
    */
-  private int getPriority(Block block,
+  private int getPriority(BlockInfo block,
                           int curReplicas, 
                           int readOnlyReplicas,
                           int decommissionedReplicas,
@@ -191,7 +189,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @param expectedReplicas expected number of replicas of the block
    * @return true if the block was added to a queue.
    */
-  synchronized boolean add(Block block,
+  synchronized boolean add(BlockInfo block,
                            int curReplicas, 
                            int readOnlyReplicas,
                            int decomissionedReplicas,
@@ -216,7 +214,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   }
 
   /** remove a block from a under replication queue */
-  synchronized boolean remove(Block block, 
+  synchronized boolean remove(BlockInfo block, 
                               int oldReplicas, 
                               int oldReadOnlyReplicas,
                               int decommissionedReplicas,
@@ -250,8 +248,8 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @param priLevel expected privilege level
    * @return true if the block was found and removed from one of the priority queues
    */
-  boolean remove(Block block, int priLevel) {
-    if(priLevel >= 0 && priLevel < LEVEL 
+  boolean remove(BlockInfo block, int priLevel) {
+    if(priLevel >= 0 && priLevel < LEVEL
         && priorityQueues.get(priLevel).remove(block)) {
       NameNode.blockStateChangeLog.debug(
         "BLOCK* NameSystem.UnderReplicationBlock.remove: Removing block {}" +
@@ -288,7 +286,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @param curReplicasDelta the change in the replicate count from before
    * @param expectedReplicasDelta the change in the expected replica count from before
    */
-  synchronized void update(Block block, int curReplicas,
+  synchronized void update(BlockInfo block, int curReplicas,
                            int readOnlyReplicas, int decommissionedReplicas,
                            int curExpectedReplicas,
                            int curReplicasDelta, int expectedReplicasDelta) {
@@ -347,9 +345,9 @@ class UnderReplicatedBlocks implements Iterable<Block> {
    * @return Return a list of block lists to be replicated. The block list index
    *         represents its replication priority.
    */
-  synchronized List<List<Block>> chooseUnderReplicatedBlocks(
+  synchronized List<List<BlockInfo>> chooseUnderReplicatedBlocks(
       int blocksToProcess) {
-    final List<List<Block>> blocksToReplicate = new ArrayList<>(LEVEL);
+    final List<List<BlockInfo>> blocksToReplicate = new ArrayList<>(LEVEL);
 
     StringBuilder sb = NameNode.blockStateChangeLog.isInfoEnabled() ?
         new StringBuilder() : null;
@@ -367,8 +365,8 @@ class UnderReplicatedBlocks implements Iterable<Block> {
 
       // Go through all blocks that need replications with current priority.
       // Set the iterator to the first unprocessed block at this priority level.
-      final Iterator<Block> i = priorityQueues.get(priority).getBookmark();
-      final List<Block> blocks = new LinkedList<>();
+      final Iterator<BlockInfo> i = priorityQueues.get(priority).getBookmark();
+      final List<BlockInfo> blocks = new LinkedList<>();
       blocksToReplicate.add(blocks);
       // Loop through all remaining blocks in the list.
       final int blockCountAtLevelStart = count;
@@ -383,7 +381,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
 
     if (priority == LEVEL) {
       // Reset all bookmarks because there were no recently added blocks.
-      for (LightWeightLinkedSet<Block> q : priorityQueues) {
+      for (LightWeightLinkedSet<BlockInfo> q : priorityQueues) {
         q.resetBookmark();
       }
     }
@@ -398,19 +396,19 @@ class UnderReplicatedBlocks implements Iterable<Block> {
   }
 
   /** returns an iterator of all blocks in a given priority queue */
-  synchronized Iterator<Block> iterator(int level) {
+  synchronized Iterator<BlockInfo> iterator(int level) {
     return priorityQueues.get(level).iterator();
   }
 
   /** return an iterator of all the under replication blocks */
   @Override
-  public synchronized Iterator<Block> iterator() {
-    final Iterator<LightWeightLinkedSet<Block>> q = priorityQueues.iterator();
-    return new Iterator<Block>() {
-      private Iterator<Block> b = q.next().iterator();
+  public synchronized Iterator<BlockInfo> iterator() {
+    final Iterator<LightWeightLinkedSet<BlockInfo>> q = priorityQueues.iterator();
+    return new Iterator<BlockInfo>() {
+      private Iterator<BlockInfo> b = q.next().iterator();
 
       @Override
-      public Block next() {
+      public BlockInfo next() {
         hasNext();
         return b.next();
       }
