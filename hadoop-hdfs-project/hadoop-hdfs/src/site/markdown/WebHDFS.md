@@ -754,7 +754,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).setAcl
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETACLSTATUS"
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETACLSTATUS"
 
     The client receives a response with a [`AclStatus` JSON object](#ACL_Status_JSON_Schema):
 
@@ -781,7 +781,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getAclSta
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CHECKACCESS
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CHECKACCESS
                                       &fsaction=<FSACTION>
 
     The client receives a response with zero content length:
@@ -827,7 +827,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).removeXAt
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
                                       &xattr.name=<XATTRNAME>&encoding=<ENCODING>"
 
     The client receives a response with a [`XAttrs` JSON object](#XAttrs_JSON_Schema):
@@ -851,7 +851,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttr
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
                                       &xattr.name=<XATTRNAME1>&xattr.name=<XATTRNAME2>
                                       &encoding=<ENCODING>"
 
@@ -880,7 +880,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttrs
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETXATTRS
                                       &encoding=<ENCODING>"
 
     The client receives a response with a [`XAttrs` JSON object](#XAttrs_JSON_Schema):
@@ -912,7 +912,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttrs
 
 * Submit a HTTP GET request.
 
-        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=LISTXATTRS"
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=LISTXATTRS"
 
     The client receives a response with a [`XAttrNames` JSON object](#XAttrNames_JSON_Schema):
 
