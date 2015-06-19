@@ -145,6 +145,9 @@ Release 2.7.1 - 2015-07-06
 
   IMPROVEMENTS
 
+    HADOOP-12103. Small refactoring of DelegationTokenAuthenticationFilter to
+    allow code sharing. (Yongjun Zhang)
+
   OPTIMIZATIONS
 
   BUG FIXES
