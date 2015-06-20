@@ -243,6 +243,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9397. Fix typo for readChecksum() LOG.warn in BlockSender.java.
     (Enrique Flores via Arpit Agarwal)
 
+    HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
+    kerberos. (Yongjun Zhang)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
