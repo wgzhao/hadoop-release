@@ -252,6 +252,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9661. Deadlock in DN.FsDatasetImpl between moveBlockAcrossStorage and
     createRbw (ade via vinayakumarb)
 
+    HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
+    kerberos. (Yongjun Zhang)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
