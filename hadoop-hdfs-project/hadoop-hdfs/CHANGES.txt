@@ -240,6 +240,9 @@ Release 2.7.1 - UNRELEASED
     HDFS-8544. Incorrect port specified in HFTP Guide document in branch-2.
     (Brahma Reddy Battula via Yongjun Zhang)
 
+    HDFS-8626. Reserved RBW space is not released if creation of RBW File
+    fails. (kanaka kumar avvaru via Arpit Agarwal)
+
 Release 2.7.0 - 2015-04-20
 
   INCOMPATIBLE CHANGES
