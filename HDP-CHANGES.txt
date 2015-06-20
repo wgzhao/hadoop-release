@@ -934,3 +934,7 @@ covered by CHANGES.txt.
 
     MAPREDUCE-6302. (BUG-47641) Backport preempt reducers after a configurable 
     timeout irrespective of headroom. (Karthik Kambatla)
+
+    BUG-47098. HDFS-8626. Reserved RBW space is not released if creation of
+    RBW File fails. (Kanaka Kumar Avvaru via Arpit Agarwal)
+

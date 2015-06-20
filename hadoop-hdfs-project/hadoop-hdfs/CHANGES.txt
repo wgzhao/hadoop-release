@@ -225,6 +225,9 @@ Release 2.7.1
     HDFS-4660. Block corruption can happen during pipeline recovery.
     (Kihwal Lee)
 
+    HDFS-8626. Reserved RBW space is not released if creation of RBW
+    File fails. (Kanaka Kumar Avvaru via Arpit Agarwal)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES
