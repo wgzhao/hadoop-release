@@ -169,3 +169,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8072. Reserved RBW space is not released if client terminates
     while writing block. (Arpit Agarwal)
 
+    BUG-39965. HDFS-8072. Reserved RBW space is not released if client
+    terminates while writing block. (Arpit Agarwal)
+
