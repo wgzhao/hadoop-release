@@ -126,6 +126,9 @@ Release 2.8.0 - UNRELEASED
     pool to be scanned but there are suspicious blocks. (Colin Patrick McCabe
     via yliu)
 
+    HDFS-8542. WebHDFS getHomeDirectory behavior does not match specification.
+    (Kanaka Kumar Avvaru via jghoman)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

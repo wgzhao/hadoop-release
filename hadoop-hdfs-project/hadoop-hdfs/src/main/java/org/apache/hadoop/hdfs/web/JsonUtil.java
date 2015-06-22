@@ -795,4 +795,14 @@ public class JsonUtil {
       return new byte[0];
     }
   }
+  
+  static String getPath(final Map<?, ?> json)
+      throws IOException {
+    if (json == null) {
+      return null;
+    }
+
+    String path = (String) json.get("Path");
+    return path;
+  }
 }
