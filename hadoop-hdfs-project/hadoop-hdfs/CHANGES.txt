@@ -176,6 +176,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-9107. Prevent NN's unrecoverable death spiral after full GC (Daryn
     Sharp via Colin P. McCabe)
 
+    HDFS-4366. Block Replication Policy Implementation May Skip
+    Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit via
+    wang)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
