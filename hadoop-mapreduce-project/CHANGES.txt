@@ -31,6 +31,10 @@ Release 2.7.2 - UNRELEASED
   MAPREDUCE-6528. Memory leak for HistoryFileManager.getJobSummary()
   (Junping Du via jlowe)
 
+    MAPREDUCE-5948. org.apache.hadoop.mapred.LineRecordReader does not handle
+    multibyte record delimiters well (Vinayakumar B, Rushabh Shah, and Akira
+    AJISAKA via jlowe)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
