@@ -711,3 +711,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-45466. HDFS-9178. Slow datanode I/O can cause a wrong node to
     be marked bad. (Kihwal Lee)
 
+    BUG-44495. HDFS-4366. Block Replication Policy Implementation May
+    Skip Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit
+    via Kihwal Lee)
+

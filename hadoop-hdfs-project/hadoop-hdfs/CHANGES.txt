@@ -104,6 +104,10 @@ Release 2.8.0 - UNRELEASED
     TestSWebHdfsFileContextMainOperations fail due to invalid HDFS path on
     Windows. (cnauroth)
 
+    HDFS-4366. Block Replication Policy Implementation May Skip
+    Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit via
+    Kihwal Lee)
+
 Release 2.7.2
 
   INCOMPATIBLE CHANGES
