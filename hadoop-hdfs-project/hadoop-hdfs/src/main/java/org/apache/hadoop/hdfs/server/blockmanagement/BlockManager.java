@@ -1348,7 +1348,6 @@ public class BlockManager {
             // abandoned block or block reopened for append
             if(bc == null || (bc.isUnderConstruction() && block.equals(bc.getLastBlock()))) {
               neededReplications.remove(block, priority); // remove from neededReplications
-              neededReplications.decrementReplicationIndex(priority);
               if (bc == null) {
                 ++blocksAbandoned;
               } else {
@@ -1442,7 +1441,6 @@ public class BlockManager {
           if(bc == null || (bc.isUnderConstruction() && block.equals(bc.getLastBlock()))) {
             neededReplications.remove(block, priority); // remove from neededReplications
             rw.targets = null;
-            neededReplications.decrementReplicationIndex(priority);
             if (bc == null) {
               ++blocksAbandoned;
             } else {
@@ -1461,7 +1459,6 @@ public class BlockManager {
             if ( (pendingReplications.getNumReplicas(block) > 0) ||
                  (blockHasEnoughRacks(block)) ) {
               neededReplications.remove(block, priority); // remove from neededReplications
-              neededReplications.decrementReplicationIndex(priority);
               rw.targets = null;
               blockLog.debug("BLOCK* Removing {} from neededReplications as" +
                       " it has enough replicas", block);
@@ -1496,7 +1493,6 @@ public class BlockManager {
           // remove from neededReplications
           if(numEffectiveReplicas + targets.length >= requiredReplication) {
             neededReplications.remove(block, priority); // remove from neededReplications
-            neededReplications.decrementReplicationIndex(priority);
           }
         }
       }
