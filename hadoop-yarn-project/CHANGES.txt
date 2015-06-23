@@ -71,6 +71,9 @@ Release 2.7.1 - UNRELEASED
     YARN-3832. Resource Localization fails on a cluster due to existing cache
     directories (Brahma Reddy Battula via jlowe)
 
+    YARN-3842. NMProxy should retry on NMNotYetReadyException.
+    (Robert Kanter via kasha)
+
 Release 2.6.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
