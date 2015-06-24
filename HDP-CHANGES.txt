@@ -27,3 +27,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     HDFS-7890. Improve information on Top users for metrics in
     RollingWindowsManager and lower log level. (J.Andreina via Vinayakumar B)
 
+    BUG-39584. Fix cygwin variable in shell scripts which breaks RollingUpgrade.
+    (Li Lu via jing9)
+
