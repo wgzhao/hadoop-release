@@ -592,3 +592,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-46838. HDFS-8950. NameNode refresh doesn't remove DataNodes that are
     no longer in the allowed list. (Daniel Templeton via cmccabe)
 
+    BUG-47823. HADOOP-12049. Control http authentication cookie persistence via
+    configuration. (hzlu via benoy)
+

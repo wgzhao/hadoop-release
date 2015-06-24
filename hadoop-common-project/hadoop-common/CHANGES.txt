@@ -109,6 +109,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12334. Change Mode Of Copy Operation of HBase WAL Archiving to bypass
     Azure Storage Throttling after retries. (Gaurav Kanade via cnauroth)
 
+    HADOOP-12049. Control http authentication cookie persistence via
+    configuration. (hzlu via benoy)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
