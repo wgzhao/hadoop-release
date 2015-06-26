@@ -66,7 +66,6 @@ import org.apache.hadoop.hdfs.server.common.Storage;
 import org.apache.hadoop.hdfs.server.common.StorageInfo;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.NamespaceInfo;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.nativeio.NativeIO;
 import org.apache.hadoop.util.Daemon;
 import org.apache.hadoop.util.DiskChecker;
@@ -76,6 +75,30 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Futures;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /** 
  * Data storage information file.
@@ -86,7 +109,6 @@ import com.google.common.util.concurrent.Futures;
 public class DataStorage extends Storage {
 
   public final static String BLOCK_SUBDIR_PREFIX = "subdir";
-  final static String COPY_FILE_PREFIX = "dncp_";
   final static String STORAGE_DIR_DETACHED = "detach";
   public final static String STORAGE_DIR_RBW = "rbw";
   public final static String STORAGE_DIR_FINALIZED = "finalized";
@@ -708,20 +730,22 @@ public class DataStorage extends Storage {
   @Override
   public boolean isPreUpgradableLayout(StorageDirectory sd) throws IOException {
     File oldF = new File(sd.getRoot(), "storage");
-    if (!oldF.exists())
+    if (!oldF.exists()) {
       return false;
+    }
     // check the layout version inside the storage file
     // Lock and Read old storage file
-    RandomAccessFile oldFile = new RandomAccessFile(oldF, "rws");
-    FileLock oldLock = oldFile.getChannel().tryLock();
-    try {
+    try (RandomAccessFile oldFile = new RandomAccessFile(oldF, "rws");
+      FileLock oldLock = oldFile.getChannel().tryLock()) {
+      if (null == oldLock) {
+        LOG.error("Unable to acquire file lock on path " + oldF.toString());
+        throw new OverlappingFileLockException();
+      }
       oldFile.seek(0);
       int oldVersion = oldFile.readInt();
-      if (oldVersion < LAST_PRE_UPGRADE_LAYOUT_VERSION)
+      if (oldVersion < LAST_PRE_UPGRADE_LAYOUT_VERSION) {
         return false;
-    } finally {
-      oldLock.release();
-      oldFile.close();
+      }
     }
     return true;
   }
@@ -1326,23 +1350,8 @@ public class DataStorage extends Storage {
       return;
     }
     if (!from.isDirectory()) {
-      if (from.getName().startsWith(COPY_FILE_PREFIX)) {
-        FileInputStream in = new FileInputStream(from);
-        try {
-          FileOutputStream out = new FileOutputStream(to);
-          try {
-            IOUtils.copyBytes(in, out, 16*1024);
-            hl.linkStats.countPhysicalFileCopies++;
-          } finally {
-            out.close();
-          }
-        } finally {
-          in.close();
-        }
-      } else {
-        HardLink.createHardLink(from, to);
-        hl.linkStats.countSingleLinks++;
-      }
+      HardLink.createHardLink(from, to);
+      hl.linkStats.countSingleLinks++;
       return;
     }
     // from is a directory
@@ -1393,8 +1402,7 @@ public class DataStorage extends Storage {
     String[] otherNames = from.list(new java.io.FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-          return name.startsWith(BLOCK_SUBDIR_PREFIX) 
-            || name.startsWith(COPY_FILE_PREFIX);
+          return name.startsWith(BLOCK_SUBDIR_PREFIX);
         }
       });
     for(int i = 0; i < otherNames.length; i++)
