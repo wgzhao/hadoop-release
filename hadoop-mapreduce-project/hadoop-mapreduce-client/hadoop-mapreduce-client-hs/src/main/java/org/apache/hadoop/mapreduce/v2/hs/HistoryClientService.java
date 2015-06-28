@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.http.lib.StaticUserWebFilter;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.mapreduce.JobACL;
@@ -77,6 +78,7 @@ import org.apache.hadoop.mapreduce.v2.hs.webapp.HsWebApp;
 import org.apache.hadoop.mapreduce.v2.jobhistory.JHAdminConfig;
 import org.apache.hadoop.mapreduce.v2.util.MRWebAppUtil;
 import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.AuthenticationFilterInitializer;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
 import org.apache.hadoop.security.token.Token;
@@ -150,6 +152,19 @@ public class HistoryClientService extends AbstractService {
 
   @VisibleForTesting
   protected void initializeWebApp(Configuration conf) {
+
+    String authFilterName = AuthenticationFilterInitializer.class.getName();
+    String initializers = conf.getTrimmed("hadoop.http.filter.initializers");
+    // prepend the AuthenticationFilterInitializer if needed
+    if (initializers == null || initializers.isEmpty()) {
+      initializers = authFilterName;
+    } else if (initializers.equals(StaticUserWebFilter.class.getName())) {
+      initializers = authFilterName + "," + initializers;
+    }
+
+    LOG.info("Using authentication filters: " + initializers);
+    conf.set("hadoop.http.filter.initializers", initializers);
+
     webApp = new HsWebApp(history);
     InetSocketAddress bindAddress = MRWebAppUtil.getJHSWebBindAddress(conf);
     // NOTE: there should be a .at(InetSocketAddress)

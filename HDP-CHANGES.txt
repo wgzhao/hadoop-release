@@ -32,3 +32,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-40325. Fixed a hang problem in DistributedShell. (Varun Vasudev)
 
+    BUG-39672. Fixed RM and JHS to always add AuthenticationFilterInitializer.
+    (Jian He)
+

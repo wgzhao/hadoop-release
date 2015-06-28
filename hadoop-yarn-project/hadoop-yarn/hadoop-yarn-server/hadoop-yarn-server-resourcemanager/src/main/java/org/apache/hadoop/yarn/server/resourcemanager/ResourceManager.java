@@ -107,7 +107,11 @@ import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -877,88 +881,61 @@ public class ResourceManager extends CompositeService implements Recoverable {
       }
     }
   }
-  
+
   protected void startWepApp() {
 
-    // Use the customized yarn filter instead of the standard kerberos filter to
-    // allow users to authenticate using delegation tokens
-    // 4 conditions need to be satisfied -
-    // 1. security is enabled
-    // 2. http auth type is set to kerberos
-    // 3. "yarn.resourcemanager.webapp.use-yarn-filter" override is set to true
-    // 4. hadoop.http.filter.initializers container AuthenticationFilterInitializer
-
     Configuration conf = getConfig();
-    boolean useYarnAuthenticationFilter =
-        conf.getBoolean(
-          YarnConfiguration.RM_WEBAPP_DELEGATION_TOKEN_AUTH_FILTER,
-          YarnConfiguration.DEFAULT_RM_WEBAPP_DELEGATION_TOKEN_AUTH_FILTER);
-    String authPrefix = "hadoop.http.authentication.";
-    String authTypeKey = authPrefix + "type";
-    String filterInitializerConfKey = "hadoop.http.filter.initializers";
-    String actualInitializers = "";
-    Class<?>[] initializersClasses =
-        conf.getClasses(filterInitializerConfKey);
+    boolean useYarnAuthenticationFilter = conf.getBoolean(
+        YarnConfiguration.RM_WEBAPP_DELEGATION_TOKEN_AUTH_FILTER,
+        YarnConfiguration.DEFAULT_RM_WEBAPP_DELEGATION_TOKEN_AUTH_FILTER);
 
-    boolean hasHadoopAuthFilterInitializer = false;
-    boolean hasRMAuthFilterInitializer = false;
-    if (initializersClasses != null) {
-      for (Class<?> initializer : initializersClasses) {
-        if (initializer.getName().equals(
-          AuthenticationFilterInitializer.class.getName())) {
-          hasHadoopAuthFilterInitializer = true;
-        }
-        if (initializer.getName().equals(
-          RMAuthenticationFilterInitializer.class.getName())) {
-          hasRMAuthFilterInitializer = true;
-        }
-      }
-      if (UserGroupInformation.isSecurityEnabled()
-          && useYarnAuthenticationFilter
-          && hasHadoopAuthFilterInitializer
-          && conf.get(authTypeKey, "").equals(
-            KerberosAuthenticationHandler.TYPE)) {
-        ArrayList<String> target = new ArrayList<String>();
-        for (Class<?> filterInitializer : initializersClasses) {
-          if (filterInitializer.getName().equals(
-            AuthenticationFilterInitializer.class.getName())) {
-            if (hasRMAuthFilterInitializer == false) {
-              target.add(RMAuthenticationFilterInitializer.class.getName());
+    String authFilterName = AuthenticationFilterInitializer.class.getName();
+    String rmAuthFilterName = RMAuthenticationFilterInitializer.class.getName();
+
+    String initializers = conf.getTrimmed("hadoop.http.filter.initializers");
+    String prependFilterName =
+        useYarnAuthenticationFilter ? rmAuthFilterName : authFilterName;
+
+    if (initializers == null || initializers.isEmpty()) {
+      initializers = prependFilterName;
+
+    } else if (initializers.equals(StaticUserWebFilter.class.getName())) {
+      initializers = prependFilterName + "," + initializers;
+
+    } else {
+      String[] initializerNames =
+          conf.getTrimmedStrings("hadoop.http.filter.initializers");
+
+      Set<String> initializerSet = new LinkedHashSet<>();
+      if (initializerNames != null && initializerNames.length > 0) {
+        for (String s : initializerNames) {
+
+          if (s.equals(authFilterName)) {
+            // replace AuthenticationFilter with RMAuthenticationFilter if needed
+            if (useYarnAuthenticationFilter) {
+              initializerSet.add(rmAuthFilterName);
+            } else {
+              initializerSet.add(authFilterName);
             }
             continue;
           }
-          target.add(filterInitializer.getName());
+          initializerSet.add(s);
         }
-        actualInitializers = StringUtils.join(",", target);
-
-        LOG.info("Using RM authentication filter(kerberos/delegation-token)"
-            + " for RM webapp authentication");
-        RMAuthenticationFilter
-          .setDelegationTokenSecretManager(getClientRMService().rmDTSecretManager);
-        conf.set(filterInitializerConfKey, actualInitializers);
       }
+      initializers = StringUtils.join(",", initializerSet);
     }
 
-    // if security is not enabled and the default filter initializer has not 
-    // been set, set the initializer to include the
-    // RMAuthenticationFilterInitializer which in turn will set up the simple
-    // auth filter.
+    LOG.info("Using authentication filters: " + initializers);
+    conf.set("hadoop.http.filter.initializers", initializers);
 
-    String initializers = conf.get(filterInitializerConfKey);
-    if (!UserGroupInformation.isSecurityEnabled()) {
-      if (initializersClasses == null || initializersClasses.length == 0) {
-        conf.set(filterInitializerConfKey,
-          RMAuthenticationFilterInitializer.class.getName());
-        conf.set(authTypeKey, "simple");
-      } else if (initializers.equals(StaticUserWebFilter.class.getName())) {
-        conf.set(filterInitializerConfKey,
-          RMAuthenticationFilterInitializer.class.getName() + ","
-              + initializers);
-        conf.set(authTypeKey, "simple");
-      }
+    if (UserGroupInformation.isSecurityEnabled()) {
+      RMAuthenticationFilter.setDelegationTokenSecretManager(
+          getClientRMService().rmDTSecretManager);
+    } else {
+      conf.set("hadoop.http.authentication.type", "simple");
     }
 
-    Builder<ApplicationMasterService> builder = 
+    Builder<ApplicationMasterService> builder =
         WebApps
             .$for("cluster", ApplicationMasterService.class, masterService,
                 "ws")
@@ -981,7 +958,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
       builder.withAttribute(WebAppProxy.FETCHER_ATTRIBUTE, fetcher);
       String[] proxyParts = proxyHostAndPort.split(":");
       builder.withAttribute(WebAppProxy.PROXY_HOST_ATTRIBUTE, proxyParts[0]);
-
     }
     webApp = builder.start(new RMWebApp(this));
   }
