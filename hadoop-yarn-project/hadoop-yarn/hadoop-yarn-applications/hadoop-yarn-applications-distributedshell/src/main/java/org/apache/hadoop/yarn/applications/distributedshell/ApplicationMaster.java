@@ -650,7 +650,7 @@ public class ApplicationMaster {
   protected boolean finish() {
     // wait for completion.
     while (!done
-        && (numCompletedContainers.get() != numTotalContainers)) {
+        && (numCompletedContainers.get() < numTotalContainers)) {
       try {
         Thread.sleep(200);
       } catch (InterruptedException ex) {}
@@ -680,7 +680,7 @@ public class ApplicationMaster {
     String appMessage = null;
     boolean success = true;
     if (numFailedContainers.get() == 0 && 
-        numCompletedContainers.get() == numTotalContainers) {
+        numCompletedContainers.get() >= numTotalContainers) {
       appStatus = FinalApplicationStatus.SUCCEEDED;
     } else {
       appStatus = FinalApplicationStatus.FAILED;

@@ -764,3 +764,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43821/YARN-4313. Race condition in MiniMRYarnCluster when getting
     history server address. (Jian He via Xuan Gong)
 
+    BUG-40325. Fixed a hang problem in DistributedShell. (Varun Vasudev)
+
