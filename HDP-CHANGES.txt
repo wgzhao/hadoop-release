@@ -30,3 +30,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     BUG-39584. Fix cygwin variable in shell scripts which breaks RollingUpgrade.
     (Li Lu via jing9)
 
+    BUG-40325. Fixed a hang problem in DistributedShell. (Varun Vasudev)
+
