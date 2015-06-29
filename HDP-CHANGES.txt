@@ -629,3 +629,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-48221. HADOOP-12577. Bump up commons-collections version to 3.2.2 to
     address a security flaw. (Wei-Chiu Chuang via vinodkv)
 
+    BUG-47045. HDFS-7390. Provide JMX metrics per storage type. (benoy)
+
