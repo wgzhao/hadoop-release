@@ -1502,7 +1502,7 @@ public class NativeAzureFileSystem extends FileSystem {
               createPermissionStatus(FsPermission.getDefault()));
         } else {
           if (!skipParentFolderLastModifidedTimeUpdate) {
-            store.updateFolderLastModifiedTime(parentKey, null);
+            updateParentFolderLastModifiedTime(key);
           }
         }
       }
@@ -1563,9 +1563,8 @@ public class NativeAzureFileSystem extends FileSystem {
       // Update parent directory last modified time
       Path parent = absolutePath.getParent();
       if (parent != null && parent.getParent() != null) { // not root
-        String parentKey = pathToKey(parent);
         if (!skipParentFolderLastModifidedTimeUpdate) {
-          store.updateFolderLastModifiedTime(parentKey, null);
+          updateParentFolderLastModifiedTime(key);
         }
       }
       instrumentation.directoryDeleted();
