@@ -59,6 +59,9 @@ Release 2.8.0 - UNRELEASED
     because NM container recovery declares AM container as LOST
     (adhoot via rkanter)
 
+    HADOOP-12089. StorageException complaining " no lease ID" when updating
+    FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
