@@ -980,3 +980,8 @@ ATS V1.5:
 
     HDFS-9290. DFSClient#callAppend() is not backward compatible for slightly
     older NameNodes. (Tony Wu via kihwal)
+
+    BUG-53156. HDFS-8659. Block scanner INFO message is spamming logs.
+    (Yongjun Zhang)
+
+
