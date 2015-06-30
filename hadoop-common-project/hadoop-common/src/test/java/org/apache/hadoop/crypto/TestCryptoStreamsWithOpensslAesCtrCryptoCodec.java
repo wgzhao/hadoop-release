@@ -20,8 +20,10 @@ package org.apache.hadoop.crypto;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.test.GenericTestUtils;
-import org.junit.Assert;
 import org.junit.BeforeClass;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TestCryptoStreamsWithOpensslAesCtrCryptoCodec 
     extends TestCryptoStreams {
@@ -34,7 +36,10 @@ public class TestCryptoStreamsWithOpensslAesCtrCryptoCodec
         CommonConfigurationKeysPublic.HADOOP_SECURITY_CRYPTO_CODEC_CLASSES_AES_CTR_NOPADDING_KEY,
         OpensslAesCtrCryptoCodec.class.getName());
     codec = CryptoCodec.getInstance(conf);
-    Assert.assertEquals(OpensslAesCtrCryptoCodec.class.getCanonicalName(), 
+    assertNotNull("Unable to instantiate codec " +
+        OpensslAesCtrCryptoCodec.class.getName() + ", is the required "
+        + "version of OpenSSL installed?", codec);
+    assertEquals(OpensslAesCtrCryptoCodec.class.getCanonicalName(),
         codec.getClass().getCanonicalName());
   }
 }

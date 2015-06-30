@@ -473,6 +473,10 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12825. Log slow name resolutions.
     (Sidharta Seethana via stevel)
 
+    HADOOP-12158. Improve error message in
+    TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not
+    installed. (wang)
+
   OPTIMIZATIONS
 
     HADOOP-11785. Reduce the number of listStatus operation in distcp
