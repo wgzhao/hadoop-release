@@ -232,10 +232,12 @@ abstract public class Shell {
     }
   }
 
+  public static final String ENV_NAME_REGEX = "[A-Za-z_][A-Za-z0-9_]*";
   /** Return a regular expression string that match environment variables */
   public static String getEnvironmentVariableRegex() {
-    return (WINDOWS) ? "%([A-Za-z_][A-Za-z0-9_]*?)%" :
-      "\\$([A-Za-z_][A-Za-z0-9_]*)";
+    return (WINDOWS)
+        ? "%(" + ENV_NAME_REGEX + "?)%"
+        : "\\$(" + ENV_NAME_REGEX + ")";
   }
   
   /**
