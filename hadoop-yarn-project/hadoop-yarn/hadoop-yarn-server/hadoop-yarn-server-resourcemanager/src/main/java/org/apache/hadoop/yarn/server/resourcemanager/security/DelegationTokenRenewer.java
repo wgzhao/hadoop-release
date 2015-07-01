@@ -54,7 +54,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
-import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenIdentifier;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.util.StringUtils;
@@ -249,13 +248,11 @@ public class DelegationTokenRenewer extends AbstractService {
         try {
           AbstractDelegationTokenIdentifier identifier =
               (AbstractDelegationTokenIdentifier) token.decodeIdentifier();
-          LOG.info("NEW TOKEN : " + identifier);
           maxDate = identifier.getMaxDate();
         } catch (IOException e) {
           throw new YarnRuntimeException(e);
         }
       }
-
       this.referringAppIds = Collections.synchronizedSet(
           new HashSet<ApplicationId>(applicationIds));
       this.conf = conf;
@@ -409,8 +406,10 @@ public class DelegationTokenRenewer extends AbstractService {
       return; // nothing to add
     }
 
-    LOG.info("Registering tokens for renewal for " + applicationId
-        + ", shouldCancelAtEnd= " + shouldCancelAtEnd);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Registering tokens for renewal for:" +
+          " appId = " + applicationId);
+    }
 
     Collection<Token<?>> tokens = ts.getAllTokens();
     long now = System.currentTimeMillis();
@@ -429,14 +428,9 @@ public class DelegationTokenRenewer extends AbstractService {
           LOG.info(applicationId + " found existing hdfs token " + token);
           hasHdfsToken = true;
         }
-        TokenIdentifier ident = token.decodeIdentifier();
-        LOG.info(
-            "Received token " + token + "; with hash code " + token.hashCode()
-                + " ;identifier = " + ident + " ; ident hash code " + ident
-                .hashCode());
+
         DelegationTokenToRenew dttr = allTokens.get(token);
         if (dttr == null) {
-          LOG.info("Adding new token " + dttr);
           dttr = new DelegationTokenToRenew(Arrays.asList(applicationId), token,
               getConfig(), now, shouldCancelAtEnd, evt.getUser());
           try {
@@ -458,17 +452,15 @@ public class DelegationTokenRenewer extends AbstractService {
             allTokens.putIfAbsent(dtr.token, dtr);
         if (currentDtr != null) {
           // another job beat us
-          LOG.info("Token " + dtr + " already present, adding app "
-              + applicationId + " to the referringAppIds");
           currentDtr.referringAppIds.add(applicationId);
           appTokens.get(applicationId).add(currentDtr);
         } else {
-          LOG.info("Token " + dtr + " is not present in allTokens." );
           appTokens.get(applicationId).add(dtr);
           setTimerForTokenRenewal(dtr);
         }
       }
     }
+
     if (!hasHdfsToken) {
       requestNewHdfsDelegationToken(Arrays.asList(applicationId), evt.getUser(),
         shouldCancelAtEnd);
@@ -666,7 +658,6 @@ public class DelegationTokenRenewer extends AbstractService {
   // cancel a token
   private void cancelToken(DelegationTokenToRenew t) {
     if(t.shouldCancelAtEnd) {
-      LOG.info("Cancelling token " + t);
       dtCancelThread.cancelToken(t.token, t.conf);
     } else {
       LOG.info("Did not cancel "+t);
@@ -736,16 +727,15 @@ public class DelegationTokenRenewer extends AbstractService {
         Iterator<DelegationTokenToRenew> it = tokens.iterator();
         while (it.hasNext()) {
           DelegationTokenToRenew dttr = it.next();
-          LOG.info("Removing delegation token for appId=" + applicationId
-              + "; token = " + dttr);
-
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Removing delegation token for appId=" + applicationId
+                + "; token=" + dttr.token.getService());
+          }
 
           // continue if the app list isn't empty
           synchronized(dttr.referringAppIds) {
             dttr.referringAppIds.remove(applicationId);
             if (!dttr.referringAppIds.isEmpty()) {
-              LOG.info("Skip removing " + dttr + ", referringAppIds = "
-                  + dttr.referringAppIds);
               continue;
             }
           }
