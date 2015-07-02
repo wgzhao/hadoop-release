@@ -22,6 +22,9 @@ import static org.apache.hadoop.yarn.util.StringHelper.pajoin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.http.lib.StaticUserWebFilter;
+import org.apache.hadoop.security.AuthenticationFilterInitializer;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
@@ -56,17 +59,29 @@ public class WebServer extends AbstractService {
 
   @Override
   protected void serviceStart() throws Exception {
-    String bindAddress = WebAppUtils.getWebAppBindURL(getConfig(),
-                          YarnConfiguration.NM_BIND_HOST,
-                          WebAppUtils.getNMWebAppURLWithoutScheme(getConfig()));
-    
+    Configuration conf = getConfig();
+    String bindAddress = WebAppUtils
+        .getWebAppBindURL(conf, YarnConfiguration.NM_BIND_HOST,
+            WebAppUtils.getNMWebAppURLWithoutScheme(conf));
+
+    String authFilterName = AuthenticationFilterInitializer.class.getName();
+    String initializers = conf.getTrimmed("hadoop.http.filter.initializers");
+    // prepend the AuthenticationFilterInitializer if needed
+    if (initializers == null || initializers.isEmpty()) {
+      initializers = authFilterName;
+    } else if (initializers.equals(StaticUserWebFilter.class.getName())) {
+      initializers = authFilterName + "," + initializers;
+    }
+    LOG.info("Using authentication filters: " + initializers);
+    conf.set("hadoop.http.filter.initializers", initializers);
+
     LOG.info("Instantiating NMWebApp at " + bindAddress);
     try {
       this.webApp =
           WebApps
             .$for("node", Context.class, this.nmContext, "ws")
             .at(bindAddress)
-            .with(getConfig())
+            .with(conf)
             .withHttpSpnegoPrincipalKey(
               YarnConfiguration.NM_WEBAPP_SPNEGO_USER_NAME_KEY)
             .withHttpSpnegoKeytabKey(
