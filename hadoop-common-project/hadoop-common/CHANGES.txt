@@ -1703,6 +1703,9 @@ Release 2.7.3 - UNRELEASED
     HADOOP-12185. NetworkTopology is not efficient adding/getting/removing
     nodes. (Inigo Goiri via cdouglas)
 
+    HADOOP-12173. NetworkTopology::add calls toString always.
+    (Inigo Goiri via cdouglas)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
