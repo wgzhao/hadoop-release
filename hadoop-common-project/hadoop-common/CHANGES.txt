@@ -97,6 +97,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12508. delete fails with exception when lease is held on blob.
     (Gaurav Kanade via cnauroth)
 
+    HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
+    multiple times (zhihai xu via vinayakumarb)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
