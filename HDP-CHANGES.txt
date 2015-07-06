@@ -3305,3 +3305,7 @@ ATS V1.5:
 
     YARN-5206. RegistrySecurity includes id:pass in exception text if considered
     invalid. Contributed by Steve Loughran
+
+    HADOOP-12185. NetworkTopology is not efficient adding/getting/removing nodes.
+    Contributed by Inigo Goiri.
+
