@@ -1696,6 +1696,9 @@ Release 2.7.3 - UNRELEASED
     HADOOP-12017. Hadoop archives command should use configurable replication
     factor when closing (Bibin A Chundatt via vinayakumarb)
 
+    HADOOP-12185. NetworkTopology is not efficient adding/getting/removing
+    nodes. (Inigo Goiri via cdouglas)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
