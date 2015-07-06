@@ -24,8 +24,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-34216. Support downgrade before finalize in Dal. (cnauroth)
 
-    HDFS-7890. Improve information on Top users for metrics in
-    RollingWindowsManager and lower log level. (J.Andreina via Vinayakumar B)
+    HDFS-7890. Improve information on Top users for metrics in RollingWindowsManager and lower log level. (J.Andreina via Vinayakumar B)
 
     BUG-39584. Fix cygwin variable in shell scripts which breaks RollingUpgrade.
     (Li Lu via jing9)
@@ -34,4 +33,60 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-39672. Fixed RM and JHS to always add AuthenticationFilterInitializer.
     (Jian He)
+
+    BUG-25680. Include custom version of Jetty 6 with bug fixes. Internal only patch.
+
+    HDFS-8229. LAZY_PERSIST file gets deleted after NameNode restart. (Contributed by Surendra Singh Lilhore)
+
+    HDFS-8276. LazyPersistFileScrubber should be disabled if scrubber interval configured zero. (Contributed by Surendra Singh Lilhore)
+
+    HDFS-8152. Refactoring of lazy persist storage cases. (Arpit Agarwal)
+
+    HDFS-8144. Split TestLazyPersistFiles into multiple tests. (Arpit Agarwal)
+
+    HDFS-8219. setStoragePolicy with folder behavior is different after cluster restart. (surendra singh lilhore via Xiaoyu Yao)
+
+    BUG-35876. nfs server does not respect --config paramater. (HADOOP-11898)
+
+    BUG-35227 - change service argument for JobHistoryServer from custom jobhistoryserver to upstream historyserver
+
+    HDFS-8232. Missing datanode counters when using Metrics2 sink interface. Contributed by Anu Engineer.
+
+    BUG-5700: Adding a similar kill script for SecondaryNameNode.
+
+    HDFS-8205. CommandFormat#parse() should not parse option as value of option. (Contributed by Peter Shi and Xiaoyu Yao)
+
+    Remove change marker from CHANGES.txt
+
+    HDFS-8211. DataNode UUID is always null in the JMX counter. (Contributed by Anu Engineer)
+
+    HDFS-7990. IBR delete ack should not be delayed. Contributed by Daryn Sharp. 
+
+    HDFS-7645. Fix CHANGES.txt
+
+    HDFS-7645. Rolling upgrade is restoring blocks from trash multiple times (Contributed by Vinayakumar B and Keisuke Ogiwara)
+
+    HDFS-8055. NullPointerException when topology script is missing. Contributed by Anu Engineer.
+
+    HDFS-7933. fsck should also report decommissioning replicas. Contributed by Xiaoyu Yao.
+
+    HDFS-6666. Abort NameNode and DataNode startup if security is enabled but block access token is not enabled. Contributed by Vijay Bhat.
+
+    HADOOP-11859. PseudoAuthenticationHandler fails with httpcomponents v4.4. Contributed by Eugene Koifman. 
+
+    HDFS-7701. Support reporting per storage type quota and usage with hadoop/hdfs shell. (Contributed by Peter Shi)
+   
+    HADOOP-7713. dfs -count -q should label output column (Jonathan Allen via aw)
+   
+    BUG-34858 RM does not start up on Windows
+   
+    BUG-33625 RM http and https use conflicting port.
+   
+    BUG-34526 Dal MSI failed to install when HA is enabled
+   
+    HDFS-8008. Support client-side back off when the datanodes are congested. Contributed by Haohui Mai.
+    
+    HDFS-8009. Signal congestion on the DataNode. Contributed by Haohui Mai.
+   
+    Remove old reference to Azure SDK 0.6.0.
 
