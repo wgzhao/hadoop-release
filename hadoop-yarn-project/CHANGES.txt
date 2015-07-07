@@ -263,6 +263,9 @@ Release 2.8.0 - UNRELEASED
 
     YARN-4347. Resource manager fails with Null pointer exception. (Jian He via wangda)
 
+    YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7.
+    (Wei Yan via vvasudev)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
