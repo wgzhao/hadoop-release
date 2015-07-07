@@ -10,10 +10,142 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
    BUG-26128/YARN-2571 RM to support YARN registry
 
+    YARN-3345. Add non-exclusive node label API. (Wangda Tan via jianhe)
+
+    YARN-3365. Enhanced NodeManager to support using the 'tc' tool via
+    container-executor for outbound network traffic control. (Sidharta Seethana
+    via vinodkv)
+
+    YARN-1376. NM need to notify the log aggregation status to RM through 
+    heartbeat. (Xuan Gong via junping_du)
+
+    YARN-3348. Add a 'yarn top' tool to help understand cluster usage. (Varun
+    Vasudev via jianhe)
+
+    YARN-3347. Improve YARN log command to get AMContainer logs as well as 
+    running containers logs. (Xuan Gong via junping_du)
+
+    YARN-3443. Create a 'ResourceHandler' subsystem to ease addition of support 
+    for new resource types on the NM. (Sidharta Seethana via junping_du)
+
+    YARN-3361. CapacityScheduler side changes to support non-exclusive node
+    labels. (Wangda Tan via jianhe)
+
+    YARN-3318. Create Initial OrderingPolicy Framework and FifoOrderingPolicy.
+    (Craig Welch via wangda)
+
+    YARN-3326. Support RESTful API for getLabelsToNodes. (Naganarasimha G R
+    via ozawa)
+
+    YARN-3354. Add node label expression in ContainerTokenIdentifier to support
+    RM recovery. (Wangda Tan via jianhe)
+
+    YARN-1402. Update related Web UI and CLI with exposing client API to check
+    log aggregation status. (Xuan Gong via junping_du)
+
+    YARN-3463. Integrate OrderingPolicy Framework with CapacityScheduler.
+    (Craig Welch via wangda)
+
+    YARN-3410. YARN admin should be able to remove individual application 
+    records from RMStateStore. (Rohith Sharmaks via wangda)
+
+    YARN-3225. New parameter of CLI for decommissioning node gracefully in 
+    RMAdmin CLI. (Devaraj K via junping_du)
+
+    YARN-3366. Enhanced NodeManager to support classifying/shaping outgoing
+    network bandwidth traffic originating from YARN containers (Sidharta Seethana
+    via vinodkv)
+
+    YARN-3319. Implement a FairOrderingPolicy. (Craig Welch via wangda)
+
+    YARN-2498. Respect labels in preemption policy of capacity scheduler for
+    inter-queue preemption. (Wangda Tan via jianhe)
+
+    YARN-2619. Added NodeManager support for disk io isolation through cgroups.
+    (Varun Vasudev and Wei Yan via vinodkv)
+
+    YARN-3448. Added a rolling time-to-live LevelDB timeline store implementation.
+    (Jonathan Eagles via zjshen)
+
+    YARN-3541. Add version info on timeline service / generic history web UI
+    and REST API. (Zhijie Shen via xgong)
+
+    YARN-3505. Node's Log Aggregation Report with SUCCEED should not cached in 
+    RMApps. (Xuan Gong via junping_du)  
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
     queues are full. (Ming Ma via Arpit Agarwal)
+
+    YARN-1880. Cleanup TestApplicationClientProtocolOnHA
+    (ozawa via harsh)
+
+    YARN-3243. CapacityScheduler should pass headroom from parent to children
+    to make sure ParentQueue obey its capacity limits. (Wangda Tan via jianhe)
+
+    YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to
+    track used-resources-by-label. (Wangda Tan via jianhe)
+
+    YARN-2868. FairScheduler: Metric for latency to allocate first container 
+    for an application. (Ray Chiang via kasha)
+
+    YARN-3397. yarn rmadmin should skip -failover. (J.Andreina via kasha)
+
+    YARN-2495. Allow admin specify labels from each NM (Distributed 
+    configuration for node label). (Naganarasimha G R via wangda)
+
+    YARN-3248. Display count of nodes blacklisted by apps in the web UI.
+    (Varun Vasudev via xgong)
+
+    YARN-2901. Add errors and warning metrics page to RM, NM web UI. 
+    (Varun Vasudev via wangda)
+
+    YARN-3294. Allow dumping of Capacity Scheduler debug logs via
+    web UI for a fixed time period. (Varun Vasudev via xgong)
+
+    YARN-3293. Track and display capacity scheduler health metrics
+    in web UI. (Varun Vasudev via xgong)
+
+    YARN-3394. Enrich WebApplication proxy documentation. (Naganarasimha G R
+    via jianhe)
+
+    YARN-3404. Display queue name on application page. (Ryu Kobayashi via jianhe)
+
+    YARN-2696. Queue sorting in CapacityScheduler should consider node label.
+    (Wangda Tan via jianhe)
+
+    YARN-3451. Display attempt start time and elapsed time on the web UI.
+    (Rohith Sharmaks via jianhe)
+
+    YARN-3494. Expose AM resource limit and usage in CS QueueMetrics. (Rohith
+    Sharmaks via jianhe)
+
+    YARN-3503. Expose disk utilization percentage and bad local and log dir 
+    counts in NM metrics. (Varun Vasudev via jianhe)
+
+    YARN-3511. Add errors and warnings page to ATS. (Varun Vasudev via xgong)
+
+    YARN-3406. Display count of running containers in the RM's Web UI.
+    (Ryu Kobayashi via ozawa)
+
+    YARN-3593. Add label-type and Improve "DEFAULT_PARTITION" in Node Labels Page. 
+    (Naganarasimha G R via wangda)
+
+    YARN-3362. Add node label usage in RM CapacityScheduler web UI.
+    (Naganarasimha G R via wangda)
+
+    YARN-3565. NodeHeartbeatRequest/RegisterNodeManagerRequest should use 
+    NodeLabel object instead of String. (Naganarasimha G R via wangda)
+
+    YARN-3583. Support of NodeLabel object instead of plain String 
+    in YarnClient side. (Sunil G via wangda)
+
+    YARN-3581. Deprecate -directlyAccessNodeLabelStore in RMAdminCLI. 
+    (Naganarasimha G R via wangda)
+
+    YARN-3700. Made generic history service load a number of latest applications
+    according to the parameter or the configuration. (Xuan Gong via zjshen)
 
   BUG FIXES
 
@@ -90,3 +222,69 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
    
     Remove old reference to Azure SDK 0.6.0.
 
+    YARN-3305. Normalize AM resource request on app submission. (Rohith Sharmaks
+    via jianhe)
+
+    YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to 
+    fully qualified path. (Xuan Gong via junping_du)
+
+    YARN-3383. AdminService should use "warn" instead of "info" to log exception 
+    when operation fails. (Li Lu via wangda)
+
+    YARN-3425. NPE from RMNodeLabelsManager.serviceStop when 
+    NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
+
+    YARN-3435. AM container to be allocated Appattempt AM container shown as null.
+    (Bibin A Chundatt via xgong)
+
+    YARN-2666. TestFairScheduler.testContinuousScheduling fails Intermittently.
+    (Zhihai Xu via ozawa)
+
+    YARN-3110. Few issues in ApplicationHistory web ui. (Naganarasimha G R via xgong)
+
+    YARN-3459. Fix failiure of TestLog4jWarningErrorMetricsAppender.
+    (Varun Vasudev via wangda)
+
+    YARN-3266. RMContext#inactiveNodes should have NodeId as map key.
+    (Chengbing Liu via jianhe)
+
+    YARN-3136. Fixed a synchronization problem of
+    AbstractYarnScheduler#getTransferredContainers. (Sunil G via jianhe)
+
+    YARN-3387. Previous AM's container completed status couldn't pass to current
+    AM if AM and RM restarted during the same time. (sandflee via jianhe)
+
+    YARN-3530. ATS throws exception on trying to filter results without otherinfo.
+    (zhijie shen via xgong)
+
+    YARN-2740. Fix NodeLabelsManager to properly handle node label modifications 
+    when distributed node label configuration enabled. (Naganarasimha G R via wangda)
+
+    YARN-3517. RM web ui for dumping scheduler logs should be for admins only
+    (Varun Vasudev via tgraves)
+
+    YARN-3343. Increased TestCapacitySchedulerNodeLabelUpdate#testNodeUpdate
+    timeout. (Rohith Sharmaks via jianhe)
+
+    YARN-2821. Fixed a problem that DistributedShell AM may hang if restarted.
+    (Varun Vasudev via jianhe)
+
+    YARN-3654. ContainerLogsPage web UI should not have meta-refresh. (Xuan Gong
+    via jianhe)
+
+    YARN-3552. RM Web UI shows -1 running containers for completed apps
+    (Rohith via jlowe)
+
+    YARN-3580. [JDK8] TestClientRMService.testGetLabelsToNodes fails. (Robert Kanter
+    via junping_du)
+
+    YARN-3707. RM Web UI queue filter doesn't work. (Wangda Tan via jianhe)
+
+    YARN-3632. Ordering policy should be allowed to reorder an application when
+    demand changes. (Craig Welch via jianhe)
+
+    YARN-2821. Fixed a problem that DistributedShell AM may hang if restarted.
+    (Varun Vasudev via jianhe)
+
+    YARN-3740. Fixed the typo in the configuration name:
+    APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
