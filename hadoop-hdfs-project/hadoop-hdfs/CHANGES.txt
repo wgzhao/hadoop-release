@@ -243,6 +243,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8097. TestFileTruncate is failing intermittently. (Contributed by Rakesh R)
 
+    HDFS-8729. Fix TestFileTruncate#testTruncateWithDataNodesRestartImmediately
+    which occasionally failed. (Walter Su via jing9)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

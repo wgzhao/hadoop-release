@@ -856,3 +856,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HADOOP-10406. TestIPC.testIpcWithReaderQueuing may fail. Contributed by Xiao Chen.
 
+    HDFS-8729. Fix TestFileTruncate#testTruncateWithDataNodesRestartImmediately
+    which occasionally failed. (Walter Su via jing9)
