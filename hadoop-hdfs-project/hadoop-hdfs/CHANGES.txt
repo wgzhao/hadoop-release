@@ -6,8 +6,6 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
-    HDFS-6673. Add delimited format support to PB OIV tool. (Eddy Xu via wang)
-
   IMPROVEMENTS
 
   OPTIMIZATIONS
@@ -26,6 +24,8 @@ Release 2.7.0
     HDFS-3107. Introduce truncate. (Plamen Jeliazkov via shv)
 
     HDFS-7056. Snapshot support for truncate. (Plamen Jeliazkov and shv)
+
+    HDFS-6673. Add delimited format support to PB OIV tool. (Eddy Xu via wang)
 
     HDFS-7655. Expose truncate API for Web HDFS. (yliu)
 
