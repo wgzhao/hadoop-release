@@ -72,7 +72,7 @@
 
     <zookeeper.version>3.4.6</zookeeper.version>
 
-    <tomcat.version>6.0.41</tomcat.version>
+    <tomcat.version>6.0.44</tomcat.version>
   </properties>
 
   <dependencyManagement>
