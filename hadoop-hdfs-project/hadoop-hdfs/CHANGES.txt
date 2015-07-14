@@ -32,6 +32,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-4396. Add START_MSG/SHUTDOWN_MSG for ZKFC
     (Liang Xie via harsh)
 
+    HDFS-7608: hdfs dfsclient newConnectedPeer has no write
+    timeout (Xiaoyu Yao via Colin P. McCabe)
+
+
   OPTIMIZATIONS
 
   BUG FIXES
