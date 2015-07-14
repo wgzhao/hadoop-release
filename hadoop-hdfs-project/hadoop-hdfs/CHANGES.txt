@@ -81,6 +81,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows.
     (Kiran Kumar M R via Xiaoyu Yao)
 
+    HDFS-7608: hdfs dfsclient newConnectedPeer has no
+    write timeout (Xiaoyu Yao via Colin P. McCabe)
+
     HDFS-6945. BlockManager should remove a block from excessReplicateMap and
     decrement ExcessBlocks metric when the block is removed. (aajisaka)
 
