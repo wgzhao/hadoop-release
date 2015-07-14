@@ -291,3 +291,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     YARN-2019/EAR-1682. Retrospect on decision of making RM crashed if any
     exception throw in ZKRMStateStore.
+
+    HDFS-8722. Optimize datanode writes for small writes and flushes.
+    (Contributed by Kihwal Lee)
+
