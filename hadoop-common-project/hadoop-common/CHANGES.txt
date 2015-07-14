@@ -154,6 +154,9 @@ Release 2.7.2 - UNRELEASED
     HADOOP-12213. Interrupted exception can occur when Client#stop is called.
     (Kuhu Shukla via ozawa)
 
+    HADOOP-12191. Bzip2Factory is not thread safe. (Brahma Reddy Battula
+    via ozawa)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
