@@ -245,3 +245,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HADOOP-12073. Azure FileSystem PageBlobInputStream does not return -1 on
     EOF. (Ivan Mitic via cnauroth)
+
+    HDFS-8767. RawLocalFileSystem.listStatus() returns null for UNIX pipefile.
+    (kanaka kumar avvaru via wheat9)
+
