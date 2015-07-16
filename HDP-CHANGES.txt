@@ -220,3 +220,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7587 [BUG-35869]. Edit log corruption can happen if append fails with
     a quota violation. (Rewrite of HDFS-7587 fix for 2.2. jing9 via
     Arpit Agarwal)
+
+    HDFS-8767. RawLocalFileSystem.listStatus() returns null for UNIX pipefile.
+    (kanaka kumar avvaru via wheat9)
