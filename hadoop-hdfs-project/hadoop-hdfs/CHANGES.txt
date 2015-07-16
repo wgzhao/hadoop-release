@@ -124,6 +124,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-5323. Trash documentation should describe its directory structure and
     configurations. (Weiwei Yang via ozawa)
 
+    HDFS-7314. When the DFSClient lease cannot be renewed, abort open-for-write
+    files rather than the entire DFSClient. (mingma)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
