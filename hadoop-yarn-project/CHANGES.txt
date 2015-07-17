@@ -227,6 +227,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4761. NMs reconnecting with changed capabilities can lead to wrong cluster
     resource calculations on fair scheduler. (Sangjin Lee via zxu)
 
+    YARN-3844. Make hadoop-yarn-project Native code -Wall-clean (Alan Burlison
+    via Colin P. McCabe)
+
     YARN-3722. Merge multiple TestWebAppUtils into o.a.h.yarn.webapp.util.TestWebAppUtils.
     (Masatake Iwasaki via devaraj)
 
