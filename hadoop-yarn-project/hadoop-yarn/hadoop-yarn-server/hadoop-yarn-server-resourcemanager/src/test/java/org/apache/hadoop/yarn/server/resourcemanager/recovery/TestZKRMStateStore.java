@@ -20,6 +20,8 @@ package org.apache.hadoop.yarn.server.resourcemanager.recovery;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +55,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.ResourceManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.ApplicationAttemptStateData;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.ApplicationStateData;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptMetrics;
@@ -267,22 +270,19 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
 
     long finishTime = submitTime + 1000;
     // Update attempt
-    ApplicationAttemptStateData newAttemptState =
-      ApplicationAttemptStateData.newInstance(attemptId, container,
-            store.getCredentialsFromAppAttempt(mockAttempt),
-            startTime, RMAppAttemptState.FINISHED, "testUrl", 
-            "test", FinalApplicationStatus.SUCCEEDED, 100, 
-            finishTime, 0, 0);
+
+    RMStateStore.ApplicationAttemptState newAttemptState = mock(
+        RMStateStore.ApplicationAttemptState.class);
     store.updateApplicationAttemptState(newAttemptState);
     assertEquals("RMStateStore should have been in fenced state",
             true, store.isFencedState());
 
     // Update app
-    ApplicationStateData appState = ApplicationStateData.newInstance(submitTime, 
-            startTime, context, "test");
+    RMStateStore.ApplicationState
+        appState = new RMStateStore.ApplicationState(123, 123, null, "user");
     store.updateApplicationState(appState);
-    assertEquals("RMStateStore should have been in fenced state",
-            true, store.isFencedState());
+    assertEquals("RMStateStore should have been in fenced state", true,
+        store.isFencedState());
 
     // Remove app
     store.removeApplication(mockApp);
@@ -348,9 +348,8 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
     ApplicationSubmissionContext context =
         new ApplicationSubmissionContextPBImpl();
     context.setApplicationId(appIdRemoved);
-    ApplicationStateData appStateRemoved =
-        ApplicationStateData.newInstance(
-            submitTime, startTime, context, "user1");
+    RMStateStore.ApplicationState
+        appStateRemoved = new RMStateStore.ApplicationState(123, 123, context, "user");
     appStateRemoved.attempts.put(attemptIdRemoved, null);
     store.removeApplicationStateInternal(appStateRemoved);
     try {

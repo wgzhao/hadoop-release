@@ -1,8 +1,44 @@
 Hadoop YARN Change Log
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Release 2.7.1 - UNRELEASED
+=======
+Release 2.7.2 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+    YARN-3170. YARN architecture document needs updating. (Brahma Reddy Battula
+    via ozawa)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    YARN-3793. Several NPEs when deleting local files on NM recovery (Varun
+    Saxena via jlowe)
+
+    YARN-3508. Prevent processing preemption events on the main RM dispatcher. 
+    (Varun Saxena via wangda)
+
+    YARN-3690. [JDK8] 'mvn site' fails. (Brahma Reddy Battula via aajisaka)
+
+    YARN-3905. Application History Server UI NPEs when accessing apps run after
+    RM restart (Eric Payne via jeagles)
+
+    YARN-3535. Scheduler must re-request container resources when RMContainer transitions
+    from ALLOCATED to KILLED (rohithsharma and peng.zhang via asuresh)
+
+    YARN-3878. AsyncDispatcher can hang while stopping if it is configured for
+    draining events on stop. (Varun Saxena via jianhe)
+
+Release 2.7.1 - 2015-07-06 
+>>>>>>> 65af0df... YARN-3878. AsyncDispatcher can hang while stopping if it is configured for draining events on stop. Contributed by Varun Saxena
 
   INCOMPATIBLE CHANGES
 
