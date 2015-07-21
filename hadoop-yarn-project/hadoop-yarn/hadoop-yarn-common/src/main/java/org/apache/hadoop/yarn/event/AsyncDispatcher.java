@@ -18,13 +18,7 @@
 
 package org.apache.hadoop.yarn.event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
@@ -33,6 +27,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.util.ShutdownHookManager;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Dispatches {@link Event}s in a separate thread. Currently only single thread
@@ -243,6 +244,9 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
         if (!stopped) {
           LOG.warn("AsyncDispatcher thread interrupted", e);
         }
+        // Need to reset drained flag to true if event queue is empty,
+        // otherwise dispatcher will hang on stop.
+        drained = eventQueue.isEmpty();
         throw new YarnRuntimeException(e);
       }
     };
@@ -251,7 +255,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
   /**
    * Multiplexing an event. Sending it to different handlers that
    * are interested in the event.
-   * @param <T> the type of event these multiple handlers are interested in.
+   * @param <> the type of event these multiple handlers are interested in.
    */
   static class MultiListenerHandler implements EventHandler<Event> {
     List<EventHandler<Event>> listofHandlers;
@@ -281,5 +285,15 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
         System.exit(-1);
       }
     };
+  }
+
+  @VisibleForTesting
+  protected boolean isEventThreadWaiting() {
+    return eventHandlingThread.getState() == Thread.State.WAITING;
+  }
+
+  @VisibleForTesting
+  protected boolean isDrained() {
+    return this.drained;
   }
 }
