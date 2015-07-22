@@ -80,11 +80,11 @@ final class FSDirTruncateOp {
     try {
       src = fsd.resolvePath(pc, srcArg, pathComponents);
       iip = fsd.getINodesInPath4Write(src, true);
-      if (fsn.isPermissionEnabled()) {
+      if (fsd.isPermissionEnabled()) {
         fsd.checkPathAccess(pc, iip, FsAction.WRITE);
       }
       INodeFile file = INodeFile.valueOf(iip.getLastINode(), src);
-      final BlockStoragePolicy lpPolicy = fsn.getBlockManager()
+      final BlockStoragePolicy lpPolicy = fsd.getBlockManager()
           .getStoragePolicy("LAZY_PERSIST");
 
       if (lpPolicy != null && lpPolicy.getId() == file.getStoragePolicyID()) {
@@ -179,7 +179,7 @@ final class FSDirTruncateOp {
           "Should be the same block.";
       if (oldBlock.getBlockId() != tBlk.getBlockId()
           && !file.isBlockInLatestSnapshot(oldBlock)) {
-        fsn.getBlockManager().removeBlockFromMap(oldBlock);
+        fsd.getBlockManager().removeBlockFromMap(oldBlock);
       }
     }
     assert onBlockBoundary == (truncateBlock == null) :
@@ -243,8 +243,7 @@ final class FSDirTruncateOp {
           truncatedBlockUC.getNumBytes(), newBlock, oldBlock);
     } else {
       // Use new generation stamp for in-place truncate recovery
-      fsn.getBlockManager().convertLastBlockToUnderConstruction(file,
-          lastBlockDelta);
+      blockManager.convertLastBlockToUnderConstruction(file, lastBlockDelta);
       oldBlock = file.getLastBlock();
       assert !oldBlock.isComplete() : "oldBlock should be under construction";
       BlockUnderConstructionFeature uc = oldBlock.getUnderConstructionFeature();

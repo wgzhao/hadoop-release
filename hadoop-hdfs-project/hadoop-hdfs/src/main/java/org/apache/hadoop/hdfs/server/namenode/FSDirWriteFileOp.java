@@ -425,7 +425,7 @@ class FSDirWriteFileOp {
       fsd.setFileEncryptionInfo(src, feInfo);
       newNode = fsd.getInode(newNode.getId()).asFile();
     }
-    setNewINodeStoragePolicy(fsn.getBlockManager(), newNode, iip,
+    setNewINodeStoragePolicy(fsd.getBlockManager(), newNode, iip,
                              isLazyPersist);
     fsd.getEditLog().logOpenFile(src, newNode, overwrite, logRetryEntry);
     if (NameNode.stateChangeLog.isDebugEnabled()) {
