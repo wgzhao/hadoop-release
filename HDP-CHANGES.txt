@@ -288,3 +288,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     YARN-3740. Fixed the typo in the configuration name:
     APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
+
+    YARN-2019/EAR-1682. Retrospect on decision of making RM crashed if any
+    exception throw in ZKRMStateStore.
