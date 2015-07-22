@@ -130,6 +130,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-10406. TestIPC.testIpcWithReaderQueuing may fail. (Xiao Chen via wang)
 
+    HADOOP-12017. Hadoop archives command should use configurable replication
+    factor when closing (Bibin A Chundatt via vinayakumarb)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

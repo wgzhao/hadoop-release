@@ -890,3 +890,5 @@ ATS V1.5:
 
     MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
 
+    BUG-71594. HADOOP-12017. Hadoop archives command should use configurable replication
+    factor when closing (Contributed by Bibin A Chundatt)
