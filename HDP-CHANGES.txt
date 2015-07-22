@@ -104,7 +104,6 @@ by CHANGES.txt.
     HDFS-10397. Distcp should ignore -delete option if -diff option is provided
     instead of exiting. (Mingliang Liu via Jing Zhao)
 
-<<<<<<< HEAD
     BUG-70505. HADOOP-12738. Create unit test to automatically compare Common
     related classes and core-default.xml. Contributed by Ray Chiang.
 
@@ -3357,8 +3356,11 @@ ATS V1.5:
     HDFS-6763. Initialize file system-wide quota once on transitioning to active
     (kihwal)
 
-    BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit should deduct reserved from pending to avoid 
+    BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit should deduct reserved from pending to avoid
     unnecessary preemption of reserved container. (Wangda Tan)
 
     BUG-73684/YARN-6123. Add a test to make sure queues of orderingPolicy will be updated when childQueues is added or removed.
     (Wangda Tan)
+
+    HADOOP-12017. Hadoop archives command should use configurable replication
+    factor when closing (Bibin A Chundatt via vinayakumarb)

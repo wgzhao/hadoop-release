@@ -1693,6 +1693,9 @@ Release 2.7.3 - UNRELEASED
     HADOOP-12636. Prevent ServiceLoader failure init for unused FileSystems.
     (Inigo Goiri via cdouglas)
 
+    HADOOP-12017. Hadoop archives command should use configurable replication
+    factor when closing (Bibin A Chundatt via vinayakumarb)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
