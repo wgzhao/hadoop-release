@@ -140,6 +140,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9860. Backport HDFS-9638 to branch-2.7. (Wei-Chiu Chuang via aajisaka)
 
+    HDFS-8816. Improve visualization for the Datanode tab in the NN UI. (wheat9)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
