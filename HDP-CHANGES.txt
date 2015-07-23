@@ -1011,6 +1011,7 @@ ATS V1.5:
 
     BUG-53291. YARN-4737. Add CSRF filter support in YARN (Varun Vasudev via Jon Maron)
 
+<<<<<<< HEAD
     BUG-55570. YARN-4811. Generate histograms in ContainerMetrics for actual
     container resource usage
 
@@ -1208,3 +1209,6 @@ ATS V1.5:
 
     HDFS-10281. TestPendingCorruptDnMessages fails intermittently. Contributed by
     Mingliang Liu.
+
+    YARN-3941. Proportional Preemption policy should try to avoid sending duplicate 
+    PREEMPT_CONTAINER event to scheduler. (Sunil G via wangda)
