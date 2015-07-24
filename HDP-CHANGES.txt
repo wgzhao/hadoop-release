@@ -1686,3 +1686,5 @@ ATS V1.5:
     testAppKilledKilled. (Takashi Ohnishi via rohithsharmaks)
 
     BUG-62180. YARN-3433. Jersey tests failing with Port in Use -again. (Brahma Reddy Battula)
+
+    BUG-62180. HADOOP-12259. Utility to Dynamic port allocation (brahmareddy via rkanter)
