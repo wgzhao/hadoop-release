@@ -1209,3 +1209,6 @@ ATS V1.5:
 
     YARN-3941. Proportional Preemption policy should try to avoid sending duplicate 
     PREEMPT_CONTAINER event to scheduler. (Sunil G via wangda)
+
+    YARN-3026. Move application-specific container allocation logic from LeafQueue 
+    to FiCaSchedulerApp. Contributed by Wangda Tan
