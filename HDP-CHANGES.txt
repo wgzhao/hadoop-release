@@ -257,3 +257,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2019/EAR-1682. Retrospect on decision of making RM crashed if any
     exception throw in ZKRMStateStore.
+    Contributed by Rohith Sharma K S
+
+    YARN-3487. CapacityScheduler scheduler lock obtained unnecessarily 
+    when calling getQueue. Contributed by Jason Lowe.
