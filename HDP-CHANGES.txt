@@ -561,3 +561,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-47201. Fix Debian build break in DNS.java (Arpit Agarwal)
 
+    BUG-47467. HDFS-8785. TestDistributedFileSystem is failing in trunk.
+    (Xiaoyu Yao)
+
