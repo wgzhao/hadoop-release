@@ -143,6 +143,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9384. TestWebHdfsContentLength intermittently hangs and fails due to
     TCP conversation mismatch between client and server. (cnauroth)
 
+    HDFS-8785. TestDistributedFileSystem is failing in trunk. (xyao)
+
 Release 2.7.2
 
   INCOMPATIBLE CHANGES
