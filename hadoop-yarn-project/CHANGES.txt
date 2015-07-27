@@ -101,6 +101,9 @@ Release 2.8.0 - UNRELEASED
     command line. (Inigo Goiri, Kenji Kikushima and Junping Du 
     via junping_du)
 
+    YARN-3852. Add docker container support to container-executor
+    (Abin Shahab via vvasudev)
+
   IMPROVEMENTS
 
     YARN-1880. Cleanup TestApplicationClientProtocolOnHA
