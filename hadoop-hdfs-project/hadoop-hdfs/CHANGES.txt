@@ -76,6 +76,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
 
+    HDFS-7858. Improve HA Namenode Failover detection on the client.
+    (Arun Suresh)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
