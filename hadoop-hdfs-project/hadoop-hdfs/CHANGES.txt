@@ -49,6 +49,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8797. WebHdfsFileSystem creates too many connections for pread. (jing9)
 
+    HDFS-8180. AbstractFileSystem Implementation for WebHdfs. (snayak via jghoman)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
