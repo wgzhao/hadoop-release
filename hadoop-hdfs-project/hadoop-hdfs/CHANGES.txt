@@ -117,6 +117,8 @@ Release 2.7.1
 
     HDFS-8797. WebHdfsFileSystem creates too many connections for pread. (jing9)
 
+    HDFS-8180. AbstractFileSystem Implementation for WebHdfs. (snayak via jghoman)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES
