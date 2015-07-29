@@ -55,7 +55,7 @@ public abstract class BlockListAsLongs implements Iterable<BlockReportReplica> {
     }
     @Override
     public Iterator<BlockReportReplica> iterator() {
-      return Collections.emptyIterator();
+      return Collections.<BlockReportReplica>emptyList().iterator();
     }
   };
 
