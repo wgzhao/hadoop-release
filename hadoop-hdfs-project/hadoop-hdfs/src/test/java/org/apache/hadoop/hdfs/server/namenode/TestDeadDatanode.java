@@ -32,6 +32,7 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockManagerTestUtil;
 import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeDescriptor;
+import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.apache.hadoop.hdfs.server.protocol.BlockReportContext;
@@ -131,7 +132,7 @@ public class TestDeadDatanode {
     // Ensure blockReport from dead datanode is rejected with IOException
     StorageBlockReport[] report = { new StorageBlockReport(
         new DatanodeStorage(reg.getDatanodeUuid()),
-        new long[] { 0L, 0L, 0L }) };
+        BlockListAsLongs.EMPTY) };
     try {
       dnp.blockReport(reg, poolId, report,
           new BlockReportContext(1, 0, System.nanoTime()));
