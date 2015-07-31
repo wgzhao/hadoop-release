@@ -11,6 +11,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
     in more rolling upgrade use cases. (cnauroth)
 
+    HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
+
   OPTIMIZATIONS
 
   BUG FIXES
