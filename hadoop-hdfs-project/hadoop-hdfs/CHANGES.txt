@@ -54,6 +54,8 @@ Release 2.7.0
 
     HDFS-7712. Switch blockStateChangeLog to use slf4j. (wang)
 
+    HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
+
   OPTIMIZATIONS
 
   BUG FIXES
