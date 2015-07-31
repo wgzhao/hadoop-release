@@ -506,6 +506,9 @@ Release 2.7.2 - UNRELEASED
     YARN-2890. MiniYarnCluster should turn on timeline service if configured to
     do so. Contributed by Mit Desai.
 
+    YARN-3990. AsyncDispatcher may overloaded with RMAppNodeUpdateEvent when
+    Node is connected/disconnected (Bibin A Chundatt via jlowe)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
