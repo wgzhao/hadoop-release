@@ -193,6 +193,7 @@ public class TestFifoScheduler {
     rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
     rmContext.setRMApplicationHistoryWriter(
         mock(RMApplicationHistoryWriter.class));
+    ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
 
 
     FifoScheduler scheduler = new FifoScheduler();
@@ -272,6 +273,7 @@ public class TestFifoScheduler {
     };
     rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
     rmContext.setRMApplicationHistoryWriter(mock(RMApplicationHistoryWriter.class));
+    ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
 
     scheduler.setRMContext(rmContext);
     scheduler.init(conf);
