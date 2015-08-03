@@ -145,6 +145,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4149. yarn logs -am should provide an option to fetch all the log files
     (Varun Vasudev via xgong)
 
+    YARN-3978. Configurably turn off the saving of container info in Generic AHS
+    (Eric Payne via jeagles)
+
   OPTIMIZATIONS
 
   BUG FIXES
