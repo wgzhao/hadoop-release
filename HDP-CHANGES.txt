@@ -1223,3 +1223,6 @@ ATS V1.5:
 
     YARN-1462. AHS API and other AHS changes to handle tags for completed MR jobs. 
     Contributed by Xuan Gong
+
+    YARN-3543. ApplicationReport should be able to tell whether the
+    Application is AM managed or not. Contributed by Rohith Sharma K S

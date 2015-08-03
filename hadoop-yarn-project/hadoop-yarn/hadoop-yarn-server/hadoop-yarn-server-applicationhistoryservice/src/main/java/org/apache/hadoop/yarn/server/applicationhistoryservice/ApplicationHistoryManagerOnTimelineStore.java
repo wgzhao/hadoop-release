@@ -244,6 +244,7 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
     String queue = null;
     String name = null;
     String type = null;
+    boolean unmanagedApplication = false;
     long createdTime = 0;
     long finishedTime = 0;
     float progress = 0.0f;
@@ -274,7 +275,8 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
             ConverterUtils.toApplicationId(entity.getEntityId()),
             latestApplicationAttemptId, user, queue, name, null, -1, null, state,
             diagnosticsInfo, null, createdTime, finishedTime, finalStatus, null,
-            null, progress, type, null, appTags), appViewACLs);
+            null, progress, type, null, appTags,
+            unmanagedApplication), appViewACLs);
       }
       if (entityInfo.containsKey(ApplicationMetricsConstants.QUEUE_ENTITY_INFO)) {
         queue =
@@ -290,6 +292,13 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
         type =
             entityInfo.get(ApplicationMetricsConstants.TYPE_ENTITY_INFO)
                 .toString();
+      }
+      if (entityInfo
+          .containsKey(ApplicationMetricsConstants.UNMANAGED_APPLICATION_ENTITY_INFO)) {
+        unmanagedApplication =
+            Boolean.parseBoolean(entityInfo.get(
+                ApplicationMetricsConstants.UNMANAGED_APPLICATION_ENTITY_INFO)
+                .toString());
       }
       if (entityInfo.containsKey(ApplicationMetricsConstants.APP_CPU_METRICS)) {
         long vcoreSeconds=Long.parseLong(entityInfo.get(
@@ -363,7 +372,7 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
         ConverterUtils.toApplicationId(entity.getEntityId()),
         latestApplicationAttemptId, user, queue, name, null, -1, null, state,
         diagnosticsInfo, null, createdTime, finishedTime, finalStatus, appResources,
-        null, progress, type, null, appTags), appViewACLs);
+        null, progress, type, null, appTags, unmanagedApplication), appViewACLs);
   }
 
   private static ApplicationAttemptReport convertToApplicationAttemptReport(

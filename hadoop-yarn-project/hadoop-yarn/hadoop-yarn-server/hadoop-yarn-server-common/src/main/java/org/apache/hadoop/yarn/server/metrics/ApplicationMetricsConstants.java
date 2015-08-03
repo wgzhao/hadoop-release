@@ -80,4 +80,7 @@ public class ApplicationMetricsConstants {
       "YARN_APPLICATION_CALLER_SIGNATURE";
 
   public static final String APP_TAGS_INFO = "YARN_APPLICATION_TAGS";
+
+  public static final String UNMANAGED_APPLICATION_ENTITY_INFO =
+      "YARN_APPLICATION_UNMANAGED_APPLICATION";
 }

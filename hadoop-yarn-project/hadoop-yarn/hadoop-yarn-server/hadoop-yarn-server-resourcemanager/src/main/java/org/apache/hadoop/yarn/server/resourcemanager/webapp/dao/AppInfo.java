@@ -98,6 +98,7 @@ public class AppInfo {
   protected List<ResourceRequest> resourceRequests;
 
   protected LogAggregationStatus logAggregationStatus;
+  protected boolean unmanagedApplication;
 
   public AppInfo() {
   } // JAXB needs this
@@ -187,6 +188,8 @@ public class AppInfo {
           appMetrics.getResourcePreempted().getVirtualCores();
       memorySeconds = appMetrics.getMemorySeconds();
       vcoreSeconds = appMetrics.getVcoreSeconds();
+      unmanagedApplication =
+          app.getApplicationSubmissionContext().getUnmanagedAM();
     }
   }
 
@@ -324,5 +327,9 @@ public class AppInfo {
 
   public LogAggregationStatus getLogAggregationStatus() {
     return this.logAggregationStatus;
+  }
+
+  public boolean isUnmanagedApp() {
+    return unmanagedApplication;
   }
 }

@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerState;
@@ -135,6 +136,12 @@ public class TestSystemMetricsPublisher {
       Assert.assertEquals(app.getQueue(),
           entity.getOtherInfo()
               .get(ApplicationMetricsConstants.QUEUE_ENTITY_INFO));
+
+      Assert.assertEquals(
+          app.getApplicationSubmissionContext().getUnmanagedAM(),
+          entity.getOtherInfo().get(
+              ApplicationMetricsConstants.UNMANAGED_APPLICATION_ENTITY_INFO));
+
       Assert
           .assertEquals(
               app.getUser(),
@@ -388,6 +395,9 @@ public class TestSystemMetricsPublisher {
     appTags.add("test");
     appTags.add("tags");
     when(app.getApplicationTags()).thenReturn(appTags);
+    ApplicationSubmissionContext asc = mock(ApplicationSubmissionContext.class);
+    when(asc.getUnmanagedAM()).thenReturn(false);
+    when(app.getApplicationSubmissionContext()).thenReturn(asc);
     return app;
   }
 

@@ -33,6 +33,7 @@ public class ApplicationCreatedEvent extends
   private String queue;
   private long submittedTime;
   private Set<String> appTags;
+  private boolean unmanagedApplication;
 
   private final CallerContext callerContext;
 
@@ -44,7 +45,8 @@ public class ApplicationCreatedEvent extends
       long submittedTime,
       long createdTime,
       CallerContext callerContext,
-      Set<String> appTags) {
+      Set<String> appTags,
+      boolean unmanagedApplication) {
     super(SystemMetricsEventType.APP_CREATED, createdTime);
     this.appId = appId;
     this.name = name;
@@ -54,6 +56,7 @@ public class ApplicationCreatedEvent extends
     this.submittedTime = submittedTime;
     this.callerContext = callerContext;
     this.appTags = appTags;
+    this.unmanagedApplication = unmanagedApplication;
   }
 
   @Override
@@ -91,5 +94,9 @@ public class ApplicationCreatedEvent extends
 
   public Set<String> getAppTags() {
     return appTags;
+  }
+
+  public boolean isUnmanagedApp() {
+    return unmanagedApplication;
   }
 }

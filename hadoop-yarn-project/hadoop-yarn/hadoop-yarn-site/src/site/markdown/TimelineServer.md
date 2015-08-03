@@ -1095,7 +1095,8 @@ Response Body:
           "submittedTime":1430425001004,
           "startedTime":1430425001004,
           "finishedTime":1430425008861,
-          "elapsedTime":7857},
+          "elapsedTime":7857,
+          "unmanagedApplication":"false"},
           {
           "appId":"application_1430424020775_0003",
           "currentAppAttemptId":"appattempt_1430424020775_0003_000001",
@@ -1114,7 +1115,8 @@ Response Body:
           "submittedTime":1430424956650,
           "startedTime":1430424956650,
           "finishedTime":1430424963907,
-          "elapsedTime":7257},
+          "elapsedTime":7257,
+          "unmanagedApplication":"false"},
           {
           "appId":"application_1430424020775_0002",
           "currentAppAttemptId":"appattempt_1430424020775_0002_000001",
@@ -1133,7 +1135,8 @@ Response Body:
           "submittedTime":1430424769395,
           "startedTime":1430424769395,
           "finishedTime":1430424776594,
-          "elapsedTime":7199},
+          "elapsedTime":7199,
+          "unmanagedApplication":"false"},
           {
           "appId":"application_1430424020775_0001",
           "currentAppAttemptId":"appattempt_1430424020775_0001_000001",
@@ -1153,7 +1156,8 @@ Response Body:
           "startedTime":1430424072153,
           "finishedTime":1430424776594,
           "elapsedTime":18344,
-          "applicationTags":"mrapplication,ta-example"
+          "applicationTags":"mrapplication,ta-example",
+          "unmanagedApplication":"false"
           }
       ]
     }
@@ -1195,6 +1199,7 @@ Response Body:
         <startedTime>1430425001004</startedTime>
         <finishedTime>1430425008861</finishedTime>
         <elapsedTime>7857</elapsedTime>
+        <unmanagedApplication>false</unmanagedApplication>
       </app>
       <app>
         <appId>application_1430424020775_0003</appId>
@@ -1215,6 +1220,7 @@ Response Body:
         <startedTime>1430424956650</startedTime>
         <finishedTime>1430424963907</finishedTime>
         <elapsedTime>7257</elapsedTime>
+        <unmanagedApplication>false</unmanagedApplication>
       </app>
       <app>
         <appId>application_1430424020775_0002</appId>
@@ -1235,6 +1241,7 @@ Response Body:
         <startedTime>1430424769395</startedTime>
         <finishedTime>1430424776594</finishedTime>
         <elapsedTime>7199</elapsedTime>
+        <unmanagedApplication>false</unmanagedApplication>
       </app>
       <app>
         <appId>application_1430424020775_0001</appId>
@@ -1256,6 +1263,7 @@ Response Body:
         <finishedTime>1430424072153</finishedTime>
         <elapsedTime>18344</elapsedTime>
         <applicationTags>mrapplication,ta-example</applicationTags>
+        <unmanagedApplication>false</unmanagedApplication>
       </app>
     </apps>
 
@@ -1306,6 +1314,7 @@ None
 | `host` | string | The host of the ApplicationMaster |
 | `rpcPort` | int | The RPC port of the ApplicationMaster; zero if no IPC service declared |
 | `applicationTags` | string | The application tags. |
+| `unmanagedApplication` | boolean | Is the application unmanaged. |
 
 ### Response Examples:
 
@@ -1342,7 +1351,8 @@ Response Body:
       "startedTime": 1430424053809,
       "finishedTime": 1430424072153,
       "elapsedTime": 18344,
-      "applicationTags": mrapplication,tag-example
+      "applicationTags": mrapplication,tag-example,
+      "unmanagedApplication":"false"
     }
 
 #### XML response
@@ -1381,6 +1391,7 @@ Response Body:
        <finishedTime>1430424072153</finishedTime>
        <elapsedTime>18344</elapsedTime>
        <applicationTags>mrapplication,ta-example</applicationTags>
+       <unmanagedApplication>false</unmanagedApplication>
      </app>
 
 ## <a name="REST_API_APPLICATION_ATTEMPT_LIST"></a>Application Attempt List
