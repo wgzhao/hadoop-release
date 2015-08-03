@@ -163,6 +163,9 @@ public class TestLeafQueue {
     cs.setRMContext(spyRMContext);
     cs.init(csConf);
     cs.start();
+
+    when(spyRMContext.getYarnConfiguration())
+        .thenReturn(new YarnConfiguration());
   }
   
   private static final String A = "a";
@@ -676,7 +679,7 @@ public class TestLeafQueue {
               TestUtils.getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 =
         new FiCaSchedulerApp(appAttemptId_0, user_0, qb,
-            qb.getActiveUsersManager(), rmContext);
+            qb.getActiveUsersManager(), spyRMContext);
     qb.submitApplicationAttempt(app_0, user_0);
     Priority u0Priority = TestUtils.createMockPriority(1);
     app_0.updateResourceRequests(Collections.singletonList(
@@ -699,7 +702,7 @@ public class TestLeafQueue {
         TestUtils.getMockApplicationAttemptId(2, 0);
     FiCaSchedulerApp app_2 =
         new FiCaSchedulerApp(appAttemptId_2, user_1, qb,
-            qb.getActiveUsersManager(), rmContext);
+            qb.getActiveUsersManager(), spyRMContext);
     Priority u1Priority = TestUtils.createMockPriority(2);
     app_2.updateResourceRequests(Collections.singletonList(
         TestUtils.createResourceRequest(ResourceRequest.ANY, 4*GB, 1, true,
@@ -733,12 +736,12 @@ public class TestLeafQueue {
         TestUtils.getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 =
         new FiCaSchedulerApp(appAttemptId_1, user_0, qb,
-            qb.getActiveUsersManager(), rmContext);
+            qb.getActiveUsersManager(), spyRMContext);
     final ApplicationAttemptId appAttemptId_3 =
         TestUtils.getMockApplicationAttemptId(3, 0);
     FiCaSchedulerApp app_3 =
         new FiCaSchedulerApp(appAttemptId_3, user_1, qb,
-            qb.getActiveUsersManager(), rmContext);
+            qb.getActiveUsersManager(), spyRMContext);
     app_1.updateResourceRequests(Collections.singletonList(
         TestUtils.createResourceRequest(ResourceRequest.ANY, 2*GB, 1, true,
             u0Priority, recordFactory)));
@@ -761,7 +764,7 @@ public class TestLeafQueue {
               TestUtils.getMockApplicationAttemptId(4, 0);
     FiCaSchedulerApp app_4 =
               new FiCaSchedulerApp(appAttemptId_4, user_0, qb,
-                      qb.getActiveUsersManager(), rmContext);
+                      qb.getActiveUsersManager(), spyRMContext);
     qb.submitApplicationAttempt(app_4, user_0);
     app_4.updateResourceRequests(Collections.singletonList(
               TestUtils.createResourceRequest(ResourceRequest.ANY, 6*GB, 1, true,

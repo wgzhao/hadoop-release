@@ -193,6 +193,7 @@ public class TestFifoScheduler {
         null, containerTokenSecretManager, nmTokenSecretManager, null, writer, null);
     ((RMContextImpl) rmContext).setSystemMetricsPublisher(
         mock(SystemMetricsPublisher.class));
+    ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
 
     FifoScheduler scheduler = new FifoScheduler();
     scheduler.setRMContext(rmContext);
@@ -272,6 +273,8 @@ public class TestFifoScheduler {
         return nodes;
       }
     };
+    ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
+
     scheduler.setRMContext(rmContext);
     scheduler.init(conf);
     scheduler.start();

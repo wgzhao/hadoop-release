@@ -77,6 +77,7 @@ public class TestReservations {
       .getRecordFactory(null);
 
   RMContext rmContext;
+  RMContext spyRMContext;
   CapacityScheduler cs;
   // CapacitySchedulerConfiguration csConf;
   CapacitySchedulerContext csContext;
@@ -132,7 +133,12 @@ public class TestReservations {
     root = CapacityScheduler.parseQueue(csContext, csConf, null,
         CapacitySchedulerConfiguration.ROOT, queues, queues, TestUtils.spyHook);
 
-    cs.setRMContext(rmContext);
+    spyRMContext = spy(rmContext);
+    when(spyRMContext.getScheduler()).thenReturn(cs);
+    when(spyRMContext.getYarnConfiguration())
+        .thenReturn(new YarnConfiguration());
+
+    cs.setRMContext(spyRMContext);
     cs.init(csConf);
     cs.start();
   }
@@ -212,14 +218,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
@@ -361,14 +367,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
@@ -506,14 +512,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
@@ -641,6 +647,7 @@ public class TestReservations {
     when(rmContext.getDispatcher()).thenReturn(drainDispatcher);
     when(rmContext.getRMApplicationHistoryWriter()).thenReturn(writer);
     when(rmContext.getSystemMetricsPublisher()).thenReturn(publisher);
+    when(rmContext.getYarnConfiguration()).thenReturn(new YarnConfiguration());
     ApplicationAttemptId appAttemptId = BuilderUtils.newApplicationAttemptId(
         app_0.getApplicationId(), 1);
     ContainerId containerId = BuilderUtils.newContainerId(appAttemptId, 1);
@@ -705,6 +712,7 @@ public class TestReservations {
     when(rmContext.getDispatcher()).thenReturn(drainDispatcher);
     when(rmContext.getRMApplicationHistoryWriter()).thenReturn(writer);
     when(rmContext.getSystemMetricsPublisher()).thenReturn(publisher);
+    when(rmContext.getYarnConfiguration()).thenReturn(new YarnConfiguration());
     ApplicationAttemptId appAttemptId = BuilderUtils.newApplicationAttemptId(
         app_0.getApplicationId(), 1);
     ContainerId containerId = BuilderUtils.newContainerId(appAttemptId, 1);
@@ -742,14 +750,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
@@ -916,14 +924,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
@@ -1042,14 +1050,14 @@ public class TestReservations {
     final ApplicationAttemptId appAttemptId_0 = TestUtils
         .getMockApplicationAttemptId(0, 0);
     FiCaSchedulerApp app_0 = new FiCaSchedulerApp(appAttemptId_0, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
 
     a.submitApplicationAttempt(app_0, user_0); 
 
     final ApplicationAttemptId appAttemptId_1 = TestUtils
         .getMockApplicationAttemptId(1, 0);
     FiCaSchedulerApp app_1 = new FiCaSchedulerApp(appAttemptId_1, user_0, a,
-        mock(ActiveUsersManager.class), rmContext);
+        mock(ActiveUsersManager.class), spyRMContext);
     a.submitApplicationAttempt(app_1, user_0); 
 
     // Setup some nodes
