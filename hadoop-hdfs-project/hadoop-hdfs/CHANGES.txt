@@ -122,6 +122,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
     Contributed by Anu Engineer.
 
+    HDFS-8850. VolumeScanner thread exits with exception if there is no block
+    pool to be scanned but there are suspicious blocks. (Colin Patrick McCabe
+    via yliu)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
