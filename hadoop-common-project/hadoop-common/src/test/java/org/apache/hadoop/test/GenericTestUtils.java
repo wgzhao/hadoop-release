@@ -43,6 +43,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -449,5 +450,15 @@ public abstract class GenericTestUtils {
         return !anyThreadMatching(pattern);
       }
     }, checkEveryMillis, waitForMillis);
+  }
+
+  /**
+   * Skip test if native build profile of Maven is not activated.
+   * Sub-project using this must set 'runningWithNative' property to true
+   * in the definition of native profile in pom.xml.
+   */
+  public static void assumeInNativeProfile() {
+    Assume.assumeTrue(
+        Boolean.valueOf(System.getProperty("runningWithNative", "false")));
   }
 }
