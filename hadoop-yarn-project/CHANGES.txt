@@ -227,6 +227,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3684. Changed ContainerExecutor's primary lifecycle methods to use a more
     extensible mechanism of context objects. (Sidharta Seethana via vinodkv)
 
+    YARN-4004. container-executor should print output of docker logs if the docker
+    container exits with non-0 exit status. (Varun Vasudev via xgong)
+
   OPTIMIZATIONS
 
   BUG FIXES
