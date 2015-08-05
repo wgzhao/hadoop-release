@@ -130,8 +130,8 @@ Release 2.7.2 - UNRELEASED
     HADOOP-12304. Applications using FileContext fail with the default file
     system configured to be wasb/s3/etc. (cnauroth)
 
-    HADOOP-12577. Bump up commons-collections version to 3.2.2 to address
-    a security flaw. (Wei-Chiu Chuang via vinodkv)
+    HADOOP-11932. MetricsSinkAdapter may hang  when being stopped.
+    (Brahma Reddy Battula via jianhe)
 
 Release 2.7.1 - 2015-07-06 
 
