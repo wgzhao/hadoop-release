@@ -261,3 +261,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3487. CapacityScheduler scheduler lock obtained unnecessarily 
     when calling getQueue. Contributed by Jason Lowe.
+
+    HDFS-8486. DN startup may cause severe data loss. Contributed by Daryn
+    Sharp.
+
