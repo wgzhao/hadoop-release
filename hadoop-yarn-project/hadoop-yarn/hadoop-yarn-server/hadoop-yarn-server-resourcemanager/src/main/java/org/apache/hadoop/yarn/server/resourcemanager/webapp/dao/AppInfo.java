@@ -74,7 +74,8 @@ public class AppInfo {
   protected long clusterId;
   protected String applicationType;
   protected String applicationTags = "";
-  
+  protected int priority;
+
   // these are only allowed if acls allow
   protected long startedTime;
   protected long finishedTime;
@@ -132,6 +133,11 @@ public class AppInfo {
       this.user = app.getUser().toString();
       this.name = app.getName().toString();
       this.queue = app.getQueue().toString();
+      this.priority = 0;
+      if (app.getApplicationSubmissionContext().getPriority() != null) {
+        this.priority = app.getApplicationSubmissionContext().getPriority()
+            .getPriority();
+      }
       this.progress = app.getProgress() * 100;
       this.diagnostics = app.getDiagnostics().toString();
       if (diagnostics == null || diagnostics.isEmpty()) {
@@ -331,5 +337,9 @@ public class AppInfo {
 
   public boolean isUnmanagedApp() {
     return unmanagedApplication;
+  }
+
+  public int getPriority() {
+    return this.priority;
   }
 }

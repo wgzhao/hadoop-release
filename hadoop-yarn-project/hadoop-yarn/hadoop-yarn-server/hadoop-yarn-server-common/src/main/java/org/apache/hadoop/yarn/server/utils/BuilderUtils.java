@@ -336,7 +336,8 @@ public class BuilderUtils {
       String url, long startTime, long finishTime,
       FinalApplicationStatus finalStatus,
       ApplicationResourceUsageReport appResources, String origTrackingUrl,
-      float progress, String appType, Token amRmToken, Set<String> tags) {
+      float progress, String appType, Token amRmToken, Set<String> tags,
+      Priority priority) {
     ApplicationReport report = recordFactory
         .newRecordInstance(ApplicationReport.class);
     report.setApplicationId(applicationId);
@@ -359,6 +360,7 @@ public class BuilderUtils {
     report.setApplicationType(appType);
     report.setAMRMToken(amRmToken);
     report.setApplicationTags(tags);
+    report.setPriority(priority);
     return report;
   }
   

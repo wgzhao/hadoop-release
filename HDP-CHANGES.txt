@@ -1226,3 +1226,5 @@ ATS V1.5:
 
     YARN-3543. ApplicationReport should be able to tell whether the
     Application is AM managed or not. Contributed by Rohith Sharma K S
+
+    YARN-3948. Display Application Priority in RM Web UI.(Sunil G via rohithsharmaks)

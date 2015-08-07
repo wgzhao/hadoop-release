@@ -52,7 +52,7 @@ public class WebPageUtils {
       .append("{'sType':'natural', 'aTargets': [0]")
       .append(", 'mRender': parseHadoopID }")
       .append("\n, {'sType':'numeric', 'aTargets': " +
-          (isFairSchedulerPage ? "[6, 7]": "[5, 6]"))
+          (isFairSchedulerPage ? "[6, 7]": "[6, 7]"))
       .append(", 'mRender': renderHadoopDate }")
       .append("\n, {'sType':'numeric', bSearchable:false, 'aTargets':");
     if (isFairSchedulerPage) {
