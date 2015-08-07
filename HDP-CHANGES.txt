@@ -927,3 +927,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HADOOP-12213. Interrupted exception can occur when Client#stop is called. Contributed by Kuhu Shukla.
 
     HDFS-8891. HDFS concat should keep srcs order. (Yong Zhang via jing9)
+
+    HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
+    (Walter Su via wang).
