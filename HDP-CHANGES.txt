@@ -998,3 +998,6 @@ covered by CHANGES.txt.
 
     BUG-92034. YARN-5862. TestDiskFailures.testLocalDirsFailures failed (Yufei
     Gu via Varun Saxena)
+
+    HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
+    (Walter Su via wang).
