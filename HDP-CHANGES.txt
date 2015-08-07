@@ -1212,3 +1212,5 @@ ATS V1.5:
 
     YARN-3026. Move application-specific container allocation logic from LeafQueue 
     to FiCaSchedulerApp. Contributed by Wangda Tan
+
+    YARN-3966. Fix excessive loggings in CapacityScheduler. (Jian He via wangda)

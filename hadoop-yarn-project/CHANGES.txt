@@ -164,6 +164,8 @@ Release 2.8.0 - UNRELEASED
     YARN-4285. Display resource usage as percentage of queue and cluster in the
     RM UI (Varun Vasudev via wangda)
 
+    YARN-3966. Fix excessive loggings in CapacityScheduler. (Jian He via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
