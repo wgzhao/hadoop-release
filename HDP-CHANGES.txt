@@ -226,3 +226,36 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-2019/EAR-1682. Retrospect on decision of making RM crashed if any
     exception throw in ZKRMStateStore.
+
+    YARN-3878. AsyncDispatcher can hang while stopping if it is configured for
+    draining events on stop. (Varun Saxena via jianhe)
+
+    YARN-3385. Fixed a race-condition in ResourceManager's ZooKeeper based
+    state-store to avoid crashing on duplicate deletes. (Zhihai Xu via vinodkv)
+
+    YARN-2136. Changed RMStateStore to ignore store opearations when fenced.
+    (Varun Saxena via jianhe)
+
+    YARN-2856. Fixed RMAppImpl to handle ATTEMPT_KILLED event at ACCEPTED state
+    on app recovery. (Rohith Sharmaks via jianhe)
+
+    YARN-2946. Fixed potential deadlock in RMStateStore. (Rohith Sharmaks via
+    jianhe)
+
+    YARN-2992. ZKRMStateStore crashes due to session expiry. (Karthik Kambatla
+    via jianhe)
+
+    YARN-3094. Reset timer for liveness monitors after RM recovery. (Jun Gong
+    via jianhe)
+
+    YARN-3369. Missing NullPointer check in AppSchedulingInfo causes RM to die.
+    (Brahma Reddy Battula via wangda)
+
+    YARN-3753. RM failed to come up with "java.io.IOException: Wait for
+    ZKClient creation timed out”. (Jian He via xgong)
+
+    YARN-3242. Asynchrony in ZK-close can lead to ZKRMStateStore watcher
+    receiving events for old client. (Zhihai Xu via kasha)
+
+    YARN-3469. ZKRMStateStore: Avoid setting watches that are not required. 
+    (Jun Gong via kasha)
