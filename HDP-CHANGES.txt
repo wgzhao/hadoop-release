@@ -1217,3 +1217,6 @@ ATS V1.5:
 
     YARN-3961. Expose pending, running and reserved containers of a queue in REST 
     api and yarn top (adhoot via asuresh)
+
+    YARN-3873. PendingApplications in LeafQueue should also use OrderingPolicy. 
+    (Sunil G via wangda)

@@ -153,14 +153,6 @@ public class CapacityScheduler extends
   static final PartitionedQueueComparator partitionedQueueComparator =
       new PartitionedQueueComparator();
 
-  public static final Comparator<FiCaSchedulerApp> applicationComparator =
-    new Comparator<FiCaSchedulerApp>() {
-    @Override
-    public int compare(FiCaSchedulerApp a1, FiCaSchedulerApp a2) {
-      return a1.getApplicationId().compareTo(a2.getApplicationId());
-    }
-  };
-
   @Override
   public void setConf(Configuration conf) {
       yarnConf = conf;
@@ -265,11 +257,6 @@ public class CapacityScheduler extends
   public synchronized RMContainerTokenSecretManager 
   getContainerTokenSecretManager() {
     return this.rmContext.getContainerTokenSecretManager();
-  }
-
-  @Override
-  public Comparator<FiCaSchedulerApp> getApplicationComparator() {
-    return applicationComparator;
   }
 
   @Override
@@ -1699,7 +1686,7 @@ public class CapacityScheduler extends
     if (disposableLeafQueue.getNumApplications() > 0) {
       throw new SchedulerDynamicEditException("The queue " + queueName
           + " is not empty " + disposableLeafQueue.getApplications().size()
-          + " active apps " + disposableLeafQueue.pendingApplications.size()
+          + " active apps " + disposableLeafQueue.getPendingApplications().size()
           + " pending apps");
     }
 
