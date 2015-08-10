@@ -265,3 +265,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8486. DN startup may cause severe data loss. Contributed by Daryn
     Sharp.
 
+    HDFS-8270. create() always retried with hardcoded timeout when file
+    already exists with open lease. (J.Andreina via vianayakumarb)
+
