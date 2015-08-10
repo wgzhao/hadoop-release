@@ -300,3 +300,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     
     YARN-3469. ZKRMStateStore: Avoid setting watches that are not required. 
     (Jun Gong via kasha)
+
+    HDFS-8856. [2.2] Make LeaseManager#countPath O(1). (Arpit Agarwal)
+
