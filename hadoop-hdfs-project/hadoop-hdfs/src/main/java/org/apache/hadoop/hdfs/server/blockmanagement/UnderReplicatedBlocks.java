@@ -276,14 +276,11 @@ class UnderReplicatedBlocks implements Iterable<Block> {
     int curPri = getPriority(block, curReplicas, decommissionedReplicas, curExpectedReplicas);
     int oldPri = getPriority(block, oldReplicas, decommissionedReplicas, oldExpectedReplicas);
     if(NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("UnderReplicationBlocks.update " + 
-        block +
-        " curReplicas " + curReplicas +
-        " curExpectedReplicas " + curExpectedReplicas +
-        " oldReplicas " + oldReplicas +
-        " oldExpectedReplicas  " + oldExpectedReplicas +
-        " curPri  " + curPri +
-        " oldPri  " + oldPri);
+      NameNode.stateChangeLog.debug("UnderReplicationBlocks.update {} " +
+          " curReplicas {} curExpectedReplicas {} oldReplicas {}" +
+          " oldExpectedReplicas {} curPri {} oldPri {}",
+          block, curReplicas, curExpectedReplicas,
+          oldReplicas, oldExpectedReplicas, curPri, curPri);
     }
     if(oldPri != LEVEL && oldPri != curPri) {
       remove(block, oldPri);
