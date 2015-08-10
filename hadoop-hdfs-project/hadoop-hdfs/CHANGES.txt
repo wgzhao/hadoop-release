@@ -15,6 +15,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
 
+    HDFS-8818. Changes the global moveExecutor to per datanode executors and
+    changes MAX_SIZE_TO_MOVE to be configurable.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
