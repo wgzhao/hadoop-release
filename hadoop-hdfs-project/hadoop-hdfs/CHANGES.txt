@@ -156,6 +156,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9251. Refactor TestWriteToReplica and TestFsDatasetImpl to avoid
     explicitly creating Files in the tests code. (lei)
 
+    HDFS-8805. Archival Storage: getStoragePolicy should not need superuser privilege.
+    (Brahma Reddy Battula via jing9)
+
   OPTIMIZATIONS
 
     HDFS-6763. Initialize file system-wide quota once on transitioning to active

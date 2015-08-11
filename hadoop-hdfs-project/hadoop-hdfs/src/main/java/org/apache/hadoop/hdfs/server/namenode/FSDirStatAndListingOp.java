@@ -104,13 +104,11 @@ class FSDirStatAndListingOp {
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     src = fsd.resolvePath(pc, src, pathComponents);
     final INodesInPath iip = fsd.getINodesInPath(src, resolveLink);
-    boolean isSuperUser = true;
     if (fsd.isPermissionEnabled()) {
       fsd.checkPermission(pc, iip, false, null, null, null, null, false);
-      isSuperUser = pc.isSuperUser();
     }
     return getFileInfo(fsd, src, resolveLink,
-        FSDirectory.isReservedRawName(srcArg), isSuperUser);
+        FSDirectory.isReservedRawName(srcArg));
   }
 
   /**
@@ -286,8 +284,7 @@ class FSDirStatAndListingOp {
   }
 
   static HdfsFileStatus getFileInfo(
-      FSDirectory fsd, String src, boolean resolveLink, boolean isRawPath,
-      boolean includeStoragePolicy)
+      FSDirectory fsd, String src, boolean resolveLink, boolean isRawPath)
     throws IOException {
     String srcs = FSDirectory.normalizePath(src);
     if (srcs.endsWith(HdfsConstants.SEPARATOR_DOT_SNAPSHOT_DIR)) {
@@ -302,7 +299,7 @@ class FSDirStatAndListingOp {
     fsd.readLock();
     try {
       final INodesInPath iip = fsd.getINodesInPath(srcs, resolveLink);
-      return getFileInfo(fsd, src, iip, isRawPath, includeStoragePolicy);
+      return getFileInfo(fsd, src, iip, isRawPath, true);
     } finally {
       fsd.readUnlock();
     }

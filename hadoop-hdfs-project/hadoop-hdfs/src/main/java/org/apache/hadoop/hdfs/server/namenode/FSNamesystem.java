@@ -2684,7 +2684,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
             isLazyPersist, suite, protocolVersion, edek,
             logRetryCache);
         stat = FSDirStatAndListingOp.getFileInfo(
-            dir, src, false, FSDirectory.isReservedRawName(srcArg), true);
+            dir, src, false, FSDirectory.isReservedRawName(srcArg));
       } finally {
         dir.writeUnlock();
       }
@@ -3220,7 +3220,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       lb = appendFileInternal(pc, iip, holder, clientMachine, newBlock,
           logRetryCache);
       stat = FSDirStatAndListingOp.getFileInfo(dir, src, false,
-          FSDirectory.isReservedRawName(srcArg), true);
+          FSDirectory.isReservedRawName(srcArg));
     } catch (StandbyException se) {
       skipSync = true;
       throw se;
