@@ -1456,10 +1456,13 @@ public class DFSOutputStream extends FSOutputSummer
             if (pipelineStatus == Status.ERROR_ACCESS_TOKEN) {
               throw new InvalidBlockTokenException(
                   "Got access token error for connect ack with firstBadLink as "
-                      + firstBadLink);
+                      + firstBadLink + ", message=" +
+                      (resp.hasMessage() ? resp.getMessage() : ""));
             } else {
-              throw new IOException("Bad connect ack with firstBadLink as "
-                  + firstBadLink);
+              throw new IOException(
+                  "Bad connect ack with firstBadLink as " + firstBadLink +
+                  ". pipelineStatus=" + pipelineStatus +
+                  ", message=" + (resp.hasMessage() ? resp.getMessage() : ""));
             }
           }
           assert null == blockStream : "Previous blockStream unclosed";
