@@ -306,3 +306,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-41834. DFSOutputstreamer does not log failed pipeline status.
     (Arpit Agarwal)
 
+    HDFS-7980. Incremental BlockReport will dramatically slow down the startup of
+    a namenode. Contributed by Walter Su.
+
