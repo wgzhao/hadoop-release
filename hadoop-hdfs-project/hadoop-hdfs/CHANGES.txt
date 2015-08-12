@@ -74,6 +74,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-6945. BlockManager should remove a block from excessReplicateMap and
     decrement ExcessBlocks metric when the block is removed. (aajisaka)
 
+    HDFS-8879. Quota by storage type usage incorrectly initialized upon namenode
+    restart. (xyao)
+    
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
