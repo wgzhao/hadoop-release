@@ -309,3 +309,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7980. Incremental BlockReport will dramatically slow down the startup of
     a namenode. Contributed by Walter Su.
 
+    HDFS-7734. Class cast exception in NameNode#main. (Contriubuted by Yi Liu)
+
