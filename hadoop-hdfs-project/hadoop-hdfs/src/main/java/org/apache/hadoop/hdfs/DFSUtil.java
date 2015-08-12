@@ -531,6 +531,8 @@ public class DFSUtil {
       }
       blkLocations[idx] = new BlockLocation(xferAddrs, hosts, cachedHosts,
                                             racks,
+                                            blk.getStorageIDs(),
+                                            blk.getStorageTypes(),
                                             blk.getStartOffset(),
                                             blk.getBlockSize(),
                                             blk.isCorrupt());
