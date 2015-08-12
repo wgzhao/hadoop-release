@@ -1253,3 +1253,5 @@ ATS V1.5:
     YARN-3216. Max-AM-Resource-Percentage should respect node labels. (Sunil G via wangda)
 
     YARN-3983. Refactored CapacityScheduleri#FiCaSchedulerApp to easier extend container allocation logic. Contributed by Wangda Tan
+
+    YARN-4026. Refactored ContainerAllocator to accept a list of priorites rather than a single priority. Contributed by Wangda Tan
