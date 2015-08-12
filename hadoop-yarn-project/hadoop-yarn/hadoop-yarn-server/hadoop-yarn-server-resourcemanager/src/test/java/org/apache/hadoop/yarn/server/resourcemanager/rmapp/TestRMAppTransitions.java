@@ -103,7 +103,7 @@ public class TestRMAppTransitions {
   private static int appId = 1;
   private DrainDispatcher rmDispatcher;
   private RMStateStore store;
-  private RMApplicationHistoryWriter writer;
+  private RMApplicationHistoryWriter writer = mock(RMApplicationHistoryWriter.class);
   private SystemMetricsPublisher publisher;
   private YarnScheduler scheduler;
   private TestSchedulerEventDispatcher schedulerDispatcher;
@@ -204,7 +204,6 @@ public class TestRMAppTransitions {
     AMLivelinessMonitor amLivelinessMonitor = mock(AMLivelinessMonitor.class);
     AMLivelinessMonitor amFinishingMonitor = mock(AMLivelinessMonitor.class);
     store = mock(RMStateStore.class);
-    writer = mock(RMApplicationHistoryWriter.class);
     DelegationTokenRenewer renewer = mock(DelegationTokenRenewer.class);
     RMContext realRMContext = 
         new RMContextImpl(rmDispatcher,
@@ -212,11 +211,12 @@ public class TestRMAppTransitions {
           renewer, new AMRMTokenSecretManager(conf, this.rmContext),
           new RMContainerTokenSecretManager(conf),
           new NMTokenSecretManagerInRM(conf),
-          new ClientToAMTokenSecretManagerInRM(),
-          writer, null);
+          new ClientToAMTokenSecretManagerInRM(),null);
+
     ((RMContextImpl)realRMContext).setStateStore(store);
     publisher = mock(SystemMetricsPublisher.class);
-    ((RMContextImpl)realRMContext).setSystemMetricsPublisher(publisher);
+    realRMContext.setSystemMetricsPublisher(publisher);
+    realRMContext.setRMApplicationHistoryWriter(writer);
 
     this.rmContext = spy(realRMContext);
 

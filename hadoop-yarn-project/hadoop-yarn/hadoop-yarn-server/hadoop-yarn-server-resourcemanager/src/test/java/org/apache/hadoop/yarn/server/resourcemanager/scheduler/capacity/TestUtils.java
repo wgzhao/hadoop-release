@@ -98,7 +98,7 @@ public class TestUtils {
           new AMRMTokenSecretManager(conf, null),
           new RMContainerTokenSecretManager(conf),
           new NMTokenSecretManagerInRM(conf),
-          new ClientToAMTokenSecretManagerInRM(), writer, null);
+          new ClientToAMTokenSecretManagerInRM(), null);
     RMNodeLabelsManager nlm = mock(RMNodeLabelsManager.class);
     when(
         nlm.getQueueResource(any(String.class), any(Set.class),
@@ -112,15 +112,17 @@ public class TestUtils {
     
     when(nlm.getResourceByLabel(any(String.class), any(Resource.class)))
         .thenAnswer(new Answer<Resource>() {
-          @Override
-          public Resource answer(InvocationOnMock invocation) throws Throwable {
+          @Override public Resource answer(InvocationOnMock invocation)
+              throws Throwable {
             Object[] args = invocation.getArguments();
             return (Resource) args[1];
           }
         });
     
     rmContext.setNodeLabelManager(nlm);
+    rmContext.setRMApplicationHistoryWriter(mock(RMApplicationHistoryWriter.class));
     rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
+
     return rmContext;
   }
   

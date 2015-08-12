@@ -40,7 +40,7 @@ public class TestWebAppUtils {
   // to make this test run anywhere without having to give some resolvable hostnames
   private static String dummyHostNames[] = {"host1", "host2", "host3"};
   private static final String anyIpAddress = "1.2.3.4";
-  private static Map<String, String> savedStaticResolution = new HashMap<>();
+  private static Map<String, String> savedStaticResolution = new HashMap<String, String>();
 
   @BeforeClass
   public static void initializeDummyHostnameResolution() throws Exception {

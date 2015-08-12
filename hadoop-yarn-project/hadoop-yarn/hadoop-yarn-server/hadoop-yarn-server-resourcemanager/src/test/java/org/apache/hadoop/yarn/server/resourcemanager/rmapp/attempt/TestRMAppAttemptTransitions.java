@@ -249,7 +249,6 @@ public class TestRMAppAttemptTransitions {
         mock(ContainerAllocationExpirer.class);
     amLivelinessMonitor = mock(AMLivelinessMonitor.class);
     amFinishingMonitor = mock(AMLivelinessMonitor.class);
-    writer = mock(RMApplicationHistoryWriter.class);
     MasterKeyData masterKeyData = amRMTokenManager.createNewMasterKey();
     when(amRMTokenManager.getMasterKey()).thenReturn(masterKeyData);
     rmContext =
@@ -258,14 +257,15 @@ public class TestRMAppAttemptTransitions {
           null, amRMTokenManager,
           new RMContainerTokenSecretManager(conf),
           nmTokenManager,
-          clientToAMTokenManager,
-          writer, null);
+          clientToAMTokenManager, null);
     
     store = mock(RMStateStore.class);
     ((RMContextImpl) rmContext).setStateStore(store);
     publisher = mock(SystemMetricsPublisher.class);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(publisher);
-    
+    writer = mock(RMApplicationHistoryWriter.class);
+    rmContext.setSystemMetricsPublisher(publisher);
+    rmContext.setRMApplicationHistoryWriter(writer);
+
     scheduler = mock(YarnScheduler.class);
     masterService = mock(ApplicationMasterService.class);
     applicationMasterLauncher = mock(ApplicationMasterLauncher.class);

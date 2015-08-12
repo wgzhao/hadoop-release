@@ -145,7 +145,7 @@ public class TestFifoScheduler {
     AsyncDispatcher dispatcher = new InlineDispatcher();
     RMApplicationHistoryWriter writer = mock(RMApplicationHistoryWriter.class);
     RMContext rmContext = new RMContextImpl(dispatcher, null,
-        null, null, null, null, null, null, null, writer, null);
+        null, null, null, null, null, null, null, null);
     ((RMContextImpl) rmContext).setSystemMetricsPublisher(
         mock(SystemMetricsPublisher.class));
 
@@ -188,11 +188,12 @@ public class TestFifoScheduler {
     NMTokenSecretManagerInRM nmTokenSecretManager =
         new NMTokenSecretManagerInRM(conf);
     nmTokenSecretManager.rollMasterKey();
-    RMApplicationHistoryWriter writer = mock(RMApplicationHistoryWriter.class);
     RMContext rmContext = new RMContextImpl(dispatcher, null, null, null, null,
-        null, containerTokenSecretManager, nmTokenSecretManager, null, writer, null);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(
-        mock(SystemMetricsPublisher.class));
+        null, containerTokenSecretManager, nmTokenSecretManager, null, null);
+    rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
+    rmContext.setRMApplicationHistoryWriter(
+        mock(RMApplicationHistoryWriter.class));
+
 
     FifoScheduler scheduler = new FifoScheduler();
     scheduler.setRMContext(rmContext);
@@ -259,12 +260,9 @@ public class TestFifoScheduler {
     NMTokenSecretManagerInRM nmTokenSecretManager =
         new NMTokenSecretManagerInRM(conf);
     nmTokenSecretManager.rollMasterKey();
-    RMApplicationHistoryWriter writer = mock(RMApplicationHistoryWriter.class);
-    RMContext rmContext = new RMContextImpl(dispatcher, null, null, null, null,
-        null, containerTokenSecretManager, nmTokenSecretManager, null, writer,
-        null);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(
-        mock(SystemMetricsPublisher.class));
+    RMContext rmContext =
+        new RMContextImpl(dispatcher, null, null, null, null, null,
+            containerTokenSecretManager, nmTokenSecretManager, null, null);
 
     FifoScheduler scheduler = new FifoScheduler(){
       @SuppressWarnings("unused")
@@ -272,6 +270,9 @@ public class TestFifoScheduler {
         return nodes;
       }
     };
+    rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
+    rmContext.setRMApplicationHistoryWriter(mock(RMApplicationHistoryWriter.class));
+
     scheduler.setRMContext(rmContext);
     scheduler.init(conf);
     scheduler.start();

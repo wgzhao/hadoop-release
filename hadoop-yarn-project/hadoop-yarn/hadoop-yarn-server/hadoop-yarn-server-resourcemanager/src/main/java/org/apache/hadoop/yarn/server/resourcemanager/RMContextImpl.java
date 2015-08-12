@@ -66,6 +66,9 @@ public class RMContextImpl implements RMContext {
 
   private RMActiveServiceContext activeServiceContext;
 
+  private SystemMetricsPublisher systemMetricsPublisher;
+  private RMApplicationHistoryWriter rmApplicationHistoryWriter;
+
   /**
    * Default constructor. To be used in conjunction with setter methods for
    * individual fields.
@@ -85,8 +88,8 @@ public class RMContextImpl implements RMContext {
       RMContainerTokenSecretManager containerTokenSecretManager,
       NMTokenSecretManagerInRM nmTokenSecretManager,
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
-      RMApplicationHistoryWriter rmApplicationHistoryWriter,
       RMRegistryService registry) {
+
     this();
     this.setDispatcher(rmDispatcher);
     this.setRegistry(registry);
@@ -94,7 +97,7 @@ public class RMContextImpl implements RMContext {
         containerAllocationExpirer, amLivelinessMonitor, amFinishingMonitor,
         delegationTokenRenewer, appTokenSecretManager,
         containerTokenSecretManager, nmTokenSecretManager,
-        clientToAMTokenSecretManager, rmApplicationHistoryWriter));
+        clientToAMTokenSecretManager));
 
     ConfigurationProvider provider = new LocalConfigurationProvider();
     setConfigurationProvider(provider);
@@ -236,8 +239,7 @@ public class RMContextImpl implements RMContext {
   @Override
   public void setRMDelegationTokenSecretManager(
       RMDelegationTokenSecretManager delegationTokenSecretManager) {
-    activeServiceContext
-        .setRMDelegationTokenSecretManager(delegationTokenSecretManager);
+    activeServiceContext.setRMDelegationTokenSecretManager(delegationTokenSecretManager);
   }
 
   void setContainerAllocationExpirer(
@@ -256,8 +258,7 @@ public class RMContextImpl implements RMContext {
 
   void setContainerTokenSecretManager(
       RMContainerTokenSecretManager containerTokenSecretManager) {
-    activeServiceContext
-        .setContainerTokenSecretManager(containerTokenSecretManager);
+    activeServiceContext.setContainerTokenSecretManager(containerTokenSecretManager);
   }
 
   void setNMTokenSecretManager(NMTokenSecretManagerInRM nmTokenSecretManager) {
@@ -278,8 +279,7 @@ public class RMContextImpl implements RMContext {
 
   void setClientToAMTokenSecretManager(
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager) {
-    activeServiceContext
-        .setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
+    activeServiceContext.setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
   }
 
   void setAMRMTokenSecretManager(AMRMTokenSecretManager amRMTokenSecretManager) {
@@ -322,25 +322,25 @@ public class RMContextImpl implements RMContext {
 
   @Override
   public RMApplicationHistoryWriter getRMApplicationHistoryWriter() {
-    return activeServiceContext.getRMApplicationHistoryWriter();
+    return this.rmApplicationHistoryWriter;
   }
 
   @Override
   public void setSystemMetricsPublisher(
       SystemMetricsPublisher systemMetricsPublisher) {
-    activeServiceContext.setSystemMetricsPublisher(systemMetricsPublisher);
+    this.systemMetricsPublisher = systemMetricsPublisher;
   }
 
   @Override
   public SystemMetricsPublisher getSystemMetricsPublisher() {
-    return activeServiceContext.getSystemMetricsPublisher();
+    return this.systemMetricsPublisher;
   }
 
   @Override
   public void setRMApplicationHistoryWriter(
       RMApplicationHistoryWriter rmApplicationHistoryWriter) {
-    activeServiceContext
-        .setRMApplicationHistoryWriter(rmApplicationHistoryWriter);
+    this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
+
   }
 
   @Override
