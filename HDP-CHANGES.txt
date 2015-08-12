@@ -1319,3 +1319,5 @@ ATS V1.5:
 
     BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue.
     Contributed by Mohammad Shahid Khan
+
+    BUG-38471. HDFS-8887. Expose storage type and storage ID in BlockLocation.
