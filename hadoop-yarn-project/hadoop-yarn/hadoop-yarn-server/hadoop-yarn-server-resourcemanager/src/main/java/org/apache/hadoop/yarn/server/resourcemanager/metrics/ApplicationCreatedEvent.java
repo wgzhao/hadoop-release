@@ -22,6 +22,7 @@ import org.apache.hadoop.ipc.CallerContext;
 import java.util.Set;
 
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.Priority;
 
 public class ApplicationCreatedEvent extends
     SystemMetricsEvent {
@@ -34,6 +35,7 @@ public class ApplicationCreatedEvent extends
   private long submittedTime;
   private Set<String> appTags;
   private boolean unmanagedApplication;
+  private Priority applicationPriority;
 
   private final CallerContext callerContext;
 
@@ -46,7 +48,8 @@ public class ApplicationCreatedEvent extends
       long createdTime,
       CallerContext callerContext,
       Set<String> appTags,
-      boolean unmanagedApplication) {
+      boolean unmanagedApplication,
+      Priority applicationPriority) {
     super(SystemMetricsEventType.APP_CREATED, createdTime);
     this.appId = appId;
     this.name = name;
@@ -57,6 +60,7 @@ public class ApplicationCreatedEvent extends
     this.callerContext = callerContext;
     this.appTags = appTags;
     this.unmanagedApplication = unmanagedApplication;
+    this.applicationPriority = applicationPriority;
   }
 
   @Override
@@ -98,5 +102,9 @@ public class ApplicationCreatedEvent extends
 
   public boolean isUnmanagedApp() {
     return unmanagedApplication;
+  }
+
+  public Priority getApplicationPriority() {
+    return applicationPriority;
   }
 }

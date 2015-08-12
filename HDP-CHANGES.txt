@@ -1228,3 +1228,5 @@ ATS V1.5:
     Application is AM managed or not. Contributed by Rohith Sharma K S
 
     YARN-3948. Display Application Priority in RM Web UI.(Sunil G via rohithsharmaks)
+
+    YARN-4023. Publish Application Priority to TimelineServer. (Sunil G via rohithsharmaks)
