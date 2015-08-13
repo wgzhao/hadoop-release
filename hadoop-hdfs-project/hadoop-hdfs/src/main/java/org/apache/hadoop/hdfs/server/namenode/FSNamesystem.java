@@ -2363,10 +2363,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       throw new UnsupportedOperationException("Truncate is not allowed!");
     }
     String src = srcArg;
-    if (NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("DIR* NameSystem.truncate: src="
-          + src + " newLength=" + newLength);
-    }
+    NameNode.stateChangeLog.debug(
+        "DIR* NameSystem.truncate: src={} newLength={}", src, newLength);
     if (newLength < 0) {
       throw new HadoopIllegalArgumentException(
           "Cannot truncate to a negative file size: " + newLength + ".");
@@ -2507,10 +2505,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       file.setLastBlock(truncatedBlockUC, blockManager.getStorages(oldBlock));
       getBlockManager().addBlockCollection(truncatedBlockUC, file);
 
-      NameNode.stateChangeLog.info("BLOCK* prepareFileForTruncate: "
-          + "Scheduling copy-on-truncate to new size "
-          + truncatedBlockUC.getNumBytes() + " new block " + newBlock
-          + " old block " + truncatedBlockUC.getTruncateBlock());
+      NameNode.stateChangeLog.debug(
+          "BLOCK* prepareFileForTruncate: Scheduling copy-on-truncate to new" +
+          " size {}  new block {} old block {}", truncatedBlockUC.getNumBytes(),
+          newBlock, truncatedBlockUC.getTruncateBlock());
     } else {
       // Use new generation stamp for in-place truncate recovery
       blockManager.convertLastBlockToUnderConstruction(file, lastBlockDelta);
@@ -2523,10 +2521,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       truncatedBlockUC.getTruncateBlock().setGenerationStamp(
           newBlock.getGenerationStamp());
 
-      NameNode.stateChangeLog.debug("BLOCK* prepareFileForTruncate: "
-          + "Scheduling in-place block truncate to new size "
-          + truncatedBlockUC.getTruncateBlock().getNumBytes()
-          + " block=" + truncatedBlockUC);
+      NameNode.stateChangeLog.debug(
+          "BLOCK* prepareFileForTruncate: {} Scheduling in-place block " +
+          "truncate to new size {}",
+          truncatedBlockUC.getTruncateBlock().getNumBytes(), truncatedBlockUC);
     }
     if(shouldRecoverNow)
       truncatedBlockUC.initializeBlockRecovery(newBlock.getGenerationStamp());
@@ -3002,10 +3000,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
       // record file record in log, record new generation stamp
       getEditLog().logOpenFile(src, newNode, overwrite, logRetryEntry);
-      if (NameNode.stateChangeLog.isDebugEnabled()) {
-        NameNode.stateChangeLog.debug("DIR* NameSystem.startFile: added " +
-            src + " inode " + newNode.getId() + " " + holder);
-      }
+      NameNode.stateChangeLog.debug("DIR* NameSystem.startFile: added {}" +
+          " inode {} holder {}", src, newNode.getId(), holder);
       return toRemoveBlocks;
     } catch (IOException ie) {
       NameNode.stateChangeLog.warn("DIR* NameSystem.startFile: " + src + " " +
@@ -3360,11 +3356,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       FileAlreadyExistsException, FileNotFoundException,
       ParentNotDirectoryException, IOException {
     String src = srcArg;
-    if (NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("DIR* NameSystem.appendFile: src=" + src
-          + ", holder=" + holder
-          + ", clientMachine=" + clientMachine);
-    }
+    NameNode.stateChangeLog.debug(
+        "DIR* NameSystem.appendFile: src={}, holder={}, clientMachine={}",
+        src, holder, clientMachine);
     boolean skipSync = false;
     if (!supportAppends) {
       throw new UnsupportedOperationException(
@@ -3393,12 +3387,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       }
     }
     if (lb != null) {
-      if (NameNode.stateChangeLog.isDebugEnabled()) {
-        NameNode.stateChangeLog.debug("DIR* NameSystem.appendFile: file "
-            +src+" for "+holder+" at "+clientMachine
-            +" block " + lb.getBlock()
-            +" block size " + lb.getBlock().getNumBytes());
-      }
+      NameNode.stateChangeLog.debug(
+          "DIR* NameSystem.appendFile: file {} for {} at {} block {} block" +
+          " size {}", src, holder, clientMachine, lb.getBlock(),
+          lb.getBlock().getNumBytes());
     }
     logAuditEvent(true, "append", srcArg);
     return lb;
@@ -3628,12 +3620,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           lastBlockInFile.getNumBytes() == pendingFile.getPreferredBlockSize() &&
           lastBlockInFile.isComplete()) {
         // Case 1
-        if (NameNode.stateChangeLog.isDebugEnabled()) {
-           NameNode.stateChangeLog.debug(
-               "BLOCK* NameSystem.allocateBlock: handling block allocation" +
-               " writing to a file with a complete previous block: src=" +
-               src + " lastBlock=" + lastBlockInFile);
-        }
+        NameNode.stateChangeLog.debug(
+            "BLOCK* NameSystem.allocateBlock: handling block allocation" +
+            " writing to a file with a complete previous block: src={}" +
+            " lastBlock={}", src, lastBlockInFile);
       } else if (Block.matchingIdAndGenStamp(penultimateBlock, previousBlock)) {
         if (lastBlockInFile.getNumBytes() != 0) {
           throw new IOException(
@@ -3776,10 +3766,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       if (!removed) {
         return true;
       }
-      if(NameNode.stateChangeLog.isDebugEnabled()) {
-        NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: "
-                                      + b + " is removed from pendingCreates");
-      }
+      NameNode.stateChangeLog.debug("BLOCK* NameSystem.abandonBlock: {} is " +
+          "removed from pendingCreates", b);
       persistBlocks(src, file, false);
     } finally {
       writeUnlock();
@@ -3840,10 +3828,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
                        ExtendedBlock last, long fileId)
     throws SafeModeException, UnresolvedLinkException, IOException {
     String src = srcArg;
-    if (NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("DIR* NameSystem.completeFile: " +
-          src + " for " + holder);
-    }
+    NameNode.stateChangeLog.debug("DIR* NameSystem.completeFile: {} for {}",
+        src, holder);
     checkBlock(last);
     boolean success = false;
     checkOperation(OperationCategory.WRITE);
@@ -5396,11 +5382,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     assert hasWriteLock();
     Preconditions.checkArgument(file.isUnderConstruction());
     getEditLog().logUpdateBlocks(path, file, logRetryCache);
-    if(NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("persistBlocks: " + path
-              + " with " + file.getBlocks().length + " blocks is persisted to" +
-              " the file system");
-    }
+    NameNode.stateChangeLog.debug("persistBlocks: {} with {} blocks is" +
+        " peristed to the file system", path, file.getBlocks().length);
   }
 
   void incrDeletedFileCount(long count) {
@@ -5417,11 +5400,8 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     waitForLoadingFSImage();
     // file is closed
     getEditLog().logCloseFile(path, file);
-    if (NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("closeFile: "
-              +path+" with "+ file.getBlocks().length
-              +" blocks is persisted to the file system");
-    }
+    NameNode.stateChangeLog.debug("closeFile: {} with {} blocks is persisted" +
+        " to the file system", path, file.getBlocks().length);
   }
 
   /**
@@ -5889,11 +5869,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   private void persistNewBlock(String path, INodeFile file) {
     Preconditions.checkArgument(file.isUnderConstruction());
     getEditLog().logAddBlock(path, file);
-    if (NameNode.stateChangeLog.isDebugEnabled()) {
-      NameNode.stateChangeLog.debug("persistNewBlock: "
-              + path + " with new block " + file.getLastBlock().toString()
-              + ", current total block count is " + file.getBlocks().length);
-    }
+    NameNode.stateChangeLog.debug("persistNewBlock: {} with new block {}," +
+        " current total block count is {}", path,
+        file.getLastBlock().toString(), file.getBlocks().length);
   }
 
   /**
@@ -7543,7 +7521,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       if (cookieTab[0] == null) {
         cookieTab[0] = String.valueOf(getIntCookie(cookieTab[0]));
       }
-      LOG.info("there are no corrupt file blocks.");
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("there are no corrupt file blocks.");
+      }
       return corruptFiles;
     }
 
@@ -7578,7 +7558,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         }
       }
       cookieTab[0] = String.valueOf(skip);
-      LOG.info("list corrupt file blocks returned: " + count);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("list corrupt file blocks returned: " + count);
+      }
       return corruptFiles;
     } finally {
       readUnlock();
