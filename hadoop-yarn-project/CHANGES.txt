@@ -509,7 +509,12 @@ Release 2.7.2 - UNRELEASED
     YARN-3990. AsyncDispatcher may overloaded with RMAppNodeUpdateEvent when
     Node is connected/disconnected (Bibin A Chundatt via jlowe)
 
-Release 2.7.1 - 2015-07-06
+    YARN-3999. RM hangs on draing events. (Jian He via xgong)
+
+    YARN-4047. ClientRMService getApplications has high scheduler lock contention
+    (Jason Lowe via jianhe)
+
+Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
 
