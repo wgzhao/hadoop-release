@@ -311,3 +311,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7734. Class cast exception in NameNode#main. (Contriubuted by Yi Liu)
 
+    BUG-42160. Backport HDFS-7712 to 2.2-maint. (Xiaobing Zhou)
+
+    BUG-42484. Backport HDFS-8522 to 2.2-maint, Change heavily recorded NN logs
+    from INFO to DEBUG level. (Xiaobing Zhou)
