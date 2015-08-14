@@ -1079,3 +1079,7 @@ ATS V1.5:
 
     HDFS-9431. DistributedFileSystem#concat fails if the target path is
     relative. (Kazuho Fujii via aajisaka)
+
+    HADOOP-12213. Interrupted exception can occur when Client#stop is called. Contributed by Kuhu Shukla.
+
+    HDFS-8891. HDFS concat should keep srcs order. (Yong Zhang via jing9)
