@@ -18,6 +18,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8818. Changes the global moveExecutor to per datanode executors and
     changes MAX_SIZE_TO_MOVE to be configurable.  (szetszwo)
 
+    HDFS-8824. Do not use small blocks for balancing the cluster.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
