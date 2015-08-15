@@ -109,6 +109,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.MemoryRMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.Allocation;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.SchedulerEvent;
@@ -1723,13 +1724,7 @@ public class TestRMContainerAllocator {
         }
       }, 100, 10000);
       // run the scheduler
-      try {
-        super.heartbeat();
-      } catch (Exception e) {
-        LOG.error("error in heartbeat ", e);
-        throw new YarnRuntimeException(e);
-      }
-
+      super.heartbeat();
       List<TaskAttemptContainerAssignedEvent> result
         = new ArrayList<TaskAttemptContainerAssignedEvent>(events);
       events.clear();
@@ -2026,9 +2021,10 @@ public class TestRMContainerAllocator {
     ApplicationId applicationId = ApplicationId.newInstance(1, 1);
     ApplicationAttemptId applicationAttemptId = ApplicationAttemptId.newInstance(
         applicationId, 1);
-    ContainerId containerId = ContainerId.newContainerId(applicationAttemptId, 1);
-    ContainerStatus status = ContainerStatus.newInstance(
-        containerId, ContainerState.RUNNING, "", 0);
+    ContainerId containerId = ContainerId.newContainerId(applicationAttemptId,
+        1);
+    ContainerStatus status = ContainerStatus.newInstance(containerId,
+        ContainerState.RUNNING, "", 0);
 
     ContainerStatus abortedStatus = ContainerStatus.newInstance(
         containerId, ContainerState.RUNNING, "",
@@ -2380,6 +2376,43 @@ public class TestRMContainerAllocator {
         newToken.getPassword(), ugiToken.getPassword());
     Assert.assertEquals("AMRM token service not updated",
         new Text(rmAddr), ugiToken.getService());
+  }
+
+  @Test(expected = RMContainerAllocationException.class)
+  public void testAttemptNotFoundCausesRMCommunicatorException()
+      throws Exception {
+
+    Configuration conf = new Configuration();
+    MyResourceManager rm = new MyResourceManager(conf);
+    rm.start();
+    DrainDispatcher dispatcher = (DrainDispatcher) rm.getRMContext()
+        .getDispatcher();
+
+    // Submit the application
+    RMApp app = rm.submitApp(1024);
+    dispatcher.await();
+
+    MockNM amNodeManager = rm.registerNode("amNM:1234", 2048);
+    amNodeManager.nodeHeartbeat(true);
+    dispatcher.await();
+
+    ApplicationAttemptId appAttemptId = app.getCurrentAppAttempt()
+        .getAppAttemptId();
+    rm.sendAMLaunched(appAttemptId);
+    dispatcher.await();
+
+    JobId jobId = MRBuilderUtils.newJobId(appAttemptId.getApplicationId(), 0);
+    Job mockJob = mock(Job.class);
+    when(mockJob.getReport()).thenReturn(
+        MRBuilderUtils.newJobReport(jobId, "job", "user", JobState.RUNNING, 0,
+            0, 0, 0, 0, 0, 0, "jobfile", null, false, ""));
+    MyContainerAllocator allocator = new MyContainerAllocator(rm, conf,
+        appAttemptId, mockJob);
+
+    // Now kill the application
+    rm.killApp(app.getApplicationId());
+    rm.waitForState(app.getApplicationId(), RMAppState.KILLED);
+    allocator.schedule();
   }
 
   public static void main(String[] args) throws Exception {
