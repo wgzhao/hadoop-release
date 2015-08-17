@@ -147,6 +147,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     YARN-3700. Made generic history service load a number of latest applications
     according to the parameter or the configuration. (Xuan Gong via zjshen)
 
+    BUG-42254. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
+
   BUG FIXES
 
     BUG-5700. NameNode should shut down if out of memory error occurs. (cnauroth)
