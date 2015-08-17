@@ -18,6 +18,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8883. NameNode Metrics : Add FSNameSystem lock Queue Length.
     (Anu Engineer via xyao)
 
+    HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
   BUG FIXES

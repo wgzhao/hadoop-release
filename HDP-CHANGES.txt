@@ -315,3 +315,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-42484. Backport HDFS-8522 to 2.2-maint, Change heavily recorded NN logs
     from INFO to DEBUG level. (Xiaobing Zhou)
+
+    BUG-42253. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
+
