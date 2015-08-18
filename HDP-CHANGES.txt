@@ -338,3 +338,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-42253. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
+    BUG-41706. HDFS-5782 (BlockListAsLongs should take lists of Replicas rather than
+    concrete classes) and HDFS-7435 (PB encoding of block reports is very inefficient). 
+

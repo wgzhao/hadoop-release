@@ -156,8 +156,7 @@ public class TestBlockManager {
         "was on. Was: " + pipeline[0],
         origStorages.contains(pipeline[0]));
     assertTrue("Destination of replication should be on the other rack. " +
-        "Was: " + pipeline[1],
-        rackB.contains(pipeline[1].getDatanodeDescriptor()));
+            "Was: " + pipeline[1], rackB.contains(pipeline[1].getDatanodeDescriptor()));
   }
   
 
@@ -344,20 +343,12 @@ public class TestBlockManager {
         "was on. Was: " + pipeline[0],
         origNodes.contains(pipeline[0].getDatanodeDescriptor()));
     assertTrue("Destination of replication should be on the other rack. " +
-        "Was: " + pipeline[1],
-        rackB.contains(pipeline[1].getDatanodeDescriptor()));
+            "Was: " + pipeline[1], rackB.contains(pipeline[1].getDatanodeDescriptor()));
   }
   
   @Test
   public void testBlocksAreNotUnderreplicatedInSingleRack() throws Exception {
-    List<DatanodeDescriptor> nodes = ImmutableList.of(
-        BlockManagerTestUtil.getDatanodeDescriptor("1.1.1.1", "/rackA", true),
-        BlockManagerTestUtil.getDatanodeDescriptor("2.2.2.2", "/rackA", true),
-        BlockManagerTestUtil.getDatanodeDescriptor("3.3.3.3", "/rackA", true),
-        BlockManagerTestUtil.getDatanodeDescriptor("4.4.4.4", "/rackA", true),
-        BlockManagerTestUtil.getDatanodeDescriptor("5.5.5.5", "/rackA", true),
-        BlockManagerTestUtil.getDatanodeDescriptor("6.6.6.6", "/rackA", true)
-      );
+    List<DatanodeDescriptor> nodes = ImmutableList.of(BlockManagerTestUtil.getDatanodeDescriptor("1.1.1.1", "/rackA", true), BlockManagerTestUtil.getDatanodeDescriptor("2.2.2.2", "/rackA", true), BlockManagerTestUtil.getDatanodeDescriptor("3.3.3.3", "/rackA", true), BlockManagerTestUtil.getDatanodeDescriptor("4.4.4.4", "/rackA", true), BlockManagerTestUtil.getDatanodeDescriptor("5.5.5.5", "/rackA", true), BlockManagerTestUtil.getDatanodeDescriptor("6.6.6.6", "/rackA", true));
     addNodes(nodes);
     List<DatanodeDescriptor> origNodes = nodes.subList(0, 3);
     for (int i = 0; i < NUM_TEST_ITERS; i++) {
@@ -565,12 +556,12 @@ public class TestBlockManager {
     reset(node);
     
     bm.processReport(node, new DatanodeStorage(ds.getStorageID()),
-        new BlockListAsLongs(null, null), null, false);
+        BlockListAsLongs.EMPTY, null, false);
     assertEquals(1, ds.getBlockReportCount());
     // send block report again, should NOT be processed
     reset(node);
     bm.processReport(node, new DatanodeStorage(ds.getStorageID()),
-        new BlockListAsLongs(null, null), null, false);
+        BlockListAsLongs.EMPTY, null, false);
     assertEquals(1, ds.getBlockReportCount());
 
     // re-register as if node restarted, should update existing node
@@ -581,7 +572,7 @@ public class TestBlockManager {
     // send block report, should be processed after restart
     reset(node);
     bm.processReport(node, new DatanodeStorage(ds.getStorageID()),
-                     new BlockListAsLongs(null, null), null, false);
+                     BlockListAsLongs.EMPTY, null, false);
     // Reinitialize as registration with empty storage list pruned
     // node.storageMap.
     ds = node.getStorageInfos()[0];
@@ -613,7 +604,7 @@ public class TestBlockManager {
     reset(node);
     doReturn(1).when(node).numBlocks();
     bm.processReport(node, new DatanodeStorage(ds.getStorageID()),
-        new BlockListAsLongs(null, null), null, false);
+        BlockListAsLongs.EMPTY, null, false);
     assertEquals(1, ds.getBlockReportCount());
   }
 
@@ -639,22 +630,21 @@ public class TestBlockManager {
     // Build a incremental report
     List<ReceivedDeletedBlockInfo> rdbiList = new ArrayList<ReceivedDeletedBlockInfo>();
     // Build a full report
-    List<FinalizedReplica> finalized = new ArrayList<FinalizedReplica>();
-    List<ReplicaInfo> uc = new ArrayList<ReplicaInfo>();
+    BlockListAsLongs.Builder builder = BlockListAsLongs.builder();
 
     // blk_42 is finalized.
     long receivedBlockId = 42;  // arbitrary
     BlockInfo receivedBlock = addBlockToBM(receivedBlockId);
     rdbiList.add(new ReceivedDeletedBlockInfo(new Block(receivedBlock),
         ReceivedDeletedBlockInfo.BlockStatus.RECEIVED_BLOCK, null));
-    finalized.add(new FinalizedReplica(receivedBlock, null, null));
+    builder.add(new FinalizedReplica(receivedBlock, null, null));
 
     // blk_43 is under construction.
     long receivingBlockId = 43;
     BlockInfo receivingBlock = addUcBlockToBM(receivingBlockId);
     rdbiList.add(new ReceivedDeletedBlockInfo(new Block(receivingBlock),
         ReceivedDeletedBlockInfo.BlockStatus.RECEIVING_BLOCK, null));
-    uc.add(new ReplicaBeingWritten(receivingBlock, null, null, null));
+    builder.add(new ReplicaBeingWritten(receivingBlock, null, null, null));
 
     // blk_44 has 2 records in IBR. It's finalized. So full BR has 1 record.
     long receivingReceivedBlockId = 44;
@@ -663,7 +653,7 @@ public class TestBlockManager {
         ReceivedDeletedBlockInfo.BlockStatus.RECEIVING_BLOCK, null));
     rdbiList.add(new ReceivedDeletedBlockInfo(new Block(receivingReceivedBlock),
         ReceivedDeletedBlockInfo.BlockStatus.RECEIVED_BLOCK, null));
-    finalized.add(new FinalizedReplica(receivingReceivedBlock, null, null));
+    builder.add(new FinalizedReplica(receivingReceivedBlock, null, null));
 
     // blk_45 is not in full BR, because it's deleted.
     long ReceivedDeletedBlockId = 45;
@@ -677,7 +667,7 @@ public class TestBlockManager {
     // blk_46 exists in DN for a long time, so it's in full BR, but not in IBR.
     long existedBlockId = 46;
     BlockInfo existedBlock = addBlockToBM(existedBlockId);
-    finalized.add(new FinalizedReplica(existedBlock, null, null));
+    builder.add(new FinalizedReplica(existedBlock, null, null));
 
     // process IBR and full BR
     StorageReceivedDeletedBlocks srdb =
@@ -687,7 +677,7 @@ public class TestBlockManager {
     // Make sure it's the first full report
     assertEquals(0, ds.getBlockReportCount());
     bm.processReport(node, new DatanodeStorage(ds.getStorageID()),
-        new BlockListAsLongs(finalized, uc), null, false);
+        builder.build(), null, false);
     assertEquals(1, ds.getBlockReportCount());
 
     // verify the storage info is correct
