@@ -28,6 +28,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
+    HDFS-8278. When computing max-size-to-move in Balancer, count only the
+    storage with remaining >= default block size.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
