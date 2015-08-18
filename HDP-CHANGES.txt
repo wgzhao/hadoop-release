@@ -272,3 +272,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-64071. HDFS-9906. Remove spammy log spew when a datanode is restarted.
     (Contributed by Brahma Reddy Battula)
+
+    BUG-64071. HDFS-5782. BlockListAsLongs should take lists of Replicas rather
+    than concrete classes
+
+    BUG-64071. HDFS-7435. PB encoding of block reports is very inefficient
