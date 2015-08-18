@@ -112,6 +112,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12049. Control http authentication cookie persistence via
     configuration. (hzlu via benoy)
 
+    HADOOP-12050. Enable MaxInactiveInterval for hadoop http auth token.
+    (hzlu via benoy)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
