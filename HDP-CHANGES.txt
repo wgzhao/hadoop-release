@@ -301,6 +301,26 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-3469. ZKRMStateStore: Avoid setting watches that are not required. 
     (Jun Gong via kasha)
 
+    YARN-2605. RM HA Rest api endpoints doing redirect incorrectly.
+    (Xuan Gong via stevel)
+
+    YARN-3351. AppMaster tracking URL is broken in HA. (Anubhav Dhoot via kasha)
+
+    YARN-3526. ApplicationMaster tracking URL is incorrectly redirected on
+    a QJM cluster. (Weiwei Yang via xgong)
+    
+    YARN-3804. Both RM are on standBy state when kerberos user not in yarn.admin.acl
+    (Varun Saxena via xgong)
+    
+    YARN-2865. Fixed RM to always create a new RMContext when transtions from
+    StandBy to Active. (Rohith Sharmaks via jianhe)
+
+    YARN-2713. "RM Home" link in NM should point to one of the RMs in an 
+    HA setup. (kasha)
+
+    HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
+    multiple times (Contributed by zhihai xu)
+    
     HDFS-8856. [2.2] Make LeaseManager#countPath O(1). (Arpit Agarwal)
 
     BUG-41834. DFSOutputstreamer does not log failed pipeline status.
