@@ -39,6 +39,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7933. fsck should also report decommissioning replicas.
     (Xiaoyu Yao via cnauroth)
 
+    HDFS-8278. When computing max-size-to-move in Balancer, count only the
+    storage with remaining >= default block size.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
