@@ -399,6 +399,9 @@ Release 2.7.2 - 2016-01-25
 
     HDFS-8891. HDFS concat should keep srcs order. (Yong Zhang via jing9)
 
+    HDFS-8852. HDFS architecture documentation of version 2.x is outdated
+    about append write support. (Ajith S via aajisaka)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
