@@ -6,6 +6,9 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
+    HDFS-6982. nntop: top­-like tool for name node users.
+    (Maysam Yabandeh via wang)
+
   IMPROVEMENTS
 
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
@@ -68,6 +71,9 @@ Release 2.7.0
 
     HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
 
+    HDFS-7890. Improve information on Top users for metrics in
+    RollingWindowsManager and lower log level (J.Andreina via vinayakumarb)
+
   OPTIMIZATIONS
 
   BUG FIXES
@@ -126,6 +132,8 @@ Release 2.6.1 - UNRELEASED
 
     HDFS-7398. Reset cached thread-local FSEditLogOp's on every
     FSEditLog#logEdit. (Gera Shegalov via cnauroth)
+
+    HDFS-7426. Change nntop JMX format to be a JSON blob. (wang)
 
   OPTIMIZATIONS
 

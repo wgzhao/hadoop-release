@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.server.namenode.metrics;
 
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_AUDIT_LOGGERS_KEY;
 import static org.apache.hadoop.test.MetricsAsserts.assertCounter;
 import static org.apache.hadoop.test.MetricsAsserts.assertGauge;
 import static org.apache.hadoop.test.MetricsAsserts.assertQuantileGauges;
@@ -47,6 +48,10 @@ import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
 import org.apache.hadoop.hdfs.server.namenode.NameNodeAdapter;
+import org.apache.hadoop.hdfs.server.namenode.top.TopAuditLogger;
+import org.apache.hadoop.hdfs.server.namenode.top.TopConf;
+import org.apache.hadoop.hdfs.server.namenode.top.metrics.TopMetrics;
+import org.apache.hadoop.hdfs.server.namenode.top.window.RollingWindowManager;
 import org.apache.hadoop.metrics2.MetricsRecordBuilder;
 import org.apache.hadoop.metrics2.MetricsSource;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
@@ -54,6 +59,7 @@ import org.apache.hadoop.test.MetricsAsserts;
 import org.apache.hadoop.util.Time;
 import org.apache.log4j.Level;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -186,8 +192,8 @@ public class TestNameNodeMetrics {
     }
     
     // Let HeartbeatManager to refresh
-    BlockManagerTestUtil.checkHeartbeat(cluster.getNameNode().getNamesystem()
-        .getBlockManager());
+    BlockManagerTestUtil.checkHeartbeat(
+        cluster.getNameNode().getNamesystem().getBlockManager());
     assertGauge("StaleDataNodes", 0, getMetrics(NS_METRICS));
   }
   
@@ -274,7 +280,7 @@ public class TestNameNodeMetrics {
   public void testMissingBlock() throws Exception {
     // Create a file with single block with two replicas
     Path file = getTestPath("testMissingBlocks");
-    createFile(file, 100, (short)1);
+    createFile(file, 100, (short) 1);
     
     // Corrupt the only replica of the block to result in a missing block
     LocatedBlock block = NameNodeAdapter.getBlockLocations(
@@ -480,8 +486,8 @@ public class TestNameNodeMetrics {
     assertGauge("NumFilesUnderConstruction", 2L, getMetrics(NS_METRICS));
 
     // create another DistributedFileSystem client
-    DistributedFileSystem fs1 = (DistributedFileSystem) cluster
-        .getNewFileSystemInstance(0);
+    DistributedFileSystem fs1 =
+        (DistributedFileSystem) cluster.getNewFileSystemInstance(0);
     try {
       Path file4 = new Path("/testFileAdd4");
       FSDataOutputStream output4 = fs1.create(file4);

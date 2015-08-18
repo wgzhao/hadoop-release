@@ -165,6 +165,14 @@ public interface FSNamesystemMBean {
   public int getNumStaleStorages();
 
   /**
+   * Returns a nested JSON object listing the top users for different RPC
+   * operations over tracked time windows.
+   *
+   * @return JSON string
+   */
+  public String getTopUserOpCounts();
+
+  /**
    * Returns the length of the wait Queue for the FSNameSystemLock.
    *
    * A larger number here indicates lots of threads are waiting for
