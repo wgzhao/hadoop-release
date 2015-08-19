@@ -31,6 +31,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8278. When computing max-size-to-move in Balancer, count only the
     storage with remaining >= default block size.  (szetszwo)
 
+    HDFS-8826. In Balancer, add an option to specify the source node list
+    so that balancer only selects blocks to move from those nodes.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
