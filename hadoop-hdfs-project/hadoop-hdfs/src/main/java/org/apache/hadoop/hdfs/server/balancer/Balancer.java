@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.apache.hadoop.hdfs.server.namenode.UnsupportedActionException;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorageReport;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.util.HostsFileReader;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.Tool;
@@ -182,6 +184,7 @@ public class Balancer {
   private final Dispatcher dispatcher;
   private final NameNodeConnector nnc;
   private final BalancingPolicy policy;
+  private final Set<String> sourceNodes;
   private final boolean runDuringUpgrade;
   private final double threshold;
   private final long maxSizeToMove;
@@ -254,11 +257,12 @@ public class Balancer {
         DFSConfigKeys.DFS_BALANCER_GETBLOCKS_MIN_BLOCK_SIZE_DEFAULT);
 
     this.nnc = theblockpool;
-    this.dispatcher = new Dispatcher(theblockpool, p.nodesToBeIncluded,
-        p.nodesToBeExcluded, movedWinWidth, moverThreads, dispatcherThreads,
+    this.dispatcher = new Dispatcher(theblockpool, p.includedNodes,
+        p.excludedNodes, movedWinWidth, moverThreads, dispatcherThreads,
         maxConcurrentMovesPerNode, getBlocksSize, getBlocksMinBlockSize, conf);
     this.threshold = p.threshold;
     this.policy = p.policy;
+    this.sourceNodes = p.sourceNodes;
     this.runDuringUpgrade = p.runDuringUpgrade;
 
     this.maxSizeToMove = getLong(conf,
@@ -312,14 +316,23 @@ public class Balancer {
     long overLoadedBytes = 0L, underLoadedBytes = 0L;
     for(DatanodeStorageReport r : reports) {
       final DDatanode dn = dispatcher.newDatanode(r.getDatanodeInfo());
+      final boolean isSource = Util.isIncluded(sourceNodes, dn.getDatanodeInfo());
       for(StorageType t : StorageType.getMovableTypes()) {
         final Double utilization = policy.getUtilization(r, t);
         if (utilization == null) { // datanode does not have such storage type 
           continue;
         }
         
+        final double average = policy.getAvgUtilization(t);
+        if (utilization >= average && !isSource) {
+          LOG.info(dn + "[" + t + "] has utilization=" + utilization
+              + " >= average=" + average
+              + " but it is not specified as a source; skipping it.");
+          continue;
+        }
+
+        final double utilizationDiff = utilization - average;
         final long capacity = getCapacity(r, t);
-        final double utilizationDiff = utilization - policy.getAvgUtilization(t);
         final double thresholdDiff = Math.abs(utilizationDiff) - threshold;
         final long maxSize2Move = computeMaxSize2Move(capacity,
             getRemaining(r, t), utilizationDiff, maxSizeToMove);
@@ -617,6 +630,9 @@ public class Balancer {
             DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_DEFAULT) * 1000;
     LOG.info("namenodes  = " + namenodes);
     LOG.info("parameters = " + p);
+    LOG.info("included nodes = " + p.includedNodes);
+    LOG.info("excluded nodes = " + p.excludedNodes);
+    LOG.info("source nodes = " + p.sourceNodes);
     
     System.out.println("Time Stamp               Iteration#  Bytes Already Moved  Bytes Left To Move  Bytes Being Moved");
     
@@ -679,27 +695,33 @@ public class Balancer {
   static class Parameters {
     static final Parameters DEFAULT = new Parameters(
         BalancingPolicy.Node.INSTANCE, 10.0,
-        Collections.<String> emptySet(), Collections.<String> emptySet(),
+        Collections.<String>emptySet(), Collections.<String>emptySet(),
+        Collections.<String>emptySet(),
         false);
 
     final BalancingPolicy policy;
     final double threshold;
-    // exclude the nodes in this set from balancing operations
-    Set<String> nodesToBeExcluded;
-    //include only these nodes in balancing operations
-    Set<String> nodesToBeIncluded;
+    /** Exclude the nodes in this set. */
+    final Set<String> excludedNodes;
+    /** If empty, include any node; otherwise, include only these nodes. */
+    final Set<String> includedNodes;
+    /** If empty, any node can be a source;
+     *  otherwise, use only these nodes as source nodes.
+     */
+    final Set<String> sourceNodes;
     /**
      * Whether to run the balancer during upgrade.
      */
     final boolean runDuringUpgrade;
 
     Parameters(BalancingPolicy policy, double threshold,
-        Set<String> nodesToBeExcluded, Set<String> nodesToBeIncluded,
-        boolean runDuringUpgrade) {
+        Set<String> excludedNodes, Set<String> includedNodes,
+        Set<String> sourceNodes, boolean runDuringUpgrade) {
       this.policy = policy;
       this.threshold = threshold;
-      this.nodesToBeExcluded = nodesToBeExcluded;
-      this.nodesToBeIncluded = nodesToBeIncluded;
+      this.excludedNodes = excludedNodes;
+      this.includedNodes = includedNodes;
+      this.sourceNodes = sourceNodes;
       this.runDuringUpgrade = runDuringUpgrade;
     }
 
@@ -707,12 +729,13 @@ public class Balancer {
     public String toString() {
       return String.format("%s.%s [%s,"
               + " threshold = %s,"
-              + "number of nodes to be excluded = %s,"
-              + " number of nodes to be included = %s,"
+              + " #excluded nodes = %s,"
+              + " #included nodes = %s,"
+              + " #source nodes = %s,"
               + " run during upgrade = %s]",
           Balancer.class.getSimpleName(), getClass().getSimpleName(),
           policy, threshold,
-          nodesToBeExcluded.size(), nodesToBeIncluded.size(),
+          excludedNodes.size(), includedNodes.size(), sourceNodes.size(),
           runDuringUpgrade);
     }
   }
@@ -750,8 +773,9 @@ public class Balancer {
     static Parameters parse(String[] args) {
       BalancingPolicy policy = Parameters.DEFAULT.policy;
       double threshold = Parameters.DEFAULT.threshold;
-      Set<String> nodesTobeExcluded = Parameters.DEFAULT.nodesToBeExcluded;
-      Set<String> nodesTobeIncluded = Parameters.DEFAULT.nodesToBeIncluded;
+      Set<String> excludedNodes = Parameters.DEFAULT.excludedNodes;
+      Set<String> includedNodes = Parameters.DEFAULT.includedNodes;
+      Set<String> sourceNodes = Parameters.DEFAULT.sourceNodes;
       boolean runDuringUpgrade = Parameters.DEFAULT.runDuringUpgrade;
 
       if (args != null) {
@@ -783,29 +807,14 @@ public class Balancer {
                 throw e;
               }
             } else if ("-exclude".equalsIgnoreCase(args[i])) {
-              checkArgument(++i < args.length,
-                  "List of nodes to exclude | -f <filename> is missing: args = "
-                  + Arrays.toString(args));
-              if ("-f".equalsIgnoreCase(args[i])) {
-                checkArgument(++i < args.length,
-                    "File containing nodes to exclude is not specified: args = "
-                    + Arrays.toString(args));
-                nodesTobeExcluded = Util.getHostListFromFile(args[i], "exclude");
-              } else {
-                nodesTobeExcluded = Util.parseHostList(args[i]);
-              }
+              excludedNodes = new HashSet<String>();
+              i = processHostList(args, i, "exclude", excludedNodes);
             } else if ("-include".equalsIgnoreCase(args[i])) {
-              checkArgument(++i < args.length,
-                "List of nodes to include | -f <filename> is missing: args = "
-                + Arrays.toString(args));
-              if ("-f".equalsIgnoreCase(args[i])) {
-                checkArgument(++i < args.length,
-                    "File containing nodes to include is not specified: args = "
-                    + Arrays.toString(args));
-                nodesTobeIncluded = Util.getHostListFromFile(args[i], "include");
-               } else {
-                nodesTobeIncluded = Util.parseHostList(args[i]);
-              }
+              includedNodes = new HashSet<String>();
+              i = processHostList(args, i, "include", includedNodes);
+            } else if ("-source".equalsIgnoreCase(args[i])) {
+              sourceNodes = new HashSet<String>();
+              i = processHostList(args, i, "source", sourceNodes);
             } else if ("-runDuringUpgrade".equalsIgnoreCase(args[i])) {
               runDuringUpgrade = true;
               LOG.info("Will run the balancer even during an ongoing HDFS "
@@ -817,7 +826,7 @@ public class Balancer {
                   + Arrays.toString(args));
             }
           }
-          checkArgument(nodesTobeExcluded.isEmpty() || nodesTobeIncluded.isEmpty(),
+          checkArgument(excludedNodes.isEmpty() || includedNodes.isEmpty(),
               "-exclude and -include options cannot be specified together.");
         } catch(RuntimeException e) {
           printUsage(System.err);
@@ -826,7 +835,31 @@ public class Balancer {
       }
       
       return new Parameters(policy, threshold,
-          nodesTobeExcluded, nodesTobeIncluded, runDuringUpgrade);
+          excludedNodes, includedNodes, sourceNodes, runDuringUpgrade);
+    }
+
+    private static int processHostList(String[] args, int i, String type,
+        Set<String> nodes) {
+      Preconditions.checkArgument(++i < args.length,
+          "List of %s nodes | -f <filename> is missing: args=%s",
+          type, Arrays.toString(args));
+      if ("-f".equalsIgnoreCase(args[i])) {
+        Preconditions.checkArgument(++i < args.length,
+            "File containing %s nodes is not specified: args=%s",
+            type, Arrays.toString(args));
+
+        final String filename = args[i];
+        try {
+          HostsFileReader.readFileToSet(type, filename, nodes);
+        } catch (IOException e) {
+          throw new IllegalArgumentException(
+              "Failed to read " + type + " node list from file: " + filename);
+        }
+      } else {
+        final String[] addresses = StringUtils.getTrimmedStrings(args[i]);
+        nodes.addAll(Arrays.asList(addresses));
+      }
+      return i;
     }
 
     private static void printUsage(PrintStream out) {
