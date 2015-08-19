@@ -193,4 +193,14 @@ public interface FSNamesystemMBean {
    * @return int - Number of Threads waiting to acquire FSNameSystemLock
    */
   int getFsLockQueueLength();
+
+  /**
+   * Return total number of Sync Operations on FSEditLog.
+   */
+  long getTotalSyncCount();
+
+  /**
+   * Return total time spent doing sync operations on FSEditLog.
+   */
+  String getTotalSyncTimes();
 }

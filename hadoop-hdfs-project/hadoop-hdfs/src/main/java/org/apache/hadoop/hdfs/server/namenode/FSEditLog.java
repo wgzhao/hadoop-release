@@ -1612,4 +1612,11 @@ public class FSEditLog implements LogsPurgeable {
     }
   }
 
+  /**
+   +   * Return total number of syncs happened on this edit log.
+   +   * @return long - count
+   +   */
+  public long getTotalSyncCount() {
+    return editLogStream.getNumSync();
+  }
 }

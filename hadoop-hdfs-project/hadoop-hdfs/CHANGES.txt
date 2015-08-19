@@ -3,9 +3,11 @@ Hadoop HDFS Change Log
 Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
-    
     HDFS-7278. Add a command that allows sysadmins to manually trigger full
     block reports from a DN (cmccabe)
+
+    HDFS-8911. NameNode Metric : Add Editlog counters as a JMX metric.
+    (Contributed by Anu Engineer)
 
     HDFS-6982. nntop: top­-like tool for name node users.
     (Maysam Yabandeh via wang)
