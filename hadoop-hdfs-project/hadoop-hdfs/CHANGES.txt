@@ -113,7 +113,21 @@ Release 2.8.0 - UNRELEASED
     HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
     Contributed by Anu Engineer.
 
-Release 2.7.1 - UNRELEASED
+Release 2.7.2 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+    HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
+
+  BUG FIXES
+
+Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
 
