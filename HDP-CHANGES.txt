@@ -149,7 +149,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-42254. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
-    BUG-43181. HDFS-4185. Add a metric for number of active leases
+    BUG-43161. HDFS-4185. Add a metric for number of active leases
     (Rakesh R via raviprak)
 
   OPTIMIZATIONS
@@ -305,4 +305,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     HDFS-8722. Optimize datanode writes for small writes and flushes.
     (Contributed by Kihwal Lee)
+
+    BUG-43165. HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
+    flawed. (Kihwal Lee via Yi Liu)
 
