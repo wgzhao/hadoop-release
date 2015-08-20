@@ -591,9 +591,9 @@ public class DistCpOptions {
       throw new IllegalArgumentException(
           "Append is disallowed when skipping CRC");
     }
-    if ((!syncFolder || !deleteMissing) && useDiff) {
+    if ((!syncFolder || deleteMissing) && useDiff) {
       throw new IllegalArgumentException(
-          "Diff is valid only with update and delete options");
+          "Diff is valid only with update options");
     }
   }
 
