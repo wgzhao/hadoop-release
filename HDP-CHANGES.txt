@@ -368,4 +368,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
     flawed. (Kihwal Lee via Yi Liu)
 
+    HDFS-7915. The DataNode can sometimes allocate a ShortCircuitShm slot and
+    fail to tell the DFSClient about it because of a network error. (Colin
+    Patrick McCabe)
 

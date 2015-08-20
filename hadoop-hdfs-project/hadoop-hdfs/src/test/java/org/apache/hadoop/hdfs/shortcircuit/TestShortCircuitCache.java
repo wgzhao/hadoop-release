@@ -36,13 +36,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.google.common.collect.HashMultimap;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.BlockReaderFactory;
 import org.apache.hadoop.hdfs.BlockReaderTestUtil;
+import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.DFSInputStream;
 import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -53,14 +56,15 @@ import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.server.datanode.BlockMetadataHeader;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeFaultInjector;
-import org.apache.hadoop.hdfs.server.datanode.ShortCircuitRegistry;
 import org.apache.hadoop.hdfs.server.datanode.ShortCircuitRegistry.RegisteredShm;
+import org.apache.hadoop.hdfs.server.datanode.ShortCircuitRegistry;
 import org.apache.hadoop.hdfs.shortcircuit.DfsClientShmManager.PerDatanodeVisitorInfo;
 import org.apache.hadoop.hdfs.shortcircuit.DfsClientShmManager.Visitor;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitCache.CacheVisitor;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitCache.ShortCircuitReplicaCreator;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitShm.ShmId;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitShm.Slot;
+import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitShm.ShmId;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.net.unix.DomainSocket;
 import org.apache.hadoop.net.unix.TemporarySocketDirectory;
@@ -623,26 +627,21 @@ public class TestShortCircuitCache {
     sockDir.close();
   }
 
-  static private void checkNumberOfSegmentsAndSlots(final int expectedSegments,
-        final int expectedSlots, ShortCircuitRegistry registry) {
-    registry.visit(new ShortCircuitRegistry.Visitor() {
-      @Override
-      public void accept(HashMap<ShmId, RegisteredShm> segments,
-                         HashMultimap<ExtendedBlockId, Slot> slots) {
-        Assert.assertEquals(expectedSegments, segments.size());
-        Assert.assertEquals(expectedSlots, slots.size());
-      }
-    });
+  public static class TestCleanupFailureInjector
+        extends BlockReaderFactory.FailureInjector {
+    @Override
+    public void injectRequestFileDescriptorsFailure() throws IOException {
+      throw new IOException("injected I/O error");
+    }
   }
 
-  // Regression test for HADOOP-11802
+  // Regression test for HDFS-7915
   @Test(timeout=60000)
-  public void testDataXceiverHandlesRequestShortCircuitShmFailure()
-      throws Exception {
+  public void testDataXceiverCleansUpSlotsOnFailure() throws Exception {
     BlockReaderTestUtil.enableShortCircuitShmTracing();
     TemporarySocketDirectory sockDir = new TemporarySocketDirectory();
     Configuration conf = createShortCircuitConf(
-        "testDataXceiverHandlesRequestShortCircuitShmFailure", sockDir);
+        "testDataXceiverCleansUpSlotsOnFailure", sockDir);
     conf.setLong(DFS_CLIENT_READ_SHORTCIRCUIT_STREAMS_CACHE_EXPIRY_MS_KEY,
         1000000000L);
     MiniDFSCluster cluster =
@@ -650,46 +649,37 @@ public class TestShortCircuitCache {
     cluster.waitActive();
     DistributedFileSystem fs = cluster.getFileSystem();
     final Path TEST_PATH1 = new Path("/test_file1");
-    DFSTestUtil.createFile(fs, TEST_PATH1, 4096,
-        (short)1, 0xFADE1);
-    LOG.info("Setting failure injector and performing a read which " +
-        "should fail...");
-    DataNodeFaultInjector failureInjector = Mockito.mock(DataNodeFaultInjector.class);
-    Mockito.doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        throw new IOException("injected error into sendShmResponse");
-      }
-    }).when(failureInjector).sendShortCircuitShmResponse();
-    DataNodeFaultInjector prevInjector = DataNodeFaultInjector.instance;
-    DataNodeFaultInjector.instance = failureInjector;
+    final Path TEST_PATH2 = new Path("/test_file2");
+    final int TEST_FILE_LEN = 4096;
+    final int SEED = 0xFADE1;
+    DFSTestUtil.createFile(fs, TEST_PATH1, TEST_FILE_LEN,
+        (short)1, SEED);
+    DFSTestUtil.createFile(fs, TEST_PATH2, TEST_FILE_LEN,
+        (short)1, SEED);
 
+    // The first read should allocate one shared memory segment and slot.
+    DFSTestUtil.readFileBuffer(fs, TEST_PATH1);
+
+    // The second read should fail, and we should only have 1 segment and 1 slot
+    // left.
+    fs.getClient().getConf().brfFailureInjector =
+        new TestCleanupFailureInjector();
     try {
-      // The first read will try to allocate a shared memory segment and slot.
-      // The shared memory segment allocation will fail because of the failure
-      // injector.
-      DFSTestUtil.readFileBuffer(fs, TEST_PATH1);
-      Assert.fail("expected readFileBuffer to fail, but it succeeded.");
+      DFSTestUtil.readFileBuffer(fs, TEST_PATH2);
     } catch (Throwable t) {
       GenericTestUtils.assertExceptionContains("TCP reads were disabled for " +
           "testing, but we failed to do a non-TCP read.", t);
     }
-
-    checkNumberOfSegmentsAndSlots(0, 0,
-        cluster.getDataNodes().get(0).getShortCircuitRegistry());
-
-    LOG.info("Clearing failure injector and performing another read...");
-    DataNodeFaultInjector.instance = prevInjector;
-
-    fs.getClient().getClientContext().getDomainSocketFactory().clearPathMap();
-
-    // The second read should succeed.
-    DFSTestUtil.readFileBuffer(fs, TEST_PATH1);
-
-    // We should have added a new short-circuit shared memory segment and slot.
-    checkNumberOfSegmentsAndSlots(1, 1,
-        cluster.getDataNodes().get(0).getShortCircuitRegistry());
-
+    ShortCircuitRegistry registry =
+      cluster.getDataNodes().get(0).getShortCircuitRegistry();
+    registry.visit(new ShortCircuitRegistry.Visitor() {
+      @Override
+      public void accept(HashMap<ShmId, RegisteredShm> segments,
+                         HashMultimap<ExtendedBlockId, Slot> slots) {
+        Assert.assertEquals(1, segments.size());
+        Assert.assertEquals(1, slots.size());
+      }
+    });
     cluster.shutdown();
     sockDir.close();
   }

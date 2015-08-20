@@ -159,6 +159,11 @@ Release 2.7.0
     HDFS-7579. Improve log reporting during block report rpc failure.
     (Charles Lamb via cnauroth)
 
+    HDFS-7915. The DataNode can sometimes allocate a ShortCircuitShm slot and
+    fail to tell the DFSClient about it because of a network error (cmccabe)
+
+    BREAKDOWN OF HDFS-7584 SUBTASKS AND RELATED JIRAS
+
     HDFS-7960. The full block report should prune zombie storages even if
     they're not empty. (cmccabe and Eddy Xu via wang)
 
