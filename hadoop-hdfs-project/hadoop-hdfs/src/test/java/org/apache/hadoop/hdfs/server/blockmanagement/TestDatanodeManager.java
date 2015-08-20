@@ -21,8 +21,7 @@ package org.apache.hadoop.hdfs.server.blockmanagement;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -275,8 +274,8 @@ public class TestDatanodeManager {
     Mockito.when(fsn.hasWriteLock()).thenReturn(true);
     if (scriptFileName != null && !scriptFileName.isEmpty()) {
       URL shellScript = getClass().getResource(scriptFileName);
-      Path resourcePath = Paths.get(shellScript.toURI());
-      FileUtil.setExecutable(resourcePath.toFile(), true);
+      File resourcePath = new File(shellScript.toURI());
+      FileUtil.setExecutable(resourcePath, true);
       conf.set(DFSConfigKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
         resourcePath.toString());
     }
