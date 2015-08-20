@@ -89,7 +89,7 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8879. Quota by storage type usage incorrectly initialized upon namenode
     restart. (xyao)
-    
+
     HDFS-8722. Optimize datanode writes for small writes and flushes (kihwal)
 
 Release 2.7.1 - UNRELEASED
