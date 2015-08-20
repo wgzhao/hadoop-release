@@ -52,6 +52,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-6917. Add an hdfs debug command to validate blocks, call
     recoverlease, etc. (Contributed by Colin Patrick McCabe)
 
+    HDFS-7257. Add the time of last HA state transition to NN's /jmx page.
+    (Contributed by Charles Lamb)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
