@@ -17,13 +17,16 @@
  */
 package org.apache.hadoop.hdfs.server.datanode;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -34,6 +37,9 @@ import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeManager;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeImpl;
+import org.apache.hadoop.hdfs.server.protocol.VolumeFailureSummary;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,11 +125,18 @@ public class TestDataNodeVolumeFailureToleration {
       assertTrue("The DN should have started up fine.",
           cluster.isDataNodeUp());
       DataNode dn = cluster.getDataNodes().get(0);
-      String si = DataNodeTestUtils.getFSDataset(dn).getStorageInfo();
-      assertTrue("The DN should have started with this directory",
-          si.contains(dataDir1Actual.getPath()));
-      assertFalse("The DN shouldn't have a bad directory.",
-          si.contains(dataDir2Actual.getPath()));
+      List<? extends FsVolumeSpi> volumes = dn.getFSDataset().getVolumes();
+      VolumeFailureSummary failedVolumes =
+          dn.getFSDataset().getVolumeFailureSummary();
+      assertThat("Expected one good volume", volumes.size(), is(1));
+      assertThat("The DN should have started with this directory",
+          volumes.get(0).getBasePath(),
+          is(dataDir1Actual.getAbsolutePath()));
+      assertThat("Expected one failed volume",
+          failedVolumes.getFailedStorageLocations().length, is(1));
+      assertThat("This volume should have been detected as failed",
+          failedVolumes.getFailedStorageLocations()[0],
+          is(dataDir2Actual.getAbsolutePath()));
     } finally {
       cluster.shutdownDataNodes();
       FileUtil.chmod(dataDir2.toString(), "755");

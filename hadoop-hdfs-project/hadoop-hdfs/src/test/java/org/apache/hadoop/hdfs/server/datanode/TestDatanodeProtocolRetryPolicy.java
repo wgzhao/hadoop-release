@@ -51,6 +51,7 @@ import org.apache.hadoop.hdfs.server.protocol.NNHAStatusHeartbeat;
 import org.apache.hadoop.hdfs.server.protocol.RegisterCommand;
 import org.apache.hadoop.hdfs.server.protocol.StorageBlockReport;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
+import org.apache.hadoop.hdfs.server.protocol.VolumeFailureSummary;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -214,7 +215,8 @@ public class TestDatanodeProtocolRetryPolicy {
            Mockito.anyLong(),
            Mockito.anyInt(),
            Mockito.anyInt(),
-           Mockito.anyInt());
+           Mockito.anyInt(),
+           Mockito.any(VolumeFailureSummary.class));
 
     dn = new DataNode(conf, locations, null) {
       @Override

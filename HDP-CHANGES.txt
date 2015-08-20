@@ -15,6 +15,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-41349/YARN-2513. Host framework UIs in YARN for use with the ATS.
     (Jonathan Eagles via zjshen)
 
+    HDFS-7604. Track and display failed DataNode storage locations
+    in NameNode. (Contributed by Chris Nauroth)
+
   IMPROVEMENTS
 
     HDFS-7153. Add storagePolicy to NN edit log during file creation.

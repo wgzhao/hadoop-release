@@ -48,6 +48,8 @@ import org.mockito.stubbing.Answer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,6 +109,7 @@ public class TestFsDatasetImpl {
 
     String dataDir = StringUtils.join(",", dirStrings);
     conf.set(DFSConfigKeys.DFS_DATANODE_DATA_DIR_KEY, dataDir);
+    when(storage.dirIterator()).thenReturn(dirs.iterator());
     when(storage.getNumStorageDirs()).thenReturn(numDirs);
   }
 
@@ -216,7 +219,8 @@ public class TestFsDatasetImpl {
   public void testChangeVolumeWithRunningCheckDirs() throws IOException {
     RoundRobinVolumeChoosingPolicy<FsVolumeImpl> blockChooser =
         new RoundRobinVolumeChoosingPolicy<FsVolumeImpl>();
-    final FsVolumeList volumeList = new FsVolumeList(0, blockChooser);
+    final FsVolumeList volumeList = new FsVolumeList(
+        Collections.<VolumeFailureInfo>emptyList(), blockChooser);
     final List<FsVolumeImpl> oldVolumes = new ArrayList<FsVolumeImpl>();
 
     // Initialize FsVolumeList with 5 mock volumes.

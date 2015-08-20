@@ -17,13 +17,17 @@
  */
 package org.apache.hadoop.hdfs.server.datanode.fsdataset.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
@@ -39,19 +43,20 @@ import org.apache.hadoop.util.Time;
 class FsVolumeList {
   private final AtomicReference<FsVolumeImpl[]> volumes =
       new AtomicReference<FsVolumeImpl[]>(new FsVolumeImpl[0]);
+  // Tracks volume failures, sorted by volume path.
+  private final Map<String, VolumeFailureInfo> volumeFailureInfos =
+      Collections.synchronizedMap(new TreeMap<String, VolumeFailureInfo>());
   private Object checkDirsMutex = new Object();
 
   private final VolumeChoosingPolicy<FsVolumeImpl> blockChooser;
-  private volatile int numFailedVolumes;
 
-  FsVolumeList(int failedVols,
+  FsVolumeList(List<VolumeFailureInfo> initialVolumeFailureInfos,
       VolumeChoosingPolicy<FsVolumeImpl> blockChooser) {
     this.blockChooser = blockChooser;
-    this.numFailedVolumes = failedVols;
-  }
-  
-  int numberOfFailedVolumes() {
-    return numFailedVolumes;
+    for (VolumeFailureInfo volumeFailureInfo: initialVolumeFailureInfos) {
+      volumeFailureInfos.put(volumeFailureInfo.getFailedStorageLocation(),
+          volumeFailureInfo);
+    }
   }
 
   /**
@@ -203,7 +208,9 @@ class FsVolumeList {
           }
           removedVols.add(fsv);
           removeVolume(fsv);
-          numFailedVolumes++;
+          addVolumeFailureInfo(fsv);
+        } catch (IOException e) {
+          FsDatasetImpl.LOG.error("Unexpected IOException", e);
         }
       }
       
@@ -292,6 +299,26 @@ class FsVolumeList {
         removeVolume(fsVolume);
       }
     }
+    removeVolumeFailureInfo(volume);
+  }
+
+  VolumeFailureInfo[] getVolumeFailureInfos() {
+    Collection<VolumeFailureInfo> infos = volumeFailureInfos.values();
+    return infos.toArray(new VolumeFailureInfo[infos.size()]);
+  }
+
+  void addVolumeFailureInfo(VolumeFailureInfo volumeFailureInfo) {
+    volumeFailureInfos.put(volumeFailureInfo.getFailedStorageLocation(),
+        volumeFailureInfo);
+  }
+
+  private void addVolumeFailureInfo(FsVolumeImpl vol) {
+    addVolumeFailureInfo(new VolumeFailureInfo(vol.getBasePath(), Time.now(),
+        vol.getCapacity()));
+  }
+
+  private void removeVolumeFailureInfo(String vol) {
+    volumeFailureInfos.remove(vol);
   }
 
   void addBlockPool(final String bpid, final Configuration conf) throws IOException {
