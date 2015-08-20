@@ -47,6 +47,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-3787. Allowed generic history service to load a number of applications whose
     started time is within the given range. (Xuan Gong via zjshen)
 
+    HDFS-6888. Allow selectively audit logging ops. (Contributed by Chen He)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
