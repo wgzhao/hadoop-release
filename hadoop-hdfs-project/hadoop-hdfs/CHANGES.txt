@@ -49,6 +49,19 @@ Release 2.8.0 - UNRELEASED
     HDFS-8055. NullPointerException when topology script is
     missing. Contributed by Anu Engineer.
 
+Release 2.7.2
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  BUG FIXES
+
+    HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
+    flawed. (Kihwal Lee via Yi Liu)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES

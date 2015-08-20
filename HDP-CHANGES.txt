@@ -365,3 +365,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     if using more than 1 DataNode and more than 2 storage locations per
     DataNode. (Chris Nauroth)
 
+    HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
+    flawed. (Kihwal Lee via Yi Liu)
+
+
