@@ -1280,3 +1280,6 @@ ATS V1.5:
     YARN-4479. Change CS LeafQueue pendingOrderingPolicy to hornor recovered apps. Contributed by Rohith Sharma K S
 
     YARN-4522. Queue acl can be checked at app submission. (Jian He via wangda)
+
+    YARN-3986. getTransferredContainers in AbstractYarnScheduler should be present in YarnScheduler 
+    interface. (Rohith)

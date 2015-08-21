@@ -442,6 +442,9 @@ Release 2.7.3 - UNRELEASED
 
     YARN-4315. NaN in Queue percentage for cluster apps page. (Bibin A Chundatt via wangda)
 
+    YARN-3986. getTransferredContainers in AbstractYarnScheduler should be present
+    in YarnScheduler interface instead. (Varun Saxena via rohithsharmaks)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
