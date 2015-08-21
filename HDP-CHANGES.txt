@@ -327,6 +327,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-2713. "RM Home" link in NM should point to one of the RMs in an 
     HA setup. (kasha)
 
+    YARN-3999. RM hangs on draing events. (jianhe)
+
     HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
     multiple times (Contributed by zhihai xu)
     
