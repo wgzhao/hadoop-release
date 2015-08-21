@@ -210,9 +210,8 @@ public class ApplicationHistoryServer extends CompositeService {
   }
 
   private TimelineDataManager createTimelineDataManager(Configuration conf) {
-    TimelineACLsManager aclsMgr = new TimelineACLsManager(conf);
-    aclsMgr.setTimelineStore(timelineStore);
-    return new TimelineDataManager(timelineStore, aclsMgr);
+    return new TimelineDataManager(
+        timelineStore, new TimelineACLsManager(conf));
   }
 
   @SuppressWarnings("unchecked")

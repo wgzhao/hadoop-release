@@ -59,7 +59,6 @@ public class TestTimelineDataManager extends TimelineStoreTestUtils {
     loadTestDomainData();
 
     TimelineACLsManager aclsManager = new TimelineACLsManager(conf);
-    aclsManager.setTimelineStore(store);
     dataManaer = new TimelineDataManager(store, aclsManager);
   }
 
