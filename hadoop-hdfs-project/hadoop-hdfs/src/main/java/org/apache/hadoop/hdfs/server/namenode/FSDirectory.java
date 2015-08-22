@@ -48,9 +48,11 @@ import org.apache.hadoop.hdfs.protocol.QuotaExceededException;
 import org.apache.hadoop.hdfs.protocol.SnapshotAccessControlException;
 import org.apache.hadoop.hdfs.protocol.proto.HdfsProtos;
 import org.apache.hadoop.hdfs.protocolPB.PBHelper;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfo;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockManager;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
+import org.apache.hadoop.hdfs.server.namenode.INode.BlocksMapUpdateInfo.UpdatedReplicationInfo;
 import org.apache.hadoop.hdfs.util.ByteArray;
 import org.apache.hadoop.hdfs.util.EnumCounters;
 import org.apache.hadoop.security.AccessControlException;
@@ -479,6 +481,20 @@ public class FSDirectory implements Closeable {
       return node != null && node.isDirectory();
     } finally {
       readUnlock();
+    }
+  }
+
+  /**
+   * Tell the block manager to update the replication factors when delete
+   * happens. Deleting a file or a snapshot might decrease the replication
+   * factor of the blocks as the blocks are always replicated to the highest
+   * replication factor among all snapshots.
+   */
+  void updateReplicationFactor(Collection<UpdatedReplicationInfo> blocks) {
+    BlockManager bm = getBlockManager();
+    for (UpdatedReplicationInfo e : blocks) {
+      BlockInfo b = e.block();
+      bm.setReplication(b.getReplication(), e.targetReplication(), b);
     }
   }
 
