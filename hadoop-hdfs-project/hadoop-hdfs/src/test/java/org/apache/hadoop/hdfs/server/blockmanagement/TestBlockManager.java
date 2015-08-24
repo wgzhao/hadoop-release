@@ -51,6 +51,7 @@ import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.apache.hadoop.hdfs.server.datanode.FinalizedReplica;
 import org.apache.hadoop.hdfs.server.datanode.ReplicaBeingWritten;
 import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
+import org.apache.hadoop.hdfs.server.namenode.INodeId;
 import org.apache.hadoop.hdfs.server.namenode.NameNodeAdapter;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
@@ -89,6 +90,7 @@ public class TestBlockManager {
 
   private FSNamesystem fsn;
   private BlockManager bm;
+  private long mockINodeId;
 
   @Before
   public void setupMockCluster() throws IOException {
@@ -96,6 +98,7 @@ public class TestBlockManager {
     conf.set(DFSConfigKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY, "need to set a dummy value here so it assumes a multi-rack cluster");
     fsn = Mockito.mock(FSNamesystem.class);
     Mockito.doReturn(true).when(fsn).hasWriteLock();
+    Mockito.doReturn(true).when(fsn).hasReadLock();
     bm = new BlockManager(fsn, conf);
     final String[] racks = {
         "/rackA",
@@ -108,6 +111,7 @@ public class TestBlockManager {
     nodes = Arrays.asList(DFSTestUtil.toDatanodeDescriptor(storages));
     rackA = nodes.subList(0, 3);
     rackB = nodes.subList(3, 6);
+    mockINodeId = INodeId.ROOT_INODE_ID + 1;
   }
 
   private void addNodes(Iterable<DatanodeDescriptor> nodesToAdd) {
@@ -432,9 +436,14 @@ public class TestBlockManager {
   }
   
   private BlockInfo addBlockOnNodes(long blockId, List<DatanodeDescriptor> nodes) {
+    long inodeId = ++mockINodeId;
     BlockCollection bc = Mockito.mock(BlockCollection.class);
+    Mockito.doReturn(inodeId).when(bc).getId();
+    Mockito.doReturn(bc).when(fsn).getBlockCollection(inodeId);
     BlockInfo blockInfo = blockOnNodes(blockId, nodes);
 
+    blockInfo.setReplication((short) 3);
+    blockInfo.setBlockCollectionId(inodeId);
     bm.blocksMap.addBlockCollection(blockInfo, bc);
     return blockInfo;
   }
@@ -739,7 +748,10 @@ public class TestBlockManager {
     BlockInfo blockInfo =
         new BlockInfoContiguous(block, (short) 3);
     BlockCollection bc = Mockito.mock(BlockCollection.class);
+    long inodeId = ++mockINodeId;
+    doReturn(inodeId).when(bc).getId();
     bm.blocksMap.addBlockCollection(blockInfo, bc);
+    doReturn(bc).when(fsn).getBlockCollection(inodeId);
     return blockInfo;
   }
 
@@ -748,7 +760,10 @@ public class TestBlockManager {
     BlockInfo blockInfo = new BlockInfoContiguous(block, (short) 3);
     blockInfo.convertToBlockUnderConstruction(UNDER_CONSTRUCTION, null);
     BlockCollection bc = Mockito.mock(BlockCollection.class);
+    long inodeId = ++mockINodeId;
+    doReturn(inodeId).when(bc).getId();
     bm.blocksMap.addBlockCollection(blockInfo, bc);
+    doReturn(bc).when(fsn).getBlockCollection(inodeId);
     return blockInfo;
   }
   

@@ -36,6 +36,7 @@ public class INodeId extends SequentialNumber {
    */
   public static final long LAST_RESERVED_ID = 2 << 14 - 1;
   public static final long ROOT_INODE_ID = LAST_RESERVED_ID + 1;
+  public static final long INVALID_INODE_ID = -1;
 
   /**
    * The inode id validation of lease check will be skipped when the request
