@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HADOOP-12325. RPC Metrics : Add the ability track and log slow RPCs.
+    (Anu Engineer via xyao)
+
   OPTIMIZATIONS
 
   BUG FIXES
