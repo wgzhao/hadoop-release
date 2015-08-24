@@ -9750,7 +9750,12 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
   @Metric({"TotalSyncTimes",
               "Total time spend in sync operation on various edit logs"})
   public String getTotalSyncTimes() {
-    return fsImage.editLog.getJournalSet().getSyncTimes();
+    JournalSet journalSet = fsImage.editLog.getJournalSet();
+    if (journalSet != null) {
+      return journalSet.getSyncTimes();
+    } else {
+      return "";
+    }
   }
 }
 
