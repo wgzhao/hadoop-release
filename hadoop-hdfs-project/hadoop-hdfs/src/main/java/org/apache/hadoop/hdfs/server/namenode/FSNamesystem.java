@@ -3271,7 +3271,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       throw new AlreadyBeingCreatedException(message);
     case UNDER_CONSTRUCTION:
     case UNDER_RECOVERY:
-      BlockUnderConstructionFeature uc = lastBlock.getUnderConstructionFeature();
+      BlockUnderConstructionFeature uc =
+          lastBlock.getUnderConstructionFeature();
       // determine if last block was intended to be truncated
       Block recoveryBlock = uc.getTruncateBlock();
       boolean truncateRecovery = recoveryBlock != null;
@@ -3285,7 +3286,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
       // setup the last block locations from the blockManager if not known
       if (uc.getNumExpectedLocations() == 0) {
-        uc.setExpectedLocations(lastBlock.getGenerationStamp(),
+        uc.setExpectedLocations(lastBlock,
             blockManager.getStorages(lastBlock));
       }
 
@@ -5600,7 +5601,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
             "src=%s, oldBlock=%s, newBlock=%s, clientName=%s",
             src, oldBlock, newBlock, clientName);
     blockinfo.getUnderConstructionFeature().setExpectedLocations(
-        blockinfo.getGenerationStamp(), storages);
+        blockinfo, storages);
 
     FSDirWriteFileOp.persistBlocks(dir, src, pendingFile, logRetryCache);
   }
