@@ -213,6 +213,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3740. Fixed the typo in the configuration name:
     APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
 
+    YARN-3896. RMNode transitioned from RUNNING to REBOOTED because its response id 
+    has not been reset synchronously. (Jun Gong via rohithsharmaks)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
