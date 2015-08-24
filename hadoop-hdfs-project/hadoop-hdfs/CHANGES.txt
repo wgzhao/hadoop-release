@@ -101,6 +101,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8722. Optimize datanode writes for small writes and flushes (kihwal)
 
+    HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
+    before editLogStream initialization. (Surendra Singh Lilhore via xyao)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
