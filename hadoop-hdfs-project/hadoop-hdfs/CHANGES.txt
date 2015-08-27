@@ -110,6 +110,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8311. DataStreamer.transfer() should timeout the socket InputStream.
     (Esteban Gutierrez via Yongjun Zhang)
 
+    HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
+    Contributed by Anu Engineer.
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
