@@ -6,6 +6,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7278. Add a command that allows sysadmins to manually trigger full
     block reports from a DN (cmccabe)
 
+    HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
+    Contributed by Anu Engineer.
+
     HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
     before editLogStream initialization. Contributed by Surendra Singh Lilhore
 
