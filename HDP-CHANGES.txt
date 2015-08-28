@@ -1510,3 +1510,6 @@ ATS V1.5:
 
     BUG-58029. YARN-5131. Distributed shell AM fails when extra container
     arrives during finishing. Wangda Tan via junping_du.
+
+    BUG-58627. YARN-1556. NPE getting application report with a null appId. (Weiwei Yang
+    via junping_du)
