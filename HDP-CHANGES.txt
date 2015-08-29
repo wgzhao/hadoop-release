@@ -152,6 +152,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     BUG-43161. HDFS-4185. Add a metric for number of active leases
     (Rakesh R via raviprak)
 
+    HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)

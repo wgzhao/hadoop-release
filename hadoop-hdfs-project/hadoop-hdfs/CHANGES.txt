@@ -43,6 +43,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-4185. Add a metric for number of active leases.
     (Rakesh R via raviprak)
 
+    HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
