@@ -56,6 +56,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8311. DataStreamer.transfer() should timeout the socket InputStream.
     (Esteban Gutierrez via Yongjun Zhang)
 
+    HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
   BUG FIXES

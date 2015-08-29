@@ -126,6 +126,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.UUID;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -4266,6 +4267,9 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         checkPermission(pc, src, false, null, FsAction.WRITE, null,
             FsAction.ALL, true, false);
       }
+      if (recursive && dir.isNonEmptyDirectory(src)) {
+        checkProtectedDescendants(dir.normalizePath(src));
+      }
 
       long mtime = now();
       // Unlink the target directory from directory tree
@@ -4384,6 +4388,38 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
             + ", totalBlocks by " + numRemovedComplete);
       }
       adjustSafeModeBlockTotals(-numRemovedSafe, -numRemovedComplete);
+    }
+  }
+
+  /**
+   * Throw if the given directory has any non-empty protected descendants
+   * (including itself).
+   *
+   * @param src directory whose descendants are to be checked. The caller
+   *            must ensure src is not terminated with {@link Path#SEPARATOR}.
+   * @throws AccessControlException if a non-empty protected descendant
+   *                                was found.
+   */
+  private void checkProtectedDescendants(String src)
+      throws AccessControlException, UnresolvedLinkException {
+    final SortedSet<String> protectedDirs = dir.getProtectedDirectories();
+
+    // Is src protected? Caller has already checked it is non-empty.
+    if (protectedDirs.contains(src)) {
+      throw new AccessControlException(
+          "Cannot delete non-empty protected directory " + src);
+    }
+
+    // Are any descendants of src protected?
+    // The subSet call returns only the descendants of src since
+    // {@link Path#SEPARATOR} is "/" and '0' is the next ASCII
+    // character after '/'.
+    for (String descendant :
+            protectedDirs.subSet(src + Path.SEPARATOR, src + "0")) {
+      if (dir.isNonEmptyDirectory(descendant)) {
+        throw new AccessControlException(
+            "Cannot delete non-empty protected subdirectory " + descendant);
+      }
     }
   }
 

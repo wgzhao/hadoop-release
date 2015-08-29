@@ -18,6 +18,7 @@
 package org.apache.hadoop.hdfs.server.namenode;
 
 import static org.apache.hadoop.fs.BatchedRemoteIterator.BatchedListEntries;
+import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_PROTECTED_DIRECTORIES;
 import static org.apache.hadoop.hdfs.server.common.HdfsServerConstants.CRYPTO_XATTR_ENCRYPTION_ZONE;
 import static org.apache.hadoop.hdfs.server.common.HdfsServerConstants.CRYPTO_XATTR_FILE_ENCRYPTION_INFO;
 import static org.apache.hadoop.hdfs.server.common.HdfsServerConstants.SECURITY_XATTR_UNREADABLE_BY_SUPERUSER;
@@ -28,9 +29,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -40,6 +44,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.CipherSuite;
 import org.apache.hadoop.crypto.CryptoProtocolVersion;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileEncryptionInfo;
@@ -150,6 +155,13 @@ public class FSDirectory implements Closeable {
   private long yieldCount = 0; // keep track of lock yield count.
   private final int inodeXAttrsLimit; //inode xattrs max limit
 
+  // A set of directories that have been protected using the
+  // dfs.namenode.protected.directories setting. These directories cannot
+  // be deleted unless they are empty.
+  //
+  // Each entry in this set must be a normalized path.
+  private final SortedSet<String> protectedDirectories;
+
   // lock to protect the directory and BlockMap
   private final ReentrantReadWriteLock dirLock;
 
@@ -218,6 +230,8 @@ public class FSDirectory implements Closeable {
         DFSConfigKeys.DFS_NAMENODE_MAX_XATTRS_PER_INODE_KEY,
         DFSConfigKeys.DFS_NAMENODE_MAX_XATTRS_PER_INODE_DEFAULT);
 
+    this.protectedDirectories = parseProtectedDirectories(conf);
+
     Preconditions.checkArgument(this.inodeXAttrsLimit >= 0,
         "Cannot set a negative limit on the number of xattrs per inode (%s).",
         DFSConfigKeys.DFS_NAMENODE_MAX_XATTRS_PER_INODE_KEY);
@@ -247,6 +261,25 @@ public class FSDirectory implements Closeable {
 
   private BlockManager getBlockManager() {
     return getFSNamesystem().getBlockManager();
+  }
+
+  /**
+   * Parse configuration setting dfs.namenode.protected.directories to
+   * retrieve the set of protected directories.
+   *
+   * @param conf
+   * @return a TreeSet
+   */
+  @VisibleForTesting
+  static SortedSet<String> parseProtectedDirectories(Configuration conf) {
+    // Normalize each input path to guard against administrator error.
+    return new TreeSet<String>(normalizePaths(
+        conf.getTrimmedStringCollection(FS_PROTECTED_DIRECTORIES),
+        FS_PROTECTED_DIRECTORIES));
+  }
+
+  SortedSet<String> getProtectedDirectories() {
+    return protectedDirectories;
   }
 
   /** @return the root directory inode. */
@@ -2186,6 +2219,39 @@ public class FSDirectory implements Closeable {
 
     return (!last.isInLatestSnapshot(latestSnapshot)
         && INodeReference.tryRemoveReference(last) > 0) ? 0 : 1;
+  }
+
+  /**
+   * Return a new collection of normalized paths from the given input
+   * collection. The input collection is unmodified.
+   *
+   * Reserved paths, relative paths and paths with scheme are ignored.
+   *
+   * @param paths collection whose contents are to be normalized.
+   * @return collection with all input paths normalized.
+   */
+  static Collection<String> normalizePaths(Collection<String> paths,
+                                           String errorString) {
+    if (paths.isEmpty()) {
+      return paths;
+    }
+    final Collection<String> normalized = new ArrayList<String>(paths.size());
+    for (String dir : paths) {
+      if (isReservedName(dir)) {
+        NameNode.LOG.error("{} ignoring reserved path {}", errorString, dir);
+      } else {
+        final Path path = new Path(dir);
+        if (!path.isAbsolute()) {
+          NameNode.LOG.error("{} ignoring relative path {}", errorString, dir);
+        } else if (path.toUri().getScheme() != null) {
+          NameNode.LOG.error("{} ignoring path {} with scheme",
+              errorString, dir);
+        } else {
+          normalized.add(path.toString());
+        }
+      }
+    }
+    return normalized;
   }
 
   static String normalizePath(String src) {

@@ -56,6 +56,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7257. Add the time of last HA state transition to NN's /jmx page.
     (Contributed by Charles Lamb)
 
+    HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
