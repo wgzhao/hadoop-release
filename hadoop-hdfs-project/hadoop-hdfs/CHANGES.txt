@@ -21,6 +21,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-6663. Admin command to track file and locations from block id.
     (Chen He via kihwal)
 
+    HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
+
   IMPROVEMENTS
 
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
