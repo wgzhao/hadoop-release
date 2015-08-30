@@ -101,6 +101,14 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_WEBHDFS_ACL_PERMISSION_PATTERN_DEFAULT =
       "^(default:)?(user|group|mask|other):[[A-Za-z_][A-Za-z0-9._-]]*:([rwx-]{3})?(,(default:)?(user|group|mask|other):[[A-Za-z_][A-Za-z0-9._-]]*:([rwx-]{3})?)*$";
 
+  public static final String DFS_WEBHDFS_OAUTH_ENABLED_KEY = "dfs.webhdfs.oauth2.enabled";
+  public static boolean      DFS_WEBHDFS_OAUTH_ENABLED_DEFAULT = false;
+
+  public static final String OAUTH_CLIENT_ID_KEY = "dfs.webhdfs.oauth2.client.id";
+  public static final String OAUTH_REFRESH_URL_KEY = "dfs.webhdfs.oauth2.refresh.url";
+
+  public static final String ACCESS_TOKEN_PROVIDER_KEY = "dfs.webhdfs.oauth2.access.token.provider";
+
   // HDFS HTrace configuration is controlled by dfs.htrace.spanreceiver.classes,
   // etc.
   public static final String  DFS_SERVER_HTRACE_PREFIX = "dfs.htrace.";

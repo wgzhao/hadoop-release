@@ -6,6 +6,8 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
+    HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
+
   IMPROVEMENTS
 
     HDFS-8432. Introduce a minimum compatible layout version to allow downgrade

@@ -153,8 +153,19 @@ public class WebHdfsFileSystem extends FileSystem
         DFSConfigKeys.DFS_WEBHDFS_USER_PATTERN_KEY,
         DFSConfigKeys.DFS_WEBHDFS_USER_PATTERN_DEFAULT));
 
-    connectionFactory = URLConnectionFactory
-        .newDefaultURLConnectionFactory(conf);
+    boolean isOAuth = conf.getBoolean(
+        DFSConfigKeys.DFS_WEBHDFS_OAUTH_ENABLED_KEY,
+        DFSConfigKeys.DFS_WEBHDFS_OAUTH_ENABLED_DEFAULT);
+
+    if(isOAuth) {
+      LOG.info("Enabling OAuth2 in WebHDFS");
+      connectionFactory = URLConnectionFactory
+          .newOAuth2URLConnectionFactory(conf);
+    } else {
+      LOG.info("Not enabling OAuth2 in WebHDFS");
+      connectionFactory = URLConnectionFactory
+          .newDefaultURLConnectionFactory(conf);
+    }
 
     ugi = UserGroupInformation.getCurrentUser();
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
