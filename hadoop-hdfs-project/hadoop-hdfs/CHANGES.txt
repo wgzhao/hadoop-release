@@ -42,6 +42,8 @@ Release 2.8.0 - UNRELEASED
 
   OPTIMIZATIONS
 
+    HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
+
   BUG FIXES
 
     HDFS-7701. Support reporting per storage type quota and usage

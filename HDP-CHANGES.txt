@@ -153,6 +153,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
 
+    HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
+
   BUG FIXES
 
     BUG-5700. NameNode should shut down if out of memory error occurs. (cnauroth)

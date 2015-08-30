@@ -22,6 +22,8 @@ import static org.apache.hadoop.util.Time.monotonicNow;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,11 +143,7 @@ public class LeaseManager {
 
   /** @return the number of paths contained in all leases */
   synchronized int countPath() {
-    int count = 0;
-    for(Lease lease : sortedLeases) {
-      count += lease.getPaths().size();
-    }
-    return count;
+    return sortedLeasesByPath.size();
   }
   
   /**
