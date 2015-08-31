@@ -92,6 +92,7 @@ public class TestNamenodeRetryCache {
     conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BlockSize);
     conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ENABLE_RETRY_CACHE_KEY, true);
     conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+    conf.setBoolean(DFSConfigKeys.DFS_ALLOW_TRUNCATE_KEY, true);
     cluster = new MiniDFSCluster.Builder(conf).build();
     cluster.waitActive();
     namesystem = cluster.getNamesystem();

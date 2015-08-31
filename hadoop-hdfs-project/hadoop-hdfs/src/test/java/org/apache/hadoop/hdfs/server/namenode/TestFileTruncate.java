@@ -68,10 +68,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestFileTruncate {
-  static {
-    ((Log4JLogger)NameNode.stateChangeLog).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger)FSEditLogLoader.LOG).getLogger().setLevel(Level.ALL);
-  }
   static final Log LOG = LogFactory.getLog(TestFileTruncate.class);
   static final int BLOCK_SIZE = 4;
   static final short REPLICATION = 3;

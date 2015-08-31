@@ -261,6 +261,7 @@ public class TestRollingUpgrade {
   public void testRollback() throws IOException {
     // start a cluster 
     final Configuration conf = new HdfsConfiguration();
+    conf.setBoolean(DFSConfigKeys.DFS_ALLOW_TRUNCATE_KEY, true);
     MiniDFSCluster cluster = null;
     try {
       cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();

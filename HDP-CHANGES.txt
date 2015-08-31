@@ -381,3 +381,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-8595. TestCommitBlockSynchronization fails with NPE (Arpit Agarwal)
 
+    BUG-43485. Truncate is not allowed in FSNameSystem causes a set of test failures
+    (Anu Engineer)
+
