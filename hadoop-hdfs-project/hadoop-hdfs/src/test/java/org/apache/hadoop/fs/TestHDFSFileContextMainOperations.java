@@ -29,6 +29,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.hdfs.AppendTestUtil;
+import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
@@ -56,6 +57,7 @@ public class TestHDFSFileContextMainOperations extends
   @BeforeClass
   public static void clusterSetupAtBegining() throws IOException,
       LoginException, URISyntaxException {
+    CONF.setBoolean(DFSConfigKeys.DFS_ALLOW_TRUNCATE_KEY, true);
     cluster = new MiniDFSCluster.Builder(CONF).numDataNodes(2).build();
     cluster.waitClusterUp();
     URI uri0 = cluster.getURI(0);

@@ -47,6 +47,7 @@ public class TestHDFSCLI extends CLITestHelperDFS {
     
     // Many of the tests expect a replication value of 1 in the output
     conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
+    conf.setBoolean(DFSConfigKeys.DFS_ALLOW_TRUNCATE_KEY, true);
     
     // Build racks and hosts configuration to test dfsAdmin -printTopology
     String [] racks =  {"/rack1", "/rack1", "/rack2", "/rack2",
