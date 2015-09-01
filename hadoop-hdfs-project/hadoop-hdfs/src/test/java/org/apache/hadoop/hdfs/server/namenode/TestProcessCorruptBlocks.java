@@ -113,6 +113,7 @@ public class TestProcessCorruptBlocks {
     Configuration conf = new HdfsConfiguration();
     conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 1000L);
     conf.set(DFSConfigKeys.DFS_NAMENODE_REPLICATION_PENDING_TIMEOUT_SEC_KEY, Integer.toString(2));
+    conf.setLong(DFSConfigKeys.DFS_DATANODE_DIRECTORYSCAN_INTERVAL_KEY, 1);
     MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(4).build();
     FileSystem fs = cluster.getFileSystem();
     final FSNamesystem namesystem = cluster.getNamesystem();
@@ -127,6 +128,7 @@ public class TestProcessCorruptBlocks {
       corruptBlock(cluster, fs, fileName, 0, block);
 
       DFSTestUtil.waitReplication(fs, fileName, (short) 2);
+
 
       assertEquals(2, countReplicas(namesystem, block).liveReplicas());
       assertEquals(1, countReplicas(namesystem, block).corruptReplicas());
