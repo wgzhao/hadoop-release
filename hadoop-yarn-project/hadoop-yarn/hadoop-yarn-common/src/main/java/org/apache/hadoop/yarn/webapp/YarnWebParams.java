@@ -35,4 +35,5 @@ public interface YarnWebParams {
   String APPS_NUM = "apps.num";
   String QUEUE_NAME = "queue.name";
   String NODE_STATE = "node.state";
+  String NEXT_REFRESH_INTERVAL = "next.fresh.interval";
 }
