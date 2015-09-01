@@ -339,6 +339,7 @@ public class TestDatanodeBlockScanner {
     conf.setLong(DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_KEY, 3);
     conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 3L);
     conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_REPLICATION_CONSIDERLOAD_KEY, false);
+    conf.setLong(DFSConfigKeys.DFS_DATANODE_DIRECTORYSCAN_INTERVAL_KEY, 1);
 
     long startTime = Time.monotonicNow();
     MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
@@ -397,7 +398,6 @@ public class TestDatanodeBlockScanner {
       // and the block to be replicated
       DFSTestUtil.waitReplication(
           cluster.getFileSystem(), fileName, REPLICATION_FACTOR);
-      
       // Make sure that truncated block will be deleted
       waitForBlockDeleted(cluster, block, 0, TIMEOUT);
     } finally {
