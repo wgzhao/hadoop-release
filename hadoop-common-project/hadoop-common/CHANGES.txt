@@ -219,6 +219,9 @@ Release 2.7.2 - UNRELEASED
 
     HADOOP-12464. Interrupted client may try to fail-over and retry (kihwal)
 
+    HADOOP-12359. hadoop fs -getmerge doc is wrong.
+    (Jagadesh Kiran N via aajisaka)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
