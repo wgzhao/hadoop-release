@@ -10,6 +10,8 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    HDFS-8965. Harden edit log reading code against out of memory errors (cmccabe)
+
     HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
     in more rolling upgrade use cases. (cnauroth)
     
