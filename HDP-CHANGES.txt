@@ -3542,6 +3542,8 @@ ATS V1.5:
     BUG-82848. MAPREDUCE-6897. Add Unit Test to ensure Job end notification gets sent
     even when appMaster stop gets YarnRuntimeException. Contributed by Gergely Novák
 
+    HADOOP-12368. Mark ViewFileSystemBaseTest and ViewFsBaseTest as abstract.
+
     BUG-84373. HADOOP-14091. AbstractFileSystem implementaion for 'wasbs'
     scheme. Contributed Varada Hemeswari.
 
