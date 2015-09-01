@@ -893,3 +893,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-53156. HDFS-9402. Switch DataNode.LOG to use slf4j. (Walter Su)
 
+    BUG-53162. HADOOP-10365. BufferedOutputStream in FileUtil#unpackEntries()
+    should be closed in finally block. (Kiran Kumar M R and Sanghyun Yun
+    via ozawa)
+
