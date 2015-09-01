@@ -213,6 +213,21 @@ Release 2.8.0 - UNRELEASED
     YARN-3740. Fixed the typo in the configuration name:
     APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
 
+Release 2.7.2 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+    YARN-4092. Fixed UI redirection to print useful messages when both RMs are
+    in standby mode. (Xuan Gong via jianhe)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
