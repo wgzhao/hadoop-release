@@ -155,6 +155,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4243. Add retry on establishing Zookeeper conenction in 
     EmbeddedElectorService#serviceInit. (Xuan Gong via junping_du)
 
+    YARN-2801. Add documentation for node labels feature. (Wangda Tan and Naganarasimha 
+    G R  via ozawa)
+
   OPTIMIZATIONS
 
   BUG FIXES
