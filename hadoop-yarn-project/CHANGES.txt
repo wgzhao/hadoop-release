@@ -233,6 +233,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3971. Skip RMNodeLabelsManager#checkRemoveFromClusterNodeLabelsOfQueue 
     on nodelabel recovery. (Bibin A Chundatt via wangda)
 
+    YARN-4082. Container shouldn't be killed when node's label updated.
+    (Wangda Tan via vvasudev)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

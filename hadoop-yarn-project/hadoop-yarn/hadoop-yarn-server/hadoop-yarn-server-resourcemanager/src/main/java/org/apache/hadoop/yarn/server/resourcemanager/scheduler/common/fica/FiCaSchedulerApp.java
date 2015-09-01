@@ -49,6 +49,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.Allocation;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.NodeType;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.Queue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerApplicationAttempt;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityHeadroomProvider;
@@ -335,4 +336,16 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
   }
 
 
+  public LeafQueue getCSLeafQueue() {
+    return (LeafQueue)queue;
+  }
+ 
+  public void nodePartitionUpdated(RMContainer rmContainer, String oldPartition,
+      String newPartition) {
+    Resource containerResource = rmContainer.getAllocatedResource();
+    this.attemptResourceUsage.decUsed(oldPartition, containerResource);
+    this.attemptResourceUsage.incUsed(newPartition, containerResource);
+    getCSLeafQueue().decUsedResource(oldPartition, containerResource, this);
+    getCSLeafQueue().incUsedResource(newPartition, containerResource, this);
+  }
 }
