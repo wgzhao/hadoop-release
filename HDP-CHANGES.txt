@@ -279,3 +279,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-64071. HDFS-7435. PB encoding of block reports is very inefficient
 
     BUG-43485. Truncate is not allowed in FSNameSystem causes a set of test failures
+
+    BUG-64071. BUG-43490. Unexpected version of the file system log file
