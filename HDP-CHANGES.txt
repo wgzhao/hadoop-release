@@ -384,3 +384,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43485. Truncate is not allowed in FSNameSystem causes a set of test failures
     (Anu Engineer)
 
+    BUG-43487. BlockReportTestBase uses incorrect Directory Scan interval.
+    (Arpit Agarwal)
+
