@@ -42,6 +42,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.DelegationTokenRenewer;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -1148,6 +1149,29 @@ public class WebHdfsFileSystem extends FileSystem
         new ReplicationParam(replication),
         new BlockSizeParam(blockSize)
     ).run();
+  }
+
+  @Override
+  @SuppressWarnings("deprecation")
+  public FSDataOutputStream createNonRecursive(final Path f,
+      final FsPermission permission, final EnumSet<CreateFlag> flag,
+      final int bufferSize, final short replication, final long blockSize,
+      final Progressable progress) throws IOException {
+    statistics.incrementWriteOps(1);
+
+    final HttpOpParam.Op op = PutOpParam.Op.CREATE;
+    try {
+      return new FsPathOutputStreamRunner(op, f, bufferSize,
+          new PermissionParam(applyUMask(permission)),
+          new CreateFlagParam(flag),
+          new CreateParentParam(false),
+          new BufferSizeParam(bufferSize),
+          new ReplicationParam(replication),
+          new BlockSizeParam(blockSize)
+      ).run();
+    } catch (Throwable ioe) {
+      throw ioe;
+    }
   }
 
   @Override

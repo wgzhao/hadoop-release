@@ -46,6 +46,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.TestDFSClientRetries;
+import org.apache.hadoop.hdfs.TestFileCreation;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.SnapshotTestHelper;
 import org.apache.hadoop.hdfs.server.namenode.web.resources.NamenodeWebHdfsMethods;
@@ -423,6 +424,31 @@ public class TestWebHDFS {
     }
   }
 
+  @Test
+  public void testWebHdfsCreateNonRecursive() throws IOException, URISyntaxException {
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    WebHdfsFileSystem webHdfs = null;
+
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).build();
+      cluster.waitActive();
+
+      webHdfs = WebHdfsTestUtil.getWebHdfsFileSystem(conf,
+          WebHdfsFileSystem.SCHEME);
+
+      TestFileCreation.testFileCreationNonRecursive(webHdfs);
+
+    } finally {
+      if(webHdfs != null) {
+       webHdfs.close();
+      }
+
+      if(cluster != null) {
+        cluster.shutdown();
+      }
+    }
+  }
   /**
    * Test snapshot rename through WebHdfs
    */
