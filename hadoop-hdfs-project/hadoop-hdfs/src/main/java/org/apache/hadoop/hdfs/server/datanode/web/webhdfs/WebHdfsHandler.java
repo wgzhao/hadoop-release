@@ -165,6 +165,10 @@ public class WebHdfsHandler extends SimpleChannelInboundHandler<HttpRequest> {
       flags = params.overwrite() ?
           EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE)
           : EnumSet.of(CreateFlag.CREATE);
+    } else {
+      if (params.overwrite()) {
+        flags.add(CreateFlag.OVERWRITE);
+      }
     }
     final DFSClient dfsClient = newDfsClient(nnId, confForCreate);
     OutputStream out = dfsClient.createWrappedOutputStream(dfsClient.create(
