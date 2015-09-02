@@ -688,4 +688,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     
     Fix YARN-3207, YARN-3267, YARN-3530 & YARN-3448 to build on Java 6. (stevel)
 
-
+    HDFS-8995. Flaw in registration bookeeping can make DN die on reconnect.
+    (Kihwal Lee via yliu)
