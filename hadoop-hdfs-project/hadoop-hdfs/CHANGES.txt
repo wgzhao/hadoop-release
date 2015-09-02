@@ -139,6 +139,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-8863. The remaining space check in BlockPlacementPolicyDefault is
     flawed. (Kihwal Lee via yliu)
 
+    HDFS-8995. Flaw in registration bookeeping can make DN die on reconnect.
+    (Kihwal Lee via yliu)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
