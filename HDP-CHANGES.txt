@@ -317,3 +317,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     BUG-43657. HDFS-8995. Flaw in registration bookeeping can make DN die on
     reconnect. (Kihwal Lee via yliu)
 
+    BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
+    (Arpit Agarwal)
+
