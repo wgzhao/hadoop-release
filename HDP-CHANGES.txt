@@ -387,3 +387,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43487. BlockReportTestBase uses incorrect Directory Scan interval.
     (Arpit Agarwal)
 
+    BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
+    (Arpit Agarwal)
+
