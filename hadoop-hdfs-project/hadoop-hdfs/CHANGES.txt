@@ -81,6 +81,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8885. ByteRangeInputStream used in webhdfs does not override
     available(). (Shradha Revankar via aajisaka)
 
+    HDFS-8939. Test(S)WebHdfsFileContextMainOperations failing on branch-2.
+    (Chris Nauroth via jghoman)
+
 Release 2.7.2
 
   INCOMPATIBLE CHANGES
