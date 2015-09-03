@@ -15,8 +15,41 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-41349/YARN-2513. Host framework UIs in YARN for use with the ATS.
     (Jonathan Eagles via zjshen)
 
+    HDFS-3107. Introduce truncate. (Plamen Jeliazkov via shv)
+
+    HDFS-7056. Snapshot support for truncate. (Plamen Jeliazkov and shv)
+
+    HDFS-6673. Add delimited format support to PB OIV tool. (Eddy Xu via wang)
+
+    HDFS-7655. Expose truncate API for Web HDFS. (yliu)
+
     HDFS-7604. Track and display failed DataNode storage locations
     in NameNode. (Contributed by Chris Nauroth)
+
+    HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
+    Contributed by Anu Engineer.
+
+    HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
+    before editLogStream initialization. Contributed by Surendra Singh Lilhore
+
+    HDFS-8911. NameNode Metric : Add Editlog counters as a JMX metric.
+    (Contributed by Anu Engineer)
+
+    HDFS-6982. nntop: top­-like tool for name node users.
+    (Maysam Yabandeh via wang)
+
+    HDFS-6663. Admin command to track file and locations from block id.
+    (Chen He via kihwal)
+
+    HADOOP-7984. Add hadoop --loglevel option to change log level.
+    (Akira AJISAKA via cnauroth)
+
+    HADOOP-11490. Expose truncate API via FileSystem and shell command.
+    (Milan Desai via shv)
+
+    HADOOP-11510. Expose truncate API via FileContext. (yliu)
+
+    HADOOP-10987. Provide an iterator-based listing API for FileSystem (kihwal)
 
   IMPROVEMENTS
 
@@ -50,6 +83,43 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-3787. Allowed generic history service to load a number of applications whose
     started time is within the given range. (Xuan Gong via zjshen)
 
+    HDFS-7470. SecondaryNameNode need twice memory when calling
+    reloadFromImageFile. (zhaoyunjiong via cnauroth)
+
+    HDFS-7606. Fix potential NPE in INodeFile.getBlocks(). (Byron Wong via shv)
+
+    HDFS-7738. Revise the exception message for recover lease; add more truncate
+    tests such as truncate with HA setup, negative tests, truncate with other
+    operations and multiple truncates.  (szetszwo)
+
+    HDFS-7058. Tests for truncate CLI. (Dasha Boudnik via shv)
+
+    HDFS-7760. Document truncate for WebHDFS. (shv)
+
+    HDFS-7531. Improve the concurrent access on FsVolumeList (Lei Xu via Colin
+    P. McCabe)
+
+    HADOOP-11648. Set DomainSocketWatcher thread name explicitly.
+    (Liang Xie via ozawa)
+
+    HDFS-7706. Switch BlockManager logging to use slf4j. (wang)
+
+    HDFS-7491. Add incremental blockreport latency to
+    DN metrics. Contributed by Ming Ma.
+
+
+    HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
+
+    HDFS-7890. Improve information on Top users for metrics in
+    RollingWindowsManager and lower log level (J.Andreina via vinayakumarb)
+
+    HDFS-7457. DatanodeID generates excessive garbage. (daryn via kihwal)
+
+    HDFS-7213. processIncrementalBlockReport performance degradation.
+    (Eric Payne via kihwal)
+
+    HDFS-7222. Expose DataNode network errors as a metric. (Charles Lamb via wang)
+
     HDFS-6917. Add an hdfs debug command to validate blocks, call
     recoverlease, etc. (Contributed by Colin Patrick McCabe)
 
@@ -57,6 +127,46 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     (Contributed by Charles Lamb)
 
     HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
+    HDFS-7035. Make adding a new data directory to the DataNode an atomic
+    operation and improve error handling (Lei Xu via Colin P. McCabe)
+
+    HDFS-7398. Reset cached thread-local FSEditLogOp's on every
+    FSEditLog#logEdit. (Gera Shegalov via cnauroth)
+
+    HDFS-7426. Change nntop JMX format to be a JSON blob. (wang)
+
+    HDFS-7182. JMX metrics aren't accessible when NN is busy. (Ming Ma via jing9)
+
+    HADOOP-11238. Update the NameNode's Group Cache in the background when
+    possible (Chris Li via Colin P. McCabe)
+
+    HADOOP-11579. Documentation for truncate. (shv)
+
+    HADOOP-11441. Hadoop-azure: Change few methods scope to public.
+    (Shashank Khandelwal via cnauroth)
+
+    HADOOP-9137. Support connection limiting in IPC server (kihwal)
+
+    HADOOP-11498. Bump the version of HTrace to 3.1.0-incubating (Masatake
+    Iwasaki via Colin P. McCabe)
+
+    HADOOP-11442. hadoop-azure: Create test jar.
+    (Shashank Khandelwal via cnauroth)
+
+    HADOOP-11430. Add GenericTestUtils#disableLog, GenericTestUtils#setLogLevel
+    (cmccabe)
+
+    HADOOP-11390 Metrics 2 ganglia provider to include hostname in
+    unresolved address problems. (Varun Saxena via stevel)
+
+    HADOOP-11291. Log the cause of SASL connection failures.
+    (Stephen Chu via cnauroth)
+
+    HADOOP-10786. Fix UGI#reloginFromKeytab on Java 8. (Stephen Chu via wheat9)
+
+    HADOOP-12325. RPC Metrics : Add the ability track and log slow RPCs.
+    (Anu Engineer via xyao)
 
   BUG FIXES
 
@@ -204,6 +314,15 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7035. Make adding a new data directory to the DataNode an atomic
     operation and improve error handling (Lei Xu via Colin P. McCabe)
 
+    HDFS-7707. Edit log corruption due to delayed block removal again.
+    (Yongjun Zhang via kihwal)
+
+    HDFS-7263. Snapshot read can reveal future bytes for appended files.
+    (Tao Luo via shv)
+
+    HDFS-3443. Fix NPE when namenode transition to active during startup by
+    adding checkNNStartup() in NameNodeRpcServer.  (Vinayakumar B via szetszwo)
+
     HDFS-7575. Upgrade should generate a unique storage ID for each
     volume. (Arpit Agarwal)
 
@@ -212,6 +331,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7579. Improve log reporting during block report rpc failure.
     (Charles Lamb via cnauroth)
+
+    HDFS-4882. Prevent the Namenode's LeaseManager from looping forever in
+    checkLeases (Ravi Prakash via Colin P. McCabe)
 
     HDFS-7960. The full block report should prune zombie storages even if
     they're not empty. (cmccabe and Eddy Xu via wang)
@@ -240,6 +362,30 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HDFS-7587 [BUG-35869]. Edit log corruption can happen if append fails with
     a quota violation. (Rewrite of HDFS-7587 fix for 2.2. jing9 via
     Arpit Agarwal)
+
+    HDFS-7638: Small fix and few refinements for FSN#truncate. (yliu)
+
+    HDFS-7634. Disallow truncation of Lazy persist files. (Yi Liu via
+    Arpit Agarwal)
+
+    HDFS-7643. Test case to ensure lazy persist files cannot be truncated.
+    (Yi Liu via Arpit Agarwal)
+
+    HDFS-7659. truncate should check negative value of the new length.
+    (Yi Liu via shv)
+
+    HDFS-7676. Fix TestFileTruncate to avoid bug of HDFS-7611. (shv)
+
+    HDFS-7677. DistributedFileSystem#truncate should resolve symlinks. (yliu)
+
+    HDFS-7843. A truncated file is corrupted after rollback from a rolling
+    upgrade.  (szetszwo)
+
+    HDFS-7926. NameNode implementation of ClientProtocol.truncate(..) is not
+    idempotent (Tsz Wo Nicholas Sze via brandonli)
+
+    HDFS-7999. FsDatasetImpl#createTemporary sometimes holds the FSDatasetImpl
+    lock for a very long time (sinago via cmccabe)
 
     HADOOP-11959. WASB should configure client side socket timeout in storage
     client blob request options. (Ivan Mitic via cnauroth)
@@ -351,11 +497,50 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-42253. HDFS-8880. NameNode metrics logging. (Arpit Agarwal)
 
+    HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
+
+    HDFS-8818. Changes the global moveExecutor to per datanode executors and
+    changes MAX_SIZE_TO_MOVE to be configurable.  (szetszwo)
+
+    HDFS-8824. Do not use small blocks for balancing the cluster.  (szetszwo)
+
+    HDFS-8883. NameNode Metrics : Add FSNameSystem lock Queue Length.
+    (Anu Engineer via xyao)
+
+    HDFS-4396. Add START_MSG/SHUTDOWN_MSG for ZKFC
+    (Liang Xie via harsh)
+
+    HDFS-7608: hdfs dfsclient newConnectedPeer has no write
+    timeout (Xiaoyu Yao via Colin P. McCabe)
+
+    HDFS-7928. Scanning blocks from disk during rolling upgrade startup takes
+    a lot of time if disks are busy. Contributed by Rushabh Shah.
+
+    HDFS-7933. fsck should also report decommissioning replicas.
+    (Xiaoyu Yao via cnauroth)
+
+    HDFS-8278. When computing max-size-to-move in Balancer, count only the
+    storage with remaining >= default block size.  (szetszwo)
+
+    HDFS-8826. In Balancer, add an option to specify the source node list
+    so that balancer only selects blocks to move from those nodes.  (szetszwo)
+
+    HDFS-8311. DataStreamer.transfer() should timeout the socket InputStream.
+    (Esteban Gutierrez via Yongjun Zhang)
+
+    HDFS-8046. Allow better control of getContentSummary (kihwal)
+
     BUG-41706. HDFS-5782 (BlockListAsLongs should take lists of Replicas rather than
     concrete classes) and HDFS-7435 (PB encoding of block reports is very inefficient).
 
     HDFS-7278. Add a command that allows sysadmins to manually trigger full block reports
     from a DN (cmccabe).
+
+    HDFS-7533. Datanode sometimes does not shutdown on receiving upgrade
+    shutdown command (Eric Payne via kihwal)
+
+    HDFS-8038. PBImageDelimitedTextWriter#getEntry output HDFS path in
+    platform-specific format. (Xiaoyu Yao via cnauroth)
 
     HDFS-7704. DN heartbeat to Active NN may be blocked and expire if connection to
     Standby NN continues to time out. Contributed by Rushabh Shah.
@@ -387,6 +572,41 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43487. BlockReportTestBase uses incorrect Directory Scan interval.
     (Arpit Agarwal)
 
+    HDFS-8219. setStoragePolicy with folder behavior is different after cluster restart.
+    (surendra singh lilhore via Xiaoyu Yao)
+
+    HDFS-8055. NullPointerException when topology script is
+    missing. Contributed by Anu Engineer.
+
     BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
     (Arpit Agarwal)
+
+    HADOOP-11595. Add default implementation for AbstractFileSystem#truncate. (yliu)
+
+    HADOOP-11368. Fix SSLFactory truststore reloader thread leak in
+    KMSClientProvider. (Arun Suresh via wang)
+
+    HADOOP-11333. Fix deadlock in DomainSocketWatcher when the notification pipe
+    is full. (zhaoyunjiong via cmccabe)
+
+    HADOOP-11710. Make CryptoOutputStream behave like DFSOutputStream wrt
+    synchronization. (Sean Busbey via yliu)
+
+    HADOOP-11604. Prevent ConcurrentModificationException while closing domain
+    sockets during shutdown of DomainSocketWatcher thread. (cnauroth)
+
+    HADOOP-11482. Use correct UGI when KMSClientProvider is called by a proxy
+    user. Contributed by Arun Suresh.
+
+    HADOOP-11350. The size of header buffer of HttpServer is too small when
+    HTTPS is enabled. (Benoy Antony via wheat9)
+
+    HADOOP-11730. Regression: s3n read failure recovery broken.
+    (Takenori Sato via stevel)
+
+    HADOOP-11802. DomainSocketWatcher thread terminates sometimes after there
+    is an I/O error during requestShortCircuitShm (cmccabe)
+
+    HADOOP-8151. Error handling in snappy decompressor throws invalid
+    exceptions. (Matt Foley via harsh)
 
