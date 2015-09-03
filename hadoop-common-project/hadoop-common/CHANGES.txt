@@ -151,6 +151,9 @@ Release 2.7.2 - UNRELEASED
     HADOOP-11932. MetricsSinkAdapter may hang  when being stopped.
     (Brahma Reddy Battula via jianhe)
 
+    HADOOP-12213. Interrupted exception can occur when Client#stop is called.
+    (Kuhu Shukla via ozawa)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
