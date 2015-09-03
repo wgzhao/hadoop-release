@@ -47,6 +47,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8046. Allow better control of getContentSummary (kihwal)
 
+    HDFS-8797. WebHdfsFileSystem creates too many connections for pread. (jing9)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
