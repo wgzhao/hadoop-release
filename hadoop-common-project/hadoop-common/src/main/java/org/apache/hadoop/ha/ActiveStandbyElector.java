@@ -1104,4 +1104,8 @@ public class ActiveStandbyElector implements StatCallback, StringCallback {
       ((appData == null) ? "null" : StringUtils.byteToHexString(appData)) + 
       " cb=" + appClient;
   }
+
+  public String getHAZookeeperConnectionState() {
+    return this.zkConnectionState.name();
+  }
 }
