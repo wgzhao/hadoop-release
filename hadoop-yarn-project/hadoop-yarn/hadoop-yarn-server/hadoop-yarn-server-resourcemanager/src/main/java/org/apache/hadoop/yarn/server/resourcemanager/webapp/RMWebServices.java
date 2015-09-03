@@ -690,7 +690,8 @@ public class RMWebServices {
   @GET
   @Path("/apps/{appid}/appattempts")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public AppAttemptsInfo getAppAttempts(@PathParam("appid") String appId) {
+  public AppAttemptsInfo getAppAttempts(@Context HttpServletRequest hsr,
+      @PathParam("appid") String appId) {
 
     init();
     if (appId == null || appId.isEmpty()) {
@@ -708,8 +709,8 @@ public class RMWebServices {
 
     AppAttemptsInfo appAttemptsInfo = new AppAttemptsInfo();
     for (RMAppAttempt attempt : app.getAppAttempts().values()) {
-      AppAttemptInfo attemptInfo =
-          new AppAttemptInfo(rm, attempt, app.getUser());
+      AppAttemptInfo attemptInfo = new AppAttemptInfo(rm, attempt,
+          app.getUser(), hsr.getScheme() + "://");
       appAttemptsInfo.add(attemptInfo);
     }
 
