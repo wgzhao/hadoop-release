@@ -15,6 +15,9 @@ Release 2.7.2 - UNRELEASED
 
   BUG FIXES
 
+    YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
+    gets connection issue. (Xuan Gong via jianhe)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
