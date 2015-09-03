@@ -121,6 +121,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9644. Update encryption documentation to reflect nested EZs. (zhz)
 
+    HADOOP-5323. Trash documentation should describe its directory structure and
+    configurations. (Weiwei Yang via ozawa)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
