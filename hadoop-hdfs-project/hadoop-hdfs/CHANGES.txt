@@ -112,6 +112,8 @@ Release 2.7.1
     HDFS-8576. Lease recovery should return true if the lease can be released
     and the file can be closed. (J.Andreina via szetszwo)
 
+    HDFS-8797. WebHdfsFileSystem creates too many connections for pread. (jing9)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES
