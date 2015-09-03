@@ -374,6 +374,9 @@ public class TestDatanodeBlockScanner {
             "failed to find or change length of replica on node 0 "
             + cluster.getDataNodes().get(0).getDisplayName());
       }      
+
+      // Run directory scanner to update the DN's volume map
+      DataNodeTestUtils.runDirectoryScanner(cluster.getDataNodes().get(0));
     } finally {
       cluster.shutdown();
     }
