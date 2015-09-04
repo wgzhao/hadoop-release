@@ -610,3 +610,53 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-8151. Error handling in snappy decompressor throws invalid
     exceptions. (Matt Foley via harsh)
 
+    YARN-4092. Fixed UI redirection to print useful messages when both RMs are
+    in standby mode. (Xuan Gong via jianhe)
+
+    YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
+    gets connection issue. (Xuan Gong via jianhe)
+
+    YARN-3832. Resource Localization fails on a cluster due to existing cache
+    directories (Brahma Reddy Battula via jlowe)
+
+    YARN-2301. Improved yarn container command. (Naganarasimha G R via jianhe)
+
+    YARN-3850. NM fails to read files from full disks which can lead to
+    container logs being lost and other issues (Varun Saxena via jlowe)
+
+    YARN-3832. Resource Localization fails on a cluster due to existing cache
+    directories (Brahma Reddy Battula via jlowe)
+
+    YARN-3585. NodeManager cannot exit on SHUTDOWN event triggered and NM
+    recovery is enabled (Rohith Sharmaks via jlowe)
+
+    YARN-3641. NodeManager: stopRecoveryStore() shouldn't be skipped when
+    exceptions happen in stopping NM's sub-services. (Junping Du via jlowe)
+
+    YARN-3055. Fixed ResourceManager's DelegationTokenRenewer to not stop token
+    renewal of applications part of a bigger workflow. (Daryn Sharp via vinodkv)
+
+    YARN-3238. Connection timeouts to nodemanagers are retried at
+    multiple levels (Jason Lowe via xgong)
+
+    YARN-3011. Possible IllegalArgumentException in ResourceLocalizationService
+    might lead NM to crash. (Varun Saxena via jianhe)
+
+    YARN-3978. Configurably turn off the saving of container info in Generic AHS
+    (Eric Payne via jeagles)
+
+    YARN-3942: Timeline store to read events from HDFS into 2.2-maint
+
+    YARN-3222. Fixed NPE on RMNodeImpl#ReconnectNodeTransition when a node is
+    reconnected with a different port. Contributed by Rohith Sharmaks
+
+    YARN-2821/BUG-43232. Distributed shell app master becomes unresponsive sometimes.
+
+    MAPREDUCE-6454. Fixed MapReduce to modify HADOOP_CLASSPATH to have distributed
+    cache files so that child processes running hadoop scripts can access these files.
+    Contributed by Junping Du.
+
+    MAPREDUCE-6238. MR2 can't run local jobs with -libjars command options which is a
+    regression from MR1 (zxu via rkanter)
+
+    YARN-3654. ContainerLogsPage web UI should not have meta-refresh. (Xuan Gong)
