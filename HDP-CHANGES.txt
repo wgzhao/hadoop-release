@@ -733,3 +733,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-46049. MAPREDUCE-6442. Stack trace is missing when error occurs in
     client protocol provider's constructor (Chang Li via ozawa)
 
+    BUG-43966. YARN-4105. Capacity Scheduler headroom for DRF is wrong
+    (Chang Li via jlowe)
+

@@ -39,6 +39,9 @@ Release 2.7.2 - UNRELEASED
     YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
     gets connection issue. (Xuan Gong via jianhe)
 
+    YARN-4105. Capacity Scheduler headroom for DRF is wrong (Chang Li via
+    jlowe)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
