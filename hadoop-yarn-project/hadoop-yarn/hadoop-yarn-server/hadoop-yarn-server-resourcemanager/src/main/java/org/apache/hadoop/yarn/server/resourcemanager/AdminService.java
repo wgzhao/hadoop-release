@@ -139,9 +139,7 @@ public class AdminService extends CompositeService implements
         YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
     daemonUser = UserGroupInformation.getCurrentUser();
 
-    adminAcl = new AccessControlList(conf.get(
-        YarnConfiguration.YARN_ADMIN_ACL,
-        YarnConfiguration.DEFAULT_YARN_ADMIN_ACL));
+    adminAcl = getAdminAclList(conf);
     rmId = conf.get(YarnConfiguration.RM_HA_ID);
     super.serviceInit(conf);
   }
