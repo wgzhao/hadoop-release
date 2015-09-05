@@ -171,6 +171,11 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43226. HDFS-8435. Support CreateFlag in WebHdfs.
     (Jakob Homan via cdouglas)
 
+    BUG-43598. computeReplicationWork does not record all failure paths.
+    (Arpit Agarwal)
+
+  OPTIMIZATIONS
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not

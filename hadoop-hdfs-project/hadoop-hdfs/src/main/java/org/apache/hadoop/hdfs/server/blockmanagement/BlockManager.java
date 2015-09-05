@@ -1322,6 +1322,11 @@ public class BlockManager {
     DatanodeDescriptor srcNode;
     BlockCollection bc = null;
     int additionalReplRequired;
+    int blocksWithoutTargets = 0;
+    int blocksWithoutSource = 0;
+    int blocksAbandoned = 0;
+    int blocksUnderConstruction = 0;
+    int blocksWithEnoughReplicas = 0;
 
     int scheduledWork = 0;
     List<ReplicationWork> work = new LinkedList<ReplicationWork>();
@@ -1337,6 +1342,11 @@ public class BlockManager {
             if(bc == null || (bc.isUnderConstruction() && block.equals(bc.getLastBlock()))) {
               neededReplications.remove(block, priority); // remove from neededReplications
               neededReplications.decrementReplicationIndex(priority);
+              if (bc == null) {
+                ++blocksAbandoned;
+              } else {
+                ++blocksUnderConstruction;
+              }
               continue;
             }
 
@@ -1350,7 +1360,8 @@ public class BlockManager {
                 block, containingNodes, liveReplicaNodes, numReplicas,
                 priority);
             if(srcNode == null) { // block can not be replicated from any node
-              LOG.debug("Block " + block + " cannot be repl from any node");
+              LOG.debug("Block {} cannot be repl from any node", block);
+              ++blocksWithoutSource;
               continue;
             }
 
@@ -1368,6 +1379,7 @@ public class BlockManager {
                 neededReplications.remove(block, priority); // remove from neededReplications
                 blockLog.debug("BLOCK* Removing {} from neededReplications as" +
                         " it has enough replicas", block);
+                ++blocksWithEnoughReplicas;
                 continue;
               }
             }
@@ -1409,6 +1421,7 @@ public class BlockManager {
         final DatanodeStorageInfo[] targets = rw.targets;
         if(targets == null || targets.length == 0){
           rw.targets = null;
+          ++blocksWithoutTargets;
           continue;
         }
 
@@ -1423,6 +1436,11 @@ public class BlockManager {
             neededReplications.remove(block, priority); // remove from neededReplications
             rw.targets = null;
             neededReplications.decrementReplicationIndex(priority);
+            if (bc == null) {
+              ++blocksAbandoned;
+            } else {
+              ++blocksUnderConstruction;
+            }
             continue;
           }
           requiredReplication = bc.getBlockReplication();
@@ -1440,6 +1458,7 @@ public class BlockManager {
               rw.targets = null;
               blockLog.debug("BLOCK* Removing {} from neededReplications as" +
                       " it has enough replicas", block);
+              ++blocksWithEnoughReplicas;
               continue;
             }
           }
@@ -1449,6 +1468,7 @@ public class BlockManager {
             if (rw.srcNode.getNetworkLocation().equals(
                 targets[0].getDatanodeDescriptor().getNetworkLocation())) {
               //No use continuing, unless a new rack in this case
+              ++blocksWithEnoughReplicas;
               continue;
             }
           }
@@ -1477,7 +1497,7 @@ public class BlockManager {
       namesystem.writeUnlock();
     }
 
-    if (blockLog.isInfoEnabled()) {
+    if (blockLog.isDebugEnabled()) {
       // log which blocks have been scheduled for replication
       for(ReplicationWork rw : work){
         DatanodeStorageInfo[] targets = rw.targets;
@@ -1492,8 +1512,20 @@ public class BlockManager {
         }
       }
     }
-    blockLog.debug("BLOCK* neededReplications = {} pendingReplications = {}",
+    blockLog.debug(
+        "BLOCK* neededReplications = {}, pendingReplications = {}.",
         neededReplications.size(), pendingReplications.size());
+    if (blockLog.isInfoEnabled()) {
+      int blocksSkipped = (blocksWithoutTargets + blocksWithoutSource +
+          blocksUnderConstruction + blocksAbandoned + blocksWithEnoughReplicas);
+      if (blocksSkipped > 0) {
+        LOG.info("Blocks chosen but could not be replicated = {}; " +
+                "of which {} have no target, {} have no source, {} are UC, " +
+                "{} are abandoned, {} already have enough replicas.",
+            blocksSkipped, blocksWithoutTargets, blocksWithoutSource,
+            blocksUnderConstruction, blocksAbandoned, blocksWithEnoughReplicas);
+      }
+    }
 
     return scheduledWork;
   }
