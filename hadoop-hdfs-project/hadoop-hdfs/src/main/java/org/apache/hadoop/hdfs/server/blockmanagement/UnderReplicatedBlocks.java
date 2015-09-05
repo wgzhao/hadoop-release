@@ -24,6 +24,7 @@ import java.util.List;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.core.sym.NameN;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.util.LightWeightLinkedSet;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
@@ -354,6 +355,11 @@ class UnderReplicatedBlocks implements Iterable<Block> {
     }
     
     int blockCount = 0;
+    StringBuilder sb = NameNode.blockStateChangeLog.isInfoEnabled() ?
+        new StringBuilder() : null;
+    if (sb != null) {
+      sb.append("chooseUnderReplicatedBlocks selected ");
+    }
     for (int priority = 0; priority < LEVEL; priority++) { 
       // Go through all blocks that need replications with current priority.
       BlockIterator neededReplicationsIterator = iterator(priority);
@@ -371,6 +377,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
       }
       
       // Loop through all remaining blocks in the list.
+      final int blockCountAtLevelStart = blockCount;
       while (blockCount < blocksToProcess
           && neededReplicationsIterator.hasNext()) {
         Block block = neededReplicationsIterator.next();
@@ -378,7 +385,11 @@ class UnderReplicatedBlocks implements Iterable<Block> {
         replIndex++;
         blockCount++;
       }
-      
+      if (sb != null && blockCount - blockCountAtLevelStart > 0) {
+        sb.append(blockCount - blockCountAtLevelStart +
+            " blocks at priority level " + priority + "; ");
+      }
+
       if (!neededReplicationsIterator.hasNext()
           && neededReplicationsIterator.getPriority() == LEVEL - 1) {
         // reset all priorities replication index to 0 because there is no
@@ -389,6 +400,11 @@ class UnderReplicatedBlocks implements Iterable<Block> {
         break;
       }
       priorityToReplIdx.put(priority, replIndex); 
+    }
+
+    if (sb != null) {
+      sb.append(" Total=" + blockCount);
+      NameNode.blockStateChangeLog.info(sb.toString());
     }
     return blocksToReplicate;
   }

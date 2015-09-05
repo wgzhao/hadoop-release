@@ -157,6 +157,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     BUG-43225. HDFS-8435. Support CreateFlag in WebHDFS.
     (Jakob Homan via cdouglas)
 
+    BUG-43612. computeReplicationWork does not record all failure paths.
+    (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
