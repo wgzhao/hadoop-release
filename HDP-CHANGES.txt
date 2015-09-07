@@ -3094,3 +3094,6 @@ ATS V1.5:
     BUG-71401. YARN-4556. TestFifoScheduler.testResourceOverCommit fails. Contributed by Akihiro Suda.
 
     BUG-71401. YARN-5069. TestFifoScheduler.testResourceOverCommit race condition. Contributed by Eric Payne.
+
+    BUG-65978. YARN-3591. Resource localization on a bad disk causes subsequent
+    containers failure. Contributed by Lavkesh Lahngir.
