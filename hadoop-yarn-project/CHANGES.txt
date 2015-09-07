@@ -368,6 +368,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4411. RMAppAttemptImpl#createApplicationAttemptReport throws
     IllegalArgumentException. (Bibin A Chundatt, yarntime via devaraj)
 
+    YARN-3591. Resource localization on a bad disk causes subsequent containers failure.
+    (Lavkesh Lahngir via vvasudev)
+
 Release 2.7.3 - UNRELEASED
 
   INCOMPATIBLE CHANGES
