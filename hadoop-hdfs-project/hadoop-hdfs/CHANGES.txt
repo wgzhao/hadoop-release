@@ -79,6 +79,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7858. Improve HA Namenode Failover detection on the client.
     (Arun Suresh)
 
+    HDFS-9019. Adding informative message to sticky bit permission denied
+    exception. (xyao)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
