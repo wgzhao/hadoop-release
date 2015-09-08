@@ -288,3 +288,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     Contributed by Mingliang Liu.
 
     BUG-65973. YARN-4398. Remove unnecessary synchronization in RMStateStore. Contributed by Ning Ding
+
+    BUG-66238. HDFS-8384. Allow NN to startup if there are files having a lease but are not under construction.
+    Contributed by Jing Zhao.
+
