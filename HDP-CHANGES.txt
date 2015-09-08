@@ -660,3 +660,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     regression from MR1 (zxu via rkanter)
 
     YARN-3654. ContainerLogsPage web UI should not have meta-refresh. (Xuan Gong)
+
+    YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when
+    state-store error occurs. (Jian He via xgong)
