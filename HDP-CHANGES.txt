@@ -319,4 +319,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
     (Arpit Agarwal)
-
+ 
+    YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when
+    state-store error occurs. (Jian He via xgong)
