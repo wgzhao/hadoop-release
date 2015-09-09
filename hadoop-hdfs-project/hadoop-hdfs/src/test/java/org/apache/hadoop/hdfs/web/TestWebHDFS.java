@@ -584,7 +584,7 @@ public class TestWebHDFS {
         os.close();
       }
       InetSocketAddress addr = cluster.getNameNode().getHttpAddress();
-      URL url = new URL("http", addr.getHostString(), addr
+      URL url = new URL("http", addr.getHostName(), addr
           .getPort(), WebHdfsFileSystem.PATH_PREFIX + PATH + "?op=OPEN" +
           Param.toSortedString("&", new OffsetParam((long) OFFSET),
                                new LengthParam((long) LENGTH))
