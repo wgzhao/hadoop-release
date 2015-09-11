@@ -17,6 +17,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12358. Add -safely flag to rm to prompt when deleting many files.
     (xyao via wang)
 
+    HADOOP-12324. Better exception reporting in SaslPlainServer.
+    (Mike Yoder via stevel)
+
   OPTIMIZATIONS
 
   BUG FIXES
