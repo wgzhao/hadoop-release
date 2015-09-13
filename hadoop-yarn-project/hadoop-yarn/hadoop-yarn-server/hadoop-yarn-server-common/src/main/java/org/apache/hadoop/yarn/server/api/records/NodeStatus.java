@@ -27,6 +27,16 @@ import org.apache.hadoop.yarn.util.Records;
 
 public abstract class NodeStatus {
   
+
+  /**
+   * Create a new {@code NodeStatus}.
+   * @param nodeId Identifier for this node.
+   * @param responseId Identifier for the response.
+   * @param containerStatuses Status of the containers running in this node.
+   * @param keepAliveApplications Applications to keep alive.
+   * @param nodeHealthStatus Health status of the node.
+   * @return New {@code NodeStatus} with the provided information.
+   */
   public static NodeStatus newInstance(NodeId nodeId, int responseId,
       List<ContainerStatus> containerStatuses,
       List<ApplicationId> keepAliveApplications,
