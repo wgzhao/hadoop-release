@@ -20,11 +20,11 @@
   <parent>
     <groupId>org.apache.hadoop</groupId>
     <artifactId>hadoop-main</artifactId>
-    <version>2.6.0-SNAPSHOT</version>
+    <version>2.6.0.2.2.8.0-3150</version>
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-project</artifactId>
-  <version>2.6.0-SNAPSHOT</version>
+  <version>2.6.0.2.2.8.0-3150</version>
   <description>Apache Hadoop Project POM</description>
   <name>Apache Hadoop Project POM</name>
   <packaging>pom</packaging>
@@ -70,7 +70,7 @@
     <protobuf.version>2.5.0</protobuf.version>
     <protoc.path>${env.HADOOP_PROTOC_PATH}</protoc.path>
 
-    <zookeeper.version>3.4.6</zookeeper.version>
+    <zookeeper.version>3.4.6.2.2.8.0-3150</zookeeper.version>
 
     <tomcat.version>6.0.44</tomcat.version>
   </properties>
@@ -1120,8 +1120,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <reuseForks>false</reuseForks>
-          <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
-          <argLine>-Xmx1024m -XX:+HeapDumpOnOutOfMemoryError</argLine>
+          <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+          <argLine>-Xms2048m -Xmx3072m -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError</argLine>
           <environmentVariables>
             <!-- HADOOP_HOME required for tests on Windows to find winutils -->
             <HADOOP_HOME>${hadoop.common.build.dir}</HADOOP_HOME>
