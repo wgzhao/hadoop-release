@@ -223,6 +223,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-4937. ReplicationMonitor can infinite-loop in 
     BlockPlacementPolicyDefault#chooseRandom(). (kihwal)
 
+    HDFS-8829. Make SO_RCVBUF and SO_SNDBUF size configurable for
+    DataTransferProtocol sockets and allow configuring auto-tuning.
+    (He Tianye via cmccabe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
