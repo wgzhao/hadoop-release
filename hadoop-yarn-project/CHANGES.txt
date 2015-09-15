@@ -71,6 +71,10 @@ Release 2.8.0 - UNRELEASED
     YARN-3505. Node's Log Aggregation Report with SUCCEED should not cached in 
     RMApps. (Xuan Gong via junping_du)
 
+    YARN-313. Add Admin API for supporting node resource configuration in
+    command line. (Inigo Goiri, Kenji Kikushima and Junping Du 
+    via junping_du)
+
   IMPROVEMENTS
 
     YARN-1880. Cleanup TestApplicationClientProtocolOnHA

@@ -50,6 +50,8 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.ReplaceLabelsOnNodeRequ
 import org.apache.hadoop.yarn.server.api.protocolrecords.ReplaceLabelsOnNodeResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceResponse;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesResponse;
 
 @Private
 @Stable
@@ -116,7 +118,13 @@ public interface ResourceManagerAdministrationProtocol extends GetUserMappingsPr
   public UpdateNodeResourceResponse updateNodeResource(
       UpdateNodeResourceRequest request) 
   throws YarnException, IOException;
-   
+
+  @Private
+  @Evolving
+  @Idempotent
+  public RefreshNodesResourcesResponse refreshNodesResources(
+      RefreshNodesResourcesRequest request) throws YarnException, IOException;
+
   @Public
   @Evolving
   @Idempotent
