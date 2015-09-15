@@ -142,6 +142,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3700. Made generic history service load a number of latest applications
     according to the parameter or the configuration. (Xuan Gong via zjshen)
 
+    YARN-4149. yarn logs -am should provide an option to fetch all the log files
+    (Varun Vasudev via xgong)
+
   OPTIMIZATIONS
 
   BUG FIXES
