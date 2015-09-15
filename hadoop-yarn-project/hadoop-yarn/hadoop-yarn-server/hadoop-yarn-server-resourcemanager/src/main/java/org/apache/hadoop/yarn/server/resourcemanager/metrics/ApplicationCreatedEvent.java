@@ -36,6 +36,8 @@ public class ApplicationCreatedEvent extends
   private Set<String> appTags;
   private boolean unmanagedApplication;
   private Priority applicationPriority;
+  private String appNodeLabelsExpression;
+  private String amNodeLabelsExpression;
 
   private final CallerContext callerContext;
 
@@ -49,7 +51,9 @@ public class ApplicationCreatedEvent extends
       CallerContext callerContext,
       Set<String> appTags,
       boolean unmanagedApplication,
-      Priority applicationPriority) {
+      Priority applicationPriority,
+      String appNodeLabelsExpression,
+      String amNodeLabelsExpression) {
     super(SystemMetricsEventType.APP_CREATED, createdTime);
     this.appId = appId;
     this.name = name;
@@ -61,6 +65,8 @@ public class ApplicationCreatedEvent extends
     this.appTags = appTags;
     this.unmanagedApplication = unmanagedApplication;
     this.applicationPriority = applicationPriority;
+    this.appNodeLabelsExpression = appNodeLabelsExpression;
+    this.amNodeLabelsExpression = amNodeLabelsExpression;
   }
 
   @Override
@@ -106,5 +112,13 @@ public class ApplicationCreatedEvent extends
 
   public Priority getApplicationPriority() {
     return applicationPriority;
+  }
+
+  public String getAppNodeLabelsExpression() {
+    return appNodeLabelsExpression;
+  }
+
+  public String getAmNodeLabelsExpression() {
+    return amNodeLabelsExpression;
   }
 }

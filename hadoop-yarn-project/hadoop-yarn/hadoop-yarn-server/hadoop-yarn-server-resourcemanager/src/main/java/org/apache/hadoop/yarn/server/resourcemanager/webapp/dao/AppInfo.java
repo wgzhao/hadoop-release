@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationResourceUsageReport;
+import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LogAggregationStatus;
@@ -100,6 +101,8 @@ public class AppInfo {
 
   protected LogAggregationStatus logAggregationStatus;
   protected boolean unmanagedApplication;
+  protected String appNodeLabelExpression;
+  protected String amNodeLabelExpression;
 
   public AppInfo() {
   } // JAXB needs this
@@ -134,8 +137,10 @@ public class AppInfo {
       this.name = app.getName().toString();
       this.queue = app.getQueue().toString();
       this.priority = 0;
-      if (app.getApplicationSubmissionContext().getPriority() != null) {
-        this.priority = app.getApplicationSubmissionContext().getPriority()
+      ApplicationSubmissionContext appSubmissionContext =
+          app.getApplicationSubmissionContext();
+      if (appSubmissionContext.getPriority() != null) {
+        this.priority = appSubmissionContext.getPriority()
             .getPriority();
       }
       this.progress = app.getProgress() * 100;
@@ -195,7 +200,11 @@ public class AppInfo {
       memorySeconds = appMetrics.getMemorySeconds();
       vcoreSeconds = appMetrics.getVcoreSeconds();
       unmanagedApplication =
-          app.getApplicationSubmissionContext().getUnmanagedAM();
+          appSubmissionContext.getUnmanagedAM();
+      appNodeLabelExpression =
+          app.getApplicationSubmissionContext().getNodeLabelExpression();
+      amNodeLabelExpression = (unmanagedApplication) ? null
+          : app.getAMResourceRequest().getNodeLabelExpression();
     }
   }
 
@@ -341,5 +350,13 @@ public class AppInfo {
 
   public int getPriority() {
     return this.priority;
+  }
+
+  public String getAppNodeLabelExpression() {
+    return this.appNodeLabelExpression;
+  }
+
+  public String getAmNodeLabelExpression() {
+    return this.amNodeLabelExpression;
   }
 }

@@ -1230,3 +1230,6 @@ ATS V1.5:
     YARN-3948. Display Application Priority in RM Web UI.(Sunil G via rohithsharmaks)
 
     YARN-4023. Publish Application Priority to TimelineServer. (Sunil G via rohithsharmaks)
+
+    YARN-3717. Expose app/am/queue's node-label-expression to RM web UI / CLI / REST-API. 
+    (Naganarasimha G R via wangda)

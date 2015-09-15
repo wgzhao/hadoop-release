@@ -32,6 +32,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LogAggregationStatus;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.ReservationId;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
@@ -65,6 +66,8 @@ public class MockRMApp implements RMApp {
     finish = time;
     id = MockApps.newAppID(newid);
     state = newState;
+    amReq = ResourceRequest.newInstance(Priority.UNDEFINED, "0.0.0.0",
+        Resource.newInstance(0, 0), 1);
   }
 
   public MockRMApp(int newid, long time, RMAppState newState, String userName) {
@@ -287,5 +290,15 @@ public class MockRMApp implements RMApp {
 
   public CallerContext getCallerContext() {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public String getAmNodeLabelExpression() {
+    return null;
+  }
+
+  @Override
+  public String getAppNodeLabelExpression() {
+    return null;
   }
 }

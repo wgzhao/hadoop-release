@@ -58,6 +58,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LogAggregationStatus;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.api.records.NodeLabel;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.ReservationId;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -665,6 +666,8 @@ public class RMAppImpl implements RMApp, Recoverable {
           this.submissionContext.getPriority());
       report.setLogAggregationStatus(logAggregationStatus);
       report.setUnmanagedApp(submissionContext.getUnmanagedAM());
+      report.setAppNodeLabelExpression(getAppNodeLabelExpression());
+      report.setAmNodeLabelExpression(getAmNodeLabelExpression());
       return report;
     } finally {
       this.readLock.unlock();
@@ -1722,5 +1725,28 @@ public class RMAppImpl implements RMApp, Recoverable {
   @VisibleForTesting
   public int getNextAttemptId() {
     return nextAttemptId;
+  }
+
+  public String getAppNodeLabelExpression() {
+    String appNodeLabelExpression =
+        getApplicationSubmissionContext().getNodeLabelExpression();
+    appNodeLabelExpression = (appNodeLabelExpression == null)
+        ? NodeLabel.NODE_LABEL_EXPRESSION_NOT_SET : appNodeLabelExpression;
+    appNodeLabelExpression = (appNodeLabelExpression.trim().isEmpty())
+        ? NodeLabel.DEFAULT_NODE_LABEL_PARTITION : appNodeLabelExpression;
+    return appNodeLabelExpression;
+  }
+
+  @Override
+  public String getAmNodeLabelExpression() {
+    String amNodeLabelExpression = null;
+    if (!getApplicationSubmissionContext().getUnmanagedAM()) {
+      amNodeLabelExpression = getAMResourceRequest().getNodeLabelExpression();
+      amNodeLabelExpression = (amNodeLabelExpression == null)
+          ? NodeLabel.NODE_LABEL_EXPRESSION_NOT_SET : amNodeLabelExpression;
+      amNodeLabelExpression = (amNodeLabelExpression.trim().isEmpty())
+          ? NodeLabel.DEFAULT_NODE_LABEL_PARTITION : amNodeLabelExpression;
+    }
+    return amNodeLabelExpression;
   }
 }
