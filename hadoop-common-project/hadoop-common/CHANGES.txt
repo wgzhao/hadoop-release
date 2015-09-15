@@ -23,6 +23,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12350. WASB Logging: Improve WASB Logging around deletes, reads and
     writes (Dushyanth via cnauroth)
 
+    HADOOP-12413. AccessControlList should avoid calling getGroupNames in
+    isUserInList with empty groups. (Zhihai Xu via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
