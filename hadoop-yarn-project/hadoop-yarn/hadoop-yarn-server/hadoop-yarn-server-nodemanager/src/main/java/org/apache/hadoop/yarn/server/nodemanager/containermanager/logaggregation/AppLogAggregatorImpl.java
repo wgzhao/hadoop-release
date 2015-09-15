@@ -296,6 +296,7 @@ public class AppLogAggregatorImpl implements AppLogAggregator {
 
       if (writer != null) {
         writer.close();
+        writer = null;
       }
 
       long currentTime = System.currentTimeMillis();
