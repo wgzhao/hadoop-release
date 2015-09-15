@@ -42,6 +42,7 @@ import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants.DatanodeReportType;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
+import org.apache.hadoop.hdfs.server.balancer.BalancerParameters;
 import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,9 +77,10 @@ public class TestBalancerWithMultipleNameNodes {
     final MiniDFSCluster cluster;
     final ClientProtocol[] clients;
     final short replication;
-    
+    final BalancerParameters parameters;
+
     Suite(MiniDFSCluster cluster, final int nNameNodes, final int nDataNodes,
-        Configuration conf) throws IOException {
+        BalancerParameters parameters, Configuration conf) throws IOException {
       this.conf = conf;
       this.cluster = cluster;
       clients = new ClientProtocol[nNameNodes];
@@ -86,6 +88,7 @@ public class TestBalancerWithMultipleNameNodes {
         clients[i] = cluster.getNameNode(i).getRpcServer();
       }
       replication = (short)Math.max(1, nDataNodes - 1);
+      this.parameters = parameters;
     }
   }
 
@@ -153,7 +156,7 @@ public class TestBalancerWithMultipleNameNodes {
 
     // start rebalancing
     final Collection<URI> namenodes = DFSUtil.getNsServiceRpcUris(s.conf);
-    final int r = Balancer.run(namenodes, Balancer.Parameters.DEFAULT, s.conf);
+    final int r = Balancer.run(namenodes, s.parameters, s.conf);
     Assert.assertEquals(ExitStatus.SUCCESS.getExitCode(), r);
 
     LOG.info("BALANCER 2");
@@ -189,7 +192,7 @@ public class TestBalancerWithMultipleNameNodes {
       balanced = true;
       for(int d = 0; d < used.length; d++) {
         final double p = used[d]*100.0/cap[d];
-        balanced = p <= avg + Balancer.Parameters.DEFAULT.threshold;
+        balanced = p <= avg + s.parameters.getThreshold();
         if (!balanced) {
           if (i % 100 == 0) {
             LOG.warn("datanodes " + d + " is not yet balanced: "
@@ -258,7 +261,7 @@ public class TestBalancerWithMultipleNameNodes {
         cluster.waitActive();
         DFSTestUtil.setFederatedConfiguration(cluster, conf);
         LOG.info("UNEVEN 3");
-        final Suite s = new Suite(cluster, nNameNodes, nDataNodes, conf);
+        final Suite s = new Suite(cluster, nNameNodes, nDataNodes, null, conf);
         blocks = generateBlocks(s, usedSpacePerNN);
         LOG.info("UNEVEN 4");
       } finally {
@@ -280,7 +283,11 @@ public class TestBalancerWithMultipleNameNodes {
       try {
         cluster.waitActive();
         LOG.info("UNEVEN 12");
-        final Suite s = new Suite(cluster, nNameNodes, nDataNodes, conf);
+        BalancerParameters.Builder b =
+            new BalancerParameters.Builder();
+        BalancerParameters params = b.build();
+        final Suite s =
+            new Suite(cluster, nNameNodes, nDataNodes, params, conf);
         for(int n = 0; n < nNameNodes; n++) {
           // redistribute blocks
           final Block[][] blocksDN = TestBalancer.distributeBlocks(
@@ -336,7 +343,9 @@ public class TestBalancerWithMultipleNameNodes {
     try {
       cluster.waitActive();
       LOG.info("RUN_TEST 1");
-      final Suite s = new Suite(cluster, nNameNodes, nDataNodes, conf);
+      final Suite s =
+          new Suite(cluster, nNameNodes, nDataNodes,
+              BalancerParameters.DEFAULT, conf);
       long totalCapacity = TestBalancer.sum(capacities);
 
       LOG.info("RUN_TEST 2");

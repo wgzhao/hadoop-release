@@ -242,7 +242,8 @@ public class Balancer {
    * namenode as a client and a secondary namenode and retry proxies
    * when connection fails.
    */
-  Balancer(NameNodeConnector theblockpool, Parameters p, Configuration conf) {
+  Balancer(NameNodeConnector theblockpool, BalancerParameters p,
+      Configuration conf) {
     final long movedWinWidth = getLong(conf,
         DFSConfigKeys.DFS_BALANCER_MOVEDWINWIDTH_KEY,
         DFSConfigKeys.DFS_BALANCER_MOVEDWINWIDTH_DEFAULT);
@@ -264,13 +265,15 @@ public class Balancer {
         DFSConfigKeys.DFS_BALANCER_GETBLOCKS_MIN_BLOCK_SIZE_DEFAULT);
 
     this.nnc = theblockpool;
-    this.dispatcher = new Dispatcher(theblockpool, p.includedNodes,
-        p.excludedNodes, movedWinWidth, moverThreads, dispatcherThreads,
-        maxConcurrentMovesPerNode, getBlocksSize, getBlocksMinBlockSize, conf);
-    this.threshold = p.threshold;
-    this.policy = p.policy;
-    this.sourceNodes = p.sourceNodes;
-    this.runDuringUpgrade = p.runDuringUpgrade;
+    this.dispatcher =
+        new Dispatcher(theblockpool, p.getIncludedNodes(),
+            p.getExcludedNodes(), movedWinWidth, moverThreads,
+            dispatcherThreads, maxConcurrentMovesPerNode, getBlocksSize,
+            getBlocksMinBlockSize, conf);
+    this.threshold = p.getThreshold();
+    this.policy = p.getBalancingPolicy();
+    this.sourceNodes = p.getSourceNodes();
+    this.runDuringUpgrade = p.getRunDuringUpgrade();
 
     this.maxSizeToMove = getLong(conf,
         DFSConfigKeys.DFS_BALANCER_MAX_SIZE_TO_MOVE_KEY,
@@ -628,7 +631,7 @@ public class Balancer {
    * for each namenode,
    * execute a {@link Balancer} to work through all datanodes once.  
    */
-  static int run(Collection<URI> namenodes, final Parameters p,
+  static int run(Collection<URI> namenodes, final BalancerParameters p,
       Configuration conf) throws IOException, InterruptedException {
     final long sleeptime =
         conf.getLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY,
@@ -637,17 +640,18 @@ public class Balancer {
             DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_DEFAULT) * 1000;
     LOG.info("namenodes  = " + namenodes);
     LOG.info("parameters = " + p);
-    LOG.info("included nodes = " + p.includedNodes);
-    LOG.info("excluded nodes = " + p.excludedNodes);
-    LOG.info("source nodes = " + p.sourceNodes);
-    
+    LOG.info("included nodes = " + p.getIncludedNodes());
+    LOG.info("excluded nodes = " + p.getExcludedNodes());
+    LOG.info("source nodes = " + p.getSourceNodes());
+
     System.out.println("Time Stamp               Iteration#  Bytes Already Moved  Bytes Left To Move  Bytes Being Moved");
     
     List<NameNodeConnector> connectors = Collections.emptyList();
     try {
       connectors = NameNodeConnector.newNameNodeConnectors(namenodes, 
-            Balancer.class.getSimpleName(), BALANCER_ID_PATH, conf, p.maxIdleIteration);
-    
+              Balancer.class.getSimpleName(), BALANCER_ID_PATH, conf,
+              p.getMaxIdleIteration());
+
       boolean done = false;
       for(int iteration = 0; !done; iteration++) {
         done = true;
@@ -783,14 +787,10 @@ public class Balancer {
     }
 
     /** parse command line arguments */
-    static Parameters parse(String[] args) {
-      BalancingPolicy policy = Parameters.DEFAULT.policy;
-      double threshold = Parameters.DEFAULT.threshold;
-      int maxIdleIteration = Parameters.DEFAULT.maxIdleIteration;
-      Set<String> excludedNodes = Parameters.DEFAULT.excludedNodes;
-      Set<String> includedNodes = Parameters.DEFAULT.includedNodes;
-      Set<String> sourceNodes = Parameters.DEFAULT.sourceNodes;
-      boolean runDuringUpgrade = Parameters.DEFAULT.runDuringUpgrade;
+    static BalancerParameters parse(String[] args) {
+      Set<String> excludedNodes = null;
+      Set<String> includedNodes = null;
+      BalancerParameters.Builder b = new BalancerParameters.Builder();
 
       if (args != null) {
         try {
@@ -799,12 +799,13 @@ public class Balancer {
               checkArgument(++i < args.length,
                 "Threshold value is missing: args = " + Arrays.toString(args));
               try {
-                threshold = Double.parseDouble(args[i]);
+                double threshold = Double.parseDouble(args[i]);
                 if (threshold < 1 || threshold > 100) {
                   throw new IllegalArgumentException(
                       "Number out of range: threshold = " + threshold);
                 }
                 LOG.info( "Using a threshold of " + threshold );
+                b.setThreshold(threshold);
               } catch(IllegalArgumentException e) {
                 System.err.println(
                     "Expecting a number in the range of [1.0, 100.0]: "
@@ -815,7 +816,7 @@ public class Balancer {
               checkArgument(++i < args.length,
                 "Policy value is missing: args = " + Arrays.toString(args));
               try {
-                policy = BalancingPolicy.parse(args[i]);
+                b.setBalancingPolicy(BalancingPolicy.parse(args[i]));
               } catch(IllegalArgumentException e) {
                 System.err.println("Illegal policy name: " + args[i]);
                 throw e;
@@ -823,20 +824,23 @@ public class Balancer {
             } else if ("-exclude".equalsIgnoreCase(args[i])) {
               excludedNodes = new HashSet<>();
               i = processHostList(args, i, "exclude", excludedNodes);
+              b.setExcludedNodes(excludedNodes);
             } else if ("-include".equalsIgnoreCase(args[i])) {
               includedNodes = new HashSet<>();
               i = processHostList(args, i, "include", includedNodes);
+              b.setIncludedNodes(includedNodes);
             } else if ("-source".equalsIgnoreCase(args[i])) {
-              sourceNodes = new HashSet<>();
+              Set<String> sourceNodes = new HashSet<>();
               i = processHostList(args, i, "source", sourceNodes);
             } else if ("-idleiterations".equalsIgnoreCase(args[i])) {
               checkArgument(++i < args.length,
                   "idleiterations value is missing: args = " + Arrays
                       .toString(args));
-              maxIdleIteration = Integer.parseInt(args[i]);
+              int maxIdleIteration = Integer.parseInt(args[i]);
               LOG.info("Using a idleiterations of " + maxIdleIteration);
+              b.setMaxIdleIteration(maxIdleIteration);
             } else if ("-runDuringUpgrade".equalsIgnoreCase(args[i])) {
-              runDuringUpgrade = true;
+              b.setRunDuringUpgrade(true);
               LOG.info("Will run the balancer even during an ongoing HDFS "
                   + "upgrade. Most users will not want to run the balancer "
                   + "during an upgrade since it will not affect used space "
@@ -846,16 +850,15 @@ public class Balancer {
                   + Arrays.toString(args));
             }
           }
-          checkArgument(excludedNodes.isEmpty() || includedNodes.isEmpty(),
+          checkArgument(excludedNodes == null || includedNodes == null,
               "-exclude and -include options cannot be specified together.");
         } catch(RuntimeException e) {
           printUsage(System.err);
           throw e;
         }
       }
-      
-      return new Parameters(policy, threshold, maxIdleIteration,
-          excludedNodes, includedNodes, sourceNodes, runDuringUpgrade);
+
+      return b.build();
     }
 
     private static int processHostList(String[] args, int i, String type,

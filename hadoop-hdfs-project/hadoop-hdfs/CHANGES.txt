@@ -82,6 +82,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7858. Improve HA Namenode Failover detection on the client.
     (Arun Suresh)
 
+    HDFS-9008. Balancer#Parameters class could use a builder pattern.
+    (Chris Trezzo via mingma)
+
     HDFS-9019. Adding informative message to sticky bit permission denied
     exception. (xyao)
 
