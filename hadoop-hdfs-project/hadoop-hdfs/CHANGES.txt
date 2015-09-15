@@ -63,6 +63,9 @@ Release 2.8.0 - UNRELEASED
     'CredentialBasedAccessTokenProvider.getCredential()' abstract methods to
     public (Santhosh Nayak via cnauroth)
 
+    HDFS-9082. Change the log level in WebHdfsFileSystem.initialize() from INFO
+    to DEBUG. (Santhosh Nayak via cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
