@@ -97,6 +97,7 @@
       <item name="HDFS Support for Multihoming" href="hadoop-project-dist/hadoop-hdfs/HdfsMultihoming.html"/>
       <item name="Archival Storage, SSD &amp; Memory" href="hadoop-project-dist/hadoop-hdfs/ArchivalStorage.html"/>
       <item name="Memory Storage Support" href="hadoop-project-dist/hadoop-hdfs/MemoryStorage.html"/>
+      <item name="Erasure Coding" href="hadoop-project-dist/hadoop-hdfs/HDFSErasureCoding.html"/>
     </menu>
 
     <menu name="MapReduce" inherit="top">
