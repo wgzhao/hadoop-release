@@ -1233,3 +1233,6 @@ ATS V1.5:
 
     YARN-3717. Expose app/am/queue's node-label-expression to RM web UI / CLI / REST-API. 
     (Naganarasimha G R via wangda)
+
+    YARN-3635. Refactored current queue mapping implementation in CapacityScheduler to 
+    use a generic PlacementManager framework. Contributed by Wangda Tan

@@ -30,6 +30,7 @@ import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWriter;
 import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublisher;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
+import org.apache.hadoop.yarn.server.resourcemanager.placement.PlacementManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSystem;
@@ -127,4 +128,8 @@ public interface RMContext {
   Configuration getYarnConfiguration();
 
   RMRegistryService getRegistry();
+  
+  PlacementManager getQueuePlacementManager();
+  
+  void setQueuePlacementManager(PlacementManager placementMgr);
 }

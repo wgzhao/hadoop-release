@@ -33,6 +33,7 @@ import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWriter;
 import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublisher;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
+import org.apache.hadoop.yarn.server.resourcemanager.placement.PlacementManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.NullRMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.registry.RMRegistryService;
@@ -101,9 +102,10 @@ public class RMActiveServiceContext {
   private long schedulerRecoveryWaitTime = 0;
   private boolean printLog = true;
   private boolean isSchedulerReady = false;
+  private PlacementManager queuePlacementManager = null;
 
   public RMActiveServiceContext() {
-
+    queuePlacementManager = new PlacementManager();
   }
 
   @Private
@@ -438,5 +440,17 @@ public class RMActiveServiceContext {
   @Unstable
   public void setRegistry(RMRegistryService registry) {
     this.registry = registry;
+  }
+  
+  @Private
+  @Unstable
+  public PlacementManager getQueuePlacementManager() {
+    return queuePlacementManager;
+  }
+  
+  @Private
+  @Unstable
+  public void setQueuePlacementManager(PlacementManager placementMgr) {
+    this.queuePlacementManager = placementMgr;
   }
 }
