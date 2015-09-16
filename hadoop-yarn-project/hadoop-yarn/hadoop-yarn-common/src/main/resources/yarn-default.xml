@@ -1320,6 +1320,14 @@
   </property>
 
   <property>
+    <description>
+      Defines if YARN will save container meta-info in the application history store.
+    </description>
+    <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
+    <value>false</value>
+  </property>
+
+  <property>
     <description>Store class name for timeline store.</description>
     <name>yarn.timeline-service.store-class</name>
     <value>org.apache.hadoop.yarn.server.timeline.LeveldbTimelineStore</value>
