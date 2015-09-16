@@ -897,3 +897,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     should be closed in finally block. (Kiran Kumar M R and Sanghyun Yun
     via ozawa)
 
+    BUG-53174. HADOOP-12374. Description of hdfs expunge command is confusing.
+    (Weiwei Yang)
+
