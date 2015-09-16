@@ -1684,3 +1684,5 @@ ATS V1.5:
 
     BUG-62176. YARN-4573. Fix test failure in TestRMAppTransitions#testAppRunningKill and
     testAppKilledKilled. (Takashi Ohnishi via rohithsharmaks)
+
+    BUG-62180. YARN-3433. Jersey tests failing with Port in Use -again. (Brahma Reddy Battula)
