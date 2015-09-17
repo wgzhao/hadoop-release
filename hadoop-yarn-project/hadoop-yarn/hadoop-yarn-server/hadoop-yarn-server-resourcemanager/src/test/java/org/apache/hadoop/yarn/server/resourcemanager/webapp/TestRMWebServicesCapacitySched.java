@@ -352,7 +352,8 @@ public class TestRMWebServicesCapacitySched extends JerseyTestBase {
     int numExpectedElements = 18;
     boolean isParentQueue = true;
     if (!info.has("queues")) {
-      numExpectedElements = 31;
+      // TODO Backport YARN-4034 and increase numExpectedElements to 31
+      numExpectedElements = 30;
       isParentQueue = false;
     }
     assertEquals("incorrect number of elements", numExpectedElements, info.length());
