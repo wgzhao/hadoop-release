@@ -49,7 +49,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  * if true synchronous behavior is required.</li>
  * </ol>
  * 
- * Following combination is not valid and will result in 
+ * Following combination are not valid and will result in
  * {@link HadoopIllegalArgumentException}:
  * <ol>
  * <li> APPEND|OVERWRITE</li>

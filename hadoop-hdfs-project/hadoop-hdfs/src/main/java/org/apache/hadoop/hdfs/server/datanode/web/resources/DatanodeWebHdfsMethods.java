@@ -60,6 +60,8 @@ import org.apache.hadoop.hdfs.web.SWebHdfsFileSystem;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.hdfs.web.resources.BlockSizeParam;
 import org.apache.hadoop.hdfs.web.resources.BufferSizeParam;
+import org.apache.hadoop.hdfs.web.resources.CreateFlagParam;
+import org.apache.hadoop.hdfs.web.resources.CreateParentParam;
 import org.apache.hadoop.hdfs.web.resources.DelegationParam;
 import org.apache.hadoop.hdfs.web.resources.GetOpParam;
 import org.apache.hadoop.hdfs.web.resources.HttpOpParam;
@@ -85,6 +87,8 @@ import com.sun.jersey.spi.container.ResourceFilters;
 @ResourceFilters(ParamFilter.class)
 public class DatanodeWebHdfsMethods {
   public static final Log LOG = LogFactory.getLog(DatanodeWebHdfsMethods.class);
+  public static final EnumSet<CreateFlag> EMPTY_CREATE_FLAG =
+      EnumSet.noneOf(CreateFlag.class);
 
   private static final UriFsPathParam ROOT = new UriFsPathParam("");
 
@@ -161,10 +165,15 @@ public class DatanodeWebHdfsMethods {
       @QueryParam(ReplicationParam.NAME) @DefaultValue(ReplicationParam.DEFAULT)
           final ReplicationParam replication,
       @QueryParam(BlockSizeParam.NAME) @DefaultValue(BlockSizeParam.DEFAULT)
-          final BlockSizeParam blockSize
-      ) throws IOException, InterruptedException {
+          final BlockSizeParam blockSize,
+      @QueryParam(CreateParentParam.NAME) @DefaultValue(CreateParentParam.DEFAULT)
+          final CreateParentParam createParent,
+      @QueryParam(CreateFlagParam.NAME) @DefaultValue(CreateFlagParam.DEFAULT)
+          final CreateFlagParam createFlag
+  ) throws IOException, InterruptedException {
     return put(in, ugi, delegation, namenode, ROOT, op, permission,
-            overwrite, bufferSize, replication, blockSize);
+        overwrite, bufferSize, replication, blockSize, createParent,
+        createFlag);
   }
 
   /** Handle HTTP PUT request. */
@@ -192,18 +201,24 @@ public class DatanodeWebHdfsMethods {
       @QueryParam(ReplicationParam.NAME) @DefaultValue(ReplicationParam.DEFAULT)
           final ReplicationParam replication,
       @QueryParam(BlockSizeParam.NAME) @DefaultValue(BlockSizeParam.DEFAULT)
-          final BlockSizeParam blockSize
+          final BlockSizeParam blockSize,
+      @QueryParam(CreateParentParam.NAME) @DefaultValue(CreateParentParam.DEFAULT)
+          final CreateParentParam createParent,
+      @QueryParam(CreateFlagParam.NAME) @DefaultValue(CreateFlagParam.DEFAULT)
+          final CreateFlagParam createFlag
       ) throws IOException, InterruptedException {
 
     final String nnId = namenode.getValue();
     init(ugi, delegation, nnId, path, op, permission,
-        overwrite, bufferSize, replication, blockSize);
+        overwrite, bufferSize, replication, blockSize, createParent,
+        createFlag);
 
     return ugi.doAs(new PrivilegedExceptionAction<Response>() {
       @Override
       public Response run() throws IOException, URISyntaxException {
         return put(in, nnId, path.getAbsolutePath(), op,
-                permission, overwrite, bufferSize, replication, blockSize);
+            permission, overwrite, bufferSize, replication, blockSize,
+            createParent, createFlag);
       }
     });
   }
@@ -217,7 +232,9 @@ public class DatanodeWebHdfsMethods {
       final OverwriteParam overwrite,
       final BufferSizeParam bufferSize,
       final ReplicationParam replication,
-      final BlockSizeParam blockSize
+      final BlockSizeParam blockSize,
+      final CreateParentParam createParent,
+      final CreateFlagParam createFlag
       ) throws IOException, URISyntaxException {
     final DataNode datanode = (DataNode)context.getAttribute("datanode");
 
@@ -227,15 +244,24 @@ public class DatanodeWebHdfsMethods {
       final Configuration conf = new Configuration(datanode.getConf());
       conf.set(FsPermission.UMASK_LABEL, "000");
 
+      EnumSet<CreateFlag> flags = createFlag.getValue();
+      if (flags.equals(EMPTY_CREATE_FLAG)) {
+        flags = overwrite.getValue() ?
+            EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE)
+            : EnumSet.of(CreateFlag.CREATE);
+      } else {
+        if(overwrite.getValue()) {
+          flags.add(CreateFlag.OVERWRITE);
+        }
+      }
+
       final int b = bufferSize.getValue(conf);
       DFSClient dfsclient = newDfsClient(nnId, conf);
       FSDataOutputStream out = null;
       try {
         out = dfsclient.createWrappedOutputStream(dfsclient.create(
             fullpath, permission.getFsPermission(), 
-            overwrite.getValue() ?
-                EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE) :
-                EnumSet.of(CreateFlag.CREATE),
+            flags, createParent.getValue(),
             replication.getValue(conf), blockSize.getValue(conf), null,
             b, null), null);
         IOUtils.copyBytes(in, out, b);

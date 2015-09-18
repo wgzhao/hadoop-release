@@ -168,6 +168,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-12325. RPC Metrics : Add the ability track and log slow RPCs.
     (Anu Engineer via xyao)
 
+    BUG-43226. HDFS-8435. Support CreateFlag in WebHdfs.
+    (Jakob Homan via cdouglas)
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file not
