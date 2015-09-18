@@ -152,6 +152,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3978. Configurably turn off the saving of container info in Generic AHS
     (Eric Payne via jeagles)
 
+    MAPREDUCE-6478. Add an option to skip cleanupJob stage or ignore cleanup
+    failure during commitJob. (Junping Du via wangda)
+
     YARN-4243. Add retry on establishing Zookeeper conenction in 
     EmbeddedElectorService#serviceInit. (Xuan Gong via junping_du)
 
