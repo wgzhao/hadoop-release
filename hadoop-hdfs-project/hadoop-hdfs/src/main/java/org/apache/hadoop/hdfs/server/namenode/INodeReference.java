@@ -319,9 +319,9 @@ public abstract class INodeReference extends INode {
   }
 
   @Override
-  public ContentSummaryComputationContext computeContentSummary(
+  public ContentSummaryComputationContext computeContentSummary(int snapshotId,
       ContentSummaryComputationContext summary) {
-    return referred.computeContentSummary(summary);
+    return referred.computeContentSummary(snapshotId, summary);
   }
 
   @Override
@@ -509,11 +509,11 @@ public abstract class INodeReference extends INode {
     
     @Override
     public final ContentSummaryComputationContext computeContentSummary(
-        ContentSummaryComputationContext summary) {
-      //only count storagespace for WithName
+        int snapshotId, ContentSummaryComputationContext summary) {
       final QuotaCounts q = new QuotaCounts.Builder().build();
+      final int s = snapshotId < lastSnapshotId ? snapshotId : lastSnapshotId;
       computeQuotaUsage(summary.getBlockStoragePolicySuite(),
-          getStoragePolicyID(), q, false, lastSnapshotId);
+          getStoragePolicyID(), q, false, s);
       summary.getCounts().addContent(Content.DISKSPACE, q.getStorageSpace());
       summary.getCounts().addTypeSpaces(q.getTypeSpaces());
       return summary;
