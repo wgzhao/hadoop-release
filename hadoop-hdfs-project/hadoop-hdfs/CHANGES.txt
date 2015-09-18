@@ -180,6 +180,8 @@ Release 2.8.0 - UNRELEASED
     Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit via
     Kihwal Lee)
 
+    HDFS-9063. Correctly handle snapshot path for getContentSummary. (jing9)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
