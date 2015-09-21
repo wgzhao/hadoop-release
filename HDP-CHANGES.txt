@@ -1,4 +1,4 @@
-Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered by CHANGES.txt.
+Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered by CHANGES.txt.
 
   INCOMPATIBLE CHANGES
 
@@ -72,6 +72,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     YARN-3505. Node's Log Aggregation Report with SUCCEED should not cached in 
     RMApps. (Xuan Gong via junping_du)  
+
+    HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
   IMPROVEMENTS
 
@@ -160,11 +162,70 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     BUG-43612. computeReplicationWork does not record all failure paths.
     (Arpit Agarwal)
 
+    HADOOP-11960. Enable Azure-Storage Client Side logging.
+    (Dushyanth via cnauroth)
+
+    HADOOP-10597. RPC Server signals backoff to clients when all request
+    queues are full. (Ming Ma via Arpit Agarwal)
+
+    HADOOP-12325. RPC Metrics : Add the ability track and log slow RPCs.
+    (Anu Engineer via xyao)
+
+    HADOOP-12358. Add -safely flag to rm to prompt when deleting many files.
+    (xyao via wang) 
+
+    HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
+    in more rolling upgrade use cases. (cnauroth)
+
+    HDFS-4396. Add START_MSG/SHUTDOWN_MSG for ZKFC
+    (Liang Xie via harsh)
+
+    HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
+
+    HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
+
+    HDFS-8818. Changes the global moveExecutor to per datanode executors and
+    changes MAX_SIZE_TO_MOVE to be configurable.  (szetszwo)
+
+    HDFS-8824. Do not use small blocks for balancing the cluster.  (szetszwo)
+
+    HDFS-8883. NameNode Metrics : Add FSNameSystem lock Queue Length.
+    (Anu Engineer via xyao)
+
+    HDFS-8278. When computing max-size-to-move in Balancer, count only the
+    storage with remaining >= default block size.  (szetszwo)
+
+    HDFS-8826. In Balancer, add an option to specify the source node list
+    so that balancer only selects blocks to move from those nodes.  (szetszwo)
+
+    HDFS-8911. NameNode Metric : Add Editlog counters as a JMX metric.
+    (Anu Engineer via Arpit Agarwal)
+
+    HDFS-7923. The DataNodes should rate-limit their full block reports by
+    asking the NN on heartbeat messages (cmccabe)
+
+    HDFS-8983. NameNode support for protected directories. (Arpit Agarwal)
+
+    HDFS-8046. Allow better control of getContentSummary (kihwal)
+
+    HDFS-8797. WebHdfsFileSystem creates too many connections for pread. (jing9)
+
+    HDFS-8180. AbstractFileSystem Implementation for WebHdfs. (snayak via jghoman)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
+
+    HADOOP-12317. Applications fail on NM restart on some linux distro
+    because NM container recovery declares AM container as LOST (adhoot via rkanter)
+
+    HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
+    via aw)
+
+    HADOOP-11772. RPC Invoker relies on static ClientCache which has
+    synchronized(this) blocks. (wheat9)
 
   BUG FIXES
 
@@ -327,4 +388,74 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
     state-store error occurs. (Jian He via xgong)
 
     HDFS-8767. RawLocalFileSystem.listStatus() returns null for UNIX pipefile.
+
+    HADOOP-12304. Applications using FileContext fail with the default file
+    system configured to be wasb/s3/etc. (cnauroth)
+
+    HADOOP-11802: DomainSocketWatcher thread terminates sometimes after there
+    is an I/O error during requestShortCircuitShm (cmccabe)
+
+    HADOOP-12052 IPC client downgrades all exception types to IOE, breaks
+    callers trying to use them. (Brahma Reddy Battula via stevel)
+
+    HADOOP-12073. Azure FileSystem PageBlobInputStream does not return -1 on
+    EOF. (Ivan Mitic via cnauroth)
+
+    HADOOP-12095. org.apache.hadoop.fs.shell.TestCount fails.
+    (Brahma Reddy Battula via aajisaka)
+
+    HADOOP-8151. Error handling in snappy decompressor throws invalid
+    exceptions. (Matt Foley via harsh)
+
+    HDFS-8384. Allow NN to startup if there are files having a lease but are not
+    under construction. (jing9)
+
+    HDFS-8309. Skip unit test using DataNodeTestUtils#injectDataDirFailure() on Windows.
+    (xyao)
+
+    HDFS-7609. Avoid retry cache collision when Standby NameNode loading edits.
+    (Ming Ma via jing9)
+
+    HDFS-8431. hdfs crypto class not found in Windows.
+    (Anu Engineer via cnauroth)
+
+    HDFS-8539. Hdfs doesnt have class 'debug' in windows.
+    (Anu Engineer via cnauroth)
+
+    HDFS-8593. Calculation of effective layout version mishandles comparison to
+    current layout version in storage. (cnauroth)
+
+    HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows.
+    (Kiran Kumar M R via Xiaoyu Yao)
+
+    HDFS-7608: hdfs dfsclient newConnectedPeer has no
+    write timeout (Xiaoyu Yao via Colin P. McCabe)
+
+    HDFS-6945. BlockManager should remove a block from excessReplicateMap and
+    decrement ExcessBlocks metric when the block is removed. (aajisaka)
+
+    HDFS-8879. Quota by storage type usage incorrectly initialized upon namenode
+    restart. (xyao)
+
+    HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
+    before editLogStream initialization. (Surendra Singh Lilhore via xyao)
+
+    HDFS-8311. DataStreamer.transfer() should timeout the socket InputStream.
+    (Esteban Gutierrez via Yongjun Zhang)
+
+    HDFS-8969. Clean up findbugs warnings for HDFS-8823 and HDFS-8932.
+    Contributed by Anu Engineer.
+
+    HDFS-8850. VolumeScanner thread exits with exception if there is no block
+    pool to be scanned but there are suspicious blocks. (Colin Patrick McCabe
+    via yliu)
+
+    HDFS-8542. WebHDFS getHomeDirectory behavior does not match specification.
+    (Kanaka Kumar Avvaru via jghoman)
+
+    HDFS-8885. ByteRangeInputStream used in webhdfs does not override
+    available(). (Shradha Revankar via aajisaka)
+
+    HDFS-8939. Test(S)WebHdfsFileContextMainOperations failing on branch-2.
+    (Chris Nauroth via jghoman) 
 
