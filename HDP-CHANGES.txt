@@ -685,5 +685,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     otherinfo. (xgong)
 
     Backport YARN-3448. Add Rolling Time To Lives Level DB Plugin Capabilities. (xgong)
+    
+    Fix YARN-3207, YARN-3267, YARN-3530 & YARN-3448 to build on Java 6. (stevel)
 
 

@@ -22,11 +22,12 @@ package org.apache.hadoop.yarn.server.timeline.util;
 import org.apache.hadoop.io.WritableComparator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.hadoop.yarn.server.timeline.GenericObjectMapper.readReverseOrderedLong;
 
 public class LeveldbUtils {
+  private static final String UTF_8 = "UTF-8";
 
   /** A string builder utility for building timeline server leveldb keys. */
   public static class KeyBuilder {
@@ -56,7 +57,11 @@ public class LeveldbUtils {
     }
 
     public KeyBuilder add(String s) {
-      return add(s.getBytes(UTF_8), true);
+      try {
+        return add(s.getBytes(UTF_8), true);
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     public KeyBuilder add(byte[] t) {

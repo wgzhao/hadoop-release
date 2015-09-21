@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,8 +75,6 @@ import org.iq80.leveldb.Options;
 import org.iq80.leveldb.ReadOptions;
 import org.iq80.leveldb.WriteBatch;
 import org.nustaq.serialization.FSTConfiguration;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.apache.hadoop.yarn.server.timeline.GenericObjectMapper.readReverseOrderedLong;
 import static org.apache.hadoop.yarn.server.timeline.GenericObjectMapper.writeReverseOrderedLong;
@@ -183,18 +182,28 @@ public class RollingLevelDBTimelineStore extends AbstractService implements
   static final String INDEX = "indexes-ldb";
   static final String STARTTIME = "starttime-ldb";
   static final String OWNER = "owner-ldb";
+  private static final String UTF_8 = "UTF-8";
 
-  private static final byte[] DOMAIN_ID_COLUMN = "d".getBytes(UTF_8);
-  private static final byte[] EVENTS_COLUMN = "e".getBytes(UTF_8);
-  private static final byte[] PRIMARY_FILTERS_COLUMN = "f".getBytes(UTF_8);
-  private static final byte[] OTHER_INFO_COLUMN = "i".getBytes(UTF_8);
-  private static final byte[] RELATED_ENTITIES_COLUMN = "r".getBytes(UTF_8);
+  /* get the bytes in UTF-8 */
+  private static byte[] getBytes(String s) {
+    try {
+      return s.getBytes(UTF_8);
+    } catch (UnsupportedEncodingException impossible) {
+      throw new RuntimeException(impossible);
+    }
+  }
 
-  private static final byte[] DESCRIPTION_COLUMN = "d".getBytes(UTF_8);
-  private static final byte[] OWNER_COLUMN = "o".getBytes(UTF_8);
-  private static final byte[] READER_COLUMN = "r".getBytes(UTF_8);
-  private static final byte[] WRITER_COLUMN = "w".getBytes(UTF_8);
-  private static final byte[] TIMESTAMP_COLUMN = "t".getBytes(UTF_8);
+  private static final byte[] DOMAIN_ID_COLUMN = getBytes("d");
+  private static final byte[] EVENTS_COLUMN = getBytes("e");
+  private static final byte[] PRIMARY_FILTERS_COLUMN = getBytes("f");
+  private static final byte[] OTHER_INFO_COLUMN = getBytes("i");
+  private static final byte[] RELATED_ENTITIES_COLUMN = getBytes("r");
+
+  private static final byte[] DESCRIPTION_COLUMN = getBytes("d");
+  private static final byte[] OWNER_COLUMN = getBytes("o");
+  private static final byte[] READER_COLUMN = getBytes("r");
+  private static final byte[] WRITER_COLUMN = getBytes("w");
+  private static final byte[] TIMESTAMP_COLUMN = getBytes("t");
 
   private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -1385,7 +1394,11 @@ public class RollingLevelDBTimelineStore extends AbstractService implements
    * the end of the array (for parsing other info keys).
    */
   private static String parseRemainingKey(byte[] b, int offset) {
-    return new String(b, offset, b.length - offset, UTF_8);
+    try {
+      return new String(b, offset, b.length - offset, UTF_8);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
