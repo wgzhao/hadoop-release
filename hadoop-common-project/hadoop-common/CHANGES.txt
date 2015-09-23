@@ -32,6 +32,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12407. Test failing: hadoop.ipc.TestSaslRPC. (stevel)
 
+    HADOOP-12438. TestLocalFileSystem tests can fail on Windows after HDFS-8767
+    fix for handling pipe. (cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
