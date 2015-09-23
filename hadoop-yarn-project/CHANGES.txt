@@ -84,6 +84,9 @@ Release 2.6.1 - UNRELEASED
     YARN-1809. Synchronize RM and TimeLineServer Web-UIs. (Zhijie Shen and
     Xuan Gong via jianhe)
 
+    YARN-3248. Display count of nodes blacklisted by apps in the web UI.
+    (Varun Vasudev via xgong)
+
   OPTIMIZATIONS
 
   BUG FIXES
@@ -177,9 +180,6 @@ Release 2.6.1 - UNRELEASED
 
     YARN-3379. Fixed missing data in localityTable and ResourceRequests table
     in RM WebUI. (Xuan Gong via jianhe)
-
-    YARN-3248. Display count of nodes blacklisted by apps in the web UI.
-    (Varun Vasudev via xgong)
 
     YARN-3544. Got back AM logs link on the RM web UI for a completed app.
     (Xuan Gong via zjshen)
