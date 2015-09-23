@@ -2582,10 +2582,9 @@ public class BlockManager implements BlockStatsMXBean {
               BlockIdManager.convertToStripedID(reported.getBlockId());
           BlockInfoStriped stripedBlock = (BlockInfoStriped) storedBlock;
           int reportedBlkIdx = BlockIdManager.getBlockIndex(reported);
-          wrongSize = reported.getNumBytes() !=
-              getInternalBlockLength(stripedBlock.getNumBytes(),
-                  HdfsConstants.BLOCK_STRIPED_CELL_SIZE,
-                  stripedBlock.getDataBlockNum(), reportedBlkIdx);
+          wrongSize = reported.getNumBytes() != getInternalBlockLength(
+              stripedBlock.getNumBytes(), stripedBlock.getCellSize(),
+              stripedBlock.getDataBlockNum(), reportedBlkIdx);
         } else {
           wrongSize = storedBlock.getNumBytes() != reported.getNumBytes();
         }
@@ -3427,7 +3426,7 @@ public class BlockManager implements BlockStatsMXBean {
               (byte) blockStriped.getStorageBlockIndex(locations.get(i));
         }
         results.add(new StripedBlockWithLocations(blkWithLocs, indices,
-            blockStriped.getDataBlockNum()));
+            blockStriped.getDataBlockNum(), blockStriped.getCellSize()));
         // approximate size
         return block.getNumBytes() / blockStriped.getDataBlockNum();
       }else{

@@ -413,11 +413,14 @@ public class Dispatcher {
 
     final byte[] indices;
     final short dataBlockNum;
+    final int cellSize;
 
-    public DBlockStriped(Block block, byte[] indices, short dataBlockNum) {
+    public DBlockStriped(Block block, byte[] indices, short dataBlockNum,
+        int cellSize) {
       super(block);
       this.indices = indices;
       this.dataBlockNum = dataBlockNum;
+      this.cellSize = cellSize;
     }
 
     public DBlock getInternalBlock(StorageGroup storage) {
@@ -428,7 +431,7 @@ public class Dispatcher {
       byte idxInGroup = indices[idxInLocs];
       long blkId = getBlock().getBlockId() + idxInGroup;
       long numBytes = StripedBlockUtil.getInternalBlockLength(getNumBytes(),
-          HdfsConstants.BLOCK_STRIPED_CELL_SIZE, dataBlockNum, idxInGroup);
+          cellSize, dataBlockNum, idxInGroup);
       Block blk = new Block(getBlock());
       blk.setBlockId(blkId);
       blk.setNumBytes(numBytes);
@@ -710,8 +713,8 @@ public class Dispatcher {
           bytesReceived += sblkLocs.getBlock().getNumBytes() /
               sblkLocs.getDataBlockNum();
           block = new DBlockStriped(sblkLocs.getBlock(), sblkLocs.getIndices(),
-              sblkLocs.getDataBlockNum());
-        } else{
+              sblkLocs.getDataBlockNum(), sblkLocs.getCellSize());
+        } else {
           bytesReceived += blkLocs.getBlock().getNumBytes();
           block = new DBlock(blkLocs.getBlock());
         }

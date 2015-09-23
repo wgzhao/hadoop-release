@@ -456,6 +456,7 @@ public class PBHelper {
       StripedBlockWithLocations sblk = (StripedBlockWithLocations) blk;
       builder.setIndices(getByteString(sblk.getIndices()));
       builder.setDataBlockNum(sblk.getDataBlockNum());
+      builder.setCellSize(sblk.getCellSize());
     }
     return builder.build();
   }
@@ -470,7 +471,7 @@ public class PBHelper {
         convertStorageTypes(storageTypes, storageUuids.size()));
     if (b.hasIndices()) {
       blk = new StripedBlockWithLocations(blk, b.getIndices().toByteArray(),
-          (short) b.getDataBlockNum());
+          (short) b.getDataBlockNum(), b.getCellSize());
     }
     return blk;
   }
