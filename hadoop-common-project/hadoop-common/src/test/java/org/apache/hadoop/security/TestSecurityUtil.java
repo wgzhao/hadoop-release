@@ -112,7 +112,7 @@ public class TestSecurityUtil {
 
   @Test
   public void testLocalHostNameForNullOrWild() throws Exception {
-    String local = SecurityUtil.getLocalHostName();
+    String local = SecurityUtil.getLocalHostName(null);
     assertEquals("hdfs/" + local + "@REALM",
                  SecurityUtil.getServerPrincipal("hdfs/_HOST@REALM", (String)null));
     assertEquals("hdfs/" + local + "@REALM",

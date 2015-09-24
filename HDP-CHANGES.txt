@@ -703,3 +703,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-44268. HDFS-8576. Lease recovery should return true if the lease can be
     released and the file can be closed. (J.Andreina via szetszwo)
 
+    BUG-45263. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
+    (Arpit Agarwal)
+
