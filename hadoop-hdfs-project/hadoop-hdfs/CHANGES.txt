@@ -91,6 +91,9 @@ Release 2.7.2
     HDFS-8995. Flaw in registration bookeeping can make DN die on
     reconnect. (Kihwal Lee via yliu)
 
+    HDFS-6945. BlockManager should remove a block from excessReplicateMap
+    and decrement ExcessBlocks metric when the block is removed.  (aajisaka)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES
