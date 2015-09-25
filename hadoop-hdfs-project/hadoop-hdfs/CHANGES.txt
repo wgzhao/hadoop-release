@@ -65,6 +65,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-9019. Adding informative message to sticky bit permission denied
     exception. (xyao)
 
+    HDFS-9112. Improve error message for Haadmin when multiple name service IDs
+    are configured. Contributed by Anu Engineer.
+
+
   OPTIMIZATIONS
 
   BUG FIXES
