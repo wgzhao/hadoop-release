@@ -173,6 +173,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11098. [JDK8] Max Non Heap Memory default changed between JDK7
     and 8 (ozawa).
 
+    HDFS-9107. Prevent NN's unrecoverable death spiral after full GC (Daryn
+    Sharp via Colin P. McCabe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
