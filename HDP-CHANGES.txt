@@ -3169,3 +3169,6 @@ ATS V1.5:
 
     BUG-71586. HADOOP-13590. Retry until TGT expires even if the UGI renewal
     thread encountered exception.
+
+    BUG-73091. HADOOP-12442. Display help if the command option to 'hdfs dfs' is
+    not valid (Contributed by nijel)
