@@ -32,6 +32,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12407. Test failing: hadoop.ipc.TestSaslRPC. (stevel)
 
+    HADOOP-11918. Listing an empty s3a root directory throws FileNotFound.
+    (Lei (Eddy) Xu via cnauroth)
+
     HADOOP-12089. StorageException complaining " no lease ID" when updating
     FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
 
