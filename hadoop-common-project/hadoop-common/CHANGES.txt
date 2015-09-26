@@ -60,6 +60,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12438. TestLocalFileSystem tests can fail on Windows after HDFS-8767
     fix for handling pipe. (cnauroth)
 
+    HADOOP-11918. Listing an empty s3a root directory throws FileNotFound.
+    (Lei (Eddy) Xu via cnauroth)
+
     HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
