@@ -150,6 +150,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8859. Improve DataNode ReplicaMap memory footprint to save about 45%.
     (yliu)
 
+    HDFS-9148. Incorrect assert message in TestWriteToReplica#testWriteToTemporary
+    (Tony Wu via lei)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
