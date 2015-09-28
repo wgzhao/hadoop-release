@@ -534,6 +534,7 @@ public class DatanodeManager {
     blockManager.removeBlocksAssociatedTo(nodeInfo);
     networktopology.remove(nodeInfo);
     decrementVersionCount(nodeInfo.getSoftwareVersion());
+    blockManager.getBlockReportLeaseManager().unregister(nodeInfo);
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("remove datanode " + nodeInfo);
@@ -596,6 +597,7 @@ public class DatanodeManager {
     networktopology.add(node); // may throw InvalidTopologyException
     host2DatanodeMap.add(node);
     checkIfClusterIsNowMultiRack(node);
+    blockManager.getBlockReportLeaseManager().register(node);
 
     if (LOG.isDebugEnabled()) {
       LOG.debug(getClass().getSimpleName() + ".addDatanode: "

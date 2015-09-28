@@ -53,6 +53,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSTestUtil;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
@@ -160,11 +161,12 @@ public class TestBlockRecovery {
             Mockito.anyInt(),
             Mockito.anyInt(),
             Mockito.anyInt(),
-            Mockito.any(VolumeFailureSummary.class)))
+            Mockito.any(VolumeFailureSummary.class),
+            Mockito.anyBoolean()))
         .thenReturn(new HeartbeatResponse(
             new DatanodeCommand[0],
             new NNHAStatusHeartbeat(HAServiceState.ACTIVE, 1),
-            null));
+            null, DFSUtil.getRandom().nextLong() | 1L));
 
     dn = new DataNode(conf, locations, null) {
       @Override

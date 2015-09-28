@@ -36,6 +36,7 @@ import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.hdfs.DFSTestUtil;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
@@ -141,7 +142,8 @@ public class TestBPOfferService {
           Mockito.anyInt(),
           Mockito.anyInt(),
           Mockito.anyInt(),
-          Mockito.any(VolumeFailureSummary.class));
+          Mockito.any(VolumeFailureSummary.class),
+          Mockito.anyBoolean());
     mockHaStatuses[nnIdx] = new NNHAStatusHeartbeat(HAServiceState.STANDBY, 0);
     return mock;
   }
@@ -162,7 +164,7 @@ public class TestBPOfferService {
     public HeartbeatResponse answer(InvocationOnMock invocation) throws Throwable {
       heartbeatCounts[nnIdx]++;
       return new HeartbeatResponse(new DatanodeCommand[0],
-          mockHaStatuses[nnIdx], null);
+          mockHaStatuses[nnIdx], null, DFSUtil.getRandom().nextLong() | 1L);
     }
   }
 

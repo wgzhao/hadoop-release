@@ -39,6 +39,7 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSTestUtil;
+import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocolPB.DatanodeProtocolClientSideTranslatorPB;
@@ -198,13 +199,13 @@ public class TestDatanodeProtocolRetryPolicy {
           heartbeatResponse = new HeartbeatResponse(
               new DatanodeCommand[]{RegisterCommand.REGISTER},
               new NNHAStatusHeartbeat(HAServiceState.ACTIVE, 1),
-              null);
+              null, DFSUtil.getRandom().nextLong() | 1L);
         } else {
           LOG.info("mockito heartbeatResponse " + i);
           heartbeatResponse = new HeartbeatResponse(
               new DatanodeCommand[0],
               new NNHAStatusHeartbeat(HAServiceState.ACTIVE, 1),
-              null);
+              null, DFSUtil.getRandom().nextLong() | 1L);
         }
         return heartbeatResponse;
       }
@@ -216,7 +217,8 @@ public class TestDatanodeProtocolRetryPolicy {
            Mockito.anyInt(),
            Mockito.anyInt(),
            Mockito.anyInt(),
-           Mockito.any(VolumeFailureSummary.class));
+           Mockito.any(VolumeFailureSummary.class),
+           Mockito.anyBoolean());
 
     dn = new DataNode(conf, locations, null) {
       @Override
