@@ -440,7 +440,7 @@ public class TestMover {
           Assert.assertEquals(StorageType.DISK, type);
         }
       }
-      DFSTestUtil.verifyLocatedStripedBlocks(locatedBlocks,
+      StripedFileTestUtil.verifyLocatedStripedBlocks(locatedBlocks,
           dataBlocks + parityBlocks);
 
       // start 5 more datanodes
@@ -475,7 +475,7 @@ public class TestMover {
           Assert.assertEquals(StorageType.ARCHIVE, type);
         }
       }
-      DFSTestUtil.verifyLocatedStripedBlocks(locatedBlocks,
+      StripedFileTestUtil.verifyLocatedStripedBlocks(locatedBlocks,
           dataBlocks + parityBlocks);
 
     }finally{

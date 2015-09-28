@@ -1690,7 +1690,7 @@ public class TestBalancer {
 
       // verify locations of striped blocks
       LocatedBlocks locatedBlocks = client.getBlockLocations(fileName, 0, fileLen);
-      DFSTestUtil.verifyLocatedStripedBlocks(locatedBlocks, groupSize);
+      StripedFileTestUtil.verifyLocatedStripedBlocks(locatedBlocks, groupSize);
 
       // add one datanode
       String newRack = "/rack" + (++numOfRacks);
@@ -1706,7 +1706,7 @@ public class TestBalancer {
 
       // verify locations of striped blocks
       locatedBlocks = client.getBlockLocations(fileName, 0, fileLen);
-      DFSTestUtil.verifyLocatedStripedBlocks(locatedBlocks, groupSize);
+      StripedFileTestUtil.verifyLocatedStripedBlocks(locatedBlocks, groupSize);
     } finally {
       cluster.shutdown();
     }
