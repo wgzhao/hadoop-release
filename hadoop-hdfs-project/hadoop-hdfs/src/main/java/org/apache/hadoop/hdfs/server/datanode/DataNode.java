@@ -742,24 +742,11 @@ public class DataNode extends ReconfigurableBase
       throws UnknownHostException {
     String name = config.get(DFS_DATANODE_HOST_NAME_KEY);
     if (name == null) {
-      String dnsInterface = config.get(
-          CommonConfigurationKeys.HADOOP_SECURITY_DNS_INTERFACE_KEY);
-      String nameServer = config.get(
-          CommonConfigurationKeys.HADOOP_SECURITY_DNS_NAMESERVER_KEY);
-      boolean fallbackToHosts = false;
-
-      if (dnsInterface == null) {
-        // Try the legacy configuration keys.
-        dnsInterface = config.get(DFS_DATANODE_DNS_INTERFACE_KEY);
-        nameServer = config.get(DFS_DATANODE_DNS_NAMESERVER_KEY);
-      } else {
-        // If HADOOP_SECURITY_DNS_* is set then also attempt hosts file
-        // resolution if DNS fails. We will not use hosts file resolution
-        // by default to avoid breaking existing clusters.
-        fallbackToHosts = true;
-      }
-
-      name = DNS.getDefaultHost(dnsInterface, nameServer, fallbackToHosts);
+      name = DNS.getDefaultHost(
+          config.get(DFS_DATANODE_DNS_INTERFACE_KEY,
+                     DFS_DATANODE_DNS_INTERFACE_DEFAULT),
+          config.get(DFS_DATANODE_DNS_NAMESERVER_KEY,
+                     DFS_DATANODE_DNS_NAMESERVER_DEFAULT));
     }
     return name;
   }
@@ -2287,7 +2274,7 @@ public class DataNode extends ReconfigurableBase
     Collection<StorageLocation> dataLocations = getStorageLocations(conf);
     UserGroupInformation.setConfiguration(conf);
     SecurityUtil.login(conf, DFS_DATANODE_KEYTAB_FILE_KEY,
-        DFS_DATANODE_KERBEROS_PRINCIPAL_KEY, getHostName(conf));
+        DFS_DATANODE_KERBEROS_PRINCIPAL_KEY);
     return makeInstance(dataLocations, conf, resources);
   }
 
