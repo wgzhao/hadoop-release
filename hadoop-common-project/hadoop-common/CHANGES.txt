@@ -34,6 +34,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11685. StorageException complaining " no lease ID" during HBase
     distributed log splitting (Duo Xu via cnauroth)
 
+    HADOOP-12440. TestRPC#testRPCServerShutdown did not produce the desired
+    thread states before shutting down. (Xiao Chen via mingma)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
