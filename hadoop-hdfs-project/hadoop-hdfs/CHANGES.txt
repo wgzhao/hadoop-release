@@ -147,6 +147,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9188. Make block corruption related tests FsDataset-agnostic. (lei)
 
+    HDFS-8859. Improve DataNode ReplicaMap memory footprint to save about 45%.
+    (yliu)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
