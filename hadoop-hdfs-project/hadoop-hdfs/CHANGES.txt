@@ -68,6 +68,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9112. Improve error message for Haadmin when multiple name service IDs
     are configured. Contributed by Anu Engineer.
 
+    HDFS-9175. Change scope of 'AccessTokenProvider.getAccessToken()' and
+    'CredentialBasedAccessTokenProvider.getCredential()' abstract methods to
+    public (Santhosh Nayak via cnauroth)
 
   OPTIMIZATIONS
 
