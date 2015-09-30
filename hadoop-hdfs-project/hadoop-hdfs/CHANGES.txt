@@ -56,6 +56,10 @@ Release 2.8.0 - UNRELEASED
     HDFS-8846. Add a unit test for INotify functionality across a layout
     version upgrade (Zhe Zhang via Colin P. McCabe)
 
+    HDFS-9175. Change scope of 'AccessTokenProvider.getAccessToken()' and
+    'CredentialBasedAccessTokenProvider.getCredential()' abstract methods to
+    public (Santhosh Nayak via cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
