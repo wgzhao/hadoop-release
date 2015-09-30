@@ -261,6 +261,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     RMP-3532. HDFS-7858. Improve HA Namenode Failover detection on the client.
     (Arun Suresh)
 
+    YARN-3727. For better error recovery, check if the directory exists before
+    using it for localization. Contributed by Zhihai Xu
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
