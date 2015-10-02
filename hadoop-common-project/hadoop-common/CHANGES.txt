@@ -225,6 +225,9 @@ Release 2.7.2 - UNRELEASED
     HADOOP-12359. hadoop fs -getmerge doc is wrong.
     (Jagadesh Kiran N via aajisaka)
 
+    HADOOP-12230. hadoop-project declares duplicate, conflicting curator
+    dependencies. (Rakesh R via aajisaka)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
