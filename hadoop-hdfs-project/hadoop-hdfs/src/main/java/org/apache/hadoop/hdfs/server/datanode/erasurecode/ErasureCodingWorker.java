@@ -832,9 +832,7 @@ public final class ErasureCodingWorker {
       try {
         sock = NetUtils.getDefaultSocketFactory(conf).createSocket();
         NetUtils.connect(sock, addr, socketTimeout);
-        peer = TcpPeerServer.peerFromSocketAndKey(datanode.getSaslClient(),
-            sock, datanode.getDataEncryptionKeyFactoryForBlock(b), blockToken,
-            datanodeId);
+        peer = TcpPeerServer.peerFromSocketAndKey(datanode.getSaslClient(), sock, datanode.getDataEncryptionKeyFactoryForBlock(b), blockToken, datanodeId);
         peer.setReadTimeout(socketTimeout);
         success = true;
         return peer;

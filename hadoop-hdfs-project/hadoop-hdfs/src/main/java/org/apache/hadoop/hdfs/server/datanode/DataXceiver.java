@@ -124,7 +124,6 @@ class DataXceiver extends Receiver implements Runnable {
   
   private DataXceiver(Peer peer, DataNode datanode,
       DataXceiverServer dataXceiverServer) throws IOException {
-
     this.peer = peer;
     this.dnConf = datanode.getDnConf();
     this.socketIn = peer.getInputStream();
