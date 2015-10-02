@@ -228,9 +228,10 @@ public class TestDNS {
     }
   }
 
-  private String getLoopbackInterface() throws SocketException {
+  private String getLoopbackInterface()
+      throws SocketException, UnknownHostException {
     return NetworkInterface.getByInetAddress(
-        InetAddress.getLoopbackAddress()).getDisplayName();
+        InetAddress.getByName("127.0.0.1")).getDisplayName();
   }
 
   /**
