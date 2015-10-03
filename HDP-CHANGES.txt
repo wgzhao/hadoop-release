@@ -3503,3 +3503,7 @@ ATS V1.5:
 
     BUG-75384. HADOOP-14100. Upgrade Jsch jar to latest version to fix
     vulnerability in old versions. Contributed by Vinayakumar B
+
+    BUG-78017. HDFS-9193. Fix incorrect references the usages of the DN in
+    dfshealth.js. Contributed by Chang Li.
+
