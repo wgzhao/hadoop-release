@@ -4181,3 +4181,7 @@ ATS V1.5:
     HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name inserted in target server principal
 
     HADOOP-12158. Improve error message in TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not installed.
+
+    BUG-78017. HDFS-9193. Fix incorrect references the usages of the DN in
+    dfshealth.js. Contributed by Chang Li.
+
