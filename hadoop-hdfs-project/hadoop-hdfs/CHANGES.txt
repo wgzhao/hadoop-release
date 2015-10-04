@@ -170,6 +170,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8554. TestDatanodeLayoutUpgrade fails on Windows. (cnauroth)
 
+    HADOOP-11098. [JDK8] Max Non Heap Memory default changed between JDK7
+    and 8 (ozawa).
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

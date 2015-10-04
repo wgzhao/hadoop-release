@@ -79,6 +79,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12407. Test failing: hadoop.ipc.TestSaslRPC. (stevel)
 
+    HADOOP-11098. [JDK8] Max Non Heap Memory default changed between JDK7
+    and 8. (ozawa)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
