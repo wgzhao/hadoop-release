@@ -240,10 +240,14 @@ public class EntityFileTimelineStore extends AbstractService implements Timeline
     doneRootPath = new Path(conf.get(TIMELINE_SERVICE_ENTITYFILE_DONE_DIR,
         TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT));
     fs = activeRootPath.getFileSystem(conf);
-    fs.mkdirs(activeRootPath);
-    fs.setPermission(activeRootPath, ACTIVE_DIR_PERMISSION);
-    fs.mkdirs(doneRootPath);
-    fs.setPermission(doneRootPath, DONE_DIR_PERMISSION);
+    if (!fs.exists(activeRootPath)) {
+      fs.mkdirs(activeRootPath);
+      fs.setPermission(activeRootPath, ACTIVE_DIR_PERMISSION);
+    }
+    if (!fs.exists(doneRootPath)) {
+      fs.mkdirs(doneRootPath);
+      fs.setPermission(doneRootPath, DONE_DIR_PERMISSION);
+    }
 
     objMapper = new ObjectMapper();
     objMapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
