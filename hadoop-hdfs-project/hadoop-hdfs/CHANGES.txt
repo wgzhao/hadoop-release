@@ -18,6 +18,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-6860. BlockStateChange logs are too noisy. (Chang Li and xyao via xyao)
 
+    HDFS-9112. Improve error message for Haadmin when multiple name service IDs
+    are configured. Contributed by Anu Engineer.
+
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)
 
     HDFS-8818. Changes the global moveExecutor to per datanode executors and
