@@ -528,7 +528,7 @@ public class EntityFileTimelineStore extends AbstractService implements Timeline
       detailLogs.add(new EntityLogInfo(filename, owner));
     }
 
-    public synchronized TimelineStore refreshCache()
+    public synchronized TimelineStore refreshCache(ApplicationId appId)
         throws IOException {
       //TODO: make a config for cache freshness
       if (!cacheCompleted && Time.monotonicNow() - cacheRefreshTime > 10000) {
@@ -539,7 +539,7 @@ public class EntityFileTimelineStore extends AbstractService implements Timeline
         }
         if (!detailLogs.isEmpty()) {
           if (cacheStore == null) {
-            cacheStore = new MemoryTimelineStore();
+            cacheStore = new LevelDBCacheTimelineStore(appId.toString());
             cacheStore.init(getConfig());
             cacheStore.start();
           }
@@ -861,7 +861,7 @@ public class EntityFileTimelineStore extends AbstractService implements Timeline
     }
     TimelineStore store = null;
     if (appLogs != null) {
-      store = appLogs.refreshCache();
+      store = appLogs.refreshCache(appId);
     }
     return store;
   }
