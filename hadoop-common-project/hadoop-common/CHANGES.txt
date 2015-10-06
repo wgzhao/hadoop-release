@@ -28,6 +28,10 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11772. RPC Invoker relies on static ClientCache which has
     synchronized(this) blocks. (wheat9)
 
+    HADOOP-12317. Applications fail on NM restart on some linux distro
+    because NM container recovery declares AM container as LOST
+    (adhoot via rkanter)
+
   BUG FIXES
     HADOOP-11802: DomainSocketWatcher thread terminates sometimes after there
     is an I/O error during requestShortCircuitShm (cmccabe)
@@ -53,11 +57,8 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12438. TestLocalFileSystem tests can fail on Windows after HDFS-8767
     fix for handling pipe. (cnauroth)
 
-  OPTIMIZATIONS
-
-    HADOOP-12317. Applications fail on NM restart on some linux distro
-    because NM container recovery declares AM container as LOST
-    (adhoot via rkanter)
+    HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
+    (Arpit Agarwal)
 
     HADOOP-12089. StorageException complaining " no lease ID" when updating
     FolderLastModifiedTime in WASB. (Duo Xu via cnauroth)
