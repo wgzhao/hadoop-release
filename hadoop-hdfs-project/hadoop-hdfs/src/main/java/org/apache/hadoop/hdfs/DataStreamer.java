@@ -359,7 +359,7 @@ class DataStreamer extends Daemon {
   private volatile String[] storageIDs = null;
   private final ErrorState errorState;
 
-  private BlockConstructionStage stage;  // block construction stage
+  private volatile BlockConstructionStage stage;  // block construction stage
   protected long bytesSent = 0; // number of bytes that've been sent
   private final boolean isLazyPersistFile;
 
@@ -595,6 +595,7 @@ class DataStreamer extends Daemon {
           LOG.debug("stage=" + stage + ", " + this);
         }
         if (stage == BlockConstructionStage.PIPELINE_SETUP_CREATE) {
+          LOG.debug("Allocating new block: " + this);
           setPipeline(nextBlockOutputStream());
           initDataStreaming();
         } else if (stage == BlockConstructionStage.PIPELINE_SETUP_APPEND) {
@@ -1083,6 +1084,7 @@ class DataStreamer extends Daemon {
     if (!errorState.hasDatanodeError() && !shouldHandleExternalError()) {
       return false;
     }
+    LOG.debug("start process datanode/external error");
     if (response != null) {
       LOG.info("Error Recovery for " + block +
           " waiting for responder to exit. ");
@@ -1278,10 +1280,12 @@ class DataStreamer extends Daemon {
    * It keeps on trying until a pipeline is setup
    */
   private void setupPipelineForAppendOrRecovery() throws IOException {
-    // check number of datanodes
+    // Check number of datanodes. Note that if there is no healthy datanode,
+    // this must be internal error because we mark external error in striped
+    // outputstream only when all the streamers are in the DATA_STREAMING stage
     if (nodes == null || nodes.length == 0) {
       String msg = "Could not get block locations. " + "Source file \""
-          + src + "\" - Aborting...";
+          + src + "\" - Aborting..." + this;
       LOG.warn(msg);
       lastException.set(new IOException(msg));
       streamerClosed = true;
@@ -1431,8 +1435,9 @@ class DataStreamer extends Daemon {
     return newBlock;
   }
 
-  private int getNumBlockWriteRetry() {
-    return dfsClient.getConf().getNumBlockWriteRetry();
+  DatanodeInfo[] getExcludedNodes() {
+    return excludedNodes.getAllPresent(excludedNodes.asMap().keySet())
+            .keySet().toArray(new DatanodeInfo[0]);
   }
 
   /**
@@ -1442,20 +1447,17 @@ class DataStreamer extends Daemon {
    * Returns the list of target datanodes.
    */
   protected LocatedBlock nextBlockOutputStream() throws IOException {
-    LocatedBlock lb = null;
-    DatanodeInfo[] nodes = null;
-    StorageType[] storageTypes = null;
-    int count = getNumBlockWriteRetry();
-    boolean success = false;
+    LocatedBlock lb;
+    DatanodeInfo[] nodes;
+    StorageType[] storageTypes;
+    int count = dfsClient.getConf().getNumBlockWriteRetry();
+    boolean success;
     ExtendedBlock oldBlock = block;
     do {
       errorState.resetInternalError();
       lastException.clear();
 
-      DatanodeInfo[] excluded =
-          excludedNodes.getAllPresent(excludedNodes.asMap().keySet())
-              .keySet()
-              .toArray(new DatanodeInfo[0]);
+      DatanodeInfo[] excluded = getExcludedNodes();
       block = oldBlock;
       lb = locateFollowingBlock(excluded.length > 0 ? excluded : null);
       block = lb.getBlock();
