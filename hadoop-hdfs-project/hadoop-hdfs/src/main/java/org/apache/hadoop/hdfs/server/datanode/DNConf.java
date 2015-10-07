@@ -83,7 +83,7 @@ public class DNConf {
   final long blockReportInterval;
   final long blockReportSplitThreshold;
   final long deleteReportInterval;
-  final long initialBlockReportDelayMs;
+  final long initialBlockReportDelay;
   final long cacheReportInterval;
   final long dfsclientSlowIoWarningThresholdMs;
   final long datanodeSlowIoWarningThresholdMs;
@@ -159,7 +159,7 @@ public class DNConf {
       DataNode.LOG.info("dfs.blockreport.initialDelay is greater than " +
           "dfs.blockreport.intervalMsec." + " Setting initial delay to 0 msec:");
     }
-    initialBlockReportDelayMs = initBRDelay;
+    initialBlockReportDelay = initBRDelay;
     
     heartBeatInterval = conf.getLong(DFS_HEARTBEAT_INTERVAL_KEY,
         DFS_HEARTBEAT_INTERVAL_DEFAULT) * 1000L;
