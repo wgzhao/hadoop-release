@@ -1393,6 +1393,21 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX =
       TIMELINE_SERVICE_PREFIX + "ui-on-disk-path.";
 
+  /**
+   * The setting for timeline service plugin
+   */
+  public static final String TIMELINE_SERVICE_PLUGIN_ENABLED =
+      TIMELINE_SERVICE_PREFIX + "plugin.enabled";
+  public static final boolean DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED = false;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR =
+      TIMELINE_SERVICE_PREFIX + "entity-file-store.active-dir";
+  public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT =
+      "/tmp/entity-file-history/active";
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES =
+      TIMELINE_SERVICE_PREFIX + "entity-file-store.summary-entity-types";
+
   // mark app-history related configs @Private as application history is going
   // to be integrated into the timeline service
   @Private
