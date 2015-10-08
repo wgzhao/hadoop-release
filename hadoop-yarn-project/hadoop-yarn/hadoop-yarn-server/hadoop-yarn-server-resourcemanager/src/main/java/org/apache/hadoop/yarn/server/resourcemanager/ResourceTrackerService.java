@@ -314,9 +314,12 @@ public class ResourceTrackerService extends AbstractService implements
       this.nmLivelinessMonitor.unregister(nodeId);
       // Reset heartbeat ID since node just restarted.
       oldNode.resetLastNodeHeartBeatResponse();
-      this.rmContext.getDispatcher().getEventHandler().handle(
-          new RMNodeReconnectEvent(nodeId, rmNode,
-              request.getRunningApplications()));
+      this.rmContext
+          .getDispatcher()
+          .getEventHandler()
+          .handle(
+              new RMNodeReconnectEvent(nodeId, rmNode, request
+                  .getRunningApplications(), request.getNMContainerStatuses()));
     }
     // On every node manager register we will be clearing NMToken keys if
     // present for any running application.

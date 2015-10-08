@@ -541,7 +541,7 @@ public class TestRMNodeTransitions {
     int initialUnhealthy = cm.getUnhealthyNMs();
     int initialDecommissioned = cm.getNumDecommisionedNMs();
     int initialRebooted = cm.getNumRebootedNMs();
-    node.handle(new RMNodeReconnectEvent(node.getNodeID(), node, null));
+    node.handle(new RMNodeReconnectEvent(node.getNodeID(), node, null, null));
     Assert.assertEquals("Active Nodes", initialActive, cm.getNumActiveNMs());
     Assert.assertEquals("Lost Nodes", initialLost, cm.getNumLostNMs());
     Assert.assertEquals("Unhealthy Nodes",
@@ -615,7 +615,7 @@ public class TestRMNodeTransitions {
     Assert.assertEquals(nmVersion1, node.getNodeManagerVersion());
     RMNodeImpl reconnectingNode = getRunningNode(nmVersion2);
     node.handle(new RMNodeReconnectEvent(node.getNodeID(), reconnectingNode,
-        null));
+        null, null));
     Assert.assertEquals(nmVersion2, node.getNodeManagerVersion());
   }
 }
