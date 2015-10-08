@@ -585,10 +585,14 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
             new NodeRemovedSchedulerEvent(rmNode));
 
         if (rmNode.getHttpPort() == newNode.getHttpPort()) {
+          if (!rmNode.getTotalCapability().equals(
+              newNode.getTotalCapability())) {
+            rmNode.totalCapability = newNode.getTotalCapability();
+          }
           if (rmNode.getState().equals(NodeState.RUNNING)) {
-            // Only add new node if old state is RUNNING
+            // Only add old node if old state is RUNNING
             rmNode.context.getDispatcher().getEventHandler().handle(
-                new NodeAddedSchedulerEvent(newNode));
+                new NodeAddedSchedulerEvent(rmNode));
           }
         } else {
           // Reconnected node differs, so replace old node and start new node
