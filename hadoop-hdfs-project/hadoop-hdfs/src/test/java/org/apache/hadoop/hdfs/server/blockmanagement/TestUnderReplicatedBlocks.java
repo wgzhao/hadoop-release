@@ -30,6 +30,7 @@ import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Iterator;
 
@@ -129,6 +130,10 @@ public class TestUnderReplicatedBlocks {
       assertEquals(NUM_OF_BLOCKS, bm.getUnderReplicatedNotMissingBlocks());
       bm.computeDatanodeWork();
 
+      assertTrue("The number of replication work pending before targets are " +
+              "determined should be non-negative.",
+          (Integer)Whitebox.getInternalState(secondDn,
+              "pendingReplicationWithoutTargets") >= 0);
 
       assertTrue("The number of blocks to be replicated should be less than "
           + "or equal to " + bm.replicationStreamsHardLimit,
