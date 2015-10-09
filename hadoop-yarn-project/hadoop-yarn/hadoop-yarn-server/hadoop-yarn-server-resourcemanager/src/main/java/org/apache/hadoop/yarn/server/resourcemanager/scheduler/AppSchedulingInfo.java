@@ -160,6 +160,30 @@ public class AppSchedulingInfo {
         if (request.getNumContainers() > 0) {
           activeUsersManager.activateApplication(user, applicationId);
         }
+        ResourceRequest previousAnyRequest =
+            getResourceRequest(priority, resourceName);
+
+        // When there is change in ANY request label expression, we should
+        // update label for all resource requests already added of same
+        // priority as ANY resource request.
+        if ((null == previousAnyRequest)
+            || isRequestLabelChanged(previousAnyRequest, request)) {
+          Map<String, ResourceRequest> resourceRequest =
+              getResourceRequests(priority);
+          if (resourceRequest != null) {
+            for (ResourceRequest r : resourceRequest.values()) {
+              if (!r.getResourceName().equals(ResourceRequest.ANY)) {
+                r.setNodeLabelExpression(request.getNodeLabelExpression());
+              }
+            }
+          }
+        }
+      } else {
+        ResourceRequest anyRequest =
+            getResourceRequest(priority, ResourceRequest.ANY);
+        if (anyRequest != null) {
+          request.setNodeLabelExpression(anyRequest.getNodeLabelExpression());
+        }
       }
 
       Map<String, ResourceRequest> asks = this.requests.get(priority);
@@ -197,12 +221,13 @@ public class AppSchedulingInfo {
             lastRequestCapability);
         
         // update queue:
-        Resource increasedResource = Resources.multiply(request.getCapability(),
-            request.getNumContainers());
-        queue.incPendingResource(
-            request.getNodeLabelExpression(),
+        Resource increasedResource =
+            Resources.multiply(request.getCapability(),
+                request.getNumContainers());
+        queue.incPendingResource(request.getNodeLabelExpression(),
             increasedResource);
-        appResourceUsage.incPending(request.getNodeLabelExpression(), increasedResource);
+        appResourceUsage.incPending(request.getNodeLabelExpression(),
+            increasedResource);
         if (lastRequest != null) {
           Resource decreasedResource =
               Resources.multiply(lastRequestCapability, lastRequestContainers);
@@ -214,6 +239,22 @@ public class AppSchedulingInfo {
       }
     }
     return anyResourcesUpdated;
+  }
+
+  private boolean isRequestLabelChanged(ResourceRequest requestOne,
+      ResourceRequest requestTwo) {
+    String requestOneLabelExp = requestOne.getNodeLabelExpression();
+    String requestTwoLabelExp = requestTwo.getNodeLabelExpression();
+
+    // First request label expression can be null and second request
+    // is not null then we have to consider it as changed.
+    if ((null == requestOneLabelExp) && (null != requestTwoLabelExp)) {
+      return true;
+    }
+    // If the label is not matching between both request when
+    // requestOneLabelExp is not null.
+    return ((null != requestOneLabelExp)
+        && !(requestOneLabelExp.equals(requestTwoLabelExp)));
   }
 
   /**

@@ -605,3 +605,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-47731. HDFS-8099. Change "DFSInputStream has been closed already"
     message to debug log level. (Charles Lamb via Colin P. McCabe)
 
+    BUG-48071. YARN-4140. RM container allocation delayed incase of app 
+    submitted to Nodelabel partition. (Bibin A Chundatt via wangda)
+
