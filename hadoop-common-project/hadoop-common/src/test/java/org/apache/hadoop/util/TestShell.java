@@ -180,7 +180,7 @@ public class TestShell extends TestCase {
 
     if (Shell.WINDOWS) {
       expectedCommand =
-          new String[]{ Shell.WINUTILS, "task", "isAlive", anyPid };
+          new String[]{ Shell.WINUTILS, "task", "kill", anyPid };
     } else if (Shell.isSetsidAvailable) {
       expectedCommand = new String[] { "bash", "-c", "kill -9 -- -" + anyPid };
     } else {
