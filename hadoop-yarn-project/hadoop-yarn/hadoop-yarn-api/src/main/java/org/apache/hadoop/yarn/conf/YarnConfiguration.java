@@ -1400,13 +1400,61 @@ public class YarnConfiguration extends Configuration {
       TIMELINE_SERVICE_PREFIX + "plugin.enabled";
   public static final boolean DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED = false;
 
+  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES =
+      TIMELINE_SERVICE_PREFIX + "entity-file-store.summary-entity-types";
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_PREFIX =
+      "yarn.timeline-service.entity-file-store.";
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_STORE =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "summary-store";
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "scan-interval-seconds";
+  public static final long
+      TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS_DEFAULT = 5 * 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_THREADS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "threads";
+  public static final int TIMELINE_SERVICE_ENTITYFILE_THREADS_DEFAULT = 16;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "app-cache-size";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE_DEFAULT = 5;
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cleaner-interval-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS_DEFAULT = 60 * 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "retain-seconds";
+  public static final int TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS_DEFAULT =
+      7 * 24 * 60 * 60;
+
+  // how old the most recent log of an UNKNOWN app needs to be in the active
+  // directory before we treat it as COMPLETED
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "unknown-active-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS_DEFAULT = 24 * 60 * 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "done-dir";
+  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT =
+      "/tmp/entity-file-history/done";
+
   public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR =
-      TIMELINE_SERVICE_PREFIX + "entity-file-store.active-dir";
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "entity-file-store.active-dir";
   public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT =
       "/tmp/entity-file-history/active";
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES =
-      TIMELINE_SERVICE_PREFIX + "entity-file-store.summary-entity-types";
+  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-class";
 
   // mark app-history related configs @Private as application history is going
   // to be integrated into the timeline service

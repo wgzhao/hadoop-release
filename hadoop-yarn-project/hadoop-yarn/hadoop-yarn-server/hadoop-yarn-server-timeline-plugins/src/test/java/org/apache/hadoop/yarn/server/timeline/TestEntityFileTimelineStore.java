@@ -47,11 +47,11 @@ public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
     config.set(YarnConfiguration.TIMELINE_SERVICE_LEVELDB_PATH,
         TEST_DIR.getAbsolutePath());
     config.setBoolean(YarnConfiguration.TIMELINE_SERVICE_TTL_ENABLE, false);
-    config.set(EntityFileTimelineStore.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES,
+    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES,
         "YARN_APPLICATION,YARN_APPLICATION_ATTEMPT,YARN_CONTAINER");
-    config.set(EntityFileTimelineStore.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
+    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
         new File(TEST_DIR, "active").getAbsolutePath().toString());
-    config.set(EntityFileTimelineStore.TIMELINE_SERVICE_ENTITYFILE_DONE_DIR,
+    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_DONE_DIR,
         new File(TEST_DIR, "done").getAbsolutePath().toString());
     store = new EntityFileTimelineStore();
     store.init(config);
