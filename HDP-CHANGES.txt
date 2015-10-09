@@ -523,3 +523,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-45264. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
+    BUG-45953/HADOOP-12463. Fix TestShell.testGetSignalKillCommand failure on windows.
+    (Steve Loughran/Wangda Tan)
+
