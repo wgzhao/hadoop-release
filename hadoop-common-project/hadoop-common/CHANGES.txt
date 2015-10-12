@@ -16,6 +16,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-11262. Enable YARN to use S3A. (Pieter Reuse via lei)
 
+    HADOOP-10300. Allowed deferred sending of call responses. (Daryn Sharp via
+    yliu)
+
   IMPROVEMENTS
 
     HADOOP-11960. Enable Azure-Storage Client Side logging.
