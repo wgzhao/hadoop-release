@@ -26,7 +26,6 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.AbstractService;
-import org.apache.hadoop.yarn.api.records.CacheId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
@@ -79,9 +78,6 @@ public abstract class TimelineClient extends AbstractService {
   public abstract TimelinePutResponse putEntities(
       TimelineEntity... entities) throws IOException, YarnException;
 
-  @Public
-  public abstract TimelinePutResponse putEntities(CacheId cacheId,
-      TimelineEntity... entities) throws IOException, YarnException;
   /**
    * <p>
    * Send the information of a domain to the timeline server. It is a
@@ -96,23 +92,6 @@ public abstract class TimelineClient extends AbstractService {
    */
   @Public
   public abstract void putDomain(
-      TimelineDomain domain) throws IOException, YarnException;
-
-  /**
-   * <p>
-   * Send the information of a domain to the timeline server. It is a
-   * blocking API. The method will not return until it gets the response from
-   * the timeline server.
-   * </p>
-   * 
-   * @param domain
-   *          an {@link TimelineDomain} object
-   * @param cacheId {@link CacheId}
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract void putDomain(CacheId cacheId,
       TimelineDomain domain) throws IOException, YarnException;
 
   /**
