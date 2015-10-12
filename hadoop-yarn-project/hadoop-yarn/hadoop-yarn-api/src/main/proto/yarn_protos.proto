@@ -53,6 +53,11 @@ message ContainerIdProto {
   optional int64 id = 3;
 }
 
+message CacheIdProto {
+  optional ApplicationIdProto app_id = 1;
+  optional int64 id = 2;
+}
+
 message ResourceProto {
   optional int32 memory = 1;
   optional int32 virtual_cores = 2;
