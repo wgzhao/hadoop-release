@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +117,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private long logRetainMillis;
   private long unknownActiveMillis;
   private int appCacheMaxSize;
-  private TimelineCacheIdPlugin cacheIdPlugin;
+  private List<TimelineCacheIdPlugin> cacheIdPlugins;
 
   public EntityFileCacheTimelineStore() {
     super(EntityFileCacheTimelineStore.class.getSimpleName());
@@ -170,11 +172,16 @@ public class EntityFileCacheTimelineStore extends AbstractService
                 return false;
               }
         });
-    cacheIdPlugin = ReflectionUtils.newInstance(conf.getClass(
-        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS,
-        EmptyTimelineCacheIdPlugin.class,
-        TimelineCacheIdPlugin.class), conf);
+//    cacheIdPlugin = ReflectionUtils.newInstance(conf.getClass(
+//        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS,
+//        EmptyTimelineCacheIdPlugin.class,
+//        TimelineCacheIdPlugin.class), conf);
+    cacheIdPlugins = loadPlugIns(conf);
     super.serviceInit(conf);
+  }
+
+  private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf) {
+    return new ArrayList<>();
   }
 
   protected TimelineStore createSummaryStore() {
@@ -818,36 +825,50 @@ public class EntityFileCacheTimelineStore extends AbstractService
     }
   }
 
-  private TimelineStore getTimelineStoreFromCacheIds(Set<CacheId> cacheIds,
+  private List<TimelineStore> getTimelineStoresFromCacheIds(Set<CacheId> cacheIds,
       String entityType) throws IOException {
-    TimelineStore store = null;
+    List<TimelineStore> stores = new LinkedList<>();
     // For now we just handle one store in a context. We return the first
     // non-null storage for the cache ids.
     for (CacheId cacheId : cacheIds) {
       TimelineStore storeForId = getCachedStore(cacheId);
       if (storeForId != null) {
-        store = storeForId;
+        stores.add(storeForId);
       }
     }
-    if (store == null) {
+    if (stores.size() == 0) {
       LOG.debug("Using summary store for {}", entityType);
-      store = this.summaryStore;
+      stores.add(this.summaryStore);
     }
-    return store;
+    return stores;
   }
 
-  private TimelineStore getTimelineStoreForRead(String entityId,
+
+  private List<TimelineStore> getTimelineStoresForRead(String entityId,
       String entityType) throws IOException {
-    Set<CacheId> cacheIds = cacheIdPlugin.getCacheId(entityId, entityType);
-    return getTimelineStoreFromCacheIds(cacheIds, entityType);
+    Set<CacheId> cacheIds = new HashSet<>();
+    for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
+      Set<CacheId> idsFromPlugin
+          = cacheIdPlugin.getCacheId(entityId, entityType);
+      if (idsFromPlugin != null) {
+        cacheIds.addAll(idsFromPlugin);
+      }
+    }
+    return getTimelineStoresFromCacheIds(cacheIds, entityType);
   }
 
-  private TimelineStore getTimelineStoreForRead(String entityType,
+  private List<TimelineStore> getTimelineStoresForRead(String entityType,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters)
     throws IOException {
-    Set<CacheId> cacheIds = cacheIdPlugin.getCacheId(entityType, primaryFilter,
-        secondaryFilters);
-    return getTimelineStoreFromCacheIds(cacheIds, entityType);
+    Set<CacheId> cacheIds = new HashSet<>();
+    for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
+      Set<CacheId> idsFromPlugin =
+          cacheIdPlugin.getCacheId(entityType, primaryFilter, secondaryFilters);
+      if (idsFromPlugin != null) {
+        cacheIds.addAll(idsFromPlugin);
+      }
+    }
+    return getTimelineStoresFromCacheIds(cacheIds, entityType);
   }
 
 
@@ -877,19 +898,26 @@ public class EntityFileCacheTimelineStore extends AbstractService
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters,
       EnumSet<Field> fieldsToRetrieve, CheckAcl checkAcl) throws IOException {
     LOG.debug("getEntities type={} primary={}", entityType, primaryFilter);
-    TimelineStore store = getTimelineStoreForRead(entityType,
+    List<TimelineStore> stores = getTimelineStoresForRead(entityType,
         primaryFilter, secondaryFilters);
-    return store.getEntities(entityType, limit, windowStart, windowEnd,
-        fromId, fromTs, primaryFilter, secondaryFilters, fieldsToRetrieve,
-        checkAcl);
+    TimelineEntities returnEntities = new TimelineEntities();
+    for (TimelineStore store : stores) {
+      returnEntities.addEntities(
+          store.getEntities(entityType, limit, windowStart, windowEnd, fromId,
+              fromTs, primaryFilter, secondaryFilters, fieldsToRetrieve,
+              checkAcl).getEntities());
+    }
+    return returnEntities;
   }
 
   @Override
   public TimelineEntity getEntity(String entityId, String entityType,
       EnumSet<Field> fieldsToRetrieve) throws IOException {
     LOG.debug("getEntity type={} id={}", entityType, entityId);
-    TimelineStore store = getTimelineStoreForRead(entityType, entityId);
-    return store.getEntity(entityId, entityType, fieldsToRetrieve);
+    List<TimelineStore> stores = getTimelineStoresForRead(entityType, entityId);
+    for (TimelineStore store : stores) {
+      return store.getEntity(entityId, entityType, fieldsToRetrieve);
+    }
   }
 
   @Override
