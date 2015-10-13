@@ -2931,3 +2931,5 @@ ATS V1.5:
 
     BUG-64662. HADOOP-13512. ReloadingX509TrustManager should keep reloading in
     case of exception. (Contributed by Mingliang Liu)
+
+    BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
