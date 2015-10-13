@@ -172,16 +172,25 @@ public class EntityFileCacheTimelineStore extends AbstractService
                 return false;
               }
         });
-//    cacheIdPlugin = ReflectionUtils.newInstance(conf.getClass(
-//        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS,
-//        EmptyTimelineCacheIdPlugin.class,
-//        TimelineCacheIdPlugin.class), conf);
     cacheIdPlugins = loadPlugIns(conf);
     super.serviceInit(conf);
   }
 
-  private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf) {
-    return new ArrayList<>();
+  private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf)
+      throws RuntimeException {
+    Collection<String> pluginNames = conf.getStringCollection(
+        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS);
+    List<TimelineCacheIdPlugin> pluginList = new LinkedList<>();
+    for (final String name : pluginNames) {
+      TimelineCacheIdPlugin cacheIdPlugin = ReflectionUtils.newInstance(
+          conf.getClass(name, EmptyTimelineCacheIdPlugin.class,
+              TimelineCacheIdPlugin.class), conf);
+      if (cacheIdPlugin == null) {
+        throw new RuntimeException("No class defined for " + name);
+      }
+      pluginList.add(cacheIdPlugin);
+    }
+    return pluginList;
   }
 
   protected TimelineStore createSummaryStore() {
@@ -918,6 +927,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
     for (TimelineStore store : stores) {
       return store.getEntity(entityId, entityType, fieldsToRetrieve);
     }
+    return null;
   }
 
   @Override
