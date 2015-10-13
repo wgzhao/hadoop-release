@@ -481,6 +481,8 @@ Release 2.7.3 - UNRELEASED
     YARN-4255. container-executor does not clean up docker operation command files.
     (Sidharta Seethana via vvasudev)
 
+    YARN-4017. container-executor overuses PATH_MAX. (Sidharta Seethana via vvasudev)
+
 Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
