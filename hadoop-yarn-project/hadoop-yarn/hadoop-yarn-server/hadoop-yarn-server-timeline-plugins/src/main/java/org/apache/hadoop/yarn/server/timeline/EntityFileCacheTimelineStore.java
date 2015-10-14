@@ -63,6 +63,7 @@ import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.timeline.TimelineDataManager.CheckAcl;
 import org.apache.hadoop.yarn.server.timeline.security.TimelineACLsManager;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
@@ -358,8 +359,8 @@ public class EntityFileCacheTimelineStore extends AbstractService
     long now = Time.now();
 
     // check if this directory is an app dir
-    CacheId cacheId = parseCacheId(dirpath.getName());
-    boolean shouldClean = (cacheId != null);
+    ApplicationId appId = parseApplicationId(dirpath.getName());
+    boolean shouldClean = (appId != null);
     RemoteIterator<FileStatus> iter = fs.listStatusIterator(dirpath);
     while (iter.hasNext()) {
       FileStatus stat = iter.next();
@@ -389,17 +390,17 @@ public class EntityFileCacheTimelineStore extends AbstractService
     }
   }
 
-  // converts the String to a CacheId or null if conversion failed
-  private CacheId parseCacheId(String dirName) {
-    CacheId cacheId = null;
-    if (dirName.startsWith(CacheId.cacheIdStrPrefix)) {
+  // converts the String to an ApplicationId or null if conversion failed
+  private ApplicationId parseApplicationId(String appIdStr) {
+    ApplicationId appId = null;
+    if (appIdStr.startsWith(ApplicationId.appIdStrPrefix)) {
       try {
-        cacheId = CacheId.fromString(dirName);
+        appId = ConverterUtils.toApplicationId(appIdStr);
       } catch (IllegalArgumentException e) {
-        cacheId = null;
+        appId = null;
       }
     }
-    return cacheId;
+    return appId;
   }
 
   private Path getActiveAppPath(ApplicationId appId) {
