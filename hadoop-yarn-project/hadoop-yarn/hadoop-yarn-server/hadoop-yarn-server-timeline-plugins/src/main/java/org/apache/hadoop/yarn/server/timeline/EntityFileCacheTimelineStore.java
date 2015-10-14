@@ -118,6 +118,9 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private long unknownActiveMillis;
   private int appCacheMaxSize;
   private List<TimelineCacheIdPlugin> cacheIdPlugins;
+  // Use Service Provider SPI to dynamically load all the TimelineCacheIdPlugin
+//  private final TimelineCacheIdPluginService timelineCacheIdPluginService =
+//      TimelineCacheIdPluginService.getInstance();
 
   public EntityFileCacheTimelineStore() {
     super(EntityFileCacheTimelineStore.class.getSimpleName());
@@ -856,6 +859,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private List<TimelineStore> getTimelineStoresForRead(String entityId,
       String entityType) throws IOException {
     Set<CacheId> cacheIds = new HashSet<>();
+//    for (TimelineCacheIdPlugin cacheIdPlugin : timelineCacheIdPluginService.getTimelineCacheIdPlugins())
     for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
       Set<CacheId> idsFromPlugin
           = cacheIdPlugin.getCacheId(entityId, entityType);
@@ -870,6 +874,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters)
     throws IOException {
     Set<CacheId> cacheIds = new HashSet<>();
+//  for (TimelineCacheIdPlugin cacheIdPlugin : timelineCacheIdPluginService.getTimelineCacheIdPlugins())
     for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
       Set<CacheId> idsFromPlugin =
           cacheIdPlugin.getCacheId(entityType, primaryFilter, secondaryFilters);
