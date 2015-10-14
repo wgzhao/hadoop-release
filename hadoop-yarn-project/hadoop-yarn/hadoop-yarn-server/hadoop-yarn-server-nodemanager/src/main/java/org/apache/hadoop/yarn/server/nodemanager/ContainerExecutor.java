@@ -402,7 +402,7 @@ public abstract class ContainerExecutor implements Configurable {
               (int) ((containerVCores * 10000) / yarnVCores));
         }
       }
-      return new String[] { Shell.getWinutilsPath(), "task", "create", "-m",
+      return new String[] { Shell.getWinUtilsPath(), "task", "create", "-m",
           String.valueOf(memory), "-c", String.valueOf(cpuRate), groupId,
           "cmd /c " + command };
     } else {

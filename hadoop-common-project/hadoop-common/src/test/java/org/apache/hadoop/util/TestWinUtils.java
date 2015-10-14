@@ -57,7 +57,7 @@ public class TestWinUtils {
     TEST_DIR.mkdirs();
     assertTrue("Failed to create Test directory " + TEST_DIR,
         TEST_DIR.isDirectory() );
-    winutils = Shell.getWinutilsPath();
+    winutils = Shell.getWinUtilsPath();
   }
 
   @After
@@ -66,7 +66,7 @@ public class TestWinUtils {
   }
 
   private void requireWinutils() throws IOException {
-    Shell.getWinutilsPath();
+    Shell.getWinUtilsPath();
   }
 
   // Helper routine that writes the given content to the file.
@@ -281,7 +281,7 @@ public class TestWinUtils {
     // - Change mode to 677 so owner does not have execute permission.
     // - Verify the owner truly does not have the permissions to execute the file.
 
-    File winutilsFile = Shell.getWinutilsFile();
+    File winutilsFile = Shell.getWinUtilsFile();
     File aExe = new File(TEST_DIR, "a.exe");
     FileUtils.copyFile(winutilsFile, aExe);
     chmod("677", aExe);
