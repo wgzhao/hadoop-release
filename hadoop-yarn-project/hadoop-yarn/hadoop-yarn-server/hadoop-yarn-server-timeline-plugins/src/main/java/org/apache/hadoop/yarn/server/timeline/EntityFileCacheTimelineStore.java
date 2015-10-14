@@ -403,6 +403,19 @@ public class EntityFileCacheTimelineStore extends AbstractService
     return appId;
   }
 
+  // converts the String to a CacheId or null if conversion failed
+  private CacheId parseCacheId(String cacheIdStr) {
+    CacheId cacheId = null;
+    if (cacheIdStr.startsWith(CacheId.cacheIdStrPrefix)) {
+      try {
+        cacheId = CacheId.fromString(cacheIdStr);
+      } catch (IllegalArgumentException e) {
+        cacheId = null;
+      }
+    }
+    return cacheId;
+  }
+
   private Path getActiveAppPath(ApplicationId appId) {
     return new Path(activeRootPath, appId.toString());
   }
