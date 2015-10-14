@@ -1438,8 +1438,8 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT =
       "/tmp/entity-file-history/done";
 
-  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-class";
+  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-classes";
 
   /**
    * The setting for timeline service plugin

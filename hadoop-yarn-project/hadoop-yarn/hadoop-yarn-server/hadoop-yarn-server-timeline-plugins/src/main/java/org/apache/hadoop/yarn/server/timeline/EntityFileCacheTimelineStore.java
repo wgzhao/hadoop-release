@@ -182,7 +182,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf)
       throws RuntimeException {
     Collection<String> pluginNames = conf.getStringCollection(
-        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASS);
+        YarnConfiguration.TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES);
     List<TimelineCacheIdPlugin> pluginList = new LinkedList<>();
     for (final String name : pluginNames) {
       TimelineCacheIdPlugin cacheIdPlugin = ReflectionUtils.newInstance(
@@ -617,19 +617,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
     public void parseForSummary(Path appDirPath, boolean appCompleted)
         throws IOException {
-      // Iterate in app dir for all attempts
-      RemoteIterator<FileStatus> iterAttempt = fs.listStatusIterator(appDirPath);
-      while (iterAttempt.hasNext()) {
-        FileStatus attemptStat = iterAttempt.next();
-        Path attemptPath = attemptStat.getPath();
-        Path logPath = new Path(attemptPath, filename);
-        String dirname = attemptPath.getName();
-        long startTime = Time.monotonicNow();
-        LOG.debug("Parsing {}/{} at offset {}", dirname, filename, offset);
-        long count = parsePath(summaryTdm, logPath, appCompleted);
-        LOG.info("Parsed {} entities from {}/{} in {} msec",
-            count, dirname, filename, Time.monotonicNow() - startTime);
-      }
+      parseForCache(summaryTdm, appDirPath, appCompleted);
     }
 
     public void parseForCache(TimelineDataManager tdm, Path appDirPath,
