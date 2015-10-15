@@ -209,6 +209,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3363. add localization and container launch time to ContainerMetrics at NM to
     show these timing information for each active container. (zxu via rkanter)
 
+    YARN-4258. Add support for controlling capabilities for docker containers.
+    (Sidharta Seethana via vvasudev)
+
     YARN-4132. Separate configs for nodemanager to resourcemanager connection
     timeout and retries (Chang Li via jlowe)
 
