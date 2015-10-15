@@ -308,6 +308,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
               if (cacheId != null) {
                 // We need to pass in the application's dir to build up a
                 // CachedLogs
+                LOG.debug("Parse active log for cache id {}", cacheId);
                 CachedLogs logs = getActiveLog(cacheId, statApp.getPath());
                 executor.execute(new ActiveLogParser(logs));
               }
@@ -501,21 +502,30 @@ public class EntityFileCacheTimelineStore extends AbstractService
     // most recently modified log
     private long scanForLogs() throws IOException {
       long newestModTime = 0;
-      RemoteIterator<FileStatus> iter = fs.listStatusIterator(appDirPath);
-      while (iter.hasNext()) {
-        // TODO: Iterate one more layer for app attempts
-        FileStatus stat = iter.next();
-        newestModTime = Math.max(stat.getModificationTime(), newestModTime);
-        if (!stat.isFile()) {
+      RemoteIterator<FileStatus> iterAttempt = fs.listStatusIterator(appDirPath);
+      while (iterAttempt.hasNext()) {
+        FileStatus statAttempt = iterAttempt.next();
+        if (!statAttempt.isDirectory()) {
           continue;
         }
-        String filename = stat.getPath().getName();
-        if (filename.startsWith(DOMAIN_LOG_PREFIX)) {
-          addSummaryLog(filename, stat.getOwner(), true);
-        } else if (filename.startsWith(SUMMARY_LOG_PREFIX)) {
-          addSummaryLog(filename, stat.getOwner(), false);
-        } else if (filename.startsWith(ENTITY_LOG_PREFIX)) {
-          addDetailLog(filename, stat.getOwner());
+        RemoteIterator<FileStatus> iterCache
+            = fs.listStatusIterator(statAttempt.getPath());
+        while(iterCache.hasNext()) {
+          FileStatus statCache = iterAttempt.next();
+          newestModTime
+              = Math.max(statCache.getModificationTime(), newestModTime);
+          if (!statCache.isFile()) {
+            continue;
+          }
+          String filename = statCache.getPath().getName();
+          LOG.debug("scan for log file: {}", filename);
+          if (filename.startsWith(DOMAIN_LOG_PREFIX)) {
+            addSummaryLog(filename, statCache.getOwner(), true);
+          } else if (filename.startsWith(SUMMARY_LOG_PREFIX)) {
+            addSummaryLog(filename, statCache.getOwner(), false);
+          } else if (filename.startsWith(ENTITY_LOG_PREFIX)) {
+            addDetailLog(filename, statCache.getOwner());
+          }
         }
       }
 
