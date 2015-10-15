@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.hdfs.server.blockmanagement;
 
+import java.util.Iterator;
+
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.junit.Test;
 
@@ -49,7 +51,7 @@ public class TestUnderReplicatedBlockQueues {
     assertEquals(1, queues.size());
     assertInLevel(queues, block1, UnderReplicatedBlocks.QUEUE_HIGHEST_PRIORITY);
     //repeated additions fail
-    assertFalse(queues.add(block1, 1, 0, 3));
+    assertFalse(queues.add(block1, 1, 0, 0, 3));
 
     //add a second block with two replicas
     assertAdded(queues, block2, 2, 0, 3);
@@ -73,11 +75,11 @@ public class TestUnderReplicatedBlockQueues {
     assertAdded(queues, block_corrupt_repl_one, 0, 0, 1);
     assertEquals(2, queues.getCorruptBlockSize());
     assertEquals(1, queues.getCorruptReplOneBlockSize());
-    queues.update(block_corrupt_repl_one, 0, 0, 3, 0, 2);
+    queues.update(block_corrupt_repl_one, 0, 0, 0, 3, 0, 2);
     assertEquals(0, queues.getCorruptReplOneBlockSize());
-    queues.update(block_corrupt, 0, 0, 1, 0, -2);
+    queues.update(block_corrupt, 0, 0, 0, 1, 0, -2);
     assertEquals(1, queues.getCorruptReplOneBlockSize());
-    queues.update(block_very_under_replicated, 0, 0, 1, -4, -24);
+    queues.update(block_very_under_replicated, 0, 0, 0, 1, -4, -24);
     assertEquals(2, queues.getCorruptReplOneBlockSize());
   }
 
@@ -88,7 +90,7 @@ public class TestUnderReplicatedBlockQueues {
                            int expectedReplicas) {
     assertTrue("Failed to add " + block,
                queues.add(block,
-                          curReplicas,
+                          curReplicas, 0,
                           decomissionedReplicas,
                           expectedReplicas));
   }
@@ -106,7 +108,7 @@ public class TestUnderReplicatedBlockQueues {
   private void assertInLevel(UnderReplicatedBlocks queues,
                              Block block,
                              int level) {
-    UnderReplicatedBlocks.BlockIterator bi = queues.iterator(level);
+    final Iterator<Block> bi = queues.iterator(level);
     while (bi.hasNext()) {
       Block next = bi.next();
       if (block.equals(next)) {
