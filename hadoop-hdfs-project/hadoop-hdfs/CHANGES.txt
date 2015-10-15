@@ -206,6 +206,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-9178. Slow datanode I/O can cause a wrong node to be marked bad.
     (Kihwal Lee)
 
+    HDFS-9220. Reading small file (< 512 bytes) that is open for append fails
+    due to incorrect checksum (Jing Zhao via kihwal)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
