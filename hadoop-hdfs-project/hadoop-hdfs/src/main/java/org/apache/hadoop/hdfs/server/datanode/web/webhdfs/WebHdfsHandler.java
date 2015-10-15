@@ -106,7 +106,7 @@ public class WebHdfsHandler extends SimpleChannelInboundHandler<HttpRequest> {
     Preconditions.checkArgument(req.getUri().startsWith(WEBHDFS_PREFIX));
     QueryStringDecoder queryString = new QueryStringDecoder(req.getUri());
     params = new ParameterParser(queryString, conf);
-    DataNodeUGIProvider ugiProvider = new DataNodeUGIProvider(params);
+    DataNodeUGIProvider ugiProvider = new DataNodeUGIProvider(params, conf);
     ugi = ugiProvider.ugi();
     path = params.path();
 
