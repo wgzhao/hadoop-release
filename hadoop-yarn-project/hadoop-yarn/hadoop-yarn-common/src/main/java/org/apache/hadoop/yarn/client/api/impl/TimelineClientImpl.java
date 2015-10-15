@@ -29,7 +29,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -45,6 +50,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.authentication.client.AuthenticationException;
@@ -55,6 +64,8 @@ import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthentica
 import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
 import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.apache.hadoop.security.token.delegation.web.PseudoDelegationTokenAuthenticator;
+import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.CacheId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomains;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
@@ -66,7 +77,13 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
 import org.apache.hadoop.yarn.webapp.YarnJacksonJaxbJsonProvider;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.codehaus.jackson.util.MinimalPrettyPrinter;
+import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -111,6 +128,21 @@ public class TimelineClientImpl extends TimelineClient {
   private URI resURI;
   private UserGroupInformation authUgi;
   private String doAsUser;
+  private boolean timelineServerPluginEnabled;
+  private Path activePath = null;
+  private FileSystem fs = null;
+  private Set<String> summaryEntityTypes;
+  private ObjectMapper objMapper = null;
+  private JsonFactory jsonFactory = null;
+
+  // App log directory must be readable by group so server can access logs
+  // and writable by group so it can be deleted by server
+  private static final short APP_LOG_DIR_PERMISSIONS = 0770;
+  // Logs must be readable by group so server can access them
+  private static final short FILE_LOG_PERMISSIONS = 0640;
+  private static final String DOMAIN_LOG_PREFIX = "domainlog-";
+  private static final String SUMMARY_LOG_PREFIX = "summarylog-";
+  private static final String ENTITY_LOG_PREFIX = "entitylog-";
 
   @Private
   @VisibleForTesting
@@ -294,6 +326,30 @@ public class TimelineClientImpl extends TimelineClient {
           RESOURCE_URI_STR));
     }
     LOG.info("Timeline service address: " + resURI);
+
+    timelineServerPluginEnabled =
+        conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_PLUGIN_ENABLED,
+          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED);
+    if (timelineServerPluginEnabled) {
+      activePath =
+          new Path(conf.get(
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT));
+      fs = activePath.getFileSystem(conf);
+      if (!fs.exists(activePath)) {
+        throw new IOException(activePath + " does not exist");
+      }
+      Collection<String> filterStrings = conf.getStringCollection(
+          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES);
+      if (filterStrings.isEmpty()) {
+        throw new IllegalArgumentException(
+          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES
+              + " is not set");
+      }
+      summaryEntityTypes = new HashSet<String>(filterStrings);
+      objMapper = createObjectMapper();
+      jsonFactory = new JsonFactory();
+    }
     super.serviceInit(conf);
   }
 
@@ -659,4 +715,142 @@ public class TimelineClientImpl extends TimelineClient {
   public UserGroupInformation getUgi() {
     return authUgi;
   }
+
+  @Override
+  public TimelinePutResponse putEntities(CacheId cacheId,
+      ApplicationAttemptId appAttemptId, TimelineEntity... entities)
+      throws IOException, YarnException {
+    if (!timelineServerPluginEnabled || appAttemptId == null) {
+      return putEntities(entities);
+    }
+    List<TimelineEntity> entitiesToDB = new ArrayList<TimelineEntity>();
+    List<TimelineEntity> entitiesToSummary = new ArrayList<TimelineEntity>();
+    List<TimelineEntity> entitiesToEntity = new ArrayList<TimelineEntity>();
+    Path attemptDir = createAttemptDir(appAttemptId);
+
+    for (TimelineEntity entity : entities) {
+      if (summaryEntityTypes.contains(entity.getEntityType())) {
+        entitiesToSummary.add(entity);
+      } else {
+        if (cacheId != null) {
+          entitiesToEntity.add(entity);
+        } else {
+          entitiesToDB.add(entity);
+        }
+      }
+    }
+
+    if (!entitiesToSummary.isEmpty()) {
+      Path summaryLogPath =
+          new Path(attemptDir, SUMMARY_LOG_PREFIX + appAttemptId.toString());
+      LOG.info("Writing summary log for " + appAttemptId.toString() + " to "
+          + summaryLogPath);
+      writeEntities(entitiesToSummary, summaryLogPath);
+    }
+
+    if (!entitiesToEntity.isEmpty()) {
+      Path entityLogPath =
+          new Path(attemptDir, ENTITY_LOG_PREFIX + cacheId.toString());
+      LOG.info("Writing entity log for " + cacheId.toString() + " to "
+          + entityLogPath);
+      writeEntities(entitiesToEntity, entityLogPath);
+    }
+
+    if (!entitiesToDB.isEmpty()) {
+      putEntities(entitiesToDB.toArray(
+          new TimelineEntity[entitiesToDB.size()]));
+    }
+
+    return new TimelinePutResponse();
+  }
+
+  private void writeEntities(List<TimelineEntity> entities, Path logPath)
+      throws IOException {
+    FSDataOutputStream out = null;
+    try {
+      out = createLogFile(logPath);
+      JsonGenerator jsonGenerator = jsonFactory.createJsonGenerator(out);
+      jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      for (TimelineEntity entity : entities) {
+        objMapper.writeValue(jsonGenerator, entity);
+      }
+      jsonGenerator.close();
+      out.close();
+      out = null;
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+  }
+
+  @Override
+  public void putDomain(ApplicationAttemptId appAttemptId,
+      TimelineDomain domain) throws IOException, YarnException {
+    if (!timelineServerPluginEnabled || appAttemptId == null) {
+      putDomain(domain);
+    } else {
+      writeDomain(appAttemptId, domain);
+    }
+  }
+
+  private ObjectMapper createObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
+    mapper.setSerializationInclusion(Inclusion.NON_NULL);
+    mapper.configure(Feature.CLOSE_CLOSEABLE, false);
+    return mapper;
+  }
+
+  private Path createAttemptDir(ApplicationAttemptId appAttemptId)
+      throws IOException {
+    Path appDir =
+        new Path(activePath, appAttemptId.getApplicationId().toString());
+    if (!fs.exists(appDir)) {
+      FileSystem.mkdirs(fs, appDir, new FsPermission(APP_LOG_DIR_PERMISSIONS));
+    }
+
+    Path attemptDir = new Path(appDir, appAttemptId.toString());
+    if (!fs.exists(attemptDir)) {
+      FileSystem.mkdirs(fs, attemptDir, new FsPermission(
+        APP_LOG_DIR_PERMISSIONS));
+    }
+    return attemptDir;
+  }
+
+  private void writeDomain(ApplicationAttemptId appAttemptId,
+      TimelineDomain domain) throws IOException {
+    Path domainLogPath =
+        new Path(createAttemptDir(appAttemptId), DOMAIN_LOG_PREFIX
+            + appAttemptId.toString());
+    LOG.info("Writing domains for " + appAttemptId.toString() + " to "
+        + domainLogPath);
+    FSDataOutputStream out = null;
+    try {
+      out = createLogFile(domainLogPath);
+      JsonGenerator jsonGenerator = jsonFactory.createJsonGenerator(out);
+      jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      objMapper.writeValue(jsonGenerator, domain);
+      jsonGenerator.close();
+      out.close();
+      out = null;
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+  }
+
+  private FSDataOutputStream createLogFile(Path logPath)
+      throws IOException {
+    FSDataOutputStream stream;
+    if (!fs.exists(logPath)) {
+      stream = fs.create(logPath, false);
+      fs.setPermission(logPath, new FsPermission(FILE_LOG_PERMISSIONS));
+    } else {
+      stream = fs.append(logPath);
+    }
+    return stream;
+  }
+
 }
