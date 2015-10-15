@@ -733,6 +733,7 @@ public class BlockManager {
     // Remove block from replication queue.
     NumberReplicas replicas = countNodes(ucBlock);
     neededReplications.remove(ucBlock, replicas.liveReplicas(),
+        replicas.readOnlyReplicas(),
         replicas.decommissionedAndDecommissioning(), getReplication(ucBlock));
     pendingReplications.remove(ucBlock);
 
@@ -1644,6 +1645,7 @@ public class BlockManager {
     nodesContainingLiveReplicas.clear();
     DatanodeDescriptor srcNode = null;
     int live = 0;
+    int readonly = 0;
     int decommissioned = 0;
     int decommissioning = 0;
     int corrupt = 0;
@@ -1666,6 +1668,9 @@ public class BlockManager {
       } else {
         nodesContainingLiveReplicas.add(storage);
         live += countableReplica;
+      }
+      if (storage.getState() == State.READ_ONLY_SHARED) {
+        readonly++;
       }
       containingNodes.add(node);
       // Check if this replica is corrupt
@@ -1701,7 +1706,7 @@ public class BlockManager {
         srcNode = node;
     }
     if(numReplicas != null)
-      numReplicas.initialize(live, decommissioned, decommissioning, corrupt,
+      numReplicas.set(live, readonly, decommissioned, decommissioning, corrupt,
           excess, 0);
     return srcNode;
   }
@@ -1726,7 +1731,7 @@ public class BlockManager {
           }
           NumberReplicas num = countNodes(timedOutItems[i]);
           if (isNeededReplication(bi, getReplication(bi), num.liveReplicas())) {
-            neededReplications.add(bi, num.liveReplicas(),
+            neededReplications.add(bi, num.liveReplicas(), num.readOnlyReplicas(),
                 num.decommissionedAndDecommissioning(), getReplication(bi));
           }
         }
@@ -2651,6 +2656,7 @@ public class BlockManager {
     short fileReplication = bc.getBlockReplication();
     if (!isNeededReplication(storedBlock, fileReplication, numCurrentReplica)) {
       neededReplications.remove(storedBlock, numCurrentReplica,
+          num.readOnlyReplicas(),
           num.decommissionedAndDecommissioning(), fileReplication);
     } else {
       updateNeededReplications(storedBlock, curReplicaDelta, 0);
@@ -2884,8 +2890,8 @@ public class BlockManager {
     int numCurrentReplica = num.liveReplicas();
     // add to under-replicated queue if need to be
     if (isNeededReplication(block, expectedReplication, numCurrentReplica)) {
-      if (neededReplications.add(block, numCurrentReplica, num
-          .decommissionedAndDecommissioning(), expectedReplication)) {
+      if (neededReplications.add(block, numCurrentReplica, num.readOnlyReplicas(),
+          num.decommissionedAndDecommissioning(), expectedReplication)) {
         return MisReplicationResult.UNDER_REPLICATED;
       }
     }
@@ -3312,11 +3318,18 @@ public class BlockManager {
     int decommissioned = 0;
     int decommissioning = 0;
     int live = 0;
+    int readonly = 0;
     int corrupt = 0;
     int excess = 0;
     int stale = 0;
     Collection<DatanodeDescriptor> nodesCorrupt = corruptReplicas.getNodes(b);
-    for(DatanodeStorageInfo storage : blocksMap.getStorages(b, State.NORMAL)) {
+    for(DatanodeStorageInfo storage : blocksMap.getStorages(b)) {
+      if (storage.getState() == State.FAILED) {
+        continue;
+      } else if (storage.getState() == State.READ_ONLY_SHARED) {
+        readonly++;
+        continue;
+      }
       final DatanodeDescriptor node = storage.getDatanodeDescriptor();
       if ((nodesCorrupt != null) && (nodesCorrupt.contains(node))) {
         corrupt++;
@@ -3337,7 +3350,8 @@ public class BlockManager {
         stale++;
       }
     }
-    return new NumberReplicas(live, decommissioned, decommissioning, corrupt, excess, stale);
+    return new NumberReplicas(live, readonly, decommissioned, decommissioning,
+        corrupt, excess, stale);
   }
 
   /** 
@@ -3473,13 +3487,13 @@ public class BlockManager {
       NumberReplicas repl = countNodes(block);
       int curExpectedReplicas = getReplication(block);
       if (isNeededReplication(block, curExpectedReplicas, repl.liveReplicas())) {
-        neededReplications.update(block, repl.liveReplicas(), repl
-            .decommissionedAndDecommissioning(), curExpectedReplicas,
+        neededReplications.update(block, repl.liveReplicas(), repl.readOnlyReplicas(),
+            repl.decommissionedAndDecommissioning(), curExpectedReplicas,
             curReplicasDelta, expectedReplicasDelta);
       } else {
         int oldReplicas = repl.liveReplicas()-curReplicasDelta;
         int oldExpectedReplicas = curExpectedReplicas-expectedReplicasDelta;
-        neededReplications.remove(block, oldReplicas,
+        neededReplications.remove(block, oldReplicas, repl.readOnlyReplicas(),
             repl.decommissionedAndDecommissioning(), oldExpectedReplicas);
       }
     } finally {
@@ -3499,6 +3513,7 @@ public class BlockManager {
       final NumberReplicas n = countNodes(block);
       if (isNeededReplication(block, expected, n.liveReplicas())) { 
         neededReplications.add(block, n.liveReplicas(),
+            n.readOnlyReplicas(),
             n.decommissionedAndDecommissioning(), expected);
       } else if (n.liveReplicas() > expected) {
         processOverReplicatedBlock(block, expected, null, null);

@@ -71,6 +71,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8855. Webhdfs client leaks active NameNode connections.
     (Xiaobing Zhou via Jitendra Nath Pandey)
 
+    HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
