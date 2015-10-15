@@ -576,6 +576,7 @@ public abstract class Server {
     private final RPC.RpcKind rpcKind;
     private final byte[] clientId;
     private final Span traceSpan; // the tracing span on the server side
+    private final CallerContext callerContext; // the call context
 
     public Call(int id, int retryCount, Writable param, 
         Connection connection) {
@@ -585,11 +586,11 @@ public abstract class Server {
 
     public Call(int id, int retryCount, Writable param, Connection connection,
         RPC.RpcKind kind, byte[] clientId) {
-      this(id, retryCount, param, connection, kind, clientId, null);
+      this(id, retryCount, param, connection, kind, clientId, null, null);
     }
 
     public Call(int id, int retryCount, Writable param, Connection connection,
-        RPC.RpcKind kind, byte[] clientId, Span span) {
+        RPC.RpcKind kind, byte[] clientId, Span span, CallerContext callerContext) {
       this.callId = id;
       this.retryCount = retryCount;
       this.rpcRequest = param;
@@ -599,6 +600,7 @@ public abstract class Server {
       this.rpcKind = kind;
       this.clientId = clientId;
       this.traceSpan = span;
+      this.callerContext = callerContext;
     }
     
     @Override
@@ -1923,9 +1925,17 @@ public abstract class Server {
         traceSpan = Trace.startSpan(rpcRequest.toString(), parentSpan).detach();
       }
 
+      CallerContext callerContext = null;
+      if (header.hasCallerContext()) {
+          callerContext =
+              new CallerContext.Builder(header.getCallerContext().getContext())
+              .setSignature(header.getCallerContext().getSignature())
+              .build();
+      }
+
       Call call = new Call(header.getCallId(), header.getRetryCount(),
           rpcRequest, this, ProtoUtil.convert(header.getRpcKind()),
-          header.getClientId().toByteArray(), traceSpan);
+          header.getClientId().toByteArray(), traceSpan, callerContext);
 
       if (callQueue.isClientBackoffEnabled()) {
         // if RPC queue is full, we will ask the RPC client to back off by
@@ -2110,6 +2120,8 @@ public abstract class Server {
           if (call.traceSpan != null) {
             traceScope = Trace.continueSpan(call.traceSpan);
           }
+          // always update the current call context
+          CallerContext.setCurrent(call.callerContext);
 
           try {
             // Make the call as the user via Subject.doAs, thus associating

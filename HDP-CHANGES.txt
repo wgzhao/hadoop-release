@@ -51,6 +51,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HADOOP-10987. Provide an iterator-based listing API for FileSystem (kihwal)
 
+    HDFS-9184. Logging HDFS operation's caller context into audit logs (Mingliang Liu via jitendra)
+
   IMPROVEMENTS
 
     HDFS-7153. Add storagePolicy to NN edit log during file creation.
