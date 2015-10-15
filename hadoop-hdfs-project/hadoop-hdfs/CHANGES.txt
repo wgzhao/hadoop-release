@@ -145,6 +145,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8816. Improve visualization for the Datanode tab in the NN UI. (wheat9)
 
+    HDFS-9188. Make block corruption related tests FsDataset-agnostic. (lei)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
