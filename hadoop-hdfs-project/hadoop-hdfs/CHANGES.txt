@@ -74,6 +74,8 @@ Release 2.8.0 - UNRELEASED
     'CredentialBasedAccessTokenProvider.getCredential()' abstract methods to
     public (Santhosh Nayak via cnauroth)
 
+    HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES

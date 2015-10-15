@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.hdfs.server.blockmanagement;
 
+import java.util.Iterator;
+
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,7 +46,7 @@ public class TestUnderReplicatedBlockQueues extends Assert {
     assertEquals(1, queues.size());
     assertInLevel(queues, block1, UnderReplicatedBlocks.QUEUE_HIGHEST_PRIORITY);
     //repeated additions fail
-    assertFalse(queues.add(block1, 1, 0, 3));
+    assertFalse(queues.add(block1, 1, 0, 0, 3));
 
     //add a second block with two replicas
     assertAdded(queues, block2, 2, 0, 3);
@@ -73,7 +75,7 @@ public class TestUnderReplicatedBlockQueues extends Assert {
                            int expectedReplicas) {
     assertTrue("Failed to add " + block,
                queues.add(block,
-                          curReplicas,
+                          curReplicas, 0,
                           decomissionedReplicas,
                           expectedReplicas));
   }
@@ -91,7 +93,7 @@ public class TestUnderReplicatedBlockQueues extends Assert {
   private void assertInLevel(UnderReplicatedBlocks queues,
                              Block block,
                              int level) {
-    UnderReplicatedBlocks.BlockIterator bi = queues.iterator(level);
+    final Iterator<Block> bi = queues.iterator(level);
     while (bi.hasNext()) {
       Block next = bi.next();
       if (block.equals(next)) {
