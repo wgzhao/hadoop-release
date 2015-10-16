@@ -1243,3 +1243,6 @@ ATS V1.5:
 
     YARN-4000. RM crashes with NPE if leaf queue becomes parent queue during restart. 
     Contributed by Varun Saxena
+
+    YARN-4162. CapacityScheduler: Add resource usage by partition and queue capacity by 
+    partition to REST API. (Naganarasimha G R via wangda)
