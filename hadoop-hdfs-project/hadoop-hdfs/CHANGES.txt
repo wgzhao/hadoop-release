@@ -123,6 +123,9 @@ Release 2.7.2
     HDFS-6945. BlockManager should remove a block from excessReplicateMap
     and decrement ExcessBlocks metric when the block is removed.  (aajisaka)
 
+    HDFS-9178. Slow datanode I/O can cause a wrong node to be marked
+    bad. (Kihwal Lee)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES

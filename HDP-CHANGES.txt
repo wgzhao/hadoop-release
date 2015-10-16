@@ -708,3 +708,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-45263. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
+    BUG-45466. HDFS-9178. Slow datanode I/O can cause a wrong node to
+    be marked bad. (Kihwal Lee)
+
