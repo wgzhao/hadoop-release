@@ -64,6 +64,13 @@ public class TestEntityFileCacheTimelineStore extends TimelineStoreTestUtils {
     fsContext.delete(new Path(TEST_DIR.getAbsolutePath()), true);
   }
 
+  @Test
+  public void testScanApps() throws Exception {
+    // TODO: add verifications
+    ((EntityFileCacheTimelineStore) store).scanActiveLogs();
+
+  }
+
   public TimelineStore getTimelineStore() {
     return store;
   }
