@@ -6,12 +6,7 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
-    YARN-3249. Add a 'kill application' button to Resource Manager's Web UI.
-    (Ryu Kobayashi via ozawa)
-
   IMPROVEMENTS
-
-    YARN-3230. Clarify application states on the web UI. (Jian He via wangda)
 
   OPTIMIZATIONS
 
@@ -71,7 +66,12 @@ Release 2.6.1 - UNRELEASED
 
   NEW FEATURES
 
+    YARN-3249. Add a 'kill application' button to Resource Manager's Web UI.
+    (Ryu Kobayashi via ozawa)
+
   IMPROVEMENTS
+
+    YARN-3230. Clarify application states on the web UI. (Jian He via wangda)
 
     YARN-2301. Improved yarn container command. (Naganarasimha G R via jianhe)
 
