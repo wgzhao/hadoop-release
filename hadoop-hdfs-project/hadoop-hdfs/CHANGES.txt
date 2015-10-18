@@ -223,6 +223,8 @@ Release 2.7.0
     HDFS-7257. Add the time of last HA state transition to NN's /jmx page.
     (Charles Lamb via wheat9)
 
+    HADOOP-11032. Replace use of Guava's Stopwatch with Hadoop's StopWatch. (ozawa)
+
   OPTIMIZATIONS
 
   BUG FIXES
