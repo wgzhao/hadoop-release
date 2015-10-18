@@ -723,3 +723,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-45254. HDFS-9220. Reading small file (< 512 bytes) that is open
     for append fails due to incorrect checksum. (Jing Zhao via Kihwal Lee)
+
+    BUG-44834. HADOOP-11032. Replace use of Guava's Stopwatch with
+    Hadoop's StopWatch. (ozawa)
+
