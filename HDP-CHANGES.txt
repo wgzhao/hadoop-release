@@ -727,3 +727,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-44834. HADOOP-11032. Replace use of Guava's Stopwatch with
     Hadoop's StopWatch. (ozawa)
 
+    BUG-44834. HDFS-9107. Prevent NN's unrecoverable death spiral after
+    full GC. (Daryn Sharp via Colin P. McCabe)
+

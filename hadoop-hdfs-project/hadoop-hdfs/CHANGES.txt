@@ -110,6 +110,9 @@ Release 2.8.0 - UNRELEASED
     Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit via
     Kihwal Lee)
 
+    HDFS-9107. Prevent NN's unrecoverable death spiral after full GC.
+    (Daryn Sharp via Colin P. McCabe)
+
 Release 2.7.2
 
   INCOMPATIBLE CHANGES
