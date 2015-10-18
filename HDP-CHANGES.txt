@@ -1520,3 +1520,7 @@ ATS V1.5:
     BUG-58692. Fix test failure due to NPE issues in TestRMWebAppFairScheduler. (junping_du)
 
     BUG-58693. Fix test timeout issue in TestSchedulingPolicy. (junping_du)
+
+    BUG-58701. YARN-4155. TestLogAggregationService.testLogAggregationServiceWithInterval
+    failing.
+
