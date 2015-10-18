@@ -330,6 +330,9 @@ Release 2.7.3 - UNRELEASED
     YARN-4723. NodesListManager$UnknownNodeId ClassCastException (Kuhu Shukla
     via jlowe)
 
+    YARN-4155. TestLogAggregationService.testLogAggregationServiceWithInterval failing
+    (Bibin A Chundatt via stevel)
+
 Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES

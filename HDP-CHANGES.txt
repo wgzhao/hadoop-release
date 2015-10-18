@@ -1214,3 +1214,7 @@ ATS V1.5:
 
     BUG-55975. YARN-4954. TestYarnClient.testReservationAPIs fails on machines with less than 4 GB
     available memory. Gergely Novák via junping_du.
+
+    BUG-56482. YARN-4155. TestLogAggregationService.testLogAggregationServiceWithInterval failing.
+    (Bibin A Chundatt via stevel)
+
