@@ -135,6 +135,9 @@ Release 2.7.2
     HDFS-8722. Optimize datanode writes for small writes and flushes.
     (Kihwal Lee)
 
+    HDFS-9220. Reading small file (< 512 bytes) that is open for
+    append fails due to incorrect checksum. (Jing Zhao via Kihwal Lee)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES

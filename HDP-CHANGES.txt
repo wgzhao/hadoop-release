@@ -721,3 +721,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-45254. HDFS-8722. Optimize datanode writes for small writes and
     flushes. (Kihwal Lee)
 
+    BUG-45254. HDFS-9220. Reading small file (< 512 bytes) that is open
+    for append fails due to incorrect checksum. (Jing Zhao via Kihwal Lee)
