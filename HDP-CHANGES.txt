@@ -715,3 +715,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     Skip Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit
     via Kihwal Lee)
 
+    BUG-45254. HDFS-4660. Block corruption can happen during pipeline
+    recovery. (Kihwal Lee)
+

@@ -151,6 +151,9 @@ Release 2.7.1
 
     HDFS-8180. AbstractFileSystem Implementation for WebHdfs. (snayak via jghoman)
 
+    HDFS-4660. Block corruption can happen during pipeline recovery.
+    (Kihwal Lee)
+
 Release 2.7.0
 
   INCOMPATIBLE CHANGES
