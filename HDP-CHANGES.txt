@@ -718,3 +718,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-45254. HDFS-4660. Block corruption can happen during pipeline
     recovery. (Kihwal Lee)
 
+    BUG-45254. HDFS-8722. Optimize datanode writes for small writes and
+    flushes. (Kihwal Lee)
+
