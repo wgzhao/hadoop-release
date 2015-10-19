@@ -1222,6 +1222,8 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
   if (docker_binary == NULL) {
     docker_binary = "docker";
   }
+
+  fprintf(LOGFILE, "Creating script paths...\n");
   exit_code = create_script_paths(
     work_dir, script_name, cred_file, &script_file_dest, &cred_file_dest,
     &container_file_source, &cred_file_source);
@@ -1232,6 +1234,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
   }
   gid_t user_gid = getegid();
 
+  fprintf(LOGFILE, "Creating local dirs...\n");
   exit_code = create_local_dirs(user, app_id, container_id,
     work_dir, script_name, cred_file, local_dirs, log_dirs,
     1, script_file_dest, cred_file_dest,
@@ -1242,6 +1245,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
     goto cleanup;
   }
 
+  fprintf(LOGFILE, "Getting exit code file...\n");
   exit_code_file = get_exit_code_file(pid_file);
   if (NULL == exit_code_file) {
     exit_code = OUT_OF_MEMORY;
@@ -1250,6 +1254,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
     goto cleanup;
   }
 
+  fprintf(LOGFILE, "Changing effective user to root...\n");
   if (change_effective_user(0, user_gid) != 0) {
     fprintf(ERRORFILE, "Could not change to effective users %d, %d\n", 0, user_gid);
     fflush(ERRORFILE);
@@ -1258,6 +1263,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
 
   snprintf(docker_command_with_binary, EXECUTOR_PATH_MAX, "%s %s", docker_binary, docker_command);
 
+  fprintf(LOGFILE, "Launching docker container...\n");
   FILE* start_docker = popen(docker_command_with_binary, "r");
   if (pclose (start_docker) != 0)
   {
@@ -1272,6 +1278,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
     "%s inspect --format {{.State.Pid}} %s",
     docker_binary, container_id);
 
+  fprintf(LOGFILE, "Inspecting docker container...\n");
   FILE* inspect_docker = popen(docker_inspect_command, "r");
   int pid = 0;
   int res = fscanf (inspect_docker, "%d", &pid);
@@ -1285,6 +1292,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
   }
 
   if (pid != 0) {
+    fprintf(LOGFILE, "Writing to cgroup task files...\n");
     // cgroups-based resource enforcement
     if (resources_key != NULL && ! strcmp(resources_key, "cgroups")) {
      // write pid to cgroups
@@ -1298,7 +1306,9 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
        }
      }
     }
+
     // write pid to pidfile
+    fprintf(LOGFILE, "Writing pid file...\n");
     if (pid_file == NULL
         || write_pid_to_file_as_nm(pid_file, (pid_t)pid) != 0) {
       exit_code = WRITE_PIDFILE_FAILED;
@@ -1310,6 +1320,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
     snprintf(docker_wait_command, EXECUTOR_PATH_MAX,
       "%s wait %s", docker_binary, container_id);
 
+    fprintf(LOGFILE, "Waiting for docker container to finish...\n");
     FILE* wait_docker = popen(docker_wait_command, "r");
     res = fscanf (wait_docker, "%d", &exit_code);
     if (pclose (wait_docker) != 0 || res <= 0) {
@@ -1318,6 +1329,8 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
       fflush(ERRORFILE);
     }
     if(exit_code != 0) {
+      fprintf(ERRORFILE, "Docker container exit code was not zero: %d\n",
+      exit_code);
       snprintf(docker_logs_command, EXECUTOR_PATH_MAX, "%s logs --tail=250 %s",
         docker_binary, container_id);
       FILE* logs = popen(docker_logs_command, "r");
@@ -1347,6 +1360,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
     }
   }
 
+  fprintf(LOGFILE, "Removing docker container post-exit...\n");
   snprintf(docker_rm_command, EXECUTOR_PATH_MAX,
     "%s rm %s", docker_binary, container_id);
   FILE* rm_docker = popen(docker_rm_command, "w");
@@ -1396,7 +1410,7 @@ int launch_container_as_user(const char *user, const char *app_id,
   char *cred_file_dest = NULL;
   char *exit_code_file = NULL;
 
-
+  fprintf(LOGFILE, "Getting exit code file...\n");
   exit_code_file = get_exit_code_file(pid_file);
   if (NULL == exit_code_file) {
     exit_code = OUT_OF_MEMORY;
@@ -1405,6 +1419,8 @@ int launch_container_as_user(const char *user, const char *app_id,
 
   int container_file_source =-1;
   int cred_file_source = -1;
+
+  fprintf(LOGFILE, "Creating script paths...\n");
   exit_code = create_script_paths(
     work_dir, script_name, cred_file, &script_file_dest, &cred_file_dest,
     &container_file_source, &cred_file_source);
@@ -1428,6 +1444,7 @@ int launch_container_as_user(const char *user, const char *app_id,
     goto cleanup;
   }
 
+  fprintf(LOGFILE, "Writing pid file...\n");
   // write pid to pidfile
   if (pid_file == NULL
       || write_pid_to_file_as_nm(pid_file, pid) != 0) {
@@ -1435,6 +1452,7 @@ int launch_container_as_user(const char *user, const char *app_id,
     goto cleanup;
   }
 
+  fprintf(LOGFILE, "Writing to cgroup task files...\n");
   // cgroups-based resource enforcement
   if (resources_key != NULL && ! strcmp(resources_key, "cgroups")) {
     // write pid to cgroups
@@ -1449,6 +1467,7 @@ int launch_container_as_user(const char *user, const char *app_id,
     }
   }
 
+  fprintf(LOGFILE, "Creating local dirs...\n");
   exit_code = create_local_dirs(user, app_id, container_id,
     work_dir, script_name, cred_file, local_dirs, log_dirs,
     0, script_file_dest, cred_file_dest,
@@ -1458,6 +1477,8 @@ int launch_container_as_user(const char *user, const char *app_id,
     fflush(ERRORFILE);
     goto cleanup;
   }
+
+  fprintf(LOGFILE, "Launching container...\n");
 
 #if HAVE_FCLOSEALL
   fcloseall();

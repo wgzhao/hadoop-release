@@ -224,6 +224,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4653. Document YARN security model from the perspective of
     Application Developers. (Steve Loughran via jianhe)
 
+    YARN-4267. Add additional logging to container launch implementations in
+    container-executor. (Sidharta Seethana via vvasudev)
+
     YARN-4761. NMs reconnecting with changed capabilities can lead to wrong cluster
     resource calculations on fair scheduler. (Sangjin Lee via zxu)
 
