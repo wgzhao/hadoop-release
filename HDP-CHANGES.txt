@@ -730,3 +730,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-44834. HDFS-9107. Prevent NN's unrecoverable death spiral after
     full GC. (Daryn Sharp via Colin P. McCabe)
 
+    BUG-46049. MAPREDUCE-6442. Stack trace is missing when error occurs in
+    client protocol provider's constructor (Chang Li via ozawa)
+
