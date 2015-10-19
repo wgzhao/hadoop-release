@@ -108,6 +108,9 @@ Release 2.8.0 - UNRELEASED
     (Sidharta Seethana via vvasudev)
 
 
+    YARN-4262. Allow whitelisted users to run privileged docker containers.
+    (Sidharta Seethana via vvasudev)
+
   IMPROVEMENTS
 
     YARN-1880. Cleanup TestApplicationClientProtocolOnHA
