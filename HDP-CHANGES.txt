@@ -860,3 +860,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     
     HADOOP-12903. IPC Server should allow suppressing exception logging by
     type, not log 'server too busy' messages. (Arpit Agarwal)
+
+    HADOOP-12464. Interrupted client may try to fail-over and retry (kihwal)

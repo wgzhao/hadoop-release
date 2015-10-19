@@ -136,6 +136,8 @@ Release 2.7.2 - UNRELEASED
     HADOOP-11932. MetricsSinkAdapter may hang  when being stopped.
     (Brahma Reddy Battula via jianhe)
 
+    HADOOP-12464. Interrupted client may try to fail-over and retry (kihwal)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
