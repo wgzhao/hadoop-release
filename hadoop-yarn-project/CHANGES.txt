@@ -115,9 +115,6 @@ Release 2.6.1 - UNRELEASED
     YARN-3145. Fixed ConcurrentModificationException on CapacityScheduler
     ParentQueue#getQueueUserAclInfo. (Tsuyoshi OZAWA via jianhe)
 
-    YARN-2890. MiniYARNCluster should start the timeline server based on the
-    configuration. (Mit Desai via zjshen)
-
     YARN-2894. Fixed a bug regarding application view acl when RM fails over.
     (Rohith Sharmaks via jianhe)
 
