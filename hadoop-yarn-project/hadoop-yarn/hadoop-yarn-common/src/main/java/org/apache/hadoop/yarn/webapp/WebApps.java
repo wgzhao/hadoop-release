@@ -167,7 +167,7 @@ public class WebApps {
       return this;
     }
 
-    public WebApp start(WebApp webapp) {
+    public WebApp build(WebApp webapp) {
       if (webapp == null) {
         webapp = new WebApp() {
           @Override
@@ -270,8 +270,7 @@ public class WebApps {
 
         webapp.setConf(conf);
         webapp.setHttpServer(server);
-        server.start();
-        LOG.info("Web app /"+ name +" started at "+ server.getConnectorAddress(0).getPort());
+
       } catch (ClassNotFoundException e) {
         throw new WebAppException("Error starting http server", e);
       } catch (IOException e) {
@@ -297,6 +296,19 @@ public class WebApps {
 
     public WebApp start() {
       return start(null);
+    }
+
+    public WebApp start(WebApp webapp) {
+      WebApp webApp = build(webapp);
+      HttpServer2 httpServer = webApp.httpServer();
+      try {
+        httpServer.start();
+        LOG.info("Web app " + name + " started at "
+            + httpServer.getConnectorAddress(0).getPort());
+      } catch (IOException e) {
+        throw new WebAppException("Error starting http server", e);
+      }
+      return webApp;
     }
 
     private String inferHostClass() {
