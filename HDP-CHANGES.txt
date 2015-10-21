@@ -854,3 +854,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-9358. TestNodeCount#testNodeCount timed out. (Masatake Iwasaki via waltersu4549)
 
+    HADOOP-10406. TestIPC.testIpcWithReaderQueuing may fail. Contributed by Xiao Chen.
+
