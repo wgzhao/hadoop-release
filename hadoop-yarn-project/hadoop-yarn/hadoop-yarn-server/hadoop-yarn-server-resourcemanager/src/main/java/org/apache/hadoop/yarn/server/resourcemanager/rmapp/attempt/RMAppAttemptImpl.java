@@ -80,11 +80,8 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEventType;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppFailedAttemptEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppFinishedAttemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppImpl;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerAllocatedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerFinishedEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptLaunchFailedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptRegistrationEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptStatusupdateEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptUnregistrationEvent;
@@ -1015,8 +1012,9 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
           LOG.warn("Interrupted while waiting to resend the"
               + " ContainerAllocated Event.");
         }
-        appAttempt.eventHandler.handle(new RMAppAttemptContainerAllocatedEvent(
-          appAttempt.applicationAttemptId));
+        appAttempt.eventHandler.handle(
+            new RMAppAttemptEvent(appAttempt.applicationAttemptId,
+                RMAppAttemptEventType.CONTAINER_ALLOCATED));
       }
     }.start();
   }
@@ -1118,9 +1116,7 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
     int exitStatus = ContainerExitStatus.INVALID;
     switch (event.getType()) {
     case LAUNCH_FAILED:
-      RMAppAttemptLaunchFailedEvent launchFaileEvent =
-          (RMAppAttemptLaunchFailedEvent) event;
-      diags = launchFaileEvent.getMessage();
+      diags = event.getDiagnosticMsg();
       break;
     case REGISTERED:
       diags = getUnexpectedAMRegisteredDiagnostics();
@@ -1128,7 +1124,7 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
     case UNREGISTERED:
       RMAppAttemptUnregistrationEvent unregisterEvent =
           (RMAppAttemptUnregistrationEvent) event;
-      diags = unregisterEvent.getDiagnostics();
+      diags = unregisterEvent.getDiagnosticMsg();
       // reset finalTrackingUrl to url sent by am
       finalTrackingUrl = sanitizeTrackingUrl(unregisterEvent.getFinalTrackingUrl());
       finalStatus = unregisterEvent.getFinalApplicationStatus();
@@ -1227,17 +1223,19 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
       switch (finalAttemptState) {
         case FINISHED:
         {
-          appEvent = new RMAppFinishedAttemptEvent(applicationId,
+          appEvent =
+              new RMAppEvent(applicationId, RMAppEventType.ATTEMPT_FINISHED,
               appAttempt.getDiagnostics());
         }
         break;
         case KILLED:
         {
           appAttempt.invalidateAMHostAndPort();
+          // Forward diagnostics received in attempt kill event.
           appEvent =
               new RMAppFailedAttemptEvent(applicationId,
                   RMAppEventType.ATTEMPT_KILLED,
-                  "Application killed by user.", false);
+                  event.getDiagnosticMsg(), false);
         }
         break;
         case FAILED:
@@ -1349,9 +1347,7 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
         RMAppAttemptEvent event) {
 
       // Use diagnostic from launcher
-      RMAppAttemptLaunchFailedEvent launchFaileEvent
-        = (RMAppAttemptLaunchFailedEvent) event;
-      appAttempt.diagnostics.append(launchFaileEvent.getMessage());
+      appAttempt.diagnostics.append(event.getDiagnosticMsg());
 
       // Tell the app, scheduler
       super.transition(appAttempt, event);
@@ -1606,7 +1602,7 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
     progress = 1.0f;
     RMAppAttemptUnregistrationEvent unregisterEvent =
         (RMAppAttemptUnregistrationEvent) event;
-    diagnostics.append(unregisterEvent.getDiagnostics());
+    diagnostics.append(unregisterEvent.getDiagnosticMsg());
     originalTrackingUrl = sanitizeTrackingUrl(unregisterEvent.getFinalTrackingUrl());
     finalStatus = unregisterEvent.getFinalApplicationStatus();
   }
