@@ -90,7 +90,6 @@ public class TestAHSWebServices extends JerseyTestBase {
     TimelineStore store =
         TestApplicationHistoryManagerOnTimelineStore.createStore(MAX_APPS);
     TimelineACLsManager aclsManager = new TimelineACLsManager(conf);
-    aclsManager.setTimelineStore(store);
     TimelineDataManager dataManager =
         new TimelineDataManager(store, aclsManager);
     conf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
