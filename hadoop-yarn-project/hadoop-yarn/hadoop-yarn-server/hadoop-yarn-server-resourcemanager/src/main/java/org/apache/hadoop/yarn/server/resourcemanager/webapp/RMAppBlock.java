@@ -18,8 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.webapp;
 
-import static org.apache.hadoop.yarn.webapp.view.JQueryUI._INFO_WRAP;
-
+import com.google.inject.Inject;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,10 +40,10 @@ import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.DIV;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import org.apache.hadoop.yarn.webapp.view.InfoBlock;
 
-import com.google.inject.Inject;
-
 import java.util.Collection;
 import java.util.Set;
+
+import static org.apache.hadoop.yarn.webapp.view.JQueryUI._INFO_WRAP;
 
 public class RMAppBlock extends AppBlock{
 
@@ -144,6 +143,7 @@ public class RMAppBlock extends AppBlock{
         nodeLink = WebAppUtils.getHttpSchemePrefix(conf) + nodeLink;
       }
       String logsLink = attemptInfo.getLogsLink();
+
       // AppAttemptID numerical value parsed by parseHadoopID in
       // yarn.dt.plugins.js
       attemptsTableData

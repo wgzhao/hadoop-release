@@ -514,7 +514,9 @@ Release 2.7.2 - UNRELEASED
     YARN-4047. ClientRMService getApplications has high scheduler lock contention
     (Jason Lowe via jianhe)
 
-Release 2.7.1 - 2015-07-06 
+    YARN-4281. 2.7 RM app page is broken (Chang Li via jlowe)
+
+Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
 
