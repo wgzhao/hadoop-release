@@ -94,7 +94,6 @@ public class TestApplicationHistoryManagerOnTimelineStore {
   public void setup() throws Exception {
     // Only test the ACLs of the generic history
     TimelineACLsManager aclsManager = new TimelineACLsManager(new YarnConfiguration());
-    aclsManager.setTimelineStore(store);
     TimelineDataManager dataManager =
         new TimelineDataManager(store, aclsManager);
     dataManager.init(conf);
