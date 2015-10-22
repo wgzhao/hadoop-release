@@ -1425,22 +1425,6 @@ public class YarnConfiguration extends Configuration {
   public static final int TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS_DEFAULT =
       7 * 24 * 60 * 60;
 
-  // how old the most recent log of an UNKNOWN app needs to be in the active
-  // directory before we treat it as COMPLETED
-  public static final String
-      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "unknown-active-seconds";
-  public static final int
-      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS_DEFAULT = 24 * 60 * 60;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "done-dir";
-  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT =
-      "/tmp/entity-file-history/done";
-
-  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-classes";
-
   /**
    * The setting for timeline service plugin
    */
@@ -1461,6 +1445,22 @@ public class YarnConfiguration extends Configuration {
   @Private
   public static final String APPLICATION_HISTORY_PREFIX =
       TIMELINE_SERVICE_PREFIX + "generic-application-history.";
+
+  // how old the most recent log of an UNKNOWN app needs to be in the active
+  // directory before we treat it as COMPLETED
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "unknown-active-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS_DEFAULT = 24 * 60 * 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "done-dir";
+  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT =
+      "/tmp/entity-file-history/done";
+
+  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
+      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-classes";
 
   /**
    *  The setting that controls whether application history service is

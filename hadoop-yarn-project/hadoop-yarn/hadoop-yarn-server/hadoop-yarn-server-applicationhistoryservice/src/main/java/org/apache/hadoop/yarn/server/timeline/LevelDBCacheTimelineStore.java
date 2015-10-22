@@ -64,12 +64,16 @@ public class LevelDBCacheTimelineStore extends MapTimelineStore {
   private DB entityDb;
   private Configuration configuration;
 
-  public LevelDBCacheTimelineStore(String id) {
-    super(LevelDBCacheTimelineStore.class.getName());
+  public LevelDBCacheTimelineStore(String id, String name) {
+    super(name);
     dbId = id;
     entityInsertTimes = new MemoryTimelineStore.HashMapStoreAdapter<>();
     domainById = new MemoryTimelineStore.HashMapStoreAdapter<>();
     domainsByOwner = new MemoryTimelineStore.HashMapStoreAdapter<>();
+  }
+
+  public LevelDBCacheTimelineStore(String id) {
+    this(id, LevelDBCacheTimelineStore.class.getName());
   }
 
   @Override

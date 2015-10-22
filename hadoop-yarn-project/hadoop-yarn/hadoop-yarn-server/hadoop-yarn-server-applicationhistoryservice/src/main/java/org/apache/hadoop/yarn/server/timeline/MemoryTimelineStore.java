@@ -81,7 +81,11 @@ public class MemoryTimelineStore extends MapTimelineStore {
   }
 
   public MemoryTimelineStore() {
-    super(MemoryTimelineStore.class.getName());
+    this(MemoryTimelineStore.class.getName());
+  }
+
+  public MemoryTimelineStore(String name) {
+    super(name);
     entities = new HashMapStoreAdapter<>();
     entityInsertTimes = new HashMapStoreAdapter<>();
     domainById = new HashMapStoreAdapter<>();
