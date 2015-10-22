@@ -176,6 +176,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-43598. computeReplicationWork does not record all failure paths.
     (Arpit Agarwal)
 
+    YARN-4243. Add retry on establishing Zookeeper conenction in 
+    EmbeddedElectorService#serviceInit. (Xuan Gong via junping_du)
+
   OPTIMIZATIONS
 
   BUG FIXES

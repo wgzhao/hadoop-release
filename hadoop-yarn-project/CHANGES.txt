@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
   IMPROVEMENTS
 
+    YARN-4243. Add retry on establishing Zookeeper conenction in 
+    EmbeddedElectorService#serviceInit. (Xuan Gong via junping_du)
+
   OPTIMIZATIONS
 
   BUG FIXES
