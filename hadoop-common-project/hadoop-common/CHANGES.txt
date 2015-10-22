@@ -55,6 +55,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12542. TestDNS fails on Windows after HADOOP-12437. (cnauroth)
 
+    HADOOP-12334. Change Mode Of Copy Operation of HBase WAL Archiving to bypass
+    Azure Storage Throttling after retries. (Gaurav Kanade via cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
