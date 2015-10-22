@@ -567,13 +567,12 @@ public class ZKRMStateStore extends RMStateStore {
         ApplicationStateDataPBImpl appStateData =
             new ApplicationStateDataPBImpl(
                 ApplicationStateDataProto.parseFrom(childData));
-        ApplicationState appState =
-            new ApplicationState(appStateData.getSubmitTime(),
-              appStateData.getStartTime(),
-              appStateData.getApplicationSubmissionContext(),
-              appStateData.getUser(),
-              appStateData.getState(),
-              appStateData.getDiagnostics(), appStateData.getFinishTime());
+        ApplicationState appState = new ApplicationState(
+            appStateData.getSubmitTime(), appStateData.getStartTime(),
+            appStateData.getApplicationSubmissionContext(),
+            appStateData.getUser(), appStateData.getState(),
+            appStateData.getDiagnostics(), appStateData.getFinishTime(),
+            appStateData.getCallerContext());
         if (!appId.equals(appState.context.getApplicationId())) {
           throw new YarnRuntimeException("The child node name is different " +
               "from the application id");

@@ -109,7 +109,11 @@ public class TestRMContainerImpl {
     when(rmContext.getRMApplicationHistoryWriter()).thenReturn(writer);
     when(rmContext.getRMApps()).thenReturn(rmApps);
     when(rmContext.getSystemMetricsPublisher()).thenReturn(publisher);
-    when(rmContext.getYarnConfiguration()).thenReturn(new YarnConfiguration());
+    YarnConfiguration conf = new YarnConfiguration();
+    conf.setBoolean(
+        YarnConfiguration.APPLICATION_HISTORY_SAVE_NON_AM_CONTAINER_META_INFO,
+        true);
+    when(rmContext.getYarnConfiguration()).thenReturn(conf);
     RMContainer rmContainer = new RMContainerImpl(container, appAttemptId,
         nodeId, "user", rmContext);
 
@@ -199,7 +203,11 @@ public class TestRMContainerImpl {
     when(rmContext.getContainerAllocationExpirer()).thenReturn(expirer);
     when(rmContext.getRMApplicationHistoryWriter()).thenReturn(writer);
     when(rmContext.getSystemMetricsPublisher()).thenReturn(publisher);
-    when(rmContext.getYarnConfiguration()).thenReturn(new YarnConfiguration());
+    YarnConfiguration conf = new YarnConfiguration();
+    conf.setBoolean(
+        YarnConfiguration.APPLICATION_HISTORY_SAVE_NON_AM_CONTAINER_META_INFO,
+        true);
+    when(rmContext.getYarnConfiguration()).thenReturn(conf);
     RMContainer rmContainer = new RMContainerImpl(container, appAttemptId,
         nodeId, "user", rmContext);
 
@@ -277,6 +285,9 @@ public class TestRMContainerImpl {
   public void testStoreAllContainerMetrics() throws Exception {
     Configuration conf = new Configuration();
     conf.setInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, 1);
+    conf.setBoolean(
+        YarnConfiguration.APPLICATION_HISTORY_SAVE_NON_AM_CONTAINER_META_INFO,
+        true);
     MockRM rm1 = new MockRM(conf);
 
     SystemMetricsPublisher publisher = mock(SystemMetricsPublisher.class);

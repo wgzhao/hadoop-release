@@ -21,6 +21,7 @@ import java.net.InetAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -35,7 +36,8 @@ public class RMAuditLogger {
   private static final Log LOG = LogFactory.getLog(RMAuditLogger.class);
 
   static enum Keys {USER, OPERATION, TARGET, RESULT, IP, PERMISSIONS,
-                    DESCRIPTION, APPID, APPATTEMPTID, CONTAINERID}
+                    DESCRIPTION, APPID, APPATTEMPTID, CONTAINERID, 
+                    CALLERCONTEXT, CALLERSIGNATURE}
 
   public static class AuditConstants {
     static final String SUCCESS = "SUCCESS";
@@ -63,12 +65,20 @@ public class RMAuditLogger {
     public static final String UPDATE_RESERVATION_REQUEST = "Update Reservation Request";
     public static final String DELETE_RESERVATION_REQUEST = "Delete Reservation Request";
   }
+  
+  static String createSuccessLog(String user, String operation, String target,
+      ApplicationId appId, ApplicationAttemptId attemptId,
+      ContainerId containerId) {
+    return createSuccessLog(user, operation, target, appId, attemptId,
+        containerId, null);
+  }
 
   /**
    * A helper api for creating an audit log for a successful event.
    */
   static String createSuccessLog(String user, String operation, String target,
-      ApplicationId appId, ApplicationAttemptId attemptId, ContainerId containerId) {
+      ApplicationId appId, ApplicationAttemptId attemptId,
+      ContainerId containerId, CallerContext callerContext) {
     StringBuilder b = new StringBuilder();
     start(Keys.USER, user, b);
     addRemoteIP(b);
@@ -84,7 +94,25 @@ public class RMAuditLogger {
     if (containerId != null) {
       add(Keys.CONTAINERID, containerId.toString(), b);
     }
+    appendCallerContext(b, callerContext);
     return b.toString();
+  }
+  
+  private static void appendCallerContext(StringBuilder sb, CallerContext callerContext) {
+    String context = null;
+    String signature = null;
+    if (callerContext != null) {
+      context = callerContext.getContext();
+      signature = callerContext.getSignature();
+    }
+    
+    if (context != null) {
+      add(Keys.CALLERCONTEXT, context, sb);
+    }
+    
+    if (signature != null) {
+      add(Keys.CALLERSIGNATURE, signature, sb);
+    }
   }
 
   /**
@@ -128,6 +156,14 @@ public class RMAuditLogger {
           null));
     }
   }
+  
+  public static void logSuccess(String user, String operation, String target,
+      ApplicationId appId, CallerContext callerContext) {
+    if (LOG.isInfoEnabled()) {
+      LOG.info(createSuccessLog(user, operation, target, appId, null, null,
+          callerContext));
+    }
+  }
 
 
   /**
@@ -165,13 +201,11 @@ public class RMAuditLogger {
       LOG.info(createSuccessLog(user, operation, target, null, null, null));
     }
   }
-
-  /**
-   * A helper api for creating an audit log for a failure event.
-   */
+  
   static String createFailureLog(String user, String operation, String perm,
       String target, String description, ApplicationId appId,
-      ApplicationAttemptId attemptId, ContainerId containerId) {
+      ApplicationAttemptId attemptId, ContainerId containerId,
+      CallerContext callerContext) {
     StringBuilder b = new StringBuilder();
     start(Keys.USER, user, b);
     addRemoteIP(b);
@@ -189,7 +223,18 @@ public class RMAuditLogger {
     if (containerId != null) {
       add(Keys.CONTAINERID, containerId.toString(), b);
     }
+    appendCallerContext(b, callerContext);
     return b.toString();
+  }
+
+  /**
+   * A helper api for creating an audit log for a failure event.
+   */
+  static String createFailureLog(String user, String operation, String perm,
+      String target, String description, ApplicationId appId,
+      ApplicationAttemptId attemptId, ContainerId containerId) {
+    return createFailureLog(user, operation, perm, target, description, appId,
+        attemptId, containerId, null);
   }
 
   /**
@@ -240,7 +285,15 @@ public class RMAuditLogger {
           appId, attemptId, null));
     }
   }
-
+  
+  public static void logFailure(String user, String operation, String perm,
+      String target, String description, ApplicationId appId,
+      CallerContext callerContext) {
+    if (LOG.isWarnEnabled()) {
+      LOG.warn(createFailureLog(user, operation, perm, target, description,
+          appId, null, null, callerContext));
+    }
+  }
 
   /**
    * Create a readable and parseable audit log string for a failed event.

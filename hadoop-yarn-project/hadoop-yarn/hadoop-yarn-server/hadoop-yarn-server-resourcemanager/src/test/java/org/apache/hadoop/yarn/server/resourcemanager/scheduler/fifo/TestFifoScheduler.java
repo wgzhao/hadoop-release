@@ -151,6 +151,7 @@ public class TestFifoScheduler {
 
     FifoScheduler scheduler = new FifoScheduler();
     Configuration conf = new Configuration();
+    ((RMContextImpl) rmContext).setScheduler(scheduler);
     scheduler.setRMContext(rmContext);
     scheduler.init(conf);
     scheduler.start();
@@ -197,6 +198,7 @@ public class TestFifoScheduler {
 
 
     FifoScheduler scheduler = new FifoScheduler();
+    ((RMContextImpl) rmContext).setScheduler(scheduler);
     scheduler.setRMContext(rmContext);
     scheduler.init(conf);
     scheduler.start();
@@ -276,6 +278,7 @@ public class TestFifoScheduler {
     ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
 
     scheduler.setRMContext(rmContext);
+    ((RMContextImpl) rmContext).setScheduler(scheduler);
     scheduler.init(conf);
     scheduler.start();
     scheduler.reinitialize(new Configuration(), rmContext);

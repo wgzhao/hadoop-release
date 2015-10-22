@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DataInputByteBuffer;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
@@ -149,6 +150,8 @@ public class RMAppImpl implements RMApp, Recoverable {
   private RMAppState targetedFinalState;
   private RMAppState recoveredFinalState;
   private ResourceRequest amReq;
+  
+  private CallerContext callerContext;
 
   Object transitionTodo;
 
@@ -410,6 +413,8 @@ public class RMAppImpl implements RMApp, Recoverable {
     this.writeLock = lock.writeLock();
 
     this.stateMachine = stateMachineFactory.make(this);
+
+    this.callerContext = CallerContext.getCurrent();
 
     rmContext.getRMApplicationHistoryWriter().applicationStarted(this);
     rmContext.getSystemMetricsPublisher().appCreated(this, startTime);
@@ -1022,7 +1027,7 @@ public class RMAppImpl implements RMApp, Recoverable {
     ApplicationState appState =
         new ApplicationState(this.submitTime, this.startTime,
           this.submissionContext, this.user, stateToBeStored, diags,
-          this.storedFinishTime);
+          this.storedFinishTime, this.callerContext);
     this.rmContext.getStateStore().updateApplicationState(appState);
   }
 
@@ -1353,5 +1358,10 @@ public class RMAppImpl implements RMApp, Recoverable {
       tokens.rewind();
     }
     return credentials;
+  }
+  
+  @Override
+  public CallerContext getCallerContext() {
+    return callerContext;
   }
 }

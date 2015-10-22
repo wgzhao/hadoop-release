@@ -35,6 +35,7 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.junit.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -146,6 +147,8 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     when(mockApp.getStartTime()).thenReturn(startTime);
     when(mockApp.getApplicationSubmissionContext()).thenReturn(context);
     when(mockApp.getUser()).thenReturn("test");
+    when(mockApp.getCallerContext())
+        .thenReturn(new CallerContext.Builder("context").build());
     store.storeNewApplication(mockApp);
     return mockApp;
   }
@@ -292,6 +295,8 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     assertArrayEquals(clientTokenKey1.getEncoded(),
         attemptState.getAppAttemptCredentials()
         .getSecretKey(RMStateStore.AM_CLIENT_TOKEN_MASTER_KEY_NAME));
+    assertNotNull(appState.getCallerContext());
+    assertEquals("context", appState.getCallerContext().getContext());
 
     attemptState = appState.getAttempt(attemptId2);
     // attempt2 is loaded correctly
@@ -308,7 +313,7 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     ApplicationState appState2 =
         new ApplicationState(appState.submitTime, appState.startTime,
           appState.context, appState.user, RMAppState.FINISHED,
-          "appDiagnostics", 1234);
+          "appDiagnostics", 1234, null);
     appState2.attempts.putAll(appState.attempts);
     store.updateApplicationState(appState2);
 
@@ -332,7 +337,7 @@ public class RMStateStoreTestBase extends ClientBaseWithFixes{
     ApplicationState dummyApp =
         new ApplicationState(appState.submitTime, appState.startTime,
           dummyContext, appState.user, RMAppState.FINISHED, "appDiagnostics",
-          1234);
+          1234, null);
     store.updateApplicationState(dummyApp);
 
     ApplicationAttemptId dummyAttemptId =

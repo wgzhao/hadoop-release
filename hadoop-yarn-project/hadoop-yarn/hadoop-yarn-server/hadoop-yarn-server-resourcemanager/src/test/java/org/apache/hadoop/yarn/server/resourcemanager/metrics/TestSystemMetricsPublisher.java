@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
@@ -150,6 +151,8 @@ public class TestSystemMetricsPublisher {
         Assert.assertEquals("", entity.getOtherInfo().get(
             ApplicationMetricsConstants.APP_VIEW_ACLS_ENTITY_INFO));
       }
+      Assert.assertEquals("context", entity.getOtherInfo()
+          .get(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT));
       boolean hasCreatedEvent = false;
       boolean hasFinishedEvent = false;
       boolean hasACLsUpdatedEvent = false;
@@ -339,6 +342,8 @@ public class TestSystemMetricsPublisher {
     when(app.getCurrentAppAttempt()).thenReturn(appAttempt);
     when(app.getFinalApplicationStatus()).thenReturn(
         FinalApplicationStatus.UNDEFINED);
+    when(app.getCallerContext())
+        .thenReturn(new CallerContext.Builder("context").build());
     return app;
   }
 

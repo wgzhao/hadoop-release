@@ -100,19 +100,18 @@ public class MemoryRMStateStore extends RMStateStore {
         new ApplicationState(appStateData.getSubmitTime(),
           appStateData.getStartTime(),
           appStateData.getApplicationSubmissionContext(),
-          appStateData.getUser());
+          appStateData.getUser(), appStateData.getCallerContext());
     state.appState.put(appId, appState);
   }
 
   @Override
   public void updateApplicationStateInternal(ApplicationId appId,
       ApplicationStateData appStateData) throws Exception {
-    ApplicationState updatedAppState =
-        new ApplicationState(appStateData.getSubmitTime(),
-          appStateData.getStartTime(),
-          appStateData.getApplicationSubmissionContext(),
-          appStateData.getUser(), appStateData.getState(),
-          appStateData.getDiagnostics(), appStateData.getFinishTime());
+    ApplicationState updatedAppState = new ApplicationState(
+        appStateData.getSubmitTime(), appStateData.getStartTime(),
+        appStateData.getApplicationSubmissionContext(), appStateData.getUser(),
+        appStateData.getState(), appStateData.getDiagnostics(),
+        appStateData.getFinishTime(), appStateData.getCallerContext());
     LOG.info("Updating final state " + appStateData.getState() + " for app: "
         + appId);
     if (state.appState.get(appId) != null) {

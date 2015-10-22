@@ -245,13 +245,12 @@ public class FileSystemRMStateStore extends RMStateStore {
             ApplicationStateDataPBImpl appStateData =
                 new ApplicationStateDataPBImpl(
                   ApplicationStateDataProto.parseFrom(childData));
-            ApplicationState appState =
-                new ApplicationState(appStateData.getSubmitTime(),
-                  appStateData.getStartTime(),
-                  appStateData.getApplicationSubmissionContext(),
-                  appStateData.getUser(),
-                  appStateData.getState(),
-                  appStateData.getDiagnostics(), appStateData.getFinishTime());
+            ApplicationState appState = new ApplicationState(
+                appStateData.getSubmitTime(), appStateData.getStartTime(),
+                appStateData.getApplicationSubmissionContext(),
+                appStateData.getUser(), appStateData.getState(),
+                appStateData.getDiagnostics(), appStateData.getFinishTime(),
+                appStateData.getCallerContext());
             // assert child node name is same as actual applicationId
             assert appId.equals(appState.context.getApplicationId());
             rmState.appState.put(appId, appState);

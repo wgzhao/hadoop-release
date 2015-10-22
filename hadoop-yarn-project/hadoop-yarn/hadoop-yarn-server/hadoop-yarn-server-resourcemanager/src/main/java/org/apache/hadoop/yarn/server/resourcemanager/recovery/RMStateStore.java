@@ -37,6 +37,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.token.delegation.DelegationKey;
 import org.apache.hadoop.service.AbstractService;
@@ -531,15 +532,17 @@ public abstract class RMStateStore extends AbstractService {
     RMAppState state;
     String diagnostics;
     long finishTime;
+    private CallerContext callerContext;
 
-    public ApplicationState(long submitTime,
-        long startTime, ApplicationSubmissionContext context, String user) {
-      this(submitTime, startTime, context, user, null, "", 0);
+    public ApplicationState(long submitTime, long startTime,
+        ApplicationSubmissionContext context, String user,
+        CallerContext callerContext) {
+      this(submitTime, startTime, context, user, null, "", 0, callerContext);
     }
 
-    public ApplicationState(long submitTime,
-        long startTime,ApplicationSubmissionContext context,
-        String user, RMAppState state, String diagnostics, long finishTime) {
+    public ApplicationState(long submitTime, long startTime,
+        ApplicationSubmissionContext context, String user, RMAppState state,
+        String diagnostics, long finishTime, CallerContext callerContext) {
       this.submitTime = submitTime;
       this.startTime = startTime;
       this.context = context;
@@ -547,6 +550,7 @@ public abstract class RMStateStore extends AbstractService {
       this.state = state;
       this.diagnostics = diagnostics == null ? "" : diagnostics;
       this.finishTime = finishTime;
+      this.callerContext = callerContext;
     }
 
     public ApplicationId getAppId() {
@@ -578,6 +582,9 @@ public abstract class RMStateStore extends AbstractService {
     }
     public long getFinishTime() {
       return finishTime;
+    }
+    public CallerContext getCallerContext() {
+      return callerContext;
     }
   }
 
@@ -756,7 +763,7 @@ public abstract class RMStateStore extends AbstractService {
     assert context instanceof ApplicationSubmissionContextPBImpl;
     ApplicationState appState =
         new ApplicationState(app.getSubmitTime(), app.getStartTime(), context,
-          app.getUser());
+          app.getUser(), app.getCallerContext());
     dispatcher.getEventHandler().handle(new RMStateStoreAppEvent(appState));
   }
 
@@ -937,9 +944,9 @@ public abstract class RMStateStore extends AbstractService {
    */
   @SuppressWarnings("unchecked")
   public synchronized void removeApplication(RMApp app) {
-    ApplicationState appState = new ApplicationState(
-            app.getSubmitTime(), app.getStartTime(),
-            app.getApplicationSubmissionContext(), app.getUser());
+    ApplicationState appState = new ApplicationState(app.getSubmitTime(),
+        app.getStartTime(), app.getApplicationSubmissionContext(),
+        app.getUser(), app.getCallerContext());
     for(RMAppAttempt appAttempt : app.getAppAttempts().values()) {
       Credentials credentials = getCredentialsFromAppAttempt(appAttempt);
       ApplicationAttemptState attemptState =

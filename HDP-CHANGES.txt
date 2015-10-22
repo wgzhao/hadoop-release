@@ -53,6 +53,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-9184. Logging HDFS operation's caller context into audit logs (Mingliang Liu via jitendra)
 
+    BUG-44457. YARN should log caller context into its audit logs for app
+    submissions. (Wangda Tan via jianhe)
+
   IMPROVEMENTS
 
     HDFS-7153. Add storagePolicy to NN edit log during file creation.

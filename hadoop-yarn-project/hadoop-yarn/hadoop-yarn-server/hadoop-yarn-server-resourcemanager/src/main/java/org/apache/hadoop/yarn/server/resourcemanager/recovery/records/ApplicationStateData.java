@@ -22,6 +22,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerRecoveryProtos.ApplicationStateDataProto;
@@ -38,8 +39,8 @@ import org.apache.hadoop.yarn.util.Records;
 public abstract class ApplicationStateData {
   public static ApplicationStateData newInstance(long submitTime,
       long startTime, String user,
-      ApplicationSubmissionContext submissionContext,
-      RMAppState state, String diagnostics, long finishTime) {
+      ApplicationSubmissionContext submissionContext, RMAppState state,
+      String diagnostics, long finishTime, CallerContext callerContext) {
     ApplicationStateData appState = Records.newRecord(ApplicationStateData.class);
     appState.setSubmitTime(submitTime);
     appState.setStartTime(startTime);
@@ -48,6 +49,7 @@ public abstract class ApplicationStateData {
     appState.setState(state);
     appState.setDiagnostics(diagnostics);
     appState.setFinishTime(finishTime);
+    appState.setCallerContext(callerContext);
     return appState;
   }
 
@@ -56,7 +58,7 @@ public abstract class ApplicationStateData {
     return newInstance(appState.getSubmitTime(), appState.getStartTime(),
         appState.getUser(), appState.getApplicationSubmissionContext(),
         appState.getState(), appState.getDiagnostics(),
-        appState.getFinishTime());
+        appState.getFinishTime(), appState.getCallerContext());
   }
 
   public abstract ApplicationStateDataProto getProto();
@@ -133,4 +135,8 @@ public abstract class ApplicationStateData {
   public abstract long getFinishTime();
 
   public abstract void setFinishTime(long finishTime);
+  
+  public abstract CallerContext getCallerContext();
+  
+  public abstract void setCallerContext(CallerContext callerContext);
 }

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.api.protocolrecords.FinishApplicationMasterRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -242,4 +243,6 @@ public interface RMApp extends EventHandler<RMAppEvent> {
   ReservationId getReservationId();
   
   ResourceRequest getAMResourceRequest();
+
+  CallerContext getCallerContext();
 }

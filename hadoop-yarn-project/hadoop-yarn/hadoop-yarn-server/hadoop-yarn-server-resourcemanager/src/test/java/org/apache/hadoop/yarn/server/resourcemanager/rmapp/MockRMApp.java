@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.MockApps;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -270,5 +271,10 @@ public class MockRMApp implements RMApp {
   @Override
   public ResourceRequest getAMResourceRequest() {
     return this.amReq; 
+  }
+
+  @Override
+  public CallerContext getCallerContext() {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

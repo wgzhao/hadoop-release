@@ -326,7 +326,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
 
     // Update app
     RMStateStore.ApplicationState
-        appState = new RMStateStore.ApplicationState(123, 123, null, "user");
+        appState = new RMStateStore.ApplicationState(123, 123, null, "user", null);
     store.updateApplicationState(appState);
     assertEquals("RMStateStore should have been in fenced state", true,
         store.isFencedState());
@@ -396,7 +396,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
         new ApplicationSubmissionContextPBImpl();
     context.setApplicationId(appIdRemoved);
     RMStateStore.ApplicationState
-        appStateRemoved = new RMStateStore.ApplicationState(123, 123, context, "user");
+        appStateRemoved = new RMStateStore.ApplicationState(123, 123, context, "user", null);
     appStateRemoved.attempts.put(attemptIdRemoved, null);
     store.removeApplicationStateInternal(appStateRemoved);
     try {

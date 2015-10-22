@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.recovery.records.impl.pb;
 
+import org.apache.hadoop.ipc.CallerContext;
+import org.apache.hadoop.ipc.protobuf.RpcHeaderProtos;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationSubmissionContextPBImpl;
 import org.apache.hadoop.yarn.proto.YarnServerResourceManagerRecoveryProtos.ApplicationStateDataProto;
@@ -208,6 +210,38 @@ public class ApplicationStateDataPBImpl extends ApplicationStateData {
       return this.getProto().equals(this.getClass().cast(other).getProto());
     }
     return false;
+  }
+  
+  @Override
+  public CallerContext getCallerContext() {
+    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+    RpcHeaderProtos.RPCCallerContextProto pbContext = p.getCallerContext();
+    if (pbContext != null) {
+      CallerContext context =
+          new CallerContext(new CallerContext.Builder(pbContext.getContext())
+              .setSignature(pbContext.getSignature()));
+      return context;
+    }
+
+    return null;
+  }
+
+  @Override
+  public void setCallerContext(CallerContext callerContext) {
+    if (callerContext != null) {
+      maybeInitBuilder();
+
+      RpcHeaderProtos.RPCCallerContextProto.Builder b = RpcHeaderProtos.RPCCallerContextProto
+          .newBuilder();
+      if (callerContext.getContext() != null) {
+        b.setContext(callerContext.getContext());
+      }
+      if (callerContext.getSignature() != null) {
+        b.setSignature(callerContext.getSignature());
+      }
+
+      builder.setCallerContext(b);
+    }
   }
 
   @Override
