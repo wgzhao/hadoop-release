@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.http.HttpServer2;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.source.JvmMetrics;
 import org.apache.hadoop.security.AuthenticationFilterInitializer;
@@ -53,8 +52,6 @@ import org.apache.hadoop.yarn.server.timeline.webapp.CrossOriginFilterInitialize
 import org.apache.hadoop.yarn.webapp.WebApp;
 import org.apache.hadoop.yarn.webapp.WebApps;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -215,7 +212,6 @@ public class ApplicationHistoryServer extends CompositeService {
     return new TimelineDataManager(timelineStore, aclsMgr);
   }
 
-  @SuppressWarnings("unchecked")
   private void startWebApp() {
     Configuration conf = getConfig();
     TimelineAuthenticationFilter.setTimelineDelegationTokenSecretManager(
@@ -270,37 +266,12 @@ public class ApplicationHistoryServer extends CompositeService {
                           WebAppUtils.getAHSWebAppURLWithoutScheme(conf));
     LOG.info("Instantiating AHSWebApp at " + bindAddress);
     try {
-      AHSWebApp ahsWebApp = new AHSWebApp(timelineDataManager, ahsClientService);
       webApp =
           WebApps
             .$for("applicationhistory", ApplicationHistoryClientService.class,
                 ahsClientService, "ws")
-            .with(conf).at(bindAddress).build(ahsWebApp);
-      HttpServer2 httpServer = webApp.httpServer();
-      String[] names =
-          conf.getTrimmedStrings(YarnConfiguration.TIMELINE_SERVICE_UI_NAMES);
-      WebAppContext webAppContext = httpServer.getWebAppContext();
-      FilterHolder[] filterHolders =
-          webAppContext.getServletHandler().getFilters();
-      for (String name : names) {
-        String webPath = conf.get(
-            YarnConfiguration.TIMELINE_SERVICE_UI_WEB_PATH_PREFIX + name);
-        String onDiskPath = conf.get(
-            YarnConfiguration.TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX + name);
-        WebAppContext uiWebAppContext = new WebAppContext();
-        uiWebAppContext.setContextPath(webPath);
-        uiWebAppContext.setWar(onDiskPath);
-        final String[] ALL_URLS = { "/*" };
-        for (FilterHolder filterHolder: filterHolders) {
-          if (!"guice".equals(filterHolder.getName())) {
-            HttpServer2.defineFilter(uiWebAppContext, filterHolder.getName(),
-                filterHolder.getClassName(), filterHolder.getInitParameters(),
-                ALL_URLS);
-          }
-        }
-        httpServer.addContext(uiWebAppContext, true);
-      }
-      httpServer.start();
+            .with(conf).at(bindAddress).start(
+                new AHSWebApp(timelineDataManager, ahsClientService));
     } catch (Exception e) {
       String msg = "AHSWebApp failed to start.";
       LOG.error(msg, e);

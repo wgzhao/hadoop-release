@@ -12,7 +12,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-2837. Support TimeLine server to recover delegation token when
     restarting. (Zhijie Shen via jianhe)
 
-    BUG-41349/YARN-2513. Host framework UIs in YARN for use with the ATS.
+    YARN-2513. Host framework UIs in YARN for use with the ATS.
     (Jonathan Eagles via zjshen)
 
     HDFS-3107. Introduce truncate. (Plamen Jeliazkov via shv)
