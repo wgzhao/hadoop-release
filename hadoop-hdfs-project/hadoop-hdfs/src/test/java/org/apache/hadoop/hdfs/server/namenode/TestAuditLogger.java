@@ -18,28 +18,16 @@
 
 package org.apache.hadoop.hdfs.server.namenode;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.hdfs.HdfsConfiguration;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenSecretManager;
-import org.apache.hadoop.hdfs.server.namenode.top.TopAuditLogger;
-import org.apache.hadoop.hdfs.web.resources.GetOpParam;
-import org.apache.hadoop.ipc.CallerContext;
-import org.apache.hadoop.ipc.RemoteException;
-import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authorize.ProxyServers;
-import org.apache.hadoop.security.authorize.ProxyUsers;
-import org.apache.hadoop.test.GenericTestUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.log4j.Level;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_AUDIT_LOGGERS_KEY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.NNTOP_ENABLED_KEY;
+import static org.apache.hadoop.test.GenericTestUtils.assertExceptionContains;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -48,19 +36,26 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_AUDIT_LOGGERS_KEY;
-import static org.apache.hadoop.hdfs.DFSConfigKeys.NNTOP_ENABLED_KEY;
-import static org.junit.Assert.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.hdfs.HdfsConfiguration;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.server.namenode.top.TopAuditLogger;
+import org.apache.hadoop.hdfs.web.resources.GetOpParam;
+import org.apache.hadoop.ipc.RemoteException;
+import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.authorize.ProxyServers;
+import org.apache.hadoop.security.authorize.ProxyUsers;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests for the {@link AuditLogger} custom audit logging interface.
  */
 public class TestAuditLogger {
-  private static final Logger LOG = LoggerFactory.getLogger(
-      TestAuditLogger.class);
-  static {
-    GenericTestUtils.setLogLevel(LOG, Level.ALL);
-  }
 
   private static final short TEST_PERMISSION = (short) 0654;
 
@@ -116,123 +111,6 @@ public class TestAuditLogger {
             "top audit logger is still hooked in after it is disabled",
             auditLogger instanceof TopAuditLogger);
       }
-    } finally {
-      cluster.shutdown();
-    }
-  }
-
-  /**
-   * Verify that the audit logger is aware of the call context
-   */
-  @Test
-  public void testAuditLoggerWithCallContext() throws IOException {
-    Configuration conf = new HdfsConfiguration();
-    conf.set(DFS_NAMENODE_AUDIT_LOGGERS_KEY,
-        DummyHdfsAuditLogger.class.getName());
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).build();
-
-    try {
-      cluster.waitClusterUp();
-      assertTrue(DummyHdfsAuditLogger.initialized);
-      DummyHdfsAuditLogger.resetLogger();
-
-      final FileSystem fs = cluster.getFileSystem();
-      final long time = System.currentTimeMillis();
-      final Path p = new Path("/");
-
-      assertNull(CallerContext.getCurrent());
-
-      // context-only
-      CallerContext context = new CallerContext.Builder("setTimes()").build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      fs.setTimes(p, time, time);
-      assertEquals(context, DummyHdfsAuditLogger.callerContext);
-
-      // context with signature
-      context = new CallerContext.Builder("setTimes()").setSignature("L")
-          .build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      fs.setTimes(p, time, time);
-      assertEquals(context, DummyHdfsAuditLogger.callerContext);
-
-      // caller context is inherited in child thread
-      context = new CallerContext.Builder("setTimes()").setSignature("T")
-          .build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      Thread child = new Thread(new Runnable()
-      {
-        @Override
-        public void run() {
-          try {
-            fs.setTimes(p, time, time);
-          } catch (IOException e) {
-            fail("Unexpected exception found." + e);
-          }
-        }
-      });
-      child.start();
-      try {
-        child.join();
-        assertEquals(context, DummyHdfsAuditLogger.callerContext);
-      } catch (InterruptedException ignored) {
-        // Ignore
-      }
-
-      // caller context is overridden in child thread
-      final CallerContext childContext =
-          new CallerContext.Builder("setPermission()")
-              .setSignature("L")
-              .build();
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      child = new Thread(new Runnable()
-      {
-        @Override
-        public void run() {
-          try {
-            CallerContext.setCurrent(childContext);
-            fs.setPermission(p, new FsPermission((short)777));
-          } catch (IOException e) {
-            fail("Unexpected exception found." + e);
-          }
-        }
-      });
-      child.start();
-      try {
-        child.join();
-        assertEquals(childContext, DummyHdfsAuditLogger.callerContext);
-      } catch (InterruptedException ignored) {
-        // Ignore
-      }
-
-      // reuse the current context's signature
-       context = new CallerContext.Builder("mkdirs()")
-           .setSignature(CallerContext.getCurrent().getSignature()).build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      fs.mkdirs(new Path("/tmp2"));
-      assertEquals(context, DummyHdfsAuditLogger.callerContext);
-
-      // empty signature is abandoned
-      context = new CallerContext.Builder("setTimes()")
-          .setSignature("")
-          .build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      fs.setTimes(p, time, time);
-      assertEquals(context, DummyHdfsAuditLogger.callerContext);
-      assertNull(DummyHdfsAuditLogger.callerContext.getSignature());
-
-      // invalid context is not passed to the rpc
-      context = new CallerContext.Builder(null).build();
-      CallerContext.setCurrent(context);
-      LOG.info("Set current caller context as {}", CallerContext.getCurrent());
-      fs.mkdirs(new Path("/tmp"));
-      assertNull(DummyHdfsAuditLogger.callerContext);
-
-      assertEquals(7, DummyHdfsAuditLogger.logCount);
     } finally {
       cluster.shutdown();
     }
@@ -368,32 +246,6 @@ public class TestAuditLogger {
       }
     }
 
-  }
-
-  public static class DummyHdfsAuditLogger extends HdfsAuditLogger {
-    static boolean initialized;
-    static int logCount;
-    static CallerContext callerContext;
-
-    public static void resetLogger() {
-      logCount = 0;
-      callerContext = null;
-    }
-
-    @Override
-    public void initialize(Configuration conf) {
-      initialized = true;
-    }
-
-    @Override
-    public void logAuditEvent(boolean succeeded, String userName,
-      InetAddress addr, String cmd, String src, String dst,
-      FileStatus stat, CallerContext callerContext, UserGroupInformation ugi,
-      DelegationTokenSecretManager dtSecretManager) {
-      logCount++;
-      LOG.debug("Caller context in the audit event is {}", callerContext);
-      DummyHdfsAuditLogger.callerContext = callerContext;
-    }
   }
 
   public static class BrokenAuditLogger implements AuditLogger {
