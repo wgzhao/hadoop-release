@@ -26,7 +26,9 @@ Release 2.7.2 - UNRELEASED
 
   IMPROVEMENTS
 
-    YARN-4092. Fixed UI redirection to print useful messages when both RMs are
+    YARN-4009. CORS support for ResourceManager REST API. ( Varun Vasudev via jeagles)
+
+    YARRN-4092. Fixed UI redirection to print useful messages when both RMs are
     in standby mode. (Xuan Gong via jianhe)
 
     YARN-3092. Created a common ResourceUsage class to track labeled resource
