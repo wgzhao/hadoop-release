@@ -22,6 +22,7 @@ import static org.apache.hadoop.yarn.util.StringHelper.pajoin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.security.HttpCrossOriginFilterInitializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.http.lib.StaticUserWebFilter;
 import org.apache.hadoop.security.AuthenticationFilterInitializer;
@@ -63,6 +64,13 @@ public class WebServer extends AbstractService {
     String bindAddress = WebAppUtils
         .getWebAppBindURL(conf, YarnConfiguration.NM_BIND_HOST,
             WebAppUtils.getNMWebAppURLWithoutScheme(conf));
+    boolean enableCors = getConfig()
+        .getBoolean(YarnConfiguration.NM_WEBAPP_ENABLE_CORS_FILTER,
+            YarnConfiguration.DEFAULT_NM_WEBAPP_ENABLE_CORS_FILTER);
+    if (enableCors) {
+      getConfig().setBoolean(HttpCrossOriginFilterInitializer.PREFIX
+          + HttpCrossOriginFilterInitializer.ENABLED_SUFFIX, true);
+    }
 
     String authFilterName = AuthenticationFilterInitializer.class.getName();
     String initializers = conf.getTrimmed("hadoop.http.filter.initializers");
