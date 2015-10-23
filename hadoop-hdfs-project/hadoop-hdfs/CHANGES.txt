@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
+    HDFS-9184. Logging HDFS operation's caller context into audit logs.
+    (Mingliang Liu via jitendra)
+
   IMPROVEMENTS
 
     HDFS-8965. Harden edit log reading code against out of memory errors (cmccabe)
