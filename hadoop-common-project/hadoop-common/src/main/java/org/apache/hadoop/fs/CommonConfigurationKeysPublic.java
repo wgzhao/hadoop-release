@@ -187,7 +187,7 @@ public class CommonConfigurationKeysPublic {
 
   public static final String  HADOOP_CALLER_CONTEXT_ENABLED_KEY =
       "hadoop.caller.context.enabled";
-  public static final boolean HADOOP_CALLER_CONTEXT_ENABLED_DEFAULT = false;
+  public static final boolean HADOOP_CALLER_CONTEXT_ENABLED_DEFAULT = true;
   public static final String  HADOOP_CALLER_CONTEXT_MAX_SIZE_KEY =
       "hadoop.caller.context.max.size";
   public static final int     HADOOP_CALLER_CONTEXT_MAX_SIZE_DEFAULT = 128;

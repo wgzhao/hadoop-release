@@ -78,6 +78,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-9184. Logging HDFS operation's caller context into audit logs.
     (Mingliang Liu via jitendra)
 
+    BUG-46647. Enable caller context feature by default. (Mingliang liu)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
