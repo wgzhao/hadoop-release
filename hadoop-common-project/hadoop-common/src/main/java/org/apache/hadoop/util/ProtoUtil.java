@@ -21,6 +21,7 @@ package org.apache.hadoop.util;
 import java.io.DataInput;
 import java.io.IOException;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.protobuf.IpcConnectionContextProtos.IpcConnectionContextProto;
 import org.apache.hadoop.ipc.protobuf.IpcConnectionContextProtos.UserInformationProto;
@@ -174,6 +175,18 @@ public abstract class ProtoUtil {
       result.setTraceInfo(RPCTraceInfoProto.newBuilder()
           .setParentId(s.getSpanId())
           .setTraceId(s.getTraceId()).build());
+    }
+
+    // Add caller context if it is not null
+    CallerContext callerContext = CallerContext.getCurrent();
+    if (callerContext != null && callerContext.isValid()) {
+      RPCCallerContextProto.Builder contextBuilder = RPCCallerContextProto
+          .newBuilder().setContext(callerContext.getContext());
+      if (callerContext.getSignature() != null) {
+        contextBuilder.setSignature(
+            ByteString.copyFrom(callerContext.getSignature()));
+      }
+      result.setCallerContext(contextBuilder);
     }
 
     return result.build();
