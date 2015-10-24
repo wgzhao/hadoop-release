@@ -162,9 +162,9 @@ public class TestRMAuditLogger {
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID, null);
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null).setSignature(null).build());
+        new CallerContext.Builder(null).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT).setSignature(null).build());
+        new CallerContext.Builder(CALLER_CONTEXT).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
         new CallerContext.Builder(null).setSignature(CALLER_SIGNATURE).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
@@ -231,9 +231,9 @@ public class TestRMAuditLogger {
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
     
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null).setSignature(null).build());
+        new CallerContext.Builder(null).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT).setSignature(null).build());
+        new CallerContext.Builder(CALLER_CONTEXT).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
         new CallerContext.Builder(null).setSignature(CALLER_SIGNATURE).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
