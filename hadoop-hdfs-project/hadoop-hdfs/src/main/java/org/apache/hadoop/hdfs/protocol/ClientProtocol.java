@@ -682,10 +682,13 @@ public interface ClientProtocol {
   public int GET_STATS_UNDER_REPLICATED_IDX = 3;
   public int GET_STATS_CORRUPT_BLOCKS_IDX = 4;
   public int GET_STATS_MISSING_BLOCKS_IDX = 5;
-  
+  int GET_STATS_MISSING_REPL_ONE_BLOCKS_IDX = 6;
+  int GET_STATS_BYTES_IN_FUTURE_BLOCKS_IDX = 7;
+  int STATS_ARRAY_LENGTH = 8;
+
   /**
    * Get a set of statistics about the filesystem.
-   * Right now, only seven values are returned.
+   * Right now, only eight values are returned.
    * <ul>
    * <li> [0] contains the total storage capacity of the system, in bytes.</li>
    * <li> [1] contains the total used space of the system, in bytes.</li>
@@ -694,6 +697,7 @@ public interface ClientProtocol {
    * <li> [4] contains number of blocks with a corrupt replica. </li>
    * <li> [5] contains number of blocks without any good replicas left. </li>
    * <li> [6] contains the total used space of the block pool. </li>
+   * <li> [7] contains number of bytes  that are at risk for deletion. </li>
    * </ul>
    * Use public constants like {@link #GET_STATS_CAPACITY_IDX} in place of 
    * actual numbers to index into the array.

@@ -505,8 +505,19 @@ public class DistributedFileSystem extends FileSystem {
     }.resolve(this, absF);
   }
 
-  /** Get all the existing storage policies */
-  public BlockStoragePolicy[] getStoragePolicies() throws IOException {
+  /**
+   * Returns number of bytes within blocks with future generation stamp. These
+   * are bytes that will be potentially deleted if we forceExit from safe mode.
+   *
+   * @return number of bytes.
+   */
+  public long getBytesWithFutureGenerationStamps() throws IOException {
+    statistics.incrementReadOps(1);
+    return dfs.getBytesInFutureBlocks();
+  }
+
+    /** Get all the existing storage policies */
+    public BlockStoragePolicy[] getStoragePolicies() throws IOException {
     statistics.incrementReadOps(1);
     return dfs.getStoragePolicies();
   }

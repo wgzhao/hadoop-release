@@ -28,6 +28,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9184. Logging HDFS operation's caller context into audit logs.
     (Mingliang Liu via jitendra)
 
+    HDFS-4015. Safemode should count and report orphaned blocks.
+    (Contributed by Anu Engineer)
+
   IMPROVEMENTS
 
     HDFS-8549. Abort the balancer if an upgrade is in progress. (wang)

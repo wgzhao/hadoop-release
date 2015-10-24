@@ -61,6 +61,7 @@ import org.apache.hadoop.hdfs.security.token.block.DataEncryptionKey;
 import org.apache.hadoop.hdfs.security.token.block.ExportedBlockKeys;
 import org.apache.hadoop.hdfs.server.blockmanagement.CorruptReplicasMap.Reason;
 import org.apache.hadoop.hdfs.server.blockmanagement.PendingDataNodeMessages.ReportedBlockInfo;
+import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.BlockUCState;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.ReplicaState;
 import org.apache.hadoop.hdfs.server.namenode.FSClusterStats;
@@ -265,6 +266,14 @@ public class BlockManager {
   /** Check whether name system is running before terminating */
   private boolean checkNSRunning = true;
   
+
+  /** Keeps track of how many bytes are in Future Generation blocks. */
+  private AtomicLong numberOfBytesInFutureBlocks;
+
+  /** Reports if Name node was started with Rollback option. */
+  private boolean inRollBack = false;
+
+
   public BlockManager(final Namesystem namesystem, final FSClusterStats stats,
       final Configuration conf) throws IOException {
     this.namesystem = namesystem;
@@ -346,6 +355,10 @@ public class BlockManager {
         DFSConfigKeys.DFS_BLOCK_MISREPLICATION_PROCESSING_LIMIT,
         DFSConfigKeys.DFS_BLOCK_MISREPLICATION_PROCESSING_LIMIT_DEFAULT);
     
+
+    this.numberOfBytesInFutureBlocks = new AtomicLong();
+    this.inRollBack = isInRollBackMode(NameNode.getStartupOption(conf));
+
     LOG.info("defaultReplication         = " + defaultReplication);
     LOG.info("maxReplication             = " + maxReplication);
     LOG.info("minReplication             = " + minReplication);
@@ -2054,11 +2067,21 @@ public class BlockManager {
             QUEUE_REASON_FUTURE_GENSTAMP);
         continue;
       }
-      
-      BlockInfo storedBlock = blocksMap.getStoredBlock(iblk);
-      // If block does not belong to any file, we are done.
-      if (storedBlock == null) continue;
-      
+
+      BlockInfo storedBlock = getStoredBlock(iblk);
+
+      // If block does not belong to any file, we check if it violates
+      // an integrity assumption of Name node
+      if (storedBlock == null) {
+        if (namesystem.isInStartupSafeMode()
+            && !shouldPostponeBlocksFromFuture
+            && !inRollBack
+            && namesystem.isGenStampInFuture(iblk)) {
+          numberOfBytesInFutureBlocks.addAndGet(iblk.getBytesOnDisk());
+        }
+        continue;
+      }
+
       // If block is corrupt, mark it and continue to next block.
       BlockUCState ucState = storedBlock.getBlockUCState();
       BlockToMarkCorrupt c = checkReplicaCorrupt(
@@ -3813,4 +3836,39 @@ public class BlockManager {
     clearQueues();
     blocksMap.clear();
   }
+  /**
+   * Returns the number of bytes that reside in blocks with Generation Stamps
+   * greater than generation stamp known to Namenode.
+   *
+   * @return Bytes in future
+   */
+  public long getBytesInFuture() {
+    return numberOfBytesInFutureBlocks.get();
+  }
+
+  /**
+   * Clears the bytes in future counter.
+   */
+  public void clearBytesInFuture() {
+    numberOfBytesInFutureBlocks.set(0);
+  }
+
+  /**
+   * Returns true if Namenode was started with a RollBack option.
+   *
+   * @param option - StartupOption
+   * @return boolean
+   */
+  private boolean isInRollBackMode(HdfsServerConstants.StartupOption option) {
+    if (option == HdfsServerConstants.StartupOption.ROLLBACK) {
+      return true;
+    }
+    if ((option == HdfsServerConstants.StartupOption.ROLLINGUPGRADE) &&
+        (option.getRollingUpgradeStartupOption() ==
+            HdfsServerConstants.RollingUpgradeStartupOption.ROLLBACK)) {
+      return true;
+    }
+    return false;
+  }
+
 }

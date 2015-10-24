@@ -82,8 +82,9 @@ public class HdfsConstants {
   public static final int BYTES_IN_INTEGER = Integer.SIZE / Byte.SIZE;
 
   // SafeMode actions
-  public static enum SafeModeAction {
-    SAFEMODE_LEAVE, SAFEMODE_ENTER, SAFEMODE_GET;
+
+  public enum SafeModeAction {
+    SAFEMODE_LEAVE, SAFEMODE_ENTER, SAFEMODE_GET, SAFEMODE_FORCE_EXIT
   }
 
   public static enum RollingUpgradeAction {

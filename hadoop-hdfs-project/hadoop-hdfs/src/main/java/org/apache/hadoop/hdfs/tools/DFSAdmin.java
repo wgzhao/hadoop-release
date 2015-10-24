@@ -436,10 +436,21 @@ public class DFSAdmin extends FsShell {
     long capacity = ds.getCapacity();
     long used = ds.getUsed();
     long remaining = ds.getRemaining();
+    long bytesInFuture = dfs.getBytesWithFutureGenerationStamps();
     long presentCapacity = used + remaining;
     boolean mode = dfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_GET);
     if (mode) {
       System.out.println("Safe mode is ON");
+      if (bytesInFuture > 0) {
+        System.out.println("\nWARNING: ");
+        System.out.println("Name node has detected blocks with generation " +
+            "stamps in future.");
+        System.out.println("Forcing exit from safemode will cause " +
+            bytesInFuture + " byte(s) to be deleted.");
+        System.out.println("If you are sure that the NameNode was started with"
+            + " the correct metadata files then you may proceed with " +
+            "'-safemode forceExit'\n");
+      }
     }
     System.out.println("Configured Capacity: " + capacity
                        + " (" + StringUtils.byteDesc(capacity) + ")");
@@ -546,6 +557,8 @@ public class DFSAdmin extends FsShell {
     } else if ("wait".equalsIgnoreCase(argv[idx])) {
       action = HdfsConstants.SafeModeAction.SAFEMODE_GET;
       waitExitSafe = true;
+    } else if ("forceExit".equalsIgnoreCase(argv[idx])){
+      action = HdfsConstants.SafeModeAction.SAFEMODE_FORCE_EXIT;
     } else {
       printUsage("-safemode");
       return;
@@ -900,7 +913,8 @@ public class DFSAdmin extends FsShell {
       "\tOptional flags may be used to filter the list of displayed DNs.\n";
     
 
-    String safemode = "-safemode <enter|leave|get|wait>:  Safe mode maintenance command.\n" + 
+    String safemode = "-safemode <enter|leave|get|wait|forceExit>:  Safe mode " +
+        "maintenance command.\n" +
       "\t\tSafe mode is a Namenode state in which it\n" +
       "\t\t\t1.  does not accept changes to the name space (read-only)\n" +
       "\t\t\t2.  does not replicate or delete blocks.\n" +
@@ -1552,7 +1566,7 @@ public class DFSAdmin extends FsShell {
           + " [-report] [-live] [-dead] [-decommissioning]");
     } else if ("-safemode".equals(cmd)) {
       System.err.println("Usage: hdfs dfsadmin"
-          + " [-safemode enter | leave | get | wait]");
+          + " [-safemode enter | leave | get | wait | forceExit]");
     } else if ("-setStoragePolicy".equals(cmd)) {
       System.err.println("Usage: java DFSAdmin"
           + " [-setStoragePolicy path policyName]");
