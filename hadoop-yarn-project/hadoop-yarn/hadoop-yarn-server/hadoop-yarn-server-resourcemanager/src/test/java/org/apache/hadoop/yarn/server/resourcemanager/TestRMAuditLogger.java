@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -54,8 +53,6 @@ public class TestRMAuditLogger {
   private static final ContainerId CONTAINERID = mock(ContainerId.class);
   private static final String CALLER_CONTEXT = "context";
   private static final String CALLER_SIGNATURE = "signature";
-
-  private static final String SIGNATURE_ENCODING = "UTF-8";
 
   @Before
   public void setUp() throws Exception {
@@ -154,7 +151,7 @@ public class TestRMAuditLogger {
    * Test the AuditLog format for successful events with the various
    * parameters.
    */
-  private void testSuccessLogFormat(boolean checkIP) throws UnsupportedEncodingException {
+  private void testSuccessLogFormat(boolean checkIP) {
     testSuccessLogFormatHelper(checkIP, null, null, null);
     testSuccessLogFormatHelper(checkIP, APPID, null, null);
     testSuccessLogFormatHelper(checkIP, null, null, CONTAINERID);
@@ -165,16 +162,13 @@ public class TestRMAuditLogger {
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID, null);
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null).build());
+        new CallerContext.Builder(null).setSignature(null).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT).build());
+        new CallerContext.Builder(CALLER_CONTEXT).setSignature(null).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null)
-            .setSignature(CALLER_SIGNATURE.getBytes(SIGNATURE_ENCODING))
-            .build());
+        new CallerContext.Builder(null).setSignature(CALLER_SIGNATURE).build());
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT)
-            .setSignature(CALLER_SIGNATURE.getBytes(SIGNATURE_ENCODING))
+        new CallerContext.Builder(CALLER_CONTEXT).setSignature(CALLER_SIGNATURE)
             .build());
     testSuccessLogNulls(checkIP);
   }
@@ -226,7 +220,7 @@ public class TestRMAuditLogger {
    * Test the AuditLog format for failure events with the various
    * parameters.
    */
-  private void testFailureLogFormat(boolean checkIP) throws UnsupportedEncodingException {
+  private void testFailureLogFormat(boolean checkIP) {
     testFailureLogFormatHelper(checkIP, null, null, null);
     testFailureLogFormatHelper(checkIP, APPID, null, null);
     testFailureLogFormatHelper(checkIP, null, null, CONTAINERID);
@@ -237,16 +231,13 @@ public class TestRMAuditLogger {
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
     
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null).build());
+        new CallerContext.Builder(null).setSignature(null).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT).build());
+        new CallerContext.Builder(CALLER_CONTEXT).setSignature(null).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(null)
-            .setSignature(CALLER_SIGNATURE.getBytes(SIGNATURE_ENCODING))
-            .build());
+        new CallerContext.Builder(null).setSignature(CALLER_SIGNATURE).build());
     testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
-        new CallerContext.Builder(CALLER_CONTEXT)
-            .setSignature(CALLER_SIGNATURE.getBytes(SIGNATURE_ENCODING))
+        new CallerContext.Builder(CALLER_CONTEXT).setSignature(CALLER_SIGNATURE)
             .build());
   }
 
@@ -266,7 +257,7 @@ public class TestRMAuditLogger {
    */
   private class MyTestRPCServer extends TestImpl {
     @Override
-    public void ping() throws UnsupportedEncodingException {
+    public void ping() {
       // test with ip set
       testSuccessLogFormat(true);
       testFailureLogFormat(true);

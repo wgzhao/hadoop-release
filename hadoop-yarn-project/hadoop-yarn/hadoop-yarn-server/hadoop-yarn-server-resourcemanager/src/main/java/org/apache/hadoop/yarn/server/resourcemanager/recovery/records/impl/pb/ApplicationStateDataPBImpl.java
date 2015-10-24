@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.recovery.records.impl.pb;
 
-import com.google.protobuf.ByteString;
 import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.ipc.protobuf.RpcHeaderProtos;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
@@ -220,7 +219,7 @@ public class ApplicationStateDataPBImpl extends ApplicationStateData {
     if (pbContext != null) {
       CallerContext context =
           new CallerContext(new CallerContext.Builder(pbContext.getContext())
-              .setSignature(pbContext.getSignature().toByteArray()));
+              .setSignature(pbContext.getSignature()));
       return context;
     }
 
@@ -238,7 +237,7 @@ public class ApplicationStateDataPBImpl extends ApplicationStateData {
         b.setContext(callerContext.getContext());
       }
       if (callerContext.getSignature() != null) {
-        b.setSignature(ByteString.copyFrom(callerContext.getSignature()));
+        b.setSignature(callerContext.getSignature());
       }
 
       builder.setCallerContext(b);
