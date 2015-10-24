@@ -103,7 +103,9 @@ public class RMAuditLogger {
     String signature = null;
     if (callerContext != null) {
       context = callerContext.getContext();
-      signature = callerContext.getSignature();
+      final byte[] signatureBytes = callerContext.getSignature();
+      signature = signatureBytes == null ?
+          null : new String(signatureBytes, CallerContext.SIGNATURE_ENCODING);
     }
     
     if (context != null) {

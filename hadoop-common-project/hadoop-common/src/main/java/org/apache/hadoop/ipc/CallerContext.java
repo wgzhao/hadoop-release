@@ -23,7 +23,6 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -36,7 +35,8 @@ import java.util.Arrays;
     "Pig", "YARN"})
 @InterfaceStability.Evolving
 public class CallerContext {
-  public static final Charset SIGNATURE_ENCODING = StandardCharsets.UTF_8;
+  public static final Charset SIGNATURE_ENCODING = Charset.forName("UTF-8");
+
   /** The caller context.
    *
    * It will be truncated if it exceeds the maximum allowed length in
