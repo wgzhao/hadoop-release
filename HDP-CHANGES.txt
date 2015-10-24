@@ -184,6 +184,9 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-4243. Add retry on establishing Zookeeper conenction in 
     EmbeddedElectorService#serviceInit. (Xuan Gong via junping_du)
 
+    RMP-3532. HDFS-7858. Improve HA Namenode Failover detection on the client.
+    (Arun Suresh)
+
   OPTIMIZATIONS
 
   BUG FIXES
