@@ -9779,8 +9779,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
           }
           if (callerContext.getSignature() != null) {
             sb.append(":");
-            sb.append(new String(callerContext.getSignature(),
-                CallerContext.SIGNATURE_ENCODING));
+            sb.append(callerContext.getSignatureAsString());
           }
         }
         logAuditMessage(sb.toString());

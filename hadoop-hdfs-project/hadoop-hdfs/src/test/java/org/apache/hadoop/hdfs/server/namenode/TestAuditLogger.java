@@ -75,6 +75,7 @@ public class TestAuditLogger {
   }
 
   private static final short TEST_PERMISSION = (short) 0654;
+  private static final String SIGNATURE_ENCODING = "UTF-8";
 
   @Before
   public void setup() {
@@ -245,7 +246,7 @@ public class TestAuditLogger {
 
       // context with signature
       context = new CallerContext.Builder("setTimes")
-          .setSignature("L".getBytes(CallerContext.SIGNATURE_ENCODING))
+          .setSignature("L".getBytes(SIGNATURE_ENCODING))
           .build();
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
@@ -257,7 +258,7 @@ public class TestAuditLogger {
       // long context is truncated
       final String longContext = RandomStringUtils.randomAscii(200);
       context = new CallerContext.Builder(longContext)
-          .setSignature("L".getBytes(CallerContext.SIGNATURE_ENCODING))
+          .setSignature("L".getBytes(SIGNATURE_ENCODING))
           .build();
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
@@ -268,7 +269,7 @@ public class TestAuditLogger {
 
       // caller context is inherited in child thread
       context = new CallerContext.Builder("setTimes")
-          .setSignature("L".getBytes(CallerContext.SIGNATURE_ENCODING))
+          .setSignature("L".getBytes(SIGNATURE_ENCODING))
           .build();
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
@@ -295,7 +296,7 @@ public class TestAuditLogger {
       // caller context is overridden in child thread
       final CallerContext childContext =
           new CallerContext.Builder("setPermission")
-              .setSignature("L".getBytes(CallerContext.SIGNATURE_ENCODING))
+              .setSignature("L".getBytes(SIGNATURE_ENCODING))
               .build();
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       child = new Thread(new Runnable()
@@ -340,6 +341,7 @@ public class TestAuditLogger {
       auditlog.clearOutput();
 
       // null signature is ignored
+	  String nullStr = null;
       context = new CallerContext.Builder("setTimes").setSignature(null)
           .build();
       CallerContext.setCurrent(context);
@@ -350,7 +352,7 @@ public class TestAuditLogger {
 
       // empty signature is ignored
       context = new CallerContext.Builder("mkdirs")
-          .setSignature("".getBytes(CallerContext.SIGNATURE_ENCODING))
+          .setSignature("".getBytes(SIGNATURE_ENCODING))
           .build();
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());

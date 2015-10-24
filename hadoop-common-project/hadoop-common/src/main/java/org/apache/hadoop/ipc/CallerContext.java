@@ -22,8 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -36,7 +35,8 @@ import java.util.Arrays;
     "Pig", "YARN"})
 @InterfaceStability.Evolving
 public class CallerContext {
-  public static final Charset SIGNATURE_ENCODING = StandardCharsets.UTF_8;
+  private static final String SIGNATURE_ENCODING = "UTF-8";
+
   /** The caller context.
    *
    * It will be truncated if it exceeds the maximum allowed length in
@@ -71,6 +71,15 @@ public class CallerContext {
         null : Arrays.copyOf(signature, signature.length);
   }
 
+  public String getSignatureAsString() {
+    try {
+      return signature == null ?
+          null : new String(signature, SIGNATURE_ENCODING);
+    } catch (UnsupportedEncodingException impossible) {
+        throw new RuntimeException(impossible);
+    }
+  }
+
   @Override
   public int hashCode() {
     return new HashCodeBuilder().append(context).toHashCode();
@@ -100,7 +109,7 @@ public class CallerContext {
     String str = context;
     if (signature != null) {
       str += ":";
-      str += new String(signature, SIGNATURE_ENCODING);
+      str += getSignatureAsString();
     }
     return str;
   }

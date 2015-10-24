@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -134,7 +135,7 @@ public class TestRPC {
     }
     
     @Override
-    public void ping() {}
+    public void ping() throws UnsupportedEncodingException {}
 
     @Override
     public synchronized void slowPing(boolean shouldSlow) {
