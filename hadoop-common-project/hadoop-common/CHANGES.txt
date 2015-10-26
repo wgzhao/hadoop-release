@@ -40,6 +40,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12691. Add CSRF Filter for REST APIs to Hadoop Common.
     (Larry McCay via cnauroth)
 
+    HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust.
+    (Steve Loughran via jing9)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen

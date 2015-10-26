@@ -890,3 +890,5 @@ ATS V1.5:
 
     MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
 
+    BUG-70315. HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust.
+    Contributed by Steve Loughran.
