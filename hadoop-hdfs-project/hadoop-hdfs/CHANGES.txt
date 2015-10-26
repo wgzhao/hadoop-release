@@ -153,6 +153,9 @@ Release 2.7.2
     HDFS-9220. Reading small file (< 512 bytes) that is open for
     append fails due to incorrect checksum. (Jing Zhao via Kihwal Lee)
 
+    HDFS-9305. Delayed heartbeat processing causes rapid storm of
+    subsequent heartbeat messages (Arpit Agarwal)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES
