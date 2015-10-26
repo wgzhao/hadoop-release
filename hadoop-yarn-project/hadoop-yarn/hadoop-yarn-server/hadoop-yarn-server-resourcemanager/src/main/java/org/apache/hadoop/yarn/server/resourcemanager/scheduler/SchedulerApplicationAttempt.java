@@ -54,6 +54,10 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerImpl
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerReservedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanContainerEvent;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler;
+import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
+import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 import com.google.common.base.Preconditions;
@@ -543,11 +547,26 @@ public class SchedulerApplicationAttempt {
 
   public synchronized ApplicationResourceUsageReport getResourceUsageReport() {
     AggregateAppResourceUsage resUsage = getRunningAggregateAppResourceUsage();
+    Resource cluster = rmContext.getScheduler().getClusterResource();
+    ResourceScheduler scheduler = rmContext.getScheduler();
+    ResourceCalculator calc = new DefaultResourceCalculator();
+    if(scheduler instanceof CapacityScheduler) {
+      calc = ((CapacityScheduler) scheduler).getResourceCalculator();
+    }
+    else if(scheduler instanceof FairScheduler) {
+      calc = FairScheduler.getResourceCalculator();
+    }
+    float queueUsagePerc = calc.divide(cluster, currentConsumption, Resources
+        .multiply(cluster, queue.getQueueInfo(false, false).getCapacity()))
+        * 100;
+    float clusterUsagePerc =
+        calc.divide(cluster, currentConsumption, cluster) * 100;
     return ApplicationResourceUsageReport.newInstance(liveContainers.size(),
                reservedContainers.size(), Resources.clone(currentConsumption),
                Resources.clone(currentReservation),
                Resources.add(currentConsumption, currentReservation),
-               resUsage.getMemorySeconds(), resUsage.getVcoreSeconds());
+               resUsage.getMemorySeconds(), resUsage.getVcoreSeconds(),
+               queueUsagePerc, clusterUsagePerc);
   }
 
   public synchronized Map<ContainerId, RMContainer> getLiveContainersMap() {
