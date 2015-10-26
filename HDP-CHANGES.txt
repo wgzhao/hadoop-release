@@ -3111,3 +3111,6 @@ ATS V1.5:
 
     BUG-71584. HDFS-9500. Fix software version counts for DataNodes during
     rolling upgrade. Contributed by Erik Krogen.
+
+    BUG-71579. HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas.
+    (Wei-Chiu Chuang via Yongjun Zhang)
