@@ -54,7 +54,9 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.DrainDispatcher;
@@ -319,7 +321,18 @@ public class MockRM extends ResourceManager {
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
         YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS), null);
   }
-  
+
+  public RMApp submitApp(int masterMemory, String name, String user,
+      Map<ApplicationAccessType, String> acls, String queue, String amLabel)
+      throws Exception {
+    Resource resource = Records.newRecord(Resource.class);
+    resource.setMemory(masterMemory);
+    return submitApp(resource, name, user, acls, false, queue,
+      super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
+      YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS), null, null, true, false,
+      false, null, 0, null, true, amLabel);
+  }
+
   public RMApp submitApp(Resource resource, String name, String user,
       Map<ApplicationAccessType, String> acls, String queue) throws Exception {
     return submitApp(resource, name, user, acls, false, queue,
@@ -410,7 +423,21 @@ public class MockRM extends ResourceManager {
       int maxAppAttempts, Credentials ts, String appType,
       boolean waitForAccepted, boolean keepContainers, boolean isAppIdProvided,
       ApplicationId applicationId, long attemptFailuresValidityInterval,
-      LogAggregationContext logAggregationContext, boolean cancelTokensWhenComplete)
+      LogAggregationContext logAggregationContext,
+      boolean cancelTokensWhenComplete) throws Exception {
+    return submitApp(capability, name, user, acls, unmanaged, queue,
+      maxAppAttempts, ts, appType, waitForAccepted, keepContainers,
+      isAppIdProvided, applicationId, attemptFailuresValidityInterval,
+      logAggregationContext, cancelTokensWhenComplete, "");
+  }
+
+  public RMApp submitApp(Resource capability, String name, String user,
+      Map<ApplicationAccessType, String> acls, boolean unmanaged, String queue,
+      int maxAppAttempts, Credentials ts, String appType,
+      boolean waitForAccepted, boolean keepContainers, boolean isAppIdProvided,
+      ApplicationId applicationId, long attemptFailuresValidityInterval,
+      LogAggregationContext logAggregationContext,
+      boolean cancelTokensWhenComplete, String amLabel)
       throws Exception {
     ApplicationId appId = isAppIdProvided ? applicationId : null;
     ApplicationClientProtocol client = getClientRMService();
@@ -450,6 +477,12 @@ public class MockRM extends ResourceManager {
       sub.setLogAggregationContext(logAggregationContext);
     }
     sub.setCancelTokensWhenComplete(cancelTokensWhenComplete);
+    if (amLabel != null && !amLabel.isEmpty()) {
+      ResourceRequest amResourceRequest = ResourceRequest.newInstance(
+          Priority.newInstance(0), ResourceRequest.ANY, capability, 1);
+      amResourceRequest.setNodeLabelExpression(amLabel.trim());
+      sub.setAMContainerResourceRequest(amResourceRequest);
+    }
     req.setApplicationSubmissionContext(sub);
     UserGroupInformation fakeUser =
       UserGroupInformation.createUserForTesting(user, new String[] {"someGroup"});

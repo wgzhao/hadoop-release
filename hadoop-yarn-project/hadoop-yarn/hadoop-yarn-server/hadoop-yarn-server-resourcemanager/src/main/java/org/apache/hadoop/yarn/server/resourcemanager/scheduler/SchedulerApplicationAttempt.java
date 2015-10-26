@@ -17,16 +17,10 @@
 */
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +39,7 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
+import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
@@ -58,14 +53,19 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerRese
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanContainerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.SchedulingMode;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.SchedulableEntity;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.SchedulableEntity;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Represents an application attempt from the viewpoint of the scheduler.
@@ -137,7 +137,9 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
   protected Queue queue;
   protected boolean isStopped = false;
-  
+
+  private String appAMNodePartitionName = CommonNodeLabelsManager.NO_LABEL;
+
   protected final RMContext rmContext;
   private RMAppAttempt appAttempt;
   
@@ -240,8 +242,16 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
     return attemptResourceUsage.getAMUsed();
   }
 
+  public Resource getAMResource(String label) {
+    return attemptResourceUsage.getAMUsed(label);
+  }
+
   public void setAMResource(Resource amResource) {
     attemptResourceUsage.setAMUsed(amResource);
+  }
+
+  public void setAMResource(String label, Resource amResource) {
+    attemptResourceUsage.setAMUsed(label, amResource);
   }
 
   public boolean isAmRunning() {
@@ -755,5 +765,13 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
     // The working knowledge is that masterContainer for AM is null as it
     // itself is the master container.
     return (!unmanagedAM && appAttempt.getMasterContainer() == null);
+  }
+
+  public void setAppAMNodePartitionName(String partitionName) {
+    this.appAMNodePartitionName = partitionName;
+  }
+
+  public String getAppAMNodePartitionName() {
+    return appAMNodePartitionName;
   }
 }

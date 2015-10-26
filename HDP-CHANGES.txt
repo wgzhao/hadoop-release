@@ -1249,3 +1249,5 @@ ATS V1.5:
 
     YARN-3785. Support for Resource as an argument during submitApp call in
     MockRM test class. Contributed by Sunil G
+
+    YARN-3216. Max-AM-Resource-Percentage should respect node labels. (Sunil G via wangda)

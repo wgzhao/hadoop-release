@@ -46,6 +46,7 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
+import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ActiveUsersManager;
@@ -153,7 +154,13 @@ public class TestApplicationLimits {
     doReturn(applicationAttemptId). when(application).getApplicationAttemptId();
     doReturn(user).when(application).getUser();
     doReturn(amResource).when(application).getAMResource();
-    when(application.compareInputOrderTo(any(FiCaSchedulerApp.class))).thenCallRealMethod(); 
+
+    doReturn(CommonNodeLabelsManager.NO_LABEL).when(application)
+        .getAppAMNodePartitionName();
+    doReturn(amResource).when(application).getAMResource(
+        CommonNodeLabelsManager.NO_LABEL);
+    when(application.compareInputOrderTo(any(FiCaSchedulerApp.class)))
+        .thenCallRealMethod();
     return application;
   }
   
