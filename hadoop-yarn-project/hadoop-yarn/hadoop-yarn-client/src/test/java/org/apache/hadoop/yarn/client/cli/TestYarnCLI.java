@@ -1446,4 +1446,26 @@ public class TestYarnCLI {
     String nodesHelpStr = baos.toString("UTF-8");
     return nodesHelpStr;
   }
+
+  @Test
+  public void testAppAttemptReportWhileContainerIsNotAssigned()
+      throws Exception {
+    ApplicationCLI cli = createAndGetAppCLI();
+    ApplicationId applicationId = ApplicationId.newInstance(1234, 5);
+    ApplicationAttemptId attemptId =
+        ApplicationAttemptId.newInstance(applicationId, 1);
+    ApplicationAttemptReport attemptReport =
+        ApplicationAttemptReport.newInstance(attemptId, "host", 124, "url",
+            "oUrl", "diagnostics", YarnApplicationAttemptState.SCHEDULED, null);
+    when(client.getApplicationAttemptReport(any(ApplicationAttemptId.class)))
+        .thenReturn(attemptReport);
+    int result =
+        cli.run(new String[] { "applicationattempt", "-status",
+            attemptId.toString() });
+    assertEquals(0, result);
+    result =
+        cli.run(new String[] { "applicationattempt", "-list",
+            applicationId.toString() });
+    assertEquals(0, result);
+  }
 }
