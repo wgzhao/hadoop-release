@@ -357,7 +357,7 @@ function InstallCore(
     ###  Copy Third party jars and hadoop third party support jars
     ###
 
-    Write-Log "Copying the aws-java-sdk, azure-storage, hadoop-aws and hadoop-azure jar from tools\lib to common\lib"
+    Write-Log "Copying the aws-java-sdk, azure-storage, hadoop-aws and hadoop-azure hadoop-distcp jar from tools\lib to common\lib"
     $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\aws-java-sdk*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
     Invoke-CmdChk $xcopy_cmd
 
@@ -368,6 +368,8 @@ function InstallCore(
     Invoke-CmdChk $xcopy_cmd
 
     $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\hadoop-azure*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
+
+    $xcopy_cmd = "xcopy /EIYF `"$hadoopInstallToDir\share\hadoop\tools\lib\hadoop-distcp*.jar`" `"$hadoopInstallToDir\share\hadoop\common\lib`""
     Invoke-CmdChk $xcopy_cmd
 
     ###
