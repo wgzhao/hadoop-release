@@ -541,3 +541,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     Skip Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit
     via Kihwal Lee)
 
+    BUG-46757. HDFS-9305. Delayed heartbeat processing causes storm of subsequent
+    heartbeats. (Arpit Agarwal)
+
