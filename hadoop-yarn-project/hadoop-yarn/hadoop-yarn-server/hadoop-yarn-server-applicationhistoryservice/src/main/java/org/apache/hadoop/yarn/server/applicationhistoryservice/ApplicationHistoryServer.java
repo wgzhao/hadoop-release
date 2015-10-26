@@ -130,6 +130,12 @@ public class ApplicationHistoryServer extends CompositeService {
     return this.ahsClientService;
   }
 
+  @Private
+  @VisibleForTesting
+  int getPort() {
+    return this.webApp.httpServer().getConnectorAddress(0).getPort();
+  }
+
   /**
    * @return ApplicationTimelineStore
    */
@@ -270,7 +276,6 @@ public class ApplicationHistoryServer extends CompositeService {
     String bindAddress = WebAppUtils.getWebAppBindURL(conf,
                           YarnConfiguration.TIMELINE_SERVICE_BIND_HOST,
                           WebAppUtils.getAHSWebAppURLWithoutScheme(conf));
-    LOG.info("Instantiating AHSWebApp at " + bindAddress);
     try {
       AHSWebApp ahsWebApp = new AHSWebApp(timelineDataManager, ahsClientService);
       webApp =
@@ -283,23 +288,30 @@ public class ApplicationHistoryServer extends CompositeService {
 
        String[] names = conf.getTrimmedStrings(YarnConfiguration.TIMELINE_SERVICE_UI_NAMES);
        WebAppContext webAppContext = httpServer.getWebAppContext();
-       FilterHolder[] filterHolders = webAppContext.getServletHandler().getFilters();
 
        for (String name : names) {
-         String webPath = conf.get(YarnConfiguration.TIMELINE_SERVICE_UI_WEB_PATH_PREFIX + name);
-         String onDiskPath = conf.get(YarnConfiguration.TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX + name);
+         String webPath = conf.get(
+             YarnConfiguration.TIMELINE_SERVICE_UI_WEB_PATH_PREFIX + name);
+         String onDiskPath = conf.get(
+             YarnConfiguration.TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX + name);
          WebAppContext uiWebAppContext = new WebAppContext();
          uiWebAppContext.setContextPath(webPath);
          uiWebAppContext.setWar(onDiskPath);
          final String[] ALL_URLS = { "/*" };
+         FilterHolder[] filterHolders =
+           webAppContext.getServletHandler().getFilters();
          for (FilterHolder filterHolder: filterHolders) {
            if (!"guice".equals(filterHolder.getName())) {
-           HttpServer2.defineFilter(uiWebAppContext, filterHolder.getName(), filterHolder.getClassName(), filterHolder.getInitParameters(), ALL_URLS);
+             HttpServer2.defineFilter(uiWebAppContext, filterHolder.getName(),
+                 filterHolder.getClassName(), filterHolder.getInitParameters(),
+                 ALL_URLS);
            }
          }
+         LOG.info("Hosting " + name + " from " + onDiskPath + " at " + webPath);
          httpServer.addContext(uiWebAppContext, true);
        }
        httpServer.start();
+       LOG.info("Instantiating AHSWebApp at " + getPort());
     } catch (Exception e) {
       String msg = "AHSWebApp failed to start.";
       LOG.error(msg, e);

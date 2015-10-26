@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
+    HDFS-9184. Logging HDFS operation's caller context into audit logs.
+    (Mingliang Liu via jitendra)
+
   IMPROVEMENTS
 
     HDFS-8965. Harden edit log reading code against out of memory errors (cmccabe)
@@ -72,6 +75,12 @@ Release 2.8.0 - UNRELEASED
     (Xiaobing Zhou via Jitendra Nath Pandey)
 
     HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
+
+    HDFS-7858. Improve HA Namenode Failover detection on the client.
+    (Arun Suresh)
+
+    HDFS-9019. Adding informative message to sticky bit permission denied
+    exception. (xyao)
 
   OPTIMIZATIONS
 
@@ -184,6 +193,12 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9063. Correctly handle snapshot path for getContentSummary. (jing9)
 
+<<<<<<< HEAD
+=======
+    HDFS-9273. ACLs on root directory may be lost after NN restart.
+    (Xiao Chen via cnauroth)
+
+>>>>>>> origin/2.3-maint
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

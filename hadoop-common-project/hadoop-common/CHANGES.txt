@@ -28,6 +28,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12413. AccessControlList should avoid calling getGroupNames in
     isUserInList with empty groups. (Zhihai Xu via cnauroth)
 
+    HADOOP-11628. SPNEGO auth does not work with CNAMEs in JDK8.
+    (Daryn Sharp via stevel)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
@@ -82,6 +85,12 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11098. [JDK8] Max Non Heap Memory default changed between JDK7
     and 8. (ozawa)
 
+<<<<<<< HEAD
+=======
+    HADOOP-12484. Single File Rename Throws Incorrectly In Potential Race
+    Condition Scenarios. (Gaurav Kanade via cnauroth)
+
+>>>>>>> origin/2.3-maint
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

@@ -1385,15 +1385,21 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_PREFIX =
       YARN_PREFIX + "timeline-service.";
 
-  /** Comma seperated list of names for UIs hosted in the timeline server (For pluggable UIs)*/
+  /**
+   * Comma seperated list of names for UIs hosted in the timeline server
+   * (For pluggable UIs).
+   */
   public static final String TIMELINE_SERVICE_UI_NAMES =
       TIMELINE_SERVICE_PREFIX + "ui-names";
 
-  /** Relative web path that will serve up this UI (For pluggable UIs)*/
+  /** Relative web path that will serve up this UI (For pluggable UIs). */
   public static final String TIMELINE_SERVICE_UI_WEB_PATH_PREFIX =
       TIMELINE_SERVICE_PREFIX + "ui-web-path.";
 
-  /** Path to war file or static content directory for this UI (For pluggable UIs)*/
+  /**
+   * Path to war file or static content directory for this UI
+   * (For pluggable UIs).
+   */
   public static final String TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX =
       TIMELINE_SERVICE_PREFIX + "ui-on-disk-path.";
 

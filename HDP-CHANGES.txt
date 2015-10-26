@@ -75,6 +75,11 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
+    HDFS-9184. Logging HDFS operation's caller context into audit logs.
+    (Mingliang Liu via jitendra)
+
+    BUG-46647. Enable caller context feature by default. (Mingliang liu)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
@@ -252,6 +257,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     Sharmaks.
 
     BUG-34399 Enable yarn recovery by default in Windows Onprem
+
+    RMP-3532. HDFS-7858. Improve HA Namenode Failover detection on the client.
+    (Arun Suresh)
 
   OPTIMIZATIONS
 
