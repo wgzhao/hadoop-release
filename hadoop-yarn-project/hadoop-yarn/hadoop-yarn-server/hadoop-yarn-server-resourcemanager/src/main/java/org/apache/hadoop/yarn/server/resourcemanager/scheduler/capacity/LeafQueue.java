@@ -372,7 +372,7 @@ public class LeafQueue extends AbstractCSQueue {
   }
 
   @Override
-  public synchronized QueueInfo getQueueInfo(
+  public QueueInfo getQueueInfo(
       boolean includeChildQueues, boolean recursive) {
     QueueInfo queueInfo = getQueueInfo();
     return queueInfo;

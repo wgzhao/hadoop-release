@@ -86,7 +86,9 @@ public class AppInfo {
   protected int runningContainers;
   protected long memorySeconds;
   protected long vcoreSeconds;
-  
+  protected float queueUsagePercentage;
+  protected float clusterUsagePercentage;
+
   // preemption info fields
   protected int preemptedResourceMB;
   protected int preemptedResourceVCores;
@@ -164,6 +166,8 @@ public class AppInfo {
             allocatedMB = usedResources.getMemory();
             allocatedVCores = usedResources.getVirtualCores();
             runningContainers = resourceReport.getNumUsedContainers();
+            queueUsagePercentage = resourceReport.getQueueUsagePercentage();
+            clusterUsagePercentage = resourceReport.getClusterUsagePercentage();
           }
           resourceRequests =
               ((AbstractYarnScheduler) rm.getRMContext().getScheduler())

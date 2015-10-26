@@ -158,6 +158,9 @@ Release 2.8.0 - UNRELEASED
     YARN-2801. Add documentation for node labels feature. (Wangda Tan and Naganarasimha 
     G R  via ozawa)
 
+    YARN-4285. Display resource usage as percentage of queue and cluster in the
+    RM UI (Varun Vasudev via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
