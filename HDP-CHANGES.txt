@@ -758,3 +758,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-46755. HDFS-9106. Transfer failure during pipeline recovery causes
     permanent write failures. (Kihwal Lee)
 
+    BUG-46858. HDFS-8950. NameNode refresh doesn't remove DataNodes that are
+    no longer in the allowed list. (Daniel Templeton via cmccabe).
+
