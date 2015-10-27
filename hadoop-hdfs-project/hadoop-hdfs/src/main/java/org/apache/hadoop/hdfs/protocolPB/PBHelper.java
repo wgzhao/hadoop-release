@@ -1632,6 +1632,8 @@ public class PBHelper {
       return SafeModeActionProto.SAFEMODE_ENTER;
     case SAFEMODE_GET:
       return SafeModeActionProto.SAFEMODE_GET;
+    case SAFEMODE_FORCE_EXIT:
+        return SafeModeActionProto.SAFEMODE_FORCE_EXIT;
     default:
       throw new IllegalArgumentException("Unexpected SafeModeAction :" + a);
     }
@@ -1646,6 +1648,8 @@ public class PBHelper {
       return SafeModeAction.SAFEMODE_ENTER;
     case SAFEMODE_GET:
       return SafeModeAction.SAFEMODE_GET;
+    case SAFEMODE_FORCE_EXIT:
+      return SafeModeAction.SAFEMODE_FORCE_EXIT;
     default:
       throw new IllegalArgumentException("Unexpected SafeModeAction :" + a);
     }
