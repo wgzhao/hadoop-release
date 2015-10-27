@@ -156,6 +156,9 @@ Release 2.7.2
     HDFS-9305. Delayed heartbeat processing causes rapid storm of
     subsequent heartbeat messages (Arpit Agarwal)
 
+    HDFS-9106. Transfer failure during pipeline recovery causes permanent
+    write failures. (Kihwal Lee)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES

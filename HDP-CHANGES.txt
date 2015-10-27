@@ -755,3 +755,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-46682. HDFS-9305. Delayed heartbeat processing causes rapid storm
     of subsequent heartbeat messages (Arpit Agarwal)
 
+    BUG-46755. HDFS-9106. Transfer failure during pipeline recovery causes
+    permanent write failures. (Kihwal Lee)
+
