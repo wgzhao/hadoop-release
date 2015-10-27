@@ -302,6 +302,9 @@ Release 2.7.0
     using more than 1 DataNode and more than 2 storage locations per DataNode.
     (cnauroth)
 
+    HDFS-7097. Allow block reports to be processed during checkpointing on
+    standby name node. (kihwal via wang)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
