@@ -585,3 +585,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
  
     BUG-46797. YARN-4285. Display resource usage as percentage of queue and cluster
     in the RM UI (Varun Vasudev via wangda)
+
+    BUG-46839. HDFS-7725. Incorrect "nodes in service" metrics caused all
+    writes to fail. (Ming Ma via wang)
+

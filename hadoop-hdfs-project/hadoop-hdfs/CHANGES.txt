@@ -263,6 +263,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should check the
     length of storageIDs. (szetszwo via Arpit Agarwal)
 
+    HDFS-7725. Incorrect "nodes in service" metrics caused all writes to
+    fail. (Ming Ma via wang)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
