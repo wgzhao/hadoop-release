@@ -43,6 +43,7 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelinePutError;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.records.Version;
+import org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils;
 import org.apache.hadoop.yarn.server.utils.LeveldbIterator;
 import org.iq80.leveldb.DBException;
 import org.junit.After;
@@ -86,7 +87,7 @@ public class TestLeveldbTimelineStore extends TimelineStoreTestUtils {
     FileStatus file = fs.getFileStatus(
         new Path(fsPath.getAbsolutePath(), LeveldbTimelineStore.FILENAME));
     assertNotNull(file);
-    assertEquals(LeveldbTimelineStore.LEVELDB_DIR_UMASK, file.getPermission());
+    assertEquals(LeveldbUtils.LEVELDB_DIR_UMASK, file.getPermission());
   }
 
   @Test
