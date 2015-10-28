@@ -29,6 +29,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11032. Replace use of Guava's Stopwatch with Hadoop's StopWatch
     (ozawa)
 
+    HADOOP-11685. StorageException complaining " no lease ID" during HBase
+    distributed log splitting (Duo Xu via cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES
