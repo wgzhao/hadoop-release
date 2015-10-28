@@ -31,6 +31,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-11628. SPNEGO auth does not work with CNAMEs in JDK8.
     (Daryn Sharp via stevel)
 
+    HADOOP-11685. StorageException complaining " no lease ID" during HBase
+    distributed log splitting (Duo Xu via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
