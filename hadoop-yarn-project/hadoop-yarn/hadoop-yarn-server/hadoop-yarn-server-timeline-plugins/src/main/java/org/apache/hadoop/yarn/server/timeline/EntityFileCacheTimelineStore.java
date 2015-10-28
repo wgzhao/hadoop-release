@@ -222,11 +222,11 @@ public class EntityFileCacheTimelineStore extends AbstractService
         LOG.info("Error loading plugin " + name, e);
       }
 
-      LOG.debug("Load plugin class {}", cacheIdPlugin.getClass().getName());
       if (cacheIdPlugin == null
           || cacheIdPlugin.getClass().equals(EmptyTimelineCacheIdPlugin.class)) {
         throw new RuntimeException("No class defined for " + name);
       }
+      LOG.debug("Load plugin class {}", cacheIdPlugin.getClass().getName());
       pluginList.add(cacheIdPlugin);
     }
     return pluginList;
@@ -590,7 +590,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
           if (appTimelineStore == null) {
             appTimelineStore = new LevelDBCacheTimelineStore(appId.toString(),
                 "LeveldbCache." + appId);
-            //appTimelineStore = new MemoryTimelineStore("MemoryStore" + appId);
+            //appTimelineStore = new MemoryTimelineStore("MemoryStore." + appId);
             appTimelineStore.init(getConfig());
             appTimelineStore.start();
           }
@@ -889,6 +889,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
         appLogs.parseSummaryLogs();
         if (appLogs.isDone()) {
           appLogs.moveToDone();
+          appLogs.releaseCache();
           appIdLogMap.remove(appLogs.getAppId());
         }
         LOG.debug("End parsing summary logs. ");
@@ -982,12 +983,14 @@ public class EntityFileCacheTimelineStore extends AbstractService
         cacheItem = new CacheItem();
       }
       AppLogs appLogs = cacheItem.getAppLogs();
-      // Once appLogs is not null, this will never return to null.
       AppLogs appLogNoncached
           = this.appIdLogMap.get(cacheId.getApplicationId());
-      if (appLogs == null || !appLogNoncached.equals(appLogs)) {
+      if (appLogs == null || appLogNoncached == null
+          || !appLogNoncached.equals(appLogs)) {
         if (appLogs == null) {
           LOG.debug("cached appLogs empty, reset");
+        } else if (appLogNoncached == null) {
+          LOG.debug("logs in appIdMap disabled, reset");
         } else {
           LOG.debug("cached appLogs out of sync, reset {} {}",
               appLogs.toString(), appLogNoncached.toString());
