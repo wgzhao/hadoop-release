@@ -411,6 +411,9 @@ Release 2.7.2 - 2016-01-25
     HDFS-9043. Doc updation for commands in HDFS Federation
     (J.Andreina via vinayakumab)
 
+    HDFS-9317. Document fsck -blockId and -storagepolicy options in branch-2.7.
+    (aajisaka)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
