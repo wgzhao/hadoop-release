@@ -227,9 +227,6 @@ public class BlockManager {
 
   final float blocksInvalidateWorkPct;
   final int blocksReplWorkMultiplier;
-
-  /** variable to enable check for enough racks */
-  final boolean shouldCheckForEnoughRacks;
   
   // whether or not to issue block encryption keys.
   final boolean encryptDataTransfer;
@@ -334,9 +331,6 @@ public class BlockManager {
         conf.getInt(
             DFSConfigKeys.DFS_NAMENODE_REPLICATION_STREAMS_HARD_LIMIT_KEY,
             DFSConfigKeys.DFS_NAMENODE_REPLICATION_STREAMS_HARD_LIMIT_DEFAULT);
-    this.shouldCheckForEnoughRacks =
-        conf.get(DFSConfigKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY) == null
-            ? false : true;
 
     this.blocksInvalidateWorkPct = DFSUtil.getInvalidateWorkPctPerIteration(conf);
     this.blocksReplWorkMultiplier = DFSUtil.getReplWorkMultiplier(conf);
@@ -363,7 +357,6 @@ public class BlockManager {
     LOG.info("maxReplication             = " + maxReplication);
     LOG.info("minReplication             = " + minReplication);
     LOG.info("maxReplicationStreams      = " + maxReplicationStreams);
-    LOG.info("shouldCheckForEnoughRacks  = " + shouldCheckForEnoughRacks);
     LOG.info("replicationRecheckInterval = " + replicationRecheckInterval);
     LOG.info("encryptDataTransfer        = " + encryptDataTransfer);
     LOG.info("maxNumBlocksToLog          = " + maxNumBlocksToLog);
@@ -3591,9 +3584,6 @@ public class BlockManager {
   }
 
   boolean blockHasEnoughRacks(Block b) {
-    if (!this.shouldCheckForEnoughRacks) {
-      return true;
-    }
     boolean enoughRacks = false;;
     Collection<DatanodeDescriptor> corruptNodes = 
                                   corruptReplicas.getNodes(b);

@@ -237,6 +237,8 @@ Release 2.7.2 - UNRELEASED
     HDFS-9305. Delayed heartbeat processing causes storm of subsequent
     heartbeats. (Arpit Agarwal)
 
+    HDFS-9083. Replication violates block placement policy (Rushabh Shah)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
