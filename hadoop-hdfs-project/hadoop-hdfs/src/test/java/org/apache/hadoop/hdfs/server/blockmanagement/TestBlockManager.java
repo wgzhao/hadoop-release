@@ -52,6 +52,7 @@ import org.apache.hadoop.hdfs.server.datanode.ReplicaBeingWritten;
 import org.apache.hadoop.hdfs.server.datanode.ReplicaInfo;
 import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
 import org.apache.hadoop.hdfs.server.namenode.NameNodeAdapter;
+import org.apache.hadoop.hdfs.server.namenode.FSClusterStats;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.ReceivedDeletedBlockInfo;
@@ -774,5 +775,30 @@ public class TestBlockManager {
     excessTypes.add(StorageType.SSD);
     Assert.assertFalse(BlockManager.useDelHint(true, delHint, null,
         moreThan1Racks, excessTypes));
+  }
+  
+  /**
+   * {@link BlockManager#blockHasEnoughRacks(BlockInfo)} should return false
+   * if all the replicas are on the same rack and shouldn't be dependent on
+   * CommonConfigurationKeysPublic.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY
+   * @throws Exception
+   */
+  @Test
+  public void testAllReplicasOnSameRack() throws Exception {
+    Configuration conf = new HdfsConfiguration();
+    conf.unset(DFSConfigKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY);
+    fsn = Mockito.mock(FSNamesystem.class);
+    Mockito.doReturn(true).when(fsn).hasWriteLock();
+    Mockito.doReturn(true).when(fsn).hasReadLock();
+    FSClusterStats fscstats = Mockito.mock(FSClusterStats.class);
+    bm = new BlockManager(fsn, fscstats, conf);
+    // Add nodes on two racks
+    addNodes(nodes);
+    // Added a new block in blocksMap and all the replicas are on the same rack
+    BlockInfo blockInfo = addBlockOnNodes(1, rackA);
+    // Since the network toppolgy is multi-rack, the blockHasEnoughRacks 
+    // should return false.
+    assertFalse("Replicas for block is not stored on enough racks", 
+        bm.blockHasEnoughRacks(blockInfo));
   }
 }

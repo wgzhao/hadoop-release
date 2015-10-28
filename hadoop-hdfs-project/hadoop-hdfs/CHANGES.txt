@@ -168,6 +168,8 @@ Release 2.7.2
     HDFS-8950. NameNode refresh doesn't remove DataNodes that are no longer
     in the allowed list. (Daniel Templeton via cmccabe).
 
+    HDFS-9083. Replication violates block placement policy (Rushabh Shah)
+
 Release 2.7.1
 
   INCOMPATIBLE CHANGES
