@@ -85,6 +85,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7858. Improve HA Namenode Failover detection on the client.
     (Arun Suresh)
 
+    HDFS-9311. Support optional offload of NameNode HA service health checks to
+    a separate RPC server. (cnauroth)
+
   OPTIMIZATIONS
 
   BUG FIXES
