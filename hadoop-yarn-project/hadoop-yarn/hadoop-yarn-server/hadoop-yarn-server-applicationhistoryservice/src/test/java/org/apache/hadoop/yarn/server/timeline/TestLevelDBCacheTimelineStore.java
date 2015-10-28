@@ -18,40 +18,19 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
-  private static final File TEST_DIR = new File(
-      System.getProperty("test.build.data",
-          System.getProperty("java.io.tmpdir")),
-      TestEntityFileTimelineStore.class.getSimpleName());
-  private FileContext fsContext;
-  private Configuration config = new YarnConfiguration();
+import java.io.IOException;
+
+public class TestLevelDBCacheTimelineStore extends TimelineStoreTestUtils {
 
   @Before
   public void setup() throws Exception {
-    fsContext = FileContext.getLocalFSFileContext();
-    fsContext.delete(new Path(TEST_DIR.getAbsolutePath()), true);
-    config.set(YarnConfiguration.TIMELINE_SERVICE_LEVELDB_PATH,
-        TEST_DIR.getAbsolutePath());
-    config.setBoolean(YarnConfiguration.TIMELINE_SERVICE_TTL_ENABLE, false);
-    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES,
-        "YARN_APPLICATION,YARN_APPLICATION_ATTEMPT,YARN_CONTAINER");
-    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
-        new File(TEST_DIR, "active").getAbsolutePath().toString());
-    config.set(YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_DONE_DIR,
-        new File(TEST_DIR, "done").getAbsolutePath().toString());
-    store = new EntityFileCacheTimelineStore();
-    store.init(config);
+    store = new LevelDBCacheTimelineStore("app1");
+    store.init(new YarnConfiguration());
     store.start();
     loadTestEntityData();
     loadVerificationEntityData();
@@ -61,7 +40,6 @@ public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
   @After
   public void tearDown() throws Exception {
     store.stop();
-    fsContext.delete(new Path(TEST_DIR.getAbsolutePath()), true);
   }
 
   public TimelineStore getTimelineStore() {
@@ -112,4 +90,5 @@ public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
   public void testGetDomains() throws IOException {
     super.testGetDomains();
   }
+
 }

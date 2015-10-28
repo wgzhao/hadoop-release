@@ -18,9 +18,6 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
@@ -29,11 +26,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
+import java.io.File;
+import java.io.IOException;
+
+public class TestEntityFileCacheTimelineStore extends TimelineStoreTestUtils {
   private static final File TEST_DIR = new File(
       System.getProperty("test.build.data",
           System.getProperty("java.io.tmpdir")),
-      TestEntityFileTimelineStore.class.getSimpleName());
+      TestEntityFileCacheTimelineStore.class.getSimpleName());
   private FileContext fsContext;
   private Configuration config = new YarnConfiguration();
 
@@ -62,6 +62,13 @@ public class TestEntityFileTimelineStore extends TimelineStoreTestUtils {
   public void tearDown() throws Exception {
     store.stop();
     fsContext.delete(new Path(TEST_DIR.getAbsolutePath()), true);
+  }
+
+  @Test
+  public void testScanApps() throws Exception {
+    // TODO: add verifications
+    ((EntityFileCacheTimelineStore) store).scanActiveLogs();
+
   }
 
   public TimelineStore getTimelineStore() {

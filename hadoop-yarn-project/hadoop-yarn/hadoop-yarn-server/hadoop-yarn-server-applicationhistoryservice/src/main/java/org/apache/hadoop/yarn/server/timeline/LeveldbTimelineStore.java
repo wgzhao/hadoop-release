@@ -28,7 +28,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.service.AbstractService;
@@ -40,6 +39,7 @@ import org.apache.hadoop.yarn.proto.YarnServerCommonProtos.VersionProto;
 import org.apache.hadoop.yarn.server.records.Version;
 import org.apache.hadoop.yarn.server.records.impl.pb.VersionPBImpl;
 import org.apache.hadoop.yarn.server.timeline.TimelineDataManager.CheckAcl;
+import org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils;
 import org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils.KeyBuilder;
 import org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils.KeyParser;
 import org.fusesource.leveldbjni.JniDBFactory;
@@ -154,11 +154,6 @@ public class LeveldbTimelineStore extends AbstractService
   private static final Version CURRENT_VERSION_INFO = Version
       .newInstance(1, 0);
 
-  @Private
-  @VisibleForTesting
-  static final FsPermission LEVELDB_DIR_UMASK = FsPermission
-      .createImmutable((short) 0700);
-
   private Map<EntityIdentifier, StartAndInsertTime> startTimeWriteCache;
   private Map<EntityIdentifier, Long> startTimeReadCache;
 
@@ -224,7 +219,7 @@ public class LeveldbTimelineStore extends AbstractService
           throw new IOException("Couldn't create directory for leveldb " +
               "timeline store " + dbPath);
         }
-        localFS.setPermission(dbPath, LEVELDB_DIR_UMASK);
+        localFS.setPermission(dbPath, LeveldbUtils.LEVELDB_DIR_UMASK);
       }
     } finally {
       IOUtils.cleanup(LOG, localFS);

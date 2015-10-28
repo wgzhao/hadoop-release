@@ -29,7 +29,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -45,6 +50,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.AuthenticationException;
@@ -55,6 +64,8 @@ import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthentica
 import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
 import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.apache.hadoop.security.token.delegation.web.PseudoDelegationTokenAuthenticator;
+import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.CacheId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomains;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
@@ -66,7 +77,13 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
 import org.apache.hadoop.yarn.webapp.YarnJacksonJaxbJsonProvider;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.codehaus.jackson.util.MinimalPrettyPrinter;
+import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -97,10 +114,13 @@ public class TimelineClientImpl extends TimelineClient {
 
   static {
     opts = new Options();
-    opts.addOption("put", true, "Put the timeline entities/domain in a JSON file");
+    opts.addOption("put", true,
+        "Put the timeline entities/domain in a JSON file");
     opts.getOption("put").setArgName("Path to the JSON file");
-    opts.addOption(ENTITY_DATA_TYPE, false, "Specify the JSON file contains the entities");
-    opts.addOption(DOMAIN_DATA_TYPE, false, "Specify the JSON file contains the domain");
+    opts.addOption(ENTITY_DATA_TYPE, false,
+        "Specify the JSON file contains the entities");
+    opts.addOption(DOMAIN_DATA_TYPE, false,
+        "Specify the JSON file contains the domain");
     opts.addOption("help", false, "Print usage");
   }
 
@@ -111,6 +131,21 @@ public class TimelineClientImpl extends TimelineClient {
   private URI resURI;
   private UserGroupInformation authUgi;
   private String doAsUser;
+  private boolean timelineServerPluginEnabled;
+  private Path activePath = null;
+  private FileSystem fs = null;
+  private Set<String> summaryEntityTypes;
+  private ObjectMapper objMapper = null;
+  private JsonFactory jsonFactory = null;
+
+  // App log directory must be readable by group so server can access logs
+  // and writable by group so it can be deleted by server
+  private static final short APP_LOG_DIR_PERMISSIONS = 0770;
+  // Logs must be readable by group so server can access them
+  private static final short FILE_LOG_PERMISSIONS = 0640;
+  private static final String DOMAIN_LOG_PREFIX = "domainlog-";
+  private static final String SUMMARY_LOG_PREFIX = "summarylog-";
+  private static final String ENTITY_LOG_PREFIX = "entitylog-";
 
   @Private
   @VisibleForTesting
@@ -120,6 +155,7 @@ public class TimelineClientImpl extends TimelineClient {
   private static abstract class TimelineClientRetryOp {
     // The operation that should be retried
     public abstract Object run() throws IOException;
+
     // The method to indicate if we should retry given the incoming exception
     public abstract boolean shouldRetryOn(Exception e);
   }
@@ -148,23 +184,25 @@ public class TimelineClientImpl extends TimelineClient {
     // Constructor with default retry settings
     public TimelineClientConnectionRetry(Configuration conf) {
       Preconditions.checkArgument(conf.getInt(
-          YarnConfiguration.TIMELINE_SERVICE_CLIENT_MAX_RETRIES,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_MAX_RETRIES) >= -1,
+              YarnConfiguration.TIMELINE_SERVICE_CLIENT_MAX_RETRIES,
+              YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_MAX_RETRIES)
+              >= -1,
           "%s property value should be greater than or equal to -1",
           YarnConfiguration.TIMELINE_SERVICE_CLIENT_MAX_RETRIES);
       Preconditions
           .checkArgument(
               conf.getLong(
                   YarnConfiguration.TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS,
-                  YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS) > 0,
+                  YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS)
+                  > 0,
               "%s property value should be greater than zero",
               YarnConfiguration.TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS);
       maxRetries = conf.getInt(
-        YarnConfiguration.TIMELINE_SERVICE_CLIENT_MAX_RETRIES,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_MAX_RETRIES);
+          YarnConfiguration.TIMELINE_SERVICE_CLIENT_MAX_RETRIES,
+          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_MAX_RETRIES);
       retryInterval = conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS);
+          YarnConfiguration.TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS,
+          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_RETRY_INTERVAL_MS);
     }
 
     public Object retryOn(TimelineClientRetryOp op)
@@ -177,7 +215,7 @@ public class TimelineClientImpl extends TimelineClient {
         try {
           // try perform the op, if fail, keep retrying
           return op.run();
-        }  catch (IOException e) {
+        } catch (IOException e) {
           // We may only throw runtime and IO exceptions. After switching to
           // Java 1.7, we can merge these two catch blocks into one.
 
@@ -215,13 +253,15 @@ public class TimelineClientImpl extends TimelineClient {
       throw new RuntimeException("Failed to connect to timeline server. "
           + "Connection retries limit exceeded. "
           + "The posted timeline event may be missing");
-    };
+    }
+
+    ;
 
     private void logException(Exception e, int leftRetries) {
       if (leftRetries > 0) {
         LOG.info("Exception caught by TimelineClientConnectionRetry,"
-              + " will try " + leftRetries + " more time(s).\nMessage: "
-              + e.getMessage());
+            + " will try " + leftRetries + " more time(s).\nMessage: "
+            + e.getMessage());
       } else {
         // note that maxRetries may be -1 at the very beginning
         LOG.info("ConnectionException caught by TimelineClientConnectionRetry,"
@@ -254,7 +294,7 @@ public class TimelineClientImpl extends TimelineClient {
         return (ClientResponse) connectionRetry.retryOn(jerseyRetryOp);
       } catch (IOException e) {
         throw new ClientHandlerException("Jersey retry failed!\nMessage: "
-              + e.getMessage());
+            + e.getMessage());
       }
     }
   }
@@ -293,16 +333,40 @@ public class TimelineClientImpl extends TimelineClient {
     if (YarnConfiguration.useHttps(conf)) {
       resURI = URI
           .create(JOINER.join("https://", conf.get(
-              YarnConfiguration.TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
-              YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS),
+                  YarnConfiguration.TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
+                  YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS),
               RESOURCE_URI_STR));
     } else {
       resURI = URI.create(JOINER.join("http://", conf.get(
-          YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_ADDRESS),
+              YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
+              YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_ADDRESS),
           RESOURCE_URI_STR));
     }
     LOG.info("Timeline service address: " + resURI);
+
+    timelineServerPluginEnabled =
+        conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_PLUGIN_ENABLED,
+            YarnConfiguration.DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED);
+    if (timelineServerPluginEnabled) {
+      activePath =
+          new Path(conf.get(
+              YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
+              YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT));
+      fs = activePath.getFileSystem(conf);
+      if (!fs.exists(activePath)) {
+        throw new IOException(activePath + " does not exist");
+      }
+      Collection<String> filterStrings = conf.getStringCollection(
+          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES);
+      if (filterStrings.isEmpty()) {
+        throw new IllegalArgumentException(
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES
+                + " is not set");
+      }
+      summaryEntityTypes = new HashSet<String>(filterStrings);
+      objMapper = createObjectMapper();
+      jsonFactory = new JsonFactory();
+    }
     super.serviceInit(conf);
   }
 
@@ -314,7 +378,6 @@ public class TimelineClientImpl extends TimelineClient {
     ClientResponse resp = doPosting(entitiesContainer, null);
     return resp.getEntity(TimelinePutResponse.class);
   }
-
 
   @Override
   public void putDomain(TimelineDomain domain) throws IOException,
@@ -333,7 +396,7 @@ public class TimelineClientImpl extends TimelineClient {
         }
       });
     } catch (UndeclaredThrowableException e) {
-        throw new IOException(e.getCause());
+      throw new IOException(e.getCause());
     } catch (InterruptedException ie) {
       throw new IOException(ie);
     }
@@ -356,7 +419,8 @@ public class TimelineClientImpl extends TimelineClient {
   @Override
   public Token<TimelineDelegationTokenIdentifier> getDelegationToken(
       final String renewer) throws IOException, YarnException {
-    PrivilegedExceptionAction<Token<TimelineDelegationTokenIdentifier>> getDTAction =
+    PrivilegedExceptionAction<Token<TimelineDelegationTokenIdentifier>>
+        getDTAction =
         new PrivilegedExceptionAction<Token<TimelineDelegationTokenIdentifier>>() {
 
           @Override
@@ -369,14 +433,15 @@ public class TimelineClientImpl extends TimelineClient {
                 resURI.toURL(), token, renewer, doAsUser);
           }
         };
-    return (Token<TimelineDelegationTokenIdentifier>) operateDelegationToken(getDTAction);
+    return (Token<TimelineDelegationTokenIdentifier>) operateDelegationToken(
+        getDTAction);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public long renewDelegationToken(
       final Token<TimelineDelegationTokenIdentifier> timelineDT)
-          throws IOException, YarnException {
+      throws IOException, YarnException {
     final boolean isTokenServiceAddrEmpty =
         timelineDT.getService().toString().isEmpty();
     final String scheme = isTokenServiceAddrEmpty ? null
@@ -414,7 +479,7 @@ public class TimelineClientImpl extends TimelineClient {
   @Override
   public void cancelDelegationToken(
       final Token<TimelineDelegationTokenIdentifier> timelineDT)
-          throws IOException, YarnException {
+      throws IOException, YarnException {
     final boolean isTokenServiceAddrEmpty =
         timelineDT.getService().toString().isEmpty();
     final String scheme = isTokenServiceAddrEmpty ? null
@@ -498,12 +563,13 @@ public class TimelineClientImpl extends TimelineClient {
       implements HttpURLConnectionFactory {
 
     @Override
-    public HttpURLConnection getHttpURLConnection(final URL url) throws IOException {
+    public HttpURLConnection getHttpURLConnection(final URL url)
+        throws IOException {
       authUgi.checkTGTAndReloginFromKeytab();
       try {
         return new DelegationTokenAuthenticatedURL(
             authenticator, connConfigurator).openConnection(url, token,
-              doAsUser);
+            doAsUser);
       } catch (UndeclaredThrowableException e) {
         throw new IOException(e.getCause());
       } catch (AuthenticationException ae) {
@@ -513,7 +579,8 @@ public class TimelineClientImpl extends TimelineClient {
 
   }
 
-  private static ConnectionConfigurator newConnConfigurator(Configuration conf) {
+  private static ConnectionConfigurator newConnConfigurator(
+      Configuration conf) {
     try {
       return newSslConnConfigurator(DEFAULT_SOCKET_TIMEOUT, conf);
     } catch (Exception e) {
@@ -523,17 +590,19 @@ public class TimelineClientImpl extends TimelineClient {
     }
   }
 
-  private static final ConnectionConfigurator DEFAULT_TIMEOUT_CONN_CONFIGURATOR =
+  private static final ConnectionConfigurator
+      DEFAULT_TIMEOUT_CONN_CONFIGURATOR =
       new ConnectionConfigurator() {
-    @Override
-    public HttpURLConnection configure(HttpURLConnection conn)
-        throws IOException {
-      setTimeouts(conn, DEFAULT_SOCKET_TIMEOUT);
-      return conn;
-    }
-  };
+        @Override
+        public HttpURLConnection configure(HttpURLConnection conn)
+            throws IOException {
+          setTimeouts(conn, DEFAULT_SOCKET_TIMEOUT);
+          return conn;
+        }
+      };
 
-  private static ConnectionConfigurator newSslConnConfigurator(final int timeout,
+  private static ConnectionConfigurator newSslConnConfigurator(
+      final int timeout,
       Configuration conf) throws IOException, GeneralSecurityException {
     final SSLFactory factory;
     final SSLSocketFactory sf;
@@ -583,11 +652,9 @@ public class TimelineClientImpl extends TimelineClient {
 
   /**
    * Put timeline data in a JSON file via command line.
-   * 
-   * @param path
-   *          path to the timeline data JSON file
-   * @param type
-   *          the type of the timeline data in the JSON file
+   *
+   * @param path path to the timeline data JSON file
+   * @param type the type of the timeline data in the JSON file
    */
   private static void putTimelineDataInJSONFile(String path, String type) {
     File jsonFile = new File(path);
@@ -602,7 +669,7 @@ public class TimelineClientImpl extends TimelineClient {
     try {
       if (type.equals(ENTITY_DATA_TYPE)) {
         entities = mapper.readValue(jsonFile, TimelineEntities.class);
-      } else if (type.equals(DOMAIN_DATA_TYPE)){
+      } else if (type.equals(DOMAIN_DATA_TYPE)) {
         domains = mapper.readValue(jsonFile, TimelineDomains.class);
       }
     } catch (Exception e) {
@@ -616,7 +683,8 @@ public class TimelineClientImpl extends TimelineClient {
     client.start();
     try {
       if (UserGroupInformation.isSecurityEnabled()
-          && conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false)) {
+          && conf
+          .getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false)) {
         Token<TimelineDelegationTokenIdentifier> token =
             client.getDelegationToken(
                 UserGroupInformation.getCurrentUser().getUserName());
@@ -629,9 +697,11 @@ public class TimelineClientImpl extends TimelineClient {
         if (response.getErrors().size() == 0) {
           LOG.info("Timeline entities are successfully put");
         } else {
-          for (TimelinePutResponse.TimelinePutError error : response.getErrors()) {
+          for (TimelinePutResponse.TimelinePutError error : response
+              .getErrors()) {
             LOG.error("TimelineEntity [" + error.getEntityType() + ":" +
-                error.getEntityId() + "] is not successfully put. Error code: " +
+                error.getEntityId() + "] is not successfully put. Error code: "
+                +
                 error.getErrorCode());
           }
         }
@@ -649,7 +719,7 @@ public class TimelineClientImpl extends TimelineClient {
           LOG.info("Timeline domains are successfully put");
         }
       }
-    } catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       LOG.error("Error when putting the timeline data", e);
     } catch (Exception e) {
       LOG.error("Error when putting the timeline data", e);
@@ -665,4 +735,135 @@ public class TimelineClientImpl extends TimelineClient {
     new HelpFormatter().printHelp("TimelineClient", opts);
   }
 
+  @Override
+  public TimelinePutResponse putEntities(CacheId cacheId,
+      ApplicationAttemptId appAttemptId, TimelineEntity... entities)
+      throws IOException, YarnException {
+    if (!timelineServerPluginEnabled || appAttemptId == null) {
+      return putEntities(entities);
+    }
+    List<TimelineEntity> entitiesToDB = new ArrayList<TimelineEntity>();
+    List<TimelineEntity> entitiesToSummary = new ArrayList<TimelineEntity>();
+    List<TimelineEntity> entitiesToEntity = new ArrayList<TimelineEntity>();
+    Path attemptDir = createAttemptDir(appAttemptId);
+    for (TimelineEntity entity : entities) {
+      if (summaryEntityTypes.contains(entity.getEntityType())) {
+        entitiesToSummary.add(entity);
+      } else {
+        if (cacheId != null) {
+          entitiesToEntity.add(entity);
+        } else {
+          entitiesToDB.add(entity);
+        }
+      }
+    }
+    if (!entitiesToSummary.isEmpty()) {
+      Path summaryLogPath =
+          new Path(attemptDir, SUMMARY_LOG_PREFIX + appAttemptId.toString());
+      LOG.info("Writing summary log for " + appAttemptId.toString() + " to "
+          + summaryLogPath);
+      writeEntities(entitiesToSummary, summaryLogPath);
+    }
+    if (!entitiesToEntity.isEmpty()) {
+      Path entityLogPath =
+          new Path(attemptDir, ENTITY_LOG_PREFIX + cacheId.toString());
+      LOG.info("Writing entity log for " + cacheId.toString() + " to "
+          + entityLogPath);
+      writeEntities(entitiesToEntity, entityLogPath);
+    }
+    if (!entitiesToDB.isEmpty()) {
+      putEntities(entitiesToDB.toArray(
+          new TimelineEntity[entitiesToDB.size()]));
+    }
+    return new TimelinePutResponse();
+  }
+
+  private void writeEntities(List<TimelineEntity> entities, Path logPath)
+      throws IOException {
+    FSDataOutputStream out = null;
+    try {
+      out = createLogFile(logPath);
+      JsonGenerator jsonGenerator = jsonFactory.createJsonGenerator(out);
+      jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      for (TimelineEntity entity : entities) {
+        objMapper.writeValue(jsonGenerator, entity);
+      }
+      jsonGenerator.close();
+      out.close();
+      out = null;
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+  }
+
+  @Override
+  public void putDomain(ApplicationAttemptId appAttemptId,
+      TimelineDomain domain) throws IOException, YarnException {
+    if (!timelineServerPluginEnabled || appAttemptId == null) {
+      putDomain(domain);
+    } else {
+      writeDomain(appAttemptId, domain);
+    }
+  }
+
+  private ObjectMapper createObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
+    mapper.setSerializationInclusion(Inclusion.NON_NULL);
+    mapper.configure(Feature.CLOSE_CLOSEABLE, false);
+    return mapper;
+  }
+
+  private Path createAttemptDir(ApplicationAttemptId appAttemptId)
+      throws IOException {
+    Path appDir =
+        new Path(activePath, appAttemptId.getApplicationId().toString());
+    if (!fs.exists(appDir)) {
+      FileSystem.mkdirs(fs, appDir, new FsPermission(APP_LOG_DIR_PERMISSIONS));
+    }
+
+    Path attemptDir = new Path(appDir, appAttemptId.toString());
+    if (!fs.exists(attemptDir)) {
+      FileSystem.mkdirs(fs, attemptDir, new FsPermission(
+          APP_LOG_DIR_PERMISSIONS));
+    }
+    return attemptDir;
+  }
+
+  private void writeDomain(ApplicationAttemptId appAttemptId,
+      TimelineDomain domain) throws IOException {
+    Path domainLogPath =
+        new Path(createAttemptDir(appAttemptId), DOMAIN_LOG_PREFIX
+            + appAttemptId.toString());
+    LOG.info("Writing domains for " + appAttemptId.toString() + " to "
+        + domainLogPath);
+    FSDataOutputStream out = null;
+    try {
+      out = createLogFile(domainLogPath);
+      JsonGenerator jsonGenerator = jsonFactory.createJsonGenerator(out);
+      jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      objMapper.writeValue(jsonGenerator, domain);
+      jsonGenerator.close();
+      out.close();
+      out = null;
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
+  }
+
+  private FSDataOutputStream createLogFile(Path logPath)
+      throws IOException {
+    FSDataOutputStream stream;
+    if (!fs.exists(logPath)) {
+      stream = fs.create(logPath, false);
+      fs.setPermission(logPath, new FsPermission(FILE_LOG_PERMISSIONS));
+    } else {
+      stream = fs.append(logPath);
+    }
+    return stream;
+  }
 }
