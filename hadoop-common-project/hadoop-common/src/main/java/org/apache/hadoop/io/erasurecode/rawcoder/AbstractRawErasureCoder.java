@@ -35,10 +35,12 @@ public abstract class AbstractRawErasureCoder
   private static byte[] emptyChunk = new byte[4096];
   private final int numDataUnits;
   private final int numParityUnits;
+  private final int numAllUnits;
 
   public AbstractRawErasureCoder(int numDataUnits, int numParityUnits) {
     this.numDataUnits = numDataUnits;
     this.numParityUnits = numParityUnits;
+    this.numAllUnits = numDataUnits + numParityUnits;
   }
 
   /**
@@ -66,6 +68,10 @@ public abstract class AbstractRawErasureCoder
   @Override
   public int getNumParityUnits() {
     return numParityUnits;
+  }
+
+  protected int getNumAllUnits() {
+    return numAllUnits;
   }
 
   @Override
