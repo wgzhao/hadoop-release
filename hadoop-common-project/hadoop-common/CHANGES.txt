@@ -62,6 +62,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12555. WASB to read credentials from a credential provider.
     (Larry McCay via cnauroth)
 
+    HADOOP-12520. Use XInclude in hadoop-azure test configuration to isolate
+    Azure Storage account keys for service integration tests. (cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
