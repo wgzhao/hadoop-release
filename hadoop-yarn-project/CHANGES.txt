@@ -246,6 +246,9 @@ Release 2.8.0 - UNRELEASED
     YARN-3885. ProportionalCapacityPreemptionPolicy doesn't preempt if queue is 
     more than 2 level. (Ajith S via wangda)
 
+    YARN-4288. Fixed RMProxy to retry on IOException from local host.
+    (Junping Du via jianhe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
