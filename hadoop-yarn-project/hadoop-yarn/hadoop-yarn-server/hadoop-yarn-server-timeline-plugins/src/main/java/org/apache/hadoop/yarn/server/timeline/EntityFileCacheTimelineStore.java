@@ -130,8 +130,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
   @SuppressWarnings("serial")
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
-    yarnClient = YarnClient.createYarnClient();
-    yarnClient.init(conf);
     summaryStore = createSummaryStore();
     summaryStore.init(conf);
     long logRetainSecs = conf.getLong(
@@ -177,6 +175,9 @@ public class EntityFileCacheTimelineStore extends AbstractService
               }
         });
     cacheIdPlugins = loadPlugIns(conf);
+    // Initialize yarn client for application status
+    yarnClient = YarnClient.createYarnClient();
+    yarnClient.init(conf);
     super.serviceInit(conf);
   }
 
