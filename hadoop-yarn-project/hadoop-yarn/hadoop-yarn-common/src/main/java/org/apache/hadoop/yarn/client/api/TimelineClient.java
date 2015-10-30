@@ -27,6 +27,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.CacheId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
@@ -125,12 +126,12 @@ public abstract class TimelineClient extends AbstractService {
    *
    * @param domain
    *          an {@link TimelineDomain} object
-   * @param appAttemptId {@link ApplicationAttemptId}
+   * @param appId {@link ApplicationId}
    * @throws IOException
    * @throws YarnException
    */
   @Public
-  public abstract void putDomain(ApplicationAttemptId appAttemptId,
+  public abstract void putDomain(ApplicationId appId,
       TimelineDomain domain) throws IOException, YarnException;
 
   /**

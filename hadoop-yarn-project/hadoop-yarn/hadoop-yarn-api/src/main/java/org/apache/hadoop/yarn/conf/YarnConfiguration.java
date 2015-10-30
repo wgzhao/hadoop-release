@@ -1454,6 +1454,24 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES =
       TIMELINE_SERVICE_PREFIX + "entity-file-store.summary-entity-types";
 
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS =
+      TIMELINE_SERVICE_PREFIX + "entity-file-fd.flush-interval-secs";
+  public static final long
+      TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS_DEFAULT = 10;
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS =
+      TIMELINE_SERVICE_PREFIX + "entity-file-fd.clean-interval-secs";
+  public static final long
+      TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS_DEFAULT = 60;
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS =
+      TIMELINE_SERVICE_PREFIX + "entity-file-fd.retain-secs";
+  public static final long
+      TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS_DEFAULT = 5 * 60;
+
   // mark app-history related configs @Private as application history is going
   // to be integrated into the timeline service
   @Private
