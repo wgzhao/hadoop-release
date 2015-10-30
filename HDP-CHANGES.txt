@@ -761,3 +761,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-46858. HDFS-8950. NameNode refresh doesn't remove DataNodes that are
     no longer in the allowed list. (Daniel Templeton via cmccabe).
 
+    BUG-43821/YARN-4313. Race condition in MiniMRYarnCluster when getting
+    history server address. (Jian He via Xuan Gong)
+

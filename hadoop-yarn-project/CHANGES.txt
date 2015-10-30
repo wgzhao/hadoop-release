@@ -53,6 +53,9 @@ Release 2.7.2 - UNRELEASED
     YARN-4105. Capacity Scheduler headroom for DRF is wrong (Chang Li via
     jlowe)
 
+    YARN-4313. Race condition in MiniMRYarnCluster when getting history server
+    address. (Jian He via Xuan Gong)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
