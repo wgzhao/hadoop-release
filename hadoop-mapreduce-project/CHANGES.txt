@@ -15,7 +15,10 @@ Release 2.7.2 - UNRELEASED
     MAPREDUCE-6442. Stack trace is missing when error occurs in client protocol
     provider's constructor (Chang Li via ozawa)
 
-Release 2.7.1 - 2015-07-06
+    MAPREDUCE-6528. Memory leak for HistoryFileManager.getJobSummary()
+    (Junping Du via jlowe)
+
+Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
 
