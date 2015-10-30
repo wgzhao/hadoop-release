@@ -1,6 +1,21 @@
 Hadoop MapReduce Change Log
 
-Release 2.7.1 - 2015-07-06
+Release 2.7.2 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    MAPREDUCE-6528. Memory leak for HistoryFileManager.getJobSummary()
+    (Junping Du via jlowe)
+
+Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
 
