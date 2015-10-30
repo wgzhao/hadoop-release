@@ -544,3 +544,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-46757. HDFS-9305. Delayed heartbeat processing causes storm of subsequent
     heartbeats. (Arpit Agarwal)
 
+    BUG-43821/YARN-4313. Race condition in MiniMRYarnCluster when getting
+    history server address. (Jian He via Xuan Gong)
+
