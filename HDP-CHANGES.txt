@@ -766,3 +766,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-40325. Fixed a hang problem in DistributedShell. (Varun Vasudev)
 
+    BUG-47096. HDFS-9343. Empty caller context considered invalid.
+    (Mingliang Liu via Arpit Agarwal)
+
