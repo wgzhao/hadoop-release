@@ -205,6 +205,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9142. Separating Configuration object for namenode(s) in
     MiniDFSCluster. (Siqi Li via mingma)
 
+    HDFS-9343. Empty caller context considered invalid. (Mingliang Liu via
+    Arpit Agarwal)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
