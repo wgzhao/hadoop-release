@@ -126,12 +126,12 @@ public abstract class TimelineClient extends AbstractService {
    *
    * @param domain
    *          an {@link TimelineDomain} object
-   * @param appId {@link ApplicationId}
+   * @param appAtteptId {@link ApplicationAttemptId}
    * @throws IOException
    * @throws YarnException
    */
   @Public
-  public abstract void putDomain(ApplicationId appId,
+  public abstract void putDomain(ApplicationAttemptId appAtteptId,
       TimelineDomain domain) throws IOException, YarnException;
 
   /**
