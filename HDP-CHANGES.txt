@@ -559,3 +559,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
     multiple times (zhihai xu via vinayakumarb)
 
+    BUG-47201. Fix Debian build break in DNS.java (Arpit Agarwal)
+

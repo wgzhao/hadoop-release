@@ -19,7 +19,6 @@
 package org.apache.hadoop.net;
 
 import com.google.common.net.InetAddresses;
-import com.sun.istack.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -36,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
 
+import javax.annotation.Nullable;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
