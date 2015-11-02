@@ -817,12 +817,12 @@ public class TimelineClientImpl extends TimelineClient {
   }
 
   @Override
-  public void putDomain(ApplicationId appId,
+  public void putDomain(ApplicationAttemptId appAttemptId,
       TimelineDomain domain) throws IOException, YarnException {
-    if (!timelineServerPluginEnabled || appId == null) {
+    if (!timelineServerPluginEnabled || appAttemptId == null) {
       putDomain(domain);
     } else {
-      writeDomain(appId, domain);
+      writeDomain(appAttemptId, domain);
     }
   }
 
@@ -855,12 +855,12 @@ public class TimelineClientImpl extends TimelineClient {
     return appDir;
   }
 
-  private void writeDomain(ApplicationId appId,
+  private void writeDomain(ApplicationAttemptId appAttemptId,
       TimelineDomain domain) throws IOException {
     Path domainLogPath =
-        new Path(createApplicationDir(appId), DOMAIN_LOG_PREFIX +
-            appId.toString());
-    LOG.info("Writing domains for " + appId.toString() + " to "
+        new Path(createAttemptDir(appAttemptId), DOMAIN_LOG_PREFIX +
+          appAttemptId.toString());
+    LOG.info("Writing domains for " + appAttemptId.toString() + " to "
         + domainLogPath);
     this.logFDsCache.writeDomainLog(
         fs, domainLogPath, objMapper, domain, isAppendSupported);
