@@ -556,3 +556,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-47096. HDFS-9343. Empty caller context considered invalid.
     (Mingliang Liu via Arpit Agarwal)
 
+    HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
+    multiple times (zhihai xu via vinayakumarb)
+
