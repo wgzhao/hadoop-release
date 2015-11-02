@@ -772,3 +772,8 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-47100. Fix TestOfflineEditsViewer and TestDFSInotifyEventInputStream.
     (Arpit Agarwal)
 
+    HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync multiple times
+    (Contributed by zhihai xu)
+
+    BUG-47201. Fix Debian build break in DNS.java (Arpit Agarwal)
+
