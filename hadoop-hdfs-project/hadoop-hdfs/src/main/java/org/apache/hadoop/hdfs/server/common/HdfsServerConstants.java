@@ -319,4 +319,9 @@ public final class HdfsServerConstants {
       "raw.hdfs.crypto.file.encryption.info";
   public static final String SECURITY_XATTR_UNREADABLE_BY_SUPERUSER =
       "security.hdfs.unreadable.by.superuser";
+  public static String XATTR_ERASURECODING_POLICY =
+      "raw.hdfs.erasurecoding.policy";
+
+  public static long BLOCK_GROUP_INDEX_MASK = 15;
+  public static byte MAX_BLOCKS_IN_GROUP = 16;
 }

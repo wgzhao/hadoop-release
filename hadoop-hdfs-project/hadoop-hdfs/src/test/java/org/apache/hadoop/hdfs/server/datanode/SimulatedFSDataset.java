@@ -99,7 +99,7 @@ public class SimulatedFSDataset implements FsDatasetSpi<FsVolumeSpi> {
 
   public static byte simulatedByte(Block b, long offsetInBlk) {
     byte firstByte = (byte) (b.getBlockId() % Byte.MAX_VALUE);
-    return (byte) ((firstByte + offsetInBlk) % Byte.MAX_VALUE);
+    return (byte) ((firstByte + offsetInBlk % 29) & Byte.MAX_VALUE);
   }
   
   public static final String CONFIG_PROPERTY_CAPACITY =

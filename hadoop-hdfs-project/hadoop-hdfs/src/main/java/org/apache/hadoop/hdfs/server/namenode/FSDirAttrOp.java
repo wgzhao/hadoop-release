@@ -122,7 +122,7 @@ public class FSDirAttrOp {
                                             " does not exist.");
       }
       boolean changed = unprotectedSetTimes(fsd, inode, mtime, atime, true,
-                                            iip.getLatestSnapshotId());
+          iip.getLatestSnapshotId());
       if (changed) {
         fsd.getEditLog().logTimes(src, mtime, atime);
       }
@@ -376,17 +376,18 @@ public class FSDirAttrOp {
   static BlockInfo[] unprotectedSetReplication(
       FSDirectory fsd, String src, short replication)
       throws QuotaExceededException, UnresolvedLinkException,
-             SnapshotAccessControlException {
+      SnapshotAccessControlException, UnsupportedActionException {
     assert fsd.hasWriteLock();
 
     final BlockManager bm = fsd.getBlockManager();
     final INodesInPath iip = fsd.getINodesInPath4Write(src, true);
     final INode inode = iip.getLastINode();
-    if (inode == null || !inode.isFile()) {
+    if (inode == null || !inode.isFile() || inode.asFile().isStriped()) {
+      // TODO we do not support replication on stripe layout files yet
       return null;
     }
-    INodeFile file = inode.asFile();
 
+    INodeFile file = inode.asFile();
     // Make sure the directory has sufficient quotas
     short oldBR = file.getPreferredBlockReplication();
 

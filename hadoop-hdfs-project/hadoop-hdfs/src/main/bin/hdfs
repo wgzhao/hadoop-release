@@ -50,6 +50,7 @@ function print_usage(){
   echo "  zkfc                 run the ZK Failover Controller daemon"
   echo "  datanode             run a DFS datanode"
   echo "  dfsadmin             run a DFS admin client"
+  echo "  erasurecode          run a HDFS ErasureCoding CLI"
   echo "  haadmin              run a DFS HA admin client"
   echo "  fsck                 run a DFS filesystem checking utility"
   echo "  balancer             run a cluster balancing utility"
@@ -159,6 +160,9 @@ elif [ "$COMMAND" = "dfs" ] ; then
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_CLIENT_OPTS"
 elif [ "$COMMAND" = "dfsadmin" ] ; then
   CLASS=org.apache.hadoop.hdfs.tools.DFSAdmin
+  HADOOP_OPTS="$HADOOP_OPTS $HADOOP_CLIENT_OPTS"
+elif [ "$COMMAND" = "erasurecode" ] ; then
+  CLASS=org.apache.hadoop.hdfs.tools.erasurecode.ECCli
   HADOOP_OPTS="$HADOOP_OPTS $HADOOP_CLIENT_OPTS"
 elif [ "$COMMAND" = "haadmin" ] ; then
   CLASS=org.apache.hadoop.hdfs.tools.DFSHAAdmin

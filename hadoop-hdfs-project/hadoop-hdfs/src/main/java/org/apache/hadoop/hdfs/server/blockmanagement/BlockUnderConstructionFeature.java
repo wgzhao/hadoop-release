@@ -58,19 +58,25 @@ public class BlockUnderConstructionFeature {
   private Block truncateBlock;
 
   public BlockUnderConstructionFeature(Block blk,
-      BlockUCState state, DatanodeStorageInfo[] targets) {
+      BlockUCState state, DatanodeStorageInfo[] targets, boolean isStriped) {
     assert getBlockUCState() != COMPLETE :
         "BlockUnderConstructionFeature cannot be in COMPLETE state";
     this.blockUCState = state;
-    setExpectedLocations(blk, targets);
+    setExpectedLocations(blk, targets, isStriped);
   }
 
   /** Set expected locations */
-  public void setExpectedLocations(Block block, DatanodeStorageInfo[] targets) {
+  public void setExpectedLocations(Block block, DatanodeStorageInfo[] targets,
+      boolean isStriped) {
     int numLocations = targets == null ? 0 : targets.length;
     this.replicas = new ReplicaUnderConstruction[numLocations];
     for(int i = 0; i < numLocations; i++) {
-      replicas[i] = new ReplicaUnderConstruction(block, targets[i],
+      // when creating a new striped block we simply sequentially assign block
+      // index to each storage
+      Block replicaBlock = isStriped ?
+          new Block(block.getBlockId() + i, 0, block.getGenerationStamp()) :
+          block;
+      replicas[i] = new ReplicaUnderConstruction(replicaBlock, targets[i],
           ReplicaState.RBW);
     }
   }
@@ -88,7 +94,19 @@ public class BlockUnderConstructionFeature {
     return storages;
   }
 
-  /** Get the number of expected locations */
+  /**
+   * @return the index array indicating the block index in each storage. Used
+   * only by striped blocks.
+   */
+  public int[] getBlockIndices() {
+    int numLocations = getNumExpectedLocations();
+    int[] indices = new int[numLocations];
+    for (int i = 0; i < numLocations; i++) {
+      indices[i] = BlockIdManager.getBlockIndex(replicas[i]);
+    }
+    return indices;
+  }
+
   public int getNumExpectedLocations() {
     return replicas == null ? 0 : replicas.length;
   }

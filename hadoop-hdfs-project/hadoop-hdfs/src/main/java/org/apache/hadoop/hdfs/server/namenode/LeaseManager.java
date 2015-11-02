@@ -120,8 +120,8 @@ public class LeaseManager {
       for(BlockInfo b : blocks) {
         if(!b.isComplete())
           numUCBlocks++;
+        }
       }
-    }
     LOG.info("Number of blocks under construction: " + numUCBlocks);
     return numUCBlocks;
   }

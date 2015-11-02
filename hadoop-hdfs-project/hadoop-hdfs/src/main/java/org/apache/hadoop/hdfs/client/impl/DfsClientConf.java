@@ -57,6 +57,7 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SOCKET_WRITE_TIM
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_REPLICATION_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_REPLICATION_KEY;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.HadoopIllegalArgumentException;
@@ -115,6 +116,9 @@ public class DfsClientConf {
   private final long slowIoWarningThresholdMs;
 
   private final ShortCircuitConf shortCircuitConf;
+
+  private final int stripedReadThreadpoolSize;
+
 
   public DfsClientConf(Configuration conf) {
     // The hdfsTimeout is currently the same as the ipc timeout 
@@ -218,6 +222,13 @@ public class DfsClientConf {
         DFSConfigKeys.DFS_CLIENT_SLOW_IO_WARNING_THRESHOLD_DEFAULT);
     
     shortCircuitConf = new ShortCircuitConf(conf);
+
+    stripedReadThreadpoolSize = conf.getInt(
+        DFSConfigKeys.DFS_CLIENT_STRIPED_READ_THREADPOOL_SIZE_KEY,
+        DFSConfigKeys.DFS_CLIENT_STRIPED_READ_THREADPOOL_SIZE_DEFAULT);
+    Preconditions.checkArgument(stripedReadThreadpoolSize > 0, "The value of " +
+        DFSConfigKeys.DFS_CLIENT_STRIPED_READ_THREADPOOL_SIZE_KEY +
+        " must be greater than 0.");
   }
 
   private DataChecksum.Type getChecksumType(Configuration conf) {
@@ -485,6 +496,13 @@ public class DfsClientConf {
    */
   public ShortCircuitConf getShortCircuitConf() {
     return shortCircuitConf;
+  }
+
+  /**
+   * @return the stripedReadThreadpoolSize
+   */
+  public int getStripedReadThreadpoolSize() {
+    return stripedReadThreadpoolSize;
   }
 
   public static class ShortCircuitConf {
