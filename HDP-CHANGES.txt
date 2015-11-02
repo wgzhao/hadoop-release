@@ -552,3 +552,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-46754. HDFS-9106. Transfer failure during pipeline recovery causes
     permanent write failures. (Kihwal Lee)
+
+    BUG-47096. HDFS-9343. Empty caller context considered invalid.
+    (Mingliang Liu via Arpit Agarwal)
+
