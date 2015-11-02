@@ -894,7 +894,6 @@ public class DFSStripedInputStream extends DFSInputStream {
 
     @Override
     void decode() {
-      // TODO no copy for data chunks. this depends on HADOOP-12047
       final int span = (int) alignedStripe.getSpanInBlock();
       for (int i = 0; i < alignedStripe.chunks.length; i++) {
         if (alignedStripe.chunks[i] != null &&
