@@ -96,6 +96,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8357. Consolidate parameters of INode.CleanSubtree() into a parameter
     objects. (Li Lu via wheat9)
 
+    HDFS-8777. Erasure Coding: add tests for taking snapshots on EC files. 
+    (Rakesh R via zhz)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
