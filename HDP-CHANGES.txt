@@ -769,3 +769,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-47096. HDFS-9343. Empty caller context considered invalid.
     (Mingliang Liu via Arpit Agarwal)
 
+    BUG-47100. Fix TestOfflineEditsViewer and TestDFSInotifyEventInputStream.
+    (Arpit Agarwal)
+

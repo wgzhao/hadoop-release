@@ -63,7 +63,6 @@ import static org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes.OP_TRUNCAT
 import static org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes.OP_UPDATE_BLOCKS;
 import static org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes.OP_UPDATE_MASTER_KEY;
 import static org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes.OP_SET_STORAGE_POLICY;
-import static org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes.OP_APPEND;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
