@@ -550,3 +550,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-46839. HDFS-7725. Incorrect "nodes in service" metrics caused all
     writes to fail. (Ming Ma via wang)
 
+    BUG-46754. HDFS-9106. Transfer failure during pipeline recovery causes
+    permanent write failures. (Kihwal Lee)

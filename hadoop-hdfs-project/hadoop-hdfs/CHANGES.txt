@@ -245,6 +245,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-7725. Incorrect "nodes in service" metrics caused all writes to fail.
     (Ming Ma via wang)
 
+    HDFS-9106. Transfer failure during pipeline recovery causes permanent
+    write failures. (Kihwal Lee)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
