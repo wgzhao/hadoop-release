@@ -60,3 +60,24 @@
         </fileSet>
     </fileSets>
 </assembly>
+<assembly>
+    <id>${project.version}.winlibs</id>
+    <formats>
+        <format>dir</format>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <!-- winlibs -->
+        <fileSet>
+          <directory>${basedir}/../../../hadoop-common-project/hadoop-common/target/bin</directory>
+          <outputDirectory>/winlibs</outputDirectory>
+          <includes>
+            <include>winutils.exe</include>
+            <include>hadoop.dll</include>
+            <include>hdfs.dll</include>
+            <include>libwinutils.lib</include>
+          </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
