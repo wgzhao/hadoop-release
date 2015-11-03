@@ -68,6 +68,7 @@ public class TestEntityFileCacheTimelineStore extends TimelineStoreTestUtils {
   public void testScanApps() throws Exception {
     // TODO: add verifications
     ((EntityFileCacheTimelineStore) store).scanActiveLogs();
+    Thread.sleep(5000);
 
   }
 
