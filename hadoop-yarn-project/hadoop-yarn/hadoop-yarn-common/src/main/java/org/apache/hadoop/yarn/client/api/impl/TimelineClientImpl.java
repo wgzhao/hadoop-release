@@ -387,13 +387,13 @@ public class TimelineClientImpl extends TimelineClient {
       if (LOG.isDebugEnabled()) {
         LOG.debug(
             YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS
-                + ":" + flushIntervalSecs + "\n" +
+                + ":" + flushIntervalSecs + ", " +
             YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS
-                + ":" + cleanIntervalSecs + "\n" +
+                + ":" + cleanIntervalSecs + ", " +
             YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS
-                + ":" + ttl + "\n" +
+                + ":" + ttl + ", " +
             TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND
-                + ":" + isAppendSupported + "\n");
+                + ":" + isAppendSupported);
       }
     }
   }
