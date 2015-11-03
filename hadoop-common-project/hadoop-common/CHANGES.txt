@@ -53,6 +53,8 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
+    HADOOP-12542. TestDNS fails on Windows after HADOOP-12437. (cnauroth)
+
 Release 2.7.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
