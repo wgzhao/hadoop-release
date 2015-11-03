@@ -239,7 +239,8 @@ public class TestAuditLogger {
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.setTimes(p, time, time);
-      assertTrue(auditlog.getOutput().endsWith("callerContext=setTimes\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=setTimes%n")));
       auditlog.clearOutput();
 
       // context with signature
@@ -250,7 +251,7 @@ public class TestAuditLogger {
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.setTimes(p, time, time);
       assertTrue(auditlog.getOutput().endsWith(
-          "callerContext=setTimes:L\n"));
+          String.format("callerContext=setTimes:L%n")));
       auditlog.clearOutput();
 
       // long context is truncated
@@ -262,7 +263,7 @@ public class TestAuditLogger {
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.setTimes(p, time, time);
       assertTrue(auditlog.getOutput().endsWith(
-          "callerContext=" + longContext.substring(0, 128) + ":L\n"));
+          String.format("callerContext=%s:L%n", longContext.substring(0, 128))));
       auditlog.clearOutput();
 
       // empty context is ignored
@@ -298,7 +299,8 @@ public class TestAuditLogger {
       } catch (InterruptedException ignored) {
         // Ignore
       }
-      assertTrue(auditlog.getOutput().endsWith("callerContext=setTimes:L\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=setTimes:L%n")));
       auditlog.clearOutput();
 
       // caller context is overridden in child thread
@@ -326,7 +328,7 @@ public class TestAuditLogger {
         // Ignore
       }
       assertTrue(auditlog.getOutput().endsWith(
-          "callerContext=setPermission:L\n"));
+          String.format("callerContext=setPermission:L%n")));
       auditlog.clearOutput();
 
       // reuse the current context's signature
@@ -335,7 +337,8 @@ public class TestAuditLogger {
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.mkdirs(new Path("/reuse-context-signature"));
-      assertTrue(auditlog.getOutput().endsWith("callerContext=mkdirs:L\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=mkdirs:L%n")));
       auditlog.clearOutput();
 
       // too long signature is ignored
@@ -345,7 +348,8 @@ public class TestAuditLogger {
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.setTimes(p, time, time);
-      assertTrue(auditlog.getOutput().endsWith("callerContext=setTimes\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=setTimes%n")));
       auditlog.clearOutput();
 
       // null signature is ignored
@@ -354,7 +358,8 @@ public class TestAuditLogger {
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.setTimes(p, time, time);
-      assertTrue(auditlog.getOutput().endsWith("callerContext=setTimes\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=setTimes%n")));
       auditlog.clearOutput();
 
       // empty signature is ignored
@@ -364,7 +369,8 @@ public class TestAuditLogger {
       CallerContext.setCurrent(context);
       LOG.info("Set current caller context as {}", CallerContext.getCurrent());
       fs.mkdirs(new Path("/empty-signature"));
-      assertTrue(auditlog.getOutput().endsWith("callerContext=mkdirs\n"));
+      assertTrue(auditlog.getOutput().endsWith(
+          String.format("callerContext=mkdirs%n")));
       auditlog.clearOutput();
 
       // invalid context is not passed to the rpc
