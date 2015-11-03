@@ -1901,4 +1901,10 @@ public class DFSTestUtil {
     out.flush();
     return out.getBlock();
   }
+
+  public static byte[] readFileAsBytes(File f) throws IOException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    IOUtils.copyBytes(new FileInputStream(f), os, 1024, true);
+    return os.toByteArray();
+  }
 }

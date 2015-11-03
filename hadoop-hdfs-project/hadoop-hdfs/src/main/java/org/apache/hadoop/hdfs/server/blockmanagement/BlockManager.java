@@ -1571,6 +1571,10 @@ public class BlockManager implements BlockStatsMXBean {
     }
 
     if (block.isStriped()) {
+      if (pendingNum > 0) {
+        // Wait the previous recovery to finish.
+        return null;
+      }
       short[] indices = new short[liveBlockIndices.size()];
       for (int i = 0 ; i < liveBlockIndices.size(); i++) {
         indices[i] = liveBlockIndices.get(i);
@@ -1635,6 +1639,7 @@ public class BlockManager implements BlockStatsMXBean {
     if (block.isStriped()) {
       assert rw instanceof ErasureCodingWork;
       assert rw.getTargets().length > 0;
+      assert pendingNum == 0: "Should wait the previous recovery to finish";
       String src = getBlockCollection(block).getName();
       ErasureCodingPolicy ecPolicy = null;
       try {
