@@ -208,6 +208,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9343. Empty caller context considered invalid. (Mingliang Liu via
     Arpit Agarwal)
 
+    HDFS-9362. TestAuditLogger#testAuditLoggerWithCallContext assumes Unix line
+    endings, fails on Windows. (cnauroth)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
