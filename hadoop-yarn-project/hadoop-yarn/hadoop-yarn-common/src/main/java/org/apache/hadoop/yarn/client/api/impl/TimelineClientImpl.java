@@ -384,6 +384,17 @@ public class TimelineClientImpl extends TimelineClient {
           new LogFDsCache(flushIntervalSecs, cleanIntervalSecs, ttl);
       this.isAppendSupported =
           conf.getBoolean(TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND, true);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS
+                + ":" + flushIntervalSecs + "\n" +
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS
+                + ":" + cleanIntervalSecs + "\n" +
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS
+                + ":" + ttl + "\n" +
+            TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND
+                + ":" + isAppendSupported + "\n");
+      }
     }
   }
 
@@ -897,12 +908,12 @@ public class TimelineClientImpl extends TimelineClient {
 
     public LogFD(FileSystem fs, Path logPath, ObjectMapper objMapper,
         boolean isAppendSupported) throws IOException {
+      this.isAppendSupported = isAppendSupported;
       this.objMapper = objMapper;
       this.stream = createLogFileStream(fs, logPath);
       this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
       this.jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
       this.lastModifiedTime = System.currentTimeMillis();
-      this.isAppendSupported = isAppendSupported;
     }
 
     public void close() {
