@@ -466,6 +466,29 @@ function Main( $scriptDir )
         Write-Log "Changing $file"
         UpdateFQDNConfig $file
     }
+    
+    $hdpLayoutLocation = Split-Path -Parent (Resolve-Path $ENV:HDP_LAYOUT)    
+    if ((Test-Path ENV:ENABLE_LZO) -and ($ENV:ENABLE_LZO -ieq "yes"))
+    {
+        $lzoDll = @(gci -Filter lzo*.dll -Path $hdpLayoutLocation)[0]
+        Write-Log "Copying $lzoDll.FullName to $ENV:HADOOP_HOME\bin"
+        Copy-Item $lzoDll.FullName "$ENV:HADOOP_HOME\bin"
+
+        $gplCompressionDll = @(gci -Filter gplcompression.dll -Path $hdpLayoutLocation)[0]
+        Write-Log "Copying $gplCompressionDll.FullName to $ENV:HADOOP_HOME\bin"
+        Copy-Item $gplCompressionDll.FullName "$ENV:HADOOP_HOME\bin"
+
+        $hadoopLzoJar = @(gci -Filter hadoop-lzo*.jar -Path $hdpLayoutLocation)[0]
+        Write-Log "Copying $hadoopLzoJar.FullName to $ENV:HADOOP_HOME\share\hadoop\common"
+        Copy-Item $hadoopLzoJar.FullName "$ENV:HADOOP_HOME\share\hadoop\common"
+    }
+    if ((Test-Path ENV:ENABLE_GZIP) -and ($ENV:ENABLE_GZIP -ieq "yes"))
+    {
+        $zlib1Dll = @(gci -Filter zlib1.dll -Path $hdpLayoutLocation)[0]
+        Write-Log "Copying $zlib1Dll.FullName to $ENV:HADOOP_HOME\bin"
+        Copy-Item $zlib1Dll.FullName "$ENV:HADOOP_HOME\bin"
+    }
+    
     Write-Log "Install of Hadoop Core, HDFS, MapRed completed successfully"
 }
 
