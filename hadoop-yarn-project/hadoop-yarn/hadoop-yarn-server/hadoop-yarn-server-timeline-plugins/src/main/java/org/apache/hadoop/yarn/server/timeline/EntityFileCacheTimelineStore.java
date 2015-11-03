@@ -164,6 +164,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
                   Map.Entry<CacheId, CacheItem> eldest) {
                 if (super.size() > appCacheMaxSize) {
                   CacheId cacheId = eldest.getKey();
+                  LOG.debug("Evicting {} due to space limitations", cacheId);
                   CacheItem cacheItem = eldest.getValue();
                   cacheItem.releaseCache(cacheId);
                   if (cacheItem.appLogs.isDone()) {
@@ -636,7 +637,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
           if (store == null) {
             store = new LevelDBCacheTimelineStore(cacheId.toString(),
                 "LeveldbCache." + cacheId);
-            //store = new MemoryTimelineStore("MemoryStore." + appId);
+            //store = new MemoryTimelineStore("MemoryStore." + cacheId);
             store.init(config);
             store.start();
           }
