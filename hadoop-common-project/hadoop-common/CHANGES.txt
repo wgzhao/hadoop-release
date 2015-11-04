@@ -62,6 +62,10 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12508. delete fails with exception when lease is held on blob.
     (Gaurav Kanade via cnauroth)
 
+    HADOOP-12540. TestAzureFileSystemInstrumentation#testClientErrorMetrics
+    fails intermittently due to assumption that a lease error will be thrown.
+    (Gaurav Kanade via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-12317. Applications fail on NM restart on some linux distro
