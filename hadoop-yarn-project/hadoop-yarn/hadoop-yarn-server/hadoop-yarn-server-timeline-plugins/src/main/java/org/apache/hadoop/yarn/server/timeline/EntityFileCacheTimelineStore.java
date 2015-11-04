@@ -1,19 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership.  The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.apache.hadoop.yarn.server.timeline;
@@ -88,22 +87,22 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private static final String SUMMARY_LOG_PREFIX = "summarylog-";
   private static final String ENTITY_LOG_PREFIX = "entitylog-";
   private static final FsPermission ACTIVE_DIR_PERMISSION =
-      new FsPermission((short)01777);
+      new FsPermission((short) 01777);
   private static final FsPermission DONE_DIR_PERMISSION =
-      new FsPermission((short)0700);
+      new FsPermission((short) 0700);
 
   private static final EnumSet<YarnApplicationState>
-    APP_FINAL_STATES = EnumSet.of(
-        YarnApplicationState.FAILED,
-        YarnApplicationState.KILLED,
-        YarnApplicationState.FINISHED);
+      APP_FINAL_STATES = EnumSet.of(
+      YarnApplicationState.FAILED,
+      YarnApplicationState.KILLED,
+      YarnApplicationState.FINISHED);
   // Active dir: <activeRoot>/appId/attemptId/cacheId.log
   // Done dir: <doneRoot>/cluster_ts/hash1/hash2/appId/attemptId/cacheId.log
   private static final String APP_DONE_DIR_PREFIX_FORMAT =
       "%d" + Path.SEPARATOR     // cluster timestamp
-      + "%04d" + Path.SEPARATOR // app num / 10000000
-      + "%03d" + Path.SEPARATOR // (app num / 1000) % 1000
-      + "%s"   + Path.SEPARATOR;// full app id
+          + "%04d" + Path.SEPARATOR // app num / 10000000
+          + "%03d" + Path.SEPARATOR // (app num / 1000) % 1000
+          + "%s" + Path.SEPARATOR;// full app id
 
   private YarnClient yarnClient;
   private TimelineStore summaryStore;
@@ -122,24 +121,24 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private int appCacheMaxSize = 0;
   private List<TimelineCacheIdPlugin> cacheIdPlugins;
   private final Map<CacheId, CacheItem> cachedLogs
-    = Collections.synchronizedMap(
+      = Collections.synchronizedMap(
       new LinkedHashMap<CacheId, CacheItem>(appCacheMaxSize + 1,
           0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(
-                Map.Entry<CacheId, CacheItem> eldest) {
-              if (super.size() > appCacheMaxSize) {
-                CacheId cacheId = eldest.getKey();
-                LOG.debug("Evicting {} due to space limitations", cacheId);
-                CacheItem cacheItem = eldest.getValue();
-                cacheItem.releaseCache(cacheId);
-                if (cacheItem.appLogs.isDone()) {
-                  appIdLogMap.remove(cacheId.getApplicationId());
-                }
-                return true;
-              }
-              return false;
+        @Override
+        protected boolean removeEldestEntry(
+            Map.Entry<CacheId, CacheItem> eldest) {
+          if (super.size() > appCacheMaxSize) {
+            CacheId cacheId = eldest.getKey();
+            LOG.debug("Evicting {} due to space limitations", cacheId);
+            CacheItem cacheItem = eldest.getValue();
+            cacheItem.releaseCache(cacheId);
+            if (cacheItem.appLogs.isDone()) {
+              appIdLogMap.remove(cacheId.getApplicationId());
             }
+            return true;
+          }
+          return false;
+        }
       });
 
   public EntityFileCacheTimelineStore() {
@@ -164,14 +163,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     unknownActiveMillis = unknownActiveSecs * 1000;
     LOG.info("Unknown apps will be treated as complete after {} seconds",
         unknownActiveSecs);
-    Collection<String> filterStrings = conf.getStringCollection(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES);
-    if (filterStrings.isEmpty()) {
-      throw new IllegalArgumentException(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES
-              + " is not set");
-    }
-    LOG.info("Entity types for summary store: {}", filterStrings);
     appCacheMaxSize = conf.getInt(
         YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE,
         YarnConfiguration
@@ -208,7 +199,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     return instance;
   }
 
-
   private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf)
       throws RuntimeException {
     Collection<String> pluginNames = conf.getStringCollection(
@@ -226,7 +216,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
       if (cacheIdPlugin == null
           || cacheIdPlugin.getClass()
-             .equals(EmptyTimelineCacheIdPlugin.class)) {
+          .equals(EmptyTimelineCacheIdPlugin.class)) {
         throw new RuntimeException("No class defined for " + name);
       }
       LOG.debug("Load plugin class {}", cacheIdPlugin.getClass().getName());
@@ -243,7 +233,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
   @Override
   protected void serviceStart() throws Exception {
-    LOG.info("Starting {}",getName());
+    LOG.info("Starting {}", getName());
     yarnClient.start();
     summaryStore.start();
 
@@ -327,8 +317,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   @InterfaceAudience.Private
-  @VisibleForTesting
-  void scanActiveLogs() throws IOException {
+  @VisibleForTesting void scanActiveLogs() throws IOException {
     RemoteIterator<FileStatus> iter = fs.listStatusIterator(activeRootPath);
     while (iter.hasNext()) {
       FileStatus stat = iter.next();
@@ -527,13 +516,14 @@ public class EntityFileCacheTimelineStore extends AbstractService
     private long scanForLogs() throws IOException {
       LOG.debug("scanForLogs on {}", appDirPath);
       long newestModTime = 0;
-      RemoteIterator<FileStatus> iterAttempt = fs.listStatusIterator(appDirPath);
+      RemoteIterator<FileStatus> iterAttempt =
+          fs.listStatusIterator(appDirPath);
       while (iterAttempt.hasNext()) {
         FileStatus statAttempt = iterAttempt.next();
         LOG.debug("scanForLogs on {}", statAttempt.getPath().getName());
         if (!statAttempt.isDirectory()
             || !statAttempt.getPath().getName()
-                 .startsWith(ApplicationAttemptId.appAttemptIdStrPrefix)) {
+            .startsWith(ApplicationAttemptId.appAttemptIdStrPrefix)) {
           LOG.info("Scanner skips for unknown dir/file {}",
               statAttempt.getPath());
           continue;
@@ -541,7 +531,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
         String attemptDirName = statAttempt.getPath().getName();
         RemoteIterator<FileStatus> iterCache
             = fs.listStatusIterator(statAttempt.getPath());
-        while(iterCache.hasNext()) {
+        while (iterCache.hasNext()) {
           FileStatus statCache = iterCache.next();
           newestModTime
               = Math.max(statCache.getModificationTime(), newestModTime);
@@ -683,7 +673,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
                 // The log may have been removed, remove the log
                 removeList.add(log);
                 LOG.info("File {} no longer exists, remove it from log list",
-                log.getPath(appDirPath));
+                    log.getPath(appDirPath));
               }
               appLogs.detailLogs.removeAll(removeList);
             }
@@ -1003,8 +993,8 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
   private List<TimelineStore> getTimelineStoresForRead(String entityType,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters)
-    throws IOException {
-    Set<CacheId> cacheIds = new HashSet<>();
+      throws IOException {
+    Set<CacheId> cacheIds = new HashSet<CacheId>();
     for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
       Set<CacheId> idsFromPlugin =
           cacheIdPlugin.getCacheId(entityType, primaryFilter, secondaryFilters);
@@ -1016,7 +1006,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     }
     return getTimelineStoresFromCacheIds(cacheIds, entityType);
   }
-
 
   // find a cached timeline store or null if it cannot be located
   private TimelineStore getCachedStore(CacheId cacheId)
@@ -1076,7 +1065,8 @@ public class EntityFileCacheTimelineStore extends AbstractService
     for (TimelineStore store : stores) {
       LOG.debug("Try timeline store {}:{} for the request", store.getName(),
           store.toString());
-      TimelineEntity e = store.getEntity(entityId, entityType, fieldsToRetrieve);
+      TimelineEntity e =
+          store.getEntity(entityId, entityType, fieldsToRetrieve);
       if (e != null) {
         return e;
       }
