@@ -4377,3 +4377,6 @@ ATS V1.5:
 
     BUG-84645. YARN-6031. Application recovery has failed when node label
     feature is turned off during RM recovery. Contributed by Ying Zhang.
+
+    BUG-85012. HDFS-9357. NN UI renders icons of decommissioned DN incorrectly.
+    Contributed by Surendra Singh Lilhore.
