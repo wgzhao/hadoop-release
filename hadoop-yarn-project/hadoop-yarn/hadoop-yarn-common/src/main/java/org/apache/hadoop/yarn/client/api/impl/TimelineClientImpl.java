@@ -358,14 +358,14 @@ public class TimelineClientImpl extends TimelineClient {
     if (timelineServerPluginEnabled) {
       activePath =
           new Path(conf.get(
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT));
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR,
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT));
       fs = activePath.getFileSystem(conf);
       if (!fs.exists(activePath)) {
         throw new IOException(activePath + " does not exist");
       }
       summaryEntityTypes = new HashSet<String>(conf.getStringCollection(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES));
+          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES));
       objMapper = createObjectMapper();
       flushIntervalSecs = conf.getLong(
           YarnConfiguration
