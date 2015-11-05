@@ -93,8 +93,6 @@ public class RMActiveServiceContext {
   private NodesListManager nodesListManager;
   private ResourceTrackerService resourceTrackerService;
   private ApplicationMasterService applicationMasterService;
-  private RMApplicationHistoryWriter rmApplicationHistoryWriter;
-  private SystemMetricsPublisher systemMetricsPublisher;
   private RMNodeLabelsManager nodeLabelManager;
   private RMRegistryService registry;
   private long epoch;
@@ -119,7 +117,6 @@ public class RMActiveServiceContext {
       RMContainerTokenSecretManager containerTokenSecretManager,
       NMTokenSecretManagerInRM nmTokenSecretManager,
       ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
-      RMApplicationHistoryWriter rmApplicationHistoryWriter,
       ResourceScheduler scheduler,
       RMRegistryService registry) {
     this();
@@ -131,7 +128,6 @@ public class RMActiveServiceContext {
     this.setContainerTokenSecretManager(containerTokenSecretManager);
     this.setNMTokenSecretManager(nmTokenSecretManager);
     this.setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
-    this.setRMApplicationHistoryWriter(rmApplicationHistoryWriter);
     this.setScheduler(scheduler);
 
     RMStateStore nullStore = new NullRMStateStore();
@@ -369,32 +365,6 @@ public class RMActiveServiceContext {
   @Unstable
   public boolean isWorkPreservingRecoveryEnabled() {
     return this.isWorkPreservingRecoveryEnabled;
-  }
-
-  @Private
-  @Unstable
-  public RMApplicationHistoryWriter getRMApplicationHistoryWriter() {
-    return rmApplicationHistoryWriter;
-  }
-
-  @Private
-  @Unstable
-  public void setSystemMetricsPublisher(
-      SystemMetricsPublisher systemMetricsPublisher) {
-    this.systemMetricsPublisher = systemMetricsPublisher;
-  }
-
-  @Private
-  @Unstable
-  public SystemMetricsPublisher getSystemMetricsPublisher() {
-    return systemMetricsPublisher;
-  }
-
-  @Private
-  @Unstable
-  public void setRMApplicationHistoryWriter(
-      RMApplicationHistoryWriter rmApplicationHistoryWriter) {
-    this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
   }
 
   @Private

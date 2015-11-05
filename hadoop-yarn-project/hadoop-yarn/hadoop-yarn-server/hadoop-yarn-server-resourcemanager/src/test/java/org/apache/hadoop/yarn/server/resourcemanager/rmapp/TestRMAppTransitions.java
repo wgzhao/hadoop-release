@@ -216,7 +216,8 @@ public class TestRMAppTransitions {
           writer, null, null);
     ((RMContextImpl)realRMContext).setStateStore(store);
     publisher = mock(SystemMetricsPublisher.class);
-    ((RMContextImpl)realRMContext).setSystemMetricsPublisher(publisher);
+    realRMContext.setSystemMetricsPublisher(publisher);
+    realRMContext.setRMApplicationHistoryWriter(writer);
 
     this.rmContext = spy(realRMContext);
 

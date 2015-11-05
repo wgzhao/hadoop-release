@@ -220,8 +220,8 @@ public class TestFifoScheduler {
     RMContext rmContext = new RMContextImpl(dispatcher, null, null, null, null,
         null, containerTokenSecretManager, nmTokenSecretManager, null, writer,
         scheduler, null);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(
-        mock(SystemMetricsPublisher.class));
+    rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
+    rmContext.setRMApplicationHistoryWriter(mock(RMApplicationHistoryWriter.class));
     ((RMContextImpl) rmContext).setYarnConfiguration(new YarnConfiguration());
 
     scheduler.setRMContext(rmContext);
@@ -302,8 +302,9 @@ public class TestFifoScheduler {
     RMContext rmContext = new RMContextImpl(dispatcher, null, null, null, null,
         null, containerTokenSecretManager, nmTokenSecretManager, null, writer,
         scheduler, null);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(
-        mock(SystemMetricsPublisher.class));
+    rmContext.setSystemMetricsPublisher(mock(SystemMetricsPublisher.class));
+    rmContext.setRMApplicationHistoryWriter(
+        mock(RMApplicationHistoryWriter.class));
     NullRMNodeLabelsManager nlm = new NullRMNodeLabelsManager();
     nlm.init(new Configuration());
     rmContext.setNodeLabelManager(nlm);

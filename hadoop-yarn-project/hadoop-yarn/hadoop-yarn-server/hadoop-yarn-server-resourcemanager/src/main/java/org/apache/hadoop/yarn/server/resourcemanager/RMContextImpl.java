@@ -69,6 +69,9 @@ public class RMContextImpl implements RMContext {
 
   private Configuration yarnConfiguration;
 
+  private RMApplicationHistoryWriter rmApplicationHistoryWriter;
+  private SystemMetricsPublisher systemMetricsPublisher;
+
   /**
    * Default constructor. To be used in conjunction with setter methods for
    * individual fields.
@@ -98,12 +101,13 @@ public class RMContextImpl implements RMContext {
         containerAllocationExpirer, amLivelinessMonitor, amFinishingMonitor,
         delegationTokenRenewer, appTokenSecretManager,
         containerTokenSecretManager, nmTokenSecretManager,
-        clientToAMTokenSecretManager, rmApplicationHistoryWriter,
+        clientToAMTokenSecretManager,
         scheduler,
         registry));
 
     ConfigurationProvider provider = new LocalConfigurationProvider();
     setConfigurationProvider(provider);
+    this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
   }
   
   @VisibleForTesting
@@ -355,25 +359,24 @@ public class RMContextImpl implements RMContext {
 
   @Override
   public RMApplicationHistoryWriter getRMApplicationHistoryWriter() {
-    return activeServiceContext.getRMApplicationHistoryWriter();
+    return this.rmApplicationHistoryWriter;
   }
 
   @Override
   public void setSystemMetricsPublisher(
       SystemMetricsPublisher systemMetricsPublisher) {
-    activeServiceContext.setSystemMetricsPublisher(systemMetricsPublisher);
+    this.systemMetricsPublisher = systemMetricsPublisher;
   }
 
   @Override
   public SystemMetricsPublisher getSystemMetricsPublisher() {
-    return activeServiceContext.getSystemMetricsPublisher();
+    return this.systemMetricsPublisher;
   }
 
   @Override
   public void setRMApplicationHistoryWriter(
       RMApplicationHistoryWriter rmApplicationHistoryWriter) {
-    activeServiceContext
-        .setRMApplicationHistoryWriter(rmApplicationHistoryWriter);
+      this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
   }
 
   @Override

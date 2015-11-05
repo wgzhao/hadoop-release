@@ -263,8 +263,9 @@ public class TestRMAppAttemptTransitions {
     store = mock(RMStateStore.class);
     ((RMContextImpl) rmContext).setStateStore(store);
     publisher = mock(SystemMetricsPublisher.class);
-    ((RMContextImpl) rmContext).setSystemMetricsPublisher(publisher);
-    
+    rmContext.setSystemMetricsPublisher(publisher);
+    rmContext.setRMApplicationHistoryWriter(writer);
+
     scheduler = mock(YarnScheduler.class);
     masterService = mock(ApplicationMasterService.class);
     applicationMasterLauncher = mock(ApplicationMasterLauncher.class);
