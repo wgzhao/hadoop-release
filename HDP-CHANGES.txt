@@ -780,3 +780,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     YARN-3766. Fixed the apps table column error of generic history web UI.
     (Xuan Gong via zjshen)
 
+    BUG-47244. HDFS-9354. Fix TestBalancer#testBalancerWithZeroThreadsForMove
+    on Windows. (Xiaoyu Yao via cnauroth)
+
