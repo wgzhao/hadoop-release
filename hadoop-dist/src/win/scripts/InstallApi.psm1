@@ -411,7 +411,7 @@ function InstallCore(
         $cmd = "mkdir `"$hadooplogdir`""
         Invoke-CmdChk $cmd
     }
-    GiveFullPermissions "$hadooplogdir" "Users"
+    GiveFullPermissions "$hadooplogdir" "*S-1-5-32-545"
     ###
     ### ACL Hadoop temp directory such that machine users can write to it
     ###
@@ -422,7 +422,7 @@ function InstallCore(
         $cmd = "mkdir `"$hadooptempdir`""
         Invoke-CmdChk $cmd
     }
-    GiveFullPermissions "$hadooptempdir" "Users"
+    GiveFullPermissions "$hadooptempdir" "*S-1-5-32-545"
 
 
     Write-Log "Installation of Apache Hadoop Core complete"
