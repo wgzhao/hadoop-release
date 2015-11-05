@@ -358,14 +358,14 @@ public class TimelineClientImpl extends TimelineClient {
     if (timelineServerPluginEnabled) {
       activePath =
           new Path(conf.get(
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT));
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR,
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT));
       fs = activePath.getFileSystem(conf);
       if (!fs.exists(activePath)) {
         throw new IOException(activePath + " does not exist");
       }
       summaryEntityTypes = new HashSet<String>(conf.getStringCollection(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES));
+          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES));
       objMapper = createObjectMapper();
       flushIntervalSecs = conf.getLong(
           YarnConfiguration
@@ -384,6 +384,17 @@ public class TimelineClientImpl extends TimelineClient {
           new LogFDsCache(flushIntervalSecs, cleanIntervalSecs, ttl);
       this.isAppendSupported =
           conf.getBoolean(TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND, true);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS
+                + ":" + flushIntervalSecs + ", " +
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS
+                + ":" + cleanIntervalSecs + ", " +
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS
+                + ":" + ttl + ", " +
+            TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND
+                + ":" + isAppendSupported);
+      }
     }
   }
 
@@ -897,12 +908,12 @@ public class TimelineClientImpl extends TimelineClient {
 
     public LogFD(FileSystem fs, Path logPath, ObjectMapper objMapper,
         boolean isAppendSupported) throws IOException {
+      this.isAppendSupported = isAppendSupported;
       this.objMapper = objMapper;
       this.stream = createLogFileStream(fs, logPath);
       this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
       this.jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
       this.lastModifiedTime = System.currentTimeMillis();
-      this.isAppendSupported = isAppendSupported;
     }
 
     public void close() {

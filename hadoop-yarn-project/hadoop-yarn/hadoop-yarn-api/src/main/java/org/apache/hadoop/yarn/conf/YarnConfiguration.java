@@ -1407,38 +1407,6 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_UI_ON_DISK_PATH_PREFIX =
       TIMELINE_SERVICE_PREFIX + "ui-on-disk-path.";
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_PREFIX =
-      "yarn.timeline-service.entity-file-store.";
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_STORE =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "summary-store";
-
-  public static final String
-      TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "scan-interval-seconds";
-  public static final long
-      TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS_DEFAULT = 5 * 60;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_THREADS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "threads";
-  public static final int TIMELINE_SERVICE_ENTITYFILE_THREADS_DEFAULT = 16;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "app-cache-size";
-  public static final int
-      TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE_DEFAULT = 5;
-
-  public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cleaner-interval-seconds";
-  public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS_DEFAULT = 60 * 60;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "retain-seconds";
-  public static final int TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS_DEFAULT =
-      7 * 24 * 60 * 60;
-
   /**
    * The setting for timeline service plugin
    */
@@ -1446,13 +1414,75 @@ public class YarnConfiguration extends Configuration {
       TIMELINE_SERVICE_PREFIX + "plugin.enabled";
   public static final boolean DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED = false;
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR =
-      TIMELINE_SERVICE_PREFIX + "entity-file-store.active-dir";
-  public static final String TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT =
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX =
+      TIMELINE_SERVICE_PREFIX + "entity-file-cache-store.";
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_STORE =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "summary-store";
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "scan-interval-seconds";
+  public static final long
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS_DEFAULT = 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "threads";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS_DEFAULT = 16;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "app-cache-size";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE_DEFAULT = 10;
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "cleaner-interval-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS_DEFAULT =
+        60 * 60;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "retain-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS_DEFAULT =
+        7 * 24 * 60 * 60;
+
+  public static final String TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX
+          + "leveldb-cache-read-cache-size";
+
+  public static final long
+      DEFAULT_TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE = 10 * 1024 * 1024;
+
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "active-dir";
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT =
       "/tmp/entity-file-history/active";
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES =
-      TIMELINE_SERVICE_PREFIX + "entity-file-store.summary-entity-types";
+  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "done-dir";
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR_DEFAULT =
+      "/tmp/entity-file-history/done";
+
+  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "cache-id-plugin-classes";
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "summary-entity-types";
+
+  // how old the most recent log of an UNKNOWN app needs to be in the active
+  // directory before we treat it as COMPLETED
+  public static final String
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS =
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "unknown-active-seconds";
+  public static final int
+      TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS_DEFAULT
+      = 24 * 60 * 60;
 
   public static final String
       TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS =
@@ -1477,22 +1507,6 @@ public class YarnConfiguration extends Configuration {
   @Private
   public static final String APPLICATION_HISTORY_PREFIX =
       TIMELINE_SERVICE_PREFIX + "generic-application-history.";
-
-  // how old the most recent log of an UNKNOWN app needs to be in the active
-  // directory before we treat it as COMPLETED
-  public static final String
-      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "unknown-active-seconds";
-  public static final int
-      TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS_DEFAULT = 24 * 60 * 60;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "done-dir";
-  public static final String TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT =
-      "/tmp/entity-file-history/done";
-
-  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
-      TIMELINE_SERVICE_ENTITYFILE_PREFIX + "cache-id-plugin-classes";
 
   /**
    *  The setting that controls whether application history service is

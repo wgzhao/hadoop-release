@@ -82,8 +82,9 @@ public class LevelDBCacheTimelineStore extends MapTimelineStore {
     Options options = new Options();
     options.createIfMissing(true);
     options.cacheSize(conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_LEVELDB_READ_CACHE_SIZE,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_LEVELDB_READ_CACHE_SIZE));
+        YarnConfiguration.TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE,
+        YarnConfiguration.
+            DEFAULT_TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE));
     JniDBFactory factory = new JniDBFactory();
     Path dbPath = new Path(
         conf.get(YarnConfiguration.TIMELINE_SERVICE_LEVELDB_PATH),

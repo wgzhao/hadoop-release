@@ -1,19 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership.  The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.apache.hadoop.yarn.server.timeline;
@@ -88,30 +87,29 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private static final String SUMMARY_LOG_PREFIX = "summarylog-";
   private static final String ENTITY_LOG_PREFIX = "entitylog-";
   private static final FsPermission ACTIVE_DIR_PERMISSION =
-      new FsPermission((short)01777);
+      new FsPermission((short) 01777);
   private static final FsPermission DONE_DIR_PERMISSION =
-      new FsPermission((short)0700);
+      new FsPermission((short) 0700);
 
   private static final EnumSet<YarnApplicationState>
-    APP_FINAL_STATES = EnumSet.of(
-        YarnApplicationState.FAILED,
-        YarnApplicationState.KILLED,
-        YarnApplicationState.FINISHED);
+      APP_FINAL_STATES = EnumSet.of(
+      YarnApplicationState.FAILED,
+      YarnApplicationState.KILLED,
+      YarnApplicationState.FINISHED);
   // Active dir: <activeRoot>/appId/attemptId/cacheId.log
   // Done dir: <doneRoot>/cluster_ts/hash1/hash2/appId/attemptId/cacheId.log
   private static final String APP_DONE_DIR_PREFIX_FORMAT =
       "%d" + Path.SEPARATOR     // cluster timestamp
-      + "%04d" + Path.SEPARATOR // app num / 10000000
-      + "%03d" + Path.SEPARATOR // (app num / 1000) % 1000
-      + "%s"   + Path.SEPARATOR;// full app id
+          + "%04d" + Path.SEPARATOR // app num / 10000000
+          + "%03d" + Path.SEPARATOR // (app num / 1000) % 1000
+          + "%s" + Path.SEPARATOR;// full app id
 
   private YarnClient yarnClient;
   private TimelineStore summaryStore;
   private TimelineACLsManager aclManager;
   private TimelineDataManager summaryTdm;
   private ConcurrentMap<ApplicationId, AppLogs> appIdLogMap =
-      new ConcurrentHashMap<>();
-  private Map<CacheId, CacheItem> cachedLogs;
+      new ConcurrentHashMap<ApplicationId, AppLogs>();
   private ScheduledThreadPoolExecutor executor;
   private FileSystem fs;
   private ObjectMapper objMapper;
@@ -120,8 +118,28 @@ public class EntityFileCacheTimelineStore extends AbstractService
   private Path doneRootPath;
   private long logRetainMillis;
   private long unknownActiveMillis;
-  private int appCacheMaxSize;
+  private int appCacheMaxSize = 0;
   private List<TimelineCacheIdPlugin> cacheIdPlugins;
+  private final Map<CacheId, CacheItem> cachedLogs
+      = Collections.synchronizedMap(
+      new LinkedHashMap<CacheId, CacheItem>(appCacheMaxSize + 1,
+          0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(
+            Map.Entry<CacheId, CacheItem> eldest) {
+          if (super.size() > appCacheMaxSize) {
+            CacheId cacheId = eldest.getKey();
+            LOG.debug("Evicting {} due to space limitations", cacheId);
+            CacheItem cacheItem = eldest.getValue();
+            cacheItem.releaseCache(cacheId);
+            if (cacheItem.appLogs.isDone()) {
+              appIdLogMap.remove(cacheId.getApplicationId());
+            }
+            return true;
+          }
+          return false;
+        }
+      });
 
   public EntityFileCacheTimelineStore() {
     super(EntityFileCacheTimelineStore.class.getSimpleName());
@@ -133,47 +151,23 @@ public class EntityFileCacheTimelineStore extends AbstractService
     summaryStore = createSummaryStore();
     summaryStore.init(conf);
     long logRetainSecs = conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS,
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_RETAIN_SECONDS_DEFAULT);
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS,
+        YarnConfiguration
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS_DEFAULT);
     logRetainMillis = logRetainSecs * 1000;
     LOG.info("Cleaner set to delete logs older than {} seconds", logRetainSecs);
     long unknownActiveSecs = conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS,
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS,
         YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_UNKNOWN_ACTIVE_SECONDS_DEFAULT);
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS_DEFAULT);
     unknownActiveMillis = unknownActiveSecs * 1000;
     LOG.info("Unknown apps will be treated as complete after {} seconds",
         unknownActiveSecs);
-    Collection<String> filterStrings = conf.getStringCollection(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES);
-    if (filterStrings.isEmpty()) {
-      throw new IllegalArgumentException(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_ENTITY_TYPES
-              + " is not set");
-    }
-    LOG.info("Entity types for summary store: {}", filterStrings);
     appCacheMaxSize = conf.getInt(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE,
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_APP_CACHE_SIZE_DEFAULT);
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE,
+        YarnConfiguration
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE_DEFAULT);
     LOG.info("Application cache size is {}", appCacheMaxSize);
-    cachedLogs = Collections.synchronizedMap(
-        new LinkedHashMap<CacheId, CacheItem>(appCacheMaxSize + 1,
-            0.75f, true) {
-              @Override
-              protected boolean removeEldestEntry(
-                  Map.Entry<CacheId, CacheItem> eldest) {
-                if (super.size() > appCacheMaxSize) {
-                  CacheId cacheId = eldest.getKey();
-                  AppLogs appLogs = eldest.getValue().getAppLogs();
-                  appLogs.releaseCache();
-                  if (appLogs.isDone()) {
-                    appIdLogMap.remove(cacheId);
-                  }
-                  return true;
-                }
-                return false;
-              }
-        });
     cacheIdPlugins = loadPlugIns(conf);
     // Initialize yarn client for application status
     yarnClient = YarnClient.createYarnClient();
@@ -182,21 +176,19 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   public static Class<?> getClazz(String className) throws Exception {
-    Class<?> clazz = null;
-    if (clazz == null) {
-      try {
-        clazz = Class.forName(className, true,
-            Thread.currentThread().getContextClassLoader());
-      } catch (ClassNotFoundException e) {
-        LOG.info("Unable to load class: " + className, e);
-        throw new YarnException("Unable to load class: " + className, e);
-      }
+    Class<?> clazz;
+    try {
+      clazz = Class.forName(className, true,
+          Thread.currentThread().getContextClassLoader());
+    } catch (ClassNotFoundException e) {
+      LOG.info("Unable to load class: " + className, e);
+      throw new YarnException("Unable to load class: " + className, e);
     }
     return clazz;
   }
 
   private static <T> T getNewInstance(Class<T> clazz) throws Exception {
-    T instance = null;
+    T instance;
     try {
       instance = clazz.newInstance();
     } catch (Exception e) {
@@ -206,7 +198,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     }
     return instance;
   }
-
 
   private List<TimelineCacheIdPlugin> loadPlugIns(Configuration conf)
       throws RuntimeException {
@@ -224,7 +215,8 @@ public class EntityFileCacheTimelineStore extends AbstractService
       }
 
       if (cacheIdPlugin == null
-          || cacheIdPlugin.getClass().equals(EmptyTimelineCacheIdPlugin.class)) {
+          || cacheIdPlugin.getClass()
+          .equals(EmptyTimelineCacheIdPlugin.class)) {
         throw new RuntimeException("No class defined for " + name);
       }
       LOG.debug("Load plugin class {}", cacheIdPlugin.getClass().getName());
@@ -235,13 +227,13 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
   protected TimelineStore createSummaryStore() {
     return ReflectionUtils.newInstance(getConfig().getClass(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SUMMARY_STORE,
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_STORE,
         LeveldbTimelineStore.class, TimelineStore.class), getConfig());
   }
 
   @Override
   protected void serviceStart() throws Exception {
-    LOG.info("Starting {}",getName());
+    LOG.info("Starting {}", getName());
     yarnClient.start();
     summaryStore.start();
 
@@ -252,11 +244,11 @@ public class EntityFileCacheTimelineStore extends AbstractService
     summaryTdm.init(conf);
     summaryTdm.start();
     activeRootPath = new Path(conf.get(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR,
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_ACTIVE_DIR_DEFAULT));
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR,
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT));
     doneRootPath = new Path(conf.get(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_DONE_DIR,
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_DONE_DIR_DEFAULT));
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR,
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR_DEFAULT));
     fs = activeRootPath.getFileSystem(conf);
     if (!fs.exists(activeRootPath)) {
       fs.mkdirs(activeRootPath);
@@ -271,16 +263,18 @@ public class EntityFileCacheTimelineStore extends AbstractService
     objMapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
     jsonFactory = new MappingJsonFactory(objMapper);
     final long scanIntervalSecs = conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS,
         YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_SCAN_INTERVAL_SECONDS_DEFAULT);
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS,
+        YarnConfiguration
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS_DEFAULT);
     final long cleanerIntervalSecs = conf.getLong(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS,
         YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_CLEANER_INTERVAL_SECONDS_DEFAULT);
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS,
+        YarnConfiguration
+            .TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS_DEFAULT);
     final int numThreads = conf.getInt(
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_THREADS,
-        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_THREADS_DEFAULT);
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS,
+        YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS_DEFAULT);
     LOG.info("Scanning active directory every {} seconds", scanIntervalSecs);
     LOG.info("Cleaning logs every {} seconds", cleanerIntervalSecs);
 
@@ -323,8 +317,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   @InterfaceAudience.Private
-  @VisibleForTesting
-  void scanActiveLogs() throws IOException {
+  @VisibleForTesting void scanActiveLogs() throws IOException {
     RemoteIterator<FileStatus> iter = fs.listStatusIterator(activeRootPath);
     while (iter.hasNext()) {
       FileStatus stat = iter.next();
@@ -350,26 +343,26 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   // searches for the app logs and returns it if found else null
-  private AppLogs getAndSetAppLogs(CacheId cacheId) throws IOException {
-    LOG.debug("Looking for app logs mapped for cache id {}", cacheId);
-    AppLogs appLogs = appIdLogMap.get(cacheId.getApplicationId());
+  private AppLogs getAndSetAppLogs(ApplicationId applicationId)
+      throws IOException {
+    LOG.debug("Looking for app logs mapped for cache id {}", applicationId);
+    AppLogs appLogs = appIdLogMap.get(applicationId);
     if (appLogs == null) {
       AppState appState = AppState.UNKNOWN;
-      Path appDirPath = getDoneAppPath(cacheId.getApplicationId());
+      Path appDirPath = getDoneAppPath(applicationId);
       if (fs.exists(appDirPath)) {
         appState = AppState.COMPLETED;
       } else {
-        appDirPath = getActiveAppPath(cacheId.getApplicationId());
+        appDirPath = getActiveAppPath(applicationId);
         if (fs.exists(appDirPath)) {
           appState = AppState.ACTIVE;
         }
       }
       if (appState != AppState.UNKNOWN) {
-        appLogs = new AppLogs(cacheId.getApplicationId(), appDirPath, appState);
+        appLogs = new AppLogs(applicationId, appDirPath, appState);
         LOG.debug("Create and try to add new appLogs to appIdLogMap for {}",
-            cacheId.getApplicationId());
-        AppLogs oldAppLogs = appIdLogMap.putIfAbsent(cacheId.getApplicationId(),
-            appLogs);
+            applicationId);
+        AppLogs oldAppLogs = appIdLogMap.putIfAbsent(applicationId, appLogs);
         if (oldAppLogs != null) {
           appLogs = oldAppLogs;
         }
@@ -470,7 +463,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     private AppState appState;
     private List<LogInfo> summaryLogs = new ArrayList<LogInfo>();
     private List<LogInfo> detailLogs = new ArrayList<LogInfo>();
-    private TimelineStore appTimelineStore = null;
 
     public AppLogs(ApplicationId appId, Path appPath, AppState state) {
       this.appId = appId;
@@ -484,6 +476,10 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
     public synchronized ApplicationId getAppId() {
       return appId;
+    }
+
+    public synchronized Path getAppDirPath() {
+      return appDirPath;
     }
 
     public synchronized void parseSummaryLogs() throws IOException {
@@ -501,9 +497,18 @@ public class EntityFileCacheTimelineStore extends AbstractService
           }
         }
       }
+      List<LogInfo> removeList = new ArrayList<LogInfo>();
       for (LogInfo log : summaryLogs) {
-        log.parseForSummaryStore(appDirPath, isDone());
+        if (fs.exists(log.getPath(appDirPath))) {
+          log.parseForSummaryStore(appDirPath, isDone());
+        } else {
+          // The log may have been removed, remove the log
+          removeList.add(log);
+          LOG.info("File {} no longer exists, remove it from log list",
+              log.getPath(appDirPath));
+        }
       }
+      summaryLogs.removeAll(removeList);
     }
 
     // scans for new logs and returns the modification timestamp of the
@@ -511,20 +516,22 @@ public class EntityFileCacheTimelineStore extends AbstractService
     private long scanForLogs() throws IOException {
       LOG.debug("scanForLogs on {}", appDirPath);
       long newestModTime = 0;
-      RemoteIterator<FileStatus> iterAttempt = fs.listStatusIterator(appDirPath);
+      RemoteIterator<FileStatus> iterAttempt =
+          fs.listStatusIterator(appDirPath);
       while (iterAttempt.hasNext()) {
         FileStatus statAttempt = iterAttempt.next();
         LOG.debug("scanForLogs on {}", statAttempt.getPath().getName());
         if (!statAttempt.isDirectory()
             || !statAttempt.getPath().getName()
-                 .startsWith(ApplicationAttemptId.appAttemptIdStrPrefix)) {
+            .startsWith(ApplicationAttemptId.appAttemptIdStrPrefix)) {
           LOG.info("Scanner skips for unknown dir/file {}",
               statAttempt.getPath());
           continue;
         }
+        String attemptDirName = statAttempt.getPath().getName();
         RemoteIterator<FileStatus> iterCache
             = fs.listStatusIterator(statAttempt.getPath());
-        while(iterCache.hasNext()) {
+        while (iterCache.hasNext()) {
           FileStatus statCache = iterCache.next();
           newestModTime
               = Math.max(statCache.getModificationTime(), newestModTime);
@@ -534,11 +541,12 @@ public class EntityFileCacheTimelineStore extends AbstractService
           String filename = statCache.getPath().getName();
           LOG.debug("scan for log file: {}", filename);
           if (filename.startsWith(DOMAIN_LOG_PREFIX)) {
-            addSummaryLog(filename, statCache.getOwner(), true);
+            addSummaryLog(attemptDirName, filename, statCache.getOwner(), true);
           } else if (filename.startsWith(SUMMARY_LOG_PREFIX)) {
-            addSummaryLog(filename, statCache.getOwner(), false);
+            addSummaryLog(attemptDirName, filename, statCache.getOwner(),
+                false);
           } else if (filename.startsWith(ENTITY_LOG_PREFIX)) {
-            addDetailLog(filename, statCache.getOwner());
+            addDetailLog(attemptDirName, filename, statCache.getOwner());
           }
         }
       }
@@ -552,10 +560,11 @@ public class EntityFileCacheTimelineStore extends AbstractService
       return newestModTime;
     }
 
-    private void addSummaryLog(String filename, String owner,
-        boolean isDomainLog) {
+    private void addSummaryLog(String attemptDirName,
+        String filename, String owner, boolean isDomainLog) {
       for (LogInfo log : summaryLogs) {
-        if (log.filename.equals(filename)) {
+        if (log.filename.equals(filename)
+            && log.attemptDirName.equals(attemptDirName)) {
           return;
         }
       }
@@ -563,76 +572,22 @@ public class EntityFileCacheTimelineStore extends AbstractService
           filename);
       LogInfo log;
       if (isDomainLog) {
-        log = new DomainLogInfo(filename, owner);
+        log = new DomainLogInfo(attemptDirName, filename, owner);
       } else {
-        log = new EntityLogInfo(filename, owner);
+        log = new EntityLogInfo(attemptDirName, filename, owner);
       }
       summaryLogs.add(log);
     }
 
-    private void addDetailLog(String filename, String owner) {
+    private void addDetailLog(String attemptDirName, String filename,
+        String owner) {
       for (LogInfo log : detailLogs) {
-        if (log.filename.equals(filename)) {
+        if (log.filename.equals(filename)
+            && log.attemptDirName.equals(attemptDirName)) {
           return;
         }
       }
-      detailLogs.add(new EntityLogInfo(filename, owner));
-    }
-
-    public synchronized TimelineStore refreshCache(CacheId cacheId,
-        CacheItem cacheItem) throws IOException {
-      if (cacheItem.needRefresh()) {
-        if (!isDone()) {
-          parseSummaryLogs();
-        } else if (detailLogs.isEmpty()) {
-          scanForLogs();
-        }
-        if (!detailLogs.isEmpty()) {
-          if (appTimelineStore == null) {
-            appTimelineStore = new LevelDBCacheTimelineStore(appId.toString(),
-                "LeveldbCache." + appId);
-            //appTimelineStore = new MemoryTimelineStore("MemoryStore." + appId);
-            appTimelineStore.init(getConfig());
-            appTimelineStore.start();
-          }
-          TimelineDataManager tdm = new TimelineDataManager(appTimelineStore,
-              aclManager);
-          tdm.init(getConfig());
-          tdm.start();
-          if (detailLogs.isEmpty()) {
-            LOG.debug("cache id {}'s detail log is empty! ", cacheId);
-          }
-          for (LogInfo log : detailLogs) {
-            LOG.debug("Try refresh logs for {}", log.getFilename());
-            // Only refresh the log that matches the cache id
-            if (log.getFilename().contains(cacheId.toString())) {
-              LOG.debug("Refresh logs for cache id {}", cacheId);
-              log.parseForStore(tdm, appDirPath, isDone());
-            }
-          }
-          tdm.close();
-        }
-        cacheItem.updateRefreshTimeToNow();
-      } else {
-        LOG.debug("Cache new enough, skip refreshing");
-      }
-
-      return appTimelineStore;
-    }
-
-    public synchronized void releaseCache() {
-      try {
-        if (appTimelineStore != null) {
-          appTimelineStore.close();
-        }
-      } catch (IOException e) {
-        LOG.warn("Error closing datamanager", e);
-      }
-      appTimelineStore = null;
-      // reset offsets so next time logs are re-parsed
-      for (LogInfo log : detailLogs) {
-        log.offset = 0;
-      }
+      detailLogs.add(new EntityLogInfo(attemptDirName, filename, owner));
     }
 
     public synchronized void moveToDone() throws IOException {
@@ -656,15 +611,20 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   private static class CacheItem {
+    private TimelineStore store;
     private AppLogs appLogs;
     private long lastRefresh;
 
-    public void setAppLogs(AppLogs appLogs) {
+    public synchronized AppLogs getAppLogs() {
+      return this.appLogs;
+    }
+
+    public synchronized void setAppLogs(AppLogs appLogs) {
       this.appLogs = appLogs;
     }
 
-    public AppLogs getAppLogs() {
-      return appLogs;
+    public TimelineStore getTimelineStore() {
+      return store;
     }
 
     public boolean needRefresh() {
@@ -675,16 +635,92 @@ public class EntityFileCacheTimelineStore extends AbstractService
     public void updateRefreshTimeToNow() {
       this.lastRefresh = Time.monotonicNow();
     }
+
+    public synchronized TimelineStore refreshCache(CacheId cacheId,
+        TimelineACLsManager aclManager, Configuration config, FileSystem fs)
+        throws IOException {
+      if (needRefresh()) {
+        if (!appLogs.isDone()) {
+          appLogs.parseSummaryLogs();
+        } else if (appLogs.detailLogs.isEmpty()) {
+          appLogs.scanForLogs();
+        }
+        if (!appLogs.detailLogs.isEmpty()) {
+          if (store == null) {
+            store = new LevelDBCacheTimelineStore(cacheId.toString(),
+                "LeveldbCache." + cacheId);
+            //store = new MemoryTimelineStore("MemoryStore." + cacheId);
+            store.init(config);
+            store.start();
+          }
+          TimelineDataManager tdm = new TimelineDataManager(store,
+              aclManager);
+          tdm.init(config);
+          tdm.start();
+          if (appLogs.detailLogs.isEmpty()) {
+            LOG.debug("cache id {}'s detail log is empty! ", cacheId);
+          }
+          List<LogInfo> removeList = new ArrayList<LogInfo>();
+          for (LogInfo log : appLogs.detailLogs) {
+            LOG.debug("Try refresh logs for {}", log.getFilename());
+            // Only refresh the log that matches the cache id
+            if (log.getFilename().contains(cacheId.toString())) {
+              Path appDirPath = appLogs.getAppDirPath();
+              if (fs.exists(log.getPath(appDirPath))) {
+                LOG.debug("Refresh logs for cache id {}", cacheId);
+                log.parseForStore(tdm, appDirPath, appLogs.isDone());
+              } else {
+                // The log may have been removed, remove the log
+                removeList.add(log);
+                LOG.info("File {} no longer exists, remove it from log list",
+                    log.getPath(appDirPath));
+              }
+              appLogs.detailLogs.removeAll(removeList);
+            }
+          }
+          tdm.close();
+        }
+        updateRefreshTimeToNow();
+      } else {
+        LOG.debug("Cache new enough, skip refreshing");
+      }
+
+      return store;
+    }
+
+    public synchronized void releaseCache(CacheId cacheId) {
+      try {
+        if (store != null) {
+          store.close();
+        }
+      } catch (IOException e) {
+        LOG.warn("Error closing datamanager", e);
+      }
+      store = null;
+      // reset offsets so next time logs are re-parsed
+      for (LogInfo log : appLogs.detailLogs) {
+        if (log.getFilename().contains(cacheId.toString())) {
+          log.offset = 0;
+        }
+      }
+    }
   }
 
   private abstract class LogInfo {
+    protected String attemptDirName;
     protected String filename;
     protected String user;
     protected long offset = 0;
 
-    public LogInfo(String file, String owner) {
+    public LogInfo(String attemptDirName, String file, String owner) {
+      this.attemptDirName = attemptDirName;
       filename = file;
       user = owner;
+    }
+
+    public Path getPath(Path rootPath) {
+      Path attemptPath = new Path(rootPath, attemptDirName);
+      return new Path(attemptPath, filename);
     }
 
     public String getFilename() {
@@ -699,19 +735,17 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
     public void parseForStore(TimelineDataManager tdm, Path appDirPath,
         boolean appCompleted) throws IOException {
-      LOG.debug("Parsing for log dir {}", appDirPath);
-      // Iterate in app dir for all attempts
-      RemoteIterator<FileStatus> iterAttempt = fs.listStatusIterator(appDirPath);
-      while (iterAttempt.hasNext()) {
-        FileStatus attemptStat = iterAttempt.next();
-        Path attemptPath = attemptStat.getPath();
-        Path logPath = new Path(attemptPath, filename);
-        String dirname = appDirPath.getName();
+      LOG.debug("Parsing for log dir {} on attempt {}", appDirPath,
+          attemptDirName);
+      Path logPath = getPath(appDirPath);
+      if (fs.exists(logPath)) {
         long startTime = Time.monotonicNow();
         LOG.debug("Parsing {} at offset {}", logPath, offset);
         long count = parsePath(tdm, logPath, appCompleted);
         LOG.info("Parsed {} entities from {} in {} msec",
             count, logPath, Time.monotonicNow() - startTime);
+      } else {
+        LOG.warn("{} no longer exists. Skip for scanning. ");
       }
     }
 
@@ -748,8 +782,9 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   private class EntityLogInfo extends LogInfo {
-    public EntityLogInfo(String file, String owner) {
-      super(file, owner);
+    public EntityLogInfo(String attemptId,
+        String file, String owner) {
+      super(attemptId, file, owner);
     }
 
     @Override
@@ -758,7 +793,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
       long count = 0;
       TimelineEntities entities = new TimelineEntities();
       ArrayList<TimelineEntity> entityList = new ArrayList<TimelineEntity>(1);
-      long bytesParsed = 0;
+      long bytesParsed;
       long bytesParsedLastBatch = 0;
       boolean postError = false;
       try {
@@ -777,11 +812,12 @@ public class EntityFileCacheTimelineStore extends AbstractService
           LOG.trace("Parser now at offset {}", bytesParsed);
 
           try {
-            LOG.debug("Adding {}({}) to cache store", eid, etype);
+            LOG.debug("Adding {}({}) to store", eid, etype);
             entityList.add(entity);
             entities.setEntities(entityList);
             TimelinePutResponse response = tdm.postEntities(entities, ugi);
-            for (TimelinePutResponse.TimelinePutError e : response.getErrors()) {
+            for (TimelinePutResponse.TimelinePutError e
+                : response.getErrors()) {
               LOG.warn("Error putting entity: {} ({}): {}",
                   e.getEntityId(), e.getEntityType(), e.getErrorCode());
             }
@@ -812,14 +848,15 @@ public class EntityFileCacheTimelineStore extends AbstractService
   }
 
   private class DomainLogInfo extends LogInfo {
-    public DomainLogInfo(String file, String owner) {
-      super(file, owner);
+    public DomainLogInfo(String attemptDirName, String file,
+        String owner) {
+      super(attemptDirName, file, owner);
     }
 
     protected long doParse(TimelineDataManager tdm, JsonParser parser,
         UserGroupInformation ugi, boolean appCompleted) throws IOException {
       long count = 0;
-      long bytesParsed = 0;
+      long bytesParsed;
       long bytesParsedLastBatch = 0;
       boolean putError = false;
       try {
@@ -890,7 +927,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
         appLogs.parseSummaryLogs();
         if (appLogs.isDone()) {
           appLogs.moveToDone();
-          appLogs.releaseCache();
           appIdLogMap.remove(appLogs.getAppId());
         }
         LOG.debug("End parsing summary logs. ");
@@ -913,9 +949,9 @@ public class EntityFileCacheTimelineStore extends AbstractService
     }
   }
 
-  private List<TimelineStore> getTimelineStoresFromCacheIds(Set<CacheId> cacheIds,
-      String entityType) throws IOException {
-    List<TimelineStore> stores = new LinkedList<>();
+  private List<TimelineStore> getTimelineStoresFromCacheIds(
+      Set<CacheId> cacheIds, String entityType) throws IOException {
+    List<TimelineStore> stores = new LinkedList<TimelineStore>();
     // For now we just handle one store in a context. We return the first
     // non-null storage for the cache ids.
     for (CacheId cacheId : cacheIds) {
@@ -957,8 +993,8 @@ public class EntityFileCacheTimelineStore extends AbstractService
 
   private List<TimelineStore> getTimelineStoresForRead(String entityType,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters)
-    throws IOException {
-    Set<CacheId> cacheIds = new HashSet<>();
+      throws IOException {
+    Set<CacheId> cacheIds = new HashSet<CacheId>();
     for (TimelineCacheIdPlugin cacheIdPlugin : cacheIdPlugins) {
       Set<CacheId> idsFromPlugin =
           cacheIdPlugin.getCacheId(entityType, primaryFilter, secondaryFilters);
@@ -971,7 +1007,6 @@ public class EntityFileCacheTimelineStore extends AbstractService
     return getTimelineStoresFromCacheIds(cacheIds, entityType);
   }
 
-
   // find a cached timeline store or null if it cannot be located
   private TimelineStore getCachedStore(CacheId cacheId)
       throws IOException {
@@ -982,21 +1017,7 @@ public class EntityFileCacheTimelineStore extends AbstractService
       if (cacheItem == null) {
         LOG.debug("Set up new cache item for id {}", cacheId);
         cacheItem = new CacheItem();
-      }
-      AppLogs appLogs = cacheItem.getAppLogs();
-      AppLogs appLogNoncached
-          = this.appIdLogMap.get(cacheId.getApplicationId());
-      if (appLogs == null || appLogNoncached == null
-          || !appLogNoncached.equals(appLogs)) {
-        if (appLogs == null) {
-          LOG.debug("cached appLogs empty, reset");
-        } else if (appLogNoncached == null) {
-          LOG.debug("logs in appIdMap disabled, reset");
-        } else {
-          LOG.debug("cached appLogs out of sync, reset {} {}",
-              appLogs.toString(), appLogNoncached.toString());
-        }
-        appLogs = getAndSetAppLogs(cacheId);
+        AppLogs appLogs = getAndSetAppLogs(cacheId.getApplicationId());
         if (appLogs != null) {
           LOG.debug("Set applogs {} for cache id {}", appLogs, cacheId);
           cacheItem.setAppLogs(appLogs);
@@ -1010,7 +1031,9 @@ public class EntityFileCacheTimelineStore extends AbstractService
     if (cacheItem.getAppLogs() != null) {
       AppLogs appLogs = cacheItem.getAppLogs();
       LOG.debug("try refresh cache {} {}", cacheId, appLogs.getAppId());
-      store = appLogs.refreshCache(cacheId, cacheItem);
+      store = cacheItem.refreshCache(cacheId, aclManager, getConfig(), fs);
+    } else {
+      LOG.warn("AppLogs for cache id {} is null", cacheId);
     }
     return store;
   }
@@ -1042,11 +1065,13 @@ public class EntityFileCacheTimelineStore extends AbstractService
     for (TimelineStore store : stores) {
       LOG.debug("Try timeline store {}:{} for the request", store.getName(),
           store.toString());
-      TimelineEntity e = store.getEntity(entityId, entityType, fieldsToRetrieve);
+      TimelineEntity e =
+          store.getEntity(entityId, entityType, fieldsToRetrieve);
       if (e != null) {
         return e;
       }
     }
+    LOG.warn("getEntity: Found nothing");
     return null;
   }
 
