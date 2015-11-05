@@ -25,7 +25,7 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
     in more rolling upgrade use cases. (cnauroth)
-    
+
     HDFS-4396. Add START_MSG/SHUTDOWN_MSG for ZKFC
     (Liang Xie via harsh)
 
@@ -172,6 +172,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8845. DiskChecker should not traverse the entire tree (Chang Li via
     Colin P. McCabe)
 
+    HDFS-9282. Make data directory count and storage raw capacity related tests
+    FsDataset-agnostic. (Tony Wu via lei)
+
   BUG FIXES
 
     HDFS-7701. Support reporting per storage type quota and usage
@@ -297,7 +300,7 @@ Release 2.8.0 - UNRELEASED
     HDFS-9384. TestWebHdfsContentLength intermittently hangs and fails due to
     TCP conversation mismatch between client and server. (cnauroth)
 
-    HDFS-4937. ReplicationMonitor can infinite-loop in 
+    HDFS-4937. ReplicationMonitor can infinite-loop in
     BlockPlacementPolicyDefault#chooseRandom(). (kihwal)
 
     HDFS-8829. Make SO_RCVBUF and SO_SNDBUF size configurable for
@@ -408,7 +411,7 @@ Release 2.7.2 - 2016-01-25
   OPTIMIZATIONS
 
   BUG FIXES
-    
+
     HDFS-9851. NameNode throws NPE when setPermission is called on a path that
     does not exist. (Brahma Reddy Battula via aajisaka)
 
@@ -810,7 +813,7 @@ Release 2.7.0 - 2015-04-20
 
     HDFS-7035. Make adding a new data directory to the DataNode an atomic
     operation and improve error handling (Lei Xu via Colin P. McCabe)
-    
+
     HDFS-6917. Add an hdfs debug command to validate blocks, call recoverlease,
     etc. (cmccabe)
 
@@ -1162,7 +1165,7 @@ Release 2.7.0 - 2015-04-20
     HDFS-7410. Support CreateFlags with append() to support hsync() for
     appending streams (Vinayakumar B via Colin P. McCabe)
 
-    HDFS-7742. Favoring decommissioning node for replication can cause a block 
+    HDFS-7742. Favoring decommissioning node for replication can cause a block
     to stay underreplicated for long periods (Nathan Roberts via kihwal)
 
     HDFS-7811. Avoid recursive call getStoragePolicyID in
@@ -1324,7 +1327,7 @@ Release 2.7.0 - 2015-04-20
     HDFS-7552. Change FsVolumeList toString() to fix
     TestDataNodeVolumeFailureToleration (Liang Xie via Colin P. McCabe)
 
-    HDFS-7557. Fix spacing for a few keys in DFSConfigKeys.java 
+    HDFS-7557. Fix spacing for a few keys in DFSConfigKeys.java
     (Colin P.McCabe)
 
     HDFS-7560. ACLs removed by removeDefaultAcl() will be back after NameNode

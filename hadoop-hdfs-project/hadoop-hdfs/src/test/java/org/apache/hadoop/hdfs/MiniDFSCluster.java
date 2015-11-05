@@ -193,6 +193,8 @@ public class MiniDFSCluster implements AutoCloseable {
     
     public Builder(Configuration conf) {
       this.conf = conf;
+      this.storagesPerDatanode =
+          FsDatasetTestUtils.Factory.getFactory(conf).getDefaultNumOfDataDirs();
     }
     
     /**
