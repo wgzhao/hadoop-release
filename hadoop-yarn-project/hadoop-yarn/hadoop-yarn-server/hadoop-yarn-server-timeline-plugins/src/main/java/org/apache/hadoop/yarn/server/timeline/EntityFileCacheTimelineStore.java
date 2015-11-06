@@ -741,10 +741,17 @@ public class EntityFileCacheTimelineStore extends AbstractService
       Path logPath = getPath(appDirPath);
       if (fs.exists(logPath)) {
         long startTime = Time.monotonicNow();
-        LOG.debug("Parsing {} at offset {}", logPath, offset);
-        long count = parsePath(tdm, logPath, appCompleted);
-        LOG.info("Parsed {} entities from {} in {} msec",
-            count, logPath, Time.monotonicNow() - startTime);
+        try {
+          LOG.debug("Parsing {} at offset {}", logPath, offset);
+          long count = parsePath(tdm, logPath, appCompleted);
+          LOG.info("Parsed {} entities from {} in {} msec",
+              count, logPath, Time.monotonicNow() - startTime);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof JsonParseException) {
+            // If AppLogs cannot parse this log, it may be corrupted
+            LOG.info("Log {} appears to be corrupted. Skip. ", logPath);
+          }
+        }
       } else {
         LOG.warn("{} no longer exists. Skip for scanning. ");
       }
