@@ -617,3 +617,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-48340. YARN-4287 (Rack locality improvement) to 2.3-maint. 
     (Nathan Robert via wangda)
 
+    HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
+    is deleted from different process. (Dushyanth Chickabasapa via cnauroth)
