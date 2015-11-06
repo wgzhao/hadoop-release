@@ -570,3 +570,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-26978. HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should
     check the length of storageIDs. (szetszwo via Arpit Agarwal)
 
+    MAPREDUCE-6302. (BUG-47640) Backport preempt reducers after a configurable 
+    timeout irrespective of headroom. (Karthik Kambatla)
