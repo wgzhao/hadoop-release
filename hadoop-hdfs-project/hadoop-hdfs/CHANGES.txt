@@ -140,6 +140,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9354. Fix TestBalancer#testBalancerWithZeroThreadsForMove on Windows.
     (Xiaoyu Yao via cnauroth)
 
+    HDFS-9384. TestWebHdfsContentLength intermittently hangs and fails due to
+    TCP conversation mismatch between client and server. (cnauroth)
+
 Release 2.7.2
 
   INCOMPATIBLE CHANGES
