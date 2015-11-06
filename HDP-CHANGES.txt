@@ -788,3 +788,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-47372. TestDecomission fails in 2.2-maint. (Arpit Agarwal)
 
+    BUG-47448. HDFS-4937. ReplicationMonitor can infinite-loop in
+    BlockPlacementPolicyDefault#chooseRandom. (kihwal)
+
