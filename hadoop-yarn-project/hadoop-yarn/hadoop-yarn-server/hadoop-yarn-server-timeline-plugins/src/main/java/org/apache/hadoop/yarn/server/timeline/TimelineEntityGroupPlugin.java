@@ -22,42 +22,49 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.hadoop.yarn.api.records.CacheId;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
 
 /**
  * Plugin to map a requested query ( or an Entity/set of Entities ) to a CacheID.
  * The Cache ID is an identifier to the data set that needs to be queried to serve the response
  * for the query.
  */
-public abstract class TimelineCacheIdPlugin {
+public abstract class TimelineEntityGroupPlugin {
 
   /**
-   * Get the cacheIds for the data sets that need to be scanned to serve the query
+   * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
+   * scanned to serve the query
    * @param entityType Entity Type being queried
    * @param primaryFilter Primary filter being applied
    * @param secondaryFilters Secondary filters being applied in the query
-   * @return {@link org.apache.hadoop.yarn.api.records.CacheId}
+   * @return {@link org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId}
    */
-  public abstract Set<CacheId> getCacheId(String entityType,
-      NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters);
+  public abstract Set<TimelineEntityGroupId> getTimelineEntityGroupId(
+      String entityType, NameValuePair primaryFilter,
+      Collection<NameValuePair> secondaryFilters);
 
   /**
-   * Get the cacheIds for the data sets that need to be scanned to serve the query
+   * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
+   * scanned to serve the query
    * @param entityType Entity Type being queried
    * @param entityId Entity Id being requested
-   * @return {@link org.apache.hadoop.yarn.api.records.CacheId}
+   * @return {@link org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId}
    */
-  public abstract Set<CacheId> getCacheId(String entityId, String entityType);
+  public abstract Set<TimelineEntityGroupId> getTimelineEntityGroupId(
+      String entityId,
+      String entityType);
 
 
   /**
-   * Get the cacheIds for the data sets that need to be scanned to serve the query
+   * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
+   * scanned to serve the query
    * @param entityType Entity Type being queried
    * @param entityIds Entity Ids being requested
    * @param eventTypes Event Types being requested
-   * @return {@link org.apache.hadoop.yarn.api.records.CacheId}
+   * @return {@link org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId}
    */
-  public abstract Set<CacheId> getCacheId(String entityType, SortedSet<String> entityIds,
+  public abstract Set<TimelineEntityGroupId> getTimelineEntityGroupId(
+      String entityType, SortedSet<String> entityIds,
       Set<String> eventTypes);
 
 

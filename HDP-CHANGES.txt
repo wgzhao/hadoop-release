@@ -5,6 +5,8 @@ covered by CHANGES.txt.
 
   NEW FEATURES
 
+    YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
+
     HDFS-6581. Support for writing to single replica in RAM. Applied
     HDFS-6581.merge.15.patch to Champlain. This is a consolidated patch
     containing all feature changes and was applied to trunk. (Multiple
