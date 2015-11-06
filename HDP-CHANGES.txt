@@ -525,3 +525,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
     is deleted from different process. (Dushyanth Chickabasapa via cnauroth)
+
+    MAPREDUCE-6302. (Monarch YARN-137) Backport preempt reducers after a configurable 
+    timeout irrespective of headroom. (Karthik Kambatla)
