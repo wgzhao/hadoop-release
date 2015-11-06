@@ -786,3 +786,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-47468. HDFS-8785. TestDistributedFileSystem is failing in trunk.
     (Xiaoyu Yao)
 
+    BUG-47372. TestDecomission fails in 2.2-maint. (Arpit Agarwal)
+
