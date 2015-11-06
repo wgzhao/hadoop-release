@@ -4,11 +4,18 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
   NEW FEATURES
 
-   HDFS-8008. Support client-side back off when the datanodes are congested. (wheat9)
+    HDFS-8008. Support client-side back off when the datanodes are congested. (wheat9)
 
-   HDFS-8009. Signal congestion on the DataNode. (wheat9)
+    YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
 
-   BUG-26128/YARN-2571 RM to support YARN registry
+    HDFS-6581. Support for writing to single replica in RAM. Applied
+    HDFS-6581.merge.15.patch to Champlain. This is a consolidated patch
+    containing all feature changes and was applied to trunk. (Multiple
+    contributors via Arpit Agarwal)
+
+    HDFS-8009. Signal congestion on the DataNode. (wheat9)
+
+    BUG-26128/YARN-2571 RM to support YARN registry
 
     YARN-3345. Add non-exclusive node label API. (Wangda Tan via jianhe)
 

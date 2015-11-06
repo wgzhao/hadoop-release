@@ -17,25 +17,29 @@
  */
 package org.apache.hadoop.yarn.server.timeline;
 
-import org.apache.hadoop.yarn.api.records.CacheId;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.SortedSet;
 
-public class EmptyTimelineCacheIdPlugin extends TimelineCacheIdPlugin {
+public class EmptyTimelineEntityGroupPlugin extends TimelineEntityGroupPlugin {
   @Override
-  public Set<CacheId> getCacheId(String entityType, NameValuePair primaryFilter,
+  public Set<TimelineEntityGroupId> getTimelineEntityGroupId(String entityType,
+      NameValuePair primaryFilter,
       Collection<NameValuePair> secondaryFilters) {
     return null;
   }
 
-  @Override public Set<CacheId> getCacheId(String entityId, String entityType) {
+  @Override public Set<TimelineEntityGroupId> getTimelineEntityGroupId(
+      String entityId,
+      String entityType) {
     return null;
   }
 
   @Override
-  public Set<CacheId> getCacheId(String entityType, SortedSet<String> entityIds,
+  public Set<TimelineEntityGroupId> getTimelineEntityGroupId(String entityType,
+      SortedSet<String> entityIds,
       Set<String> eventTypes) {
     return null;
   }

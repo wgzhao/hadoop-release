@@ -74,11 +74,11 @@ import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAu
 import org.apache.hadoop.security.token.delegation.web.PseudoDelegationTokenAuthenticator;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.CacheId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomains;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 import org.apache.hadoop.yarn.client.api.TimelineClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -137,7 +137,6 @@ public class TimelineClientImpl extends TimelineClient {
   private URI resURI;
   private UserGroupInformation authUgi;
   private String doAsUser;
-  private boolean timelineServerPluginEnabled;
   private Path activePath = null;
   private FileSystem fs = null;
   private Set<String> summaryEntityTypes;
@@ -148,6 +147,7 @@ public class TimelineClientImpl extends TimelineClient {
   private LogFDsCache logFDsCache = null;
   private boolean isAppendSupported;
   private Configuration conf;
+  private float timeLineServiceVersion;
 
   // This is temporary solution. The configuration will be deleted once we have
   // the FileSystem API to check whether append operation is supported or not.
@@ -348,49 +348,51 @@ public class TimelineClientImpl extends TimelineClient {
     }
     LOG.info("Timeline service address: " + resURI);
 
-    timelineServerPluginEnabled =
-        conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_PLUGIN_ENABLED,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED);
+    timeLineServiceVersion =
+        conf.getFloat(YarnConfiguration.TIMELINE_SERVICE_VERSION,
+          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_VERSION);
     super.serviceInit(conf);
   }
   @Override
   protected void serviceStart() throws Exception {
-    if (timelineServerPluginEnabled) {
+    if (timeLineServiceVersion == 1.5) {
       activePath =
           new Path(conf.get(
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR,
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT));
+            YarnConfiguration.TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR,
+            YarnConfiguration
+                .TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR_DEFAULT));
       fs = activePath.getFileSystem(conf);
       if (!fs.exists(activePath)) {
         throw new IOException(activePath + " does not exist");
       }
       summaryEntityTypes = new HashSet<String>(conf.getStringCollection(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES));
+          YarnConfiguration
+              .TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SUMMARY_ENTITY_TYPES));
       objMapper = createObjectMapper();
       flushIntervalSecs = conf.getLong(
           YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS,
+            .TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS,
           YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS_DEFAULT);
+            .TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS_DEFAULT);
       cleanIntervalSecs = conf.getLong(
           YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS,
+            .TIMELINE_SERVICE_CLIENT_FD_CLEAN_INTERVAL_SECS,
           YarnConfiguration
-            .TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS_DEFAULT);
+            .TIMELINE_SERVICE_CLIENT_FD_CLEAN_INTERVAL_SECS_DEFAULT);
       ttl = conf.getLong(
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS,
-          YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS_DEFAULT);
+          YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_RETAIN_SECS,
+          YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_RETAIN_SECS_DEFAULT);
       logFDsCache =
           new LogFDsCache(flushIntervalSecs, cleanIntervalSecs, ttl);
       this.isAppendSupported =
           conf.getBoolean(TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND, true);
       if (LOG.isDebugEnabled()) {
         LOG.debug(
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS
+            YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS
                 + ":" + flushIntervalSecs + ", " +
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS
+            YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_CLEAN_INTERVAL_SECS
                 + ":" + cleanIntervalSecs + ", " +
-            YarnConfiguration.TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS
+            YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_RETAIN_SECS
                 + ":" + ttl + ", " +
             TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND
                 + ":" + isAppendSupported);
@@ -770,10 +772,16 @@ public class TimelineClientImpl extends TimelineClient {
   }
 
   @Override
-  public TimelinePutResponse putEntities(CacheId cacheId,
-      ApplicationAttemptId appAttemptId, TimelineEntity... entities)
+  public TimelinePutResponse putEntities(
+      ApplicationAttemptId appAttemptId, TimelineEntityGroupId groupId,
+      TimelineEntity... entities)
       throws IOException, YarnException {
-    if (!timelineServerPluginEnabled || appAttemptId == null) {
+    if (timeLineServiceVersion != 1.5) {
+      throw new YarnException(
+        "this API is not supported in current timeline service version:"
+            + timeLineServiceVersion);
+    }
+    if (appAttemptId == null) {
       return putEntities(entities);
     }
 
@@ -786,7 +794,7 @@ public class TimelineClientImpl extends TimelineClient {
       if (summaryEntityTypes.contains(entity.getEntityType())) {
         entitiesToSummary.add(entity);
       } else {
-        if (cacheId != null) {
+        if (groupId != null) {
           entitiesToEntity.add(entity);
         } else {
           entitiesToDB.add(entity);
@@ -805,8 +813,8 @@ public class TimelineClientImpl extends TimelineClient {
 
     if (!entitiesToEntity.isEmpty()) {
       Path entityLogPath =
-          new Path(attemptDir, ENTITY_LOG_PREFIX + cacheId.toString());
-      LOG.info("Writing entity log for " + cacheId.toString() + " to "
+          new Path(attemptDir, ENTITY_LOG_PREFIX + groupId.toString());
+      LOG.info("Writing entity log for " + groupId.toString() + " to "
           + entityLogPath);
       this.logFDsCache.writeEntityLogs(fs, entityLogPath, objMapper,
         appAttemptId, entitiesToEntity, isAppendSupported, false);
@@ -823,7 +831,12 @@ public class TimelineClientImpl extends TimelineClient {
   @Override
   public void putDomain(ApplicationAttemptId appAttemptId,
       TimelineDomain domain) throws IOException, YarnException {
-    if (!timelineServerPluginEnabled || appAttemptId == null) {
+    if (timeLineServiceVersion != 1.5) {
+      throw new YarnException(
+        "this API is not supported in current timeline service version:"
+            + timeLineServiceVersion);
+    }
+    if (appAttemptId == null) {
       putDomain(domain);
     } else {
       writeDomain(appAttemptId, domain);

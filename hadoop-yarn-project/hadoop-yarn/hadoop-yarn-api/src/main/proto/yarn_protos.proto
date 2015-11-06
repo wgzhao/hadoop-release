@@ -53,7 +53,7 @@ message ContainerIdProto {
   optional int64 id = 3;
 }
 
-message CacheIdProto {
+message TimelineEntityGroupIdProto {
   optional ApplicationIdProto app_id = 1;
   optional string id = 2;
 }

@@ -81,7 +81,15 @@ public class YarnConfiguration extends Configuration {
   private static void addDeprecatedKeys() {
     Configuration.addDeprecations(new DeprecationDelta[] {
         new DeprecationDelta("yarn.client.max-nodemanagers-proxies",
-            NM_CLIENT_MAX_NM_PROXIES)
+            NM_CLIENT_MAX_NM_PROXIES),
+        // Added to accommodate config changes in ATS v1.5
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.cache-id-plugin-classes", TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_CLASSES),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.active-dir", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.done-dir", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.threads", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_THREADS),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.scan-interval-seconds", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SCAN_INTERVAL_SECONDS),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.cleaner-interval-seconds", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_CLEANER_INTERVAL_SECONDS),
+        new DeprecationDelta("yarn.timeline-service.entity-file-cache-store.retain-seconds", TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_RETAIN_SECONDS)
     });
   }
 
@@ -1412,6 +1420,13 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_PREFIX =
       YARN_PREFIX + "timeline-service.";
 
+  /** Timeline client settings */
+  public static final String TIMELINE_SERVICE_CLIENT_PREFIX =
+      TIMELINE_SERVICE_PREFIX + "client.";
+
+  public static final String TIMELINE_SERVICE_VERSION =
+      TIMELINE_SERVICE_PREFIX + "version";
+  public static final float DEFAULT_TIMELINE_SERVICE_VERSION = 1.5f;
   /**
    * Comma seperated list of names for UIs hosted in the timeline server
    * (For pluggable UIs).
@@ -1431,99 +1446,96 @@ public class YarnConfiguration extends Configuration {
       TIMELINE_SERVICE_PREFIX + "ui-on-disk-path.";
 
   /**
-   * The setting for timeline service plugin
+   * The setting for timeline service v1.5
    */
-  public static final String TIMELINE_SERVICE_PLUGIN_ENABLED =
-      TIMELINE_SERVICE_PREFIX + "plugin.enabled";
-  public static final boolean DEFAULT_TIMELINE_SERVICE_PLUGIN_ENABLED = false;
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX =
-      TIMELINE_SERVICE_PREFIX + "entity-file-cache-store.";
-
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_STORE =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "summary-store";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX =
+      TIMELINE_SERVICE_PREFIX + "entity-group-fs-store.";
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "scan-interval-seconds";
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SUMMARY_STORE =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "summary-store";
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SCAN_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "scan-interval-seconds";
   public static final long
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_SCAN_INTERVAL_SECONDS_DEFAULT = 60;
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SCAN_INTERVAL_SECONDS_DEFAULT = 60;
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "threads";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_THREADS =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "threads";
   public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_THREADS_DEFAULT = 16;
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_THREADS_DEFAULT = 16;
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "app-cache-size";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_APP_CACHE_SIZE
+      = TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "app-cache-size";
   public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_APP_CACHE_SIZE_DEFAULT = 10;
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_APP_CACHE_SIZE_DEFAULT = 10;
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "cleaner-interval-seconds";
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_CLEANER_INTERVAL_SECONDS =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "cleaner-interval-seconds";
   public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_CLEANER_INTERVAL_SECONDS_DEFAULT =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_CLEANER_INTERVAL_SECONDS_DEFAULT =
         60 * 60;
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "retain-seconds";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_RETAIN_SECONDS
+      = TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "retain-seconds";
   public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_RETAIN_SECONDS_DEFAULT =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_RETAIN_SECONDS_DEFAULT =
         7 * 24 * 60 * 60;
 
   public static final String TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX
           + "leveldb-cache-read-cache-size";
 
   public static final long
       DEFAULT_TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE = 10 * 1024 * 1024;
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "active-dir";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "active-dir";
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_ACTIVE_DIR_DEFAULT =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR_DEFAULT =
       "/tmp/entity-file-history/active";
 
-  public static final String TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "done-dir";
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "done-dir";
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_DONE_DIR_DEFAULT =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR_DEFAULT =
       "/tmp/entity-file-history/done";
 
-  public static final String TIMELINE_SERVICE_CACHE_ID_PLUGIN_CLASSES =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "cache-id-plugin-classes";
+  public static final String TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_CLASSES =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "group-id-plugin-classes";
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_SUMMARY_ENTITY_TYPES =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "summary-entity-types";
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SUMMARY_ENTITY_TYPES =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "summary-entity-types";
 
   // how old the most recent log of an UNKNOWN app needs to be in the active
   // directory before we treat it as COMPLETED
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS =
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_PREFIX + "unknown-active-seconds";
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_UNKNOWN_ACTIVE_SECONDS =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "unknown-active-seconds";
   public static final int
-      TIMELINE_SERVICE_ENTITYFILE_CACHE_UNKNOWN_ACTIVE_SECONDS_DEFAULT
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_UNKNOWN_ACTIVE_SECONDS_DEFAULT
       = 24 * 60 * 60;
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS =
-      TIMELINE_SERVICE_PREFIX + "entity-file-fd.flush-interval-secs";
+      TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS =
+      TIMELINE_SERVICE_CLIENT_PREFIX + "fd-flush-interval-secs";
   public static final long
-      TIMELINE_SERVICE_ENTITYFILE_FD_FLUSH_INTERVAL_SECS_DEFAULT = 10;
+      TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS_DEFAULT = 10;
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS =
-      TIMELINE_SERVICE_PREFIX + "entity-file-fd.clean-interval-secs";
+      TIMELINE_SERVICE_CLIENT_FD_CLEAN_INTERVAL_SECS =
+      TIMELINE_SERVICE_CLIENT_PREFIX + "fd-clean-interval-secs";
   public static final long
-      TIMELINE_SERVICE_ENTITYFILE_FD_CLEAN_INTERVAL_SECS_DEFAULT = 60;
+      TIMELINE_SERVICE_CLIENT_FD_CLEAN_INTERVAL_SECS_DEFAULT = 60;
 
   public static final String
-      TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS =
-      TIMELINE_SERVICE_PREFIX + "entity-file-fd.retain-secs";
+      TIMELINE_SERVICE_CLIENT_FD_RETAIN_SECS =
+      TIMELINE_SERVICE_CLIENT_PREFIX + "fd-retain-secs";
   public static final long
-      TIMELINE_SERVICE_ENTITYFILE_FD_RETAIN_SECS_DEFAULT = 5 * 60;
+      TIMELINE_SERVICE_CLIENT_FD_RETAIN_SECS_DEFAULT = 5 * 60;
 
   // mark app-history related configs @Private as application history is going
   // to be integrated into the timeline service
@@ -1727,10 +1739,6 @@ public class YarnConfiguration extends Configuration {
   /** Default value for cross origin support for timeline server.*/
   public static final boolean
       TIMELINE_SERVICE_HTTP_CROSS_ORIGIN_ENABLED_DEFAULT = false;
-
-  /** Timeline client settings */
-  public static final String TIMELINE_SERVICE_CLIENT_PREFIX =
-      TIMELINE_SERVICE_PREFIX + "client.";
 
   /** Timeline client call, max retries (-1 means no limit) */
   public static final String TIMELINE_SERVICE_CLIENT_MAX_RETRIES =
