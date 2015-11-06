@@ -265,15 +265,116 @@ Release 2.7.2 - UNRELEASED
 
     YARN-4009. CORS support for ResourceManager REST API. ( Varun Vasudev via jeagles)
 
-    YARRN-4092. Fixed UI redirection to print useful messages when both RMs are
-    in standby mode. (Xuan Gong via jianhe)
+    YARN-3170. YARN architecture document needs updating. (Brahma Reddy Battula
+    via ozawa)
+
+    YARN-3967. Fetch the application report from the AHS if the RM does not know about it.
+    (Mit Desai via xgong)
+
+    YARN-2801. Add documentation for node labels feature. (Wangda Tan and Naganarasimha 
+    G R  via ozawa)
+
+    YARN-2513. Host framework UIs in YARN for use with the ATS (jeagles)
 
   OPTIMIZATIONS
 
   BUG FIXES
 
-    YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
-    gets connection issue. (Xuan Gong via jianhe)
+    YARN-3793. Several NPEs when deleting local files on NM recovery (Varun
+    Saxena via jlowe)
+
+    YARN-3508. Prevent processing preemption events on the main RM dispatcher. 
+    (Varun Saxena via wangda)
+
+    YARN-3690. [JDK8] 'mvn site' fails. (Brahma Reddy Battula via aajisaka)
+
+    YARN-3905. Application History Server UI NPEs when accessing apps run after
+    RM restart (Eric Payne via jeagles)
+
+    YARN-3535. Scheduler must re-request container resources when RMContainer transitions
+    from ALLOCATED to KILLED (rohithsharma and peng.zhang via asuresh)
+
+    YARN-3878. AsyncDispatcher can hang while stopping if it is configured for
+    draining events on stop. (Varun Saxena via jianhe)
+
+    YARN-3969. Allow jobs to be submitted to reservation that is active 
+    but does not have any allocations. (subru via curino)
+
+    YARN-3925. ContainerLogsUtils#getContainerLogFile fails to read container
+    log files from full disks. (zhihai xu via jlowe)
+
+    YARN-3857: Memory leak in ResourceManager with SIMPLE mode.
+    (mujunchao via zxu)
+
+    YARN-3893. Both RM in active state when Admin#transitionToActive failure 
+    from refeshAll() (Bibin A Chundatt via rohithsharmaks)
+
+    YARN-4103. RM WebServices missing scheme for appattempts logLinks.
+    (Jonathan Eagles via vvasudeb)
+
+    YARN-4105. Capacity Scheduler headroom for DRF is wrong (Chang Li via
+    jlowe)
+
+    YARN-4096. App local logs are leaked if log aggregation fails to initialize
+    for the app. (Jason Lowe via zxu)
+
+    YARN-4153. TestAsyncDispatcher failed at branch-2.7 (Zhihai Xu via jianhe)
+
+    YARN-3697. FairScheduler: ContinuousSchedulingThread can fail to shutdown.
+    (Zhihai Xu via kasha)
+
+    YARN-4158. Remove duplicate close for LogWriter in
+    AppLogAggregatorImpl#uploadLogsForContainers (Zhihai Xu via jlowe)
+
+    YARN-3975. WebAppProxyServlet should not redirect to RM page if AHS is
+    enabled (Mit Desai via jlowe)
+
+    YARN-3624. ApplicationHistoryServer should not reverse the order of the
+    filters it gets. (Mit Desai via xgong)
+
+    YARN-4180. AMLauncher does not retry on failures when talking to NM.
+    (adhoot)
+
+    YARN-3619. ContainerMetrics unregisters during getMetrics and leads to
+    ConcurrentModificationException (Zhihai Xu via jlowe)
+
+    YARN-4209. RMStateStore FENCED state doesn’t work due to updateFencedState called 
+    by stateMachine.doTransition. (Zhihai Xu via rohithsharmaks)
+
+    YARN-4281. 2.7 RM app page is broken (Chang Li via jlowe)
+
+    YARN-4000. RM crashes with NPE if leaf queue becomes parent queue during restart.
+    (Varun Saxena via jianhe)
+
+    YARN-4041. Slow delegation token renewal can severely prolong RM recovery
+    (Sunil G via jlowe)
+
+    YARN-2902. Killing a container that is localizing can orphan resources in
+    the DOWNLOADING state (Varun Saxena via jlowe)
+
+    YARN-4183. Enabling generic application history forces every job to get a
+    timeline service delegation token (Mit Desai via jeagles)
+
+    YARN-4313. Race condition in MiniMRYarnCluster when getting history server
+    address. (Jian He via xgong)
+
+    YARN-3580. [JDK8] TestClientRMService.testGetLabelsToNodes fails. (Robert Kanter
+    via junping_du)
+
+    YARN-4312. TestSubmitApplicationWithRMHA fails on branch-2.7 and branch-2.6
+    as some of the test cases time out. (Varun Saxena via ozawa)
+
+    YARN-4320. TestJobHistoryEventHandler fails as AHS in MiniYarnCluster no longer
+    binds to default port 8188. (Varun Saxena via ozawa)
+
+    YARN-4321. Incessant retries if NoAuthException is thrown by Zookeeper in non
+    HA mode.  (Varun Saxena via jianhe)
+
+    YARN-3136. getTransferredContainers can be a bottleneck during AM registration.
+    (Sunil G via jianhe)
+
+    YARN-4127. RM fail with noAuth error if switched from failover mode to non-failover
+    mode. (Varun Saxena via jianhe)
 
     YARN-3508. Prevent processing preemption events on the main RM dispatcher. 
     (Varun Saxena via wangda)
@@ -1205,6 +1306,54 @@ Release 2.7.0 - 2015-04-20
 
     YARN-3466. Fix RM nodes web page to sort by node HTTP-address, #containers 
     and node-label column (Jason Lowe via wangda)
+
+Release 2.6.2 - 2015-10-21
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+    YARN-3727. For better error recovery, check if the directory exists before
+    using it for localization. (Zhihai Xu via jlowe)
+
+    YARN-4092. Fixed UI redirection to print useful messages when both RMs are
+    in standby mode. (Xuan Gong via jianhe)
+
+    YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
+    gets connection issue. (Xuan Gong via jianhe)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    YARN-2019. Retrospect on decision of making RM crashed if any exception throw 
+    in ZKRMStateStore. (Jian He via junping_du)
+
+    YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when
+    state-store error occurs. (Jian He via xgong)
+
+    YARN-3554. Default value for maximum nodemanager connect wait time is too
+    high (Naganarasimha G R via jlowe)
+
+    YARN-4005. Completed container whose app is finished is possibly not
+    removed from NMStateStore. (Jun Gong via jianhe)
+
+    YARN-3780. Should use equals when compare Resource in RMNodeImpl#ReconnectNodeTransition.
+    (zhihai xu via devaraj)
+
+    YARN-3802. Two RMNodes for the same NodeId are used in RM sometimes
+    after NM is reconnected. (zhihai xu via xgong)
+
+    YARN-3194. RM should handle NMContainerStatuses sent by NM while
+    registering if NM is Reconnected node (Rohith via jlowe)
+
+    YARN-3896. RMNode transitioned from RUNNING to REBOOTED because its response id 
+    has not been reset synchronously. (Jun Gong via rohithsharmaks)
+
+    YARN-3798. ZKRMStateStore shouldn't create new session without occurrance of 
+    SESSIONEXPIED. (ozawa and Varun Saxena)
 
 Release 2.6.0 - 2014-11-18
 

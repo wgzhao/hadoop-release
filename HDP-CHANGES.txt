@@ -575,3 +575,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     MAPREDUCE-6302. (BUG-47640) Backport preempt reducers after a configurable 
     timeout irrespective of headroom. (Karthik Kambatla)
+
+    UG-46795. YARN-3467. Expose allocatedMB, allocatedVCores, and runningContainers
+    metrics on running Applications in RM Web UI. (Anubhav Dhoot via kasha)
+ 
+    BUG-46797. YARN-4285. Display resource usage as percentage of queue and cluster
+    in the RM UI (Varun Vasudev via wangda)
