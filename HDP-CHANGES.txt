@@ -57,8 +57,8 @@ covered by CHANGES.txt.
 
     BUG-43224. HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
-    HDFS-9184. Logging HDFS operation's caller context into audit logs
-    (Mingliang Liu via jitendra)
+    BUG-44447. HDFS-9184. Logging HDFS operation's caller context into audit
+    logs (Mingliang Liu via jitendra)
 
     BUG-44457. YARN should log caller context into its audit logs for app
     submissions. (Wangda Tan via jianhe)
