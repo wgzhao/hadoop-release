@@ -567,3 +567,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-47094. HDFS-4937. ReplicationMonitor can infinite-loop in
     BlockPlacementPolicyDefault#chooseRandom. (kihwal)
 
+    BUG-26978. HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should
+    check the length of storageIDs. (szetszwo via Arpit Agarwal)
+

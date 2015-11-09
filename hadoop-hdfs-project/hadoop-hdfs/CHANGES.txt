@@ -263,6 +263,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-9106. Transfer failure during pipeline recovery causes permanent
     write failures. (Kihwal Lee)
 
+    HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should check the
+    length of storageIDs. (szetszwo via Arpit Agarwal)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
