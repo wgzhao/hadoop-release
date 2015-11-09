@@ -149,7 +149,6 @@ public class TaskPage extends AppView {
     //logs column should not filterable (it includes container ID which may pollute searches)
     .append("\n{'aTargets': [ 5 ]")
     .append(", 'bSearchable': false }")
-
     .append("\n, {'sType':'numeric', 'aTargets': [ 6, 7")
     .append(" ], 'mRender': renderHadoopDate }")
 
