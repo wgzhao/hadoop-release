@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ha.HAServiceProtocol;
@@ -39,6 +40,8 @@ import org.apache.hadoop.ha.HAServiceTarget;
 import org.apache.hadoop.service.Service.STATE;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.client.cli.RMAdminCLI;
+import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceOption;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
@@ -52,8 +55,12 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshServiceAclsRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshSuperUserGroupsConfigurationRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshUserToGroupsMappingsRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRequest;
+import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.hadoop.yarn.util.resource.Resources;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -167,6 +174,30 @@ public class TestRMAdminCLI {
     String[] args = { "-refreshServiceAcl" };
     assertEquals(0, rmAdminCLI.run(args));
     verify(admin).refreshServiceAcls(any(RefreshServiceAclsRequest.class));
+  }
+
+  @Test(timeout=500)
+  public void testUpdateNodeResource() throws Exception {
+    String nodeIdStr = "0.0.0.0:0";
+    int memSize = 2048;
+    int cores = 2;
+    String[] args = { "-updateNodeResource", nodeIdStr,
+        Integer.toString(memSize), Integer.toString(cores) };
+    assertEquals(0, rmAdminCLI.run(args));
+    ArgumentCaptor<UpdateNodeResourceRequest> argument =
+        ArgumentCaptor.forClass(UpdateNodeResourceRequest.class);
+    verify(admin).updateNodeResource(argument.capture());
+    UpdateNodeResourceRequest request = argument.getValue();
+    Map<NodeId, ResourceOption> resourceMap = request.getNodeResourceMap();
+    NodeId nodeId = ConverterUtils.toNodeId(nodeIdStr);
+    Resource expectedResource = Resources.createResource(memSize, cores);
+    ResourceOption resource = resourceMap.get(nodeId);
+    assertNotNull("resource for " + nodeIdStr + " shouldn't be null.",
+        resource);
+    assertEquals("resource value for " + nodeIdStr + " is not as expected.",
+        ResourceOption.newInstance(expectedResource,
+            ResourceOption.OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT),
+        resource);
   }
 
   @Test(timeout=500)
