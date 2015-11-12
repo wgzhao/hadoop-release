@@ -931,6 +931,8 @@ covered by CHANGES.txt.
     BUG-47264. HADOOP-11685. StorageException complaining " no lease ID" during
     HBase distributed log splitting. (Duo Xu via Chris Nauroth).
 
+    BUG-26978. HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should check
+    the length of storageIDs. (szetszwo via Arpit Agarwal)
 
     MAPREDUCE-6302. (BUG-47641) Backport preempt reducers after a configurable 
     timeout irrespective of headroom. (Karthik Kambatla)
