@@ -500,18 +500,8 @@ public class DatanodeManager {
   }
 
   public DatanodeStorageInfo[] getDatanodeStorageInfos(
-      DatanodeID[] datanodeID, String[] storageIDs,
-      String format, Object... args) throws UnregisteredNodeException {
-    if (datanodeID.length != storageIDs.length) {
-      final String err = (storageIDs.length == 0?
-          "Missing storageIDs: It is likely that the HDFS client,"
-          + " who made this call, is running in an older version of Hadoop"
-          + " which does not support storageIDs."
-          : "Length mismatched: storageIDs.length=" + storageIDs.length + " != "
-          ) + " datanodeID.length=" + datanodeID.length;
-      throw new HadoopIllegalArgumentException(
-          err + ", "+ String.format(format, args));
-    }
+      DatanodeID[] datanodeID, String[] storageIDs)
+          throws UnregisteredNodeException {
     if (datanodeID.length == 0) {
       return null;
     }

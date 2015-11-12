@@ -158,9 +158,6 @@ Release 2.7.3
     HDFS-4937. ReplicationMonitor can infinite-loop in
     BlockPlacementPolicyDefault#chooseRandom(). (kihwal)
 
-    HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should check the
-    length of storageIDs. (szetszwo via Arpit Agarwal)
-
 Release 2.7.2
 
   INCOMPATIBLE CHANGES

@@ -3773,9 +3773,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
       //find datanode storages
       final DatanodeManager dm = blockManager.getDatanodeManager();
-      chosen = Arrays.asList(dm.getDatanodeStorageInfos(existings, storageIDs,
-          "src=%s, fileId=%d, blk=%s, clientName=%s, clientMachine=%s",
-          src, fileId, blk, clientName, clientMachine));
+      chosen = Arrays.asList(dm.getDatanodeStorageInfos(existings, storageIDs));
     } finally {
       readUnlock();
     }
@@ -5107,7 +5105,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
              + ", deleteBlock=" + deleteblock
              + ")");
     checkOperation(OperationCategory.WRITE);
-    final String src;
+    String src = "";
     waitForLoadingFSImage();
     writeLock();
     try {
@@ -5150,10 +5148,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
             + " deleted and the block removal is delayed");
       }
       INodeFile iFile = ((INode)blockCollection).asFile();
-      src = iFile.getFullPathName();
       if (isFileDeleted(iFile)) {
         throw new FileNotFoundException("File not found: "
-            + src + ", likely due to delayed block removal");
+            + iFile.getFullPathName() + ", likely due to delayed block"
+            + " removal");
       }
       if ((!iFile.isUnderConstruction() || storedBlock.isComplete()) &&
           iFile.getLastBlock().isComplete()) {
@@ -5231,10 +5229,7 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
         DatanodeStorageInfo[] trimmedStorageInfos =
             blockManager.getDatanodeManager().getDatanodeStorageInfos(
                 trimmedTargets.toArray(new DatanodeID[trimmedTargets.size()]),
-                trimmedStorages.toArray(new String[trimmedStorages.size()]),
-                "src=%s, oldBlock=%s, newgenerationstamp=%d, newlength=%d",
-                src, oldBlock, newgenerationstamp, newlength);
-
+                trimmedStorages.toArray(new String[trimmedStorages.size()]));
         if(copyTruncate) {
           iFile.setLastBlock(truncatedBlock, trimmedStorageInfos);
         } else {
@@ -5244,15 +5239,16 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
       if (closeFile) {
         if(copyTruncate) {
-          closeFileCommitBlocks(src, iFile, truncatedBlock);
+          src = closeFileCommitBlocks(iFile, truncatedBlock);
           if(!iFile.isBlockInLatestSnapshot(storedBlock)) {
             blockManager.removeBlock(storedBlock);
           }
         } else {
-          closeFileCommitBlocks(src, iFile, storedBlock);
+          src = closeFileCommitBlocks(iFile, storedBlock);
         }
       } else {
         // If this commit does not want to close the file, persist blocks
+        src = iFile.getFullPathName();
         persistBlocks(src, iFile, false);
       }
     } finally {
@@ -5277,14 +5273,18 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
    * @throws IOException on error
    */
   @VisibleForTesting
-  void closeFileCommitBlocks(String src, INodeFile pendingFile,
-      BlockInfo storedBlock) throws IOException {
+  String closeFileCommitBlocks(INodeFile pendingFile, BlockInfo storedBlock)
+      throws IOException {
+    String src = pendingFile.getFullPathName();
+
     // commit the last block and complete it if it has minimum replicas
     commitOrCompleteLastBlock(pendingFile, storedBlock);
 
     //remove lease, close file
     finalizeINodeFileUnderConstruction(src, pendingFile,
         Snapshot.findLatestSnapshot(pendingFile, Snapshot.CURRENT_STATE_ID));
+
+    return src;
   }
 
   /**
@@ -7571,7 +7571,6 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
     assert hasWriteLock();
     // check the vadility of the block and lease holder name
     final INodeFile pendingFile = checkUCBlock(oldBlock, clientName);
-    final String src = pendingFile.getFullPathName();
     final BlockInfoUnderConstruction blockinfo
         = (BlockInfoUnderConstruction)pendingFile.getLastBlock();
 
@@ -7591,9 +7590,10 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
 
     // find the DatanodeDescriptor objects
     final DatanodeStorageInfo[] storages = blockManager.getDatanodeManager()
-        .getDatanodeStorageInfos(newNodes, newStorageIDs,
-            "src=%s, oldBlock=%s, newBlock=%s, clientName=%s",
-            src, oldBlock, newBlock, clientName);
+        .getDatanodeStorageInfos(newNodes, newStorageIDs);
+    blockinfo.setExpectedLocations(storages);
+
+    String src = pendingFile.getFullPathName();
     persistBlocks(src, pendingFile, logRetryCache);
   }
 
