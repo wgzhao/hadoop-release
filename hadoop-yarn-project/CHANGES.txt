@@ -258,6 +258,8 @@ Release 2.8.0 - UNRELEASED
     YARN-4345. yarn rmadmin -updateNodeResource doesn't work (Junping Du via
     jlowe)
 
+    YARN-4347. Resource manager fails with Null pointer exception. (Jian He via wangda)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
