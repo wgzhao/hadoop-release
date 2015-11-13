@@ -1292,14 +1292,11 @@ public class DatanodeManager {
       for (DatanodeDescriptor dn : datanodeMap.values()) {
         final boolean isDead = isDatanodeDead(dn);
         final boolean isDecommissioning = dn.isDecommissionInProgress();
-
-        if (((listLiveNodes && !isDead) ||
+        if ((listLiveNodes && !isDead) ||
             (listDeadNodes && isDead) ||
-            (listDecommissioningNodes && isDecommissioning)) &&
-            hostFileManager.isIncluded(dn)) {
-          nodes.add(dn);
+            (listDecommissioningNodes && isDecommissioning)) {
+            nodes.add(dn);
         }
-
         foundNodes.add(HostFileManager.resolvedAddressFromDatanodeID(dn));
       }
     }

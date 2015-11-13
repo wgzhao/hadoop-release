@@ -257,9 +257,6 @@ Release 2.7.2 - UNRELEASED
 
     HDFS-9083. Replication violates block placement policy (Rushabh Shah)
 
-    HDFS-7725. Incorrect "nodes in service" metrics caused all writes to fail.
-    (Ming Ma via wang)
-
     HDFS-9106. Transfer failure during pipeline recovery causes permanent
     write failures. (Kihwal Lee)
 
