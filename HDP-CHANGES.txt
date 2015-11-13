@@ -943,3 +943,6 @@ covered by CHANGES.txt.
     YARN-3522. Fixed DistributedShell to instantiate TimeLineClient as the
     correct user. (Zhijie Shen via jianhe)
 
+    YARN-4347. Resource manager fails with Null pointer exception. (Jian He
+    via wangda)
+
