@@ -235,6 +235,9 @@ Release 2.7.2 - UNRELEASED
 
   IMPROVEMENTS
 
+    HDFS-8099. Change "DFSInputStream has been closed already" message to
+    debug log level (Charles Lamb via Colin P. McCabe)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
