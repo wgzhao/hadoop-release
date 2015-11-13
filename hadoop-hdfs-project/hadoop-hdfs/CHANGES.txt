@@ -266,6 +266,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-7725. Incorrect "nodes in service" metrics caused all writes to
     fail. (Ming Ma via wang)
 
+    HDFS-8950. NameNode refresh doesn't remove DataNodes that are
+    no longer in the allowed list. (Daniel Templeton via cmccabe)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
