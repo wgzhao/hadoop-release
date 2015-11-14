@@ -824,9 +824,10 @@ public class ActiveStandbyElector implements StatCallback, StringCallback {
   @InterfaceAudience.Private
   public synchronized void terminateConnection() {
     if (zkClient == null) {
+      LOG.info("terminateConnection, zkConnectionState = " + zkConnectionState);
       return;
     }
-    LOG.debug("Terminating ZK connection for " + this);
+    LOG.info("Terminating ZK connection for " + this);
     ZooKeeper tempZk = zkClient;
     zkClient = null;
     watcher = null;
