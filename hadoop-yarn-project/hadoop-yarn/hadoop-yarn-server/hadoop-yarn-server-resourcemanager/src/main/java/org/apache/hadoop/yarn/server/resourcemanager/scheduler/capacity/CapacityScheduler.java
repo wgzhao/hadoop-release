@@ -1184,9 +1184,10 @@ public class CapacityScheduler extends
   }
 
   private synchronized void addNode(RMNode nodeManager) {
-    this.nodes.put(nodeManager.getNodeID(), new FiCaSchedulerNode(nodeManager,
-        usePortForNodeName, nodeManager.getNodeLabels()));
-    Resources.addTo(clusterResource, nodeManager.getTotalCapability());
+    FiCaSchedulerNode schedulerNode = new FiCaSchedulerNode(nodeManager,
+        usePortForNodeName, nodeManager.getNodeLabels());
+    this.nodes.put(nodeManager.getNodeID(), schedulerNode);
+    Resources.addTo(clusterResource, schedulerNode.getTotalResource());
     root.updateClusterResource(clusterResource);
     int numNodes = numNodeManagers.incrementAndGet();
     
@@ -1200,7 +1201,7 @@ public class CapacityScheduler extends
     // update this node to node label manager
     if (labelManager != null) {
       labelManager.activateNode(nodeManager.getNodeID(),
-          nodeManager.getTotalCapability());
+          schedulerNode.getTotalResource());
     }
   }
 
@@ -1214,7 +1215,7 @@ public class CapacityScheduler extends
     if (node == null) {
       return;
     }
-    Resources.subtractFrom(clusterResource, node.getRMNode().getTotalCapability());
+    Resources.subtractFrom(clusterResource, node.getTotalResource());
     root.updateClusterResource(clusterResource);
     int numNodes = numNodeManagers.decrementAndGet();
 

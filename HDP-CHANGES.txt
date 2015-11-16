@@ -945,4 +945,7 @@ covered by CHANGES.txt.
 
     YARN-4347. Resource manager fails with Null pointer exception. (Jian He
     via wangda)
+    
+    BUG-47767. YARN-4344. NMs reconnecting with changed capabilities
+    can lead to wrong cluster resource calculations. (Varun Vasudev)
 
