@@ -16,6 +16,9 @@ Release 2.8.0 - UNRELEASED
     avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
     (zhihai xu via devaraj)
 
+    MAPREDUCE-5485. Allow repeating job commit by extending OutputCommitter API
+    (Junping Du via jianhe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -28,8 +31,8 @@ Release 2.7.2 - UNRELEASED
 
   BUG FIXES
 
-  MAPREDUCE-6528. Memory leak for HistoryFileManager.getJobSummary()
-  (Junping Du via jlowe)
+    MAPREDUCE-6528. Memory leak for HistoryFileManager.getJobSummary()
+    (Junping Du via jlowe)
 
     MAPREDUCE-5948. org.apache.hadoop.mapred.LineRecordReader does not handle
     multibyte record delimiters well (Vinayakumar B, Rushabh Shah, and Akira
