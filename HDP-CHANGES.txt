@@ -949,3 +949,5 @@ covered by CHANGES.txt.
     BUG-47767. YARN-4344. NMs reconnecting with changed capabilities
     can lead to wrong cluster resource calculations. (Varun Vasudev)
 
+    BUG-47982. Update CallerContext name for MR app master / task (wangda)
+

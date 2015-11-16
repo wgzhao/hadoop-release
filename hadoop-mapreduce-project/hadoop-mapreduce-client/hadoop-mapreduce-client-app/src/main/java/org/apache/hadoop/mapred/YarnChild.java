@@ -87,8 +87,8 @@ class YarnChild {
     JVMId jvmId = new JVMId(firstTaskid.getJobID(),
         firstTaskid.getTaskType() == TaskType.MAP, jvmIdLong);
     
-    CallerContext
-        .setCurrent(new CallerContext.Builder(firstTaskid.toString()).build());
+    CallerContext.setCurrent(
+        new CallerContext.Builder("mr_" + firstTaskid.toString()).build());
 
     // initialize metrics
     DefaultMetricsSystem.initialize(

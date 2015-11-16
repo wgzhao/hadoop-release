@@ -1408,8 +1408,8 @@ public class MRAppMaster extends CompositeService {
       ApplicationAttemptId applicationAttemptId =
           containerId.getApplicationAttemptId();
       if (applicationAttemptId != null) {
-        CallerContext.setCurrent(
-            new CallerContext.Builder(applicationAttemptId.toString()).build());
+        CallerContext.setCurrent(new CallerContext.Builder(
+            "mr_appmaster_" + applicationAttemptId.toString()).build());
       }
       long appSubmitTime = Long.parseLong(appSubmitTimeStr);
       
