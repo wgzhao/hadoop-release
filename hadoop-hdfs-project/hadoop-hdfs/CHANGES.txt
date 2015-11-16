@@ -202,6 +202,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9063. Correctly handle snapshot path for getContentSummary. (jing9)
 
+    HDFS-9413. getContentSummary() on standby should throw StandbyException.
+    (Brahma Reddy Battula via mingma)
+
     HDFS-9273. ACLs on root directory may be lost after NN restart.
     (Xiao Chen via cnauroth)
 
