@@ -916,14 +916,12 @@ public class TimelineClientImpl extends TimelineClient {
     protected ObjectMapper objMapper;
     protected JsonGenerator jsonGenerator;
     protected long lastModifiedTime;
-    private final String logPath;
     private final boolean isAppendSupported;
     private final ReentrantLock fdLock = new ReentrantLock();
 
     public LogFD(FileSystem fs, Path logPath, ObjectMapper objMapper,
         boolean isAppendSupported) throws IOException {
       this.isAppendSupported = isAppendSupported;
-      this.logPath = logPath.toString();
       this.objMapper = objMapper;
       this.stream = createLogFileStream(fs, logPath);
       this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
@@ -973,10 +971,6 @@ public class TimelineClientImpl extends TimelineClient {
 
     public void unlock() {
       this.fdLock.unlock();
-    }
-
-    public String getLogPath() {
-      return this.logPath;
     }
   }
 
@@ -1192,19 +1186,9 @@ public class TimelineClientImpl extends TimelineClient {
       if (logFD != null) {
         try {
           logFD.lock();
-          boolean reCreateFD = true;
           if (logFDs.containsValue(logFD)) {
-            if (logFD.getLogPath().equals(logPath.toString())) {
-              reCreateFD = false;
-              logFD.writeEntities(entities);
-            } else {
-              logFD.close();
-              logFDs.remove(logFD);
-            }
-          }
-
-          if(reCreateFD)
-          {
+            logFD.writeEntities(entities);
+          } else {
             createFDAndWrite(fs, logPath, objMapper, attemptId, entities,
               isAppendSupported, logFDs);
           }
