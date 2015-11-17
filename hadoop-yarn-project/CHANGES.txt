@@ -24,9 +24,6 @@ Release 2.8.0 - UNRELEASED
     YARN-4288. Fixed RMProxy to retry on IOException from local host.
     (Junping Du via jianhe)
 
-    YARN-3840. Resource Manager web ui issue when sorting application by id (with
-    application having id > 9999) (Mohammad Shahid Khan via jianhe)
-
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
