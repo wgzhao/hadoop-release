@@ -516,7 +516,7 @@ public class TimelineClientImpl extends TimelineClient {
                 : new URI(scheme, null, address.getHostName(),
                 address.getPort(), RESOURCE_URI_STR, null, null);
             return authUrl
-                .renewDelegationToken(resURI.toURL(), token, doAsUser);
+                .renewDelegationToken(serviceURI.toURL(), token, doAsUser);
           }
         };
     return (Long) operateDelegationToken(renewDTAction);
