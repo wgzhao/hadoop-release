@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.service.AbstractService;
@@ -67,6 +69,10 @@ abstract class MapTimelineStore
   protected TimelineStoreMapAdapter<String, TimelineDomain> domainById;
   protected TimelineStoreMapAdapter<String, Set<TimelineDomain>> domainsByOwner;
 
+  private boolean serviceStopped = false;
+
+  private static final Log LOG
+      = LogFactory.getLog(MapTimelineStore.class);
 
   public MapTimelineStore() {
     super(MapTimelineStore.class.getName());
@@ -77,10 +83,20 @@ abstract class MapTimelineStore
   }
 
   @Override
+  protected synchronized void serviceStop() throws Exception {
+    serviceStopped = true;
+    super.serviceStop();
+  }
+
+  @Override
   public synchronized TimelineEntities getEntities(String entityType, Long limit,
       Long windowStart, Long windowEnd, String fromId, Long fromTs,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters,
       EnumSet<Field> fields, CheckAcl checkAcl) throws IOException {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return null;
+    }
     if (limit == null) {
       limit = DEFAULT_LIMIT;
     }
@@ -165,6 +181,10 @@ abstract class MapTimelineStore
   @Override
   public synchronized TimelineEntity getEntity(String entityId, String entityType,
       EnumSet<Field> fieldsToRetrieve) {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return null;
+    }
     if (fieldsToRetrieve == null) {
       fieldsToRetrieve = EnumSet.allOf(Field.class);
     }
@@ -181,6 +201,10 @@ abstract class MapTimelineStore
       SortedSet<String> entityIds, Long limit, Long windowStart,
       Long windowEnd,
       Set<String> eventTypes) {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return null;
+    }
     TimelineEvents allEvents = new TimelineEvents();
     if (entityIds == null) {
       return allEvents;
@@ -226,6 +250,10 @@ abstract class MapTimelineStore
   @Override
   public TimelineDomain getDomain(String domainId)
       throws IOException {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return null;
+    }
     TimelineDomain domain = domainById.get(domainId);
     if (domain == null) {
       return null;
@@ -244,6 +272,10 @@ abstract class MapTimelineStore
   @Override
   public TimelineDomains getDomains(String owner)
       throws IOException {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return null;
+    }
     List<TimelineDomain> domains = new ArrayList<TimelineDomain>();
     Set<TimelineDomain> domainsOfOneOwner = domainsByOwner.get(owner);
     if (domainsOfOneOwner == null) {
@@ -282,6 +314,13 @@ abstract class MapTimelineStore
   @Override
   public synchronized TimelinePutResponse put(TimelineEntities data) {
     TimelinePutResponse response = new TimelinePutResponse();
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      TimelinePutError error = new TimelinePutError();
+      error.setErrorCode(TimelinePutError.IO_EXCEPTION);
+      response.addError(error);
+      return response;
+    }
     for (TimelineEntity entity : data.getEntities()) {
       EntityIdentifier entityId =
           new EntityIdentifier(entity.getEntityId(), entity.getEntityType());
@@ -411,6 +450,10 @@ abstract class MapTimelineStore
   }
 
   public void put(TimelineDomain domain) throws IOException {
+    if (serviceStopped) {
+      LOG.info("Service stopped, return null for the storage");
+      return;
+    }
     TimelineDomain domainToReplace =
         domainById.get(domain.getId());
     Long currentTimestamp = System.currentTimeMillis();

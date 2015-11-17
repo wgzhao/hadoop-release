@@ -143,8 +143,8 @@ public class LevelDBCacheTimelineStore extends MapTimelineStore {
    * @param <K> an {@link EntityIdentifier} typed hash key
    * @param <V> a {@link TimelineEntity} typed value
    */
-  class LevelDBMapAdapter<K extends EntityIdentifier, V extends TimelineEntity>
-      implements TimelineStoreMapAdapter<K, V> {
+  static class LevelDBMapAdapter<K extends EntityIdentifier,
+      V extends TimelineEntity> implements TimelineStoreMapAdapter<K, V> {
     private static final String TIME_INDEX_PREFIX = "i";
     private static final String ENTITY_STORAGE_PREFIX = "e";
     DB entityDb;
