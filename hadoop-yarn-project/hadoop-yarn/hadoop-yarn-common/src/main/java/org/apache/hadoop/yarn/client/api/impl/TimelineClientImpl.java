@@ -1013,6 +1013,7 @@ public class TimelineClientImpl extends TimelineClient {
     private final ReentrantLock domainFDLocker = new ReentrantLock();
     private final ReentrantLock summaryTableLocker = new ReentrantLock();
     private final ReentrantLock entityTableLocker = new ReentrantLock();
+    private volatile boolean serviceStopped = false;
     
     public LogFDsCache(long flushIntervalSecs, long cleanIntervalSecs,
         long ttl) {
@@ -1178,6 +1179,9 @@ public class TimelineClientImpl extends TimelineClient {
 
     @Override
     public void close() throws IOException {
+
+      serviceStopped = true;
+
       flushTimer.cancel();
       cleanInActiveFDsTimer.cancel();
 
@@ -1198,37 +1202,47 @@ public class TimelineClientImpl extends TimelineClient {
 
     private void closeEntityFDs(Map<ApplicationAttemptId,
         HashMap<TimelineEntityGroupId, EntityLogFD>> logFDs) {
-      if (!logFDs.isEmpty()) {
-        for (Entry<ApplicationAttemptId, HashMap<TimelineEntityGroupId,
-            EntityLogFD>> logFDMapEntry : logFDs.entrySet()) {
-          HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap
-              = logFDMapEntry.getValue();
-          for (Entry<TimelineEntityGroupId, EntityLogFD> logFDEntry
-              : logFDMap.entrySet()) {
+      try {
+        entityTableLocker.lock();
+        if (!logFDs.isEmpty()) {
+          for (Entry<ApplicationAttemptId, HashMap<TimelineEntityGroupId,
+              EntityLogFD>> logFDMapEntry : logFDs.entrySet()) {
+            HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap
+                = logFDMapEntry.getValue();
+            for (Entry<TimelineEntityGroupId, EntityLogFD> logFDEntry
+                : logFDMap.entrySet()) {
+              EntityLogFD logFD = logFDEntry.getValue();
+              try {
+                logFD.lock();
+                logFD.close();              
+              } finally {
+                logFD.unlock();
+              }
+            }
+          }
+        }
+      } finally {
+        entityTableLocker.unlock();
+      }
+    }  
+
+    private void closeSummaryFDs(Map<ApplicationAttemptId, EntityLogFD> logFDs) {
+      try {
+        summaryTableLocker.lock();
+        if (!logFDs.isEmpty()) {
+          for (Entry<ApplicationAttemptId, EntityLogFD> logFDEntry
+              : logFDs.entrySet()) {
             EntityLogFD logFD = logFDEntry.getValue();
             try {
               logFD.lock();
-              logFD.close();              
+              logFD.close();
             } finally {
               logFD.unlock();
             }
           }
         }
-      }
-    }  
-
-    private void closeSummaryFDs(Map<ApplicationAttemptId, EntityLogFD> logFDs) {
-      if (!logFDs.isEmpty()) {
-        for (Entry<ApplicationAttemptId, EntityLogFD> logFDEntry
-            : logFDs.entrySet()) {
-          EntityLogFD logFD = logFDEntry.getValue();
-          try {
-            logFD.lock();
-            logFD.close();
-          } finally {
-            logFD.unlock();
-          }
-        }
+      } finally {
+        summaryTableLocker.unlock();
       }
     } 
 
@@ -1268,6 +1282,9 @@ public class TimelineClientImpl extends TimelineClient {
         if (logFD != null) {
           try {
             logFD.lock();
+            if (serviceStopped) {
+              return;
+            }
             logFD.writeEntities(entities);
           } finally {
             logFD.unlock();
@@ -1289,6 +1306,9 @@ public class TimelineClientImpl extends TimelineClient {
             TimelineEntityGroupId, EntityLogFD>> logFDs) throws IOException{
       try {
         entityTableLocker.lock();
+        if (serviceStopped) {
+          return;
+        }
         HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap = logFDs.get(attemptId);
         if (logFDMap == null) {
           logFDMap = new HashMap<TimelineEntityGroupId, EntityLogFD>();
@@ -1327,6 +1347,9 @@ public class TimelineClientImpl extends TimelineClient {
       if (logFD != null) {
         try {
           logFD.lock();
+          if (serviceStopped) {
+            return;
+          }
           logFD.writeEntities(entities);
         } finally {
           logFD.unlock();
@@ -1343,6 +1366,9 @@ public class TimelineClientImpl extends TimelineClient {
         Map<ApplicationAttemptId, EntityLogFD> logFDs) throws IOException {
       try {
         summaryTableLocker.lock();
+        if (serviceStopped) {
+          return;
+        }
         EntityLogFD logFD = logFDs.get(attemptId);
         if (logFD == null) {
             logFD = new EntityLogFD(fs, logPath, objMapper, isAppendSupported);
