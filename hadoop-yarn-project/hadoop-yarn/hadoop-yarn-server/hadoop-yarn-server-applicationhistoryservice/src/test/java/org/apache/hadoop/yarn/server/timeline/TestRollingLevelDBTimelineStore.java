@@ -41,12 +41,16 @@ import org.apache.hadoop.yarn.server.records.Version;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.log.Log;
 
 /** Test class to verify RollingLevelDBTimelineStore. */
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
+/** Disable this test for HDP 2.2 since RollingLevelDBTimelineStore does not
+ * work with JDK v1.6.  */
+@Ignore
 public class TestRollingLevelDBTimelineStore extends TimelineStoreTestUtils {
   private FileContext fsContext;
   private File fsPath;
