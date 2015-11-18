@@ -42,6 +42,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.Time;
@@ -78,6 +79,8 @@ public class EntityGroupFSTimelineStore extends AbstractService
   static final String DOMAIN_LOG_PREFIX = "domainlog-";
   static final String SUMMARY_LOG_PREFIX = "summarylog-";
   static final String ENTITY_LOG_PREFIX = "entitylog-";
+
+  static final String ATS_V15_SERVER_DFS_CALLER_CTXT = "yarn_ats_server_v1_5";
 
   private static final Logger LOG = LoggerFactory.getLogger(
       EntityGroupFSTimelineStore.class);
@@ -168,6 +171,8 @@ public class EntityGroupFSTimelineStore extends AbstractService
     // Initialize yarn client for application status
     yarnClient = YarnClient.createYarnClient();
     yarnClient.init(conf);
+    CallerContext.setCurrent(
+        new CallerContext.Builder(ATS_V15_SERVER_DFS_CALLER_CTXT).build());
     super.serviceInit(conf);
   }
 
@@ -310,6 +315,7 @@ public class EntityGroupFSTimelineStore extends AbstractService
     if (yarnClient != null) {
       yarnClient.stop();
     }
+    CallerContext.setCurrent(null);
     super.serviceStop();
   }
 
