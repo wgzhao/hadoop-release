@@ -33,6 +33,7 @@ import java.security.GeneralSecurityException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -807,8 +806,8 @@ public class TimelineClientImpl extends TimelineClient {
           new Path(attemptDir, SUMMARY_LOG_PREFIX + appAttemptId.toString());
       LOG.info("Writing summary log for " + appAttemptId.toString() + " to "
           + summaryLogPath);
-      this.logFDsCache.writeEntityLogs(fs, summaryLogPath, objMapper,
-        appAttemptId, entitiesToSummary, isAppendSupported, true);
+      this.logFDsCache.writeSummaryEntityLogs(fs, summaryLogPath, objMapper,
+        appAttemptId, entitiesToSummary, isAppendSupported);
     }
 
     if (!entitiesToEntity.isEmpty()) {
@@ -817,7 +816,7 @@ public class TimelineClientImpl extends TimelineClient {
       LOG.info("Writing entity log for " + groupId.toString() + " to "
           + entityLogPath);
       this.logFDsCache.writeEntityLogs(fs, entityLogPath, objMapper,
-        appAttemptId, entitiesToEntity, isAppendSupported, false);
+        appAttemptId, groupId, entitiesToEntity, isAppendSupported);
     }
 
     if (!entitiesToDB.isEmpty()) {
@@ -904,6 +903,9 @@ public class TimelineClientImpl extends TimelineClient {
 
     public synchronized void writeEntities(List<TimelineEntity> entities)
         throws IOException {
+      if (writerClosed()) {
+        prepareForWrite();
+      }
       for (TimelineEntity entity : entities) {
         objMapper.writeValue(jsonGenerator, entity);
       }
@@ -918,15 +920,16 @@ public class TimelineClientImpl extends TimelineClient {
     protected long lastModifiedTime;
     private final boolean isAppendSupported;
     private final ReentrantLock fdLock = new ReentrantLock();
+    private final FileSystem fs;
+    private final Path logPath;
 
     public LogFD(FileSystem fs, Path logPath, ObjectMapper objMapper,
         boolean isAppendSupported) throws IOException {
+      this.fs = fs;
+      this.logPath = logPath;
       this.isAppendSupported = isAppendSupported;
       this.objMapper = objMapper;
-      this.stream = createLogFileStream(fs, logPath);
-      this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
-      this.jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
-      this.lastModifiedTime = System.currentTimeMillis();
+      prepareForWrite();
     }
 
     public void close() {
@@ -946,6 +949,17 @@ public class TimelineClientImpl extends TimelineClient {
 
     public long getLastModifiedTime() {
       return this.lastModifiedTime;
+    }
+
+    protected void prepareForWrite() throws IOException{
+      this.stream = createLogFileStream(fs, logPath);
+      this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
+      this.jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      this.lastModifiedTime = System.currentTimeMillis();
+    }
+
+    protected boolean writerClosed() {
+      return stream == null;
     }
 
     private FSDataOutputStream createLogFileStream(FileSystem fs, Path logPath)
@@ -977,21 +991,23 @@ public class TimelineClientImpl extends TimelineClient {
   private static class LogFDsCache implements Closeable, Flushable{
     private DomainLogFD domainLogFD;
     private Map<ApplicationAttemptId, EntityLogFD> summanyLogFDs;
-    private Map<ApplicationAttemptId, EntityLogFD> entityLogFDs;
+    private Map<ApplicationAttemptId, HashMap<TimelineEntityGroupId,
+        EntityLogFD>> entityLogFDs;
     private Timer flushTimer;
     private FlushTimerTask flushTimerTask;
     private Timer cleanInActiveFDsTimer;
     private CleanInActiveFDsTask cleanInActiveFDsTask;
     private final long ttl;
     private final ReentrantLock domainFDLocker = new ReentrantLock();
+    private final ReentrantLock summaryTableLocker = new ReentrantLock();
+    private final ReentrantLock entityTableLocker = new ReentrantLock();
     
     public LogFDsCache(long flushIntervalSecs, long cleanIntervalSecs,
         long ttl) {
       domainLogFD = null;
-      summanyLogFDs =
-          new ConcurrentHashMap<ApplicationAttemptId, EntityLogFD>();
-      entityLogFDs =
-          new ConcurrentHashMap<ApplicationAttemptId, EntityLogFD>();
+      summanyLogFDs = new HashMap<ApplicationAttemptId, EntityLogFD>();
+      entityLogFDs = new HashMap<ApplicationAttemptId,
+          HashMap<TimelineEntityGroupId, EntityLogFD>>();
       this.flushTimer =
           new Timer(LogFDsCache.class.getSimpleName() + "FlushTimer",
             true);
@@ -1019,24 +1035,43 @@ public class TimelineClientImpl extends TimelineClient {
         this.domainFDLocker.unlock();
       }
 
-      flushFDMap(summanyLogFDs, true);
+      flushSummaryFDMap(summanyLogFDs);
 
-      flushFDMap(entityLogFDs, false);
+      flushEntityFDMap(entityLogFDs);
     }
 
-    private void flushFDMap(Map<ApplicationAttemptId, EntityLogFD> logFDs,
-        boolean isSummaryLog) throws IOException {
+    private void flushSummaryFDMap(Map<ApplicationAttemptId,
+        EntityLogFD> logFDs) throws IOException {
       if (!logFDs.isEmpty()) {
         for (Entry<ApplicationAttemptId, EntityLogFD> logFDEntry : logFDs
           .entrySet()) {
           EntityLogFD logFD = logFDEntry.getValue();
           try {
             logFD.lock();
-            if (logFD != null && logFDs.containsValue(logFD)) {
-              logFD.flush();
-            }
+            logFD.flush();            
           } finally {
             logFD.unlock();
+          }
+        }
+      }
+    }
+
+    private void flushEntityFDMap(Map<ApplicationAttemptId,HashMap<
+        TimelineEntityGroupId, EntityLogFD>> logFDs) throws IOException {
+      if (!logFDs.isEmpty()) {
+        for (Entry<ApplicationAttemptId, HashMap<TimelineEntityGroupId,
+            EntityLogFD>> logFDMapEntry : logFDs.entrySet()) {
+          HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap
+              = logFDMapEntry.getValue();
+          for (Entry<TimelineEntityGroupId, EntityLogFD> logFDEntry
+              : logFDMap.entrySet()) {
+            EntityLogFD logFD = logFDEntry.getValue();
+            try {
+              logFD.lock();
+              logFD.flush();
+            } finally {
+              logFD.unlock();
+            }
           }
         }
       }
@@ -1069,29 +1104,48 @@ public class TimelineClientImpl extends TimelineClient {
         this.domainFDLocker.unlock();
       }
 
-      cleanInActiveFDsforMap(summanyLogFDs, currentTimeStamp, true);
+      cleanInActiveSummaryFDsforMap(summanyLogFDs, currentTimeStamp);
 
-      cleanInActiveFDsforMap(entityLogFDs, currentTimeStamp, false);
+      cleanInActiveEntityFDsforMap(entityLogFDs, currentTimeStamp);
     }
 
-    private void cleanInActiveFDsforMap(
+    private void cleanInActiveSummaryFDsforMap(
         Map<ApplicationAttemptId, EntityLogFD> logFDs,
-        long currentTimeStamp, boolean isSummaryLog) {
+        long currentTimeStamp) {
       if (!logFDs.isEmpty()) {
         for (Entry<ApplicationAttemptId, EntityLogFD> logFDEntry : logFDs
           .entrySet()) {
           EntityLogFD logFD = logFDEntry.getValue();
           try {
             logFD.lock();
-            if (logFD != null && logFDs.containsValue(logFD)) {
-              if (currentTimeStamp - logFD.getLastModifiedTime() >= ttl) {
-                logFD.close();
-                logFD = null;
-                logFDs.remove(logFDEntry.getKey());
-              }
+            if (currentTimeStamp - logFD.getLastModifiedTime() >= ttl) {
+              logFD.close();
             }
           } finally {
             logFD.unlock();
+          }
+        }
+      }
+    }
+
+    private void cleanInActiveEntityFDsforMap(Map<ApplicationAttemptId,
+        HashMap<TimelineEntityGroupId, EntityLogFD>> logFDs,
+        long currentTimeStamp) {
+      if (!logFDs.isEmpty()) {
+        for (Entry<ApplicationAttemptId, HashMap<
+            TimelineEntityGroupId, EntityLogFD>> logFDMapEntry
+                : logFDs.entrySet()) {
+          HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap
+              = logFDMapEntry.getValue();
+          for (Entry<TimelineEntityGroupId, EntityLogFD> logFDEntry
+              : logFDMap.entrySet()) {
+            EntityLogFD logFD = logFDEntry.getValue();
+            try {
+              logFD.lock();
+              logFD.close();                
+            } finally {
+              logFD.unlock();
+            }
           }
         }
       }
@@ -1125,29 +1179,46 @@ public class TimelineClientImpl extends TimelineClient {
         this.domainFDLocker.unlock();
       }
 
-      closeFDs(summanyLogFDs, true);
+      closeSummaryFDs(summanyLogFDs);
 
-      closeFDs(entityLogFDs, true);
+      closeEntityFDs(entityLogFDs);
     }
 
-    private void closeFDs(Map<ApplicationAttemptId, EntityLogFD> logFDs,
-        boolean isSummaryLog) {
+    private void closeEntityFDs(Map<ApplicationAttemptId,
+        HashMap<TimelineEntityGroupId, EntityLogFD>> logFDs) {
+      if (!logFDs.isEmpty()) {
+        for (Entry<ApplicationAttemptId, HashMap<TimelineEntityGroupId,
+            EntityLogFD>> logFDMapEntry : logFDs.entrySet()) {
+          HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap
+              = logFDMapEntry.getValue();
+          for (Entry<TimelineEntityGroupId, EntityLogFD> logFDEntry
+              : logFDMap.entrySet()) {
+            EntityLogFD logFD = logFDEntry.getValue();
+            try {
+              logFD.lock();
+              logFD.close();              
+            } finally {
+              logFD.unlock();
+            }
+          }
+        }
+      }
+    }  
+
+    private void closeSummaryFDs(Map<ApplicationAttemptId, EntityLogFD> logFDs) {
       if (!logFDs.isEmpty()) {
         for (Entry<ApplicationAttemptId, EntityLogFD> logFDEntry
             : logFDs.entrySet()) {
           EntityLogFD logFD = logFDEntry.getValue();
           try {
             logFD.lock();
-            if (logFD != null && logFDs.containsValue(logFD)) {
-              logFD.close();
-              logFDs.remove(logFDEntry.getKey());
-            }
+            logFD.close();
           } finally {
             logFD.unlock();
           }
         }
       }
-    }  
+    } 
 
     public void writeDomainLog(FileSystem fs, Path logPath,
         ObjectMapper objMapper, TimelineDomain domain,
@@ -1166,18 +1237,76 @@ public class TimelineClientImpl extends TimelineClient {
       }
     }
 
-    public void writeEntityLogs(FileSystem fs, Path logPath,
-        ObjectMapper objMapper, ApplicationAttemptId attemptId,
-        List<TimelineEntity> entities, boolean isAppendSupported,
-        boolean isSummaryLog) throws IOException {
-
-      writeEntityLogs(fs, logPath, objMapper, attemptId, entities,
-        isAppendSupported, isSummaryLog ? this.summanyLogFDs
-            : this.entityLogFDs);
-
+    public void writeEntityLogs(FileSystem fs, Path entityLogPath,
+        ObjectMapper objMapper, ApplicationAttemptId appAttemptId,
+        TimelineEntityGroupId groupId, List<TimelineEntity> entitiesToEntity,
+        boolean isAppendSupported) throws IOException{
+      writeEntityLogs(fs, entityLogPath, objMapper, appAttemptId, groupId, entitiesToEntity,
+        isAppendSupported, this.entityLogFDs);
     }
 
     private void writeEntityLogs(FileSystem fs, Path logPath,
+        ObjectMapper objMapper, ApplicationAttemptId attemptId,
+        TimelineEntityGroupId groupId, List<TimelineEntity> entities,
+        boolean isAppendSupported, Map<ApplicationAttemptId, HashMap<
+            TimelineEntityGroupId, EntityLogFD>> logFDs) throws IOException {
+      HashMap<TimelineEntityGroupId, EntityLogFD>logMapFD = logFDs.get(attemptId);
+      if (logMapFD != null) {
+        EntityLogFD logFD = logMapFD.get(groupId);
+        if (logFD != null) {
+          try {
+            logFD.lock();
+            logFD.writeEntities(entities);
+          } finally {
+            logFD.unlock();
+          }
+        } else {
+          createEntityFDandWrite(fs, logPath, objMapper, attemptId, groupId,
+            entities, isAppendSupported, logFDs);
+        }
+      } else {
+        createEntityFDandWrite(fs, logPath, objMapper, attemptId, groupId,
+          entities, isAppendSupported, logFDs);
+      }
+    }
+
+    private void createEntityFDandWrite(FileSystem fs, Path logPath,
+        ObjectMapper objMapper, ApplicationAttemptId attemptId,
+        TimelineEntityGroupId groupId, List<TimelineEntity> entities,
+        boolean isAppendSupported, Map<ApplicationAttemptId, HashMap<
+            TimelineEntityGroupId, EntityLogFD>> logFDs) throws IOException{
+      try {
+        entityTableLocker.lock();
+        HashMap<TimelineEntityGroupId, EntityLogFD> logFDMap = logFDs.get(attemptId);
+        if (logFDMap == null) {
+          logFDMap = new HashMap<TimelineEntityGroupId, EntityLogFD>();
+        }
+        EntityLogFD logFD = logFDMap.get(groupId);
+        if (logFD == null) {
+         logFD = new EntityLogFD(fs, logPath, objMapper, isAppendSupported);
+        }
+        try {
+          logFD.lock();
+          logFD.writeEntities(entities);
+          logFDMap.put(groupId, logFD);
+          logFDs.put(attemptId, logFDMap);        
+        } finally {
+          logFD.unlock();
+        }
+      } finally {
+        entityTableLocker.unlock();
+      }
+    }
+
+    public void writeSummaryEntityLogs(FileSystem fs, Path logPath,
+        ObjectMapper objMapper, ApplicationAttemptId attemptId,
+        List<TimelineEntity> entities, boolean isAppendSupported)
+        throws IOException {
+      writeSummmaryEntityLogs(fs, logPath, objMapper, attemptId, entities,
+        isAppendSupported, this.summanyLogFDs);
+    }
+
+    private void writeSummmaryEntityLogs(FileSystem fs, Path logPath,
         ObjectMapper objMapper, ApplicationAttemptId attemptId,
         List<TimelineEntity> entities, boolean isAppendSupported,
         Map<ApplicationAttemptId, EntityLogFD> logFDs) throws IOException {
@@ -1186,33 +1315,35 @@ public class TimelineClientImpl extends TimelineClient {
       if (logFD != null) {
         try {
           logFD.lock();
-          if (logFDs.containsValue(logFD)) {
-            logFD.writeEntities(entities);
-          } else {
-            createFDAndWrite(fs, logPath, objMapper, attemptId, entities,
-              isAppendSupported, logFDs);
-          }
+          logFD.writeEntities(entities);
         } finally {
           logFD.unlock();
         }
       } else {
-        createFDAndWrite(fs, logPath, objMapper, attemptId, entities,
+        createSummaryFDAndWrite(fs, logPath, objMapper, attemptId, entities,
           isAppendSupported, logFDs);
       }
     }
 
-    private void createFDAndWrite(FileSystem fs, Path logPath,
+    private void createSummaryFDAndWrite(FileSystem fs, Path logPath,
         ObjectMapper objMapper, ApplicationAttemptId attemptId,
         List<TimelineEntity> entities, boolean isAppendSupported,
         Map<ApplicationAttemptId, EntityLogFD> logFDs) throws IOException {
-      EntityLogFD logFD =
-          new EntityLogFD(fs, logPath, objMapper, isAppendSupported);
       try {
-        logFD.lock();
-        logFDs.put(attemptId, logFD);
-        logFD.writeEntities(entities);
+        summaryTableLocker.lock();
+        EntityLogFD logFD = logFDs.get(attemptId);
+        if (logFD == null) {
+            logFD = new EntityLogFD(fs, logPath, objMapper, isAppendSupported);
+        }
+        try {
+          logFD.lock();
+          logFD.writeEntities(entities);
+          logFDs.put(attemptId, logFD);
+        } finally {
+          logFD.unlock();
+        }
       } finally {
-        logFD.unlock();
+        summaryTableLocker.unlock();
       }
     }
   }
