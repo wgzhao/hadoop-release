@@ -613,4 +613,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-48344. YARN-3849 (Too much of preemption activity causing continuos 
     killing of containers across queues) to 2.3-maint. (Sunil G via wangda)
+    
+    BUG-48340. YARN-4287 (Rack locality improvement) to 2.3-maint. 
+    (Nathan Robert via wangda)
 
