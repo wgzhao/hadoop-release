@@ -363,6 +363,9 @@ Release 2.7.2 - 2016-01-25
     HDFS-9289. Make DataStreamer#block thread safe and verify genStamp in
     commitBlock. (Chang Li via kihwal)
 
+    HDFS-9431. DistributedFileSystem#concat fails if the target path is
+    relative. (Kazuho Fujii via aajisaka)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
