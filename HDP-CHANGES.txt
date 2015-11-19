@@ -304,6 +304,9 @@ ATS V1.5:
     BUG-52450. HDFS-9790. HDFS Balancer should exit with a proper message if
     upgrade is not finalized (Xiaobing Zhou via Arpit Agarwal)
 
+    HDFS-9434. Recommission a datanode with 500k blocks may pause NN for 30
+    seconds for printing info log messags.  (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
