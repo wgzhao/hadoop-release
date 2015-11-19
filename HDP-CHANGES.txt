@@ -1332,3 +1332,7 @@ ATS V1.5:
 
     BUG-56476. HADOOP-12699. TestKMS#testKMSProvider intermittently fails during
     'test rollover draining'. Contributed by Xiao Chen.
+
+    BUG-55494. HADOOP-11901. BytesWritable fails to support 2G chunks due to
+    integer overflow. (Reynold Xin via wheat9)
+
