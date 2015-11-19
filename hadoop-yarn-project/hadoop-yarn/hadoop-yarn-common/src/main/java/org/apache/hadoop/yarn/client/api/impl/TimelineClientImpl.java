@@ -1022,7 +1022,7 @@ public class TimelineClientImpl extends TimelineClient {
       this.cleanInActiveFDsTask = new CleanInActiveFDsTask();
       this.cleanInActiveFDsTimer.schedule(cleanInActiveFDsTask,
         cleanIntervalSecs * 1000, cleanIntervalSecs * 1000);
-      this.ttl = ttl;
+      this.ttl = ttl * 1000;
     }
 
     @Override
@@ -1096,7 +1096,8 @@ public class TimelineClientImpl extends TimelineClient {
       try {
         this.domainFDLocker.lock();
         if (domainLogFD != null) {
-          if (domainLogFD.getLastModifiedTime() - currentTimeStamp >= ttl) {
+          if (currentTimeStamp - domainLogFD.getLastModifiedTime()
+              >= ttl) {
             domainLogFD.close();
             domainLogFD = null;
           }
@@ -1143,7 +1144,9 @@ public class TimelineClientImpl extends TimelineClient {
             EntityLogFD logFD = logFDEntry.getValue();
             try {
               logFD.lock();
-              logFD.close();                
+              if (currentTimeStamp - logFD.getLastModifiedTime() >= ttl) {
+                logFD.close();
+              }                
             } finally {
               logFD.unlock();
             }
