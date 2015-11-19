@@ -917,3 +917,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HADOOP-12589. Fix intermittent test failure of TestCopyPreserveFlag
     (iwasakims)
+
+    HDFS-9431. DistributedFileSystem#concat fails if the target path is
+    relative. (Kazuho Fujii via aajisaka)
