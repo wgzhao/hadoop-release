@@ -388,6 +388,9 @@ Release 2.7.3 - UNRELEASED
     YARN-4326. Fix TestDistributedShell timeout as AHS in MiniYarnCluster no longer 
     binds to default port 8188. (Meng Ding via wangda)
 
+    YARN-4374. RM capacity scheduler UI rounds user limit factor (Chang Li via
+    jlowe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
