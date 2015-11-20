@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.Level;
 import org.junit.Assert;
 
 import org.apache.hadoop.conf.Configuration;
@@ -442,6 +446,23 @@ public class TestRMApplicationHistoryWriter {
   }
 
   private void testRMWritingMassiveHistory(MockRM rm) throws Exception {
+
+    final String RM_WRITING_MASSIVE_HISTORY_LOG_LEVEL =
+        "TestRMApplicationHistoryWriter.testRMWritingMassiveHistory.logLevel";
+    String desiredLogLevel =
+        System.getProperty(RM_WRITING_MASSIVE_HISTORY_LOG_LEVEL);
+    boolean resetLevel = false;
+    Level level = null;
+    Log tmp = LogFactory.getLog("org.apache.hadoop.yarn");
+    if (desiredLogLevel != null) {
+      if (tmp instanceof Log4JLogger) {
+        level = ((Log4JLogger) tmp).getLogger().getLevel();
+        resetLevel = true;
+        ((Log4JLogger) tmp).getLogger()
+            .setLevel(Level.toLevel(desiredLogLevel));
+      }
+    }
+
     rm.start();
     MockNM nm = rm.registerNode("127.0.0.1:1234", 1024 * 10100);
 
@@ -488,6 +509,11 @@ public class TestRMApplicationHistoryWriter {
     rm.waitForState(app.getApplicationId(), RMAppState.FINISHED);
 
     rm.stop();
+    if (resetLevel) {
+      if (tmp instanceof Log4JLogger) {
+        ((Log4JLogger) tmp).getLogger().setLevel(level);
+      }
+    }
   }
 
   private boolean handledByOne(ApplicationId appId) {
