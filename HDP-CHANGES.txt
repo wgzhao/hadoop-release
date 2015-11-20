@@ -1054,3 +1054,6 @@ ATS V1.5:
 
     BUG-55052/YARN-4365: FileSystemNodeLabelStore should check for root dir
     existence on startup. (Kuhu Shukla)
+
+    BUG-55051/YARN-3769: Consider user limit when calculating total pending
+    resource for preemption policy in Capacity Scheduler. (Eric Payne)
