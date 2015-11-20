@@ -1259,3 +1259,6 @@ ATS V1.5:
     Pulled common changes of scheduler from YARN-1651 to erie. (wangda)
 
     YARN-4287. Capacity Scheduler: Rack Locality improvement (Nathan Roberts via wangda)
+
+    YARN-3769. Consider user limit when calculating total pending resource for preemption policy 
+    in Capacity Scheduler. (Eric Payne via wangda)
