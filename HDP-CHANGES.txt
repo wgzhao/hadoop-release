@@ -891,4 +891,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-53156. HDFS-8659. Block scanner INFO message is spamming logs.
     (Yongjun Zhang)
 
+    BUG-53156. HDFS-9402. Switch DataNode.LOG to use slf4j. (Walter Su)
 

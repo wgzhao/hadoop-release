@@ -61,13 +61,14 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
 
 /** A class that receives a block and writes to its own disk, meanwhile
  * may copies it to another site. If a throttler is provided,
  * streaming throttling is also supported.
  **/
 class BlockReceiver implements Closeable {
-  public static final Log LOG = DataNode.LOG;
+  public static final Logger LOG = DataNode.LOG;
   static final Log ClientTraceLog = DataNode.ClientTraceLog;
 
   @VisibleForTesting
@@ -962,7 +963,7 @@ class BlockReceiver implements Closeable {
               // The worst case is not recovering this RBW replica. 
               // Client will fall back to regular pipeline recovery.
             } finally {
-              IOUtils.cleanup(LOG, out);
+              IOUtils.closeStream(out);
             }
             try {              
               // Even if the connection is closed after the ack packet is
