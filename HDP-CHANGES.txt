@@ -984,4 +984,5 @@ ATS V1.5:
     BUG-53156. HDFS-8659. Block scanner INFO message is spamming logs.
     (Yongjun Zhang)
 
+    BUG-53156. HDFS-9402. Switch DataNode.LOG to use slf4j. (Walter Su)
 
