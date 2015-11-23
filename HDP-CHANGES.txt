@@ -625,3 +625,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-48017. YARN-4349 YARN_APPLICATION call to ATS does not have 
     YARN_APPLICATION_CALLER_CONTEXT. (wangda via Jian He)
+
+    BUG-48221. HADOOP-12577. Bump up commons-collections version to 3.2.2 to
+    address a security flaw. (Wei-Chiu Chuang via vinodkv)
+
