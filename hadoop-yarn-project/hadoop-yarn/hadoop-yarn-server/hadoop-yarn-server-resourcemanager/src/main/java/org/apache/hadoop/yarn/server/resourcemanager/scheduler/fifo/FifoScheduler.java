@@ -925,7 +925,7 @@ public class FifoScheduler extends
     updateMaximumAllocation(node, false);
     
     // Update cluster metrics
-    Resources.subtractFrom(clusterResource, node.getRMNode().getTotalCapability());
+    Resources.subtractFrom(clusterResource, node.getTotalResource());
   }
 
   @Override
@@ -948,7 +948,7 @@ public class FifoScheduler extends
     FiCaSchedulerNode schedulerNode = new FiCaSchedulerNode(nodeManager,
         usePortForNodeName);
     this.nodes.put(nodeManager.getNodeID(), schedulerNode);
-    Resources.addTo(clusterResource, nodeManager.getTotalCapability());
+    Resources.addTo(clusterResource, schedulerNode.getTotalResource());
     updateMaximumAllocation(schedulerNode, true);
   }
 

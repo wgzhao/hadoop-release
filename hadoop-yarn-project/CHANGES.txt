@@ -278,6 +278,9 @@ Release 2.7.3 - UNRELEASED
 
   BUG FIXES
 
+    YARN-4344. NMs reconnecting with changed capabilities can lead to wrong
+    cluster resource calculations (Varun Vasudev via jlowe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -1345,7 +1348,10 @@ Release 2.6.3 - UNRELEASED
 
   BUG FIXES
 
-Release 2.6.2 - 2015-10-21
+    YARN-4344. NMs reconnecting with changed capabilities can lead to wrong
+    cluster resource calculations (Varun Vasudev via jlowe)
+
+Release 2.6.2 - 2015-10-28
 
   INCOMPATIBLE CHANGES
 
