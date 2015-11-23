@@ -401,6 +401,8 @@ ATS V1.5:
     BUG-58017. HADOOP-13168. Support Future.get with timeout in ipc async calls
     (Tsz Wo Nicholas Sze)
 
+    HADOOP-10035. Cleanup TestFilterFileSystem. Contributed by Suresh Srinivas.
+
   BUG FIXES
 
 
@@ -1043,7 +1045,6 @@ ATS V1.5:
 
     BUG-53291. YARN-4737. Add CSRF filter support in YARN (Varun Vasudev via Jon Maron)
 
-<<<<<<< HEAD
     BUG-55570. YARN-4811. Generate histograms in ContainerMetrics for actual
     container resource usage
 
