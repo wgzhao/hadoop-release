@@ -224,8 +224,17 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12878. KMS SPNEGO sequence does not work with WEBHDFS. (xyao)
 
+<<<<<<< HEAD
     HADOOP-12659. Incorrect usage of config parameters in token manager of
     KMS. (Mingliang Liu via xyao)
+||||||| parent of 64add87... HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
+Release 2.7.3 - UNRELEASED
+=======
+    HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory.
+    (Vijay Singh via wheat9)
+
+Release 2.7.3 - UNRELEASED
+>>>>>>> 64add87... HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
 
     HADOOP-12846. Credential Provider Recursive Dependencies.
     (Larry McCay via cnauroth)
