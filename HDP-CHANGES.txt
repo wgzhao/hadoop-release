@@ -1647,3 +1647,7 @@ ATS V1.5:
     k(kilo), m(mega), g(giga) (Amit Anand)
 
     BUG-61736. Bad local dir/Bad log dir is not displayed in metrics. (Jian He via junping_du)
+
+    HDFS-9428. Fix intermittent failure of
+    TestDNFencing.testQueueingWithAppend. (Masatake Iwasaki via waltersu4549)
+

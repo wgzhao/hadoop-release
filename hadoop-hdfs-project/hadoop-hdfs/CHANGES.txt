@@ -320,6 +320,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9881. DistributedFileSystem#getTrashRoot returns incorrect path for
     encryption zones. (wang)
 
+    HDFS-9428. Fix intermittent failure of
+    TestDNFencing.testQueueingWithAppend. (Masatake Iwasaki via waltersu4549)
+
 Release 2.7.3 - UNRELEASED
 
   INCOMPATIBLE CHANGES
