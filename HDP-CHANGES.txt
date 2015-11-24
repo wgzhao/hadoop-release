@@ -622,3 +622,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     YARN-3600. AM container link is broken (on a killed application, at least)
     (Naganarasimha G R via tgraves)
+
+    BUG-48017. YARN-4349 YARN_APPLICATION call to ATS does not have 
+    YARN_APPLICATION_CALLER_CONTEXT. (wangda via Jian He)

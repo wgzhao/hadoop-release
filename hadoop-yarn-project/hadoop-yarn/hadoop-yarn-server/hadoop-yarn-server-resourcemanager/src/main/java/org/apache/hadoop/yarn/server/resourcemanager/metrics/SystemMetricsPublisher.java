@@ -106,7 +106,8 @@ public class SystemMetricsPublisher extends CompositeService {
               app.getUser(),
               app.getQueue(),
               app.getSubmitTime(),
-              createdTime));
+              createdTime,
+              app.getCallerContext()));
     }
   }
 
@@ -251,6 +252,17 @@ public class SystemMetricsPublisher extends CompositeService {
         event.getQueue());
     entityInfo.put(ApplicationMetricsConstants.SUBMITTED_TIME_ENTITY_INFO,
         event.getSubmittedTime());
+    if (event.getCallerContext() != null) {
+      if (event.getCallerContext().getContext() != null) {
+        entityInfo.put(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT,
+            event.getCallerContext().getContext());
+      }
+      if (event.getCallerContext().getSignature() != null) {
+        entityInfo.put(ApplicationMetricsConstants.YARN_APP_CALLER_SIGNATURE,
+            event.getCallerContext().getSignature());
+      }
+    }
+
     entity.setOtherInfo(entityInfo);
     TimelineEvent tEvent = new TimelineEvent();
     tEvent.setEventType(
