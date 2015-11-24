@@ -266,6 +266,18 @@ Release 2.8.0 - UNRELEASED
     YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7.
     (Wei Yan via vvasudev)
 
+Release 2.7.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -1320,6 +1332,18 @@ Release 2.7.0 - 2015-04-20
 
     YARN-3466. Fix RM nodes web page to sort by node HTTP-address, #containers 
     and node-label column (Jason Lowe via wangda)
+
+Release 2.6.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
 
 Release 2.6.2 - 2015-10-21
 
