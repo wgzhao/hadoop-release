@@ -391,6 +391,9 @@ Release 2.7.3 - UNRELEASED
     YARN-4374. RM capacity scheduler UI rounds user limit factor (Chang Li via
     jlowe)
 
+    YARN-4380. TestResourceLocalizationService.testDownloadingResourcesOnContainerKill
+    fails intermittently. (Varun Saxena via ozawa)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
