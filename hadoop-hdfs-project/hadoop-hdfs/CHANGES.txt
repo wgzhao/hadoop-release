@@ -74,9 +74,6 @@ Release 2.8.0 - UNRELEASED
     HDFS-9082. Change the log level in WebHdfsFileSystem.initialize() from INFO
     to DEBUG. (Santhosh Nayak via cnauroth)
 
-    HDFS-8855. Webhdfs client leaks active NameNode connections.
-    (Xiaobing Zhou via Jitendra Nath Pandey)
-
     HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
 
     HDFS-7858. Improve HA Namenode Failover detection on the client.
