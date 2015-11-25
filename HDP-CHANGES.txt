@@ -631,3 +631,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-47045. HDFS-7390. Provide JMX metrics per storage type. (benoy)
 
+    BUG-47045. HDFS-7483. Display information per tier on the Namenode UI.
+    (benoy and wheat9 via wheat9)
+
