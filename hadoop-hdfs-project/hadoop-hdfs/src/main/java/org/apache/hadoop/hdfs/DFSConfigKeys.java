@@ -111,6 +111,10 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String  DFS_WEBHDFS_NETTY_HIGH_WATERMARK =
       "dfs.webhdfs.netty.high.watermark";
   public static final int  DFS_WEBHDFS_NETTY_HIGH_WATERMARK_DEFAULT = 65535;
+  public static final String  DFS_WEBHDFS_UGI_EXPIRE_AFTER_ACCESS_KEY =
+      "dfs.webhdfs.ugi.expire.after.access";
+  public static final int     DFS_WEBHDFS_UGI_EXPIRE_AFTER_ACCESS_DEFAULT =
+      10*60*1000; //10 minutes
 
   public static final String OAUTH_CLIENT_ID_KEY = "dfs.webhdfs.oauth2.client.id";
   public static final String OAUTH_REFRESH_URL_KEY = "dfs.webhdfs.oauth2.refresh.url";
