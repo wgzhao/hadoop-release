@@ -16,6 +16,9 @@ Release 2.8.0 - UNRELEASED
     avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
     (zhihai xu via devaraj)
 
+    MAPREDUCE-6549. multibyte delimiters with LineRecordReader cause
+    duplicate records (wilfreds via rkanter)
+
     MAPREDUCE-5485. Allow repeating job commit by extending OutputCommitter API
     (Junping Du via jianhe)
 
