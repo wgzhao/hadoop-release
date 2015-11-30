@@ -595,9 +595,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-47823. HADOOP-12049. Control http authentication cookie persistence via
     configuration. (hzlu via benoy)
 
-    BUG-47824. HADOOP-12050. Enable MaxInactiveInterval for hadoop http auth
-    token. (hzlu via benoy)
-
     BUG-48014. HDFS-8829. Make SO_RCVBUF and SO_SNDBUF size configurable for
     DataTransferProtocol sockets and allow configuring auto-tuning.
     (He Tianye via cmccabe)
