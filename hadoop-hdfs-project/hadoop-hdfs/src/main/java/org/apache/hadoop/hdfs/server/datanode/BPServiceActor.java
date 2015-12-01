@@ -129,6 +129,10 @@ class BPServiceActor implements Runnable {
     return ibrManager;
   }
 
+  public DatanodeRegistration getBpRegistration() {
+    return bpRegistration;
+  }
+
   boolean isAlive() {
     if (!shouldServiceRun || !bpThread.isAlive()) {
       return false;

@@ -349,6 +349,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9748. Avoid duplication in pendingReplications when
     addExpectedReplicasToPending is called twice. (Walter Su via jing9)
 
+    HDFS-6533. TestBPOfferService#testBasicFunctionalitytest fails
+    intermittently. (Wei-Chiu Chuang via Arpit Agarwal)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)

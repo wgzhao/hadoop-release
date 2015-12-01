@@ -2034,3 +2034,6 @@ ATS V1.5:
 
     BUG-62487. HDFS-9466. TestShortCircuitCache#testDataXceiverCleansUpSlotsOnFailure
     is flaky (Wei-Chiu Chuang via cmccabe)
+
+    BUG-62488. HDFS-6533. TestBPOfferService#testBasicFunctionalitytest fails
+    intermittently. (Contributed by Wei-Chiu Chuang)
