@@ -45,6 +45,8 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12758. Extend CSRF Filter with UserAgent Checks
     (Larry McCay via cnauroth)
 
+    HADOOP-12366. expose calculated paths (aw)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
