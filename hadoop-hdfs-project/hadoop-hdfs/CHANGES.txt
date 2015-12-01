@@ -284,6 +284,9 @@ Release 2.7.2 - UNRELEASED
     HDFS-8950. NameNode refresh doesn't remove DataNodes that are
     no longer in the allowed list. (Daniel Templeton via cmccabe)
 
+    HDFS-8209. Support different number of datanode directories in MiniDFSCluster.
+    (surendra singh lilhore via vinayakumarb)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
