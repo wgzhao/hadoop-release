@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DataInputByteBuffer;
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.StringUtils;
@@ -313,11 +314,16 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
     ApplicationSubmissionContext appContext =
         appState.getApplicationSubmissionContext();
     ApplicationId appId = appContext.getApplicationId();
+    
+    // Make sure we set caller context to app correctly when recovering
+    CallerContext.setCurrent(appState.getCallerContext());
 
     // create and recover app.
     RMAppImpl application =
         createAndPopulateNewRMApp(appContext, appState.getSubmitTime(),
             appState.getUser(), true);
+    
+    CallerContext.setCurrent(null);
 
     application.handle(new RMAppRecoverEvent(appId, rmState));
   }

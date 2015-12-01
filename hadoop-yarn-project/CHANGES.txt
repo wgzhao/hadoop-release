@@ -263,6 +263,30 @@ Release 2.8.0 - UNRELEASED
 
     YARN-4347. Resource manager fails with Null pointer exception. (Jian He via wangda)
 
+    YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7.
+    (Wei Yan via vvasudev)
+
+    YARN-4384. updateNodeResource CLI should not accept negative values for resource.
+    (Junping Du via wangda)
+
+    YARN-3766. Fixed the apps table column error of generic history web UI.
+    (Xuan Gong via zjshen)
+
+Release 2.7.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    YARN-4344. NMs reconnecting with changed capabilities can lead to wrong
+    cluster resource calculations (Varun Vasudev via jlowe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -360,9 +384,6 @@ Release 2.7.2 - UNRELEASED
     YARN-2902. Killing a container that is localizing can orphan resources in
     the DOWNLOADING state (Varun Saxena via jlowe)
 
-    YARN-4183. Enabling generic application history forces every job to get a
-    timeline service delegation token (Mit Desai via jeagles)
-
     YARN-4313. Race condition in MiniMRYarnCluster when getting history server
     address. (Jian He via xgong)
 
@@ -383,12 +404,6 @@ Release 2.7.2 - UNRELEASED
 
     YARN-4127. RM fail with noAuth error if switched from failover mode to non-failover
     mode. (Varun Saxena via jianhe)
-
-    YARN-3508. Prevent processing preemption events on the main RM dispatcher. 
-    (Varun Saxena via wangda)
-
-    YARN-4354. Public resource localization fails with NPE. (Jason Lowe via 
-    junping_du)
 
 Release 2.7.1 - 2015-07-06
 
@@ -1318,7 +1333,22 @@ Release 2.7.0 - 2015-04-20
     YARN-3466. Fix RM nodes web page to sort by node HTTP-address, #containers 
     and node-label column (Jason Lowe via wangda)
 
-Release 2.6.2 - 2015-10-21
+Release 2.6.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    YARN-4344. NMs reconnecting with changed capabilities can lead to wrong
+    cluster resource calculations (Varun Vasudev via jlowe)
+
+Release 2.6.2 - 2015-10-28
 
   INCOMPATIBLE CHANGES
 

@@ -25,6 +25,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -198,6 +199,20 @@ public class TestRMAdminCLI {
         ResourceOption.newInstance(expectedResource,
             ResourceOption.OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT),
         resource);
+  }
+
+  @Test(timeout=500)
+  public void testUpdateNodeResourceWithInvalidValue() throws Exception {
+    String nodeIdStr = "0.0.0.0:0";
+    int memSize = -2048;
+    int cores = 2;
+    String[] args = { "-updateNodeResource", nodeIdStr,
+        Integer.toString(memSize), Integer.toString(cores) };
+    // execution of command line is expected to be failed
+    assertEquals(-1, rmAdminCLI.run(args));
+    // verify admin protocol never calls. 
+    verify(admin,times(0)).updateNodeResource(
+        any(UpdateNodeResourceRequest.class));
   }
 
   @Test(timeout=500)

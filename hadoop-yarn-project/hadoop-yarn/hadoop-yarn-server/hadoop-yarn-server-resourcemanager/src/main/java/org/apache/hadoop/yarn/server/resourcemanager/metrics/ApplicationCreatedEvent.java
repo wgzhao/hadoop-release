@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.metrics;
 
+import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 public class ApplicationCreatedEvent extends
@@ -30,13 +31,16 @@ public class ApplicationCreatedEvent extends
   private String queue;
   private long submittedTime;
 
+  private final CallerContext callerContext;
+
   public ApplicationCreatedEvent(ApplicationId appId,
       String name,
       String type,
       String user,
       String queue,
       long submittedTime,
-      long createdTime) {
+      long createdTime,
+      CallerContext callerContext) {
     super(SystemMetricsEventType.APP_CREATED, createdTime);
     this.appId = appId;
     this.name = name;
@@ -44,6 +48,7 @@ public class ApplicationCreatedEvent extends
     this.user = user;
     this.queue = queue;
     this.submittedTime = submittedTime;
+    this.callerContext = callerContext;
   }
 
   @Override
@@ -75,4 +80,7 @@ public class ApplicationCreatedEvent extends
     return submittedTime;
   }
 
+  public CallerContext getCallerContext() {
+    return callerContext;
+  }
 }

@@ -72,5 +72,11 @@ public class ApplicationMetricsConstants {
 
   public static final String LATEST_APP_ATTEMPT_EVENT_INFO =
       "YARN_APPLICATION_LATEST_APP_ATTEMPT";
+  
+  public static final String YARN_APP_CALLER_CONTEXT =
+      "YARN_APPLICATION_CALLER_CONTEXT";
+  
+  public static final String YARN_APP_CALLER_SIGNATURE =
+      "YARN_APPLICATION_CALLER_SIGNATURE";
 
 }

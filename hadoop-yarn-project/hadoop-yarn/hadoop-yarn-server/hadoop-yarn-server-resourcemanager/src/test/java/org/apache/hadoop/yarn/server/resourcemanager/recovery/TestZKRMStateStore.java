@@ -499,6 +499,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
     ApplicationSubmissionContext context =
         new ApplicationSubmissionContextPBImpl();
     context.setApplicationId(appIdRemoved);
+
     ApplicationStateData appStateRemoved =
         ApplicationStateData.newInstance(
             submitTime, startTime, context, "user1");

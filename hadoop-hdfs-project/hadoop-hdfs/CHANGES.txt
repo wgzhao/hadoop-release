@@ -74,9 +74,6 @@ Release 2.8.0 - UNRELEASED
     HDFS-9082. Change the log level in WebHdfsFileSystem.initialize() from INFO
     to DEBUG. (Santhosh Nayak via cnauroth)
 
-    HDFS-8855. Webhdfs client leaks active NameNode connections.
-    (Xiaobing Zhou via Jitendra Nath Pandey)
-
     HDFS-9205. Do not schedule corrupt blocks for replication.  (szetszwo)
 
     HDFS-7858. Improve HA Namenode Failover detection on the client.
@@ -95,6 +92,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8512. WebHDFS : GETFILESTATUS should return LocatedBlock with storage
     type info. (xyao)
+
+    HDFS-7483. Display information per tier on the Namenode UI.
+    (Benoy Antony and wheat9 via wheat9)
 
   OPTIMIZATIONS
 
@@ -207,6 +207,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9063. Correctly handle snapshot path for getContentSummary. (jing9)
 
+    HDFS-9413. getContentSummary() on standby should throw StandbyException.
+    (Brahma Reddy Battula via mingma)
+
     HDFS-9273. ACLs on root directory may be lost after NN restart.
     (Xiao Chen via cnauroth)
 
@@ -231,6 +234,11 @@ Release 2.8.0 - UNRELEASED
     HDFS-8829. Make SO_RCVBUF and SO_SNDBUF size configurable for
     DataTransferProtocol sockets and allow configuring auto-tuning.
     (He Tianye via cmccabe)
+
+    HDFS-8855. Webhdfs client leaks active NameNode connections.
+    (Xiaobing Zhou via Xiaoyu Yao)
+
+    HDFS-7390. Provide JMX metrics per storage type. (benoy)
 
 Release 2.7.2 - UNRELEASED
 
@@ -280,6 +288,9 @@ Release 2.7.2 - UNRELEASED
 
     HDFS-8950. NameNode refresh doesn't remove DataNodes that are
     no longer in the allowed list. (Daniel Templeton via cmccabe)
+
+    HDFS-8209. Support different number of datanode directories in MiniDFSCluster.
+    (surendra singh lilhore via vinayakumarb)
 
 Release 2.7.1 - 2015-07-06
 

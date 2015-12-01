@@ -111,7 +111,7 @@ public class LevelDBCacheTimelineStore extends MapTimelineStore {
   }
 
   @Override
-  protected void serviceStop() throws Exception {
+  protected synchronized void serviceStop() throws Exception {
     IOUtils.cleanup(LOG, entityDb);
     Path dbPath = new Path(
         configuration.get(YarnConfiguration.TIMELINE_SERVICE_LEVELDB_PATH),

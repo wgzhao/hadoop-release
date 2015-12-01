@@ -617,3 +617,20 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
     is deleted from different process. (Dushyanth Chickabasapa via cnauroth)
 
+    YARN-3600. AM container link is broken (on a killed application, at least)
+    (Naganarasimha G R via tgraves)
+
+    BUG-48017. YARN-4349 YARN_APPLICATION call to ATS does not have 
+    YARN_APPLICATION_CALLER_CONTEXT. (wangda via Jian He)
+
+    BUG-48221. HADOOP-12577. Bump up commons-collections version to 3.2.2 to
+    address a security flaw. (Wei-Chiu Chuang via vinodkv)
+
+    BUG-47045. HDFS-7390. Provide JMX metrics per storage type. (benoy)
+
+    BUG-47045. HDFS-7483. Display information per tier on the Namenode UI.
+    (benoy and wheat9 via wheat9)
+
+    BUG-49006. HDFS-8209. Support different number of datanode directories
+    in MiniDFSCluster. (Surendra Singh Lilhore via Vinayakumar B)
+

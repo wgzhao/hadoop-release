@@ -75,8 +75,8 @@ public class SystemMetricsPublisher extends CompositeService {
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
     publishSystemMetrics =
-        conf.getBoolean(YarnConfiguration.APPLICATION_HISTORY_ENABLED,
-            YarnConfiguration.DEFAULT_APPLICATION_HISTORY_ENABLED) &&
+        conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED,
+            YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ENABLED) &&
         conf.getBoolean(YarnConfiguration.RM_SYSTEM_METRICS_PUBLISHER_ENABLED,
             YarnConfiguration.DEFAULT_RM_SYSTEM_METRICS_PUBLISHER_ENABLED);
 
@@ -106,7 +106,8 @@ public class SystemMetricsPublisher extends CompositeService {
               app.getUser(),
               app.getQueue(),
               app.getSubmitTime(),
-              createdTime));
+              createdTime,
+              app.getCallerContext()));
     }
   }
 
@@ -251,6 +252,17 @@ public class SystemMetricsPublisher extends CompositeService {
         event.getQueue());
     entityInfo.put(ApplicationMetricsConstants.SUBMITTED_TIME_ENTITY_INFO,
         event.getSubmittedTime());
+    if (event.getCallerContext() != null) {
+      if (event.getCallerContext().getContext() != null) {
+        entityInfo.put(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT,
+            event.getCallerContext().getContext());
+      }
+      if (event.getCallerContext().getSignature() != null) {
+        entityInfo.put(ApplicationMetricsConstants.YARN_APP_CALLER_SIGNATURE,
+            event.getCallerContext().getSignature());
+      }
+    }
+
     entity.setOtherInfo(entityInfo);
     TimelineEvent tEvent = new TimelineEvent();
     tEvent.setEventType(
