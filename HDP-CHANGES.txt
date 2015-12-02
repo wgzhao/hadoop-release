@@ -287,3 +287,4 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-64071. HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty block reports.
     Contributed by Mingliang Liu.
 
+    BUG-65973. YARN-4398. Remove unnecessary synchronization in RMStateStore. Contributed by Ning Ding
