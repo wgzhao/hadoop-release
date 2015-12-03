@@ -894,7 +894,7 @@ public class NNThroughputBenchmark implements Tool {
     NamespaceInfo nsInfo;
     DatanodeRegistration dnRegistration;
     DatanodeStorage storage; //only one storage 
-    final ArrayList<BlockReportReplica> blocks;
+    final List<BlockReportReplica> blocks;
     int nrBlocks; // actual number of blocks
     BlockListAsLongs blockReportList;
     final int dnIdx;
@@ -907,7 +907,7 @@ public class NNThroughputBenchmark implements Tool {
 
     TinyDatanode(int dnIdx, int blockCapacity) throws IOException {
       this.dnIdx = dnIdx;
-      this.blocks = new ArrayList<BlockReportReplica>(blockCapacity);
+      this.blocks = Arrays.asList(new BlockReportReplica[blockCapacity]);
       this.nrBlocks = 0;
     }
 
@@ -982,7 +982,7 @@ public class NNThroughputBenchmark implements Tool {
         Block block = new Block(blocks.size() - idx, 0, 0);
         blocks.set(idx, new BlockReportReplica(block));
       }
-      blockReportList = BlockListAsLongs.EMPTY;
+      blockReportList = BlockListAsLongs.encode(blocks);
     }
 
     BlockListAsLongs getBlockReportList() {
