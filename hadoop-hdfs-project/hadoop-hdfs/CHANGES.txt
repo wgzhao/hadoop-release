@@ -1486,6 +1486,21 @@ Release 2.7.2
       HDFS-7824. GetContentSummary API and its namenode implementation for
       Storage Type Quota/Usage. (Xiaoyu Yao via Arpit Agarwal)
 
+Release 2.6.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    HDFS-9434. Recommission a datanode with 500k blocks may pause NN for 30
+    seconds for printing info log messags.  (szetszwo)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES
