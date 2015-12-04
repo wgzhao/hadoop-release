@@ -637,3 +637,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-49324. HDFS-9397. Fix typo for readChecksum() LOG.warn in
     BlockSender.java. (Enrique Flores via Arpit Agarwal)
 
+    BUG-49337. Support node label store in non-appendable file system.
+    (Wangda Tan via jianhe)
+

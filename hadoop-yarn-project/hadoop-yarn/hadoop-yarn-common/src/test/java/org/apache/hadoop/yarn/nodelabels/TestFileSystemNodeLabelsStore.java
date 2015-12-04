@@ -21,6 +21,7 @@ package org.apache.hadoop.yarn.nodelabels;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -31,12 +32,17 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableMap;
 
+@RunWith(Parameterized.class)
 public class TestFileSystemNodeLabelsStore extends NodeLabelTestBase {
   MockNodeLabelManager mgr = null;
   Configuration conf = null;
+  String storeClassName = null;
 
   private static class MockNodeLabelManager extends
       CommonNodeLabelsManager {
@@ -56,8 +62,15 @@ public class TestFileSystemNodeLabelsStore extends NodeLabelTestBase {
     }
   }
   
-  private FileSystemNodeLabelsStore getStore() {
-    return (FileSystemNodeLabelsStore) mgr.store;
+  public TestFileSystemNodeLabelsStore(String className) {
+    this.storeClassName = className;
+  }
+  
+  @Parameterized.Parameters
+  public static Collection<String[]> getParameters() {
+    return Arrays.asList(
+        new String[][] { { FileSystemNodeLabelsStore.class.getCanonicalName() },
+            { NonAppendableFSNodeLabelStore.class.getCanonicalName() } });
   }
 
   @Before
@@ -65,6 +78,7 @@ public class TestFileSystemNodeLabelsStore extends NodeLabelTestBase {
     mgr = new MockNodeLabelManager();
     conf = new Configuration();
     conf.setBoolean(YarnConfiguration.NODE_LABELS_ENABLED, true);
+    conf.set(YarnConfiguration.FS_NODE_LABELS_STORE_IMPL_CLASS, storeClassName);
     File tempDir = File.createTempFile("nlb", ".tmp");
     tempDir.delete();
     tempDir.mkdirs();
@@ -77,7 +91,11 @@ public class TestFileSystemNodeLabelsStore extends NodeLabelTestBase {
 
   @After
   public void after() throws IOException {
-    getStore().fs.delete(getStore().fsWorkingPath, true);
+    if (mgr.store instanceof FileSystemNodeLabelsStore) {
+      FileSystemNodeLabelsStore fsStore =
+          ((FileSystemNodeLabelsStore) mgr.store);
+      fsStore.fs.delete(fsStore.fsWorkingPath, true);
+    }
     mgr.stop();
   }
 
@@ -143,41 +161,6 @@ public class TestFileSystemNodeLabelsStore extends NodeLabelTestBase {
             "p6", toSet(toNodeId("n6"), toNodeId("n7")),
             "p4", toSet(toNodeId("n4")),
             "p2", toSet(toNodeId("n2"))));
-    mgr.stop();
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Test(timeout = 10000)
-  public void testRecoverWithDistributedNodeLabels() throws Exception {
-    mgr.addToCluserNodeLabelsWithDefaultExclusivity(toSet("p1", "p2", "p3"));
-    mgr.addToCluserNodeLabelsWithDefaultExclusivity(toSet("p4"));
-    mgr.addToCluserNodeLabelsWithDefaultExclusivity(toSet("p5", "p6"));
-    mgr.replaceLabelsOnNode((Map) ImmutableMap.of(toNodeId("n1"), toSet("p1"),
-        toNodeId("n2"), toSet("p2")));
-    mgr.replaceLabelsOnNode((Map) ImmutableMap.of(toNodeId("n3"), toSet("p3"),
-        toNodeId("n4"), toSet("p4"), toNodeId("n5"), toSet("p5"),
-        toNodeId("n6"), toSet("p6"), toNodeId("n7"), toSet("p6")));
-
-    mgr.removeFromClusterNodeLabels(toSet("p1"));
-    mgr.removeFromClusterNodeLabels(Arrays.asList("p3", "p5"));
-    mgr.stop();
-
-    mgr = new MockNodeLabelManager();
-    Configuration cf = new Configuration(conf);
-    cf.set(YarnConfiguration.NODELABEL_CONFIGURATION_TYPE,
-        YarnConfiguration.DISTRIBUTED_NODELABEL_CONFIGURATION_TYPE);
-    mgr.init(cf);
-    mgr.start();
-
-    // check variables
-    Assert.assertEquals(3, mgr.getClusterNodeLabels().size());
-    Assert.assertTrue(mgr.getClusterNodeLabelNames().containsAll(
-        Arrays.asList("p2", "p4", "p6")));
-
-    Assert.assertTrue("During recovery in distributed node-labels setup, "
-        + "node to labels mapping should not be recovered ", mgr
-        .getNodeLabels().size() == 0);
-
     mgr.stop();
   }
 
