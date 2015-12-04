@@ -34,6 +34,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -208,6 +209,10 @@ public class TestHarFileSystem {
 
     public BlockStoragePolicySpi getStoragePolicy(final Path src)
         throws IOException;
+
+    public Path getTrashRoot(Path path) throws IOException;
+
+    public Collection<FileStatus> getTrashRoots(boolean allUsers) throws IOException;
   }
 
   @Test

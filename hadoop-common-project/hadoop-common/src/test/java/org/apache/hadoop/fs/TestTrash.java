@@ -685,6 +685,10 @@ public class TestTrash extends TestCase {
     }
 
     @Override
+    public void initialize(Configuration conf, FileSystem fs) {
+    }
+
+    @Override
     public boolean isEnabled() {
       return false;
     }
@@ -704,6 +708,11 @@ public class TestTrash extends TestCase {
 
     @Override
     public Path getCurrentTrashDir() {
+      return null;
+    }
+
+    @Override
+    public Path getCurrentTrashDir(Path path) throws IOException {
       return null;
     }
 

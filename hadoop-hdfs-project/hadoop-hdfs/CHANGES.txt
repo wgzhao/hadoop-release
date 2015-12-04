@@ -114,6 +114,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
     (Walter Su via wang).
 
+    HDFS-8831. Trash Support for deletion in HDFS encryption zone. (xyao)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
