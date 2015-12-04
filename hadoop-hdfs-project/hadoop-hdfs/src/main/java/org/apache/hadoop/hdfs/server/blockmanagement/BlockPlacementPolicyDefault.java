@@ -27,10 +27,8 @@ import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSUtil;
-import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
-import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage.State;
 import org.apache.hadoop.net.NetworkTopology;
 import org.apache.hadoop.net.Node;
@@ -997,6 +995,11 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
                 excessTypes);
       }
       firstOne = false;
+      if (cur == null) {
+        LOG.warn("No excess replica can be found. excessTypes: "+excessTypes+
+            ". moreThanOne: "+moreThanOne+". exactlyOne: "+exactlyOne+".");
+        break;
+      }
 
       // adjust rackmap, moreThanOne, and exactlyOne
       adjustSetsWithChosenReplica(rackMap, moreThanOne, exactlyOne, cur);
