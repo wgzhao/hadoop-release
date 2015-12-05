@@ -640,3 +640,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-49337. Support node label store in non-appendable file system.
     (Wangda Tan via jianhe)
 
+    BUG-47469. [2.3] Fix TestBalancer#testBalancerWithPinnedBlocks failure on
+    2.3-maint. (xyao)
