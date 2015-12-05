@@ -799,3 +799,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-47469. [2.3] Fix TestBalancer#testBalancerWithPinnedBlocks failure on
     2.3-maint. Contributed by Xiaoyu Yao.
+
+    BUG-49321. HDFS-9364. Unnecessary DNS resolution attempts when
+    creating NameNodeProxies. (Xiao Chen via zhz)
+

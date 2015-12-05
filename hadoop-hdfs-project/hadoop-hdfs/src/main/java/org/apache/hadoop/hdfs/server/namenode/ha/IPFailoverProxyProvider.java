@@ -92,7 +92,7 @@ public class IPFailoverProxyProvider<T> extends
     if (nnProxyInfo == null) {
       try {
         // Create a proxy that is not wrapped in RetryProxy
-        InetSocketAddress nnAddr = NameNode.getAddress(nameNodeUri);
+        InetSocketAddress nnAddr = NameNode.getAddress(conf, nameNodeUri);
         nnProxyInfo = new ProxyInfo<T>(NameNodeProxies.createNonHAProxy(
             conf, nnAddr, xface, UserGroupInformation.getCurrentUser(), 
             false).getProxy(), nnAddr.toString());
