@@ -37,8 +37,11 @@ import org.apache.directory.server.kerberos.shared.keytab.Keytab;
 import org.apache.directory.server.kerberos.shared.keytab.KeytabEntry;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KerberosUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(KerberosUtil.class);
 
   /* Return the Kerberos login module name */
   public static String getKrb5LoginModuleName() {
@@ -84,15 +87,61 @@ public class KerberosUtil {
     return (String)getDefaultRealmMethod.invoke(kerbConf, new Object[0]);
   }
   
+  /*
+   * For a Service Host Principal specification, map the host's domain
+   * to kerberos realm, as specified by krb5.conf [domain_realm] mappings.
+   * Unfortunately the mapping routines are private to the security.krb5
+   * package, so have to construct a PrincipalName instance to derive the realm.
+   *
+   * @param shortprinc A service principal name with host fqdn as instance, e.g.
+   *     "HTTP/myhost.mydomain"
+   * @return String value of Kerberos realm, mapped from host fqdn
+   * @throws ClassNotFoundException, NoSuchMethodException, 
+   *     IllegalArgumentException, IllegalAccessException, 
+   *     InvocationTargetException, NoSuchFieldException, 
+   *     InstantiationException, SecurityException
+   */
+  public static String getDomainRealm(String shortprinc)
+      throws ClassNotFoundException, NoSuchMethodException, 
+      IllegalArgumentException, IllegalAccessException, 
+      InvocationTargetException, NoSuchFieldException, 
+      InstantiationException, SecurityException {
+    Class<?> classRef;
+    Object principalName; //of type sun.security.krb5.PrincipalName or IBM equiv.
+    int KRB_NT_SRV_HST;
+    String realmString = null;
+    if (System.getProperty("java.vendor").contains("IBM")) {
+      classRef = Class.forName("com.ibm.security.krb5.internal.PrincipalName");
+    } else {
+      classRef = Class.forName("sun.security.krb5.PrincipalName");
+    }
+    KRB_NT_SRV_HST = classRef.getField("KRB_NT_SRV_HST").getInt(null);
+    principalName = classRef.getConstructor(String.class, int.class).
+        newInstance(shortprinc, KRB_NT_SRV_HST);
+    realmString = (String)classRef.getMethod("getRealmString", new Class[0]).
+        invoke(principalName, new Object[0]);
+    if (null == realmString || realmString.equals("")) {
+      return getDefaultRealm();
+    } else {
+      return realmString;
+    }
+  }
+  
   /* Return fqdn of the current host */
   static String getLocalHostName() throws UnknownHostException {
     return InetAddress.getLocalHost().getCanonicalHostName();
   }
   
   /**
-   * Create Kerberos principal for a given service and hostname. It converts
+   * Create Kerberos principal for a given service and hostname,
+   * inferring realm from the fqdn of the hostname. It converts
    * hostname to lower case. If hostname is null or "0.0.0.0", it uses
    * dynamically looked-up fqdn of the current host instead.
+   * If domain_realm mappings are inadequately specified, it will
+   * use default_realm, per usual Kerberos behavior.
+   * If default_realm also gives a null value, then a principal
+   * without realm will be returned, which by Kerberos definitions is
+   * just another way to specify default realm.
    * 
    * @param service
    *          Service for which you want to generate the principal.
@@ -105,12 +154,32 @@ public class KerberosUtil {
   public static final String getServicePrincipal(String service, String hostname)
       throws UnknownHostException {
     String fqdn = hostname;
+    String shortprinc = null;
+    String realmString = null;
     if (null == fqdn || fqdn.equals("") || fqdn.equals("0.0.0.0")) {
       fqdn = getLocalHostName();
     }
     // convert hostname to lowercase as kerberos does not work with hostnames
     // with uppercase characters.
-    return service + "/" + fqdn.toLowerCase(Locale.ENGLISH);
+    fqdn = fqdn.toLowerCase(Locale.ENGLISH);
+    shortprinc = service + "/" + fqdn;
+    // Obtain the realm name inferred from the domain of the host
+    try {
+      realmString = getDomainRealm(shortprinc);
+      // Insulate caller from all unhandled exceptions in getDomainRealm()
+      // and getDefaultRealm(), but log the problem.
+    } catch (ClassNotFoundException cnfe) {
+	LOG.error("Vendor-specific security.krb5 package/class cannot be found.", cnfe);
+	// continue
+    } catch (Exception e) {
+	LOG.error("Attempt to map domain of " + shortprinc + " to Kerberos realm failed.", e);
+	// continue
+    }
+    if (null == realmString || realmString.equals("")) {
+      return shortprinc;
+    } else {
+      return shortprinc + "@" + realmString;
+    }
   }
 
   /**
