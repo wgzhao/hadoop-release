@@ -52,12 +52,8 @@ public class TestKerberosUtil {
   }
 
   @Test
-  public void testGetServerPrincipal() 
-      throws IOException, UnknownHostException, 
-      ClassNotFoundException, NoSuchMethodException, 
-      IllegalArgumentException, IllegalAccessException, 
-      InvocationTargetException, NoSuchFieldException, 
-      InstantiationException, SecurityException {
+  public void testGetServerPrincipal()
+      throws Exception {
     String service = "TestKerberosUtil";
     String localHostname = KerberosUtil.getLocalHostName();
     String testHost = "FooBar";
