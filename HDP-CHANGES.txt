@@ -806,3 +806,33 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-49321. HDFS-9364. Unnecessary DNS resolution attempts when
     creating NameNodeProxies. (Xiao Chen via zhz)
 
+    YARN-4288. Fixed RMProxy to retry on IOException from local host.
+    (Junping Du via jianhe)
+
+    YARN-4345. yarn rmadmin -updateNodeResource doesn't work (Junping Du via
+    jlowe)
+
+    YARN-4347. Resource manager fails with Null pointer exception. (Jian He via wangda)
+
+    YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7.
+    (Wei Yan via vvasudev)
+
+    YARN-4384. updateNodeResource CLI should not accept negative values for resource.
+    (Junping Du via wangda)
+
+    YARN-3766. Fixed the apps table column error of generic history web UI.
+    (Xuan Gong via zjshen)
+
+    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to 
+    avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
+    (zhihai xu via devaraj)
+
+    MAPREDUCE-6549. multibyte delimiters with LineRecordReader cause
+    duplicate records (wilfreds via rkanter)
+
+    MAPREDUCE-5485. Allow repeating job commit by extending OutputCommitter API
+    (Junping Du via jianhe)
+
+    YARN-4405/BUG-49337. Support node label store in non-appendable file system.
+    (Wangda Tan via jianhe)
+
