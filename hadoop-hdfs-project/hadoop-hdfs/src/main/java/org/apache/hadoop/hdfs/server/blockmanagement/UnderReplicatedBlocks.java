@@ -95,10 +95,11 @@ class UnderReplicatedBlocks implements Iterable<BlockInfo> {
   /**
    * Empty the queues.
    */
-  void clear() {
+  synchronized void clear() {
     for (int i = 0; i < LEVEL; i++) {
       priorityQueues.get(i).clear();
     }
+    corruptReplOneBlocks = 0;
   }
 
   /** Return the total number of under replication blocks */
@@ -147,7 +148,7 @@ class UnderReplicatedBlocks implements Iterable<BlockInfo> {
    * @return the priority for the blocks, between 0 and ({@link #LEVEL}-1)
    */
   private int getPriority(BlockInfo block,
-                          int curReplicas, 
+                          int curReplicas,
                           int readOnlyReplicas,
                           int decommissionedReplicas,
                           int expectedReplicas) {
@@ -224,7 +225,7 @@ class UnderReplicatedBlocks implements Iterable<BlockInfo> {
    * @return true if the block was added to a queue.
    */
   synchronized boolean add(BlockInfo block,
-                           int curReplicas, 
+                           int curReplicas,
                            int readOnlyReplicas,
                            int decomissionedReplicas,
                            int expectedReplicas) {
@@ -248,13 +249,13 @@ class UnderReplicatedBlocks implements Iterable<BlockInfo> {
   }
 
   /** remove a block from a under replication queue */
-  synchronized boolean remove(BlockInfo block, 
-                              int oldReplicas, 
+  synchronized boolean remove(BlockInfo block,
+                              int oldReplicas,
                               int oldReadOnlyReplicas,
                               int decommissionedReplicas,
                               int oldExpectedReplicas) {
-  final int priLevel = getPriority(block, oldReplicas, oldReadOnlyReplicas,
-      decommissionedReplicas, oldExpectedReplicas);
+    final int priLevel = getPriority(block, oldReplicas, oldReadOnlyReplicas,
+        decommissionedReplicas, oldExpectedReplicas);
     boolean removedBlock = remove(block, priLevel);
     if (priLevel == QUEUE_WITH_CORRUPT_BLOCKS &&
         oldExpectedReplicas == 1 &&
@@ -375,7 +376,7 @@ class UnderReplicatedBlocks implements Iterable<BlockInfo> {
    * respective lists.
    *
    * @param blocksToProcess - number of blocks to fetch from underReplicated
-   *                        blocks.
+   *          blocks.
    * @return Return a list of block lists to be replicated. The block list index
    *         represents its replication priority.
    */

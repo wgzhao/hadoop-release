@@ -3579,7 +3579,7 @@ public class BlockManager implements BlockStatsMXBean {
    * For a striped block, this includes nodes storing blocks belonging to the
    * striped block group.
    */
-  public NumberReplicas countNodes(BlockInfo b) {
+  public NumberReplicas countNodes(Block b) {
     int decommissioned = 0;
     int decommissioning = 0;
     int live = 0;
