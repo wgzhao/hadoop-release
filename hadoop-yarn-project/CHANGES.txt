@@ -292,6 +292,9 @@ Release 2.7.3 - UNRELEASED
 
     YARN-4398. Remove unnecessary synchronization in RMStateStore. (Ning Ding via jianhe)
 
+    YARN-4348. ZKRMStateStore.syncInternal shouldn't wait for sync completion
+    for avoiding blocking ZK's event thread. (ozawa)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
