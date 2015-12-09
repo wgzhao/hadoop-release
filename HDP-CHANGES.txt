@@ -4825,3 +4825,5 @@ ATS V1.5:
 
     BUG-108684. YARN-4579. Allow DefaultContainerExecutor container log
     directory permissions to be configurable (rchiang via rkanter)
+
+    HADOOP-12625. Add a config to disable the /logs endpoints (rkanter)
