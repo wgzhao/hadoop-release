@@ -174,8 +174,9 @@ public class NameNodeProxies {
   
     if (failoverProxyProvider == null) {
       // Non-HA case
-      return createNonHAProxy(conf, NameNode.getAddress(nameNodeUri), xface,
-          UserGroupInformation.getCurrentUser(), true, fallbackToSimpleAuth);
+      return createNonHAProxy(conf, NameNode.getAddress(conf, nameNodeUri),
+          xface, UserGroupInformation.getCurrentUser(), true,
+          fallbackToSimpleAuth);
     } else {
       // HA case
       DfsClientConf config = new DfsClientConf(conf);
@@ -191,10 +192,10 @@ public class NameNodeProxies {
             HdfsConstants.HDFS_URI_SCHEME);
       } else {
         dtService = SecurityUtil.buildTokenService(
-            NameNode.getAddress(nameNodeUri));
+            NameNode.getAddress(conf, nameNodeUri));
       }
       return new ProxyAndInfo<T>(proxy, dtService,
-          NameNode.getAddress(nameNodeUri));
+          NameNode.getAddress(conf, nameNodeUri));
     }
   }
   
@@ -257,10 +258,10 @@ public class NameNodeProxies {
             HdfsConstants.HDFS_URI_SCHEME);
       } else {
         dtService = SecurityUtil.buildTokenService(
-            NameNode.getAddress(nameNodeUri));
+            NameNode.getAddress(config, nameNodeUri));
       }
       return new ProxyAndInfo<T>(proxy, dtService,
-          NameNode.getAddress(nameNodeUri));
+          NameNode.getAddress(config, nameNodeUri));
     } else {
       LOG.warn("Currently creating proxy using " +
       		"LossyRetryInvocationHandler requires NN HA setup");
