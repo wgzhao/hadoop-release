@@ -458,5 +458,11 @@ public class CommonConfigurationKeysPublic {
           "credential$",
           "oauth.*token$",
           HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS));
+
+  /** See <a href="{@docRoot}/../core-default.html">core-default.xml</a> */
+  public static final String HADOOP_HTTP_LOGS_ENABLED =
+      "hadoop.http.logs.enabled";
+  /** Defalt value for HADOOP_HTTP_LOGS_ENABLED */
+  public static final boolean HADOOP_HTTP_LOGS_ENABLED_DEFAULT = true;
 }
 
