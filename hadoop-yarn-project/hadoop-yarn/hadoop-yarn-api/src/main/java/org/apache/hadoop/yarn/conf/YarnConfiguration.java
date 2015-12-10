@@ -1429,9 +1429,9 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_PREFIX =
       YARN_PREFIX + "timeline-service.";
 
-  /** Timeline client settings */
-  public static final String TIMELINE_SERVICE_CLIENT_PREFIX =
-      TIMELINE_SERVICE_PREFIX + "client.";
+  public static final String TIMELINE_SERVICE_VERSION = TIMELINE_SERVICE_PREFIX
+      + "version";
+  public static final float DEFAULT_TIMELINE_SERVICE_VERSION = 1.0f;
 
   /**
    * Comma seperated list of names for UIs hosted in the timeline server
