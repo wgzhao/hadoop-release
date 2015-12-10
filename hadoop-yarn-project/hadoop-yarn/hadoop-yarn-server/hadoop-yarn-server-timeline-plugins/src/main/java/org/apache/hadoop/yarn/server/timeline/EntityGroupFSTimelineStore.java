@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -828,10 +829,23 @@ public class EntityGroupFSTimelineStore extends AbstractService
   public TimelineEvents getEntityTimelines(String entityType,
       SortedSet<String> entityIds, Long limit, Long windowStart,
       Long windowEnd, Set<String> eventTypes) throws IOException {
-    // TODO: This should coalesce lookups from multiple cache stores
     LOG.debug("getEntityTimelines type={} ids={}", entityType, entityIds);
-    return summaryStore.getEntityTimelines(entityType, entityIds, limit,
-        windowStart, windowEnd, eventTypes);
+    TimelineEvents returnEvents = new TimelineEvents();
+    for (String entityId : entityIds) {
+      LOG.debug("getEntityTimeline type={} id={}", entityType, entityId);
+      List<TimelineStore> stores = getTimelineStoresForRead(entityId, entityType);
+      for (TimelineStore store : stores) {
+        LOG.debug("Try timeline store {}:{} for the request", store.getName(),
+            store.toString());
+        SortedSet<String> entityIdSet = new TreeSet<String>();
+        entityIdSet.add(entityId);
+        TimelineEvents events =
+            store.getEntityTimelines(entityType, entityIdSet, limit,
+                windowStart, windowEnd, eventTypes);
+        returnEvents.addEvents(events.getAllEvents());
+      }
+    }
+    return returnEvents;
   }
 
   @Override
