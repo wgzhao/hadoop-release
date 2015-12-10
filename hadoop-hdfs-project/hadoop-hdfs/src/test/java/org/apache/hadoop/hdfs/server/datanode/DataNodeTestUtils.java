@@ -27,6 +27,7 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
+import org.apache.hadoop.hdfs.protocolPB.DatanodeProtocolClientSideTranslatorPB;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetTestUtil;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
@@ -89,24 +90,6 @@ public class DataNodeTestUtils {
    */
   public static FsDatasetSpi<?> getFSDataset(DataNode dn) {
     return dn.getFSDataset();
-  }
-
-  public static File getFile(DataNode dn, String bpid, long bid) {
-    return FsDatasetTestUtil.getFile(dn.getFSDataset(), bpid, bid);
-  }
-
-  public static File getBlockFile(DataNode dn, String bpid, Block b
-      ) throws IOException {
-    return FsDatasetTestUtil.getBlockFile(dn.getFSDataset(), bpid, b);
-  }
-
-  public static File getMetaFile(DataNode dn, String bpid, Block b)
-      throws IOException {
-    return FsDatasetTestUtil.getMetaFile(dn.getFSDataset(), bpid, b);
-  }
-
-  public static long getPendingAsyncDeletions(DataNode dn) {
-    return FsDatasetTestUtil.getPendingAsyncDeletions(dn.getFSDataset());
   }
 
   /**
