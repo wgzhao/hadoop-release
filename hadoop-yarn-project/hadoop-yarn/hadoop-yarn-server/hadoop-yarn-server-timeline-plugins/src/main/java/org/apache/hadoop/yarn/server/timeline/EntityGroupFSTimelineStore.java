@@ -821,7 +821,7 @@ public class EntityGroupFSTimelineStore extends AbstractService
         return e;
       }
     }
-    LOG.warn("getEntity: Found nothing");
+    LOG.debug("getEntity: Found nothing");
     return null;
   }
 
