@@ -724,7 +724,7 @@ public class EntityGroupFSTimelineStore extends AbstractService
       Set<TimelineEntityGroupId> idsFromPlugin
           = cacheIdPlugin.getTimelineEntityGroupId(entityId, entityType);
       if (idsFromPlugin == null) {
-        LOG.info("Plugin returned null " + cacheIdPlugin.getClass().getName());
+        LOG.debug("Plugin returned null " + cacheIdPlugin.getClass().getName());
       } else {
         LOG.debug("Plugin returned ids: " + idsFromPlugin);
       }
