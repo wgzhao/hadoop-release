@@ -912,3 +912,7 @@ ATS V1.5:
 
     BUG-51436. HDFS-9557. Reduce object allocation in PB conversion.
     (Daryn Sharp via cnauroth).
+
+    BUG-51439. HDFS-9445. Datanode may deadlock while handling a bad
+    volume. (Walter Su via kihwal)
+
