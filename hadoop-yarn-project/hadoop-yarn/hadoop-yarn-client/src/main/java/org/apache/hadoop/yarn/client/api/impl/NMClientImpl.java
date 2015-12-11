@@ -107,6 +107,7 @@ public class NMClientImpl extends NMClient {
       cleanupRunningContainers();
     }
     cmProxy.stopAllProxies();
+    LOG.info("NMClient stopped.");
     super.serviceStop();
   }
 
