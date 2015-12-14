@@ -349,10 +349,11 @@ public class FifoScheduler extends
             " applicationId=" + applicationAttemptId + 
             " #ask=" + ask.size());
       }
-
+      
       application.updateBlacklist(blacklistAdditions, blacklistRemovals);
       ContainersAndNMTokensAllocation allocation =
           application.pullNewlyAllocatedContainersAndNMTokens();
+
       Resource headroom = application.getHeadroom();
       application.setApplicationHeadroomForMetrics(headroom);
       return new Allocation(allocation.getContainerList(), headroom, null,

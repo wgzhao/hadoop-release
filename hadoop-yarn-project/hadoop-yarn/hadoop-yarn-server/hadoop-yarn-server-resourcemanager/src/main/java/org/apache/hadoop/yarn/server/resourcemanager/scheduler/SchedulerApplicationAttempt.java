@@ -17,11 +17,25 @@
 */
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+
+
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -78,6 +92,9 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   
   private static final Log LOG = LogFactory
     .getLog(SchedulerApplicationAttempt.class);
+
+  private FastDateFormat fdf =
+      FastDateFormat.getInstance("EEE MMM dd HH:mm:ss Z yyyy");
 
   private static final long MEM_AGGREGATE_ALLOCATION_CACHE_MSECS = 3000;
   protected long lastMemoryAggregateAllocationUpdateTime = 0;
@@ -138,11 +155,11 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   protected Queue queue;
   protected boolean isStopped = false;
 
-  private String appAMNodePartitionName = CommonNodeLabelsManager.NO_LABEL;
+  protected String appAMNodePartitionName = CommonNodeLabelsManager.NO_LABEL;
 
   protected final RMContext rmContext;
   private RMAppAttempt appAttempt;
-  
+
   public SchedulerApplicationAttempt(ApplicationAttemptId applicationAttemptId, 
       String user, Queue queue, ActiveUsersManager activeUsersManager,
       RMContext rmContext) {
@@ -159,7 +176,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
             .containsKey(applicationAttemptId.getApplicationId())) {
       RMApp rmApp = rmContext.getRMApps().get(applicationAttemptId.getApplicationId());
       ApplicationSubmissionContext appSubmissionContext =
-          rmContext.getRMApps().get(applicationAttemptId.getApplicationId())
+          rmApp
               .getApplicationSubmissionContext();
       appAttempt = rmApp.getCurrentAppAttempt();
       if (appSubmissionContext != null) {
@@ -773,5 +790,72 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
   public String getAppAMNodePartitionName() {
     return appAMNodePartitionName;
+  }
+
+  public void updateAMContainerDiagnostics(AMState state,
+      String diagnosticMessage) {
+    if (!isWaitingForAMContainer()) {
+      return;
+    }
+    StringBuilder diagnosticMessageBldr = new StringBuilder();
+    diagnosticMessageBldr.append("[");
+    diagnosticMessageBldr.append(fdf.format(System.currentTimeMillis()));
+    diagnosticMessageBldr.append("] ");
+    switch (state) {
+    case INACTIVATED:
+      diagnosticMessageBldr.append(state.diagnosticMessage);
+      if (diagnosticMessage != null) {
+        diagnosticMessageBldr.append(diagnosticMessage);
+      }
+      getPendingAppDiagnosticMessage(diagnosticMessageBldr);
+      break;
+    case ACTIVATED:
+      diagnosticMessageBldr.append(state.diagnosticMessage);
+      if (diagnosticMessage != null) {
+        diagnosticMessageBldr.append(diagnosticMessage);
+      }
+      getActivedAppDiagnosticMessage(diagnosticMessageBldr);
+      break;
+    default:
+      // UNMANAGED , ASSIGNED
+      diagnosticMessageBldr.append(state.diagnosticMessage);
+      break;
+    }
+    appAttempt.updateAMLaunchDiagnostics(diagnosticMessageBldr.toString());
+  }
+
+  protected void getPendingAppDiagnosticMessage(
+      StringBuilder diagnosticMessage) {
+    // Give the specific information which might be applicable for the
+    // respective scheduler
+    // like partitionAMResourcelimit,UserAMResourceLimit, queue'AMResourceLimit
+  }
+
+  protected void getActivedAppDiagnosticMessage(
+      StringBuilder diagnosticMessage) {
+    // Give the specific information which might be applicable for the
+    // respective scheduler
+    // queue's resource usage for specific partition
+  }
+
+  public static enum AMState {
+    UNMANAGED("User launched the Application Master, since it's unmanaged. "),
+    INACTIVATED("Application is added to the scheduler and is not yet activated. "),
+    ACTIVATED("Application is Activated, waiting for resources to be assigned for AM. "),
+    ASSIGNED("Scheduler has assigned a container for AM, waiting for AM "
+        + "container to be launched"),
+    LAUNCHED("AM container is launched, waiting for AM container to Register "
+        + "with RM")
+    ;
+
+    private String diagnosticMessage;
+
+    AMState(String diagnosticMessage) {
+      this.diagnosticMessage = diagnosticMessage;
+    }
+
+    public String getDiagnosticMessage() {
+      return diagnosticMessage;
+    }
   }
 }

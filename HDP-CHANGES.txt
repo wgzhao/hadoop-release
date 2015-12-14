@@ -1262,3 +1262,5 @@ ATS V1.5:
 
     YARN-3769. Consider user limit when calculating total pending resource for preemption policy 
     in Capacity Scheduler. (Eric Payne via wangda)
+
+    YARN-3946. Update exact reason as to why a submitted app is in ACCEPTED state to app's diagnostic message. (Naganarasimha G R via wangda)

@@ -168,6 +168,9 @@ Release 2.8.0 - UNRELEASED
 
     YARN-4287. Capacity Scheduler: Rack Locality improvement (Nathan Roberts via wangda)
 
+    YARN-3946. Update exact reason as to why a submitted app is in ACCEPTED state to 
+    app's diagnostic message. (Naganarasimha G R via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
