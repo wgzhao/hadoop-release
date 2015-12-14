@@ -849,3 +849,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     MAPREDUCE-6566. Add retry support to mapreduce CLI tool.
     (Varun Vasudev via xgong)
 
+    YARN-4309. Add container launch related debug information to container logs
+    when a container fails. (Varun Vasudev via wangda)
+
