@@ -1289,3 +1289,6 @@ ATS V1.5:
 
     YARN-4557. Fix improper Queues sorting in PartitionedQueueComparator when 
     accessible-node-labels=*. (Naganarasimha G R via wangda)
+
+    YARN-4418. AM Resource Limit per partition can be updated to ResourceUsage as well. 
+    (Sunil G via wangda)
