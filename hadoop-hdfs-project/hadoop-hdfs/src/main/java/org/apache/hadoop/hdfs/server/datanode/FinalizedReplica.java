@@ -29,7 +29,6 @@ import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
  * This class describes a replica that has been finalized.
  */
 public class FinalizedReplica extends ReplicaInfo {
-  private boolean unlinked;      // copy-on-write done for block
 
   /**
    * Constructor
@@ -60,22 +59,11 @@ public class FinalizedReplica extends ReplicaInfo {
    */
   public FinalizedReplica(FinalizedReplica from) {
     super(from);
-    this.unlinked = from.isUnlinked();
   }
 
   @Override  // ReplicaInfo
   public ReplicaState getState() {
     return ReplicaState.FINALIZED;
-  }
-  
-  @Override // ReplicaInfo
-  public boolean isUnlinked() {
-    return unlinked;
-  }
-
-  @Override  // ReplicaInfo
-  public void setUnlinked() {
-    unlinked = true;
   }
   
   @Override
@@ -100,8 +88,7 @@ public class FinalizedReplica extends ReplicaInfo {
   
   @Override
   public String toString() {
-    return super.toString()
-        + "\n  unlinked          =" + unlinked;
+    return super.toString();
   }
 
   /**
