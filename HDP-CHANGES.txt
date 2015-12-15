@@ -840,3 +840,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-4405/BUG-49337. Support node label store in non-appendable file system.
     (Wangda Tan via jianhe)
 
+    YARN-3604. removeApplication in ZKRMStateStore should also disable watch.
+    (Zhihai Xu via jianhe)
+
