@@ -51,6 +51,8 @@ Release 2.7.2 - UNRELEASED
     position/key information for uncompressed input sometimes. (Zhihai Xu via
     jlowe)
 
+    MAPREDUCE-6436. JobHistory cache issue. (Kai Sasaki via zxu)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
