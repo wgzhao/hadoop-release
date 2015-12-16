@@ -1264,3 +1264,5 @@ ATS V1.5:
     in Capacity Scheduler. (Eric Payne via wangda)
 
     YARN-3946. Update exact reason as to why a submitted app is in ACCEPTED state to app's diagnostic message. (Naganarasimha G R via wangda)
+
+    YARN-4225. Add preemption status to yarn queue -status for capacity scheduler. (Eric Payne via wangda)
