@@ -655,7 +655,7 @@ public class Client {
             if (currRetries < maxRetries) {
               if(LOG.isDebugEnabled()) {
                 LOG.debug("Exception encountered while connecting to "
-                    + "the server : " + ex);
+                    + "the server : ", ex);
               }
               // try re-login
               if (UserGroupInformation.isLoginKeytabBased()) {
@@ -678,7 +678,7 @@ public class Client {
             }
           } else {
             LOG.warn("Exception encountered while connecting to "
-                + "the server : " + ex);
+                + "the server : ", ex);
           }
           if (ex instanceof RemoteException)
             throw (RemoteException) ex;

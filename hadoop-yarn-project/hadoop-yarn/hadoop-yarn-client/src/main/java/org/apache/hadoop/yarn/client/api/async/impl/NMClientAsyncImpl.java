@@ -186,15 +186,18 @@ public class NMClientAsyncImpl extends NMClientAsync {
       // return if already stopped
       return;
     }
+    LOG.info("NM Client is being stopped.");
     if (eventDispatcherThread != null) {
       eventDispatcherThread.interrupt();
       try {
-        eventDispatcherThread.join();
+        LOG.info("Waiting for eventDispatcherThread to be interrupted.");
+        eventDispatcherThread.join(300000);
       } catch (InterruptedException e) {
         LOG.error("The thread of " + eventDispatcherThread.getName() +
                   " didn't finish normally.", e);
       }
     }
+    LOG.info("eventDispatcherThread exited.");
     if (threadPool != null) {
       threadPool.shutdownNow();
     }

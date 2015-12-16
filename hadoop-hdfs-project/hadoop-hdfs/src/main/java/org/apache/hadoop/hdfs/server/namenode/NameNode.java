@@ -485,14 +485,14 @@ public class NameNode implements NameNodeStatusMXBean {
 
   public static InetSocketAddress getAddress(Configuration conf) {
     URI filesystemURI = FileSystem.getDefaultUri(conf);
-    return getAddress(filesystemURI);
+    return getAddress(conf, filesystemURI);
   }
 
 
   /**
    * @return address of file system
    */
-  public static InetSocketAddress getAddress(URI filesystemURI) {
+  public static InetSocketAddress getAddress(Configuration conf, URI filesystemURI) {
     String authority = filesystemURI.getAuthority();
     if (authority == null) {
       throw new IllegalArgumentException(String.format(
@@ -506,7 +506,12 @@ public class NameNode implements NameNodeStatusMXBean {
           FileSystem.FS_DEFAULT_NAME_KEY, filesystemURI.toString(),
           HdfsConstants.HDFS_URI_SCHEME));
     }
-    return getAddress(authority);
+
+    if (HAUtil.isLogicalUri(conf, filesystemURI)) {
+      return InetSocketAddress.createUnresolved(authority, DEFAULT_PORT);
+    } else {
+      return getAddress(authority);
+    }
   }
 
   public static URI getUri(InetSocketAddress namenode) {

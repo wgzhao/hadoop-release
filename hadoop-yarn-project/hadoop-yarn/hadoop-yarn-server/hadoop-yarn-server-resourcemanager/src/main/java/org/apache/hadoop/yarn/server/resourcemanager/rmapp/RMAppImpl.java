@@ -438,9 +438,6 @@ public class RMAppImpl implements RMApp, Recoverable {
 
     this.callerContext = CallerContext.getCurrent();
 
-    rmContext.getRMApplicationHistoryWriter().applicationStarted(this);
-    rmContext.getSystemMetricsPublisher().appCreated(this, startTime);
-
     long localLogAggregationStatusTimeout =
         conf.getLong(YarnConfiguration.LOG_AGGREGATION_STATUS_TIME_OUT_MS,
           YarnConfiguration.DEFAULT_LOG_AGGREGATION_STATUS_TIME_OUT_MS);
@@ -475,21 +472,15 @@ public class RMAppImpl implements RMApp, Recoverable {
 
   @Override
   public FinalApplicationStatus getFinalApplicationStatus() {
-    this.readLock.lock();
-    try {
-      // finish state is obtained based on the state machine's current state 
-      // as a fall-back in case the application has not been unregistered 
-      // ( or if the app never unregistered itself )
-      // when the report is requested
-      if (currentAttempt != null 
-          && currentAttempt.getFinalApplicationStatus() != null) {
-        return currentAttempt.getFinalApplicationStatus();   
-      }
-      return 
-          createFinalApplicationStatus(this.stateMachine.getCurrentState());
-    } finally {
-      this.readLock.unlock();
+    // finish state is obtained based on the state machine's current state
+    // as a fall-back in case the application has not been unregistered
+    // ( or if the app never unregistered itself )
+    // when the report is requested
+    if (currentAttempt != null
+        && currentAttempt.getFinalApplicationStatus() != null) {
+      return currentAttempt.getFinalApplicationStatus();
     }
+    return createFinalApplicationStatus(this.stateMachine.getCurrentState());
   }
 
   @Override
@@ -790,6 +781,9 @@ public class RMAppImpl implements RMApp, Recoverable {
     this.storedFinishTime = appState.getFinishTime();
     this.startTime = appState.getStartTime();
 
+    // send the ATS create Event
+    sendATSCreateEvent(this, this.startTime);
+
     for(int i=0; i<appState.getAttemptCount(); ++i) {
       // create attempt
       createNewAttempt();
@@ -1038,6 +1032,9 @@ public class RMAppImpl implements RMApp, Recoverable {
       // communication
       LOG.info("Storing application with id " + app.applicationId);
       app.rmContext.getStateStore().storeNewApplication(app);
+
+      // send the ATS create Event
+      app.sendATSCreateEvent(app, app.startTime);
     }
   }
 
@@ -1663,5 +1660,10 @@ public class RMAppImpl implements RMApp, Recoverable {
   @Override
   public CallerContext getCallerContext() {
     return callerContext;
+  }
+
+  private void sendATSCreateEvent(RMApp app, long startTime) {
+    rmContext.getRMApplicationHistoryWriter().applicationStarted(app);
+    rmContext.getSystemMetricsPublisher().appCreated(app, startTime);
   }
 }

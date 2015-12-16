@@ -240,6 +240,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-7390. Provide JMX metrics per storage type. (benoy)
 
+    HDFS-9397. Fix typo for readChecksum() LOG.warn in BlockSender.java.
+    (Enrique Flores via Arpit Agarwal)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
@@ -252,6 +255,9 @@ Release 2.7.2 - UNRELEASED
     debug log level (Charles Lamb via Colin P. McCabe)
 
   OPTIMIZATIONS
+
+    HDFS-8656. Preserve compatibility of ClientProtocol#rollingUpgrade after
+    finalization. (wang)
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
 
@@ -291,6 +297,12 @@ Release 2.7.2 - UNRELEASED
 
     HDFS-8209. Support different number of datanode directories in MiniDFSCluster.
     (surendra singh lilhore via vinayakumarb)
+
+    HDFS-9294. DFSClient deadlock when close file and failed to renew lease.
+    (Brahma Reddy Battula via szetszwo)
+
+    HDFS-9426. Rollingupgrade finalization is not backward compatible
+    (Kihwal Lee via vinayakumarb)
 
 Release 2.7.1 - 2015-07-06
 
