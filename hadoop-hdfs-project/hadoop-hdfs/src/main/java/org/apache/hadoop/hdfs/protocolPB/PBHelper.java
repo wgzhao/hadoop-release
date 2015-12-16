@@ -495,7 +495,7 @@ public class PBHelper {
 
   public static BlockKeyProto convert(BlockKey key) {
     byte[] encodedKey = key.getEncodedKey();
-    ByteString keyBytes = ByteString.copyFrom(encodedKey == null ? 
+    ByteString keyBytes = PBHelper.getByteString(encodedKey == null ? 
         DFSUtil.EMPTY_BYTES : encodedKey);
     return BlockKeyProto.newBuilder().setKeyId(key.getKeyId())
         .setKeyBytes(keyBytes).setExpiryDate(key.getExpiryDate()).build();
@@ -906,8 +906,8 @@ public class PBHelper {
 
   public static TokenProto convert(Token<?> tok) {
     return TokenProto.newBuilder().
-              setIdentifier(ByteString.copyFrom(tok.getIdentifier())).
-              setPassword(ByteString.copyFrom(tok.getPassword())).
+              setIdentifier(getByteString(tok.getIdentifier())).
+              setPassword(getByteString(tok.getPassword())).
               setKind(tok.getKind().toString()).
               setService(tok.getService().toString()).build(); 
   }
@@ -1405,8 +1405,8 @@ public class PBHelper {
     DataEncryptionKeyProto.Builder b = DataEncryptionKeyProto.newBuilder()
         .setKeyId(bet.keyId)
         .setBlockPoolId(bet.blockPoolId)
-        .setNonce(ByteString.copyFrom(bet.nonce))
-        .setEncryptionKey(ByteString.copyFrom(bet.encryptionKey))
+        .setNonce(getByteString(bet.nonce))
+        .setEncryptionKey(getByteString(bet.encryptionKey))
         .setExpiryDate(bet.expiryDate);
     if (bet.encryptionAlgorithm != null) {
       b.setEncryptionAlgorithm(bet.encryptionAlgorithm);
@@ -1573,10 +1573,10 @@ public class PBHelper {
       setGroup(fs.getGroup()).
       setFileId(fs.getFileId()).
       setChildrenNum(fs.getChildrenNum()).
-      setPath(ByteString.copyFrom(fs.getLocalNameInBytes())).
+      setPath(getByteString(fs.getLocalNameInBytes())).
       setStoragePolicy(fs.getStoragePolicy());
     if (fs.isSymlink())  {
-      builder.setSymlink(ByteString.copyFrom(fs.getSymlinkInBytes()));
+      builder.setSymlink(getByteString(fs.getSymlinkInBytes()));
     }
     if (fs.getFileEncryptionInfo() != null) {
       builder.setFileEncryptionInfo(convert(fs.getFileEncryptionInfo()));
@@ -1602,7 +1602,7 @@ public class PBHelper {
     int snapshotNumber = status.getSnapshotNumber();
     int snapshotQuota = status.getSnapshotQuota();
     byte[] parentFullPath = status.getParentFullPath();
-    ByteString parentFullPathBytes = ByteString.copyFrom(
+    ByteString parentFullPathBytes = getByteString(
         parentFullPath == null ? DFSUtil.EMPTY_BYTES : parentFullPath);
     HdfsFileStatusProto fs = convert(status.getDirStatus());
     SnapshottableDirectoryStatusProto.Builder builder = 
@@ -2123,17 +2123,16 @@ public class PBHelper {
     if (entry == null) {
       return null;
     }
-    ByteString sourcePath = ByteString
-        .copyFrom(entry.getSourcePath() == null ? DFSUtil.EMPTY_BYTES : entry
-            .getSourcePath());
+    ByteString sourcePath = getByteString(entry.getSourcePath() == null ?
+        DFSUtil.EMPTY_BYTES : entry.getSourcePath());
     String modification = entry.getType().getLabel();
     SnapshotDiffReportEntryProto.Builder builder = SnapshotDiffReportEntryProto
         .newBuilder().setFullpath(sourcePath)
         .setModificationLabel(modification);
     if (entry.getType() == DiffType.RENAME) {
-      ByteString targetPath = ByteString
-          .copyFrom(entry.getTargetPath() == null ? DFSUtil.EMPTY_BYTES : entry
-              .getTargetPath());
+      ByteString targetPath =
+          getByteString(entry.getTargetPath() == null ?
+              DFSUtil.EMPTY_BYTES : entry.getTargetPath());
       builder.setTargetPath(targetPath);
     }
     return builder.build();
@@ -2914,16 +2913,16 @@ public class PBHelper {
         builder.setSuite(convert(option.getCipherSuite()));
       }
       if (option.getInKey() != null) {
-        builder.setInKey(ByteString.copyFrom(option.getInKey()));
+        builder.setInKey(getByteString(option.getInKey()));
       }
       if (option.getInIv() != null) {
-        builder.setInIv(ByteString.copyFrom(option.getInIv()));
+        builder.setInIv(getByteString(option.getInIv()));
       }
       if (option.getOutKey() != null) {
-        builder.setOutKey(ByteString.copyFrom(option.getOutKey()));
+        builder.setOutKey(getByteString(option.getOutKey()));
       }
       if (option.getOutIv() != null) {
-        builder.setOutIv(ByteString.copyFrom(option.getOutIv()));
+        builder.setOutIv(getByteString(option.getOutIv()));
       }
       return builder.build();
     }
