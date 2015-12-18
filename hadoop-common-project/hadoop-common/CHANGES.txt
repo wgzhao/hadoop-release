@@ -201,6 +201,9 @@ Release 2.8.0 - UNRELEASED
     ImpersonationProvider, DefaultImpersonationProvider, and DistCp.
     (Arshad Mohammad via aajisaka)
 
+    HADOOP-12588. Fix intermittent test failure of TestGangliaMetrics.
+    (Masatake Iwasaki via aajisaka)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
