@@ -275,7 +275,8 @@ public class PBHelper {
   }
 
   public static ByteString getByteString(byte[] bytes) {
-    return ByteString.copyFrom(bytes);
+    // return singleton to reduce object allocation
+    return (bytes.length == 0) ? ByteString.EMPTY : ByteString.copyFrom(bytes);
   }
 
   private static <T extends Enum<T>, U extends Enum<U>> U castEnum(T from, U[] to) {
@@ -644,7 +645,7 @@ public class PBHelper {
       RecoveringStripedBlock sb = (RecoveringStripedBlock) b;
       builder.setEcPolicy(convertErasureCodingPolicy(
           sb.getErasureCodingPolicy()));
-      builder.addAllBlockIndices(asList(sb.getBlockIndices()));
+      builder.setBlockIndices(getByteString(sb.getBlockIndices()));
     }
     return builder.build();
   }
@@ -661,11 +662,8 @@ public class PBHelper {
     }
 
     if (b.hasEcPolicy()) {
-      List<Integer> BlockIndicesList = b.getBlockIndicesList();
-      int[] indices = new int[BlockIndicesList.size()];
-      for (int i = 0; i < BlockIndicesList.size(); i++) {
-        indices[i] = BlockIndicesList.get(i).shortValue();
-      }
+      assert b.hasBlockIndices();
+      byte[] indices = b.getBlockIndices().toByteArray();
       rBlock = new RecoveringStripedBlock(rBlock, indices,
           convertErasureCodingPolicy(b.getEcPolicy()));
     }
@@ -837,10 +835,10 @@ public class PBHelper {
     }
     if (b instanceof LocatedStripedBlock) {
       LocatedStripedBlock sb = (LocatedStripedBlock) b;
-      int[] indices = sb.getBlockIndices();
+      byte[] indices = sb.getBlockIndices();
+      builder.setBlockIndices(getByteString(indices));
       Token<BlockTokenIdentifier>[] blockTokens = sb.getBlockTokens();
       for (int i = 0; i < indices.length; i++) {
-        builder.addBlockIndex(indices[i]);
         builder.addBlockTokens(convert(blockTokens[i]));
       }
     }
@@ -870,13 +868,9 @@ public class PBHelper {
       storageIDs = proto.getStorageIDsList().toArray(new String[storageIDsCount]);
     }
 
-    int[] indices = null;
-    final int indexCount = proto.getBlockIndexCount();
-    if (indexCount > 0) {
-      indices = new int[indexCount];
-      for (int i = 0; i < indexCount; i++) {
-        indices[i] = proto.getBlockIndex(i);
-      }
+    byte[] indices = null;
+    if (proto.hasBlockIndices()) {
+      indices = proto.getBlockIndices().toByteArray();
     }
 
     // Set values from the isCached list, re-using references from loc
@@ -3223,13 +3217,8 @@ public class PBHelper {
         targetStorageTypesProto.getStorageTypesList(), targetStorageTypesProto
             .getStorageTypesList().size());
 
-    List<Integer> liveBlockIndicesList = blockEcRecoveryInfoProto
-        .getLiveBlockIndicesList();
-    short[] liveBlkIndices = new short[liveBlockIndicesList.size()];
-    for (int i = 0; i < liveBlockIndicesList.size(); i++) {
-      liveBlkIndices[i] = liveBlockIndicesList.get(i).shortValue();
-    }
-
+    byte[] liveBlkIndices = blockEcRecoveryInfoProto.getLiveBlockIndices()
+        .toByteArray();
     ErasureCodingPolicy ecPolicy =
         convertErasureCodingPolicy(blockEcRecoveryInfoProto.getEcPolicy());
 
@@ -3257,29 +3246,13 @@ public class PBHelper {
         .getTargetStorageTypes();
     builder.setTargetStorageTypes(convertStorageTypesProto(targetStorageTypes));
 
-    short[] liveBlockIndices = blockEcRecoveryInfo.getLiveBlockIndices();
-    builder.addAllLiveBlockIndices(asList(liveBlockIndices));
+    byte[] liveBlockIndices = blockEcRecoveryInfo.getLiveBlockIndices();
+    builder.setLiveBlockIndices(getByteString(liveBlockIndices));
 
     builder.setEcPolicy(convertErasureCodingPolicy(blockEcRecoveryInfo
         .getErasureCodingPolicy()));
 
     return builder.build();
-  }
-
-  private static List<Integer> asList(int[] arr) {
-    List<Integer> list = new ArrayList<>(arr.length);
-    for (int s : arr) {
-      list.add(s);
-    }
-    return list;
-  }
-
-  private static List<Integer> asList(short[] arr) {
-    List<Integer> list = new ArrayList<>(arr.length);
-    for (int s : arr) {
-      list.add(s);
-    }
-    return list;
   }
 
   private static StorageTypesProto convertStorageTypesProto(
