@@ -43,6 +43,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12825. Log slow name resolutions.
     (Sidharta Seethana via stevel)
 
+    HADOOP-12570. HDFS Secure Mode Documentation updates.
+    (Arpit Agarwal via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
