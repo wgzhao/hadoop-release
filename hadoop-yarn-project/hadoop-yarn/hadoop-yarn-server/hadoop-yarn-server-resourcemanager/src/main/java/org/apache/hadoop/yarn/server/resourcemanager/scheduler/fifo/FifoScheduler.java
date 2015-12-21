@@ -349,7 +349,7 @@ public class FifoScheduler extends
             " applicationId=" + applicationAttemptId + 
             " #ask=" + ask.size());
       }
-      
+
       application.updateBlacklist(blacklistAdditions, blacklistRemovals);
       ContainersAndNMTokensAllocation allocation =
           application.pullNewlyAllocatedContainersAndNMTokens();

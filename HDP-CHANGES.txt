@@ -1268,3 +1268,5 @@ ATS V1.5:
     YARN-4225. Add preemption status to yarn queue -status for capacity scheduler. (Eric Payne via wangda)
 
     YARN-4416. Deadlock due to synchronised get Methods in AbstractCSQueue. (Naganarasimha G R via wangda)
+
+    YARN-4454. NM to nodelabel mapping going wrong after RM restart. (Bibin A Chundatt via wangda)
