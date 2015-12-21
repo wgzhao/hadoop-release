@@ -357,6 +357,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty
     block reports. (Mingliang Liu via shv)
 
+    HDFS-9589. Block files which have been hardlinked should be duplicated
+    before the DataNode appends to the them (cmccabe)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)
