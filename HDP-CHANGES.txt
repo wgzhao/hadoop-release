@@ -1272,3 +1272,5 @@ ATS V1.5:
     YARN-4454. NM to nodelabel mapping going wrong after RM restart. (Bibin A Chundatt via wangda)
 
     YARN-4315. NaN in Queue percentage for cluster apps page. (Bibin A Chundatt via wangda)
+
+    YARN-4290. Add -showDetails option to YARN Nodes CLI to print all nodes reports information. (Sunil G via wangda)
