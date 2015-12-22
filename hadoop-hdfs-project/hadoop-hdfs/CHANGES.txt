@@ -246,7 +246,22 @@ Release 2.8.0 - UNRELEASED
     HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
     kerberos. (Yongjun Zhang)
 
-Release 2.7.2 - UNRELEASED
+Release 2.7.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+    HDFS-7163. WebHdfsFileSystem should retry reads according to the configured
+    retry policy. (Eric Payne via kihwal)
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
 
