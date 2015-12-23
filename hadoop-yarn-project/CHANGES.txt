@@ -166,6 +166,9 @@ Release 2.9.0 - UNRELEASED
     YARN-4651. Document movetoqueue option in 'YARN Commands'
     (Takashi Ohnishi via rohithsharmaks)
 
+  YARN-4109. Exception on RM scheduler page loading with labels. 
+  (Mohammad Shahid Khan via rohithsharmaks)
+
 Release 2.8.0 - UNRELEASED
 
   INCOMPATIBLE CHANGES
