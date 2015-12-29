@@ -706,6 +706,22 @@ public class ZKRMStateStore extends RMStateStore {
   }
 
   @Override
+  public synchronized void removeApplicationAttemptInternal(
+      ApplicationAttemptId appAttemptId)
+      throws Exception {
+    String appId = appAttemptId.getApplicationId().toString();
+    String appIdRemovePath = getNodePath(rmAppRoot, appId);
+    String attemptIdRemovePath = getNodePath(appIdRemovePath,
+        appAttemptId.toString());
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Removing info for attempt: " + appAttemptId + " at: "
+          + attemptIdRemovePath);
+    }
+    deleteWithRetries(attemptIdRemovePath,false);
+  }
+
+  @Override
   public synchronized void removeApplicationStateInternal(
       ApplicationStateData  appState)
       throws Exception {
