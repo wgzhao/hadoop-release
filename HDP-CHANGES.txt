@@ -292,6 +292,9 @@ ATS V1.5:
     HDFS-4015. Safemode should count and report orphaned blocks. (Contributed
     by Anu Engineer)
 
+    YARN-3480. Remove attempts that are beyond max-attempt limit from state
+    store. Contributed by Jun Gong
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
