@@ -340,6 +340,8 @@ Release 2.7.3 - UNRELEASED
     YARN-3769. Consider user limit when calculating total pending resource for 
     preemption policy in Capacity Scheduler. (Eric Payne via wangda)
 
+    YARN-4315. NaN in Queue percentage for cluster apps page. (Bibin A Chundatt via wangda)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
