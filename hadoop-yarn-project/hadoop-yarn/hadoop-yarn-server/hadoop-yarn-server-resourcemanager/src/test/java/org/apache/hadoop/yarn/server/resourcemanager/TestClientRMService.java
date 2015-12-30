@@ -1108,7 +1108,7 @@ public class TestClientRMService {
       public void run() {
         try {
           rmService.submitApplication(submitRequest1);
-        } catch (YarnException e) {}
+        } catch (YarnException | IOException e) {}
       }
     };
     t.start();

@@ -950,3 +950,4 @@ ATS V1.5:
     BUG-52769. HADOOP-1023. Add more logging in WASB page blob read
     function. (Duo Xu via Arpit Agarwal)
     
+    YARN-4522. Queue acl can be checked at app submission. (Jian He)
