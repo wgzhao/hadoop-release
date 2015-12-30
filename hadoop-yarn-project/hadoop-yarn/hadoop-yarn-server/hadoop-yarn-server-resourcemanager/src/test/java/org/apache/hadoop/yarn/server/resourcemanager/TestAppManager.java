@@ -63,6 +63,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -189,7 +190,7 @@ public class TestAppManager{
     }
     public void submitApplication(
         ApplicationSubmissionContext submissionContext, String user)
-            throws YarnException {
+            throws YarnException, IOException {
       super.submitApplication(submissionContext, System.currentTimeMillis(),
         user);
     }
