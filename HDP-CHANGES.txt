@@ -872,3 +872,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-12453. Support decoding KMS Delegation Token with its own
     Identifier. Contributed by Xiaoyu Yao.
+
+    BUG-80455. HADOOP-12682. Fix TestKMS#testKMSRestart* failure.
+    Contributed by Wei-Chiu Chuang.
