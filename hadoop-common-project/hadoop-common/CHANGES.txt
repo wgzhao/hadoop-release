@@ -177,6 +177,9 @@ Release 2.8.0 - UNRELEASED
     ProviderUtils.excludeIncompatibleCredentialProviders.
     (Larry McCay via cnauroth)
 
+    HADOOP-12682. Fix TestKMS#testKMSRestart* failure.
+    (Wei-Chiu Chuang via xyao)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
