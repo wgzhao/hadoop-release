@@ -115,6 +115,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12551. Introduce FileNotFoundException for WASB FileSystem API
     (Dushyanth via cnauroth)
 
+    HADOOP-12608. Fix exception message in WASB when connecting with anonymous
+    credential. (Dushyanth via xyao)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
