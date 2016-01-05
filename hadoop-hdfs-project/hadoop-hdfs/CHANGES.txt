@@ -326,6 +326,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9549. TestCacheDirectives#testExceedsCapacity is flaky (Xiao Chen via
     cmccabe)
 
+    HDFS-9605. Add links to failed volumes to explorer.html in HDFS Web UI.
+    (Archana T via wheat9)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)
