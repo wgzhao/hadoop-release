@@ -28,6 +28,21 @@ Release 2.8.0 - UNRELEASED
     MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader
     and IndexOutOfBoundsException. (Junping Du via vvasudev)
 
+Release 2.7.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    MAPREDUCE-6577. MR AM unable to load native library without
+    MR_AM_ADMIN_USER_ENV set (sjlee)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
