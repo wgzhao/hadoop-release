@@ -299,6 +299,9 @@ Release 2.7.3 - UNRELEASED
     for avoiding blocking ZK's event thread. (ozawa)
 
     YARN-4424. Fix deadlock in RMAppImpl. (jianhe via wtan)
+    
+    YARN-4546. ResourceManager crash due to scheduling opportunity overflow.
+    (Jason Lowe via junping_du)
 
 Release 2.7.2 - UNRELEASED
 
