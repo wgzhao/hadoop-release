@@ -770,9 +770,9 @@ public class CapacityScheduler extends
     }
     CSQueue queue = (CSQueue) application.getQueue();
 
-    FiCaSchedulerApp attempt =
-        new FiCaSchedulerApp(applicationAttemptId, application.getUser(),
-          queue, queue.getActiveUsersManager(), rmContext);
+    FiCaSchedulerApp attempt = new FiCaSchedulerApp(applicationAttemptId,
+        application.getUser(), queue, queue.getActiveUsersManager(), rmContext,
+        isAttemptRecovering);
     if (transferStateFromPreviousAttempt) {
       attempt.transferStateFromPreviousAttempt(
           application.getCurrentAppAttempt());

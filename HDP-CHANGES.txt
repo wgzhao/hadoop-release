@@ -1276,3 +1276,5 @@ ATS V1.5:
     YARN-4290. Add -showDetails option to YARN Nodes CLI to print all nodes reports information. (Sunil G via wangda)
 
     YARN-4535. Fix checkstyle error in CapacityScheduler.java (Naganarasimha G R via rohithsharmaks)
+
+    YARN-4479. Change CS LeafQueue pendingOrderingPolicy to hornor recovered apps. Contributed by Rohith Sharma K S

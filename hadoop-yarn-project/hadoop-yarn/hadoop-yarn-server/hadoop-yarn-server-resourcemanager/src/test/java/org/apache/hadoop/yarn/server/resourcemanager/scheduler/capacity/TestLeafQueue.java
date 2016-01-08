@@ -2387,8 +2387,8 @@ public class TestLeafQueue {
           + "forget to set off-switch request should be handled");
     }
   }
-  
-    @Test
+
+  @Test
   public void testFifoAssignment() throws Exception {
 
     LeafQueue a = stubLeafQueue((LeafQueue)queues.get(A));
@@ -2406,19 +2406,18 @@ public class TestLeafQueue {
     when(csContext.getNumClusterNodes()).thenReturn(numNodes);
 
     String user_0 = "user_0";
-    
-    final ApplicationAttemptId appAttemptId_0 = 
-        TestUtils.getMockApplicationAttemptId(0, 0); 
-    FiCaSchedulerApp app_0 = 
-        spy(new FiCaSchedulerApp(appAttemptId_0, user_0, a, 
-            mock(ActiveUsersManager.class), spyRMContext));
+
+    final ApplicationAttemptId appAttemptId_0 =
+        TestUtils.getMockApplicationAttemptId(0, 0);
+    FiCaSchedulerApp app_0 = spy(
+        new FiCaSchedulerApp(appAttemptId_0, user_0, a,
+              mock(ActiveUsersManager.class), spyRMContext, false));
     a.submitApplicationAttempt(app_0, user_0);
     
     final ApplicationAttemptId appAttemptId_1 = 
         TestUtils.getMockApplicationAttemptId(1, 0); 
-    FiCaSchedulerApp app_1 = 
-        spy(new FiCaSchedulerApp(appAttemptId_1, user_0, a, 
-            mock(ActiveUsersManager.class), spyRMContext));
+    FiCaSchedulerApp app_1 = spy(new FiCaSchedulerApp(appAttemptId_1, user_0, a,
+        mock(ActiveUsersManager.class), spyRMContext, false));
     a.submitApplicationAttempt(app_1, user_0);
  
     Priority priority = TestUtils.createMockPriority(1);
