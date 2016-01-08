@@ -1420,6 +1420,7 @@ public class DataNode extends ReconfigurableBase
   @VisibleForTesting
   public DatanodeRegistration getDNRegistrationForBP(String bpid) 
   throws IOException {
+    DataNodeFaultInjector.get().noRegistration();
     BPOfferService bpos = blockPoolManager.get(bpid);
     if(bpos==null || bpos.bpRegistration==null) {
       throw new IOException("cannot find BPOfferService for bpid="+bpid);
@@ -1547,7 +1548,6 @@ public class DataNode extends ReconfigurableBase
       throw new ShortCircuitFdsUnsupportedException(
           fileDescriptorPassingDisabledReason);
     }
-    checkBlockToken(blk, token, BlockTokenSecretManager.AccessMode.READ);
     int blkVersion = CURRENT_BLOCK_FORMAT_VERSION;
     if (maxVersion < blkVersion) {
       throw new ShortCircuitFdsVersionException("Your client is too old " +
@@ -2733,6 +2733,15 @@ public class DataNode extends ReconfigurableBase
   }
 
   private void checkReadAccess(final ExtendedBlock block) throws IOException {
+    // Make sure this node has registered for the block pool.
+    try {
+      getDNRegistrationForBP(block.getBlockPoolId());
+    } catch (IOException e) {
+      // if it has not registered with the NN, throw an exception back.
+      throw new org.apache.hadoop.ipc.RetriableException(
+          "Datanode not registered. Try again later.");
+    }
+
     if (isBlockTokenEnabled) {
       Set<TokenIdentifier> tokenIds = UserGroupInformation.getCurrentUser()
           .getTokenIdentifiers();

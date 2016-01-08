@@ -224,3 +224,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     BUG-45025. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
+    HOTFIX-303. HDFS-9574. Reduce client failures during datanode restart. (kihwal)
+
