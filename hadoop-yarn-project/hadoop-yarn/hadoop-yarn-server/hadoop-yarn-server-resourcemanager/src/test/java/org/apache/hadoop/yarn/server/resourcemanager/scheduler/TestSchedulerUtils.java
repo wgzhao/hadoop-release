@@ -60,6 +60,7 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.api.records.impl.pb.ResourceRequestPBImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.EventHandler;
+import org.apache.hadoop.yarn.exceptions.InvalidLabelResourceRequestException;
 import org.apache.hadoop.yarn.exceptions.InvalidResourceBlacklistRequestException;
 import org.apache.hadoop.yarn.exceptions.InvalidResourceRequestException;
 import org.apache.hadoop.yarn.ipc.YarnRPC;
@@ -192,7 +193,7 @@ public class TestSchedulerUtils {
     assertEquals(2048, ask.getCapability().getMemorySize());
   }
   
-  @Test (timeout = 30000)
+  @Test(timeout = 30000)
   public void testValidateResourceRequestWithErrorLabelsPermission()
       throws IOException {
     // mock queue and scheduler
@@ -337,7 +338,7 @@ public class TestSchedulerUtils {
       e.printStackTrace();
       fail("Should be valid when request labels is empty");
     }
-    
+    boolean invalidlabelexception=false;
     // queue doesn't have label, failed (when request any label)
     try {
       // set queue accessible node labels to empty
@@ -355,12 +356,15 @@ public class TestSchedulerUtils {
       SchedulerUtils.normalizeAndvalidateRequest(resReq, maxResource, "queue",
           scheduler, rmContext);
       fail("Should fail");
+    } catch (InvalidLabelResourceRequestException e) {
+      invalidlabelexception=true;
     } catch (InvalidResourceRequestException e) {
     } finally {
       rmContext.getNodeLabelManager().removeFromClusterNodeLabels(
           Arrays.asList("x"));
     }
-    
+    Assert.assertTrue("InvalidLabelResourceRequestException excpeted",
+        invalidlabelexception);
     // queue is "*", always succeeded
     try {
       // set queue accessible node labels to empty

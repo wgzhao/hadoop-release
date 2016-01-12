@@ -4371,3 +4371,6 @@ ATS V1.5:
 
     BUG-84646. YARN-3940. Application moveToQueue should check NodeLabel
     permission. Contributed by Bibin A Chundatt
+
+    BUG-84647. YARN-4582. Label-related invalid resource request exception
+    should be able to properly handled by application. (Bibin A Chundatt via wangda)
