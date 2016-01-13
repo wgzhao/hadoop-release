@@ -127,6 +127,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-7314. When the DFSClient lease cannot be renewed, abort open-for-write
     files rather than the entire DFSClient. (mingma)
 
+    HDFS-9047. Retire libwebhdfs (kihwal)
+
     HDFS-9569. Log the name of the fsimage being loaded for better
     supportability. (Yongjun Zhang)
 
