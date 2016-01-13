@@ -86,6 +86,10 @@ Release 2.9.0 - UNRELEASED
 
     YARN-4522. Queue acl can be checked at app submission. (Jian He via wangda)
 
+
+    YARN-4571. Make app id/name available to the yarn authorizer provider for 
+    better auditing. (Jian He via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
