@@ -21,16 +21,16 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     container-executor for outbound network traffic control. (Sidharta Seethana
     via vinodkv)
 
-    YARN-1376. NM need to notify the log aggregation status to RM through 
+    YARN-1376. NM need to notify the log aggregation status to RM through
     heartbeat. (Xuan Gong via junping_du)
 
     YARN-3348. Add a 'yarn top' tool to help understand cluster usage. (Varun
     Vasudev via jianhe)
 
-    YARN-3347. Improve YARN log command to get AMContainer logs as well as 
+    YARN-3347. Improve YARN log command to get AMContainer logs as well as
     running containers logs. (Xuan Gong via junping_du)
 
-    YARN-3443. Create a 'ResourceHandler' subsystem to ease addition of support 
+    YARN-3443. Create a 'ResourceHandler' subsystem to ease addition of support
     for new resource types on the NM. (Sidharta Seethana via junping_du)
 
     YARN-3361. CapacityScheduler side changes to support non-exclusive node
@@ -51,10 +51,10 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-3463. Integrate OrderingPolicy Framework with CapacityScheduler.
     (Craig Welch via wangda)
 
-    YARN-3410. YARN admin should be able to remove individual application 
+    YARN-3410. YARN admin should be able to remove individual application
     records from RMStateStore. (Rohith Sharmaks via wangda)
 
-    YARN-3225. New parameter of CLI for decommissioning node gracefully in 
+    YARN-3225. New parameter of CLI for decommissioning node gracefully in
     RMAdmin CLI. (Devaraj K via junping_du)
 
     YARN-3366. Enhanced NodeManager to support classifying/shaping outgoing
@@ -75,8 +75,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-3541. Add version info on timeline service / generic history web UI
     and REST API. (Zhijie Shen via xgong)
 
-    YARN-3505. Node's Log Aggregation Report with SUCCEED should not cached in 
-    RMApps. (Xuan Gong via junping_du)  
+    YARN-3505. Node's Log Aggregation Report with SUCCEED should not cached in
+    RMApps. (Xuan Gong via junping_du)
 
     HDFS-8155. Support OAuth2 in WebHDFS. (jghoman)
 
@@ -110,18 +110,18 @@ ATS V1.5:
     YARN-3356. Capacity Scheduler FiCaSchedulerApp should use ResourceUsage to
     track used-resources-by-label. (Wangda Tan via jianhe)
 
-    YARN-2868. FairScheduler: Metric for latency to allocate first container 
+    YARN-2868. FairScheduler: Metric for latency to allocate first container
     for an application. (Ray Chiang via kasha)
 
     YARN-3397. yarn rmadmin should skip -failover. (J.Andreina via kasha)
 
-    YARN-2495. Allow admin specify labels from each NM (Distributed 
+    YARN-2495. Allow admin specify labels from each NM (Distributed
     configuration for node label). (Naganarasimha G R via wangda)
 
     YARN-3248. Display count of nodes blacklisted by apps in the web UI.
     (Varun Vasudev via xgong)
 
-    YARN-2901. Add errors and warning metrics page to RM, NM web UI. 
+    YARN-2901. Add errors and warning metrics page to RM, NM web UI.
     (Varun Vasudev via wangda)
 
     YARN-3294. Allow dumping of Capacity Scheduler debug logs via
@@ -144,7 +144,7 @@ ATS V1.5:
     YARN-3494. Expose AM resource limit and usage in CS QueueMetrics. (Rohith
     Sharmaks via jianhe)
 
-    YARN-3503. Expose disk utilization percentage and bad local and log dir 
+    YARN-3503. Expose disk utilization percentage and bad local and log dir
     counts in NM metrics. (Varun Vasudev via jianhe)
 
     YARN-3511. Add errors and warnings page to ATS. (Varun Vasudev via xgong)
@@ -152,19 +152,19 @@ ATS V1.5:
     YARN-3406. Display count of running containers in the RM's Web UI.
     (Ryu Kobayashi via ozawa)
 
-    YARN-3593. Add label-type and Improve "DEFAULT_PARTITION" in Node Labels Page. 
+    YARN-3593. Add label-type and Improve "DEFAULT_PARTITION" in Node Labels Page.
     (Naganarasimha G R via wangda)
 
     YARN-3362. Add node label usage in RM CapacityScheduler web UI.
     (Naganarasimha G R via wangda)
 
-    YARN-3565. NodeHeartbeatRequest/RegisterNodeManagerRequest should use 
+    YARN-3565. NodeHeartbeatRequest/RegisterNodeManagerRequest should use
     NodeLabel object instead of String. (Naganarasimha G R via wangda)
 
-    YARN-3583. Support of NodeLabel object instead of plain String 
+    YARN-3583. Support of NodeLabel object instead of plain String
     in YarnClient side. (Sunil G via wangda)
 
-    YARN-3581. Deprecate -directlyAccessNodeLabelStore in RMAdminCLI. 
+    YARN-3581. Deprecate -directlyAccessNodeLabelStore in RMAdminCLI.
     (Naganarasimha G R via wangda)
 
     YARN-3700. Made generic history service load a number of latest applications
@@ -193,7 +193,7 @@ ATS V1.5:
     (Anu Engineer via xyao)
 
     HADOOP-12358. Add -safely flag to rm to prompt when deleting many files.
-    (xyao via wang) 
+    (xyao via wang)
 
     HDFS-8432. Introduce a minimum compatible layout version to allow downgrade
     in more rolling upgrade use cases. (cnauroth)
@@ -263,7 +263,7 @@ ATS V1.5:
 
     BUG-40753. Add auth-filter in NM by default
 
-    YARN-3579. CommonNodeLabelsManager should support NodeLabel instead of string label name when 
+    YARN-3579. CommonNodeLabelsManager should support NodeLabel instead of string label name when
     getting node-to-label/label-to-label mappings. (Sunil G via wangda)
 
     YARN-3357. Move TestFifoScheduler to FIFO package. Contributed by Rohith
@@ -278,7 +278,7 @@ ATS V1.5:
     using it for localization. Contributed by Zhihai Xu
 
     HDFS-7928. Scanning blocks from disk during rolling upgrade startup takes a
-    lot of time if disks are busy. Contributed by Rushabh Shah.    
+    lot of time if disks are busy. Contributed by Rushabh Shah.
 
     BUG-45423. HDFS-9112. Improve error message for Haadmin when multiple name
     service IDs are configured. Contributed by Anu Engineer.
@@ -295,7 +295,7 @@ ATS V1.5:
     YARN-3480. Remove attempts that are beyond max-attempt limit from state
     store. Contributed by Jun Gong
 
-    YARN-4584. RM startup failure when AM attempts greater than max-attempts. 
+    YARN-4584. RM startup failure when AM attempts greater than max-attempts.
     (Bibin A Chundatt via rohithsharmaks)
 
     YARN-4497. RM might fail to restart when recovering apps whose attempts
@@ -321,7 +321,7 @@ ATS V1.5:
 
   BUG FIXES
 
-    HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name 
+    HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name
     inserted in target server principal. (mfoley)
 
     BUG-5700. NameNode should shut down if out of memory error occurs. (cnauroth)
@@ -367,7 +367,7 @@ ATS V1.5:
 
     HDFS-8211. DataNode UUID is always null in the JMX counter. (Contributed by Anu Engineer)
 
-    HDFS-7990. IBR delete ack should not be delayed. Contributed by Daryn Sharp. 
+    HDFS-7990. IBR delete ack should not be delayed. Contributed by Daryn Sharp.
 
     HDFS-7645. Fix CHANGES.txt
 
@@ -379,34 +379,34 @@ ATS V1.5:
 
     HDFS-6666. Abort NameNode and DataNode startup if security is enabled but block access token is not enabled. Contributed by Vijay Bhat.
 
-    HADOOP-11859. PseudoAuthenticationHandler fails with httpcomponents v4.4. Contributed by Eugene Koifman. 
+    HADOOP-11859. PseudoAuthenticationHandler fails with httpcomponents v4.4. Contributed by Eugene Koifman.
 
     HDFS-7701. Support reporting per storage type quota and usage with hadoop/hdfs shell. (Contributed by Peter Shi)
-   
+
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen via aw)
-   
+
     BUG-34858 RM does not start up on Windows
-   
+
     BUG-33625 RM http and https use conflicting port.
-   
+
     BUG-34526 Dal MSI failed to install when HA is enabled
-   
+
     HDFS-8008. Support client-side back off when the datanodes are congested. Contributed by Haohui Mai.
-    
+
     HDFS-8009. Signal congestion on the DataNode. Contributed by Haohui Mai.
-   
+
     Remove old reference to Azure SDK 0.6.0.
 
     YARN-3305. Normalize AM resource request on app submission. (Rohith Sharmaks
     via jianhe)
 
-    YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to 
+    YARN-3269. Yarn.nodemanager.remote-app-log-dir could not be configured to
     fully qualified path. (Xuan Gong via junping_du)
 
-    YARN-3383. AdminService should use "warn" instead of "info" to log exception 
+    YARN-3383. AdminService should use "warn" instead of "info" to log exception
     when operation fails. (Li Lu via wangda)
 
-    YARN-3425. NPE from RMNodeLabelsManager.serviceStop when 
+    YARN-3425. NPE from RMNodeLabelsManager.serviceStop when
     NodeLabelsManager.serviceInit failed. (Bibin A Chundatt via wangda)
 
     YARN-3435. AM container to be allocated Appattempt AM container shown as null.
@@ -432,7 +432,7 @@ ATS V1.5:
     YARN-3530. ATS throws exception on trying to filter results without otherinfo.
     (zhijie shen via xgong)
 
-    YARN-2740. Fix NodeLabelsManager to properly handle node label modifications 
+    YARN-2740. Fix NodeLabelsManager to properly handle node label modifications
     when distributed node label configuration enabled. (Naganarasimha G R via wangda)
 
     YARN-3517. RM web ui for dumping scheduler logs should be for admins only
@@ -478,7 +478,7 @@ ATS V1.5:
 
     BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
     (Arpit Agarwal)
- 
+
     YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when
     state-store error occurs. (Jian He via xgong)
 
@@ -552,7 +552,7 @@ ATS V1.5:
     available(). (Shradha Revankar via aajisaka)
 
     HDFS-8939. Test(S)WebHdfsFileContextMainOperations failing on branch-2.
-    (Chris Nauroth via jghoman) 
+    (Chris Nauroth via jghoman)
 
     YARN-3885. ProportionalCapacityPreemptionPolicy doesn't preempt if queue is more than 2 level. (Ajith S via wangda)
 
@@ -564,14 +564,14 @@ ATS V1.5:
 
     BUG-44684 Make rollingleveldb timelinestore the default for YARN
 
-    YARN-3896. RMNode transitioned from RUNNING to REBOOTED because its response id 
+    YARN-3896. RMNode transitioned from RUNNING to REBOOTED because its response id
     has not been reset synchronously. (Jun Gong via rohithsharmaks)
 
     YARN-4092. Fixed UI redirection to print useful messages when both RMs are in standby mode. Contributed by Xuan Gong
 
     BUG-28508 YARN dal windows unit test failures
 
-    YARN-3413. Changed Nodelabel attributes (like exclusivity) to be settable only via addToClusterNodeLabels 
+    YARN-3413. Changed Nodelabel attributes (like exclusivity) to be settable only via addToClusterNodeLabels
     but not changeable at runtime. (Wangda Tan via vinodkv)
 
     BUG-45264. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
@@ -613,12 +613,12 @@ ATS V1.5:
     BUG-26978. HDFS-6481. DatanodeManager#getDatanodeStorageInfos() should
     check the length of storageIDs. (szetszwo via Arpit Agarwal)
 
-    MAPREDUCE-6302. (BUG-47640) Backport preempt reducers after a configurable 
+    MAPREDUCE-6302. (BUG-47640) Backport preempt reducers after a configurable
     timeout irrespective of headroom. (Karthik Kambatla)
 
     UG-46795. YARN-3467. Expose allocatedMB, allocatedVCores, and runningContainers
     metrics on running Applications in RM Web UI. (Anubhav Dhoot via kasha)
- 
+
     BUG-46797. YARN-4285. Display resource usage as percentage of queue and cluster
     in the RM UI (Varun Vasudev via wangda)
 
@@ -638,16 +638,16 @@ ATS V1.5:
     BUG-47731. HDFS-8099. Change "DFSInputStream has been closed already"
     message to debug log level. (Charles Lamb via Colin P. McCabe)
 
-    BUG-48071. YARN-4140. RM container allocation delayed incase of app 
+    BUG-48071. YARN-4140. RM container allocation delayed incase of app
     submitted to Nodelabel partition. (Bibin A Chundatt via wangda)
 
     YARN-3751. Fixed AppInfo to check if used resources are null. (Sunil G via
     Zhijie Shen)
 
-    BUG-48344. YARN-3849 (Too much of preemption activity causing continuos 
+    BUG-48344. YARN-3849 (Too much of preemption activity causing continuos
     killing of containers across queues) to 2.3-maint. (Sunil G via wangda)
-    
-    BUG-48340. YARN-4287 (Rack locality improvement) to 2.3-maint. 
+
+    BUG-48340. YARN-4287 (Rack locality improvement) to 2.3-maint.
     (Nathan Robert via wangda)
 
     HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
@@ -656,7 +656,7 @@ ATS V1.5:
     YARN-3600. AM container link is broken (on a killed application, at least)
     (Naganarasimha G R via tgraves)
 
-    BUG-48017. YARN-4349 YARN_APPLICATION call to ATS does not have 
+    BUG-48017. YARN-4349 YARN_APPLICATION call to ATS does not have
     YARN_APPLICATION_CALLER_CONTEXT. (wangda via Jian He)
 
     BUG-48221. HADOOP-12577. Bump up commons-collections version to 3.2.2 to
@@ -841,7 +841,7 @@ ATS V1.5:
     YARN-3766. Fixed the apps table column error of generic history web UI.
     (Xuan Gong via zjshen)
 
-    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to 
+    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to
     avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
     (zhihai xu via devaraj)
 
@@ -857,7 +857,7 @@ ATS V1.5:
     YARN-3604. removeApplication in ZKRMStateStore should also disable watch.
     (Zhihai Xu via jianhe)
 
-    YARN-3987. am container complete msg ack to NM once RM receive it. 
+    YARN-3987. am container complete msg ack to NM once RM receive it.
     (sandflee via jianhe)
 
     MAPREDUCE-6566. Add retry support to mapreduce CLI tool.
@@ -885,7 +885,7 @@ ATS V1.5:
     BUG-49702(YARN-4392). ApplicationCreatedEvent event time resets after RM
     restart/failover. Contributed by Naganarasimha G R and Xuan Gong
 
-    YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy 
+    YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy
     is enabled, under stress appears that cluster is virtually in deadlock.
     (Wangda Tan via jianhe)
 
@@ -949,4 +949,6 @@ ATS V1.5:
 
     BUG-52769. HADOOP-1023. Add more logging in WASB page blob read
     function. (Duo Xu via Arpit Agarwal)
-    
+
+    BUG-53573. HADOOP-12107. long running apps may have a huge number of
+    StatisticsData instances under FileSystem (Sangjin Lee via Ming Ma)
