@@ -8,6 +8,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12635. Adding Append API support for WASB. (Dushyanth via cnauroth)
 
+    HADOOP-12691. Add CSRF Filter for REST APIs to Hadoop Common.
+    (Larry McCay via cnauroth)
+
   IMPROVEMENTS
 
     HADOOP-11960. Enable Azure-Storage Client Side logging.
