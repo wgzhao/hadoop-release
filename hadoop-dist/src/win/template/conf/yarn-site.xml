@@ -94,6 +94,14 @@
     <name>yarn.timeline-service.generic-application-history.enabled</name>
     <value>false</value>
   </property>
+
+  <property>
+    <description>The setting that controls whether yarn system metrics is
+    published on the timeline server or not by RM.</description>
+    <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
+    <value>true</value>
+  </property>
+
   <property>
      <description>The hostname of the timeline server web application.</description>
      <name>yarn.timeline-service.hostname</name>
