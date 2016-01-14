@@ -22,9 +22,8 @@ Release 2.9.0 - UNRELEASED
     YARN-4417. Make RM and Timeline-server REST APIs more consistent.
     (wtan via jianhe)
 
-  OPTIMIZATIONS
-
-  BUG FIXES
+    YARN-4553. Add cgroups support for docker containers.
+    (Sidharta Seethana via vvasudev)
 
 Release 2.8.0 - UNRELEASED
 
