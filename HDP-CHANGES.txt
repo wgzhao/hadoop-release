@@ -1182,3 +1182,6 @@ ATS V1.5:
 
     BUG-55760. YARN-2871. TestRMRestart#testRMRestartGetApplicationList 
     sometimes fails in trunk. Contributed by zhihai xu.
+
+    HADOOP-12706. TestLocalFsFCStatistics#testStatisticsThreadLocalDataCleanUp
+    times out occasionally (Sangjin Lee and Colin Patrick McCabe via jlowe)

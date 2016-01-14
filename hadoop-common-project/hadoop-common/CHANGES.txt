@@ -200,6 +200,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12682. Fix TestKMS#testKMSRestart* failure.
     (Wei-Chiu Chuang via xyao)
 
+    HADOOP-12706. TestLocalFsFCStatistics#testStatisticsThreadLocalDataCleanUp
+    times out occasionally (Sangjin Lee and Colin Patrick McCabe via jlowe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
