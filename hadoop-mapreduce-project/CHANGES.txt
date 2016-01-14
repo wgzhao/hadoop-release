@@ -326,6 +326,9 @@ Release 2.7.0 - 2015-04-20
     MAPREDUCE-6303. Read timeout when retrying a fetch error can be fatal 
     to a reducer. (Jason Lowe via junping_du)
 
+    MAPREDUCE-6363. [NNBench] Lease mismatch error when running with multiple
+    mappers. (Vlad Sharanhovich and Bibin A Chundatt via aajisaka)
+
     MAPREDUCE-5883. "Total megabyte-seconds" in job counters is slightly
     misleading (Nathan Roberts via jlowe)
 
