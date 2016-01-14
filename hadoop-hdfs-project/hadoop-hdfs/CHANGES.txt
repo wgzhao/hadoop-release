@@ -132,6 +132,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9569. Log the name of the fsimage being loaded for better
     supportability. (Yongjun Zhang)
 
+    HDFS-9415. Document dfs.cluster.administrators and
+    dfs.permissions.superusergroup. (Xiaobing Zhou via Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
