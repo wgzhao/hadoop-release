@@ -65,6 +65,7 @@ import org.apache.hadoop.util.DiskChecker.DiskErrorException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
+import org.apache.hadoop.util.Timer;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
@@ -835,8 +836,18 @@ public class FsVolumeImpl implements FsVolumeSpi {
   }
 
   void addBlockPool(String bpid, Configuration conf) throws IOException {
+    addBlockPool(bpid, conf, null);
+  }
+
+  void addBlockPool(String bpid, Configuration conf, Timer timer)
+      throws IOException {
     File bpdir = new File(currentDir, bpid);
-    BlockPoolSlice bp = new BlockPoolSlice(bpid, this, bpdir, conf);
+    BlockPoolSlice bp;
+    if (timer == null) {
+      bp = new BlockPoolSlice(bpid, this, bpdir, conf, new Timer());
+    } else {
+      bp = new BlockPoolSlice(bpid, this, bpdir, conf, timer);
+    }
     bpSlices.put(bpid, bp);
   }
   
