@@ -858,3 +858,12 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-8729. Fix TestFileTruncate#testTruncateWithDataNodesRestartImmediately
     which occasionally failed. (Walter Su via jing9)
+
+    HADOOP-12551. Introduce FileNotFoundException for WASB FileSystem API
+    (Dushyanth via cnauroth)
+
+    HADOOP-12608. Fix exception message in WASB when connecting with anonymous
+    credential. (Dushyanth via xyao)
+
+    HADOOP-12678. Handle empty rename pending metadata file during atomic rename
+    in redo path. (Madhumita Chakraborty via cnauroth)
