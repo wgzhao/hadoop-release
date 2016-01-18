@@ -6,6 +6,8 @@ Release 2.8.0 - UNRELEASED
 
   NEW FEATURES
 
+    HADOOP-12635. Adding Append API support for WASB. (Dushyanth via cnauroth)
+
   IMPROVEMENTS
 
     HADOOP-11960. Enable Azure-Storage Client Side logging.
