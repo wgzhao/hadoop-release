@@ -918,6 +918,9 @@ Release 2.7.0 - 2015-04-20
     YARN-3296. Mark ResourceCalculatorProcessTree class as Public for configurable
     resource monitoring. (Hitesh Shah via junping_du)
 
+    YARN-4596. SystemMetricPublisher should not swallow error messages from
+    TimelineClient#putEntities. (Li Lu via jianhe)
+
     YARN-3187. Documentation of Capacity Scheduler Queue mapping based on user
     or group. (Gururaj Shetty via jianhe)
 
