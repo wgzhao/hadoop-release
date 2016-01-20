@@ -6,8 +6,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-8008. Support client-side back off when the datanodes are congested. (wheat9)
 
-    YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
-
     HDFS-6581. Support for writing to single replica in RAM. Applied
     HDFS-6581.merge.15.patch to Champlain. This is a consolidated patch
     containing all feature changes and was applied to trunk. (Multiple
@@ -90,6 +88,13 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-8656. Preserve compatibility of ClientProtocol#rollingUpgrade after finalization.
 
     HDFS-9426. Rollingupgrade finalization is not backward compatible.
+
+ATS V1.5:
+
+    YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
+
+    Port YARN-3942(ATS V1.5) patch into 2.3-maint, which include the
+    previous YARN-3360 Commits to fix the dependency.
 
   IMPROVEMENTS
 
@@ -251,9 +256,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager gets
     connection issue. Contributed by Xuan Gong
-
-    Port YARN-3942(ATS V1.5) patch into 2.3-maint, which include the
-    previous YARN-3360 Commits to fix the dependency.
 
     YARN-3360. Add JMX metrics to TimelineDataManager (Jason Lowe via jeagles)
 
@@ -867,3 +869,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HADOOP-12678. Handle empty rename pending metadata file during atomic rename
     in redo path. (Madhumita Chakraborty via cnauroth)
+
+    BUG-49702(YARN-4392). ApplicationCreatedEvent event time resets after RM
+    restart/failover. Contributed by Naganarasimha G R and Xuan Gong
