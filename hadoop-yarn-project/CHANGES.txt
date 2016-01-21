@@ -512,6 +512,9 @@ Release 2.7.3 - UNRELEASED
     YARN-3986. getTransferredContainers in AbstractYarnScheduler should be present
     in YarnScheduler interface instead. (Varun Saxena via rohithsharmaks)
 
+    YARN-4610. Reservations continue looking for one app causes other apps to
+    starve (jlowe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
