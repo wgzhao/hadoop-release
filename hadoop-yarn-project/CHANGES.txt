@@ -287,6 +287,9 @@ Release 2.7.3 - UNRELEASED
 
   BUG FIXES
 
+    YARN-4623. TestSystemMetricsPublisher#testPublishAppAttemptMetricsForUnmanagedAM
+    fails with NPE on branch-2.7. (Naganarasimha G R via junping_du)
+
     YARN-4344. NMs reconnecting with changed capabilities can lead to wrong
     cluster resource calculations (Varun Vasudev via jlowe)
 
