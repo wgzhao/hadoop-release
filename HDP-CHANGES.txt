@@ -872,3 +872,7 @@ ATS V1.5:
 
     BUG-49702(YARN-4392). ApplicationCreatedEvent event time resets after RM
     restart/failover. Contributed by Naganarasimha G R and Xuan Gong
+
+    YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy 
+    is enabled, under stress appears that cluster is virtually in deadlock.
+    (Wangda Tan via jianhe)
