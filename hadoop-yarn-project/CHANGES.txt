@@ -205,6 +205,9 @@ Release 2.8.0 - UNRELEASED
     YARN-4132. Separate configs for nodemanager to resourcemanager connection
     timeout and retries (Chang Li via jlowe)
 
+    YARN-4492. Add documentation for preemption supported in Capacity
+    scheduler (Naganarasimha G R via jlowe)
+
   OPTIMIZATIONS
 
   BUG FIXES
