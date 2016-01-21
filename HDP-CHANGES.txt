@@ -321,7 +321,7 @@ ATS V1.5:
 
   BUG FIXES
 
-    HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name
+
     inserted in target server principal. (mfoley)
 
     BUG-5700. NameNode should shut down if out of memory error occurs. (cnauroth)
@@ -985,3 +985,6 @@ ATS V1.5:
     Contributed by Varun Saxena.
 
     BUG-55054. YARN-4439. Clarify NMContainerStatus#toString method. (Jian He via xgong)
+
+    YARN-4623. TestSystemMetricsPublisher#testPublishAppAttemptMetricsForUnmanagedAM
+    fails with NPE on branch-2.7. (Naganarasimha G R via junping_du)
