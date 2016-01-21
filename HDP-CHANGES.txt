@@ -1286,3 +1286,6 @@ ATS V1.5:
 
     YARN-4502. Fix two AM containers get allocated when AM restart. 
     (Vinod Kumar Vavilapalli via wangda)
+
+    YARN-4557. Fix improper Queues sorting in PartitionedQueueComparator when 
+    accessible-node-labels=*. (Naganarasimha G R via wangda)

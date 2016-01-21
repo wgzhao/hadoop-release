@@ -50,8 +50,8 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 @Private
 @Unstable
 public class AppSchedulingInfo {
-  
   private static final Log LOG = LogFactory.getLog(AppSchedulingInfo.class);
+
   private final ApplicationAttemptId applicationAttemptId;
   final ApplicationId applicationId;
   private String queueName;
