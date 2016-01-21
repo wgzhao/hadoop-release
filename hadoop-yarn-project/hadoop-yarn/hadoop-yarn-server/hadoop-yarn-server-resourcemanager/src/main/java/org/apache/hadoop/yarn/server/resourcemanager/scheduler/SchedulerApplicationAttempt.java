@@ -46,6 +46,7 @@ import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
@@ -139,6 +140,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   protected boolean isStopped = false;
   
   protected final RMContext rmContext;
+  private RMAppAttempt appAttempt;
   
   public SchedulerApplicationAttempt(ApplicationAttemptId applicationAttemptId, 
       String user, Queue queue, ActiveUsersManager activeUsersManager,
@@ -154,9 +156,11 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
     if (rmContext.getRMApps() != null &&
         rmContext.getRMApps()
             .containsKey(applicationAttemptId.getApplicationId())) {
+      RMApp rmApp = rmContext.getRMApps().get(applicationAttemptId.getApplicationId());
       ApplicationSubmissionContext appSubmissionContext =
           rmContext.getRMApps().get(applicationAttemptId.getApplicationId())
               .getApplicationSubmissionContext();
+      appAttempt = rmApp.getCurrentAppAttempt();
       if (appSubmissionContext != null) {
         unmanagedAM = appSubmissionContext.getUnmanagedAM();
         this.logAggregationContext =
@@ -737,8 +741,13 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   }
   
   @Override
-  public synchronized ResourceUsage getSchedulingResourceUsage() {
+  public ResourceUsage getSchedulingResourceUsage() {
     return attemptResourceUsage;
   }
-  
+
+  public boolean isWaitingForAMContainer() {
+    // The working knowledge is that masterContainer for AM is null as it
+    // itself is the master container.
+    return (!unmanagedAM && appAttempt.getMasterContainer() == null);
+  }
 }

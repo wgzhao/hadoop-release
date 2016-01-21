@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -46,6 +47,7 @@ import org.apache.hadoop.yarn.security.AccessType;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSchedulerConfiguration;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.FairOrderingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.FifoOrderingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.OrderingPolicy;
@@ -959,5 +961,17 @@ public class CapacitySchedulerConfiguration extends ReservationSchedulerConfigur
     configuredNodeLabels.add(RMNodeLabelsManager.NO_LABEL);
     
     return configuredNodeLabels;
+  }
+
+  @VisibleForTesting
+  public void setOrderingPolicy(String queue, String policy) {
+    set(getQueuePrefix(queue) + ORDERING_POLICY, policy);
+  }
+
+  @VisibleForTesting
+  public void setOrderingPolicyParameter(String queue,
+      String parameterKey, String parameterValue) {
+    set(getQueuePrefix(queue) + ORDERING_POLICY + "."
+        + parameterKey, parameterValue);
   }
 }
