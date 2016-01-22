@@ -68,6 +68,7 @@ import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.PermissionStatus;
+import org.apache.hadoop.fs.QuotaUsage;
 import org.apache.hadoop.ha.HAServiceStatus;
 import org.apache.hadoop.ha.HealthCheckFailedException;
 import org.apache.hadoop.ha.ServiceFailedException;
@@ -1316,6 +1317,12 @@ public class NameNodeRpcServer implements NamenodeProtocols {
   public ContentSummary getContentSummary(String path) throws IOException {
     checkNNStartup();
     return namesystem.getContentSummary(path);
+  }
+
+  @Override // ClientProtocol
+  public QuotaUsage getQuotaUsage(String path) throws IOException {
+    checkNNStartup();
+    return namesystem.getQuotaUsage(path);
   }
 
   @Override // ClientProtocol

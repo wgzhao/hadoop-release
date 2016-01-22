@@ -585,6 +585,14 @@ message GetContentSummaryResponseProto {
   required ContentSummaryProto summary = 1;
 }
 
+message GetQuotaUsageRequestProto {
+  required string path = 1;
+}
+
+message GetQuotaUsageResponseProto {
+  required QuotaUsageProto usage = 1;
+}
+
 message SetQuotaRequestProto {
   required string path = 1;
   required uint64 namespaceQuota = 2;
@@ -878,4 +886,6 @@ service ClientNamenodeProtocol {
       returns(GetCurrentEditLogTxidResponseProto);
   rpc getEditsFromTxid(GetEditsFromTxidRequestProto)
       returns(GetEditsFromTxidResponseProto);
+  rpc getQuotaUsage(GetQuotaUsageRequestProto)
+      returns(GetQuotaUsageResponseProto);
 }

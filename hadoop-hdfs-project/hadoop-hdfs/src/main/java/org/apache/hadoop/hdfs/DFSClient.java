@@ -129,6 +129,7 @@ import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Options.ChecksumOpt;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.QuotaUsage;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.UnresolvedLinkException;
@@ -208,6 +209,7 @@ import org.apache.hadoop.io.retry.LossyRetryInvocationHandler;
 import org.apache.hadoop.ipc.Client;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.RemoteException;
+import org.apache.hadoop.ipc.RpcNoSuchMethodException;
 import org.apache.hadoop.net.DNS;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.AccessControlException;
@@ -3089,6 +3091,34 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
       throw re.unwrapRemoteException(AccessControlException.class,
                                      FileNotFoundException.class,
                                      UnresolvedPathException.class);
+    } finally {
+      scope.close();
+    }
+  }
+
+  /**
+   * Get {@link org.apache.hadoop.fs.QuotaUsage} rooted at the specified directory.
+   * @param src The string representation of the path
+   *
+   * @see ClientProtocol#getQuotaUsage(String)
+   */
+  QuotaUsage getQuotaUsage(String src) throws IOException {
+    checkOpen();
+    TraceScope scope = getPathTraceScope("getQuotaUsage", src);
+    try {
+      return namenode.getQuotaUsage(src);
+    } catch(RemoteException re) {
+      IOException ioe = re.unwrapRemoteException(AccessControlException.class,
+          FileNotFoundException.class,
+          UnresolvedPathException.class,
+          RpcNoSuchMethodException.class);
+      if (ioe instanceof RpcNoSuchMethodException) {
+        LOG.debug("The version of namenode doesn't support getQuotaUsage API." +
+            " Fall back to use getContentSummary API.");
+        return getContentSummary(src);
+      } else {
+        throw ioe;
+      }
     } finally {
       scope.close();
     }

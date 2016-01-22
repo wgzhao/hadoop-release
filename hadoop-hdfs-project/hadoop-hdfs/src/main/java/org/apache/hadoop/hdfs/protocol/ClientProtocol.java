@@ -35,6 +35,7 @@ import org.apache.hadoop.fs.InvalidPathException;
 import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
+import org.apache.hadoop.fs.QuotaUsage;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.UnresolvedLinkException;
 import org.apache.hadoop.fs.XAttr;
@@ -1482,4 +1483,17 @@ public interface ClientProtocol {
    */
   @Idempotent
   public EventBatchList getEditsFromTxid(long txid) throws IOException;
+
+  /**
+   * Get {@link QuotaUsage} rooted at the specified directory.
+   * @param path The string representation of the path
+   *
+   * @throws AccessControlException permission denied
+   * @throws java.io.FileNotFoundException file <code>path</code> is not found
+   * @throws org.apache.hadoop.fs.UnresolvedLinkException if <code>path</code>
+   *         contains a symlink.
+   * @throws IOException If an I/O error occurred
+   */
+  @Idempotent
+  QuotaUsage getQuotaUsage(String path) throws IOException;
 }
