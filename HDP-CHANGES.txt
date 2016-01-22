@@ -298,6 +298,9 @@ ATS V1.5:
     YARN-4584. RM startup failure when AM attempts greater than max-attempts. 
     (Bibin A Chundatt via rohithsharmaks)
 
+    YARN-4497. RM might fail to restart when recovering apps whose attempts
+    are missing. (Jun Gong via rohithsharmaks)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
