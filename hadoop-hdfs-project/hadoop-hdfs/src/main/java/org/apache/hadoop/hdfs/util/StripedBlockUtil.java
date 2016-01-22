@@ -22,7 +22,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.fs.StorageType;
-import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.DFSStripedOutputStream;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
@@ -34,6 +33,8 @@ import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.hdfs.protocol.ErasureCodingPolicy;
 import org.apache.hadoop.io.erasurecode.rawcoder.RawErasureDecoder;
 import org.apache.hadoop.security.token.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -70,6 +71,8 @@ import java.util.concurrent.TimeUnit;
  */
 @InterfaceAudience.Private
 public class StripedBlockUtil {
+
+  public static final Logger LOG = LoggerFactory.getLogger(StripedBlockUtil.class);
 
   /**
    * This method parses a striped block group into individual blocks.
@@ -220,15 +223,11 @@ public class StripedBlockUtil {
         return new StripingChunkReadResult(StripingChunkReadResult.TIMEOUT);
       }
     } catch (ExecutionException e) {
-      if (DFSClient.LOG.isDebugEnabled()) {
-        DFSClient.LOG.debug("Exception during striped read task", e);
-      }
+      LOG.debug("Exception during striped read task", e);
       return new StripingChunkReadResult(futures.remove(future),
           StripingChunkReadResult.FAILED);
     } catch (CancellationException e) {
-      if (DFSClient.LOG.isDebugEnabled()) {
-        DFSClient.LOG.debug("Exception during striped read task", e);
-      }
+      LOG.debug("Exception during striped read task", e);
       return new StripingChunkReadResult(futures.remove(future),
           StripingChunkReadResult.CANCELLED);
     }

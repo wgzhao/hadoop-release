@@ -32,8 +32,10 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -47,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ChecksumException;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.BlockReader;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
@@ -123,9 +126,8 @@ public final class ErasureCodingWorker {
   }
 
   private void initializeStripedReadThreadPool(int num) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Using striped reads; pool threads=" + num);
-    }
+    LOG.debug("Using striped reads; pool threads=" + num);
+
     STRIPED_READ_THREAD_POOL = new ThreadPoolExecutor(1, num, 60,
         TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
         new Daemon.DaemonFactory() {
@@ -150,9 +152,7 @@ public final class ErasureCodingWorker {
   }
 
   private void initializeStripedBlkRecoveryThreadPool(int num) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Using striped block recovery; pool threads=" + num);
-    }
+    LOG.debug("Using striped block recovery; pool threads=" + num);
     STRIPED_BLK_RECOVERY_THREAD_POOL = new ThreadPoolExecutor(2, num, 60,
         TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
         new Daemon.DaemonFactory() {
@@ -370,11 +370,11 @@ public final class ErasureCodingWorker {
      * @return StripedReader
      */
     private StripedReader addStripedReader(int i, long offsetInBlock) {
-      StripedReader reader = new StripedReader(liveIndices[i]);
+      final ExtendedBlock block = getBlock(blockGroup, liveIndices[i]);
+      StripedReader reader = new StripedReader(liveIndices[i], block, sources[i]);
       stripedReaders.add(reader);
 
-      BlockReader blockReader = newBlockReader(
-          getBlock(blockGroup, liveIndices[i]), offsetInBlock, sources[i]);
+      BlockReader blockReader = newBlockReader(block, offsetInBlock, sources[i]);
       if (blockReader != null) {
         initChecksumAndBufferSizeIfNeeded(blockReader);
         reader.blockReader = blockReader;
@@ -437,19 +437,27 @@ public final class ErasureCodingWorker {
           throw new IOException(error);
         }
 
-        long firstStripedBlockLength = getBlockLen(blockGroup, 0);
-        while (positionInBlock < firstStripedBlockLength) {
-          int toRead = Math.min(
-              bufferSize, (int)(firstStripedBlockLength - positionInBlock));
+        long maxTargetLength = 0;
+        for (short targetIndex : targetIndices) {
+          maxTargetLength = Math.max(maxTargetLength,
+              getBlockLen(blockGroup, targetIndex));
+        }
+        while (positionInBlock < maxTargetLength) {
+          final int toRecover = (int) Math.min(
+              bufferSize, maxTargetLength - positionInBlock);
           // step1: read from minimum source DNs required for reconstruction.
-          //   The returned success list is the source DNs we do real read from
-          success = readMinimumStripedData4Recovery(success);
+          // The returned success list is the source DNs we do real read from
+          Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap = new HashMap<>();
+          try {
+            success = readMinimumStripedData4Recovery(success, toRecover,
+                corruptionMap);
+          } finally {
+            // report corrupted blocks to NN
+            reportCorruptedBlocks(corruptionMap);
+          }
 
           // step2: decode to reconstruct targets
-          long remaining = firstStripedBlockLength - positionInBlock;
-          int toRecoverLen = remaining < bufferSize ? 
-              (int)remaining : bufferSize;
-          recoverTargets(success, targetsStatus, toRecoverLen);
+          recoverTargets(success, targetsStatus, toRecover);
 
           // step3: transfer data
           if (transferData2Targets(targetsStatus) == 0) {
@@ -458,7 +466,7 @@ public final class ErasureCodingWorker {
           }
 
           clearBuffers();
-          positionInBlock += toRead;
+          positionInBlock += toRecover;
         }
 
         endTargetBlocks(targetsStatus);
@@ -515,10 +523,11 @@ public final class ErasureCodingWorker {
       }
     }
 
-    private long getReadLength(int index) {
+    /** the reading length should not exceed the length for recovery */
+    private int getReadLength(int index, int recoverLength) {
       long blockLen = getBlockLen(blockGroup, index);
       long remaining = blockLen - positionInBlock;
-      return remaining > bufferSize ? bufferSize : remaining;
+      return (int) Math.min(remaining, recoverLength);
     }
 
     /**
@@ -531,11 +540,15 @@ public final class ErasureCodingWorker {
      * operations and next iteration read.
      * 
      * @param success the initial success list of source DNs we think best
+     * @param recoverLength the length to recover.
      * @return updated success list of source DNs we do real read
      * @throws IOException
      */
-    private int[] readMinimumStripedData4Recovery(final int[] success)
+    private int[] readMinimumStripedData4Recovery(final int[] success,
+        int recoverLength, Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap)
         throws IOException {
+      Preconditions.checkArgument(recoverLength >= 0 &&
+          recoverLength <= bufferSize);
       int nsuccess = 0;
       int[] newSuccess = new int[minRequiredSources];
       BitSet used = new BitSet(sources.length);
@@ -545,9 +558,11 @@ public final class ErasureCodingWorker {
        */
       for (int i = 0; i < minRequiredSources; i++) {
         StripedReader reader = stripedReaders.get(success[i]);
-        if (getReadLength(liveIndices[success[i]]) > 0) {
-          Callable<Void> readCallable = readFromBlock(
-              reader.blockReader, reader.buffer);
+        final int toRead = getReadLength(liveIndices[success[i]],
+            recoverLength);
+        if (toRead > 0) {
+          Callable<Void> readCallable = readFromBlock(reader, reader.buffer,
+              toRead, corruptionMap);
           Future<Void> f = readService.submit(readCallable);
           futures.put(f, success[i]);
         } else {
@@ -572,10 +587,10 @@ public final class ErasureCodingWorker {
             StripedReader failedReader = stripedReaders.get(result.index);
             closeBlockReader(failedReader.blockReader);
             failedReader.blockReader = null;
-            resultIndex = scheduleNewRead(used);
+            resultIndex = scheduleNewRead(used, recoverLength, corruptionMap);
           } else if (result.state == StripingChunkReadResult.TIMEOUT) {
             // If timeout, we also schedule a new read.
-            resultIndex = scheduleNewRead(used);
+            resultIndex = scheduleNewRead(used, recoverLength, corruptionMap);
           }
           if (resultIndex >= 0) {
             newSuccess[nsuccess++] = resultIndex;
@@ -603,6 +618,9 @@ public final class ErasureCodingWorker {
     }
     
     private void paddingBufferToLen(ByteBuffer buffer, int len) {
+      if (len > buffer.limit()) {
+        buffer.limit(len);
+      }
       int toPadding = len - buffer.position();
       for (int i = 0; i < toPadding; i++) {
         buffer.put((byte) 0);
@@ -650,8 +668,8 @@ public final class ErasureCodingWorker {
       int m = 0;
       for (int i = 0; i < targetBuffers.length; i++) {
         if (targetsStatus[i]) {
+          targetBuffers[i].limit(toRecoverLen);
           outputs[m++] = targetBuffers[i];
-          outputs[i].limit(toRecoverLen);
         }
       }
       decoder.decode(inputs, erasedIndices, outputs);
@@ -660,7 +678,7 @@ public final class ErasureCodingWorker {
         if (targetsStatus[i]) {
           long blockLen = getBlockLen(blockGroup, targetIndices[i]);
           long remaining = blockLen - positionInBlock;
-          if (remaining < 0) {
+          if (remaining <= 0) {
             targetBuffers[i].limit(0);
           } else if (remaining < toRecoverLen) {
             targetBuffers[i].limit((int)remaining);
@@ -680,16 +698,19 @@ public final class ErasureCodingWorker {
      * @param used the used source DNs in this iteration.
      * @return the array index of source DN if don't need to do real read.
      */
-    private int scheduleNewRead(BitSet used) {
+    private int scheduleNewRead(BitSet used, int recoverLength,
+        Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap) {
       StripedReader reader = null;
       // step1: initially we may only have <code>minRequiredSources</code>
       // number of StripedReader, and there may be some source DNs we never 
       // read before, so will try to create StripedReader for one new source DN
       // and try to read from it. If found, go to step 3.
       int m = stripedReaders.size();
+      int toRead = 0;
       while (reader == null && m < sources.length) {
         reader = addStripedReader(m, positionInBlock);
-        if (getReadLength(liveIndices[m]) > 0) {
+        toRead = getReadLength(liveIndices[m], recoverLength);
+        if (toRead > 0) {
           if (reader.blockReader == null) {
             reader = null;
             m++;
@@ -708,12 +729,14 @@ public final class ErasureCodingWorker {
       for (int i = 0; reader == null && i < stripedReaders.size(); i++) {
         if (!used.get(i)) {
           StripedReader r = stripedReaders.get(i);
-          if (getReadLength(liveIndices[i]) > 0) {
+          toRead = getReadLength(liveIndices[i], recoverLength);
+          if (toRead > 0) {
             closeBlockReader(r.blockReader);
             r.blockReader = newBlockReader(
                 getBlock(blockGroup, liveIndices[i]), positionInBlock,
                 sources[i]);
             if (r.blockReader != null) {
+              r.buffer.position(0);
               m = i;
               reader = r;
             }
@@ -727,8 +750,8 @@ public final class ErasureCodingWorker {
 
       // step3: schedule if find a correct source DN and need to do real read.
       if (reader != null) {
-        Callable<Void> readCallable = readFromBlock(
-            reader.blockReader, reader.buffer);
+        Callable<Void> readCallable = readFromBlock(reader, reader.buffer,
+            toRead, corruptionMap);
         Future<Void> f = readService.submit(readCallable);
         futures.put(f, m);
         used.set(m);
@@ -744,15 +767,22 @@ public final class ErasureCodingWorker {
       }
     }
 
-    private Callable<Void> readFromBlock(final BlockReader reader,
-        final ByteBuffer buf) {
+    private Callable<Void> readFromBlock(final StripedReader reader,
+        final ByteBuffer buf, final int length,
+        final Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap) {
       return new Callable<Void>() {
 
         @Override
         public Void call() throws Exception {
           try {
-            actualReadFromBlock(reader, buf);
+            buf.limit(length);
+            actualReadFromBlock(reader.blockReader, buf);
             return null;
+          } catch (ChecksumException e) {
+            LOG.warn("Found Checksum error for " + reader.block + " from "
+                + reader.source + " at " + e.getPos());
+            addCorruptedBlock(reader.block, reader.source, corruptionMap);
+            throw e;
           } catch (IOException e) {
             LOG.info(e.getMessage());
             throw e;
@@ -760,6 +790,30 @@ public final class ErasureCodingWorker {
         }
 
       };
+    }
+
+    private void reportCorruptedBlocks(
+        Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap) throws IOException {
+      if (!corruptionMap.isEmpty()) {
+        for (Map.Entry<ExtendedBlock, Set<DatanodeInfo>> entry :
+            corruptionMap.entrySet()) {
+          for (DatanodeInfo dnInfo : entry.getValue()) {
+            datanode.reportRemoteBadBlock(dnInfo, entry.getKey());
+          }
+        }
+      }
+    }
+
+    private void addCorruptedBlock(ExtendedBlock blk, DatanodeInfo node,
+        Map<ExtendedBlock, Set<DatanodeInfo>> corruptionMap) {
+      Set<DatanodeInfo> dnSet = corruptionMap.get(blk);
+      if (dnSet == null) {
+        dnSet = new HashSet<>();
+        corruptionMap.put(blk, dnSet);
+      }
+      if (!dnSet.contains(node)) {
+        dnSet.add(node);
+      }
     }
 
     /**
@@ -898,14 +952,14 @@ public final class ErasureCodingWorker {
       }
 
       if (zeroStripeBuffers != null) {
-        for (int i = 0; i < zeroStripeBuffers.length; i++) {
-          zeroStripeBuffers[i].clear();
+        for (ByteBuffer zeroStripeBuffer : zeroStripeBuffers) {
+          zeroStripeBuffer.clear();
         }
       }
 
-      for (int i = 0; i < targetBuffers.length; i++) {
-        if (targetBuffers[i] != null) {
-          targetBuffers[i].clear();
+      for (ByteBuffer targetBuffer : targetBuffers) {
+        if (targetBuffer != null) {
+          targetBuffer.clear();
         }
       }
     }
@@ -996,9 +1050,13 @@ public final class ErasureCodingWorker {
     private final short index; // internal block index
     private BlockReader blockReader;
     private ByteBuffer buffer;
+    private final ExtendedBlock block;
+    private final DatanodeInfo source;
 
-    private StripedReader(short index) {
+    StripedReader(short index, ExtendedBlock block, DatanodeInfo source) {
       this.index = index;
+      this.block = block;
+      this.source = source;
     }
   }
 }
