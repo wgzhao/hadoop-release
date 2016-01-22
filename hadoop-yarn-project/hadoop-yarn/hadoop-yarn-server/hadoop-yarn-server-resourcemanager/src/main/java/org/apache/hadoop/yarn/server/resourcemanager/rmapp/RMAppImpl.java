@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -786,24 +787,38 @@ public class RMAppImpl implements RMApp, Recoverable {
     this.diagnostics.append(appState.getDiagnostics());
     this.storedFinishTime = appState.getFinishTime();
     this.startTime = appState.getStartTime();
-    this.callerContext = appState.getCallerContext();
     // If interval > 0, some attempts might have been deleted.
     if (this.attemptFailuresValidityInterval > 0) {
       this.firstAttemptIdInStateStore = appState.getFirstAttemptId();
       this.nextAttemptId = firstAttemptIdInStateStore;
     }
 
-    for(int i=0; i<appState.getAttemptCount(); ++i) {
+    RMAppAttemptImpl preAttempt = null;
+    for (ApplicationAttemptId attemptId :
+        new TreeSet<>(appState.attempts.keySet())) {
       // create attempt
-      createNewAttempt();
+      createNewAttempt(attemptId);
       ((RMAppAttemptImpl)this.currentAttempt).recover(state);
+      // If previous attempt is not in final state, it means we failed to store
+      // its final state. We set it to FAILED now because we could not make sure
+      // about its final state.
+      if (preAttempt != null && preAttempt.getRecoveredFinalState() == null) {
+        preAttempt.setRecoveredFinalState(RMAppAttemptState.FAILED);
+      }
+      preAttempt = (RMAppAttemptImpl)currentAttempt;
+    }
+    if (currentAttempt != null) {
+      nextAttemptId = currentAttempt.getAppAttemptId().getAttemptId() + 1;
     }
   }
 
   private void createNewAttempt() {
     ApplicationAttemptId appAttemptId =
         ApplicationAttemptId.newInstance(applicationId, nextAttemptId++);
+    createNewAttempt(appAttemptId);
+  }
 
+  private void createNewAttempt(ApplicationAttemptId appAttemptId) {
     RMAppAttempt attempt =
         new RMAppAttemptImpl(appAttemptId, rmContext, scheduler, masterService,
           submissionContext, conf,
@@ -1694,5 +1709,11 @@ public class RMAppImpl implements RMApp, Recoverable {
     } finally {
       this.readLock.unlock();
     }
+  }
+
+  @Private
+  @VisibleForTesting
+  public int getNextAttemptId() {
+    return nextAttemptId;
   }
 }
