@@ -877,6 +877,6 @@ ATS V1.5:
     is enabled, under stress appears that cluster is virtually in deadlock.
     (Wangda Tan via jianhe)
 
-    BUG-51436. HDFS-9572. Prevent DataNode log spam if a client connects on
+    BUG-51433. HDFS-9572. Prevent DataNode log spam if a client connects on
     the data transfer port but sends no data. (cnauroth)
 
