@@ -25,6 +25,9 @@ Release 2.9.0 - UNRELEASED
     YARN-4553. Add cgroups support for docker containers.
     (Sidharta Seethana via vvasudev)
 
+    YARN-4578. Directories that are mounted in docker containers need to be more
+    restrictive/container-specific. (Sidharta Seethana via vvasudev)
+
 Release 2.8.0 - UNRELEASED
 
   INCOMPATIBLE CHANGES
