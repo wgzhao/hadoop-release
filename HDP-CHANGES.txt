@@ -1,4 +1,4 @@
-Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered by CHANGES.txt.
+Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered by CHANGES.txt.R
 
   INCOMPATIBLE CHANGES
 
@@ -294,6 +294,9 @@ ATS V1.5:
 
     YARN-3480. Remove attempts that are beyond max-attempt limit from state
     store. Contributed by Jun Gong
+
+    YARN-4584. RM startup failure when AM attempts greater than max-attempts. 
+    (Bibin A Chundatt via rohithsharmaks)
 
   OPTIMIZATIONS
 
