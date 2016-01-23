@@ -246,9 +246,6 @@ Release 2.8.0 - UNRELEASED
     HDFS-8729. Fix TestFileTruncate#testTruncateWithDataNodesRestartImmediately
     which occasionally failed. (Walter Su via jing9)
 
-    HDFS-9572. Prevent DataNode log spam if a client connects on the data
-    transfer port but sends no data. (cnauroth)
-
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

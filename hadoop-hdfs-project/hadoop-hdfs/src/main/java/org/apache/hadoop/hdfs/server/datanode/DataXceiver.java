@@ -228,15 +228,18 @@ class DataXceiver extends Receiver implements Runnable {
         } catch (InterruptedIOException ignored) {
           // Time out while we wait for client rpc
           break;
-        } catch (EOFException | ClosedChannelException e) {
-          // Since we optimistically expect the next op, it's quite normal to
-          // get EOF here.
-          LOG.debug("Cached " + peer + " closing after " + opsProcessed +
-              " ops. This message is usually benign.");
-          break;
         } catch (IOException err) {
-          incrDatanodeNetworkErrors();
-          throw err;
+          // Since we optimistically expect the next op, it's quite normal to get EOF here.
+          if (opsProcessed > 0 &&
+              (err instanceof EOFException || err instanceof ClosedChannelException)) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Cached " + peer + " closing after " + opsProcessed + " ops");
+            }
+          } else {
+            incrDatanodeNetworkErrors();
+            throw err;
+          }
+          break;
         }
 
         // restore normal timeout
