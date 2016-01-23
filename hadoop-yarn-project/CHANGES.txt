@@ -1,45 +1,5 @@
 Hadoop YARN Change Log
 
-<<<<<<< HEAD
-=======
-Release 2.9.0 - UNRELEASED
-
-  INCOMPATIBLE CHANGES
-
-  NEW FEATURES
-
-    YARN-1856. Added cgroups based memory monitoring for containers as another
-    alternative to custom memory-monitoring. (Varun Vasudev via vinodkv)
-
-  IMPROVEMENTS
-
-    YARN-4072. ApplicationHistoryServer, WebAppProxyServer, NodeManager and
-    ResourceManager to support JvmPauseMonitor as a service.
-    (Sunil G via Stevel)
-
-    YARN-4341. add doc about timeline performance tool usage (Chang Li via
-    sjlee)
-
-    YARN-4417. Make RM and Timeline-server REST APIs more consistent.
-    (wtan via jianhe)
-
-    YARN-3480. Remove attempts that are beyond max-attempt limit from state
-    store. (Jun Gong via jianhe)
-
-  OPTIMIZATIONS
-
-  BUG FIXES
-
-    YARN-4109. Exception on RM scheduler page loading with labels. 
-    (Mohammad Shahid Khan via rohithsharmaks)
-
-    YARN-4156. TestAMRestart#testAMBlacklistPreventsRestartOnSameNode 
-    assumes CapacityScheduler. (Anubhav Dhoot via kasha)
-
-    YARN-2934. Improve handling of container's stderr.
-    (Naganarasimha G R via gera)
-
->>>>>>> 3661d49... YARN-3480. Remove attempts that are beyond max-attempt limit from state store. Contributed by Jun Gong
 Release 2.8.0 - UNRELEASED
 
   INCOMPATIBLE CHANGES
