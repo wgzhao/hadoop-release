@@ -880,6 +880,3 @@ ATS V1.5:
     BUG-51433. HDFS-9572. Prevent DataNode log spam if a client connects on
     the data transfer port but sends no data. (cnauroth)
 
-    BUG-51428. HADOOP-11252. RPC client does not time out by default.
-    (Masatake Iwasaki via aajisaka)
-

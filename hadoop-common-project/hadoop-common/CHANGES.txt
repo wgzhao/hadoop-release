@@ -150,9 +150,6 @@ Release 2.7.2 - UNRELEASED
     HADOOP-11932. MetricsSinkAdapter may hang  when being stopped.
     (Brahma Reddy Battula via jianhe)
 
-    HADOOP-11252. RPC client does not time out by default. (Masatake Iawasaki
-    via aajisaka)
-
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
