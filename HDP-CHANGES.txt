@@ -883,6 +883,3 @@ ATS V1.5:
     BUG-51428. HADOOP-11252. RPC client does not time out by default.
     (Masatake Iwasaki via aajisaka)
 
-    BUG-51426. HDFS-9574. Reduce client failures during datanode restart.
-    (kihwal)
-

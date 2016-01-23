@@ -50,8 +50,6 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_RESTART_REPLICA_
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_RESTART_REPLICA_EXPIRY_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.IGNORE_SECURE_PORTS_FOR_TESTING_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.IGNORE_SECURE_PORTS_FOR_TESTING_DEFAULT;
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_BP_READY_TIMEOUT_KEY;
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_BP_READY_TIMEOUT_DEFAULT;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
@@ -102,8 +100,6 @@ public class DNConf {
   final long restartReplicaExpiry;
 
   final long maxLockedMemory;
-
-  private final long bpReadyTimeout;
 
   public DNConf(Configuration conf) {
     this.conf = conf;
@@ -203,10 +199,6 @@ public class DNConf {
     this.restartReplicaExpiry = conf.getLong(
         DFS_DATANODE_RESTART_REPLICA_EXPIRY_KEY,
         DFS_DATANODE_RESTART_REPLICA_EXPIRY_DEFAULT) * 1000L;
-
-    this.bpReadyTimeout = conf.getLong(
-        DFS_DATANODE_BP_READY_TIMEOUT_KEY,
-        DFS_DATANODE_BP_READY_TIMEOUT_DEFAULT);
   }
 
   // We get minimumNameNodeVersion via a method so it can be mocked out in tests.
@@ -287,9 +279,5 @@ public class DNConf {
 
   public int getTransferSocketSendBufferSize() {
     return transferSocketSendBufferSize;
-  }
-
-  public long getBpReadyTimeout() {
-    return bpReadyTimeout;
   }
 }
