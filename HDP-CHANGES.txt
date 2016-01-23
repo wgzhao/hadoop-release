@@ -253,6 +253,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-34399 Enable yarn recovery by default in Windows Onprem
 
+    YARN-3480. Remove attempts that are beyond max-attempt limit from state
+    store. Contributed by Jun Gong
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)

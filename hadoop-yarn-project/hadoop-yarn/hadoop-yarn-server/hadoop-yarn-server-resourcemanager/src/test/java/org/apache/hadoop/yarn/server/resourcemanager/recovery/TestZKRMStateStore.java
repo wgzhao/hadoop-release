@@ -98,10 +98,15 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
         return CURRENT_VERSION_INFO;
       }
 
+
       public String getAppNode(String appId) {
         return workingZnode + "/" + ROOT_ZNODE_NAME + "/" + RM_APP_ROOT + "/"
             + appId;
       }
+      public String getAttemptNode(String appId, String attemptId) {
+        return getAppNode(appId) + "/" + attemptId;
+      }
+
     }
 
     public RMStateStore getRMStateStore() throws Exception {
@@ -137,6 +142,13 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
             false);
       return node !=null;
     }
+
+    public boolean attemptExists(RMAppAttempt attempt) throws Exception {
+      ApplicationAttemptId attemptId = attempt.getAppAttemptId();
+      return null !=  client.exists(store
+          .getAttemptNode(attemptId.getApplicationId().toString(),
+              attemptId.toString()), false);
+    }
   }
 
   @Test (timeout = 60000)
@@ -149,6 +161,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
     testAppDeletion(zkTester);
     testDeleteStore(zkTester);
     testRemoveApplication(zkTester);
+    testRemoveAttempt(zkTester);
     testAMRMTokenSecretManagerStateStore(zkTester);
   }
 
