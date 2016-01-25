@@ -764,7 +764,7 @@ public class FileContext {
       @Override
       public Boolean next(final AbstractFileSystem fs, final Path p) 
         throws IOException, UnresolvedLinkException {
-        return Boolean.valueOf(fs.delete(p, recursive));
+        return fs.delete(p, recursive);
       }
     }.resolve(this, absF);
   }
@@ -898,7 +898,7 @@ public class FileContext {
       @Override
       public Boolean next(final AbstractFileSystem fs, final Path p) 
         throws IOException, UnresolvedLinkException {
-        return Boolean.valueOf(fs.setReplication(p, replication));
+        return fs.setReplication(p, replication);
       }
     }.resolve(this, absF);
   }
