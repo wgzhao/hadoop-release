@@ -246,6 +246,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8729. Fix TestFileTruncate#testTruncateWithDataNodesRestartImmediately
     which occasionally failed. (Walter Su via jing9)
 
+    HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang Liu
+    via jitendra)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

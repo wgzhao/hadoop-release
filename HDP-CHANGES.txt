@@ -885,3 +885,6 @@ ATS V1.5:
     YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy 
     is enabled, under stress appears that cluster is virtually in deadlock.
     (Wangda Tan via jianhe)
+
+    HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang Liu
+    via jitendra)
