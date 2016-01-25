@@ -223,7 +223,7 @@
     requires the CORS filter initializer to be added to the filter initializers
     list in core-site.xml.</description>
     <name>yarn.resourcemanager.webapp.cross-origin.enabled</name>
-    <value>false</value>
+    <value>true</value>
   </property>
 
   <property>
