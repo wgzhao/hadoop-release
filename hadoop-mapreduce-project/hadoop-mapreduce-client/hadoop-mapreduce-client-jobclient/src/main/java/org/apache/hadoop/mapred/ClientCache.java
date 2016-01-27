@@ -22,11 +22,13 @@ import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.v2.api.HSClientProtocol;
 import org.apache.hadoop.mapreduce.v2.api.MRClientProtocol;
@@ -96,5 +98,24 @@ public class ClientCache {
             NetUtils.createSocketAddr(serviceAddr), conf);
       }
     });
+  }
+
+  public void close() throws IOException {
+    if (rm != null) {
+      rm.close();
+    }
+
+    if (hsProxy != null) {
+      RPC.stopProxy(hsProxy);
+    }
+
+    if (cache != null && !cache.isEmpty()) {
+      for (Entry<JobID, ClientServiceDelegate> delegate : cache.entrySet()) {
+        ClientServiceDelegate jobDelegate = delegate.getValue();
+        if (jobDelegate != null) {
+          jobDelegate.close();
+        }
+      }
+    }
   }
 }
