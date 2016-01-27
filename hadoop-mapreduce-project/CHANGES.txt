@@ -22,6 +22,9 @@ Release 2.8.0 - UNRELEASED
     MAPREDUCE-5485. Allow repeating job commit by extending OutputCommitter API
     (Junping Du via jianhe)
 
+    MAPREDUCE-6619. HADOOP_CLASSPATH is overwritten in MR container.
+    (Junping Du via jianhe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
