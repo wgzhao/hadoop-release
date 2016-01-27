@@ -1,5 +1,20 @@
 Hadoop MapReduce Change Log
 
+Release 2.7.3 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+  IMPROVEMENTS
+
+  OPTIMIZATIONS
+
+  BUG FIXES
+
+    MAPREDUCE-6619. HADOOP_CLASSPATH is overwritten in MR container.
+    (Junping Du via jianhe)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
