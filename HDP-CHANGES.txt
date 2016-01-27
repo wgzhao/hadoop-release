@@ -1681,3 +1681,6 @@ ATS V1.5:
     YARN-5270. Solve miscellaneous issues caused by YARN-4844. (wangda via jianhe)
 
     BUG-62047. YARN-5023. TestAMRestart#testShouldNotCountFailureToMaxAttemptRetry random failure.
+
+    BUG-62176. YARN-4573. Fix test failure in TestRMAppTransitions#testAppRunningKill and
+    testAppKilledKilled. (Takashi Ohnishi via rohithsharmaks)
