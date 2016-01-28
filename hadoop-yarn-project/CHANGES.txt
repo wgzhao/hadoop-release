@@ -429,6 +429,9 @@ Release 2.7.3 - UNRELEASED
     YARN-3768. ArrayIndexOutOfBoundsException with empty environment variables.
     (Zhihai Xu via gera)
 
+    YARN-4643. Container recovery is broken with delegating container runtime
+    (Sidharta Seethana via jlowe)
+
     YARN-4326. Fix TestDistributedShell timeout as AHS in MiniYarnCluster no longer 
     binds to default port 8188. (Meng Ding via wangda)
 
