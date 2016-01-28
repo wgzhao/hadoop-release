@@ -295,6 +295,8 @@ Release 2.7.3 - UNRELEASED
     HDFS-7163. WebHdfsFileSystem should retry reads according to the configured
     retry policy. (Eric Payne via kihwal)
 
+    HDFS-9654. Code refactoring for HDFS-8578.  (szetszwo)
+
   OPTIMIZATIONS
 
   BUG FIXES
