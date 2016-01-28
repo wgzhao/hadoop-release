@@ -1673,3 +1673,5 @@ ATS V1.5:
     HADOOP-13352. Make X-FRAME-OPTIONS configurable in HttpServer2. Contributed by Anu Engineer.
 
     HDFS-10579. HDFS web interfaces lack configs for X-FRAME-OPTIONS protection. Contributed by Anu Engineer.
+
+    BUG-62045. YARN-4633. TestRMRestart.testRMRestartAfterPreemption fails intermittently.
