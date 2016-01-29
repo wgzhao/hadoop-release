@@ -18,22 +18,25 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy;
 
-import java.util.*;
-
-import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.util.resource.Resources;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 
 
 public class MockSchedulableEntity implements SchedulableEntity {
   
   private String id;
   private long serial = 0;
-  
+
+  private boolean isRecovering;
+
   public MockSchedulableEntity() { }
-  
+
+  public MockSchedulableEntity(long serial, boolean isRecovering) {
+    this.serial = serial;
+    this.isRecovering = isRecovering;
+  }
+
   public void setId(String id) {
     this.id = id;
   }
@@ -74,5 +77,13 @@ public class MockSchedulableEntity implements SchedulableEntity {
     }
     return 1;//let other types go before this, if any
   }
-  
+
+  @Override
+  public boolean isRecovering() {
+    return isRecovering;
+  }
+
+  protected void setRecovering(boolean entityRecovering) {
+    this.isRecovering = entityRecovering;
+  }
 }

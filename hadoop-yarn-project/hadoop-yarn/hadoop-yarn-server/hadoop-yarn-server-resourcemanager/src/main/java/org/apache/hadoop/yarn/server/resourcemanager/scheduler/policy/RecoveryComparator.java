@@ -18,35 +18,16 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy;
 
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
-
+import java.util.Comparator;
 
 /**
- * A SchedulableEntity is a process to be scheduled.
- * for example, an application / application attempt
+ * A Comparator which orders SchedulableEntities by isRecovering flag.
  */
-public interface SchedulableEntity {
-  
-  /**
-   * Id - each entity must have a unique id
-   */
-  public String getId();
-  
-  /**
-   * Compare the passed SchedulableEntity to this one for input order.
-   * Input order is implementation defined and should reflect the 
-   * correct ordering for first-in first-out processing
-   */
-  public int compareInputOrderTo(SchedulableEntity other);
-  
-  /**
-   * View of Resources wanted and consumed by the entity
-   */
-  public ResourceUsage getSchedulingResourceUsage();
-
-  /**
-   * Whether application was running before RM restart.
-   */
-  public boolean isRecovering();
+public class RecoveryComparator implements Comparator<SchedulableEntity> {
+  @Override
+  public int compare(SchedulableEntity se1, SchedulableEntity se2) {
+    int val1 = se1.isRecovering() ? 1 : 0;
+    int val2 = se2.isRecovering() ? 1 : 0;
+    return val2 - val1;
+  }
 }

@@ -2397,7 +2397,6 @@ public class TestLeafQueue {
     LeafQueue a = stubLeafQueue((LeafQueue)queues.get(A));
     
     a.setOrderingPolicy(new FifoOrderingPolicy<FiCaSchedulerApp>());
-    a.setPendingAppsOrderingPolicy(new FifoOrderingPolicy<FiCaSchedulerApp>());
 
     String host_0_0 = "127.0.0.1";
     String rack_0 = "rack_0";
@@ -2439,11 +2438,11 @@ public class TestLeafQueue {
             true, priority, recordFactory));
     app_1.updateResourceRequests(app_1_requests_0);
 
-    // app_1 will get containers as it has high priority
-    a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
-    Assert.assertEquals(1*GB, app_1.getCurrentConsumption().getMemory());
+    // app_0 will get containers
     a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
     Assert.assertEquals(2*GB, app_0.getCurrentConsumption().getMemory());
+    a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
+    Assert.assertEquals(1*GB, app_1.getCurrentConsumption().getMemory());
 
     app_0_requests_0.clear();
     app_0_requests_0.add(
@@ -2457,14 +2456,14 @@ public class TestLeafQueue {
             true, priority, recordFactory));
     app_1.updateResourceRequests(app_1_requests_0);
 
-    //app_1 will still get assigned first as priority is more.
-    a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
-    Assert.assertEquals(2*GB, app_1.getCurrentConsumption().getMemory());
-    Assert.assertEquals(2*GB, app_0.getCurrentConsumption().getMemory());
-
-    //and only then will app_2
+    //app_0 will still get assigned first
     a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
     Assert.assertEquals(3*GB, app_0.getCurrentConsumption().getMemory());
+    Assert.assertEquals(1*GB, app_1.getCurrentConsumption().getMemory());
+
+    //and only then will app_1
+    a.assignContainers(clusterResource, node_0_0, new ResourceLimits(clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
+    Assert.assertEquals(2*GB, app_1.getCurrentConsumption().getMemory());
 }
   @Test
   public void testConcurrentAccess() throws Exception {
@@ -2544,7 +2543,6 @@ public class TestLeafQueue {
       new FairOrderingPolicy<FiCaSchedulerApp>();
 
     a.setOrderingPolicy(schedulingOrder);
-    a.setPendingAppsOrderingPolicy(new FairOrderingPolicy<FiCaSchedulerApp>());
 
     String host_0_0 = "127.0.0.1";
     String rack_0 = "rack_0";

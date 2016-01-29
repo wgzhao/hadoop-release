@@ -830,7 +830,8 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
     // queue's resource usage for specific partition
   }
 
-  public boolean isAttemptRecovering() {
+  @Override
+  public boolean isRecovering() {
     return isAttemptRecovering;
   }
 

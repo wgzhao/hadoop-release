@@ -1295,3 +1295,6 @@ ATS V1.5:
 
     YARN-4304. AM max resource configuration per partition to be displayed/updated correctly 
     in UI and in various partition related metrics. (Sunil G via wangda)
+
+    YARN-4617. LeafQueue#pendingOrderingPolicy should always use fixed ordering policy 
+    instead of using same as active applications ordering policy. Contributed by Rohith Sharma K S
