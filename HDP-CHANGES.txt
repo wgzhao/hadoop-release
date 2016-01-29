@@ -847,3 +847,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     (sandflee via jianhe)
 
     MAPREDUCE-6618. YarnClientProtocolProvider leaking the YarnClient thread.(xgong)
+
+    MAPREDUCE-6621. Memory Link in JobClient#submitJobInternal(). (xgong)

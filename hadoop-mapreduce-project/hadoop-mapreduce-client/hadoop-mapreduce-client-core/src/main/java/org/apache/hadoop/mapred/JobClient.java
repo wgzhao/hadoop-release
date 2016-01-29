@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -139,6 +141,7 @@ import org.apache.hadoop.util.ToolRunner;
 @InterfaceStability.Stable
 public class JobClient extends CLI {
 
+  private static final Log LOG = LogFactory.getLog(JobClient.class);
   @InterfaceAudience.Private
   public static final String MAPREDUCE_CLIENT_RETRY_POLICY_ENABLED_KEY =
       "mapreduce.jobclient.retry.policy.enabled";
@@ -576,10 +579,22 @@ public class JobClient extends CLI {
           return job;
         }
       });
+
+      Cluster prev = cluster;
       // update our Cluster instance with the one created by Job for submission
       // (we can't pass our Cluster instance to Job, since Job wraps the config
       // instance, and the two configs would then diverge)
       cluster = job.getCluster();
+
+      // we have to close and null the previous cluster reference,
+      // otherwise, it would be leaked.
+      if (prev != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Cleaning up previous cluster");
+        }
+        prev.close();
+        prev = null;
+      }
       return new NetworkedJob(job);
     } catch (InterruptedException ie) {
       throw new IOException("interrupted", ie);
