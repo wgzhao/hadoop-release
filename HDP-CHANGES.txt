@@ -951,3 +951,6 @@ covered by CHANGES.txt.
 
     BUG-47982. Update CallerContext name for MR app master / task (wangda)
 
+    HDFS-8113. Add check for null BlockCollection pointers in
+    BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
+
