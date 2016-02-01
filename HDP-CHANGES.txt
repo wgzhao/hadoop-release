@@ -900,3 +900,7 @@ ATS V1.5:
     more consistent. (xgong)
 
     BUG-52418(YARN-4680) Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
+
+    BUG-51879. HDFS-8113. Add check for null BlockCollection pointers
+    in BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
+
