@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.server.datanode.fsdataset.impl;
 
+import com.google.common.base.Supplier;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystemTestHelper;
 import org.apache.hadoop.fs.StorageType;
@@ -25,6 +26,7 @@ import org.apache.hadoop.hdfs.server.datanode.BlockScanner;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.RoundRobinVolumeChoosingPolicy;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.VolumeChoosingPolicy;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +37,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
+
+import java.util.concurrent.TimeoutException;
+
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class TestFsVolumeList {
@@ -74,7 +80,19 @@ public class TestFsVolumeList {
     }
 
     // Close the second volume.
-    volumes.get(1).closeAndWait();
+    volumes.get(1).setClosed();
+    try {
+      GenericTestUtils.waitFor(new Supplier<Boolean>() {
+        @Override
+        public Boolean get() {
+          return volumes.get(1).checkClosed();
+        }
+      }, 100, 3000);
+    } catch (TimeoutException e) {
+      fail("timed out while waiting for volume to be removed.");
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+    }
     for (int i = 0; i < 10; i++) {
       try (FsVolumeReference ref =
           volumeList.getNextVolume(StorageType.DEFAULT, 128)) {
@@ -99,7 +117,19 @@ public class TestFsVolumeList {
     }
 
     // Close the 2nd volume.
-    volumes.get(1).closeAndWait();
+    volumes.get(1).setClosed();
+    try {
+      GenericTestUtils.waitFor(new Supplier<Boolean>() {
+        @Override
+        public Boolean get() {
+          return volumes.get(1).checkClosed();
+        }
+      }, 100, 3000);
+    } catch (TimeoutException e) {
+      fail("timed out while waiting for volume to be removed.");
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+    }
     // checkDirs() should ignore the 2nd volume since it is closed.
     volumeList.checkDirs();
   }
