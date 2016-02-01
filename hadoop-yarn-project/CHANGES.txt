@@ -321,6 +321,9 @@ Release 2.7.3 - UNRELEASED
     YARN-4785. inconsistent value type of the "type" field for LeafQueueInfo 
     in response of RM REST API. (Varun Vasudev via junping_du)
 
+    YARN-3102. Decommisioned Nodes not listed in Web UI (Kuhu Shukla via
+    jlowe)
+
 Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
