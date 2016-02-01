@@ -954,3 +954,6 @@ covered by CHANGES.txt.
     HDFS-8113. Add check for null BlockCollection pointers in
     BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
 
+    BUG-51889. HDFS-9406. FSImage may get corrupted after deleting snapshot.
+    (yzhang)
+
