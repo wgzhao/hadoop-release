@@ -1164,3 +1164,6 @@ ATS V1.5:
 
     BUG-55473. HDFS-9130. Use GenericTestUtils#setLogLevel to the logging level.
     Contributed by Mingliang Liu.
+    
+    BUG-55580. HDFS-9072. Fix random failures in TestJMXGet. (J. Andreina
+    via kihwal)
