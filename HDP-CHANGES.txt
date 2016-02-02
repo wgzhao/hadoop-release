@@ -1143,3 +1143,6 @@ ATS V1.5:
     BUG-55333. MAPREDUCE-6460. TestRMContainerAllocator.testAttemptNotFoundCausesRMCommunicatorException
     fails. Contributed by Zhihai Xu. (cherry picked from commit e3ace31e2b7e3a8dc6cf3dc044d5ef2a9aa12e29)
     
+    BUG-55580. HDFS-9072. Fix random failures in TestJMXGet. (J. Andreina
+    via kihwal)
+
