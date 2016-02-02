@@ -131,6 +131,12 @@ class LocalResourcesTrackerImpl implements LocalResourcesTracker {
       }
       break;
     case REQUEST:
+      if(rsrc != null) {
+        LOG.info("Found existing resource " + rsrc);
+      }
+      else {
+        LOG.info("Couldn't find existing resource for " + req.getResource());
+      }
       if (rsrc != null && (!isResourcePresent(rsrc))) {
         LOG.info("Resource " + rsrc.getLocalPath()
             + " is missing, localizing it again");
@@ -324,12 +330,22 @@ class LocalResourcesTrackerImpl implements LocalResourcesTracker {
    * @return true/false based on resource is present or not
    */
   public boolean isResourcePresent(LocalizedResource rsrc) {
+    LOG.info("Checking if resource " + rsrc + " is present; state = " + rsrc.getState());
     boolean ret = true;
     if (rsrc.getState() == ResourceState.LOCALIZED) {
       File file = new File(rsrc.getLocalPath().toUri().getRawPath().
         toString());
       if (!file.exists()) {
         ret = false;
+      } else {
+        LOG.info("Resource " + rsrc + " file exists");
+        if (file.isDirectory() && file.list().length == 0) {
+          LOG.info("Resource " + rsrc + " contents are empty, re-localizing");
+          ret = false;
+        }
+        else {
+          LOG.info("Resource " + rsrc + " is good");
+        }
       }
     }
     return ret;

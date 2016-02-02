@@ -163,6 +163,7 @@ public class NodeManager extends CompositeService
         YarnConfiguration.NM_RECOVERY_ENABLED,
         YarnConfiguration.DEFAULT_NM_RECOVERY_ENABLED);
     if (recoveryEnabled) {
+      LOG.info("NM recovery enabled, recovering from state store");
       FileSystem recoveryFs = FileSystem.getLocal(conf);
       String recoveryDirName = conf.get(YarnConfiguration.NM_RECOVERY_DIR);
       if (recoveryDirName == null) {
@@ -173,6 +174,7 @@ public class NodeManager extends CompositeService
       recoveryFs.mkdirs(recoveryRoot, new FsPermission((short)0700));
       nmStore = new NMLeveldbStateStoreService();
     } else {
+      LOG.info("NM recovery disabled, using null state store service");
       nmStore = new NMNullStateStoreService();
     }
     nmStore.init(conf);

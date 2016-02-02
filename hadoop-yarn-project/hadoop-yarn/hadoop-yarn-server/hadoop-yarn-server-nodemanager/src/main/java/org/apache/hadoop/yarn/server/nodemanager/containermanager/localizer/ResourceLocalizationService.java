@@ -236,6 +236,9 @@ public class ResourceLocalizationService extends CompositeService
         initializeLocalDirs(lfs);
         initializeLogDirs(lfs);
       }
+      else {
+        LOG.info("Found existing state store, not cleaning up directories");
+      }
     } catch (Exception e) {
       throw new YarnRuntimeException(
         "Failed to initialize LocalizationService", e);
@@ -1299,6 +1302,7 @@ public class ResourceLocalizationService extends CompositeService
 
   private void cleanUpLocalDirs(FileContext lfs, DeletionService del) {
     for (String localDir : dirsHandler.getLocalDirsForCleanup()) {
+      LOG.info("Cleaning up local dir: " + localDir);
       cleanUpLocalDir(lfs, del, localDir);
     }
   }
@@ -1306,13 +1310,17 @@ public class ResourceLocalizationService extends CompositeService
   private void cleanUpLocalDir(FileContext lfs, DeletionService del,
       String localDir) {
     long currentTimeStamp = System.currentTimeMillis();
+    LOG.info("Renaming usercache for " + localDir);
     renameLocalDir(lfs, localDir, ContainerLocalizer.USERCACHE,
       currentTimeStamp);
+    LOG.info("Renaming filecache for " + localDir);
     renameLocalDir(lfs, localDir, ContainerLocalizer.FILECACHE,
       currentTimeStamp);
+    LOG.info("Renaming nm private dir for " + localDir);
     renameLocalDir(lfs, localDir, ResourceLocalizationService.NM_PRIVATE_DIR,
       currentTimeStamp);
     try {
+      LOG.info("Deleting local dir contents for " + localDir);
       deleteLocalDir(lfs, del, localDir);
     } catch (IOException e) {
       // Do nothing, just give the warning
@@ -1351,6 +1359,7 @@ public class ResourceLocalizationService extends CompositeService
               ||
               status.getPath().getName()
                   .matches(".*" + ContainerLocalizer.FILECACHE + "_DEL_.*")) {
+            LOG.info("Deleting directory " + status.getPath());
             del.delete(null, status.getPath(), new Path[] {});
           }
         } catch (IOException ex) {
