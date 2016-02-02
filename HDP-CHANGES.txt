@@ -1245,3 +1245,6 @@ ATS V1.5:
 
     HDFS-13120. Snapshot diff could be corrupted after concat. Contributed by
     Xiaoyu Yao.
+
+    HDFS-9669. TcpPeerServer should respect ipc.server.listen.queue.size (Elliot
+    Clark via cmccabe)
