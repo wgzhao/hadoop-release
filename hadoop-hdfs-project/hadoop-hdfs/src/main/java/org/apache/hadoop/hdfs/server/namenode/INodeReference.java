@@ -425,9 +425,8 @@ public abstract class INodeReference extends INode {
         setParent(null);
       }
     }
-
-    /** Return the last WithName reference if there is any, null otherwise. */
-    public WithName getLastWithName() {
+    
+    WithName getLastWithName() {
       return withNameList.size() > 0 ? 
           withNameList.get(withNameList.size() - 1) : null;
     }

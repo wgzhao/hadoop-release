@@ -525,7 +525,7 @@ public class INodeFile extends INodeWithAdditionalFields
         blk.setBlockCollection(null);
       }
     }
-    setBlocks(BlockInfo.EMPTY_ARRAY);
+    setBlocks(null);
     clear();
     removedINodes.add(this);
     FileWithSnapshotFeature sf = getFileWithSnapshotFeature();
