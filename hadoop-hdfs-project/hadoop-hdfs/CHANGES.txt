@@ -338,6 +338,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9493. Test o.a.h.hdfs.server.namenode.TestMetaSave fails in trunk.
     (Tony Wu via lei)
 
+    HDFS-9739. DatanodeStorage.isValidStorageId() is broken
+    (Mingliang Liu via vinayakumarb)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)
