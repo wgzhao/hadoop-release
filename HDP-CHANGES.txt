@@ -889,7 +889,5 @@ ATS V1.5:
     HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang Liu
     via jitendra)
 
-    MAPREDUCE-6618. YarnClientProtocolProvider leaking the YarnClient thread.(xgong)
-
     BUG-51889. HDFS-9406. FSImage may get corrupted after deleting snapshot.
     (yzhang)
