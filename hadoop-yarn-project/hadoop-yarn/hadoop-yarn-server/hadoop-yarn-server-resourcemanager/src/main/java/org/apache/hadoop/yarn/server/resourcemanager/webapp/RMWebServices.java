@@ -92,10 +92,12 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.QueueACL;
+import org.apache.hadoop.yarn.api.records.ReservationId;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -135,6 +137,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.FairSchedulerInf
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.FifoSchedulerInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LabelsToNodesInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LocalResourceInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.LogAggregationContextInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NewApplication;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeLabelsInfo;
@@ -1279,6 +1282,7 @@ public class RMWebServices {
 
     ApplicationSubmissionContext appContext =
         createAppSubmissionContext(newApp);
+
     final SubmitApplicationRequest req =
         SubmitApplicationRequest.newInstance(appContext);
 
@@ -1364,7 +1368,18 @@ public class RMWebServices {
           newApp.getAppNodeLabelExpression(),
           newApp.getAMContainerNodeLabelExpression());
     appContext.setApplicationTags(newApp.getApplicationTags());
-
+    appContext.setAttemptFailuresValidityInterval(
+        newApp.getAttemptFailuresValidityInterval());
+    if (newApp.getLogAggregationContextInfo() != null) {
+      appContext.setLogAggregationContext(createLogAggregationContext(
+          newApp.getLogAggregationContextInfo()));
+    }
+    String reservationIdStr = newApp.getReservationId();
+    if (reservationIdStr != null && !reservationIdStr.isEmpty()) {
+      ReservationId reservationId = ReservationId.parseReservationId(
+          reservationIdStr);
+      appContext.setReservationID(reservationId);
+    }
     return appContext;
   }
 
@@ -1500,6 +1515,15 @@ public class RMWebServices {
 
     callerUGI.setAuthenticationMethod(AuthenticationMethod.KERBEROS);
     return callerUGI;
+  }
+
+  private LogAggregationContext createLogAggregationContext(
+      LogAggregationContextInfo logAggregationContextInfo) {
+    return LogAggregationContext.newInstance(
+        logAggregationContextInfo.getIncludePattern(),
+        logAggregationContextInfo.getExcludePattern(),
+        logAggregationContextInfo.getRolledLogsIncludePattern(),
+        logAggregationContextInfo.getRolledLogsExcludePattern());
   }
 
   @POST
