@@ -887,3 +887,6 @@ ATS V1.5:
     (Wangda Tan via jianhe)
 
     MAPREDUCE-6618. YarnClientProtocolProvider leaking the YarnClient thread.(xgong)
+
+    MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
+
