@@ -76,12 +76,19 @@ public class TestPendingReplication {
 
 
     //
-    // remove one item and reinsert it
+    // remove one item
     //
     Block blk = new Block(8, 8, 0);
     pendingReplications.decrement(blk, storages[7].getDatanodeDescriptor()); // removes one replica
     assertEquals("pendingReplications.getNumReplicas ",
                  7, pendingReplications.getNumReplicas(blk));
+
+    //
+    // insert the same item twice should be counted as once
+    //
+    pendingReplications.increment(blk, storages[0].getDatanodeDescriptor());
+    assertEquals("pendingReplications.getNumReplicas ",
+        7, pendingReplications.getNumReplicas(blk));
 
     for (int i = 0; i < 7; i++) {
       // removes all replicas
