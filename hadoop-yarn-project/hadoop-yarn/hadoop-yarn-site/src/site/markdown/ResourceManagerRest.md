@@ -1881,6 +1881,9 @@ Please note that this feature is currently in the alpha stage and may change in 
 | application-type | string | The application type(MapReduce, Pig, Hive, etc) |
 | keep-containers-across-application-attempts | boolean | Should YARN keep the containers used by this application instead of destroying them |
 | application-tags | object | List of application tags, please see the request examples on how to speciy the tags |
+| log-aggregation-context| object | Represents all of the information needed by the NodeManager to handle the logs for this application |
+| attempt-failures-validity-interval| long | The failure number will no take attempt failures which happen out of the validityInterval into failure count |
+| reservation-id| string | Represent the unique id of the corresponding reserved resource allocation in the scheduler |
 
 Elements of the *am-container-spec* object
 
@@ -1922,6 +1925,15 @@ Elements of the POST request body *resource* object
 |:---- |:---- |:---- |
 | memory | int | Memory required for each container |
 | vCores | int | Virtual cores required for each container |
+
+Elements of the POST request body *log-aggregation-context* object
+
+| Item | Data Type | Description |
+|:---- |:---- |:---- |
+| log-include-pattern | string | The log files which match the defined include pattern will be uploaded when the applicaiton finishes |
+| log-exclude-pattern | string | The log files which match the defined exclude pattern will not be uploaded when the applicaiton finishes |
+| rolled-log-include-pattern | string | The log files which match the defined include pattern will be aggregated in a rolling fashion |
+| rolled-log-exclude-pattern | string | The log files which match the defined exclude pattern will not be aggregated in a rolling fashion |
 
 **JSON response**
 
@@ -1988,7 +2000,16 @@ HTTP Request:
       "vCores":1
     },
     "application-type":"YARN",
-    "keep-containers-across-application-attempts":false
+    "keep-containers-across-application-attempts":false,
+    "log-aggregation-context":
+    {
+      "log-include-pattern":"file1",
+      "log-exclude-pattern":"file2",
+      "rolled-log-include-pattern":"file3",
+      "rolled-log-exclude-pattern":"file4"
+    },
+    "attempt-failures-validity-interval":3600000,
+    "reservation-id":"reservation_1454114874_1"
   }
 ```
 
@@ -2090,6 +2111,14 @@ Content-Type: application/xml
     <tag>tag 2</tag>
     <tag>tag1</tag>
   </application-tags>
+  <log-aggregation-context>
+    <log-include-pattern>file1</log-include-pattern>
+    <log-exclude-pattern>file2</log-exclude-pattern>
+    <rolled-log-include-pattern>file3</rolled-log-include-pattern>
+    <rolled-log-exclude-pattern>file4</rolled-log-exclude-pattern>
+  </log-aggregation-context>
+  <attempt-failures-validity-interval>3600000</attempt-failures-validity-interval>
+  <reservation-id>reservation_1454114874_1</reservation-id>
 </application-submission-context>
 ```
 
