@@ -1440,8 +1440,8 @@ public class TestClientRMService {
     Map<NodeId, Set<NodeLabel>> nodeToLabels = response1.getNodeToLabels();
     Assert.assertTrue(nodeToLabels.keySet().containsAll(
         Arrays.asList(node1, node2)));
-    Assert.assertTrue(nodeToLabels.get(node1).containsAll(Arrays.asList("x")));
-    Assert.assertTrue(nodeToLabels.get(node2).containsAll(Arrays.asList("y")));
+    Assert.assertTrue(nodeToLabels.get(node1).containsAll(Arrays.asList(labelX)));
+    Assert.assertTrue(nodeToLabels.get(node2).containsAll(Arrays.asList(labelY)));
     
     rpc.stopProxy(client, conf);
     rm.close();
@@ -1497,13 +1497,13 @@ public class TestClientRMService {
         client.getLabelsToNodes(GetLabelsToNodesRequest.newInstance());
     Map<NodeLabel, Set<NodeId>> labelsToNodes = response1.getLabelsToNodes();
     Assert.assertTrue(
-        labelsToNodes.keySet().containsAll(Arrays.asList("x", "y", "z")));
+        labelsToNodes.keySet().containsAll(Arrays.asList(labelX, labelY, labelZ)));
     Assert.assertTrue(
-        labelsToNodes.get("x").containsAll(Arrays.asList(node1A)));
+        labelsToNodes.get(labelX).containsAll(Arrays.asList(node1A)));
     Assert.assertTrue(
-        labelsToNodes.get("y").containsAll(Arrays.asList(node2A, node3A)));
+        labelsToNodes.get(labelY).containsAll(Arrays.asList(node2A, node3A)));
     Assert.assertTrue(
-        labelsToNodes.get("z").containsAll(Arrays.asList(node1B, node3B)));
+        labelsToNodes.get(labelZ).containsAll(Arrays.asList(node1B, node3B)));
 
     // Get labels to nodes mapping for specific labels
     Set<String> setlabels = new HashSet<String>(Arrays.asList(new String[]{"x",
@@ -1513,12 +1513,12 @@ public class TestClientRMService {
     labelsToNodes = response2.getLabelsToNodes();
 
     Assert.assertTrue(
-        labelsToNodes.keySet().containsAll(Arrays.asList("x", "z")));
+        labelsToNodes.keySet().containsAll(Arrays.asList(labelX, labelZ)));
     Assert.assertTrue(
-        labelsToNodes.get("x").containsAll(Arrays.asList(node1A)));
+        labelsToNodes.get(labelX).containsAll(Arrays.asList(node1A)));
     Assert.assertTrue(
-        labelsToNodes.get("z").containsAll(Arrays.asList(node1B, node3B)));
-    Assert.assertEquals(labelsToNodes.get("y"), null);
+        labelsToNodes.get(labelZ).containsAll(Arrays.asList(node1B, node3B)));
+    Assert.assertEquals(labelsToNodes.get(labelY), null);
 
     rpc.stopProxy(client, conf);
     rm.close();
