@@ -885,5 +885,3 @@ ATS V1.5:
     YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy 
     is enabled, under stress appears that cluster is virtually in deadlock.
     (Wangda Tan via jianhe)
-
-    MAPREDUCE-6618. YarnClientProtocolProvider leaking the YarnClient thread.(xgong)
