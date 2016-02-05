@@ -308,6 +308,8 @@ ATS V1.5:
 
     HDFS-9906. Remove spammy log spew when a datanode is restarted. (Contributed by Brahma Reddy Battula)
 
+    HDFS-9726. Refactor IBR code to a new class.  (szetszwo)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
