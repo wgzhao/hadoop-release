@@ -99,7 +99,7 @@ public class HdfsConstants {
       }
     }
 
-    /** Covert the given String to a RollingUpgradeAction. */
+    /** Convert the given String to a RollingUpgradeAction. */
     public static RollingUpgradeAction fromString(String s) {
       return MAP.get(StringUtils.toUpperCase(s));
     }
