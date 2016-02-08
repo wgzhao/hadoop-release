@@ -1377,3 +1377,5 @@ ATS V1.5:
 
     YARN-3521. Support return structured NodeLabel objects in REST API. (Sunil G via wangda)
 
+    YARN-4667. RM Admin CLI for refreshNodesResources throws NPE when nothing is configured. 
+    (Contributed by Naganarasimha G R)
