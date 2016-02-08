@@ -40,6 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.client.impl.DfsClientConf;
 import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
@@ -365,9 +367,8 @@ class DataStreamer extends Daemon {
 
   /** Nodes have been used in the pipeline before and have failed. */
   private final List<DatanodeInfo> failed = new ArrayList<>();
-  /** The last ack sequence number before pipeline failure. */
-  private long lastAckedSeqnoBeforeFailure = -1;
-  private int pipelineRecoveryCount = 0;
+  /** The times have retried to recover pipeline, for the same packet. */
+  private volatile int pipelineRecoveryCount = 0;
   /** Has the current block been hflushed? */
   private boolean isHflushed = false;
   /** Append on an existing block? */
@@ -1040,6 +1041,7 @@ class DataStreamer extends Daemon {
             scope = Trace.continueSpan(one.getTraceSpan());
             one.setTraceSpan(null);
             lastAckedSeqno = seqno;
+            pipelineRecoveryCount = 0;
             ackQueue.removeFirst();
             dataQueue.notifyAll();
 
@@ -1098,22 +1100,16 @@ class DataStreamer extends Daemon {
       ackQueue.clear();
     }
 
-    // Record the new pipeline failure recovery.
-    if (lastAckedSeqnoBeforeFailure != lastAckedSeqno) {
-      lastAckedSeqnoBeforeFailure = lastAckedSeqno;
-      pipelineRecoveryCount = 1;
-    } else {
-      // If we had to recover the pipeline five times in a row for the
-      // same packet, this client likely has corrupt data or corrupting
-      // during transmission.
-      if (++pipelineRecoveryCount > 5) {
-        LOG.warn("Error recovering pipeline for writing " +
-            block + ". Already retried 5 times for the same packet.");
-        lastException.set(new IOException("Failing write. Tried pipeline " +
-            "recovery 5 times without success."));
-        streamerClosed = true;
-        return false;
-      }
+    // If we had to recover the pipeline five times in a row for the
+    // same packet, this client likely has corrupt data or corrupting
+    // during transmission.
+    if (!errorState.isRestartingNode() && ++pipelineRecoveryCount > 5) {
+      LOG.warn("Error recovering pipeline for writing " +
+          block + ". Already retried 5 times for the same packet.");
+      lastException.set(new IOException("Failing write. Tried pipeline " +
+          "recovery 5 times without success."));
+      streamerClosed = true;
+      return false;
     }
 
     setupPipelineForAppendOrRecovery();
@@ -1140,6 +1136,7 @@ class DataStreamer extends Daemon {
           assert endOfBlockPacket.isLastPacketInBlock();
           assert lastAckedSeqno == endOfBlockPacket.getSeqno() - 1;
           lastAckedSeqno = endOfBlockPacket.getSeqno();
+          pipelineRecoveryCount = 0;
           dataQueue.notifyAll();
         }
         endBlock();
@@ -1911,6 +1908,14 @@ class DataStreamer extends Daemon {
    */
   boolean streamerClosed(){
     return streamerClosed;
+  }
+
+  /**
+   * @return The times have retried to recover pipeline, for the same packet.
+   */
+  @VisibleForTesting
+  int getPipelineRecoveryCount() {
+    return pipelineRecoveryCount;
   }
 
   void closeSocket() throws IOException {
