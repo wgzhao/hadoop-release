@@ -83,6 +83,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12284. UserGroupInformation doAs can throw misleading exception
     (Aaron Dosset via stevel)
 
+    HADOOP-12752. Improve diagnostics/use of envvar/sysprop credential
+    propagation (Steve Loughran via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
