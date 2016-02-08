@@ -194,9 +194,6 @@ public class LocalizedResource implements EventHandler<ResourceEvent> {
 
       ResourceState oldState = this.stateMachine.getCurrentState();
       ResourceState newState = null;
-      if(event.getType().equals(ResourceEventType.RELEASE)) {
-        LOG.info("Changing from state " + this.stateMachine.getCurrentState());
-      }
       try {
         newState = this.stateMachine.doTransition(event.getType(), event);
       } catch (InvalidStateTransitonException e) {
