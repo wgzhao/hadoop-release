@@ -339,21 +339,12 @@ class LocalResourcesTrackerImpl implements LocalResourcesTracker {
         ret = false;
       } else {
         LOG.info("Resource " + rsrc + " file exists");
-
-        if (file.isDirectory()) {
-          LOG.info("Resource with path "
-              + rsrc.getLocalPath().toUri().getRawPath() + " is a directory" );
-
-          if (file.list() == null || file.list().length == 0) {
-            LOG.info("Resource " + rsrc + " contents are empty, re-localizing");
-            ret = false;
-          }
-          else {
-            LOG.info("Resource " + rsrc + " is good");
-          }
-        } else {
-          LOG.info("Resource with path " + rsrc.getLocalPath().toUri()
-              .getRawPath() + " is a non-directory file." );
+        if (file.isDirectory() && file.list().length == 0) {
+          LOG.info("Resource " + rsrc + " contents are empty, re-localizing");
+          ret = false;
+        }
+        else {
+          LOG.info("Resource " + rsrc + " is good");
         }
       }
     }
