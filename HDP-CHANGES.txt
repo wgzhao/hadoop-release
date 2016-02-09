@@ -916,3 +916,6 @@ ATS V1.5:
     BUG-51439. HDFS-9445. Datanode may deadlock while handling a bad
     volume. (Walter Su via kihwal)
 
+    HDFS-8647. Abstract BlockManager's rack policy into
+    BlockPlacementPolicy. (Brahma Reddy Battula via Zhe Zhang)
+
