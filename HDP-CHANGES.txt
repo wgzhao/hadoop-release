@@ -87,6 +87,10 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-46647. Enable caller context feature by default. (Mingliang liu)
 
+    HDFS-8656. Preserve compatibility of ClientProtocol#rollingUpgrade after finalization.
+
+    HDFS-9426. Rollingupgrade finalization is not backward compatible.
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
@@ -835,4 +839,10 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     YARN-4405/BUG-49337. Support node label store in non-appendable file system.
     (Wangda Tan via jianhe)
+
+    YARN-3604. removeApplication in ZKRMStateStore should also disable watch.
+    (Zhihai Xu via jianhe)
+
+    YARN-3987. am container complete msg ack to NM once RM receive it. 
+    (sandflee via jianhe)
 
