@@ -403,7 +403,10 @@ Release 2.7.3 - UNRELEASED
     YARN-4581. AHS writer thread leak makes RM crash while RM is recovering.
     (sandflee via junping_du)
 
-Release 2.7.2 - UNRELEASED
+    YARN-3602. TestResourceLocalizationService.testPublicResourceInitializesLocalDir
+    fails Intermittently due to IOException from cleanup. (zhihai xu via xgong)
+
+Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
 
