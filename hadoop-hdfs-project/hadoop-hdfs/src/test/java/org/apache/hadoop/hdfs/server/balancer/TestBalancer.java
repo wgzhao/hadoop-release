@@ -353,7 +353,7 @@ public class TestBalancer {
     int numOfDatanodes = capacities.length;
 
     cluster = new MiniDFSCluster.Builder(conf).numDataNodes(capacities.length)
-      .hosts(hosts).racks(racks).simulatedCapacities(capacities).build();
+        .hosts(hosts).racks(racks).simulatedCapacities(capacities).build();
 
     cluster.waitActive();
     client = NameNodeProxies.createProxy(conf,
