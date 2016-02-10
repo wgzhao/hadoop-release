@@ -101,8 +101,17 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12711. Remove dependency on commons-httpclient for ServletUtil
     (Wei-Chiu Chuang via iwasakims)
 
+<<<<<<< HEAD
     HADOOP-11613. Remove commons-httpclient dependency from hadoop-azure.
     (Masatake Iwasaki via cnauroth) 
+||||||| parent of e90f7ef... HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
+  OPTIMIZATIONS
+=======
+    HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used.
+    (Wei-Chiu Chuang via umamahesh)
+
+  OPTIMIZATIONS
+>>>>>>> e90f7ef... HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
 
   OPTIMIZATIONS
 
