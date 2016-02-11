@@ -899,3 +899,4 @@ ATS V1.5:
     YARN-4625. Make ApplicationSubmissionContext and ApplicationSubmissionContextInfo
     more consistent. (xgong)
 
+    BUG-52418(YARN-4680) Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
