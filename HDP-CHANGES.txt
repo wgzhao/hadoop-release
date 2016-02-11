@@ -910,3 +910,5 @@ ATS V1.5:
     BUG-51442. HDFS-9655. NN should start JVM pause monitor before
     loading fsimage. (John Zhuge via lei)
 
+    BUG-51436. HDFS-9557. Reduce object allocation in PB conversion.
+    (Daryn Sharp via cnauroth).
