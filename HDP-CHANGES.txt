@@ -856,3 +856,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     because large amount of resources asked which causes pending resource
     overflows.
 
+    BUG-51426. HDFS-9574. Reduce client failures during datanode restart.
+    (kihwal)
+
