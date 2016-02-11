@@ -886,6 +886,10 @@ public class TestReplicationPolicy {
     assertTrue(isOnSameRack(targets[0], dataNodes[2]));
   }
   
+  private BlockInfoContiguous genBlockInfo(long id) {
+    return new BlockInfoContiguous(new Block(id), (short) 3);
+  }
+
   /**
    * Test for the high priority blocks are processed before the low priority
    * blocks.
@@ -1398,8 +1402,8 @@ public class TestReplicationPolicy {
         new BlockManager(mockNS, new HdfsConfiguration());
     UnderReplicatedBlocks underReplicatedBlocks = bm.neededReplications;
 
-    Block block1 = new Block(ThreadLocalRandom.current().nextLong());
-    Block block2 = new Block(ThreadLocalRandom.current().nextLong());
+    Block block1 = genBlockInfo(ThreadLocalRandom.current().nextLong());
+    Block block2 = genBlockInfo(ThreadLocalRandom.current().nextLong());
 
     // Adding QUEUE_UNDER_REPLICATED block
     underReplicatedBlocks.add(block1, 0, 0, 1, 1);

@@ -922,3 +922,6 @@ ATS V1.5:
     BUG-51423. HDFS-9313. Possible NullPointerException in BlockManager if no
     excess replica can be chosen. (Ming Ma)
 
+    HDFS-9600. Do not check replication if the block is under
+    construction. (Phil Yang via vinayakumarb)
+
