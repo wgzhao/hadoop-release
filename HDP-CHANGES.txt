@@ -904,3 +904,6 @@ ATS V1.5:
     BUG-51879. HDFS-8113. Add check for null BlockCollection pointers
     in BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
 
+    BUG-51426. HDFS-9574. Reduce client failures during datanode restart.
+    (kihwal)
+
