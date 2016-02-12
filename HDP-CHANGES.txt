@@ -928,3 +928,5 @@ ATS V1.5:
     BUG-52495. HDFS-9347. Invariant assumption in TestQuorumJournalManager.shutdown()
     is wrong (Wei-Chiu Chuang)
 
+    BUG-52169. HDFS-9752. Permanent write failures may happen to slow writers
+    during datanode rolling upgrades (Walter Su)
