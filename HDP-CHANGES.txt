@@ -852,3 +852,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-51462(YARN-4680): Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
+    BUG-52495. HDFS-9347. Invariant assumption in TestQuorumJournalManager.shutdown()
+    is wrong (Wei-Chiu Chuang)
+
