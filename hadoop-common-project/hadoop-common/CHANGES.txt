@@ -149,6 +149,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12780. During atomic rename handle crash when one directory has been
     renamed but not file under it. (Madhumita Chakraborty via cnauroth)
 
+    HADOOP-12795. KMS does not log detailed stack trace for unexpected errors.
+    (cnauroth)
+
     HADOOP-12878. KMS SPNEGO sequence does not work with WEBHDFS. (xyao)
 
 Release 2.7.2 - UNRELEASED
