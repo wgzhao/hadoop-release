@@ -105,6 +105,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
 
+    HDFS-9797. Log Standby exceptions thrown by RequestHedgingProxyProvider
+    at DEBUG Level (Inigo Goiri via asuresh)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
