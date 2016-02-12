@@ -301,6 +301,9 @@ ATS V1.5:
     YARN-4497. RM might fail to restart when recovering apps whose attempts
     are missing. (Jun Gong via rohithsharmaks)
 
+    BUG-52450. HDFS-9790. HDFS Balancer should exit with a proper message if
+    upgrade is not finalized (Xiaobing Zhou via Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
