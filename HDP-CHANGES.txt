@@ -933,3 +933,8 @@ ATS V1.5:
 
     BUG-52169. HDFS-9752. Permanent write failures may happen to slow writers
     during datanode rolling upgrades (Walter Su)
+
+    BUG-52355. HDFS-9661. Deadlock in DN.FsDatasetImpl between
+    moveBlockAcrossStorage moveBlockAcrossStorage and createRbw. (ade via
+    vinayakumarb)
+

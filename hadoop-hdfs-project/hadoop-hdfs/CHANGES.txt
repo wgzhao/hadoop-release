@@ -249,6 +249,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang Liu
     via jitendra)
 
+    HDFS-9661. Deadlock in DN.FsDatasetImpl between moveBlockAcrossStorage and
+    createRbw (ade via vinayakumarb)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
