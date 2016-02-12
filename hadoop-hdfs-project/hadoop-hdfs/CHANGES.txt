@@ -93,6 +93,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-7483. Display information per tier on the Namenode UI.
     (Benoy Antony and wheat9 via wheat9)
 
+    HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
+    (Lin Yiqun via aajisaka)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
