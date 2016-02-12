@@ -925,3 +925,6 @@ ATS V1.5:
     HDFS-9600. Do not check replication if the block is under
     construction. (Phil Yang via vinayakumarb)
 
+    BUG-52495. HDFS-9347. Invariant assumption in TestQuorumJournalManager.shutdown()
+    is wrong (Wei-Chiu Chuang)
+
