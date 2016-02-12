@@ -119,6 +119,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-8831. Trash Support for deletion in HDFS encryption zone. (xyao)
 
+    HDFS-9644. Update encryption documentation to reflect nested EZs. (zhz)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
