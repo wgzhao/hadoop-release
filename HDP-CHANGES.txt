@@ -938,3 +938,5 @@ ATS V1.5:
     moveBlockAcrossStorage moveBlockAcrossStorage and createRbw. (ade via
     vinayakumarb)
 
+    BUG-52294. HDFS-9625. set replication for empty file  failed when
+    set storage policy (DENG FEI via Vinayakumar B)
