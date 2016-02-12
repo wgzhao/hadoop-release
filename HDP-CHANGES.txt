@@ -938,14 +938,12 @@ ATS V1.5:
     moveBlockAcrossStorage moveBlockAcrossStorage and createRbw. (ade via
     vinayakumarb)
 
-<<<<<<< HEAD
     BUG-52294. HDFS-9625. set replication for empty file  failed when
     set storage policy (DENG FEI via Vinayakumar B)
-=======
+
     HADOOP-12103. Small refactoring of DelegationTokenAuthenticationFilter to
     allow code sharing. (Yongjun Zhang)
 
     HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
     kerberos. (Yongjun Zhang)
 
->>>>>>> HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with kerberos. Contributed by Yongjun Zhang.
