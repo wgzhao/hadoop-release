@@ -807,4 +807,9 @@ public class JsonUtil {
     String path = (String) json.get("Path");
     return path;
   }
+
+  public static String toJsonString(Object obj) throws IOException {
+    return MAPPER.writeValueAsString(obj);
+  }
+
 }

@@ -99,6 +99,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8777. Erasure Coding: add tests for taking snapshots on EC files. 
     (Rakesh R via zhz)
 
+    HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
+    (Lin Yiqun via aajisaka)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
