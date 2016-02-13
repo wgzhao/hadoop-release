@@ -299,11 +299,15 @@ public final class ErasureCodingWorker {
       cellSize = ecPolicy.getCellSize();
 
       blockGroup = recoveryInfo.getExtendedBlock();
+      LOG.debug("block group to reconstruct: " + blockGroup + ", length="
+          + blockGroup.getNumBytes());
       final int cellsNum = (int)((blockGroup.getNumBytes() - 1) / cellSize + 1);
       minRequiredSources = Math.min(cellsNum, dataBlkNum);
 
       liveIndices = recoveryInfo.getLiveBlockIndices();
+      LOG.debug("liveIndices: " + Arrays.toString(liveIndices));
       sources = recoveryInfo.getSourceDnInfos();
+      LOG.debug("sources: " + Arrays.asList(sources));
       stripedReaders = new ArrayList<>(sources.length);
 
       Preconditions.checkArgument(liveIndices.length >= minRequiredSources,
@@ -318,6 +322,7 @@ public final class ErasureCodingWorker {
       }
 
       targets = recoveryInfo.getTargetDnInfos();
+      LOG.debug("targets: " + Arrays.asList(targets));
       targetStorageTypes = recoveryInfo.getTargetStorageTypes();
       targetIndices = new short[targets.length];
       targetBuffers = new ByteBuffer[targets.length];
@@ -654,6 +659,7 @@ public final class ErasureCodingWorker {
         ByteBuffer buffer = reader.buffer;
         paddingBufferToLen(buffer, toRecoverLen);
         inputs[reader.index] = (ByteBuffer)buffer.flip();
+        LOG.debug("inputs[" + reader.index + "] holds input from " + reader);
       }
       if (success.length < dataBlkNum) {
         for (int i = 0; i < zeroStripeBuffers.length; i++) {
@@ -661,9 +667,11 @@ public final class ErasureCodingWorker {
           paddingBufferToLen(buffer, toRecoverLen);
           int index = zeroStripeIndices[i];
           inputs[index] = (ByteBuffer)buffer.flip();
+          LOG.debug("inputs[" + index + "] holds 0.");
         }
       }
       int[] erasedIndices = getErasedIndices(targetsStatus);
+      LOG.debug("erasedIndices: " + Arrays.toString(erasedIndices));
       ByteBuffer[] outputs = new ByteBuffer[erasedIndices.length];
       int m = 0;
       for (int i = 0; i < targetBuffers.length; i++) {
@@ -717,6 +725,7 @@ public final class ErasureCodingWorker {
           }
         } else {
           used.set(m);
+          LOG.debug("add 0 buffer for index " + m);
           return m;
         }
       }
@@ -742,6 +751,7 @@ public final class ErasureCodingWorker {
             }
           } else {
             used.set(i);
+            LOG.debug("add 0 buffer for index " + i);
             r.buffer.position(0);
             return i;
           }
@@ -883,7 +893,9 @@ public final class ErasureCodingWorker {
       try {
         sock = NetUtils.getDefaultSocketFactory(conf).createSocket();
         NetUtils.connect(sock, addr, socketTimeout);
-        peer = TcpPeerServer.peerFromSocketAndKey(datanode.getSaslClient(), sock, datanode.getDataEncryptionKeyFactoryForBlock(b), blockToken, datanodeId);
+        peer = TcpPeerServer.peerFromSocketAndKey(datanode.getSaslClient(),
+            sock, datanode.getDataEncryptionKeyFactoryForBlock(b), blockToken,
+            datanodeId);
         peer.setReadTimeout(socketTimeout);
         success = true;
         return peer;
@@ -1057,6 +1069,12 @@ public final class ErasureCodingWorker {
       this.index = index;
       this.block = block;
       this.source = source;
+    }
+
+    @Override
+    public String toString() {
+      return "(block: " + block + ", source: " + source
+          + ", index: " + index + ")";
     }
   }
 }
