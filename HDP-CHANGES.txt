@@ -1073,3 +1073,6 @@ ATS V1.5:
 
     HDFS-9289. Make DataStreamer#block thread safe and verify genStamp in
     commitBlock. (Chang Li via kihwal)
+
+    HADOOP-12589. Fix intermittent test failure of TestCopyPreserveFlag
+    (iwasakims)
