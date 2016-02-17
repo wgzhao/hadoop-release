@@ -4716,3 +4716,6 @@ ATS V1.5:
 
     BUG-113628. HADOOP-12625. Add a config to disable the /logs endpoints
     (rkanter)
+
+    BUG-113628. HADOOP-12710. Remove dependency on commons-httpclient for
+    TestHttpServerLogs (Wei-Chiu Chuang via iwasakims)
