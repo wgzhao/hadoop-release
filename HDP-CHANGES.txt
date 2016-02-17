@@ -855,3 +855,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-57390. HADOOP-12059. S3Credentials should support use of CredentialProvider.
     Contributed by Sean Busbey.
 
+    BUG-57390.  HADOOP-12548. Read s3a creds from a Credential Provider. Contributed by Larry McCay.
+
