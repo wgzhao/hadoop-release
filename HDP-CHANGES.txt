@@ -5086,3 +5086,6 @@ ATS V1.5:
 
     BUG-108876. HADOOP-15450. Avoid fsync storm triggered by DiskChecker and
     handle disk full situation. Contributed by Arpit Agarwal.
+
+    HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
+    (Wei-Chiu Chuang via iwasakims)
