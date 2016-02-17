@@ -86,6 +86,11 @@ final class PageBlobInputStream extends InputStream {
     // at byte 0, but we tolerate (and ignore) ranges after the first one.
     ArrayList<PageRange> pageRanges =
         blob.downloadPageRanges(new BlobRequestOptions(), opContext);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Current page ranges = " + pageRanges.size()
+                 + ", first page range endOffset = "
+                 + pageRanges.get(0).getEndOffset());
+    }
     if (pageRanges.size() == 0) {
       return 0;
     }
@@ -163,6 +168,11 @@ final class PageBlobInputStream extends InputStream {
     }
 
     final long remaining = pageBlobSize - filePosition;
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Page blob data size = " + pageBlobSize
+			 + " remaining data size = " + remaining);
+    }
+
     return remaining <= Integer.MAX_VALUE ?
         (int) remaining : Integer.MAX_VALUE;
   }

@@ -947,3 +947,6 @@ ATS V1.5:
     HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
     kerberos. (Yongjun Zhang)
 
+    BUG-52769. HADOOP-1023. Add more logging in WASB page blob read
+    function. (Duo Xu via Arpit Agarwal)
+    
