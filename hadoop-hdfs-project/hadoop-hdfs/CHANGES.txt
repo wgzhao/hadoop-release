@@ -123,6 +123,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-8696. Make the lower and higher watermark in the DN Netty server
     configurable. (Xiaobing Zhou via Haohui Mai)
 
+    HDFS-8845. DiskChecker should not traverse the entire tree (Chang Li via
+    Colin P. McCabe)
+
   BUG FIXES
 
     HDFS-7701. Support reporting per storage type quota and usage
