@@ -4827,3 +4827,6 @@ ATS V1.5:
     directory permissions to be configurable (rchiang via rkanter)
 
     HADOOP-12625. Add a config to disable the /logs endpoints (rkanter)
+
+    HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
+    (Wei-Chiu Chuang via iwasakims)
