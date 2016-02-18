@@ -105,6 +105,20 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_WEBHDFS_OAUTH_ENABLED_KEY = "dfs.webhdfs.oauth2.enabled";
   public static boolean      DFS_WEBHDFS_OAUTH_ENABLED_DEFAULT = false;
 
+  public static final String DFS_WEBHDFS_REST_CSRF_ENABLED_KEY =
+      "dfs.webhdfs.rest-csrf.enabled";
+  public static final boolean DFS_WEBHDFS_REST_CSRF_ENABLED_DEFAULT = false;
+  public static final String DFS_WEBHDFS_REST_CSRF_CUSTOM_HEADER_KEY =
+      "dfs.webhdfs.rest-csrf.custom-header";
+  public static final String DFS_WEBHDFS_REST_CSRF_CUSTOM_HEADER_DEFAULT =
+      "X-XSRF-HEADER";
+  public static final String DFS_WEBHDFS_REST_CSRF_METHODS_TO_IGNORE_KEY =
+      "dfs.webhdfs.rest-csrf.methods-to-ignore";
+  public static final String DFS_WEBHDFS_REST_CSRF_METHODS_TO_IGNORE_DEFAULT =
+      "GET,OPTIONS,HEAD,TRACE";
+  public static final String DFS_WEBHDFS_REST_CSRF_BROWSER_USERAGENTS_REGEX_KEY =
+      "dfs.webhdfs.rest-csrf.browser-useragents-regex";
+
   public static final String  DFS_WEBHDFS_NETTY_LOW_WATERMARK =
       "dfs.webhdfs.netty.low.watermark";
   public static final int  DFS_WEBHDFS_NETTY_LOW_WATERMARK_DEFAULT = 32768;

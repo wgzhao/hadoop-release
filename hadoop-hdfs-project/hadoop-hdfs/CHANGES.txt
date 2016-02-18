@@ -14,6 +14,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9184. Logging HDFS operation's caller context into audit logs.
     (Mingliang Liu via jitendra)
 
+    HDFS-9711. Integrate CSRF prevention filter in WebHDFS. (cnauroth)
+
   IMPROVEMENTS
 
     HDFS-8965. Harden edit log reading code against out of memory errors (cmccabe)

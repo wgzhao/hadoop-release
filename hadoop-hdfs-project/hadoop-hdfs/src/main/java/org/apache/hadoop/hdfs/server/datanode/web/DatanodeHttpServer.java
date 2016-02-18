@@ -18,6 +18,15 @@
 package org.apache.hadoop.hdfs.server.datanode.web;
 
 import io.netty.bootstrap.ChannelFactory;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_WEBHDFS_REST_CSRF_ENABLED_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_WEBHDFS_REST_CSRF_ENABLED_KEY;
+
+import java.util.Enumeration;
+import java.util.Map;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -48,6 +57,7 @@ import org.apache.hadoop.http.HttpConfig;
 import org.apache.hadoop.http.HttpServer2;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.authorize.AccessControlList;
+import org.apache.hadoop.security.http.RestCsrfPreventionFilter;
 import org.apache.hadoop.security.ssl.SSLFactory;
 
 import java.io.Closeable;
@@ -73,6 +83,7 @@ public class DatanodeHttpServer implements Closeable {
   private final ServerBootstrap httpsServer;
   private final Configuration conf;
   private final Configuration confForCreate;
+  private final RestCsrfPreventionFilter restCsrfPreventionFilter;
   private InetSocketAddress httpAddress;
   private InetSocketAddress httpsAddress;
   static final Log LOG = LogFactory.getLog(DatanodeHttpServer.class);
@@ -81,6 +92,7 @@ public class DatanodeHttpServer implements Closeable {
       final DataNode datanode,
       final ServerSocketChannel externalHttpChannel)
     throws IOException {
+    this.restCsrfPreventionFilter = createRestCsrfPreventionFilter(conf);
     this.conf = conf;
 
     Configuration confForInfoServer = new Configuration(conf);
@@ -122,9 +134,14 @@ public class DatanodeHttpServer implements Closeable {
         protected void initChannel(SocketChannel ch) throws Exception {
           ChannelPipeline p = ch.pipeline();
           p.addLast(new HttpRequestDecoder(),
-            new HttpResponseEncoder(),
-            new ChunkedWriteHandler(),
-            new URLDispatcher(jettyAddr, conf, confForCreate));
+              new HttpResponseEncoder());
+          if (restCsrfPreventionFilter != null) {
+            p.addLast(new RestCsrfPreventionFilterHandler(
+                restCsrfPreventionFilter));
+          }
+          p.addLast(
+              new ChunkedWriteHandler(),
+              new URLDispatcher(jettyAddr, conf, confForCreate));
         }
       });
 
@@ -172,11 +189,16 @@ public class DatanodeHttpServer implements Closeable {
           protected void initChannel(SocketChannel ch) throws Exception {
             ChannelPipeline p = ch.pipeline();
             p.addLast(
-              new SslHandler(sslFactory.createSSLEngine()),
-              new HttpRequestDecoder(),
-              new HttpResponseEncoder(),
-              new ChunkedWriteHandler(),
-              new URLDispatcher(jettyAddr, conf, confForCreate));
+                new SslHandler(sslFactory.createSSLEngine()),
+                new HttpRequestDecoder(),
+                new HttpResponseEncoder());
+            if (restCsrfPreventionFilter != null) {
+              p.addLast(new RestCsrfPreventionFilterHandler(
+                  restCsrfPreventionFilter));
+            }
+            p.addLast(
+                new ChunkedWriteHandler(),
+                new URLDispatcher(jettyAddr, conf, confForCreate));
           }
         });
     } else {
@@ -236,5 +258,88 @@ public class DatanodeHttpServer implements Closeable {
     }
     InetSocketAddress inetSocker = NetUtils.createSocketAddr(addr);
     return inetSocker.getHostString();
+  }
+
+  /**
+   * Creates the {@link RestCsrfPreventionFilter} for the DataNode.  Since the
+   * DataNode HTTP server is not implemented in terms of the servlet API, it
+   * takes some extra effort to obtain an instance of the filter.  This method
+   * takes care of configuration and implementing just enough of the servlet API
+   * and related interfaces so that the DataNode can get a fully initialized
+   * instance of the filter.
+   *
+   * @param conf configuration to read
+   * @return initialized filter, or null if CSRF protection not enabled
+   */
+  private static RestCsrfPreventionFilter createRestCsrfPreventionFilter(
+      Configuration conf) {
+    if (!conf.getBoolean(DFS_WEBHDFS_REST_CSRF_ENABLED_KEY,
+        DFS_WEBHDFS_REST_CSRF_ENABLED_DEFAULT)) {
+      return null;
+    }
+    String restCsrfClassName = RestCsrfPreventionFilter.class.getName();
+    Map<String, String> restCsrfParams = RestCsrfPreventionFilter
+        .getFilterParams(conf, "dfs.webhdfs.rest-csrf.");
+    RestCsrfPreventionFilter filter = new RestCsrfPreventionFilter();
+    try {
+      filter.init(new MapBasedFilterConfig(restCsrfClassName, restCsrfParams));
+    } catch (ServletException e) {
+      throw new IllegalStateException(
+          "Failed to initialize RestCsrfPreventionFilter.", e);
+    }
+    return filter;
+  }
+
+  /**
+   * A minimal {@link FilterConfig} implementation backed by a {@link Map}.
+   */
+  private static final class MapBasedFilterConfig implements FilterConfig {
+
+    private final String filterName;
+    private final Map<String, String> parameters;
+
+    /**
+     * Creates a new MapBasedFilterConfig.
+     *
+     * @param filterName filter name
+     * @param parameters mapping of filter initialization parameters
+     */
+    public MapBasedFilterConfig(String filterName,
+        Map<String, String> parameters) {
+      this.filterName = filterName;
+      this.parameters = parameters;
+    }
+
+    @Override
+    public String getFilterName() {
+      return this.filterName;
+    }
+
+    @Override
+    public String getInitParameter(String name) {
+      return this.parameters.get(name);
+    }
+
+    @Override
+    public Enumeration<String> getInitParameterNames() {
+      throw this.notImplemented();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+      throw this.notImplemented();
+    }
+
+    /**
+     * Creates an exception indicating that an interface method is not
+     * implemented.  These should never be seen in practice, because it is only
+     * used for methods that are not called by {@link RestCsrfPreventionFilter}.
+     *
+     * @return exception indicating method not implemented
+     */
+    private UnsupportedOperationException notImplemented() {
+      return new UnsupportedOperationException(this.getClass().getSimpleName()
+          + " does not implement this method.");
+    }
   }
 }
