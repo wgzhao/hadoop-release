@@ -49,7 +49,7 @@
 
 <property>
   <name>hadoop.http.filter.initializers</name>
-  <value>org.apache.hadoop.http.lib.StaticUserWebFilter</value>
+  <value>org.apache.hadoop.http.lib.StaticUserWebFilter,org.apache.hadoop.security.HttpCrossOriginFilterInitializer</value>
   <description>A comma separated list of class names. Each class in the list 
   must extend org.apache.hadoop.http.FilterInitializer. The corresponding 
   Filter will be initialized. Then, the Filter will be applied to all user 
