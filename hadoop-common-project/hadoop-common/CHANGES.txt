@@ -1,5 +1,139 @@
 Hadoop Change Log
 
+<<<<<<< HEAD
+||||||| parent of f864faa... HADOOP-12817. Enable TLS v1.1 and 1.2 (rkanter)
+Release 2.9.0 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+    HADOOP-12702. Add an HDFS metrics sink. (Daniel Templeton via kasha)
+
+  IMPROVEMENTS
+
+    HADOOP-12321. Make JvmPauseMonitor an AbstractService.
+    (Sunil G via Stevel)
+
+    HADOOP-12625. Add a config to disable the /logs endpoints (rkanter)
+
+    HADOOP-12566. Add NullGroupMapping. (Daniel Templeton via kasha)
+
+    HADOOP-12663. Remove Hard-Coded Values From FileSystem.java.
+    (BELUGA BEHR via stevel)
+
+    HADOOP-12653. Use SO_REUSEADDR to avoid getting "Address already in use"
+    when using kerberos and attempting to bind to any port on the local IP
+    address (cmccabe)
+
+    HADOOP-12683. Add number of samples in last interval in snapshot of 
+    MutableStat. (Vikram Srivastava via kasha)
+
+    HADOOP-8887. Use a Maven plugin to build the native code using CMake
+    (cmccabe)
+
+    HADOOP-12713. Disable spurious checkstyle checks. (wang)
+
+    HADOOP-12662. The build should fail if a -Dbundle option fails (Kai Zheng
+    via cmccabe)
+
+    HADOOP-12749. Create a threadpoolexecutor that overrides afterExecute to
+    log uncaught exceptions/errors. (Sidharta Seethana via vvasudev)
+
+    HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
+    (Wei-Chiu Chuang via iwasakims)
+
+  BUG FIXES
+
+    HADOOP-12605. Fix intermittent failure of TestIPC.testIpcWithReaderQueuing
+    (iwasakims)
+
+    HADOOP-12655. TestHttpServer.testBindAddress bind port range is wider
+    than expected. (Wei-Chiu Chuang via stevel)
+
+    HADOOP-12613. TestFind.processArguments occasionally fails.
+   (Wei-Chiu Chuang via stevel)
+
+   HADOOP-12597. In kms-site.xml configuration
+   "hadoop.security.keystore.JavaKeyStoreProvider.password"
+   should be updated with new name. (Surendra Singh Lilhore via stevel)
+
+   HADOOP-12573. TestRPC.testClientBackOff failing.
+   (Xiao Chen via stevel)
+
+   HDFS-9517. Fix missing @Test annotation on
+   TestDistCpUtils.testUnpackAttributes (Wei-Chiu Chuang via cmccabe)
+
+   HADOOP-12712. Fix some cmake plugin and native build warnings (cmccabe)
+
+=======
+Release 2.9.0 - UNRELEASED
+
+  INCOMPATIBLE CHANGES
+
+  NEW FEATURES
+
+    HADOOP-12702. Add an HDFS metrics sink. (Daniel Templeton via kasha)
+
+  IMPROVEMENTS
+
+    HADOOP-12321. Make JvmPauseMonitor an AbstractService.
+    (Sunil G via Stevel)
+
+    HADOOP-12625. Add a config to disable the /logs endpoints (rkanter)
+
+    HADOOP-12566. Add NullGroupMapping. (Daniel Templeton via kasha)
+
+    HADOOP-12663. Remove Hard-Coded Values From FileSystem.java.
+    (BELUGA BEHR via stevel)
+
+    HADOOP-12653. Use SO_REUSEADDR to avoid getting "Address already in use"
+    when using kerberos and attempting to bind to any port on the local IP
+    address (cmccabe)
+
+    HADOOP-12683. Add number of samples in last interval in snapshot of 
+    MutableStat. (Vikram Srivastava via kasha)
+
+    HADOOP-8887. Use a Maven plugin to build the native code using CMake
+    (cmccabe)
+
+    HADOOP-12713. Disable spurious checkstyle checks. (wang)
+
+    HADOOP-12662. The build should fail if a -Dbundle option fails (Kai Zheng
+    via cmccabe)
+
+    HADOOP-12749. Create a threadpoolexecutor that overrides afterExecute to
+    log uncaught exceptions/errors. (Sidharta Seethana via vvasudev)
+
+    HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
+    (Wei-Chiu Chuang via iwasakims)
+
+    HADOOP-12817. Enable TLS v1.1 and 1.2 (rkanter)
+
+  BUG FIXES
+
+    HADOOP-12605. Fix intermittent failure of TestIPC.testIpcWithReaderQueuing
+    (iwasakims)
+
+    HADOOP-12655. TestHttpServer.testBindAddress bind port range is wider
+    than expected. (Wei-Chiu Chuang via stevel)
+
+    HADOOP-12613. TestFind.processArguments occasionally fails.
+   (Wei-Chiu Chuang via stevel)
+
+   HADOOP-12597. In kms-site.xml configuration
+   "hadoop.security.keystore.JavaKeyStoreProvider.password"
+   should be updated with new name. (Surendra Singh Lilhore via stevel)
+
+   HADOOP-12573. TestRPC.testClientBackOff failing.
+   (Xiao Chen via stevel)
+
+   HDFS-9517. Fix missing @Test annotation on
+   TestDistCpUtils.testUnpackAttributes (Wei-Chiu Chuang via cmccabe)
+
+   HADOOP-12712. Fix some cmake plugin and native build warnings (cmccabe)
+
+>>>>>>> f864faa... HADOOP-12817. Enable TLS v1.1 and 1.2 (rkanter)
 Release 2.8.0 - UNRELEASED
 
   INCOMPATIBLE CHANGES
