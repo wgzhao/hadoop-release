@@ -317,8 +317,7 @@ public class NameNode extends ReconfigurableBase implements
       + StartupOption.BOOTSTRAPSTANDBY.getName() + "] | \n\t["
       + StartupOption.RECOVER.getName() + " [ "
       + StartupOption.FORCE.getName() + "] ] | \n\t["
-      + StartupOption.METADATAVERSION.getName() + " ] "
-      + " ]";
+      + StartupOption.METADATAVERSION.getName() + " ]";
 
   
   public long getProtocolVersion(String protocol, 
