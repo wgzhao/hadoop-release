@@ -896,11 +896,14 @@ public class ResourceManager extends CompositeService implements Recoverable {
     String initializers = conf.getTrimmed("hadoop.http.filter.initializers");
     String prependFilterName =
         useYarnAuthenticationFilter ? rmAuthFilterName : authFilterName;
+    String staticWebUserFilter = StaticUserWebFilter.class.getName();
+    String corsFilter = HttpCrossOriginFilterInitializer.class.getName();
 
     if (initializers == null || initializers.isEmpty()) {
       initializers = prependFilterName;
 
-    } else if (initializers.equals(StaticUserWebFilter.class.getName())) {
+    } else if (initializers.equals(staticWebUserFilter) ||
+        initializers.equals(staticWebUserFilter + "," + corsFilter)) {
       initializers = prependFilterName + "," + initializers;
 
     } else {

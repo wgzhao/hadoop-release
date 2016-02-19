@@ -37,6 +37,7 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.minikdc.MiniKdc;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.KerberosTestUtils;
+import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.resourcemanager.MockRM;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
@@ -44,6 +45,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.ApplicationSubmissionContextInfo;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -117,6 +119,13 @@ public class TestRMWebappAuthentication {
   public static void tearDown() {
     if (testMiniKDC != null) {
       testMiniKDC.stop();
+    }
+  }
+
+  @After
+  public void cleanup() {
+    if (rm != null && rm.isInState(Service.STATE.STARTED)) {
+      rm.stop();
     }
   }
 
@@ -268,5 +277,4 @@ public class TestRMWebappAuthentication {
     assertEquals("client", owner);
 
   }
-
 }
