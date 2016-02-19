@@ -23,7 +23,6 @@ import org.apache.hadoop.io.erasurecode.rawcoder.util.CoderUtil;
 import org.apache.hadoop.io.erasurecode.rawcoder.util.RSUtil;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * A raw erasure decoder in RS code scheme in pure Java in case native one
@@ -164,10 +163,7 @@ public class RSRawDecoder extends AbstractRawErasureDecoder {
       }
       if (!found) {
         throw new HadoopIllegalArgumentException(
-            "Inputs not fully corresponding to erasedIndexes in null places."
-                + " erasedOrNotToReadIndexes: "
-                + Arrays.toString(erasedOrNotToReadIndexes)
-                + ", erasedIndexes: " + Arrays.toString(erasedIndexes));
+            "Inputs not fully corresponding to erasedIndexes in null places");
       }
     }
     // Use shared buffers for other positions (not set yet)
