@@ -126,7 +126,9 @@ public final class ErasureCodingWorker {
   }
 
   private void initializeStripedReadThreadPool(int num) {
-    LOG.debug("Using striped reads; pool threads=" + num);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Using striped reads; pool threads=" + num);
+    }
 
     STRIPED_READ_THREAD_POOL = new ThreadPoolExecutor(1, num, 60,
         TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
@@ -152,7 +154,9 @@ public final class ErasureCodingWorker {
   }
 
   private void initializeStripedBlkRecoveryThreadPool(int num) {
-    LOG.debug("Using striped block recovery; pool threads=" + num);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Using striped block recovery; pool threads=" + num);
+    }
     STRIPED_BLK_RECOVERY_THREAD_POOL = new ThreadPoolExecutor(2, num, 60,
         TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
         new Daemon.DaemonFactory() {
@@ -490,7 +494,7 @@ public final class ErasureCodingWorker {
         datanode.decrementXmitsInProgress();
         // close block readers
         for (StripedReader stripedReader : stripedReaders) {
-          closeBlockReader(stripedReader.blockReader);
+          IOUtils.closeStream(stripedReader.blockReader);
         }
         for (int i = 0; i < targets.length; i++) {
           IOUtils.closeStream(targetOutputStreams[i]);
@@ -602,7 +606,7 @@ public final class ErasureCodingWorker {
             // If read failed for some source DN, we should not use it anymore 
             // and schedule read from another source DN.
             StripedReader failedReader = stripedReaders.get(result.index);
-            closeBlockReader(failedReader.blockReader);
+            IOUtils.closeStream(failedReader.blockReader);
             failedReader.blockReader = null;
             resultIndex = scheduleNewRead(used, recoverLength, corruptionMap);
           } else if (result.state == StripingChunkReadResult.TIMEOUT) {
@@ -621,6 +625,8 @@ public final class ErasureCodingWorker {
           }
         } catch (InterruptedException e) {
           LOG.info("Read data interrupted.", e);
+          cancelReads(futures.keySet());
+          futures.clear();
           break;
         }
       }
@@ -748,7 +754,7 @@ public final class ErasureCodingWorker {
           StripedReader r = stripedReaders.get(i);
           toRead = getReadLength(liveIndices[i], recoverLength);
           if (toRead > 0) {
-            closeBlockReader(r.blockReader);
+            IOUtils.closeStream(r.blockReader);
             r.blockReader = newBlockReader(
                 getBlock(blockGroup, liveIndices[i]), positionInBlock,
                 sources[i]);
@@ -849,17 +855,6 @@ public final class ErasureCodingWorker {
       }
     }
 
-    // close block reader
-    private void closeBlockReader(BlockReader blockReader) {
-      try {
-        if (blockReader != null) {
-          blockReader.close();
-        }
-      } catch (IOException e) {
-        // ignore
-      }
-    }
-
     private InetSocketAddress getSocketAddress4Transfer(DatanodeInfo dnInfo) {
       return NetUtils.createSocketAddr(dnInfo.getXferAddr(
           datanode.getDnConf().getConnectToDnViaHostname()));
@@ -886,6 +881,10 @@ public final class ErasureCodingWorker {
             "", newConnectedPeer(block, dnAddr, blockToken, dnInfo), dnInfo,
             null, cachingStrategy);
       } catch (IOException e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Exception while creating remote block reader, datanode "
+              + dnInfo, e);
+        }
         return null;
       }
     }
