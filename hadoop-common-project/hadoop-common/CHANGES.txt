@@ -37,6 +37,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12440. TestRPC#testRPCServerShutdown did not produce the desired
     thread states before shutting down. (Xiao Chen via mingma)
 
+    HADOOP-12794. Support additional compression levels for GzipCodec.
+    (Ravi Mutyala via junping_du)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
