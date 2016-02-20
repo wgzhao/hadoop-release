@@ -37,6 +37,7 @@ import org.apache.hadoop.fs.CacheFlag;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileSystem.Statistics;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -467,6 +468,30 @@ public class DFSTestUtil {
       client.close();
     }
     return blocks.get(blockNo).isCorrupt();
+  }
+
+  public static void waitForReplication(final DistributedFileSystem dfs,
+      final Path file, final short replication, int waitForMillis)
+      throws TimeoutException, InterruptedException {
+    GenericTestUtils.waitFor(new Supplier<Boolean>() {
+      @Override
+      public Boolean get() {
+        try {
+          FileStatus stat = dfs.getFileStatus(file);
+          BlockLocation[] locs = dfs.getFileBlockLocations(stat, 0, stat
+              .getLen());
+          for (BlockLocation loc : locs) {
+            if (replication != loc.getHosts().length) {
+              return false;
+            }
+          }
+          return true;
+        } catch (IOException e) {
+          LOG.info("getFileStatus on path " + file + " failed!", e);
+          return false;
+        }
+      }
+    }, 100, waitForMillis);
   }
 
   /*

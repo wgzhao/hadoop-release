@@ -1585,14 +1585,24 @@ public class BlockManager implements BlockStatsMXBean {
       for (int i = 0 ; i < liveBlockIndices.size(); i++) {
         indices[i] = liveBlockIndices.get(i);
       }
-      return new ErasureCodingWork(block, bc, srcNodes,
-          containingNodes, liveReplicaNodes, additionalReplRequired,
+      return new ErasureCodingWork(namesystem.getBlockPoolId(), block, bc,
+          srcNodes, containingNodes, liveReplicaNodes, additionalReplRequired,
           priority, indices);
     } else {
       return new ReplicationWork(block, bc, srcNodes,
           containingNodes, liveReplicaNodes, additionalReplRequired,
           priority);
     }
+  }
+
+  private boolean isInNewRack(DatanodeDescriptor[] srcs,
+      DatanodeDescriptor target) {
+    for (DatanodeDescriptor src : srcs) {
+      if (src.getNetworkLocation().equals(target.getNetworkLocation())) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private boolean validateRecoveryWork(BlockRecoveryWork rw,
@@ -1632,42 +1642,15 @@ public class BlockManager implements BlockStatsMXBean {
     DatanodeStorageInfo[] targets = rw.getTargets();
     if ( (numReplicas.liveReplicas() >= requiredReplication) &&
         (!blockHasEnoughRacks(block, requiredReplication)) ) {
-      if (rw.getSrcNodes()[0].getNetworkLocation().equals(
-          targets[0].getDatanodeDescriptor().getNetworkLocation())) {
-        //No use continuing, unless a new rack in this case
+      if (!isInNewRack(rw.getSrcNodes(), targets[0].getDatanodeDescriptor())) {
+        // No use continuing, unless a new rack in this case	
         stats.blocksWithEnoughReplicas++;
         return false;
       }
     }
 
-    // Add block to the to be replicated list
-    // Add block to the to be recovered list
-    if (block.isStriped()) {
-      assert rw instanceof ErasureCodingWork;
-      assert rw.getTargets().length > 0;
-      assert pendingNum == 0: "Should wait the previous recovery to finish";
-      String src = getBlockCollection(block).getName();
-      ErasureCodingPolicy ecPolicy = null;
-      try {
-        ecPolicy = namesystem.getErasureCodingPolicyForPath(src);
-      } catch (IOException e) {
-        blockLog
-            .warn("Failed to get EC policy for the file {} ", src);
-      }
-      if (ecPolicy == null) {
-        blockLog.warn("No erasure coding policy found for the file {}. "
-            + "So cannot proceed for recovery", src);
-        // TODO: we may have to revisit later for what we can do better to
-        // handle this case.
-        return false;
-      }
-      rw.getTargets()[0].getDatanodeDescriptor().addBlockToBeErasureCoded(
-          new ExtendedBlock(namesystem.getBlockPoolId(), block),
-          rw.getSrcNodes(), rw.getTargets(),
-          ((ErasureCodingWork) rw).getLiveBlockIndicies(), ecPolicy);
-    } else {
-      rw.getSrcNodes()[0].addBlockToBeReplicated(block, targets);
-    }
+    // Add block to the datanode's task list
+    rw.addTaskToDatanode();
     DatanodeStorageInfo.incrementBlocksScheduled(targets);
 
     // Move the block-replication into a "pending" state.
@@ -3910,6 +3893,7 @@ public class BlockManager implements BlockStatsMXBean {
     if (!datanodeManager.hasClusterEverBeenMultiRack()) {
       return true;
     }
+    final int totalRackNum = datanodeManager.getNetworkTopology().getNumOfRacks();
     boolean enoughRacks = false;
     Set<String> rackNameSet = new HashSet<>();
     int dataBlockNum = ((BlockInfoStriped)storedBlock).getRealDataBlockNum();
@@ -3919,7 +3903,8 @@ public class BlockManager implements BlockStatsMXBean {
         if ((corruptNodes == null) || !corruptNodes.contains(cur)) {
           String rackNameNew = cur.getNetworkLocation();
           rackNameSet.add(rackNameNew);
-          if (rackNameSet.size() >= dataBlockNum) {
+          if (rackNameSet.size() >= dataBlockNum
+              || rackNameSet.size() >= totalRackNum) {
             enoughRacks = true;
             break;
           }
@@ -3933,12 +3918,14 @@ public class BlockManager implements BlockStatsMXBean {
       int expectedStorageNum, Collection<DatanodeDescriptor> corruptNodes) {
     boolean enoughRacks = false;
     String rackName = null;
+    final boolean requireOneRack = !datanodeManager.hasClusterEverBeenMultiRack()
+        || datanodeManager.getNetworkTopology().getNumOfRacks() == 1;
     for(DatanodeStorageInfo storage : blocksMap.getStorages(storedBlock)) {
       final DatanodeDescriptor cur = storage.getDatanodeDescriptor();
       if (!cur.isDecommissionInProgress() && !cur.isDecommissioned()) {
         if ((corruptNodes == null ) || !corruptNodes.contains(cur)) {
           if (expectedStorageNum == 1 || (expectedStorageNum > 1 &&
-                  !datanodeManager.hasClusterEverBeenMultiRack())) {
+                  requireOneRack)) {
             enoughRacks = true;
             break;
           }

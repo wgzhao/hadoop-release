@@ -108,4 +108,9 @@ abstract class BlockRecoveryWork {
   abstract void chooseTargets(BlockPlacementPolicy blockplacement,
       BlockStoragePolicySuite storagePolicySuite,
       Set<Node> excludedNodes);
+
+  /**
+   * add reconstruction task into a source datanode
+   */
+  abstract void addTaskToDatanode();
 }
