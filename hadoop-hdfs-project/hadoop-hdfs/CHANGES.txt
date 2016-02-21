@@ -106,6 +106,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9710. DN can be configured to send block receipt IBRs in batches.
     (szetszwo)
 
+    HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
