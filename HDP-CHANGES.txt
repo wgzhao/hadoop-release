@@ -304,6 +304,8 @@ ATS V1.5:
     BUG-52450. HDFS-9790. HDFS Balancer should exit with a proper message if
     upgrade is not finalized (Xiaobing Zhou via Arpit Agarwal)
 
+    HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
