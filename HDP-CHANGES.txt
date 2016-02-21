@@ -307,6 +307,8 @@ ATS V1.5:
     HDFS-9434. Recommission a datanode with 500k blocks may pause NN for 30
     seconds for printing info log messags.  (szetszwo)
 
+    HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
