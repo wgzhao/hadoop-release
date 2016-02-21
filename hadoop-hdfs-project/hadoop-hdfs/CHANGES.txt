@@ -102,6 +102,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
     (Lin Yiqun via aajisaka)
 
+    HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
