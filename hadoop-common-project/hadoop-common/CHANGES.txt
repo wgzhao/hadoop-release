@@ -101,6 +101,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12711. Remove dependency on commons-httpclient for ServletUtil
     (Wei-Chiu Chuang via iwasakims)
 
+    HADOOP-11613. Remove commons-httpclient dependency from hadoop-azure.
+    (Masatake Iwasaki via cnauroth) 
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
