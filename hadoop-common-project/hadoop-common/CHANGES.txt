@@ -275,7 +275,20 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12828. Print user when services are started.
     (Wei-Chiu Chuang via Yongjun Zhang) 
 
+<<<<<<< HEAD
 >>>>>>> 36c08f7... HADOOP-12828. Print user when services are started. (Wei-Chiu Chuang via Yongjun Zhang)
+||||||| parent of 56b7f2c... HADOOP-12668. Support excluding weak Ciphers in HttpServer2 through ssl-server.conf. Contributed by Vijay Singh.
+    HADOOP-11613. Remove commons-httpclient dependency from hadoop-azure.
+    (Masatake Iwasaki via cnauroth) 
+
+=======
+    HADOOP-11613. Remove commons-httpclient dependency from hadoop-azure.
+    (Masatake Iwasaki via cnauroth) 
+
+    HADOOP-12668. Support excluding weak Ciphers in HttpServer2 through
+    ssl-server.conf. (Vijay Singh via zhz)
+
+>>>>>>> 56b7f2c... HADOOP-12668. Support excluding weak Ciphers in HttpServer2 through ssl-server.conf. Contributed by Vijay Singh.
   OPTIMIZATIONS
 >>>>>>> e90f7ef... HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
 
