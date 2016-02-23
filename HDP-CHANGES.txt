@@ -980,3 +980,6 @@ ATS V1.5:
 
     BUG-54854. YARN-4785. Inconsistent value type of the "type" field for LeafQueueInfo
     in response of RM REST API. (Varun Vasudev via junping_du)
+
+    BUG-55061. YARN-4709. NMWebServices produces incorrect JSON for containers.
+    Contributed by Varun Saxena.
