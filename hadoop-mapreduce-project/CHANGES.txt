@@ -25,6 +25,9 @@ Release 2.8.0 - UNRELEASED
     MAPREDUCE-6619. HADOOP_CLASSPATH is overwritten in MR container.
     (Junping Du via jianhe)
 
+    MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader
+    and IndexOutOfBoundsException. (Junping Du via vvasudev)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
