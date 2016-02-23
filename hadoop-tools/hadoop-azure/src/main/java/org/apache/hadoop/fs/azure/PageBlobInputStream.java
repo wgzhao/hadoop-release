@@ -86,11 +86,7 @@ final class PageBlobInputStream extends InputStream {
     // at byte 0, but we tolerate (and ignore) ranges after the first one.
     ArrayList<PageRange> pageRanges =
         blob.downloadPageRanges(new BlobRequestOptions(), opContext);
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Current page ranges = " + pageRanges.size()
-                 + ", first page range endOffset = "
-                 + pageRanges.get(0).getEndOffset());
-    }
+
     if (pageRanges.size() == 0) {
       return 0;
     }
@@ -99,6 +95,13 @@ final class PageBlobInputStream extends InputStream {
       // starting at byte 0.
       throw badStartRangeException(blob, pageRanges.get(0));
     }
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Current page ranges = " + pageRanges.size()
+                 + ", first page range endOffset = "
+                 + pageRanges.get(0).getEndOffset());
+    }
+
     long totalRawBlobSize = pageRanges.get(0).getEndOffset() + 1;
 
     // Get the last page.
