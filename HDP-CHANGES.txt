@@ -952,3 +952,6 @@ ATS V1.5:
 
     BUG-53573. HADOOP-12107. long running apps may have a huge number of
     StatisticsData instances under FileSystem (Sangjin Lee via Ming Ma)
+
+    BUG-53573. HADOOP-12829. StatisticsDataReferenceCleaner swallows interrupt
+    exceptions (Gregory Chanan via cmccabe)
