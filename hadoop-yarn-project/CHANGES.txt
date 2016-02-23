@@ -306,7 +306,10 @@ Release 2.7.3 - UNRELEASED
     YARN-4598. Invalid event: RESOURCE_FAILED at
     CONTAINER_CLEANEDUP_AFTER_KILL (tangshangwen via jlowe)
 
-Release 2.7.2 - UNRELEASED
+    YARN-2046. Out of band heartbeats are sent only on container kill and
+    possibly too early (Ming Ma via jlowe)
+
+Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
 
