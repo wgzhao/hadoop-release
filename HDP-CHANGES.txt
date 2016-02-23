@@ -855,3 +855,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-53567. HADOOP-12107. long running apps may have a huge number of
     StatisticsData instances under FileSystem. (Sangjin Lee)
 
+    BUG-53567. HADOOP-12829. StatisticsDataReferenceCleaner swallows interrupt
+    exceptions. (Gregory Chanan)
+
