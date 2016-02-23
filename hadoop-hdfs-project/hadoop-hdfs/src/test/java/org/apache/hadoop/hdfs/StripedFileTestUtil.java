@@ -32,6 +32,7 @@ import org.apache.hadoop.hdfs.protocol.LocatedBlocks;
 import org.apache.hadoop.hdfs.protocol.LocatedStripedBlock;
 import org.apache.hadoop.hdfs.util.StripedBlockUtil;
 import org.apache.hadoop.hdfs.web.ByteRangeInputStream;
+import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.io.erasurecode.CodecUtil;
 import org.apache.hadoop.io.erasurecode.rawcoder.RawErasureEncoder;
 import org.junit.Assert;
@@ -186,7 +187,7 @@ public class StripedFileTestUtil {
         assertSeekAndRead(in, pos, fileLength);
       }
 
-      if (!(in.getWrappedStream() instanceof ByteRangeInputStream)) {
+      if (!(in.getWrappedStream() instanceof WebHdfsFileSystem.WebHdfsInputStream)) {
         try {
           in.seek(-1);
           Assert.fail("Should be failed if seek to negative offset");
