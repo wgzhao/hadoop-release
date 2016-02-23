@@ -973,6 +973,8 @@ ATS V1.5:
 
     BUG-53573 HADOOP-12107 long running apps may have a huge number of StatisticsData instances under FileSystem
 
+    BUG-53573. HADOOP-12829. StatisticsDataReferenceCleaner swallows interrupt exceptions (Gregory Chanan via cmccabe)
+
     HDFS-9851. NameNode throws NPE when setPermission is called on a path that
     does not exist. (Brahma Reddy Battula via aajisaka)
     
