@@ -112,6 +112,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9797. Log Standby exceptions thrown by RequestHedgingProxyProvider
     at DEBUG Level (Inigo Goiri via asuresh)
 
+    HDFS-9854. Log cipher suite negotiation more verbosely
+    (Wei-Chiu Chuang via cnauroth)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
