@@ -1303,3 +1303,6 @@ ATS V1.5:
     satisfy the incoming request. (Wangda Tan)
 
     YARN-4822. Refactor existing Preemption Policy of CS for easier adding new approach to select preemption candidates. Contributed by Wangda Tan
+
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)

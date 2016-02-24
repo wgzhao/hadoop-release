@@ -122,6 +122,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12484. Single File Rename Throws Incorrectly In Potential Race
     Condition Scenarios. (Gaurav Kanade via cnauroth)
 
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
+
     HADOOP-12533. Introduce FileNotFoundException in WASB for read and seek API.
     (Dushyanth via cnauroth)
 
