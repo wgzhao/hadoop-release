@@ -849,3 +849,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-3987. am container complete msg ack to NM once RM receive it. 
     (sandflee via jianhe)
 
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
