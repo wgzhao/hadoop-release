@@ -65,6 +65,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12520. Use XInclude in hadoop-azure test configuration to isolate
     Azure Storage account keys for service integration tests. (cnauroth)
 
+    HADOOP-12535. Run FileSystem contract tests with hadoop-azure.
+    (Madhumita Chakraborty via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
