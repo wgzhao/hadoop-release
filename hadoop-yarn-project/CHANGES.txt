@@ -1482,6 +1482,9 @@ Release 2.7.3 - UNRELEASED
     YARN-3466. Fix RM nodes web page to sort by node HTTP-address, #containers 
     and node-label column (Jason Lowe via wangda)
 
+    YARN-4722. AsyncDispatcher logs redundant event queue sizes (Jason Lowe via
+    sjlee)
+
 Release 2.6.3 - UNRELEASED
 
   INCOMPATIBLE CHANGES
