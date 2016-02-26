@@ -1243,7 +1243,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
   }
 
   @Override // FsDatasetSpi
-  public synchronized String recoverClose(ExtendedBlock b, long newGS,
+  public synchronized Replica recoverClose(ExtendedBlock b, long newGS,
       long expectedBlockLen) throws IOException {
     LOG.info("Recover failed close " + b);
     // check replica's state
@@ -1254,7 +1254,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     if (replicaInfo.getState() == ReplicaState.RBW) {
       finalizeReplica(b.getBlockPoolId(), replicaInfo);
     }
-    return replicaInfo.getStorageUuid();
+    return replicaInfo;
   }
   
   /**
@@ -2364,7 +2364,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
   }
 
   @Override // FsDatasetSpi
-  public synchronized String updateReplicaUnderRecovery(
+  public synchronized Replica updateReplicaUnderRecovery(
                                     final ExtendedBlock oldBlock,
                                     final long recoveryId,
                                     final long newBlockId,
@@ -2424,8 +2424,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     //check replica files after update
     checkReplicaFiles(finalized);
 
-    //return storage ID
-    return getVolume(new ExtendedBlock(bpid, finalized)).getStorageID();
+    return finalized;
   }
 
   private FinalizedReplica updateReplicaUnderRecovery(
@@ -2794,7 +2793,8 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     datanode.getShortCircuitRegistry().processBlockInvalidation(
         ExtendedBlockId.fromExtendedBlock(extendedBlock));
     datanode.notifyNamenodeReceivedBlock(
-        extendedBlock, null, newReplicaInfo.getStorageUuid());
+        extendedBlock, null, newReplicaInfo.getStorageUuid(),
+        newReplicaInfo.isOnTransientStorage());
 
     // Remove the old replicas
     if (blockFile.delete() || !blockFile.exists()) {
