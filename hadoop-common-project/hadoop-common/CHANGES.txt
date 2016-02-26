@@ -98,6 +98,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust.
     (Steve Loughran via jing9)
 
+    HADOOP-12711. Remove dependency on commons-httpclient for ServletUtil
+    (Wei-Chiu Chuang via iwasakims)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
