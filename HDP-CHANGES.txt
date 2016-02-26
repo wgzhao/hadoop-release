@@ -4822,3 +4822,6 @@ ATS V1.5:
 
     BUG-108683. YARN-7962. Race Condition When Stopping DelegationTokenRenewer
     causes RM crash during failover. (BELUGA BEHR via wangda)
+
+    BUG-108684. YARN-4579. Allow DefaultContainerExecutor container log
+    directory permissions to be configurable (rchiang via rkanter)
