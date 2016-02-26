@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-104289. YARN-4579. Allow DefaultContainerExecutor container log
+    directory permissions to be configurable (rchiang via rkanter)
