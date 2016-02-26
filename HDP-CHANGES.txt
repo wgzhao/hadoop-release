@@ -5049,3 +5049,5 @@ ATS V1.5:
 
     HDFS-195. DiskOp is incompatible with Jackson 2.7
 
+    BUG-108788. YARN-4579. Allow DefaultContainerExecutor container log
+    directory permissions to be configurable (rchiang via rkanter)
