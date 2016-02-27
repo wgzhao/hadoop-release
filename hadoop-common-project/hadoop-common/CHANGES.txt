@@ -71,6 +71,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12853. Change WASB documentation regarding page blob support.
     (Madhumita Chakraborty via cnauroth)
 
+    HADOOP-12825. Log slow name resolutions.
+    (Sidharta Seethana via stevel)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
