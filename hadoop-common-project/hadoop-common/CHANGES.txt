@@ -404,9 +404,22 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12878. KMS SPNEGO sequence does not work with WEBHDFS. (xyao)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     HADOOP-12659. Incorrect usage of config parameters in token manager of
     KMS. (Mingliang Liu via xyao)
 ||||||| parent of 64add87... HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
+||||||| parent of c692d7c... HADOOP-12849. TestSymlinkLocalFSFileSystem fails intermittently. Contributed by Mingliang Liu.
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
+
+=======
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
+
+    HADOOP-12849. TestSymlinkLocalFSFileSystem fails intermittently.
+    (Mingliang Liu via cnauroth)
+
+>>>>>>> c692d7c... HADOOP-12849. TestSymlinkLocalFSFileSystem fails intermittently. Contributed by Mingliang Liu.
 Release 2.7.3 - UNRELEASED
 =======
     HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory.
