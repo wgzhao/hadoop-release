@@ -317,6 +317,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-51798. HDFS-9534. Add CLI command to clear storage policy from a path.
     (Xiaobing Zhou via Arpit Agarwal)
 
+    HADOOP-12825. Log slow name resolutions.
+    (Sidharta Seethana via stevel)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
