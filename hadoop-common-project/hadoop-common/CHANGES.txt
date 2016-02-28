@@ -76,6 +76,9 @@ Release 2.9.0 - UNRELEASED
     HADOOP-12702. Add an HDFS metrics sink. (Daniel Templeton via kasha)
 
   IMPROVEMENTS
+    
+    HADOOP-12831. LocalFS/FSOutputSummer NPEs in constructor if bytes per checksum 
+    set to 0 (Mingliang Liu via gtcarrera9)
 
     HADOOP-12321. Make JvmPauseMonitor an AbstractService.
     (Sunil G via Stevel)
