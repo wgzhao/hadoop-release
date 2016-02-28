@@ -26,6 +26,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -63,6 +64,9 @@ public abstract class ChecksumFileSystem extends FilterFileSystem {
     if (conf != null) {
       bytesPerChecksum = conf.getInt(LocalFileSystemConfigKeys.LOCAL_FS_BYTES_PER_CHECKSUM_KEY,
 		                     LocalFileSystemConfigKeys.LOCAL_FS_BYTES_PER_CHECKSUM_DEFAULT);
+      Preconditions.checkState(bytesPerChecksum > 0,
+          "bytes per checksum should be positive but was %s",
+          bytesPerChecksum);
     }
   }
   
