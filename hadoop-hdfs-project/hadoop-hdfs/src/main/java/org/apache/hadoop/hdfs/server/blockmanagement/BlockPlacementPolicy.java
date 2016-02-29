@@ -74,6 +74,8 @@ public abstract class BlockPlacementPolicy {
                                              BlockStoragePolicy storagePolicy);
   
   /**
+   * Same as {@link #chooseTarget(String, int, Node, Set, long, List, StorageType)}
+   * with added parameter {@code favoredDatanodes}
    * @param favoredNodes datanodes that should be favored as targets. This
    *          is only a hint and due to cluster state, namenode may not be 
    *          able to place the blocks on these datanodes.
@@ -101,21 +103,17 @@ public abstract class BlockPlacementPolicy {
    * @param numOfReplicas replica number of file to be verified
    * @return the result of verification
    */
-  public abstract BlockPlacementStatus verifyBlockPlacement(
+  abstract public BlockPlacementStatus verifyBlockPlacement(
       DatanodeInfo[] locs, int numOfReplicas);
 
   /**
    * Select the excess replica storages for deletion based on either
    * delNodehint/Excess storage types.
    *
-   * @param availableReplicas
+   * @param candidates
    *          available replicas
-   * @param delCandidates
-   *          Candidates for deletion. For normal replication, this set is the
-   *          same with availableReplicas. For striped blocks, this set is a
-   *          subset of availableReplicas.
    * @param expectedNumOfReplicas
-   *          The expected number of replicas remaining in the delCandidates
+   *          The required number of replicas for this block
    * @param excessTypes
    *          type of the storagepolicy
    * @param addedNode
@@ -124,12 +122,10 @@ public abstract class BlockPlacementPolicy {
    *          Hint for excess storage selection
    * @return Returns the list of excess replicas chosen for deletion
    */
-  public abstract List<DatanodeStorageInfo> chooseReplicasToDelete(
-      Collection<DatanodeStorageInfo> availableReplicas,
-      Collection<DatanodeStorageInfo> delCandidates, int expectedNumOfReplicas,
+  abstract public List<DatanodeStorageInfo> chooseReplicasToDelete(
+      Collection<DatanodeStorageInfo> candidates, int expectedNumOfReplicas,
       List<StorageType> excessTypes, DatanodeDescriptor addedNode,
       DatanodeDescriptor delNodeHint);
-
   /**
    * Used to setup a BlockPlacementPolicy object. This should be defined by 
    * all implementations of a BlockPlacementPolicy.
@@ -138,7 +134,7 @@ public abstract class BlockPlacementPolicy {
    * @param stats retrieve cluster status from here
    * @param clusterMap cluster topology
    */
-  protected abstract void initialize(Configuration conf,  FSClusterStats stats,
+  abstract protected void initialize(Configuration conf,  FSClusterStats stats, 
                                      NetworkTopology clusterMap, 
                                      Host2NodesMap host2datanodeMap);
 
@@ -185,37 +181,35 @@ public abstract class BlockPlacementPolicy {
   /**
    * Split data nodes into two sets, one set includes nodes on rack with
    * more than one  replica, the other set contains the remaining nodes.
-   *
-   * @param availableSet all the available DataNodes/storages of the block
-   * @param candidates DatanodeStorageInfo/DatanodeInfo to be split
-   *        into two sets
+   * 
+   * @param dataNodes datanodes to be split into two sets
    * @param rackMap a map from rack to datanodes
    * @param moreThanOne contains nodes on rack with more than one replica
    * @param exactlyOne remains contains the remaining nodes
    */
   public void splitNodesWithRack(
-      final Iterable<DatanodeStorageInfo> availableSet,
-      final Collection<DatanodeStorageInfo> candidates,
+      final Iterable<DatanodeStorageInfo> storages,
       final Map<String, List<DatanodeStorageInfo>> rackMap,
       final List<DatanodeStorageInfo> moreThanOne,
       final List<DatanodeStorageInfo> exactlyOne) {
-    for(DatanodeStorageInfo s: availableSet) {
+    for(DatanodeStorageInfo s: storages) {
       final String rackName = getRack(s.getDatanodeDescriptor());
       List<DatanodeStorageInfo> storageList = rackMap.get(rackName);
       if (storageList == null) {
-        storageList = new ArrayList<>();
+        storageList = new ArrayList<DatanodeStorageInfo>();
         rackMap.put(rackName, storageList);
       }
       storageList.add(s);
     }
-    for (DatanodeStorageInfo candidate : candidates) {
-      final String rackName = getRack(candidate.getDatanodeDescriptor());
-      if (rackMap.get(rackName).size() == 1) {
+    
+    // split nodes into two sets
+    for(List<DatanodeStorageInfo> storageList : rackMap.values()) {
+      if (storageList.size() == 1) {
         // exactlyOne contains nodes on rack with only one replica
-        exactlyOne.add(candidate);
+        exactlyOne.add(storageList.get(0));
       } else {
         // moreThanOne contains nodes on rack with more than one replica
-        moreThanOne.add(candidate);
+        moreThanOne.addAll(storageList);
       }
     }
   }

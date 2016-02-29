@@ -959,8 +959,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
 
   @Override
   public List<DatanodeStorageInfo> chooseReplicasToDelete(
-      Collection<DatanodeStorageInfo> availableReplicas,
-      Collection<DatanodeStorageInfo> delCandidates,
+      Collection<DatanodeStorageInfo> candidates,
       int expectedNumOfReplicas,
       List<StorageType> excessTypes,
       DatanodeDescriptor addedNode,
@@ -973,29 +972,28 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
     final List<DatanodeStorageInfo> moreThanOne = new ArrayList<>();
     final List<DatanodeStorageInfo> exactlyOne = new ArrayList<>();
 
-    // split candidate nodes for deletion into two sets
+    // split nodes into two sets
     // moreThanOne contains nodes on rack with more than one replica
     // exactlyOne contains the remaining nodes
-    splitNodesWithRack(availableReplicas, delCandidates, rackMap, moreThanOne,
-        exactlyOne);
+    splitNodesWithRack(candidates, rackMap, moreThanOne, exactlyOne);
 
     // pick one node to delete that favors the delete hint
     // otherwise pick one with least space from priSet if it is not empty
     // otherwise one node with least space from remains
     boolean firstOne = true;
     final DatanodeStorageInfo delNodeHintStorage =
-        DatanodeStorageInfo.getDatanodeStorageInfo(delCandidates, delNodeHint);
+        DatanodeStorageInfo.getDatanodeStorageInfo(candidates, delNodeHint);
     final DatanodeStorageInfo addedNodeStorage =
-        DatanodeStorageInfo.getDatanodeStorageInfo(delCandidates, addedNode);
+        DatanodeStorageInfo.getDatanodeStorageInfo(candidates, addedNode);
 
-    while (delCandidates.size() - expectedNumOfReplicas > excessReplicas.size()) {
+    while (candidates.size() - expectedNumOfReplicas > excessReplicas.size()) {
       final DatanodeStorageInfo cur;
       if (useDelHint(firstOne, delNodeHintStorage, addedNodeStorage,
           moreThanOne, excessTypes)) {
         cur = delNodeHintStorage;
       } else { // regular excessive replica removal
-        cur = chooseReplicaToDelete(moreThanOne, exactlyOne,
-            excessTypes, rackMap);
+        cur = chooseReplicaToDelete(moreThanOne, exactlyOne, excessTypes,
+            rackMap);
       }
       firstOne = false;
       if (cur == null) {

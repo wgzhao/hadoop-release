@@ -3160,7 +3160,7 @@ public class BlockManager implements BlockStatsMXBean {
       DatanodeDescriptor delNodeHint, List<StorageType> excessTypes) {
     BlockPlacementPolicy replicator = placementPolicies.getPolicy(false);
     List<DatanodeStorageInfo> replicasToDelete = replicator
-        .chooseReplicasToDelete(nonExcess, nonExcess, replication, excessTypes,
+        .chooseReplicasToDelete(nonExcess, replication, excessTypes,
             addedNode, delNodeHint);
     for (DatanodeStorageInfo choosenReplica : replicasToDelete) {
       processChosenExcessReplica(nonExcess, choosenReplica, storedBlock);
@@ -3231,8 +3231,8 @@ public class BlockManager implements BlockStatsMXBean {
       internalBlock.setBlockId(storedBlock.getBlockId() + targetIndex);
       while (candidates.size() > 1) {
         List<DatanodeStorageInfo> replicasToDelete = placementPolicy
-            .chooseReplicasToDelete(nonExcess, candidates, (short) 1,
-                excessTypes, null, null);
+            .chooseReplicasToDelete(candidates, (short) 1, excessTypes, null,
+                null);
         for (DatanodeStorageInfo chosen : replicasToDelete) {
           processChosenExcessReplica(nonExcess, chosen, storedBlock);
           candidates.remove(chosen);
