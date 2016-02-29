@@ -213,6 +213,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12903. IPC Server should allow suppressing exception logging by type,
     not log 'server too busy' messages. (Arpit Agarwal)
 
+    HADOOP-12813. Migrate TestRPC and related codes to rebase on
+    ProtobufRpcEngine. (Kai Zheng via wheat9)
+
     HADOOP-12589. Fix intermittent test failure of TestCopyPreserveFlag
     (iwasakims)
 
