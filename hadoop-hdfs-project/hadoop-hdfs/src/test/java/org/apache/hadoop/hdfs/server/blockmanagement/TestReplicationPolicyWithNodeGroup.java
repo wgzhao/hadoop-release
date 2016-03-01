@@ -607,9 +607,9 @@ public class TestReplicationPolicyWithNodeGroup {
     dataNodes[5].setRemaining(1*1024*1024);
     replicaList.add(storages[5]);
 
-    List<DatanodeStorageInfo> first = new ArrayList<DatanodeStorageInfo>();
-    List<DatanodeStorageInfo> second = new ArrayList<DatanodeStorageInfo>();
-    replicator.splitNodesWithRack(
+    List<DatanodeStorageInfo> first = new ArrayList<>();
+    List<DatanodeStorageInfo> second = new ArrayList<>();
+    replicator.splitNodesWithRack(replicaList,
         replicaList, rackMap, first, second);
     assertEquals(3, first.size());
     assertEquals(1, second.size());
