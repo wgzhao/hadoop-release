@@ -996,6 +996,11 @@ Release 2.7.0 - 2015-04-20
     YARN-2894. Fixed a bug regarding application view acl when RM fails over.
     (Rohith Sharmaks via jianhe)
 
+    YARN-4748. ApplicationHistoryManagerOnTimelineStore should not
+    swallow exceptions on generateApplicationReport. (Li Lu via jianhe)
+
+Release 2.7.3 - UNRELEASED
+
     YARN-2874. Dead lock in "DelegationTokenRenewer" which blocks RM to execute
     any further apps. (Naganarasimha G R via kasha)
 
