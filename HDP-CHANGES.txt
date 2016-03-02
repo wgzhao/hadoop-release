@@ -878,3 +878,10 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HADOOP-12903. IPC Server should allow suppressing exception logging by type,
     not log 'server too busy' messages. (Arpit Agarwal)
+
+    BUG-53803. HDFS-9941. Do not log StandbyException on NN, other
+    minor logging fixes. (Arpit Agarwal)
+
+    HDFS-9851. NameNode throws NPE when setPermission is called on a path that
+    does not exist. (Brahma Reddy Battula via aajisaka)
+ 
