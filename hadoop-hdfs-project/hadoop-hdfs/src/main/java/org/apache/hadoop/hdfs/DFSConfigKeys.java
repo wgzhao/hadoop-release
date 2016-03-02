@@ -102,6 +102,11 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_WEBHDFS_ACL_PERMISSION_PATTERN_DEFAULT =
       "^(default:)?(user|group|mask|other):[[A-Za-z_][A-Za-z0-9._-]]*:([rwx-]{3})?(,(default:)?(user|group|mask|other):[[A-Za-z_][A-Za-z0-9._-]]*:([rwx-]{3})?)*$";
 
+  public static final String  DFS_WEBHDFS_SOCKET_CONNECT_TIMEOUT_KEY =
+          "dfs.webhdfs.socket.connect-timeout";
+  public static final String  DFS_WEBHDFS_SOCKET_READ_TIMEOUT_KEY =
+          "dfs.webhdfs.socket.read-timeout";
+
   public static final String DFS_WEBHDFS_OAUTH_ENABLED_KEY = "dfs.webhdfs.oauth2.enabled";
   public static boolean      DFS_WEBHDFS_OAUTH_ENABLED_DEFAULT = false;
 

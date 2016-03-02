@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -33,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.web.oauth2.OAuth2ConnectionConfigurator;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
@@ -56,14 +58,17 @@ public class URLConnectionFactory {
   public final static int DEFAULT_SOCKET_TIMEOUT = 1 * 60 * 1000; // 1 minute
   private final ConnectionConfigurator connConfigurator;
 
-  private static final ConnectionConfigurator DEFAULT_TIMEOUT_CONN_CONFIGURATOR = new ConnectionConfigurator() {
-    @Override
-    public HttpURLConnection configure(HttpURLConnection conn)
-        throws IOException {
-      URLConnectionFactory.setTimeouts(conn, DEFAULT_SOCKET_TIMEOUT);
-      return conn;
-    }
-  };
+  private static final ConnectionConfigurator DEFAULT_TIMEOUT_CONN_CONFIGURATOR
+      = new ConnectionConfigurator() {
+        @Override
+        public HttpURLConnection configure(HttpURLConnection conn)
+            throws IOException {
+          URLConnectionFactory.setTimeouts(conn,
+                                           DEFAULT_SOCKET_TIMEOUT,
+                                           DEFAULT_SOCKET_TIMEOUT);
+          return conn;
+        }
+      };
 
   /**
    * The URLConnectionFactory that sets the default timeout and it only trusts
@@ -124,16 +129,29 @@ public class URLConnectionFactory {
   /**
    * Create a new ConnectionConfigurator for SSL connections
    */
-  private static ConnectionConfigurator newSslConnConfigurator(final int timeout,
-      Configuration conf) throws IOException, GeneralSecurityException {
+  private static ConnectionConfigurator newSslConnConfigurator(
+      final int defaultTimeout, Configuration conf)
+      throws IOException, GeneralSecurityException {
     final SSLFactory factory;
     final SSLSocketFactory sf;
     final HostnameVerifier hv;
+    final int connectTimeout;
+    final int readTimeout;
 
     factory = new SSLFactory(SSLFactory.Mode.CLIENT, conf);
     factory.init();
     sf = factory.createSSLSocketFactory();
     hv = factory.getHostnameVerifier();
+
+    connectTimeout = (int) conf.getTimeDuration(
+        DFSConfigKeys.DFS_WEBHDFS_SOCKET_CONNECT_TIMEOUT_KEY,
+        defaultTimeout,
+        TimeUnit.MILLISECONDS);
+
+    readTimeout = (int) conf.getTimeDuration(
+        DFSConfigKeys.DFS_WEBHDFS_SOCKET_READ_TIMEOUT_KEY,
+        defaultTimeout,
+        TimeUnit.MILLISECONDS);
 
     return new ConnectionConfigurator() {
       @Override
@@ -144,7 +162,7 @@ public class URLConnectionFactory {
           c.setSSLSocketFactory(sf);
           c.setHostnameVerifier(hv);
         }
-        URLConnectionFactory.setTimeouts(conn, timeout);
+        URLConnectionFactory.setTimeouts(conn, connectTimeout, readTimeout);
         return conn;
       }
     };
@@ -208,8 +226,10 @@ public class URLConnectionFactory {
    * @param socketTimeout
    *          the connection and read timeout of the connection.
    */
-  private static void setTimeouts(URLConnection connection, int socketTimeout) {
-    connection.setConnectTimeout(socketTimeout);
-    connection.setReadTimeout(socketTimeout);
+  private static void setTimeouts(URLConnection connection,
+                                  int connectTimeout,
+                                  int readTimeout) {
+    connection.setConnectTimeout(connectTimeout);
+    connection.setReadTimeout(readTimeout);
   }
 }

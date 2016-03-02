@@ -334,6 +334,8 @@ ATS V1.5:
     HADOOP-12825. Log slow name resolutions.
     (Sidharta Seethana via stevel)
 
+    BUG-90692. HDFS-9887. WebHdfs socket timeouts should be configurable
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
