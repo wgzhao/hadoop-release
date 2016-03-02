@@ -2794,7 +2794,7 @@ public class BlockManager implements BlockStatsMXBean {
     } else {
       updateNeededReplications(storedBlock, curReplicaDelta, 0);
     }
-    if (shouldProcessOverReplicated(num, pendingNum, fileReplication)) {
+    if (shouldProcessOverReplicated(num, fileReplication)) {
       processOverReplicatedBlock(storedBlock, fileReplication, node, delNodeHint);
     }
     // If the file replication has reached desired value
@@ -2869,8 +2869,8 @@ public class BlockManager implements BlockStatsMXBean {
   }
 
   private boolean shouldProcessOverReplicated(NumberReplicas num,
-      int pendingNum, int expectedNum) {
-    int numCurrent = num.liveReplicas() + pendingNum;
+      int expectedNum) {
+    final int numCurrent = num.liveReplicas();
     return numCurrent > expectedNum ||
         (numCurrent == expectedNum && num.redundantInternalBlocks() > 0);
   }
@@ -3047,7 +3047,7 @@ public class BlockManager implements BlockStatsMXBean {
       }
     }
 
-    if (shouldProcessOverReplicated(num, 0, expectedReplication)) {
+    if (shouldProcessOverReplicated(num, expectedReplication)) {
       if (num.replicasOnStaleNodes() > 0) {
         // If any of the replicas of this block are on nodes that are
         // considered "stale", then these replicas may in fact have
@@ -3183,7 +3183,6 @@ public class BlockManager implements BlockStatsMXBean {
     assert storedBlock instanceof BlockInfoStriped;
     BlockInfoStriped sblk = (BlockInfoStriped) storedBlock;
     short groupSize = sblk.getTotalBlockNum();
-    BlockPlacementPolicy placementPolicy = placementPolicies.getPolicy(true);
 
     // find all duplicated indices
     BitSet found = new BitSet(groupSize); //indices found
@@ -3198,14 +3197,6 @@ public class BlockManager implements BlockStatsMXBean {
       found.set(index);
       storage2index.put(storage, index);
     }
-    // the number of target left replicas equals to the of number of the found
-    // indices.
-    int numOfTarget = found.cardinality();
-
-    final BlockStoragePolicy storagePolicy = storagePolicySuite.getPolicy(
-        bc.getStoragePolicyID());
-    final List<StorageType> excessTypes = storagePolicy.chooseExcess(
-        (short)numOfTarget, DatanodeStorageInfo.toStorageTypes(nonExcess));
 
     // use delHint only if delHint is duplicated
     final DatanodeStorageInfo delStorageHint =
@@ -3217,6 +3208,19 @@ public class BlockManager implements BlockStatsMXBean {
       }
     }
 
+    // cardinality of found indicates the expected number of internal blocks
+    final int numOfTarget = found.cardinality();
+    final BlockStoragePolicy storagePolicy = storagePolicySuite.getPolicy(
+        bc.getStoragePolicyID());
+    final List<StorageType> excessTypes = storagePolicy.chooseExcess(
+        (short) numOfTarget, DatanodeStorageInfo.toStorageTypes(nonExcess));
+    if (excessTypes.isEmpty()) {
+      LOG.warn("excess types chosen for block {} among storages {} is empty",
+          storedBlock, nonExcess);
+      return;
+    }
+
+    BlockPlacementPolicy placementPolicy = placementPolicies.getPolicy(true);
     // for each duplicated index, delete some replicas until only one left
     for (int targetIndex = duplicated.nextSetBit(0); targetIndex >= 0;
          targetIndex = duplicated.nextSetBit(targetIndex + 1)) {
@@ -3227,9 +3231,7 @@ public class BlockManager implements BlockStatsMXBean {
           candidates.add(storage);
         }
       }
-      Block internalBlock = new Block(storedBlock);
-      internalBlock.setBlockId(storedBlock.getBlockId() + targetIndex);
-      while (candidates.size() > 1) {
+      if (candidates.size() > 1) {
         List<DatanodeStorageInfo> replicasToDelete = placementPolicy
             .chooseReplicasToDelete(nonExcess, candidates, (short) 1,
                 excessTypes, null, null);
@@ -3637,7 +3639,7 @@ public class BlockManager implements BlockStatsMXBean {
       final BlockInfo block = it.next();
       int expectedReplication = this.getReplication(block);
       NumberReplicas num = countNodes(block);
-      if (shouldProcessOverReplicated(num, 0, expectedReplication)) {
+      if (shouldProcessOverReplicated(num, expectedReplication)) {
         // over-replicated block
         processOverReplicatedBlock(block, (short) expectedReplication, null,
             null);
@@ -3773,7 +3775,7 @@ public class BlockManager implements BlockStatsMXBean {
         neededReplications.add(block, n.liveReplicas(),
             n.readOnlyReplicas(),
             n.decommissionedAndDecommissioning(), expected);
-      } else if (shouldProcessOverReplicated(n, 0, expected)) {
+      } else if (shouldProcessOverReplicated(n, expected)) {
         processOverReplicatedBlock(block, expected, null, null);
       }
     }
