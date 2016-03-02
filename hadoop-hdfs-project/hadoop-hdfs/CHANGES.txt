@@ -290,6 +290,9 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9844. Correct path creation in getTrashRoot to handle root dir. (zhz)
 
+    HDFS-9881. DistributedFileSystem#getTrashRoot returns incorrect path for
+    encryption zones. (wang)
+
 Release 2.7.3 - UNRELEASED
 
   INCOMPATIBLE CHANGES
