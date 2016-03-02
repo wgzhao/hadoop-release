@@ -1040,3 +1040,7 @@ ATS V1.5:
 
     BUG-53803. HDFS-9941. Do not log StandbyException on NN, other
     minor logging fixes. (Arpit Agarwal)
+
+    HDFS-9851. NameNode throws NPE when setPermission is called on a path that
+    does not exist. (Brahma Reddy Battula via aajisaka)
+    

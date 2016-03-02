@@ -291,6 +291,9 @@ Release 2.7.3 - UNRELEASED
   OPTIMIZATIONS
 
   BUG FIXES
+    
+    HDFS-9851. NameNode throws NPE when setPermission is called on a path that
+    does not exist. (Brahma Reddy Battula via aajisaka)
 
     HDFS-9730. Storage ID update does not happen when there is a layout change
     (Tsz Wo Nicholas Sze via kihwal)
