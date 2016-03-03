@@ -210,8 +210,10 @@ public class NMClientAsyncImpl extends NMClientAsync {
           containers.clear();
         }
       }
+      LOG.info("Stopping NM client.");
       client.stop();
     }
+    LOG.info("NMClient stopped.");
     super.serviceStop();
   }
 
