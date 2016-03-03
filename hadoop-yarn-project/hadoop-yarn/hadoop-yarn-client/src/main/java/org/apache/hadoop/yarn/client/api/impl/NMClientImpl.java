@@ -106,14 +106,17 @@ public class NMClientImpl extends NMClient {
     if (getCleanupRunningContainers().get()) {
       cleanupRunningContainers();
     }
+    LOG.info("Running containers cleaned up. Stopping NM proxies.");
     cmProxy.stopAllProxies();
-    LOG.info("NMClient stopped.");
+    LOG.info("Stopped all proxies.");
     super.serviceStop();
   }
 
   protected synchronized void cleanupRunningContainers() {
+    LOG.info("Clean up running containers on stop.");
     for (StartedContainer startedContainer : startedContainers.values()) {
       try {
+        LOG.info("Stopping " + startedContainer.getContainerId());
         stopContainer(startedContainer.getContainerId(),
             startedContainer.getNodeId());
       } catch (YarnException e) {
@@ -242,6 +245,7 @@ public class NMClientImpl extends NMClient {
     // the container
     if (startedContainer != null) {
       synchronized (startedContainer) {
+        LOG.info("ok, stopContainerInternal.. " + containerId);
         if (startedContainer.state != ContainerState.RUNNING) {
           return;
         }
@@ -251,6 +255,7 @@ public class NMClientImpl extends NMClient {
         removeStartedContainer(startedContainer);
       }
     } else {
+      LOG.info("stopContainerInternal " + containerId);
       stopContainerInternal(containerId, nodeId);
     }
 
