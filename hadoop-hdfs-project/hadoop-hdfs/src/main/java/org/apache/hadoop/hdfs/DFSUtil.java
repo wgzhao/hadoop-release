@@ -882,6 +882,40 @@ public class DFSUtil {
   }
 
   /**
+   * Returns list of InetSocketAddresses corresponding to lifeline RPC servers
+   * at namenodes from the configuration.
+   *
+   * @param conf configuration
+   * @return list of InetSocketAddress
+   * @throws IOException on error
+   */
+  public static Map<String, Map<String, InetSocketAddress>>
+      getNNLifelineRpcAddressesForCluster(Configuration conf)
+      throws IOException {
+
+    Collection<String> parentNameServices = conf.getTrimmedStringCollection(
+        DFSConfigKeys.DFS_INTERNAL_NAMESERVICES_KEY);
+
+    if (parentNameServices.isEmpty()) {
+      parentNameServices = conf.getTrimmedStringCollection(
+          DFSConfigKeys.DFS_NAMESERVICES);
+    } else {
+      // Ensure that the internal service is indeed in the list of all available
+      // nameservices.
+      Set<String> availableNameServices = Sets.newHashSet(conf
+          .getTrimmedStringCollection(DFSConfigKeys.DFS_NAMESERVICES));
+      for (String nsId : parentNameServices) {
+        if (!availableNameServices.contains(nsId)) {
+          throw new IOException("Unknown nameservice: " + nsId);
+        }
+      }
+    }
+
+    return DFSUtil.getAddressesForNsIds(conf, parentNameServices, null,
+        DFS_NAMENODE_LIFELINE_RPC_ADDRESS_KEY);
+  }
+
+  /**
    * Map a logical namenode ID to its lifeline address.  Use the given
    * nameservice if specified, or the configured one if none is given.
    *
