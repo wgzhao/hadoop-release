@@ -89,6 +89,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-9426. Rollingupgrade finalization is not backward compatible.
 
+    HDFS-9239. DataNode Lifeline Protocol: an alternative protocol for
+    reporting DataNode liveness. Contributed by Chris Nauroth.
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)

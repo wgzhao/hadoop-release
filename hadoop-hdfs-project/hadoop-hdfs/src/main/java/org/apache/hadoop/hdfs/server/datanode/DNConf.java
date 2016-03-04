@@ -30,6 +30,7 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CACHEREPORT_INTERVAL_MSEC
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_SOCKET_TIMEOUT_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_LIFELINE_INTERVAL_SECONDS_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_MAX_LOCKED_MEMORY_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_MAX_LOCKED_MEMORY_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SOCKET_WRITE_TIMEOUT_KEY;
@@ -84,6 +85,7 @@ public class DNConf {
 
   final long readaheadLength;
   final long heartBeatInterval;
+  private final long lifelineIntervalMs;
   final long blockReportInterval;
   final long blockReportSplitThreshold;
   final long ibrInterval;
@@ -178,6 +180,20 @@ public class DNConf {
     
     heartBeatInterval = conf.getLong(DFS_HEARTBEAT_INTERVAL_KEY,
         DFS_HEARTBEAT_INTERVAL_DEFAULT) * 1000L;
+    long confLifelineIntervalMs =
+        conf.getLong(DFS_DATANODE_LIFELINE_INTERVAL_SECONDS_KEY,
+        3 * conf.getLong(DFS_HEARTBEAT_INTERVAL_KEY,
+            DFS_HEARTBEAT_INTERVAL_DEFAULT)) * 1000L;
+    if (confLifelineIntervalMs <= heartBeatInterval) {
+      confLifelineIntervalMs = 3 * heartBeatInterval;
+      DataNode.LOG.warn(
+          String.format("%s must be set to a value greater than %s.  " +
+              "Resetting value to 3 * %s, which is %d milliseconds.",
+              DFS_DATANODE_LIFELINE_INTERVAL_SECONDS_KEY,
+              DFS_HEARTBEAT_INTERVAL_KEY, DFS_HEARTBEAT_INTERVAL_KEY,
+              confLifelineIntervalMs));
+    }
+    lifelineIntervalMs = confLifelineIntervalMs;
     
     // do we need to sync block file contents to disk when blockfile is closed?
     this.syncOnClose = conf.getBoolean(DFS_DATANODE_SYNCONCLOSE_KEY, 
@@ -295,5 +311,14 @@ public class DNConf {
 
   public long getBpReadyTimeout() {
     return bpReadyTimeout;
+  }
+
+  /**
+   * Returns the interval in milliseconds between sending lifeline messages.
+   *
+   * @return interval in milliseconds between sending lifeline messages
+   */
+  public long getLifelineIntervalMs() {
+    return lifelineIntervalMs;
   }
 }
