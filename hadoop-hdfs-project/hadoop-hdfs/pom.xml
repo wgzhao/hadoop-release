@@ -336,6 +336,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
                   <include>ClientDatanodeProtocol.proto</include>
                   <include>ClientNamenodeProtocol.proto</include>
                   <include>DatanodeProtocol.proto</include>
+                  <include>DatanodeLifelineProtocol.proto</include>
                   <include>HAZKInfo.proto</include>
                   <include>InterDatanodeProtocol.proto</include>
                   <include>JournalProtocol.proto</include>

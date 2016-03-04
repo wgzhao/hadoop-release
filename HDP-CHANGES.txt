@@ -91,6 +91,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     HDFS-9426. Rollingupgrade finalization is not backward compatible.
 
+    HDFS-9239. DataNode Lifeline Protocol: an alternative protocol for reporting
+    DataNode liveness. Contributed by Chris Nauroth.
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
