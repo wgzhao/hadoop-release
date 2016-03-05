@@ -85,6 +85,9 @@ Release 2.7.0
     HDFS-7960. The full block report should prune zombie storages even if
     they're not empty. (cmccabe and Eddy Xu via wang)
 
+    HDFS-7097. Allow block reports to be processed during checkpointing on
+    standby name node. (kihwal via wang)
+
 Release 2.6.1 - UNRELEASED
 
   INCOMPATIBLE CHANGES

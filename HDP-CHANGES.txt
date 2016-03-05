@@ -229,3 +229,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     HDFS-7980. Incremental BlockReport will dramatically slow down the startup of
     a namenode. Contributed by Walter Su.
+
+    BUG-46749. HDFS-7097. Allow block reports to be processed during
+    checkpointing on standby name node. (kihwal via wang)
