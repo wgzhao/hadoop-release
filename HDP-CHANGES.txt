@@ -3344,3 +3344,5 @@ ATS V1.5:
     HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case. Contributed by Xiaoyu Yao.
 
     HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed by Jason Lowe
+
+    BUG-73598. YARN-4245. Generalize config file handling in container-executor. Contributed by Sidharta Seethana.
