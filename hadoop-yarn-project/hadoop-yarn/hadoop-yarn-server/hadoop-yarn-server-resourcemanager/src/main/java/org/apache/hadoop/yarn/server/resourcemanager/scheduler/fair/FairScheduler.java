@@ -836,7 +836,7 @@ public class FairScheduler extends
   private synchronized void addNode(RMNode node) {
     FSSchedulerNode schedulerNode = new FSSchedulerNode(node, usePortForNodeName);
     nodes.put(node.getNodeID(), schedulerNode);
-    Resources.addTo(clusterResource, node.getTotalCapability());
+    Resources.addTo(clusterResource, schedulerNode.getTotalResource());
     updateRootQueueMetrics();
     updateMaximumAllocation(schedulerNode, true);
 
@@ -852,7 +852,7 @@ public class FairScheduler extends
     if (node == null) {
       return;
     }
-    Resources.subtractFrom(clusterResource, rmNode.getTotalCapability());
+    Resources.subtractFrom(clusterResource, node.getTotalResource());
     updateRootQueueMetrics();
 
     // Remove running containers
