@@ -54,7 +54,7 @@ public class ResourceHandlerModule {
   /**
    * Returns an initialized, thread-safe CGroupsHandler instance.
    */
-  public static CGroupsHandler getCGroupsHandler(Configuration conf)
+  private static CGroupsHandler getInitializedCGroupsHandler(Configuration conf)
       throws ResourceHandlerException {
     if (cGroupsHandler == null) {
       synchronized (CGroupsHandler.class) {
@@ -68,6 +68,16 @@ public class ResourceHandlerModule {
     return cGroupsHandler;
   }
 
+  /**
+   * Returns a (possibly null) reference to a cGroupsHandler. This handler is
+   * non-null only if one or more of the known cgroups-based resource
+   * handlers are in use and have been initialized.
+   */
+
+  public static CGroupsHandler getCGroupsHandler() {
+    return cGroupsHandler;
+  }
+
   private static TrafficControlBandwidthHandlerImpl
   getTrafficControlBandwidthHandler(Configuration conf)
       throws ResourceHandlerException {
@@ -78,7 +88,7 @@ public class ResourceHandlerModule {
           if (trafficControlBandwidthHandler == null) {
             trafficControlBandwidthHandler = new
                 TrafficControlBandwidthHandlerImpl(PrivilegedOperationExecutor
-                .getInstance(conf), getCGroupsHandler(conf),
+                .getInstance(conf), getInitializedCGroupsHandler(conf),
                 new TrafficController(conf, PrivilegedOperationExecutor
                     .getInstance(conf)));
           }
@@ -112,7 +122,8 @@ public class ResourceHandlerModule {
       synchronized (DiskResourceHandler.class) {
         if (cGroupsBlkioResourceHandler == null) {
           cGroupsBlkioResourceHandler =
-              new CGroupsBlkioResourceHandlerImpl(getCGroupsHandler(conf));
+              new CGroupsBlkioResourceHandlerImpl(
+                  getInitializedCGroupsHandler(conf));
         }
       }
     }
