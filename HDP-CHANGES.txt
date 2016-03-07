@@ -290,6 +290,16 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-4015. Safemode should count and report orphaned blocks. (Contributed
     by Anu Engineer)
 
+    BUG-52450. HDFS-9790. HDFS Balancer should exit with a proper message if
+    upgrade is not finalized (Xiaobing Zhou via Arpit Agarwal)
+
+    HDFS-9434. Recommission a datanode with 500k blocks may pause NN for 30
+    seconds for printing info log messags.  (szetszwo)
+
+    HDFS-9839. Reduce verbosity of processReport logging. (Arpit Agarwal)
+
+    HDFS-9906. Remove spammy log spew when a datanode is restarted. (Contributed by Brahma Reddy Battula)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
