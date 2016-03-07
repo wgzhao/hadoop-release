@@ -884,3 +884,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case.
     Contributed by Xiaoyu Yao.
+
+    BUG-80455. HADOOP-12901. Add warning log when KMSClientProvider cannot
+    create a connection to the KMS server. (Xiao Chen via wang)
