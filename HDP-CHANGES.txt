@@ -290,6 +290,8 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-4015. Safemode should count and report orphaned blocks. (Contributed
     by Anu Engineer)
 
+    HDFS-9906. Remove spammy log spew when a datanode is restarted. (Contributed by Brahma Reddy Battula)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
