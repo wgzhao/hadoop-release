@@ -4300,3 +4300,5 @@ ATS V1.5:
 
     BUG-83276. HDFS-11445. FSCK shows overall health stauts as corrupt even one
     replica is corrupt. Contributed by Brahma Reddy Battula.
+
+    YARN-4465. SchedulerUtils#validateRequest for Label check should happen only when nodelabel enabled. (Bibin via wangda)
