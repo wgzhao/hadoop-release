@@ -211,7 +211,8 @@ public class SSLFactory implements ConnectionConfigurator {
   public SSLServerSocketFactory createSSLServerSocketFactory()
     throws GeneralSecurityException, IOException {
     if (mode != Mode.SERVER) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+      throw new IllegalStateException(
+          "Factory is not in SERVER mode. Actual mode is " + mode.toString());
     }
     return context.getServerSocketFactory();
   }
@@ -228,7 +229,8 @@ public class SSLFactory implements ConnectionConfigurator {
   public SSLSocketFactory createSSLSocketFactory()
     throws GeneralSecurityException, IOException {
     if (mode != Mode.CLIENT) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+      throw new IllegalStateException(
+          "Factory is not in CLIENT mode. Actual mode is " + mode.toString());
     }
     return context.getSocketFactory();
   }
@@ -240,7 +242,8 @@ public class SSLFactory implements ConnectionConfigurator {
    */
   public HostnameVerifier getHostnameVerifier() {
     if (mode != Mode.CLIENT) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+      throw new IllegalStateException(
+          "Factory is not in CLIENT mode. Actual mode is " + mode.toString());
     }
     return hostnameVerifier;
   }
