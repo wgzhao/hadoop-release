@@ -37,7 +37,6 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
-import org.apache.hadoop.yarn.security.AccessRequest;
 import org.apache.hadoop.yarn.security.AccessType;
 import org.apache.hadoop.yarn.security.PrivilegedEntity;
 import org.apache.hadoop.yarn.security.PrivilegedEntity.EntityType;
@@ -179,7 +178,6 @@ public abstract class AbstractCSQueue implements CSQueue {
     return queueName;
   }
 
-  @Override
   public PrivilegedEntity getPrivilegedEntity() {
     return queueEntity;
   }
@@ -200,9 +198,8 @@ public abstract class AbstractCSQueue implements CSQueue {
 
   @Override
   public boolean hasAccess(QueueACL acl, UserGroupInformation user) {
-    return authorizer.checkPermission(
-        new AccessRequest(queueEntity, user, SchedulerUtils.toAccessType(acl),
-            null, null));
+    return authorizer.checkPermission(SchedulerUtils.toAccessType(acl),
+      queueEntity, user);
   }
 
   @Override

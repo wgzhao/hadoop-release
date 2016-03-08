@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.security;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -27,8 +29,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-
-import java.util.List;
 
 /**
  * An implementation of the interface will provide authorization related
@@ -69,22 +69,30 @@ public abstract class YarnAuthorizationProvider {
   /**
    * Check if user has the permission to access the target object.
    * 
-   * @param accessRequest
-   *          the request object which contains all the access context info.
+   * @param accessType
+   *          The type of accessing method.
+   * @param target
+   *          The target object being accessed, e.g. app/queue
+   * @param user
+   *          User who access the target
    * @return true if user can access the object, otherwise false.
    */
-
-  public abstract boolean checkPermission(AccessRequest accessRequest);
+  public abstract boolean checkPermission(AccessType accessType,
+      PrivilegedEntity target, UserGroupInformation user);
 
   /**
-   * Set permissions for the target object.
+   * Set ACLs for the target object. AccessControlList class encapsulate the
+   * users and groups who can access the target.
    *
-   * @param permissions
-   *        A list of permissions on the target object.
+   * @param target
+   *          The target object.
+   * @param acls
+   *          A map from access method to a list of users and/or groups who has
+   *          permission to do the access.
    * @param ugi User who sets the permissions.
    */
-  public abstract void setPermission(List<Permission> permissions,
-      UserGroupInformation ugi);
+  public abstract void setPermission(PrivilegedEntity target,
+      Map<AccessType, AccessControlList> acls, UserGroupInformation ugi);
 
   /**
    * Set a list of users/groups who have admin access
