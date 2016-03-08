@@ -571,7 +571,7 @@ public abstract class ProtocolHATestBase extends ClientBaseWithFixes {
 
       @Override
       public SubmitApplicationResponse submitApplication(
-          SubmitApplicationRequest request) throws YarnException, IOException {
+          SubmitApplicationRequest request) throws YarnException {
         resetStartFailoverFlag(true);
 
         // make sure failover has been triggered

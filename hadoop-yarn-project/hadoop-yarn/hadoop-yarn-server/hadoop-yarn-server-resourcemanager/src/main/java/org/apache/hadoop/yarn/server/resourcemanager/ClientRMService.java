@@ -529,7 +529,7 @@ public class ClientRMService extends AbstractService implements
 
   @Override
   public SubmitApplicationResponse submitApplication(
-      SubmitApplicationRequest request) throws YarnException, IOException {
+      SubmitApplicationRequest request) throws YarnException {
     ApplicationSubmissionContext submissionContext = request
         .getApplicationSubmissionContext();
     ApplicationId applicationId = submissionContext.getApplicationId();

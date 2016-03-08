@@ -33,7 +33,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -189,7 +188,7 @@ public class TestAppManager{
     }
     public void submitApplication(
         ApplicationSubmissionContext submissionContext, String user)
-            throws YarnException, IOException {
+            throws YarnException {
       super.submitApplication(submissionContext, System.currentTimeMillis(),
         user);
     }

@@ -500,6 +500,14 @@ public class LeafQueue extends AbstractCSQueue {
       String queue)  throws AccessControlException {
     // Careful! Locking order is important!
 
+    // Check queue ACLs
+    UserGroupInformation userUgi = UserGroupInformation.createRemoteUser(userName);
+    if (!hasAccess(QueueACL.SUBMIT_APPLICATIONS, userUgi)
+        && !hasAccess(QueueACL.ADMINISTER_QUEUE, userUgi)) {
+      throw new AccessControlException("User " + userName + " cannot submit" +
+          " applications to queue " + getQueuePath());
+    }
+
     User user = null;
     synchronized (this) {
 
