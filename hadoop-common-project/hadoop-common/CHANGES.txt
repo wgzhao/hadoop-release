@@ -167,6 +167,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12846. Credential Provider Recursive Dependencies.
     (Larry McCay via cnauroth)
 
+    HADOOP-12903. IPC Server should allow suppressing exception logging by type,
+    not log 'server too busy' messages. (Arpit Agarwal)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

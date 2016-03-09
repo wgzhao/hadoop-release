@@ -1020,3 +1020,6 @@ ATS V1.5:
 
     BUG-55507. YARN-4769. Add support for CSRF header in the dump capacity
     scheduler logs and kill app buttons in RM web UI.
+
+    HADOOP-12903. IPC Server should allow suppressing exception logging by type,
+    not log 'server too busy' messages. (Arpit Agarwal)
