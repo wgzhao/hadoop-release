@@ -852,10 +852,11 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-51462(YARN-4680): Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
-
     BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue.
     Contributed by Mohammad Shahid Khan
 
     BUG-59317. HDFS-9574. Reduce client failures during datanode restart.
     (kihwal)
-
+    
+    HADOOP-12903. IPC Server should allow suppressing exception logging by
+    type, not log 'server too busy' messages. (Arpit Agarwal)
