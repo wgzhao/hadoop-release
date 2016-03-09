@@ -127,6 +127,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12878. KMS SPNEGO sequence does not work with WEBHDFS. (xyao)
 
+    HADOOP-12903. IPC Server should allow suppressing exception logging by type,
+    not log 'server too busy' messages. (Arpit Agarwal)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES

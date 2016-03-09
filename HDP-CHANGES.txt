@@ -858,5 +858,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-53567. HADOOP-12829. StatisticsDataReferenceCleaner swallows interrupt
     exceptions. (Gregory Chanan)
 
-    BUG-52295. HDFS-9625. set replication for empty file failed when set storage policy
-    (Contributed by DENG FEI via Vinayakumar B)
+    HADOOP-12903. IPC Server should allow suppressing exception logging by type,
+    not log 'server too busy' messages. (Arpit Agarwal)
