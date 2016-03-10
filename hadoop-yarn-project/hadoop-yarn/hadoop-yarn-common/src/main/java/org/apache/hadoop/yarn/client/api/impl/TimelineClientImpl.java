@@ -329,6 +329,13 @@ public class TimelineClientImpl extends TimelineClient {
   }
 
   @Override
+  public void flush() throws IOException {
+    if (timelineWriter != null) {
+      timelineWriter.flush();
+    }
+  }
+
+  @Override
   public TimelinePutResponse putEntities(
       TimelineEntity... entities) throws IOException, YarnException {
     return timelineWriter.putEntities(entities);
@@ -433,6 +440,12 @@ public class TimelineClientImpl extends TimelineClient {
           }
         };
     operateDelegationToken(cancelDTAction);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + " with timeline server " + resURI
+        + " and writer " + timelineWriter;
   }
 
   private Object operateDelegationToken(
