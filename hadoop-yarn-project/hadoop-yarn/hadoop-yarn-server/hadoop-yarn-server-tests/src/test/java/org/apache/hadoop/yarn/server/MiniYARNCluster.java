@@ -75,6 +75,7 @@ import org.apache.hadoop.yarn.server.timeline.TimelineStore;
 import org.apache.hadoop.yarn.server.timeline.recovery.MemoryTimelineStateStore;
 import org.apache.hadoop.yarn.server.timeline.recovery.TimelineStateStore;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -681,8 +682,12 @@ public class MiniYARNCluster extends CompositeService {
       appHistoryServer = new ApplicationHistoryServer();
       conf.setClass(YarnConfiguration.APPLICATION_HISTORY_STORE,
           MemoryApplicationHistoryStore.class, ApplicationHistoryStore.class);
-      conf.setClass(YarnConfiguration.TIMELINE_SERVICE_STORE,
-          MemoryTimelineStore.class, TimelineStore.class);
+      // Only set memory timeline store if timeline v1.5 is not enabled.
+      // Otherwise, caller has the freedom to choose storage impl.
+      if (!TimelineUtils.timelineServiceV1_5Enabled(conf)) {
+        conf.setClass(YarnConfiguration.TIMELINE_SERVICE_STORE,
+            MemoryTimelineStore.class, TimelineStore.class);
+      }
       conf.setClass(YarnConfiguration.TIMELINE_SERVICE_STATE_STORE_CLASS,
           MemoryTimelineStateStore.class, TimelineStateStore.class);
       if (!useFixedPorts) {
