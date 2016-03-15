@@ -261,6 +261,9 @@ Release 2.7.3 - UNRELEASED
 
   BUG FIXES
 
+    HDFS-9724. Degraded performance in WebHDFS listing as it does not reuse
+    ObjectMapper. (Akira AJISAKA via wheat9)
+
 Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES
