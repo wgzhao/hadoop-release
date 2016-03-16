@@ -18,12 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +38,7 @@ import org.apache.hadoop.yarn.security.PrivilegedEntity;
 import org.apache.hadoop.yarn.security.PrivilegedEntity.EntityType;
 import org.apache.hadoop.yarn.security.YarnAuthorizationProvider;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.NodeType;
+import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceLimits;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerApplicationAttempt;
@@ -51,7 +46,12 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
-import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractCSQueue implements CSQueue {
   private static final Log LOG = LogFactory.getLog(AbstractCSQueue.class);  
@@ -432,11 +432,8 @@ public abstract class AbstractCSQueue implements CSQueue {
           Resources.multiplyAndNormalizeDown(resourceCalculator,
               labelManager.getResourceByLabel(nodePartition, clusterResource),
               queueCapacities.getAbsoluteMaximumCapacity(nodePartition), minimumAllocation);
-      if (nodePartition.equals(RMNodeLabelsManager.NO_LABEL)) {
-        return Resources.min(resourceCalculator, clusterResource,
-            queueMaxResource, currentResourceLimits.getLimit());
-      }
-      return queueMaxResource;  
+      return Resources.min(resourceCalculator, clusterResource,
+          queueMaxResource, currentResourceLimits.getLimit());
     } else if (schedulingMode == SchedulingMode.IGNORE_PARTITION_EXCLUSIVITY) {
       // When we doing non-exclusive resource allocation, maximum capacity of
       // all queues on this label equals to total resource with the label.
@@ -466,12 +463,19 @@ public abstract class AbstractCSQueue implements CSQueue {
 
     Resource nowTotalUsed = queueUsage.getUsed(nodePartition);
 
-    // Set headroom for currentResourceLimits
-    currentResourceLimits.setHeadroom(Resources.subtract(currentLimitResource,
-        nowTotalUsed));
+    // Set headroom for currentResourceLimits:
+    // When queue is a parent queue: Headroom = limit - used + killable
+    // When queue is a leaf queue: Headroom = limit - used (leaf queue cannot preempt itself)
+    Resource usedExceptKillable = nowTotalUsed;
+    if (null != getChildQueues() && !getChildQueues().isEmpty()) {
+      usedExceptKillable = Resources.subtract(nowTotalUsed,
+          getTotalKillableResource(nodePartition));
+    }
+    currentResourceLimits.setHeadroom(
+        Resources.subtract(currentLimitResource, usedExceptKillable));
 
     if (Resources.greaterThanOrEqual(resourceCalculator, clusterResource,
-        nowTotalUsed, currentLimitResource)) {
+        usedExceptKillable, currentLimitResource)) {
 
       // if reservation continous looking enabled, check to see if could we
       // potentially use this node instead of a reserved node if the application
@@ -483,7 +487,7 @@ public abstract class AbstractCSQueue implements CSQueue {
               resourceCouldBeUnreserved, Resources.none())) {
         // resource-without-reserved = used - reserved
         Resource newTotalWithoutReservedResource =
-            Resources.subtract(nowTotalUsed, resourceCouldBeUnreserved);
+            Resources.subtract(usedExceptKillable, resourceCouldBeUnreserved);
 
         // when total-used-without-reserved-resource < currentLimit, we still
         // have chance to allocate on this node by unreserving some containers
@@ -606,11 +610,10 @@ public abstract class AbstractCSQueue implements CSQueue {
     // considering all labels in cluster, only those labels which are
     // use some resource of this queue can be considered.
     Set<String> nodeLabels = new HashSet<String>();
-    if (this.getAccessibleNodeLabels() != null
-        && this.getAccessibleNodeLabels().contains(RMNodeLabelsManager.ANY)) {
-      nodeLabels.addAll(Sets.union(this.getQueueCapacities()
-          .getNodePartitionsSet(), this.getQueueResourceUsage()
-          .getNodePartitionsSet()));
+    if (this.getAccessibleNodeLabels() != null && this.getAccessibleNodeLabels()
+        .contains(RMNodeLabelsManager.ANY)) {
+      nodeLabels.addAll(Sets.union(this.getQueueCapacities().getNodePartitionsSet(),
+          this.getQueueResourceUsage().getNodePartitionsSet()));
     } else {
       nodeLabels.addAll(this.getAccessibleNodeLabels());
     }
@@ -621,5 +624,15 @@ public abstract class AbstractCSQueue implements CSQueue {
       nodeLabels.add(RMNodeLabelsManager.NO_LABEL);
     }
     return nodeLabels;
+  }
+
+  public Resource getTotalKillableResource(String partition) {
+    return csContext.getPreemptionManager().getKillableResource(queueName,
+        partition);
+  }
+
+  public Iterator<RMContainer> getKillableContainers(String partition) {
+    return csContext.getPreemptionManager().getKillableContainers(queueName,
+        partition);
   }
 }

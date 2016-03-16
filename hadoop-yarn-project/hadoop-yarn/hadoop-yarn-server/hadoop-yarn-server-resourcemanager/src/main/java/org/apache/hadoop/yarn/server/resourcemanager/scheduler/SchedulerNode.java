@@ -18,12 +18,7 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -41,7 +36,11 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerStat
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -59,10 +58,9 @@ public abstract class SchedulerNode {
   private RMContainer reservedContainer;
   private volatile int numContainers;
 
-
   /* set of containers that are allocated containers */
-  private final Map<ContainerId, RMContainer> launchedContainers =
-      new HashMap<ContainerId, RMContainer>();
+  protected final Map<ContainerId, RMContainer> launchedContainers =
+      new HashMap<>();
 
   private final RMNode rmNode;
   private final String nodeName;
@@ -192,7 +190,11 @@ public abstract class SchedulerNode {
     return false;
   }
 
-  private synchronized void updateResource(Container container) {
+  /**
+   * Update the resources of the node when allocating a new container.
+   * @param container Container to allocate.
+   */
+  protected synchronized void updateResource(Container container) {
     addAvailableResource(container.getResource());
     --numContainers;
   }

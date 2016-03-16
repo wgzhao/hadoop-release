@@ -1298,3 +1298,6 @@ ATS V1.5:
 
     YARN-4617. LeafQueue#pendingOrderingPolicy should always use fixed ordering policy 
     instead of using same as active applications ordering policy. Contributed by Rohith Sharma K S
+
+    YARN-4108. CapacityScheduler: Improve preemption to only kill containers that would 
+    satisfy the incoming request. (Wangda Tan)
