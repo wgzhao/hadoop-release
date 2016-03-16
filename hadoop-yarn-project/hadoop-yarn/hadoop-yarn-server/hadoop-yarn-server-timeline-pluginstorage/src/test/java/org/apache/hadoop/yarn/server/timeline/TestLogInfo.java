@@ -21,6 +21,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
@@ -40,7 +41,9 @@ import java.nio.charset.Charset;
 import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestLogInfo {
 
@@ -71,14 +74,14 @@ public class TestLogInfo {
   @Before
   public void setup() throws Exception {
     config.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, TEST_ROOT_DIR.toString());
-    MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(config);
-    hdfsCluster = builder.build();
+    HdfsConfiguration hdfsConfig = new HdfsConfiguration();
+    hdfsCluster = new MiniDFSCluster.Builder(hdfsConfig).numDataNodes(1).build();
     fs = hdfsCluster.getFileSystem();
     Path testAppDirPath = new Path(TEST_ROOT_DIR, TEST_ATTEMPT_DIR_NAME);
     fs.mkdirs(testAppDirPath, new FsPermission(FILE_LOG_DIR_PERMISSIONS));
-    objMapper = CacheStoreTestUtils.createObjectMapper();
+    objMapper = PluginStoreTestUtils.createObjectMapper();
 
-    TimelineEntities testEntities = CacheStoreTestUtils.generateTestEntities();
+    TimelineEntities testEntities = PluginStoreTestUtils.generateTestEntities();
     writeEntitiesLeaveOpen(testEntities,
         new Path(testAppDirPath, TEST_ENTITY_FILE_NAME));
 
@@ -102,18 +105,53 @@ public class TestLogInfo {
   }
 
   @Test
+  public void testMatchesGroupId() throws Exception {
+    String testGroupId = "app1_group1";
+    // Match
+    EntityLogInfo testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME,
+        "app1_group1",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertTrue(testLogInfo.matchesGroupId(testGroupId));
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME,
+        "test_app1_group1",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertTrue(testLogInfo.matchesGroupId(testGroupId));
+    // Unmatch
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app2_group1",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertFalse(testLogInfo.matchesGroupId(testGroupId));
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app1_group2",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertFalse(testLogInfo.matchesGroupId(testGroupId));
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app1_group12",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertFalse(testLogInfo.matchesGroupId(testGroupId));
+    // Check delimiters
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app1_group1_2",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertTrue(testLogInfo.matchesGroupId(testGroupId));
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app1_group1.dat",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertTrue(testLogInfo.matchesGroupId(testGroupId));
+    // Check file names shorter than group id
+    testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME, "app2",
+        UserGroupInformation.getLoginUser().getUserName());
+    assertFalse(testLogInfo.matchesGroupId(testGroupId));
+  }
+
+  @Test
   public void testParseEntity() throws Exception {
     // Load test data
-    TimelineDataManager tdm = CacheStoreTestUtils.getTdmWithMemStore(config);
+    TimelineDataManager tdm = PluginStoreTestUtils.getTdmWithMemStore(config);
     EntityLogInfo testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME,
         TEST_ENTITY_FILE_NAME,
         UserGroupInformation.getLoginUser().getUserName());
     testLogInfo.parseForStore(tdm, TEST_ROOT_DIR, true, jsonFactory, objMapper,
         fs);
     // Verify for the first batch
-    CacheStoreTestUtils.verifyTestEntities(tdm);
+    PluginStoreTestUtils.verifyTestEntities(tdm);
     // Load new data
-    TimelineEntity entityNew = CacheStoreTestUtils
+    TimelineEntity entityNew = PluginStoreTestUtils
         .createEntity("id_3", "type_3", 789l, null, null,
             null, null, "domain_id_1");
     TimelineEntities entityList = new TimelineEntities();
@@ -136,7 +174,7 @@ public class TestLogInfo {
   @Test
   public void testParseBrokenEntity() throws Exception {
     // Load test data
-    TimelineDataManager tdm = CacheStoreTestUtils.getTdmWithMemStore(config);
+    TimelineDataManager tdm = PluginStoreTestUtils.getTdmWithMemStore(config);
     EntityLogInfo testLogInfo = new EntityLogInfo(TEST_ATTEMPT_DIR_NAME,
         TEST_BROKEN_FILE_NAME,
         UserGroupInformation.getLoginUser().getUserName());
@@ -154,7 +192,7 @@ public class TestLogInfo {
   @Test
   public void testParseDomain() throws Exception {
     // Load test data
-    TimelineDataManager tdm = CacheStoreTestUtils.getTdmWithMemStore(config);
+    TimelineDataManager tdm = PluginStoreTestUtils.getTdmWithMemStore(config);
     DomainLogInfo domainLogInfo = new DomainLogInfo(TEST_ATTEMPT_DIR_NAME,
         TEST_DOMAIN_FILE_NAME,
         UserGroupInformation.getLoginUser().getUserName());
@@ -173,7 +211,7 @@ public class TestLogInfo {
     FSDataOutputStream out = null;
     try {
       String broken = "{ broken { [[]} broken";
-      out = CacheStoreTestUtils.createLogFile(logPath, fs);
+      out = PluginStoreTestUtils.createLogFile(logPath, fs);
       out.write(broken.getBytes(Charset.forName("UTF-8")));
       out.close();
       out = null;
@@ -189,7 +227,7 @@ public class TestLogInfo {
   private void writeEntitiesLeaveOpen(TimelineEntities entities, Path logPath)
       throws IOException {
     if (outStream == null) {
-      outStream = CacheStoreTestUtils.createLogFile(logPath, fs);
+      outStream = PluginStoreTestUtils.createLogFile(logPath, fs);
       jsonGenerator = (new JsonFactory()).createJsonGenerator(outStream);
       jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
     }
@@ -202,7 +240,7 @@ public class TestLogInfo {
   private void writeDomainLeaveOpen(TimelineDomain domain, Path logPath)
       throws IOException {
     if (outStreamDomain == null) {
-      outStreamDomain = CacheStoreTestUtils.createLogFile(logPath, fs);
+      outStreamDomain = PluginStoreTestUtils.createLogFile(logPath, fs);
     }
     // Write domain uses its own json generator to isolate from entity writers
     JsonGenerator jsonGeneratorLocal

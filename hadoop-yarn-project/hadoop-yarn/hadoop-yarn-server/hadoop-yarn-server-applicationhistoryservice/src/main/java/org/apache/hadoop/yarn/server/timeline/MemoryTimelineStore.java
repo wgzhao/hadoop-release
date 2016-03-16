@@ -18,13 +18,13 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
+import org.apache.hadoop.classification.InterfaceAudience.Private;
+import org.apache.hadoop.classification.InterfaceStability.Unstable;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
-
-import org.apache.hadoop.classification.InterfaceAudience.Private;
-import org.apache.hadoop.classification.InterfaceStability.Unstable;
 
 /**
  * In-memory implementation of {@link TimelineStore}. This
@@ -37,7 +37,7 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
  */
 @Private
 @Unstable
-public class MemoryTimelineStore extends MapTimelineStore {
+public class MemoryTimelineStore extends KeyValueBasedTimelineStore {
 
   static class HashMapStoreAdapter<K, V>
       implements TimelineStoreMapAdapter<K, V> {
@@ -65,6 +65,7 @@ public class MemoryTimelineStore extends MapTimelineStore {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Iterator<V> valueSetIterator(V minV) {
       if (minV instanceof Comparable) {
         TreeSet<V> tempTreeSet = new TreeSet<>();

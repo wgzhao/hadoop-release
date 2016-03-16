@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -29,7 +30,6 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.timeline.util.LeveldbUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
@@ -41,22 +41,23 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * LevelDB implementation of {@link MapTimelineStore}. This implementation
- * stores the entity hash map into a LevelDB instance. There are two partitions
- * of the key space. One partition is to store a entity id to start time mapping:
+ * LevelDB implementation of {@link KeyValueBasedTimelineStore}. This
+ * implementation stores the entity hash map into a LevelDB instance.
+ * There are two partitions of the key space. One partition is to store a
+ * entity id to start time mapping:
  *
- * i!ENTITY_ID!ENTITY_TYPE -> ENTITY_START_TIME
+ * i!ENTITY_ID!ENTITY_TYPE to ENTITY_START_TIME
  *
  * The other partition is to store the actual data:
  *
- * e!START_TIME!ENTITY_ID!ENTITY_TYPE -> ENTITY_BYTES
+ * e!START_TIME!ENTITY_ID!ENTITY_TYPE to ENTITY_BYTES
  *
  * This storage does not have any garbage collection mechanism, and is designed
  * mainly for caching usages.
  */
 @Private
 @Unstable
-public class LevelDBCacheTimelineStore extends MapTimelineStore {
+public class LevelDBCacheTimelineStore extends KeyValueBasedTimelineStore {
   private static final Log LOG
       = LogFactory.getLog(LevelDBCacheTimelineStore.class);
   private static final String CACHED_LDB_FILE_PREFIX = "-timeline-cache.ldb";
@@ -286,6 +287,7 @@ public class LevelDBCacheTimelineStore extends MapTimelineStore {
       };
     }
 
+    @SuppressWarnings("unchecked")
     private V getEntityForKey(byte[] key) throws IOException {
       byte[] resultRaw = entityDb.get(key);
       if (resultRaw == null) {

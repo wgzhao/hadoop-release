@@ -31,6 +31,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cache item for timeline server v1.5 reader cache. Each cache item has a
+ * TimelineStore that can be filled with data within one entity group.
+ */
 public class EntityCacheItem {
   private static final Logger LOG
       = LoggerFactory.getLogger(EntityCacheItem.class);
@@ -46,28 +50,51 @@ public class EntityCacheItem {
     this.fs = fs;
   }
 
+  /**
+   * @return The application log associated to this cache item, may be null.
+   */
   public synchronized EntityGroupFSTimelineStore.AppLogs getAppLogs() {
     return this.appLogs;
   }
 
+  /**
+   * Set the application logs to this cache item. The entity group should be
+   * associated with this application.
+   *
+   * @param incomingAppLogs
+   */
   public synchronized void setAppLogs(
-      EntityGroupFSTimelineStore.AppLogs appLogs) {
-    this.appLogs = appLogs;
+      EntityGroupFSTimelineStore.AppLogs incomingAppLogs) {
+    this.appLogs = incomingAppLogs;
   }
 
-  public boolean needRefresh() {
-    //TODO: make a config for cache freshness
-    return (Time.monotonicNow() - lastRefresh > 10000);
+  /**
+   * @return The timeline store, either loaded or unloaded, of this cache item.
+   */
+  public synchronized TimelineStore getStore() {
+    return store;
   }
 
-  public void updateRefreshTimeToNow() {
-    this.lastRefresh = Time.monotonicNow();
-  }
-
+  /**
+   * Refresh this cache item if it needs refresh. This will enforce an appLogs
+   * rescan and then load new data. The refresh process is synchronized with
+   * other operations on the same cache item.
+   *
+   * @param groupId
+   * @param aclManager
+   * @param jsonFactory
+   * @param objMapper
+   * @return a {@link org.apache.hadoop.yarn.server.timeline.TimelineStore}
+   *         object filled with all entities in the group.
+   * @throws IOException
+   */
   public synchronized TimelineStore refreshCache(TimelineEntityGroupId groupId,
       TimelineACLsManager aclManager, JsonFactory jsonFactory,
       ObjectMapper objMapper) throws IOException {
     if (needRefresh()) {
+      // If an application is not finished, we only update summary logs (and put
+      // new entities into summary storage).
+      // Otherwise, since the application is done, we can update detail logs.
       if (!appLogs.isDone()) {
         appLogs.parseSummaryLogs();
       } else if (appLogs.getDetailLogs().isEmpty()) {
@@ -77,60 +104,68 @@ public class EntityCacheItem {
         if (store == null) {
           store = new LevelDBCacheTimelineStore(groupId.toString(),
               "LeveldbCache." + groupId);
-          //store = new MemoryTimelineStore("MemoryStore." + cacheId);
           store.init(config);
           store.start();
         }
-        TimelineDataManager tdm = new TimelineDataManager(store,
-            aclManager);
-        tdm.init(config);
-        tdm.start();
-        if (appLogs.getDetailLogs().isEmpty()) {
-          LOG.debug("cache id {}'s detail log is empty! ", groupId);
-        }
-        List<LogInfo> removeList = new ArrayList<LogInfo>();
-        for (LogInfo log : appLogs.getDetailLogs()) {
-          LOG.debug("Try refresh logs for {}", log.getFilename());
-          // Only refresh the log that matches the cache id
-          if (log.getFilename().contains(groupId.toString())) {
-            Path appDirPath = appLogs.getAppDirPath();
-            if (fs.exists(log.getPath(appDirPath))) {
-              LOG.debug("Refresh logs for cache id {}", groupId);
-              log.parseForStore(tdm, appDirPath, appLogs.isDone(), jsonFactory,
-                  objMapper, fs);
-            } else {
-              // The log may have been removed, remove the log
-              removeList.add(log);
-              LOG.info("File {} no longer exists, remove it from log list",
-                  log.getPath(appDirPath));
+        List<LogInfo> removeList = new ArrayList<>();
+        try(TimelineDataManager tdm =
+                new TimelineDataManager(store, aclManager)) {
+          tdm.init(config);
+          tdm.start();
+          for (LogInfo log : appLogs.getDetailLogs()) {
+            LOG.debug("Try refresh logs for {}", log.getFilename());
+            // Only refresh the log that matches the cache id
+            if (log.matchesGroupId(groupId)) {
+              Path appDirPath = appLogs.getAppDirPath();
+              if (fs.exists(log.getPath(appDirPath))) {
+                LOG.debug("Refresh logs for cache id {}", groupId);
+                log.parseForStore(tdm, appDirPath, appLogs.isDone(),
+                    jsonFactory, objMapper, fs);
+              } else {
+                // The log may have been removed, remove the log
+                removeList.add(log);
+                LOG.info("File {} no longer exists, removing it from log list",
+                    log.getPath(appDirPath));
+              }
             }
-            appLogs.getDetailLogs().removeAll(removeList);
           }
         }
-        tdm.close();
+        appLogs.getDetailLogs().removeAll(removeList);
       }
       updateRefreshTimeToNow();
     } else {
       LOG.debug("Cache new enough, skip refreshing");
     }
-
     return store;
   }
 
+  /**
+   * Release the cache item for the given group id.
+   *
+   * @param groupId
+   */
   public synchronized void releaseCache(TimelineEntityGroupId groupId) {
     try {
       if (store != null) {
         store.close();
       }
     } catch (IOException e) {
-      LOG.warn("Error closing datamanager", e);
+      LOG.warn("Error closing timeline store", e);
     }
     store = null;
     // reset offsets so next time logs are re-parsed
     for (LogInfo log : appLogs.getDetailLogs()) {
       if (log.getFilename().contains(groupId.toString())) {
-        log.offset = 0;
+        log.setOffset(0);
       }
     }
+  }
+
+  private boolean needRefresh() {
+    return (Time.monotonicNow() - lastRefresh > 10000);
+  }
+
+  private void updateRefreshTimeToNow() {
+    this.lastRefresh = Time.monotonicNow();
   }
 }

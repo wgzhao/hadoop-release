@@ -16,7 +16,10 @@
  */
 package org.apache.hadoop.yarn.server.timeline;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
@@ -25,6 +28,7 @@ import org.apache.hadoop.util.Time;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.codehaus.jackson.JsonFactory;
@@ -39,10 +43,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 abstract class LogInfo {
-  protected String attemptDirName;
-  protected String filename;
-  protected String user;
-  protected long offset = 0;
+  public static final String ENTITY_FILE_NAME_DELIMITERS = "_.";
+
+  public String getAttemptDirName() {
+    return attemptDirName;
+  }
+
+  public long getOffset() {
+    return offset;
+  }
+
+  public void setOffset(long newOffset) {
+    this.offset = newOffset;
+  }
+
+  private String attemptDirName;
+  private String filename;
+  private String user;
+  private long offset = 0;
 
   private static final Logger LOG = LoggerFactory.getLogger(LogInfo.class);
 
@@ -61,13 +79,33 @@ abstract class LogInfo {
     return filename;
   }
 
+  public boolean matchesGroupId(TimelineEntityGroupId groupId) {
+    return matchesGroupId(groupId.toString());
+  }
+
+  @InterfaceAudience.Private
+  @VisibleForTesting
+  boolean matchesGroupId(String groupId){
+    // Return true if the group id is a segment (separated by _, ., or end of
+    // string) of the file name.
+    int pos = filename.indexOf(groupId);
+    if (pos < 0) {
+      return false;
+    }
+    return filename.length() == pos + groupId.length()
+        || ENTITY_FILE_NAME_DELIMITERS.contains(String.valueOf(
+        filename.charAt(pos + groupId.length())
+    ));
+  }
+
   public void parseForStore(TimelineDataManager tdm, Path appDirPath,
       boolean appCompleted, JsonFactory jsonFactory, ObjectMapper objMapper,
       FileSystem fs) throws IOException {
     LOG.debug("Parsing for log dir {} on attempt {}", appDirPath,
         attemptDirName);
     Path logPath = getPath(appDirPath);
-    if (fs.exists(logPath)) {
+    FileStatus status = fs.getFileStatus(logPath);
+    if (status != null) {
       long startTime = Time.monotonicNow();
       try {
         LOG.debug("Parsing {} at offset {}", logPath, offset);
@@ -76,8 +114,11 @@ abstract class LogInfo {
         LOG.info("Parsed {} entities from {} in {} msec",
             count, logPath, Time.monotonicNow() - startTime);
       } catch (RuntimeException e) {
-        if (e.getCause() instanceof JsonParseException) {
-          // If AppLogs cannot parse this log, it may be corrupted
+        // If AppLogs cannot parse this log, it may be corrupted or just empty
+        if (e.getCause() instanceof JsonParseException &&
+            (status.getLen() > 0 || offset > 0)) {
+          // log on parse problems if the file as been read in the past or
+          // is visibly non-empty
           LOG.info("Log {} appears to be corrupted. Skip. ", logPath);
         }
       }
@@ -105,6 +146,7 @@ abstract class LogInfo {
           throw e;
         } else {
           LOG.debug("Exception in parse path: {}", e.getMessage());
+          return 0;
         }
       }
 
@@ -140,8 +182,6 @@ class EntityLogInfo extends LogInfo {
     long bytesParsedLastBatch = 0;
     boolean postError = false;
     try {
-      //TODO: Wrapper class around MappingIterator could help clean
-      //      up some of the messy exception handling below
       MappingIterator<TimelineEntity> iter = objMapper.readValues(parser,
           TimelineEntity.class);
 
@@ -164,7 +204,7 @@ class EntityLogInfo extends LogInfo {
             LOG.warn("Error putting entity: {} ({}): {}",
                 e.getEntityId(), e.getEntityType(), e.getErrorCode());
           }
-          offset += bytesParsed - bytesParsedLastBatch;
+          setOffset(getOffset() + bytesParsed - bytesParsedLastBatch);
           bytesParsedLastBatch = bytesParsed;
           entityList.clear();
         } catch (YarnException e) {
@@ -207,8 +247,6 @@ class DomainLogInfo extends LogInfo {
     long bytesParsedLastBatch = 0;
     boolean putError = false;
     try {
-      //TODO: Wrapper class around MappingIterator could help clean
-      //      up some of the messy exception handling below
       MappingIterator<TimelineDomain> iter = objMapper.readValues(parser,
           TimelineDomain.class);
 
@@ -222,7 +260,7 @@ class DomainLogInfo extends LogInfo {
 
         try {
           tdm.putDomain(domain, ugi);
-          offset += bytesParsed - bytesParsedLastBatch;
+          setOffset(getOffset() + bytesParsed - bytesParsedLastBatch);
           bytesParsedLastBatch = bytesParsed;
         } catch (YarnException e) {
           putError = true;

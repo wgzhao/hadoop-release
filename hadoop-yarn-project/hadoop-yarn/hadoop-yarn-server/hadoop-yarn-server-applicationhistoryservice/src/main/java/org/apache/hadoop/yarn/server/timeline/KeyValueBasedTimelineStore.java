@@ -61,7 +61,7 @@ import static org.apache.hadoop.yarn.server.timeline.TimelineDataManager.DEFAULT
  */
 @Private
 @Unstable
-abstract class MapTimelineStore
+abstract class KeyValueBasedTimelineStore
     extends AbstractService implements TimelineStore {
 
   protected TimelineStoreMapAdapter<EntityIdentifier, TimelineEntity> entities;
@@ -72,14 +72,18 @@ abstract class MapTimelineStore
   private boolean serviceStopped = false;
 
   private static final Log LOG
-      = LogFactory.getLog(MapTimelineStore.class);
+      = LogFactory.getLog(KeyValueBasedTimelineStore.class);
 
-  public MapTimelineStore() {
-    super(MapTimelineStore.class.getName());
+  public KeyValueBasedTimelineStore() {
+    super(KeyValueBasedTimelineStore.class.getName());
   }
 
-  public MapTimelineStore(String name) {
+  public KeyValueBasedTimelineStore(String name) {
     super(name);
+  }
+
+  public synchronized boolean getServiceStopped() {
+    return serviceStopped;
   }
 
   @Override
@@ -93,7 +97,7 @@ abstract class MapTimelineStore
       Long windowStart, Long windowEnd, String fromId, Long fromTs,
       NameValuePair primaryFilter, Collection<NameValuePair> secondaryFilters,
       EnumSet<Field> fields, CheckAcl checkAcl) throws IOException {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return null;
     }
@@ -144,15 +148,17 @@ abstract class MapTimelineStore
         continue;
       }
       if (primaryFilter != null &&
-          !matchPrimaryFilter(entity.getPrimaryFilters(), primaryFilter)) {
+          !KeyValueBasedTimelineStoreUtils.matchPrimaryFilter(
+              entity.getPrimaryFilters(), primaryFilter)) {
         continue;
       }
       if (secondaryFilters != null) { // AND logic
         boolean flag = true;
         for (NameValuePair secondaryFilter : secondaryFilters) {
-          if (secondaryFilter != null && !matchPrimaryFilter(
-              entity.getPrimaryFilters(), secondaryFilter) &&
-              !matchFilter(entity.getOtherInfo(), secondaryFilter)) {
+          if (secondaryFilter != null && !KeyValueBasedTimelineStoreUtils
+              .matchPrimaryFilter(entity.getPrimaryFilters(), secondaryFilter)
+              && !KeyValueBasedTimelineStoreUtils.matchFilter(
+              entity.getOtherInfo(), secondaryFilter)) {
             flag = false;
             break;
           }
@@ -170,7 +176,8 @@ abstract class MapTimelineStore
     }
     List<TimelineEntity> entitiesToReturn = new ArrayList<TimelineEntity>();
     for (TimelineEntity entitySelected : entitiesSelected) {
-      entitiesToReturn.add(maskFields(entitySelected, fields));
+      entitiesToReturn.add(KeyValueBasedTimelineStoreUtils.maskFields(
+          entitySelected, fields));
     }
     Collections.sort(entitiesToReturn);
     TimelineEntities entitiesWrapper = new TimelineEntities();
@@ -181,18 +188,20 @@ abstract class MapTimelineStore
   @Override
   public synchronized TimelineEntity getEntity(String entityId, String entityType,
       EnumSet<Field> fieldsToRetrieve) {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return null;
     }
     if (fieldsToRetrieve == null) {
       fieldsToRetrieve = EnumSet.allOf(Field.class);
     }
-    TimelineEntity entity = entities.get(new EntityIdentifier(entityId, entityType));
+    TimelineEntity
+        entity = entities.get(new EntityIdentifier(entityId, entityType));
     if (entity == null) {
       return null;
     } else {
-      return maskFields(entity, fieldsToRetrieve);
+      return KeyValueBasedTimelineStoreUtils.maskFields(
+          entity, fieldsToRetrieve);
     }
   }
 
@@ -201,7 +210,7 @@ abstract class MapTimelineStore
       SortedSet<String> entityIds, Long limit, Long windowStart,
       Long windowEnd,
       Set<String> eventTypes) {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return null;
     }
@@ -250,7 +259,7 @@ abstract class MapTimelineStore
   @Override
   public TimelineDomain getDomain(String domainId)
       throws IOException {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return null;
     }
@@ -258,7 +267,7 @@ abstract class MapTimelineStore
     if (domain == null) {
       return null;
     } else {
-      return createTimelineDomain(
+      return KeyValueBasedTimelineStoreUtils.createTimelineDomain(
           domain.getId(),
           domain.getDescription(),
           domain.getOwner(),
@@ -272,7 +281,7 @@ abstract class MapTimelineStore
   @Override
   public TimelineDomains getDomains(String owner)
       throws IOException {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return null;
     }
@@ -282,14 +291,15 @@ abstract class MapTimelineStore
       return new TimelineDomains();
     }
     for (TimelineDomain domain : domainsByOwner.get(owner)) {
-      TimelineDomain domainToReturn = createTimelineDomain(
-          domain.getId(),
-          domain.getDescription(),
-          domain.getOwner(),
-          domain.getReaders(),
-          domain.getWriters(),
-          domain.getCreatedTime(),
-          domain.getModifiedTime());
+      TimelineDomain domainToReturn = KeyValueBasedTimelineStoreUtils
+          .createTimelineDomain(
+              domain.getId(),
+              domain.getDescription(),
+              domain.getOwner(),
+              domain.getReaders(),
+              domain.getWriters(),
+              domain.getCreatedTime(),
+              domain.getModifiedTime());
       domains.add(domainToReturn);
     }
     Collections.sort(domains, new Comparator<TimelineDomain>() {
@@ -314,7 +324,7 @@ abstract class MapTimelineStore
   @Override
   public synchronized TimelinePutResponse put(TimelineEntities data) {
     TimelinePutResponse response = new TimelinePutResponse();
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       TimelinePutError error = new TimelinePutError();
       error.setErrorCode(TimelinePutError.IO_EXCEPTION);
@@ -385,7 +395,8 @@ abstract class MapTimelineStore
         for (Entry<String, Set<Object>> pf :
             entity.getPrimaryFilters().entrySet()) {
           for (Object pfo : pf.getValue()) {
-            existingEntity.addPrimaryFilter(pf.getKey(), maybeConvert(pfo));
+            existingEntity.addPrimaryFilter(pf.getKey(),
+                KeyValueBasedTimelineStoreUtils.compactNumber(pfo));
             needsPut = true;
           }
         }
@@ -396,7 +407,7 @@ abstract class MapTimelineStore
         }
         for (Entry<String, Object> info : entity.getOtherInfo().entrySet()) {
           existingEntity.addOtherInfo(info.getKey(),
-              maybeConvert(info.getValue()));
+              KeyValueBasedTimelineStoreUtils.compactNumber(info.getValue()));
           needsPut = true;
         }
       }
@@ -450,14 +461,15 @@ abstract class MapTimelineStore
   }
 
   public void put(TimelineDomain domain) throws IOException {
-    if (serviceStopped) {
+    if (getServiceStopped()) {
       LOG.info("Service stopped, return null for the storage");
       return;
     }
     TimelineDomain domainToReplace =
         domainById.get(domain.getId());
     Long currentTimestamp = System.currentTimeMillis();
-    TimelineDomain domainToStore = createTimelineDomain(
+    TimelineDomain domainToStore
+        = KeyValueBasedTimelineStoreUtils.createTimelineDomain(
         domain.getId(), domain.getDescription(), domain.getOwner(),
         domain.getReaders(), domain.getWriters(),
         (domainToReplace == null ?
@@ -476,84 +488,87 @@ abstract class MapTimelineStore
     domainsByOneOwner.add(domainToStore);
   }
 
-  private static TimelineDomain createTimelineDomain(
-      String id, String description, String owner,
-      String readers, String writers,
-      Long createdTime, Long modifiedTime) {
-    TimelineDomain domainToStore = new TimelineDomain();
-    domainToStore.setId(id);
-    domainToStore.setDescription(description);
-    domainToStore.setOwner(owner);
-    domainToStore.setReaders(readers);
-    domainToStore.setWriters(writers);
-    domainToStore.setCreatedTime(createdTime);
-    domainToStore.setModifiedTime(modifiedTime);
-    return domainToStore;
-  }
+  private static class KeyValueBasedTimelineStoreUtils {
 
-  private static TimelineEntity maskFields(
-      TimelineEntity entity, EnumSet<Field> fields) {
-    // Conceal the fields that are not going to be exposed
-    TimelineEntity entityToReturn = new TimelineEntity();
-    entityToReturn.setEntityId(entity.getEntityId());
-    entityToReturn.setEntityType(entity.getEntityType());
-    entityToReturn.setStartTime(entity.getStartTime());
-    entityToReturn.setDomainId(entity.getDomainId());
-    // Deep copy
-    if (fields.contains(Field.EVENTS)) {
-      entityToReturn.addEvents(entity.getEvents());
-    } else if (fields.contains(Field.LAST_EVENT_ONLY)) {
-      entityToReturn.addEvent(entity.getEvents().get(0));
-    } else {
-      entityToReturn.setEvents(null);
+    static TimelineDomain createTimelineDomain(
+        String id, String description, String owner,
+        String readers, String writers,
+        Long createdTime, Long modifiedTime) {
+      TimelineDomain domainToStore = new TimelineDomain();
+      domainToStore.setId(id);
+      domainToStore.setDescription(description);
+      domainToStore.setOwner(owner);
+      domainToStore.setReaders(readers);
+      domainToStore.setWriters(writers);
+      domainToStore.setCreatedTime(createdTime);
+      domainToStore.setModifiedTime(modifiedTime);
+      return domainToStore;
     }
-    if (fields.contains(Field.RELATED_ENTITIES)) {
-      entityToReturn.addRelatedEntities(entity.getRelatedEntities());
-    } else {
-      entityToReturn.setRelatedEntities(null);
-    }
-    if (fields.contains(Field.PRIMARY_FILTERS)) {
-      entityToReturn.addPrimaryFilters(entity.getPrimaryFilters());
-    } else {
-      entityToReturn.setPrimaryFilters(null);
-    }
-    if (fields.contains(Field.OTHER_INFO)) {
-      entityToReturn.addOtherInfo(entity.getOtherInfo());
-    } else {
-      entityToReturn.setOtherInfo(null);
-    }
-    return entityToReturn;
-  }
 
-  private static boolean matchFilter(Map<String, Object> tags,
-      NameValuePair filter) {
-    Object value = tags.get(filter.getName());
-    if (value == null) { // doesn't have the filter
-      return false;
-    } else if (!value.equals(filter.getValue())) { // doesn't match the filter
-      return false;
+    static TimelineEntity maskFields(
+        TimelineEntity entity, EnumSet<Field> fields) {
+      // Conceal the fields that are not going to be exposed
+      TimelineEntity entityToReturn = new TimelineEntity();
+      entityToReturn.setEntityId(entity.getEntityId());
+      entityToReturn.setEntityType(entity.getEntityType());
+      entityToReturn.setStartTime(entity.getStartTime());
+      entityToReturn.setDomainId(entity.getDomainId());
+      // Deep copy
+      if (fields.contains(Field.EVENTS)) {
+        entityToReturn.addEvents(entity.getEvents());
+      } else if (fields.contains(Field.LAST_EVENT_ONLY)) {
+        entityToReturn.addEvent(entity.getEvents().get(0));
+      } else {
+        entityToReturn.setEvents(null);
+      }
+      if (fields.contains(Field.RELATED_ENTITIES)) {
+        entityToReturn.addRelatedEntities(entity.getRelatedEntities());
+      } else {
+        entityToReturn.setRelatedEntities(null);
+      }
+      if (fields.contains(Field.PRIMARY_FILTERS)) {
+        entityToReturn.addPrimaryFilters(entity.getPrimaryFilters());
+      } else {
+        entityToReturn.setPrimaryFilters(null);
+      }
+      if (fields.contains(Field.OTHER_INFO)) {
+        entityToReturn.addOtherInfo(entity.getOtherInfo());
+      } else {
+        entityToReturn.setOtherInfo(null);
+      }
+      return entityToReturn;
     }
-    return true;
-  }
 
-  private static boolean matchPrimaryFilter(Map<String, Set<Object>> tags,
-      NameValuePair filter) {
-    Set<Object> value = tags.get(filter.getName());
-    if (value == null) { // doesn't have the filter
-      return false;
-    } else {
-      return value.contains(filter.getValue());
+    static boolean matchFilter(Map<String, Object> tags,
+        NameValuePair filter) {
+      Object value = tags.get(filter.getName());
+      if (value == null) { // doesn't have the filter
+        return false;
+      } else if (!value.equals(filter.getValue())) { // doesn't match the filter
+        return false;
+      }
+      return true;
     }
-  }
 
-  private static Object maybeConvert(Object o) {
-    if (o instanceof Long) {
-      Long l = (Long)o;
-      if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
-        return l.intValue();
+    static boolean matchPrimaryFilter(Map<String, Set<Object>> tags,
+        NameValuePair filter) {
+      Set<Object> value = tags.get(filter.getName());
+      if (value == null) { // doesn't have the filter
+        return false;
+      } else {
+        return value.contains(filter.getValue());
       }
     }
-    return o;
+
+    static Object compactNumber(Object o) {
+      if (o instanceof Long) {
+        Long l = (Long) o;
+        if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
+          return l.intValue();
+        }
+      }
+      return o;
+    }
   }
 
 }

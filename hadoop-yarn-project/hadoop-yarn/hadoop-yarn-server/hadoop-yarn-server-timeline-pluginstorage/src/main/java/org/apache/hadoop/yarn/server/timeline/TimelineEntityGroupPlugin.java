@@ -18,22 +18,23 @@
 
 package org.apache.hadoop.yarn.server.timeline;
 
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
+
 import java.util.Collection;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
-
 /**
  * Plugin to map a requested query ( or an Entity/set of Entities ) to a CacheID.
- * The Cache ID is an identifier to the data set that needs to be queried to serve the response
- * for the query.
+ * The Cache ID is an identifier to the data set that needs to be queried to
+ * serve the response for the query.
  */
 public abstract class TimelineEntityGroupPlugin {
 
   /**
    * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
-   * scanned to serve the query
+   * scanned to serve the query.
+   *
    * @param entityType Entity Type being queried
    * @param primaryFilter Primary filter being applied
    * @param secondaryFilters Secondary filters being applied in the query
@@ -45,7 +46,8 @@ public abstract class TimelineEntityGroupPlugin {
 
   /**
    * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
-   * scanned to serve the query
+   * scanned to serve the query.
+   *
    * @param entityType Entity Type being queried
    * @param entityId Entity Id being requested
    * @return {@link org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId}
@@ -57,7 +59,8 @@ public abstract class TimelineEntityGroupPlugin {
 
   /**
    * Get the {@link TimelineEntityGroupId}s for the data sets that need to be
-   * scanned to serve the query
+   * scanned to serve the query.
+   *
    * @param entityType Entity Type being queried
    * @param entityIds Entity Ids being requested
    * @param eventTypes Event Types being requested
