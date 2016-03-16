@@ -138,6 +138,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9634. webhdfs client side exceptions don't provide enough details
     (Eric Payne via kihwal)
 
+    HDFS-9860. Backport HDFS-9638 to branch-2.7. (Wei-Chiu Chuang via aajisaka)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
