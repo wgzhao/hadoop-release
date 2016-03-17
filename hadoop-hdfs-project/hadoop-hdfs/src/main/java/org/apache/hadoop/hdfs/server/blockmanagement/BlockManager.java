@@ -3034,6 +3034,11 @@ public class BlockManager {
             moreThanOne, exactlyOne, excessTypes);
       }
       firstOne = false;
+      if (cur == null) {
+        LOG.warn("No excess replica can be found. excessTypes: "+excessTypes+
+            ". moreThanOne: "+moreThanOne+". exactlyOne: "+exactlyOne+".");
+        break;
+      }
 
       // adjust rackmap, moreThanOne, and exactlyOne
       replicator.adjustSetsWithChosenReplica(rackMap, moreThanOne,
