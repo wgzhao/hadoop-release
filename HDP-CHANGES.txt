@@ -1057,3 +1057,6 @@ ATS V1.5:
 
     BUG-55051/YARN-3769: Consider user limit when calculating total pending
     resource for preemption policy in Capacity Scheduler. (Eric Payne)
+
+    BUG-54854. YARN-4785. Inconsistent value type of the "type" field for LeafQueueInfo
+    in response of RM REST API. (Varun Vasudev via junping_du)
