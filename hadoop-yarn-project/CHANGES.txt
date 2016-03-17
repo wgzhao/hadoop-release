@@ -318,6 +318,9 @@ Release 2.7.3 - UNRELEASED
     YARN-4422. Generic AHS sometimes doesn't show started, node, or logs on App page
     (Eric Payne via jeagles)
 
+    YARN-4785. inconsistent value type of the "type" field for LeafQueueInfo 
+    in response of RM REST API. (Varun Vasudev via junping_du)
+
 Release 2.7.2 - 2016-01-25
 
   INCOMPATIBLE CHANGES

@@ -977,3 +977,6 @@ ATS V1.5:
 
     BUG-55052/YARN-4365: FileSystemNodeLabelStore should check for root dir
     existence on startup. (Kuhu Shukla)
+
+    BUG-54854. YARN-4785. Inconsistent value type of the "type" field for LeafQueueInfo
+    in response of RM REST API. (Varun Vasudev via junping_du)
