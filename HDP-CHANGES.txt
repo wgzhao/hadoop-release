@@ -955,3 +955,6 @@ ATS V1.5:
 
     BUG-53573. HADOOP-12829. StatisticsDataReferenceCleaner swallows interrupt
     exceptions (Gregory Chanan via cmccabe)
+
+    BUG-54854. YARN-4785. Inconsistent value type of the "type" field for LeafQueueInfo
+    in response of RM REST API. (Varun Vasudev via junping_du)
