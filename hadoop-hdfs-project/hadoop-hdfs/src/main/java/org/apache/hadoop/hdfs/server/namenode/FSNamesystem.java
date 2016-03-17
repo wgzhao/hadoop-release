@@ -3579,10 +3579,35 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       Block newBlock, DatanodeStorageInfo[] targets)
           throws IOException {
     assert hasWriteLock();
-    BlockInfoContiguous b = dir.addBlock(src, inodesInPath, newBlock, targets);
-    NameNode.stateChangeLog.info("BLOCK* allocate " + b + " for " + src);
+    BlockInfoContiguousUnderConstruction b = dir.addBlock(src, inodesInPath,
+        newBlock, targets);
+    logAllocatedBlock(src, b);
     DatanodeStorageInfo.incrementBlocksScheduled(targets);
     return b;
+  }
+
+  /**
+   * Log the allocated block replica locations to stateChangeLog.
+   * We avoid using Block#toString as it generates a verbose string.
+   *
+   * @param src
+   * @param b
+   */
+  private static void logAllocatedBlock(
+      String src, BlockInfoContiguousUnderConstruction b) {
+    if (!NameNode.stateChangeLog.isInfoEnabled()) {
+      return;
+    }
+    StringBuilder sb = new StringBuilder(150);
+    sb.append("BLOCK* allocate ");
+    sb.append(Block.BLOCK_FILE_PREFIX)
+        .append(b.getBlockId())
+        .append("_")
+        .append(b.getGenerationStamp());
+    sb.append(", ");
+    b.appendUCPartsConcise(sb);
+    sb.append(" for " + src);
+    NameNode.stateChangeLog.info(sb.toString());
   }
 
   /**

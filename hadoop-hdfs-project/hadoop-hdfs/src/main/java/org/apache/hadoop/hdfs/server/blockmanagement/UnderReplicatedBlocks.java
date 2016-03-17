@@ -388,7 +388,7 @@ class UnderReplicatedBlocks implements Iterable<Block> {
       }
     }
 
-    if (sb != null) {
+    if (sb != null && count > 0) {
       sb.append(" Total=" + count);
       sb.append(" Reset bookmarks? " + (priority == LEVEL));
       NameNode.blockStateChangeLog.info(sb.toString());

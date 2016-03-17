@@ -19,6 +19,7 @@ package org.apache.hadoop.hdfs.server.blockmanagement;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class BlockInfoContiguousUnderConstruction extends BlockInfoContiguous {
    * Block replicas as assigned when the block was allocated.
    * This defines the pipeline order.
    */
-  private List<ReplicaUnderConstruction> replicas;
+  private List<ReplicaUnderConstruction> replicas = Collections.emptyList();
 
   /**
    * Index of the primary data node doing the recovery. Useful for log
@@ -202,7 +203,7 @@ public class BlockInfoContiguousUnderConstruction extends BlockInfoContiguous {
    * (as has been assigned by chooseTargets()).
    */
   public DatanodeStorageInfo[] getExpectedStorageLocations() {
-    int numLocations = replicas == null ? 0 : replicas.size();
+    int numLocations = replicas.size();
     DatanodeStorageInfo[] storages = new DatanodeStorageInfo[numLocations];
     for(int i = 0; i < numLocations; i++)
       storages[i] = replicas.get(i).getExpectedStorageLocation();
@@ -211,7 +212,7 @@ public class BlockInfoContiguousUnderConstruction extends BlockInfoContiguous {
 
   /** Get the number of expected locations */
   public int getNumExpectedLocations() {
-    return replicas == null ? 0 : replicas.size();
+    return replicas.size();
   }
 
   /**
@@ -249,8 +250,6 @@ public class BlockInfoContiguousUnderConstruction extends BlockInfoContiguous {
   public void setGenerationStampAndVerifyReplicas(long genStamp) {
     // Set the generation stamp for the block.
     setGenerationStamp(genStamp);
-    if (replicas == null)
-      return;
 
     // Remove the replicas with wrong gen stamp.
     // The replica list is unchanged.
@@ -387,16 +386,25 @@ public class BlockInfoContiguousUnderConstruction extends BlockInfoContiguous {
       .append(", truncateBlock=" + truncateBlock)
       .append(", primaryNodeIndex=").append(primaryNodeIndex)
       .append(", replicas=[");
-    if (replicas != null) {
-      Iterator<ReplicaUnderConstruction> iter = replicas.iterator();
-      if (iter.hasNext()) {
+    Iterator<ReplicaUnderConstruction> iter = replicas.iterator();
+    if (iter.hasNext()) {
+      iter.next().appendStringTo(sb);
+      while (iter.hasNext()) {
+        sb.append(", ");
         iter.next().appendStringTo(sb);
-        while (iter.hasNext()) {
-          sb.append(", ");
-          iter.next().appendStringTo(sb);
-        }
       }
     }
     sb.append("]}");
+  }
+
+  public void appendUCPartsConcise(StringBuilder sb) {
+    sb.append("replicas=");
+    int i = 0;
+    for (ReplicaUnderConstruction r : replicas) {
+      sb.append(r.getExpectedStorageLocation().getDatanodeDescriptor());
+      if (++i < replicas.size()) {
+        sb.append(", ");
+      }
+    }
   }
 }
