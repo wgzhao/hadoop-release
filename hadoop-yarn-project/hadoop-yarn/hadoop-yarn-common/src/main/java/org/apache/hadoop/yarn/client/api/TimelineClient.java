@@ -26,10 +26,8 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.AbstractService;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineDomain;
-import org.apache.hadoop.yarn.api.records.timeline.TimelineEntityGroupId;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 import org.apache.hadoop.yarn.client.api.impl.TimelineClientImpl;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -82,27 +80,6 @@ public abstract class TimelineClient extends AbstractService {
 
   /**
    * <p>
-   * Send the information of a number of conceptual entities to the timeline
-   * server. It is a blocking API. The method will not return until it gets the
-   * response from the timeline server.
-   * </p>
-   * 
-   * @param appAttemptId {@link ApplicationAttemptId}
-   * @param groupId {@link TimelineEntityGroupId}
-   * @param entities
-   *          the collection of {@link TimelineEntity}
-   * @return the error information if the sent entities are not correctly stored
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract TimelinePutResponse putEntities(
-      ApplicationAttemptId appAttemptId, TimelineEntityGroupId groupId,
-      TimelineEntity... entities)
-      throws IOException, YarnException;
-
-  /**
-   * <p>
    * Send the information of a domain to the timeline server. It is a
    * blocking API. The method will not return until it gets the response from
    * the timeline server.
@@ -115,23 +92,6 @@ public abstract class TimelineClient extends AbstractService {
    */
   @Public
   public abstract void putDomain(
-      TimelineDomain domain) throws IOException, YarnException;
-
-  /**
-   * <p>
-   * Send the information of a domain to the timeline server. It is a
-   * blocking API. The method will not return until it gets the response from
-   * the timeline server.
-   * </p>
-   *
-   * @param domain
-   *          an {@link TimelineDomain} object
-   * @param appAtteptId {@link ApplicationAttemptId}
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract void putDomain(ApplicationAttemptId appAtteptId,
       TimelineDomain domain) throws IOException, YarnException;
 
   /**
