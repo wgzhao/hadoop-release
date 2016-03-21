@@ -108,6 +108,28 @@ public class RMServerUtils {
     }
   }
 
+  public static void normalizeAndValidateRequests(List<ResourceRequest> ask,
+      Resource maximumResource, String queueName, YarnScheduler scheduler,
+      RMContext rmContext, long maxContainers)
+      throws InvalidResourceRequestException {
+    // Get queue from scheduler
+    QueueInfo queueInfo = null;
+    try {
+      queueInfo = scheduler.getQueueInfo(queueName, false, false);
+    } catch (IOException e) {
+    }
+    int numContainers = 0;
+    for (ResourceRequest resReq : ask) {
+      SchedulerUtils.normalizeAndvalidateRequest(resReq, maximumResource,
+          queueName, scheduler, rmContext, queueInfo);
+      numContainers += resReq.getNumContainers();
+    }
+    if (numContainers > maxContainers) {
+      throw new InvalidResourceRequestException(
+          "Too many containers asked, " + numContainers);
+    }
+  }
+
   /*
    * @throw <code>InvalidResourceBlacklistRequestException </code> if the
    * resource is not able to be added to the blacklist.

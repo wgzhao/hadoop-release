@@ -1243,3 +1243,8 @@ ATS V1.5:
 
     BUG-80234. HADOOP-13251. Authenticate with Kerberos credentials when
     renewing KMS delegation token. Contributed by Xiao Chen.
+
+    BUG-56776. Hotfix for AT&T. Scheduler keeps skipping scheduling
+    because large amount of resources asked which causes pending resource
+    overflows.
+
