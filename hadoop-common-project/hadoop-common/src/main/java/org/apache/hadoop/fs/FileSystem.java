@@ -3368,4 +3368,18 @@ public abstract class FileSystem extends Configured implements Closeable {
   public static void enableSymlinks() {
     symlinksEnabled = true;
   }
+
+  /**
+   * Query the effective storage policy ID for the given file or directory.
+   *
+   * @param src
+   *          file or directory path.
+   * @return storage policy for give file.
+   * @throws IOException
+   */
+  public BlockStoragePolicySpi getStoragePolicy(final Path src)
+      throws IOException {
+    throw new UnsupportedOperationException(getClass().getSimpleName()
+        + " doesn't support getStoragePolicy");
+  }
 }

@@ -32,6 +32,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.BlockStorageLocation;
+import org.apache.hadoop.fs.BlockStoragePolicySpi;
 import org.apache.hadoop.fs.CacheFlag;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.CreateFlag;
@@ -551,6 +552,53 @@ public class DistributedFileSystem extends FileSystem {
           throw new UnsupportedOperationException(
               "Cannot perform setStoragePolicy on a non-DistributedFileSystem: "
                   + src + " -> " + p);
+        }
+      }
+    }.resolve(this, absF);
+  }
+
+  @Override
+  public BlockStoragePolicySpi getStoragePolicy(Path path) throws IOException {
+    statistics.incrementReadOps(1);
+    Path absF = fixRelativePart(path);
+
+    return new FileSystemLinkResolver<BlockStoragePolicySpi>() {
+      @Override
+      public BlockStoragePolicySpi doCall(final Path p) throws IOException {
+        return getClient().getStoragePolicy(getPathName(p));
+      }
+
+      @Override
+      public BlockStoragePolicySpi next(final FileSystem fs, final Path p)
+          throws IOException, UnresolvedLinkException {
+        return fs.getStoragePolicy(p);
+      }
+    }.resolve(this, absF);
+  }
+
+  /**
+   * Unset storage policy set for a given file/directory.
+   * @param src file/directory name
+   */
+  public void unsetStoragePolicy(final Path src) throws IOException {
+    statistics.incrementWriteOps(1);
+    Path absF = fixRelativePart(src);
+    new FileSystemLinkResolver<Void>() {
+      @Override
+      public Void doCall(final Path p) throws IOException {
+        dfs.unsetStoragePolicy(getPathName(p));
+        return null;
+      }
+
+      @Override
+      public Void next(final FileSystem fs, final Path p) throws IOException {
+        if (fs instanceof DistributedFileSystem) {
+          ((DistributedFileSystem) fs).unsetStoragePolicy(p);
+          return null;
+        } else {
+          throw new UnsupportedOperationException(
+              "Cannot perform unsetStoragePolicy on a "
+                  + "non-DistributedFileSystem: " + src + " -> " + p);
         }
       }
     }.resolve(this, absF);

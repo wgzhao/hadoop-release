@@ -611,4 +611,10 @@ public class FilterFileSystem extends FileSystem {
   public void removeXAttr(Path path, String name) throws IOException {
     fs.removeXAttr(path, name);
   }
+
+  @Override
+  public BlockStoragePolicySpi getStoragePolicy(final Path src)
+      throws IOException {
+    return fs.getStoragePolicy(src);
+  }
 }
