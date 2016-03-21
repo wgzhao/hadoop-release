@@ -1941,6 +1941,46 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
   }
 
   /**
+   * @param path file/directory name
+   * @return Get the storage policy for specified path
+   */
+  public BlockStoragePolicy getStoragePolicy(String path) throws IOException {
+    checkOpen();
+    TraceScope scope = getPathTraceScope("getStoragePolicy", path);
+    try {
+      return namenode.getStoragePolicy(path);
+    } catch (RemoteException e) {
+      throw e.unwrapRemoteException(AccessControlException.class,
+                                    FileNotFoundException.class,
+                                    SafeModeException.class,
+                                    UnresolvedPathException.class);
+    } finally {
+      scope.close();
+    }
+  }
+
+  /**
+    * Unset storage policy set for a given file/directory.
+    * @param src file/directory name
+    */
+  public void unsetStoragePolicy(String src) throws IOException {
+     checkOpen();
+     TraceScope scope = getPathTraceScope("unsetStoragePolicy", src);
+     try {
+       namenode.unsetStoragePolicy(src);
+     } catch (RemoteException e) {
+       throw e.unwrapRemoteException(AccessControlException.class,
+           FileNotFoundException.class,
+           SafeModeException.class,
+           NSQuotaExceededException.class,
+           UnresolvedPathException.class,
+           SnapshotAccessControlException.class);
+     } finally {
+       scope.close();
+     }
+   }
+
+  /**
    * @return All the existing storage policies
    */
   public BlockStoragePolicy[] getStoragePolicies() throws IOException {

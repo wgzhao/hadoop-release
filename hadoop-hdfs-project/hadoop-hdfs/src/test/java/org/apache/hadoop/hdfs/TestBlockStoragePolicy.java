@@ -864,10 +864,25 @@ public class TestBlockStoragePolicy {
       } catch (FileNotFoundException e) {
         GenericTestUtils.assertExceptionContains(invalidPath.toString(), e);
       }
+      try {
+        fs.getStoragePolicy(invalidPath);
+        Assert.fail("Should throw a FileNotFoundException");
+      } catch (FileNotFoundException e) {
+        GenericTestUtils.assertExceptionContains(invalidPath.toString(), e);
+      }
 
       fs.setStoragePolicy(fooFile, HdfsConstants.COLD_STORAGE_POLICY_NAME);
       fs.setStoragePolicy(barDir, HdfsConstants.WARM_STORAGE_POLICY_NAME);
       fs.setStoragePolicy(barFile2, HdfsConstants.HOT_STORAGE_POLICY_NAME);
+      Assert.assertEquals("File storage policy should be COLD",
+          HdfsConstants.COLD_STORAGE_POLICY_NAME,
+          fs.getStoragePolicy(fooFile).getName());
+      Assert.assertEquals("File storage policy should be WARM",
+          HdfsConstants.WARM_STORAGE_POLICY_NAME,
+          fs.getStoragePolicy(barDir).getName());
+      Assert.assertEquals("File storage policy should be HOT",
+          HdfsConstants.HOT_STORAGE_POLICY_NAME,
+          fs.getStoragePolicy(barFile2).getName());
 
       dirList = fs.getClient().listPaths(dir.toString(),
           HdfsFileStatus.EMPTY_NAME).getPartialListing();
@@ -896,6 +911,29 @@ public class TestBlockStoragePolicy {
           HdfsFileStatus.EMPTY_NAME).getPartialListing();
       checkDirectoryListing(dirList, WARM, COLD); // bar is warm, foo is cold
       checkDirectoryListing(barList, WARM, HOT);
+    } finally {
+      cluster.shutdown();
+    }
+  }
+
+  @Test
+  public void testGetStoragePolicy() throws Exception {
+    final MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+        .numDataNodes(REPLICATION).build();
+    cluster.waitActive();
+    final DistributedFileSystem fs = cluster.getFileSystem();
+    try {
+      final Path dir = new Path("/testGetStoragePolicy");
+      final Path fooFile = new Path(dir, "foo");
+      DFSTestUtil.createFile(fs, fooFile, FILE_LEN, REPLICATION, 0L);
+      DFSClient client = new DFSClient(cluster.getNameNode(0)
+          .getNameNodeAddress(), conf);
+      client.setStoragePolicy("/testGetStoragePolicy/foo",
+          HdfsConstants.COLD_STORAGE_POLICY_NAME);
+      String policyName = client.getStoragePolicy("/testGetStoragePolicy/foo")
+          .getName();
+      Assert.assertEquals("File storage policy should be COLD",
+          HdfsConstants.COLD_STORAGE_POLICY_NAME, policyName);
     } finally {
       cluster.shutdown();
     }

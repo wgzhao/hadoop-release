@@ -180,4 +180,5 @@ public class HdfsConstants {
   public static final byte HOT_STORAGE_POLICY_ID = 7;
   public static final byte WARM_STORAGE_POLICY_ID = 5;
   public static final byte COLD_STORAGE_POLICY_ID = 2;
+  public static final byte BLOCK_STORAGE_POLICY_ID_UNSPECIFIED = 0;
 }

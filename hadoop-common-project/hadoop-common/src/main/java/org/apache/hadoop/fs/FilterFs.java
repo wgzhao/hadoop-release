@@ -371,4 +371,10 @@ public abstract class FilterFs extends AbstractFileSystem {
   public void removeXAttr(Path path, String name) throws IOException {
     myFs.removeXAttr(path, name);
   }
+
+  @Override
+  public BlockStoragePolicySpi getStoragePolicy(final Path src)
+      throws IOException {
+    return myFs.getStoragePolicy(src);
+  }
 }

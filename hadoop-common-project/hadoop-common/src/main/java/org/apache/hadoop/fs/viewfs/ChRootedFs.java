@@ -28,6 +28,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.AbstractFileSystem;
 import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.BlockStoragePolicySpi;
 import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -393,4 +394,10 @@ class ChRootedFs extends AbstractFileSystem {
   public List<Token<?>> getDelegationTokens(String renewer) throws IOException {
     return myFs.getDelegationTokens(renewer);
   }
+
+  @Override
+   public BlockStoragePolicySpi getStoragePolicy(final Path src)
+       throws IOException {
+     return myFs.getStoragePolicy(src);
+   }
 }

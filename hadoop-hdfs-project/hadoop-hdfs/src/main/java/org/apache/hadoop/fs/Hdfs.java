@@ -451,6 +451,11 @@ public class Hdfs extends AbstractFileSystem {
   }
 
   @Override
+  public BlockStoragePolicySpi getStoragePolicy(Path src) throws IOException {
+    return dfs.getStoragePolicy(getUriPath(src));
+  }
+
+  @Override
   public List<String> listXAttrs(Path path) throws IOException {
     return dfs.listXAttrs(getUriPath(path));
   }
