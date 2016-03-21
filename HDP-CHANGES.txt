@@ -977,4 +977,6 @@ ATS V1.5:
 
     HDFS-9851. NameNode throws NPE when setPermission is called on a path that
     does not exist. (Brahma Reddy Battula via aajisaka)
-    
+
+    HDFS-9290. DFSClient#callAppend() is not backward compatible for slightly
+    older NameNodes. (Tony Wu via kihwal)
