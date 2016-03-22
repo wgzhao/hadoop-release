@@ -20,6 +20,7 @@ package org.apache.hadoop.hdfs.server.datanode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -48,6 +49,7 @@ import org.apache.hadoop.util.Daemon;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 
 /**
  * Manages storage for the set of BlockPoolSlices which share a particular 
@@ -95,6 +97,7 @@ public class BlockPoolSliceStorage extends Storage {
       "^(.*)(" + BLOCK_POOL_ID_PATTERN_BASE + ")(" + TRASH_ROOT_DIR + ")(.*)$");
 
   private String blockpoolID = ""; // id of the blockpool
+  private Daemon trashCleaner;
 
   public BlockPoolSliceStorage(StorageInfo storageInfo, String bpid) {
     super(storageInfo);
@@ -769,11 +772,39 @@ public class BlockPoolSliceStorage extends Storage {
    * Delete all files and directories in the trash directories.
    */
   public void clearTrash() {
+    final List<File> trashRoots = new ArrayList<>();
     for (StorageDirectory sd : storageDirs) {
       File trashRoot = getTrashRootDir(sd);
-      Preconditions.checkState(!(trashRoot.exists() && sd.getPreviousDir().exists()));
-      FileUtil.fullyDelete(trashRoot);
-      LOG.info("Cleared trash for storage directory " + sd);
+      if (trashRoot.exists() && sd.getPreviousDir().exists()) {
+        LOG.error("Trash and PreviousDir shouldn't both exist for storage "
+            + "directory " + sd);
+        assert false;
+      } else {
+        trashRoots.add(trashRoot);
+      }
+    }
+
+    stopTrashCleaner();
+    trashCleaner = new Daemon(new Runnable() {
+      @Override
+      public void run() {
+        for(File trashRoot : trashRoots){
+          FileUtil.fullyDelete(trashRoot);
+          LOG.info("Cleared trash for storage directory " + trashRoot);
+        }
+      }
+
+      @Override
+      public String toString() {
+        return "clearTrash() for " + blockpoolID;
+      }
+    });
+    trashCleaner.start();
+  }
+
+  public void stopTrashCleaner() {
+    if (trashCleaner != null) {
+      trashCleaner.interrupt();
     }
   }
 
