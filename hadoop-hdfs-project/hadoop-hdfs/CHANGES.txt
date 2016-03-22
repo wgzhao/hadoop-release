@@ -357,6 +357,9 @@ Release 2.7.2 - 2016-01-25
     HDFS-9290. DFSClient#callAppend() is not backward compatible for slightly
     older NameNodes. (Tony Wu via kihwal)
 
+    HDFS-8676. Delayed rolling upgrade finalization can cause heartbeat
+    expiration. (Walter Su via kihwal)
+
 Release 2.7.1 - 2015-07-06
 
   INCOMPATIBLE CHANGES
