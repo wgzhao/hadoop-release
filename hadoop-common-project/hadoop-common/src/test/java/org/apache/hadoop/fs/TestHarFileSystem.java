@@ -205,6 +205,9 @@ public class TestHarFileSystem {
     public AclStatus getAclStatus(Path path) throws IOException;
 
     public void access(Path path, FsAction mode) throws IOException;
+
+    public BlockStoragePolicySpi getStoragePolicy(final Path src)
+        throws IOException;
   }
 
   @Test

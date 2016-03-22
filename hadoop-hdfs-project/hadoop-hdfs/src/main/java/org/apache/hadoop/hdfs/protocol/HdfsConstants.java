@@ -190,4 +190,6 @@ public class HdfsConstants {
   public static final byte NUM_PARITY_BLOCKS = 3;
   // The chunk size for striped block which is used by erasure coding
   public static final int BLOCK_STRIPED_CELL_SIZE = 64 * 1024;
+
+  public static final byte BLOCK_STORAGE_POLICY_ID_UNSPECIFIED = 0;
 }

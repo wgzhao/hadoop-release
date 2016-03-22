@@ -49,7 +49,7 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.util.Progressable;
-
+import org.apache.hadoop.fs.BlockStoragePolicySpi;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -1202,5 +1202,19 @@ public abstract class AbstractFileSystem {
       return false;
     }
     return myUri.equals(((AbstractFileSystem) other).myUri);
+  }
+
+  /**
+   * Retrieve the storage policy for a given file or directory.
+   *
+   * @param src
+   *          file or directory path.
+   * @return storage policy for give file.
+   * @throws IOException
+   */
+  public BlockStoragePolicySpi getStoragePolicy(final Path src)
+      throws IOException {
+    throw new UnsupportedOperationException(getClass().getSimpleName()
+        + " doesn't support getStoragePolicy");
   }
 }

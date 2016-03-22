@@ -762,10 +762,23 @@ class NameNodeRpcServer implements NamenodeProtocols {
   }
 
   @Override
+  public void unsetStoragePolicy(String src)
+      throws IOException {
+    checkNNStartup();
+    namesystem.unsetStoragePolicy(src);
+  }
+
+  @Override
   public void setStoragePolicy(String src, String policyName)
       throws IOException {
     checkNNStartup();
     namesystem.setStoragePolicy(src, policyName);
+  }
+
+  @Override
+  public BlockStoragePolicy getStoragePolicy(String path) throws IOException {
+    checkNNStartup();
+    return namesystem.getStoragePolicy(path);
   }
 
   @Override
