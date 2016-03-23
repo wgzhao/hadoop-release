@@ -1087,6 +1087,10 @@ ATS V1.5:
 
     HDFS-8891. HDFS concat should keep srcs order. (Yong Zhang via jing9)
 
+    BUG-53173. HDFS-9383. TestByteArrayManager#testByteArrayManager fails.
+    Contributed by Tsz Wo Nicholas Sze. (cherry picked from commit
+    ef926b2e3824475581454c1e17a0d7c94529efde)
+
     HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
     (Walter Su via wang).
 
