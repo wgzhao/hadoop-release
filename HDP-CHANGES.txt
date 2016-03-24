@@ -1089,3 +1089,6 @@ ATS V1.5:
 
     HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
     (Walter Su via wang).
+
+    BUG-53159. HDFS-8806. Inconsistent metrics: number of missing blocks with
+    replication factor 1 not properly cleared (Zhe Zhang via Akira AJISAKA)
