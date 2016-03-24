@@ -1033,3 +1033,6 @@ ATS V1.5:
 
     BUG-51433. HDFS-9572. Prevent DataNode log spam if a client connects on the
     data transfer port but sends no data. Contributed by Chris Nauroth
+
+    BUG-51433. HDFS-10199. Unit tests TestCopyFiles, TestDistCh, TestLogalyzer
+    under org.apache.hadoop.tools are failing. Contributed by Tibor Kiss.
