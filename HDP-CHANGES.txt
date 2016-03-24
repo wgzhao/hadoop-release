@@ -852,9 +852,11 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-51462(YARN-4680): Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
-    BUG-51423. HDFS-8647. Abstract BlockManager's rack policy into
+    BUG-65703. HDFS-8647. Abstract BlockManager's rack policy into
     BlockPlacementPolicy. (Brahma Reddy Battula via Zhe Zhang)
 
-    BUG-51423. HDFS-9313. Possible NullPointerException in BlockManager if no
+    BUG-65703. HDFS-9313. Possible NullPointerException in BlockManager if no
     excess replica can be chosen. (Ming Ma)
 
+    BUG-65703. HDFS-9314. Improve BlockPlacementPolicyDefault's picking of
+    excess replicas. Contributed by Xiao Chen.
