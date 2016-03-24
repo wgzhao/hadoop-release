@@ -1096,3 +1096,6 @@ ATS V1.5:
 
     BUG-53159. HDFS-8806. Inconsistent metrics: number of missing blocks with
     replication factor 1 not properly cleared (Zhe Zhang via Akira AJISAKA)
+
+    BUG-51433. HDFS-9572. Prevent DataNode log spam if a client connects on the
+    data transfer port but sends no data. Contributed by Chris Nauroth
