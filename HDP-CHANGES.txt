@@ -971,3 +971,6 @@ ATS V1.5:
 
     YARN-4814. ATS 1.5 timelineclient impl call flush after every event write.
     Contributed by Xuan Gong
+
+    YARN-4815. ATS 1.5 timelineclinet impl try to create attempt directory for every event call.
+    Contributed by Xuan Gong
