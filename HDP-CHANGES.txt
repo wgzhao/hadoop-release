@@ -966,3 +966,5 @@ ATS V1.5:
 
     BUG-55570. YARN-4811. Generate histograms in ContainerMetrics for actual
     container resource usage
+
+    BUG-53811(YARN-4817). TimelineClient ATSv1.5 logging is very noisy. Contributed by Xuan Gong
