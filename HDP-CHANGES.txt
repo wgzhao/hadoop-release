@@ -1043,3 +1043,5 @@ ATS V1.5:
 
     BUG-51424. HDFS-9314. Improve BlockPlacementPolicyDefault's picking of
     excess replicas. Contributed by Xiao Chen.
+
+    BUG-53811(YARN-4817). TimelineClient ATSv1.5 logging is very noisy. Contributed by Xuan Gong

@@ -818,8 +818,10 @@ public class TimelineClientImpl extends TimelineClient {
     if (!entitiesToSummary.isEmpty()) {
       Path summaryLogPath =
           new Path(attemptDir, SUMMARY_LOG_PREFIX + appAttemptId.toString());
-      LOG.info("Writing summary log for " + appAttemptId.toString() + " to "
-          + summaryLogPath);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Writing summary log for " + appAttemptId.toString() + " to "
+            + summaryLogPath);
+      }
       this.logFDsCache.writeSummaryEntityLogs(fs, summaryLogPath, objMapper,
         appAttemptId, entitiesToSummary, isAppendSupported);
     }
@@ -827,8 +829,10 @@ public class TimelineClientImpl extends TimelineClient {
     if (!entitiesToEntity.isEmpty()) {
       Path entityLogPath =
           new Path(attemptDir, ENTITY_LOG_PREFIX + groupId.toString());
-      LOG.info("Writing entity log for " + groupId.toString() + " to "
-          + entityLogPath);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Writing entity log for " + groupId.toString() + " to "
+            + entityLogPath);
+      }
       this.logFDsCache.writeEntityLogs(fs, entityLogPath, objMapper,
         appAttemptId, groupId, entitiesToEntity, isAppendSupported);
     }
@@ -890,8 +894,10 @@ public class TimelineClientImpl extends TimelineClient {
     Path domainLogPath =
         new Path(createAttemptDir(appAttemptId), DOMAIN_LOG_PREFIX
             + appAttemptId.toString());
-    LOG.info("Writing domains for " + appAttemptId.toString() + " to "
-        + domainLogPath);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Writing domains for " + appAttemptId.toString() + " to "
+          + domainLogPath);
+    }
     this.logFDsCache.writeDomainLog(
         fs, domainLogPath, objMapper, domain, isAppendSupported);
   }
