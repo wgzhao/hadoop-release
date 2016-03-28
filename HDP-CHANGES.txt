@@ -1045,3 +1045,6 @@ ATS V1.5:
     excess replicas. Contributed by Xiao Chen.
 
     BUG-53811(YARN-4817). TimelineClient ATSv1.5 logging is very noisy. Contributed by Xuan Gong
+
+    YARN-4814. ATS 1.5 timelineclient impl call flush after every event write.
+    Contributed by Xuan Gong

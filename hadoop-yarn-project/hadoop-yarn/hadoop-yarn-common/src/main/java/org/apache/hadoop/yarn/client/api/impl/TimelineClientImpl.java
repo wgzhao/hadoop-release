@@ -975,6 +975,8 @@ public class TimelineClientImpl extends TimelineClient {
       this.stream = createLogFileStream(fs, logPath);
       this.jsonGenerator = new JsonFactory().createJsonGenerator(stream);
       this.jsonGenerator.setPrettyPrinter(new MinimalPrettyPrinter("\n"));
+      this.jsonGenerator.configure(
+          JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM, false);
       this.lastModifiedTime = System.currentTimeMillis();
     }
 
