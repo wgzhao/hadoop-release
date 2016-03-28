@@ -1379,3 +1379,6 @@ ATS V1.5:
 
     YARN-4667. RM Admin CLI for refreshNodesResources throws NPE when nothing is configured. 
     (Contributed by Naganarasimha G R)
+
+    YARN-998. Keep NM resource updated through dynamic resource config for RM/NM restart.
+    (Contributed by Junping Du.)
