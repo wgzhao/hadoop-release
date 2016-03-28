@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -151,6 +152,7 @@ public class TimelineClientImpl extends TimelineClient {
   private boolean isAppendSupported;
   private Configuration conf;
   private float timeLineServiceVersion;
+  private AttemptDirCache attemptDirCache;
 
   // This is temporary solution. The configuration will be deleted once we have
   // the FileSystem API to check whether append operation is supported or not.
@@ -399,6 +401,13 @@ public class TimelineClientImpl extends TimelineClient {
           new LogFDsCache(flushIntervalSecs, cleanIntervalSecs, ttl, timerTaskTTL);
       this.isAppendSupported =
           conf.getBoolean(TIMELINE_SERVICE_ENTITYFILE_FS_SUPPORT_APPEND, true);
+      int attemptDirCacheSize = conf.getInt(
+          YarnConfiguration
+              .TIMELINE_SERVICE_CLIENT_INTERNAL_ATTEMPT_DIR_CACHE_SIZE,
+          YarnConfiguration
+              .DEFAULT_TIMELINE_SERVICE_CLIENT_INTERNAL_ATTEMPT_DIR_CACHE_SIZE);
+      attemptDirCache = new AttemptDirCache(attemptDirCacheSize, fs, activePath);
+
       if (LOG.isDebugEnabled()) {
         LOG.debug(
             YarnConfiguration.TIMELINE_SERVICE_CLIENT_FD_FLUSH_INTERVAL_SECS
@@ -801,7 +810,7 @@ public class TimelineClientImpl extends TimelineClient {
     List<TimelineEntity> entitiesToDB = new ArrayList<TimelineEntity>();
     List<TimelineEntity> entitiesToSummary = new ArrayList<TimelineEntity>();
     List<TimelineEntity> entitiesToEntity = new ArrayList<TimelineEntity>();
-    Path attemptDir = createAttemptDir(appAttemptId);
+    Path attemptDir = attemptDirCache.getAppAttemptDir(appAttemptId);
 
     for (TimelineEntity entity : entities) {
       if (summaryEntityTypes.contains(entity.getEntityType())) {
@@ -868,32 +877,11 @@ public class TimelineClientImpl extends TimelineClient {
     return mapper;
   }
 
-  private Path createAttemptDir(ApplicationAttemptId appAttemptId)
-      throws IOException {
-    Path appDir = createApplicationDir(appAttemptId.getApplicationId());
-
-    Path attemptDir = new Path(appDir, appAttemptId.toString());
-    if (!fs.exists(attemptDir)) {
-      FileSystem.mkdirs(fs, attemptDir, new FsPermission(
-        APP_LOG_DIR_PERMISSIONS));
-    }
-    return attemptDir;
-  }
-
-  private Path createApplicationDir(ApplicationId appId) throws IOException {
-    Path appDir =
-        new Path(activePath, appId.toString());
-    if (!fs.exists(appDir)) {
-      FileSystem.mkdirs(fs, appDir, new FsPermission(APP_LOG_DIR_PERMISSIONS));
-    }
-    return appDir;
-  }
-
   private void writeDomain(ApplicationAttemptId appAttemptId,
       TimelineDomain domain) throws IOException {
     Path domainLogPath =
-        new Path(createAttemptDir(appAttemptId), DOMAIN_LOG_PREFIX
-            + appAttemptId.toString());
+        new Path(attemptDirCache.getAppAttemptDir(appAttemptId),
+            DOMAIN_LOG_PREFIX + appAttemptId.toString());
     if (LOG.isDebugEnabled()) {
       LOG.debug("Writing domains for " + appAttemptId.toString() + " to "
           + domainLogPath);
@@ -1491,6 +1479,70 @@ public class TimelineClientImpl extends TimelineClient {
           true);
       this.monitorTaskTimer.schedule(new TimerMonitorTask(),
           this.timerTaskRetainTTL);
+    }
+  }
+
+  private static class AttemptDirCache {
+    private final int attemptDirCacheSize;
+    private final Map<ApplicationAttemptId, Path> attemptDirCache;
+    private final FileSystem fs;
+    private final Path activePath;
+
+    public AttemptDirCache(int cacheSize, FileSystem fs, Path activePath) {
+      this.attemptDirCacheSize = cacheSize;
+      this.attemptDirCache =
+          new LinkedHashMap<ApplicationAttemptId, Path>(
+              attemptDirCacheSize, 0.75f, true) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            protected boolean removeEldestEntry(
+              Map.Entry<ApplicationAttemptId, Path> eldest) {
+              return size() > attemptDirCacheSize;
+            }
+          };
+      this.fs = fs;
+      this.activePath = activePath;
+    }
+
+    public Path getAppAttemptDir(ApplicationAttemptId attemptId)
+        throws IOException {
+      Path attemptDir = this.attemptDirCache.get(attemptId);
+      if (attemptDir == null) {
+        synchronized(this) {
+          attemptDir = this.attemptDirCache.get(attemptId);
+          if (attemptDir == null) {
+            attemptDir = createAttemptDir(attemptId);
+            attemptDirCache.put(attemptId, attemptDir);
+          }
+        }
+      }
+      return attemptDir;
+    }
+
+    private Path createAttemptDir(ApplicationAttemptId appAttemptId)
+        throws IOException {
+      Path appDir = createApplicationDir(appAttemptId.getApplicationId());
+      Path attemptDir = new Path(appDir, appAttemptId.toString());
+      if (!fs.exists(attemptDir)) {
+        FileSystem.mkdirs(fs, attemptDir, new FsPermission(
+            APP_LOG_DIR_PERMISSIONS));
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("New attempt directory created - " + attemptDir);
+        }
+      }
+      return attemptDir;
+    }
+
+    private Path createApplicationDir(ApplicationId appId) throws IOException {
+      Path appDir =
+          new Path(activePath, appId.toString());
+      if (!fs.exists(appDir)) {
+        FileSystem.mkdirs(fs, appDir, new FsPermission(APP_LOG_DIR_PERMISSIONS));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("New app directory created - " + appDir);
+        }
+      }
+      return appDir;
     }
   }
 }
