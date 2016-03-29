@@ -1713,7 +1713,7 @@
       <comparators>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^mv: `file2': No such file or directory</expected-output>
+          <expected-output>^mv: `file2': No such file or directory: `NAMENODE/user/USERNAME/file2'</expected-output>
         </comparator>
       </comparators>
     </test>
@@ -2470,7 +2470,7 @@
       <comparators>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>^cp: `file2': No such file or directory</expected-output>
+          <expected-output>^cp: `file2': No such file or directory: `NAMENODE/user/USERNAME/file2'</expected-output>
         </comparator>
       </comparators>
     </test>
@@ -6234,7 +6234,7 @@
       <comparators>
         <comparator>
           <type>RegexpComparator</type>
-          <expected-output>touchz: `file0': No such file or directory</expected-output>
+          <expected-output>touchz: `file0': No such file or directory: `NAMENODE/user/USERNAME/file0'</expected-output>
         </comparator>
       </comparators>
     </test>
