@@ -104,9 +104,9 @@ public class EntityCacheItem {
               LOG.info("File {} no longer exists, remove it from log list",
                   log.getPath(appDirPath));
             }
-            appLogs.getDetailLogs().removeAll(removeList);
           }
         }
+        appLogs.getDetailLogs().removeAll(removeList);
         tdm.close();
       }
       updateRefreshTimeToNow();
