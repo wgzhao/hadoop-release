@@ -1109,3 +1109,6 @@ ATS V1.5:
 
     BUG-51424. HDFS-9314. Improve BlockPlacementPolicyDefault's picking of
     excess replicas. Contributed by Xiao Chen.
+
+    BUG-53176. HADOOP-12348. MetricsSystemImpl creates MetricsSourceAdapter with
+    wrong time unit parameter. (zxu via rkanter)
