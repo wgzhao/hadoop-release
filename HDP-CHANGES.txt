@@ -1063,3 +1063,6 @@ ATS V1.5:
 
     BUG-55061. YARN-4709. NMWebServices produces incorrect JSON for containers.
     Contributed by Varun Saxena.
+
+    BUG-53176. HADOOP-12348. MetricsSystemImpl creates MetricsSourceAdapter with
+    wrong time unit parameter. (zxu via rkanter)
