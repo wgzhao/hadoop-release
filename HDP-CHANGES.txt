@@ -1051,3 +1051,6 @@ ATS V1.5:
 
     YARN-4815. ATS 1.5 timelineclinet impl try to create attempt directory for every event call.
     Contributed by Xuan Gong
+
+    BUG-55052/YARN-4365: FileSystemNodeLabelStore should check for root dir
+    existence on startup. (Kuhu Shukla)
