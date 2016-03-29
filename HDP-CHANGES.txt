@@ -983,3 +983,5 @@ ATS V1.5:
 
     BUG-55061. YARN-4709. NMWebServices produces incorrect JSON for containers.
     Contributed by Varun Saxena.
+
+    BUG-55054. YARN-4439. Clarify NMContainerStatus#toString method. (Jian He via xgong)
