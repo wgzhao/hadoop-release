@@ -1125,6 +1125,3 @@ ATS V1.5:
     Contributed by Lin Yiqun.
 
     HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM. 
-
-    BUG-55130. HDFS-9478. Reason for failing ipc.FairCallQueue contruction
-    should be thrown. (Ajith S via Arpit Agarwal)
