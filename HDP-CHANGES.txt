@@ -1123,3 +1123,5 @@ ATS V1.5:
 
     BUG-52620. HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
     Contributed by Lin Yiqun.
+
+    HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM. 
