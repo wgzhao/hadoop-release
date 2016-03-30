@@ -1112,3 +1112,14 @@ ATS V1.5:
 
     BUG-53176. HADOOP-12348. MetricsSystemImpl creates MetricsSourceAdapter with
     wrong time unit parameter. (zxu via rkanter)
+
+    BUG-52156. HDFS-9724. Degraded performance in WebHDFS listing as it does not reuse
+    ObjectMapper. Contributed by Akira Ajisaka.
+
+    BUG-53157. HADOOP-12191. Bzip2Factory is not thread safe. Contributed by Brahma Reddy Battula.
+
+    BUG-54932. HDFS-6101. TestReplaceDatanodeOnFailure fails occasionally. Contributed by
+    Wei-Chiu Chuang.
+
+    BUG-52620. HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
+    Contributed by Lin Yiqun.
