@@ -1080,18 +1080,18 @@ ATS V1.5:
 
     BUG-55054. YARN-4439. Clarify NMContainerStatus#toString method. (Jian He via xgong)
 
-    BUG-53579 [2.4] S3AFileSystem Uptake of ProviderUtils.excludeIncompatibleCredentialProviders (HADOOP-12851)
+    BUG-53579. HADOOP-12851 S3AFileSystem Uptake of ProviderUtils.excludeIncompatibleCredentialProviders
 
-    BUG-53166 Interrupted client may try to fail-over and retry (HADOOP-12464)
+    BUG-53166. HADOOP-12464 Interrupted client may try to fail-over and retry Interrupted client may try to fail-over and retry
 
-    BUG-53177 Race condition in JMX cache update (HADOOP-12482)
+    BUG-53177. HADOOP-12482 Race condition in JMX cache update
 
-    BUG-53154 ImmutableFsPermission should not override applyUmask since that method doesn't modify the FsPermission (HADOOP-12100)
+    BUG-53154. HADOOP-12100 ImmutableFsPermission should not override applyUmask since that method doesn't modify the FsPermission
 
-    BUG-52584 KMS does not log detailed stack trace for unexpected errors. (HADOOP-12795)
+    BUG-52584.  HADOOP-12795 KMS does not log detailed stack trace for unexpected errors.
 
-    BUG-52934 Log cipher suite negotiation more verbosely (HDFS-9854)
+    BUG-52934.  HDFS-9854 Log cipher suite negotiation more verbosely
 
-    BUG-52244 Add Entry point for Kerberos health check (HADOOP-12426)
+    BUG-52244.  HADOOP-12426 Add Entry point for Kerberos health check
 
-    BUG-52290 Improve diagnostics/use of envvar/sysprop credential propagation (HADOOP-12752)
+    BUG-52290.  HADOOP-12752 Improve diagnostics/use of envvar/sysprop credential propagation
