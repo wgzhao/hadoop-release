@@ -170,8 +170,10 @@ public class EntityGroupFSTimelineStore extends AbstractService
     LOG.info("Application cache size is {}", appCacheMaxSize);
     cacheIdPlugins = loadPlugIns(conf);
     // Initialize yarn client for application status
-    yarnClient = YarnClient.createYarnClient();
-    yarnClient.init(conf);
+    yarnClient = createAndInitYarnClient(conf);
+    if (yarnClient != null) {
+      yarnClient.init(conf);
+    }
     CallerContext.setCurrent(
         new CallerContext.Builder(ATS_V15_SERVER_DFS_CALLER_CTXT).build());
     super.serviceInit(conf);
@@ -237,7 +239,9 @@ public class EntityGroupFSTimelineStore extends AbstractService
   @Override
   protected void serviceStart() throws Exception {
     LOG.info("Starting {}", getName());
-    yarnClient.start();
+    if (yarnClient != null) {
+      yarnClient.start();
+    }
     summaryStore.start();
 
     Configuration conf = getConfig();
@@ -439,6 +443,33 @@ public class EntityGroupFSTimelineStore extends AbstractService
             bucket1, bucket2, appId.toString()));
   }
 
+  /**
+   * Create and initialize the YARN Client. Tests may override/mock this.
+   * If they return null, then {@link #getAppState(ApplicationId)} MUST
+   * also be overridden
+   * @param conf configuration
+   * @return the yarn client, or null.
+   *
+   */
+  @VisibleForTesting
+  protected YarnClient createAndInitYarnClient(Configuration conf) {
+    YarnClient client = YarnClient.createYarnClient();
+    client.init(conf);
+    return client;
+  }
+
+  /**
+   * Get the application state.
+   * @param appId application ID
+   * @return the state or {@link AppState#UNKNOWN} if it could not
+   * be determined
+   * @throws IOException on IO problems
+   */
+  @VisibleForTesting
+  protected AppState getAppState(ApplicationId appId) throws IOException {
+    return getAppState(appId, yarnClient);
+  }
+
   // This method has to be synchronized to control traffic to RM
   private static synchronized AppState getAppState(ApplicationId appId,
       YarnClient yarnClient) throws IOException {
@@ -459,7 +490,7 @@ public class EntityGroupFSTimelineStore extends AbstractService
 
   @InterfaceAudience.Private
   @VisibleForTesting
-  enum AppState {
+  public enum AppState {
     ACTIVE,
     UNKNOWN,
     COMPLETED
@@ -509,7 +540,7 @@ public class EntityGroupFSTimelineStore extends AbstractService
       if (!isDone()) {
         LOG.debug("Try to parse summary log for log {} in {}",
             appId, appDirPath);
-        appState = EntityGroupFSTimelineStore.getAppState(appId, yarnClient);
+        appState = getAppState(appId);
         long recentLogModTime = scanForLogs();
         if (appState == AppState.UNKNOWN) {
           if (Time.now() - recentLogModTime > unknownActiveMillis) {
