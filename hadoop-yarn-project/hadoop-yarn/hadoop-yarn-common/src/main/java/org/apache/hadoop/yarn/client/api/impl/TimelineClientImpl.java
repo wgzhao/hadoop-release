@@ -431,6 +431,13 @@ public class TimelineClientImpl extends TimelineClient {
   }
 
   @Override
+  public void flush() throws IOException {
+    if (logFDsCache != null) {
+      logFDsCache.flush();
+    }
+  }
+
+  @Override
   public TimelinePutResponse putEntities(
       TimelineEntity... entities) throws IOException, YarnException {
     TimelineEntities entitiesContainer = new TimelineEntities();
