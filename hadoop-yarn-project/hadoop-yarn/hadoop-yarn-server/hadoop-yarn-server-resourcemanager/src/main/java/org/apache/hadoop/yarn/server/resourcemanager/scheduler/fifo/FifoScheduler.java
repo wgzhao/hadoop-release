@@ -208,6 +208,27 @@ public class FifoScheduler extends
     @Override
     public void decPendingResource(String nodeLabel, Resource resourceToDec) {
     }
+<<<<<<< HEAD
+=======
+
+    @Override
+    public Priority getDefaultApplicationPriority() {
+      // TODO add implementation for FIFO scheduler
+      return null;
+    }
+
+    @Override
+    public void incReservedResource(String partition, Resource reservedRes) {
+      // TODO add implementation for FIFO scheduler
+
+    }
+
+    @Override
+    public void decReservedResource(String partition, Resource reservedRes) {
+      // TODO add implementation for FIFO scheduler
+
+    }
+>>>>>>> fc055a3... YARN-4865. Track Reserved resources in ResourceUsage and QueueCapacities. (Sunil G via wangda)
   };
 
   public FifoScheduler() {
