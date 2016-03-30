@@ -1097,3 +1097,7 @@ ATS V1.5:
     BUG-52290.  HADOOP-12752 Improve diagnostics/use of envvar/sysprop credential propagation
 
     HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM. 
+
+    HDFS-9478. Reason for failing ipc.FairCallQueue contruction should
+    be thrown. (Ajith S via Arpit Agarwal)
+
