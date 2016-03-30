@@ -1095,3 +1095,5 @@ ATS V1.5:
     BUG-52244.  HADOOP-12426 Add Entry point for Kerberos health check
 
     BUG-52290.  HADOOP-12752 Improve diagnostics/use of envvar/sysprop credential propagation
+
+    HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM. 
