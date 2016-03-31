@@ -26,6 +26,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -75,13 +79,17 @@ import org.apache.hadoop.security.authorize.PolicyProvider;
 import org.apache.hadoop.security.authorize.Service;
 import org.apache.hadoop.security.token.SecretManager;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.test.MetricsAsserts;
 import org.apache.hadoop.test.MockitoUtil;
+import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.DescriptorProtos.EnumDescriptorProto;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 /** Unit tests for RPC. */
 @SuppressWarnings("deprecation")
@@ -1078,7 +1086,7 @@ public class TestRPC {
   }
 
   /**
-   *  Test RPC backoff.
+   *  Test RPC backoff by queue full.
    */
   @Test (timeout=30000)
   public void testClientBackOff() throws Exception {
@@ -1089,7 +1097,7 @@ public class TestRPC {
         Executors.newFixedThreadPool(numClients);
     final Configuration conf = new Configuration();
     conf.setInt(CommonConfigurationKeys.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY, 0);
-    conf.setBoolean(CommonConfigurationKeys.IPC_CALLQUEUE_NAMESPACE +
+    conf.setBoolean(CommonConfigurationKeys.IPC_NAMESPACE +
         ".0." + CommonConfigurationKeys.IPC_BACKOFF_ENABLE, true);
     final Server server = new RPC.Builder(conf)
         .setProtocol(TestProtocol.class).setInstance(new TestImpl())
@@ -1131,6 +1139,98 @@ public class TestRPC {
       server.stop();
       RPC.stopProxy(proxy);
       executorService.shutdown();
+    }
+    assertTrue("RetriableException not received", succeeded);
+  }
+
+  /**
+   *  Test RPC backoff by response time of each priority level.
+   */
+  @Test (timeout=30000)
+  public void testClientBackOffByResponseTime() throws Exception {
+    Server server;
+    final TestProtocol proxy;
+    boolean succeeded = false;
+    final int numClients = 1;
+    final int queueSizePerHandler = 3;
+
+    GenericTestUtils.setLogLevel(DecayRpcScheduler.LOG, Level.DEBUG);
+    GenericTestUtils.setLogLevel(RPC.LOG, Level.DEBUG);
+
+    final List<Future<Void>> res = new ArrayList<Future<Void>>();
+    final ExecutorService executorService =
+        Executors.newFixedThreadPool(numClients);
+    conf.setInt(CommonConfigurationKeys.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY, 0);
+    final String ns = CommonConfigurationKeys.IPC_NAMESPACE + ".0.";
+    conf.setBoolean(ns + CommonConfigurationKeys.IPC_BACKOFF_ENABLE, true);
+    conf.setStrings(ns + CommonConfigurationKeys.IPC_CALLQUEUE_IMPL_KEY,
+        "org.apache.hadoop.ipc.FairCallQueue");
+    conf.setStrings(ns + CommonConfigurationKeys.IPC_SCHEDULER_IMPL_KEY,
+        "org.apache.hadoop.ipc.DecayRpcScheduler");
+    conf.setInt(ns + CommonConfigurationKeys.IPC_SCHEDULER_PRIORITY_LEVELS_KEY,
+        2);
+    conf.setBoolean(ns +
+        DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_ENABLE_KEY,
+        true);
+    // set a small thresholds 2s and 4s for level 0 and level 1 for testing
+    conf.set(ns +
+        DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_THRESHOLDS_KEY
+        , "2s, 4s");
+
+    // Set max queue size to 3 so that 2 calls from the test won't trigger
+    // back off because the queue is full.
+    server = new RPC.Builder(conf)
+        .setProtocol(TestProtocol.class).setInstance(new TestImpl())
+        .setBindAddress(ADDRESS).setPort(0)
+        .setQueueSizePerHandler(queueSizePerHandler).setNumHandlers(1)
+        .setVerbose(true)
+        .build();
+    server.start();
+
+    proxy = RPC.getProxy(TestProtocol.class, TestProtocol.versionID,
+        NetUtils.getConnectAddress(server), conf);
+
+    @SuppressWarnings("unchecked")
+    CallQueueManager<Server.Call> spy = spy((CallQueueManager<Server.Call>)
+        Whitebox.getInternalState(server, "callQueue"));
+    setInternalState(server, "callQueue", spy);
+
+    Exception lastException = null;
+    try {
+      // start a sleep RPC call that sleeps 3s.
+      for (int i = 0; i < numClients; i++) {
+        res.add(executorService.submit(
+            new Callable<Void>() {
+              @Override
+              public Void call() throws IOException, InterruptedException {
+                proxy.sleep(3000);
+                return null;
+              }
+            }));
+        verify(spy, timeout(500).times(i + 1)).offer(
+            Mockito.<Server.Call>anyObject());
+      }
+      // Start another sleep RPC call and verify the call is backed off due to
+      // avg response time(3s) exceeds threshold (2s).
+      try {
+        // wait for the 1st response time update
+        Thread.sleep(5500);
+        proxy.sleep(100);
+      } catch (RemoteException e) {
+        IOException unwrapExeption = e.unwrapRemoteException();
+        if (unwrapExeption instanceof RetriableException) {
+          succeeded = true;
+        } else {
+          lastException = unwrapExeption;
+        }
+      }
+    } finally {
+      server.stop();
+      RPC.stopProxy(proxy);
+      executorService.shutdown();
+    }
+    if (lastException != null) {
+      LOG.error("Last received non-RetriableException:", lastException);
     }
     assertTrue("RetriableException not received", succeeded);
   }
