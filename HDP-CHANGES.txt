@@ -990,3 +990,6 @@ ATS V1.5:
     fails with NPE on branch-2.7. (Naganarasimha G R via junping_du)
 
     BUG-55475. YARN-4916. TestNMProxy.tesNMProxyRPCRetry fails. Contributed by Tibor Kiss.
+
+    BUG-55333. MAPREDUCE-6460. TestRMContainerAllocator.testAttemptNotFoundCausesRMCommunicatorException
+    fails. Contributed by Zhihai Xu. (cherry picked from commit e3ace31e2b7e3a8dc6cf3dc044d5ef2a9aa12e29)
