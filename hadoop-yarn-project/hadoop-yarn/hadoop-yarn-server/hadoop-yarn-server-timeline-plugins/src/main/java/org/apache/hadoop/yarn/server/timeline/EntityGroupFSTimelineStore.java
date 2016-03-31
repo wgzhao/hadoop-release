@@ -171,9 +171,6 @@ public class EntityGroupFSTimelineStore extends AbstractService
     cacheIdPlugins = loadPlugIns(conf);
     // Initialize yarn client for application status
     yarnClient = createAndInitYarnClient(conf);
-    if (yarnClient != null) {
-      yarnClient.init(conf);
-    }
     CallerContext.setCurrent(
         new CallerContext.Builder(ATS_V15_SERVER_DFS_CALLER_CTXT).build());
     super.serviceInit(conf);
