@@ -1139,3 +1139,7 @@ ATS V1.5:
 
     BUG-55473. HDFS-9130. Use GenericTestUtils#setLogLevel to the logging level.
     Contributed by Mingliang Liu.
+
+    BUG-55333. MAPREDUCE-6460. TestRMContainerAllocator.testAttemptNotFoundCausesRMCommunicatorException
+    fails. Contributed by Zhihai Xu. (cherry picked from commit e3ace31e2b7e3a8dc6cf3dc044d5ef2a9aa12e29)
+    
