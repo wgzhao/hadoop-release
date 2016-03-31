@@ -963,3 +963,6 @@ ATS V1.5:
     Contributed by Varun Saxena.
 
     BUG-53291. YARN-4737. Add CSRF filter support in YARN (Varun Vasudev via Jon Maron)
+
+    BUG-55570. YARN-4811. Generate histograms in ContainerMetrics for actual
+    container resource usage

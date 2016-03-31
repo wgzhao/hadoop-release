@@ -18,6 +18,9 @@
 
 package org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Snapshot;
+import com.codahale.metrics.UniformReservoir;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.metrics2.MetricsCollector;
 import org.apache.hadoop.metrics2.MetricsInfo;
@@ -28,13 +31,17 @@ import org.apache.hadoop.metrics2.annotation.Metrics;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.lib.MetricsRegistry;
 import org.apache.hadoop.metrics2.lib.MutableGaugeInt;
+import org.apache.hadoop.metrics2.lib.MutableQuantiles;
 import org.apache.hadoop.metrics2.lib.MutableStat;
+import org.apache.hadoop.metrics2.util.Quantile;
+import org.apache.hadoop.metrics2.util.QuantileEstimator;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 import static org.apache.hadoop.metrics2.lib.Interns.info;
 
@@ -46,7 +53,10 @@ public class ContainerMetrics implements MetricsSource {
   public static final String VMEM_LIMIT_METRIC_NAME = "vMemLimitMBs";
   public static final String VCORE_LIMIT_METRIC_NAME = "vCoreLimit";
   public static final String PMEM_USAGE_METRIC_NAME = "pMemUsageMBs";
+  public static final String PMEM_USAGE_QUANTILES_NAME = "pMemUsageMBHistogram";
   private static final String PHY_CPU_USAGE_METRIC_NAME = "pCpuUsagePercent";
+  private static final String PHY_CPU_USAGE_QUANTILES_NAME =
+      "pCpuUsagePercentHistogram";
 
   // Use a multiplier of 1000 to avoid losing too much precision when
   // converting to integers
@@ -55,12 +65,18 @@ public class ContainerMetrics implements MetricsSource {
   @Metric
   public MutableStat pMemMBsStat;
 
+  @Metric
+  public  MutableQuantiles pMemMBQuantiles;
+
   // This tracks overall CPU percentage of the machine in terms of percentage
   // of 1 core similar to top
   // Thus if you use 2 cores completely out of 4 available cores this value
   // will be 200
   @Metric
   public MutableStat cpuCoreUsagePercent;
+
+  @Metric
+  public  MutableQuantiles cpuCoreUsagePercentQuantiles;
 
   @Metric
   public MutableStat milliVcoresUsed;
@@ -117,9 +133,23 @@ public class ContainerMetrics implements MetricsSource {
 
     this.pMemMBsStat = registry.newStat(
         PMEM_USAGE_METRIC_NAME, "Physical memory stats", "Usage", "MBs", true);
+    this.pMemMBQuantiles = registry
+        .newQuantiles(PMEM_USAGE_QUANTILES_NAME, "Physical memory quantiles",
+            "Usage", "MBs", 1);
+    ContainerMetricsQuantiles memEstimator =
+        new ContainerMetricsQuantiles(MutableQuantiles.quantiles);
+    pMemMBQuantiles.setEstimator(memEstimator);
+
     this.cpuCoreUsagePercent = registry.newStat(
         PHY_CPU_USAGE_METRIC_NAME, "Physical Cpu core percent usage stats",
         "Usage", "Percents", true);
+    this.cpuCoreUsagePercentQuantiles = registry
+        .newQuantiles(PHY_CPU_USAGE_QUANTILES_NAME,
+            "Physical Cpu core percent usage quantiles", "Usage", "Percents",
+            1);
+    ContainerMetricsQuantiles cpuEstimator =
+        new ContainerMetricsQuantiles(MutableQuantiles.quantiles);
+    cpuCoreUsagePercentQuantiles.setEstimator(cpuEstimator);
     this.milliVcoresUsed = registry.newStat(
         VCORE_USAGE_METRIC_NAME, "1000 times Vcore usage", "Usage",
         "MilliVcores", true);
@@ -202,6 +232,7 @@ public class ContainerMetrics implements MetricsSource {
   public void recordMemoryUsage(int memoryMBs) {
     if (memoryMBs >= 0) {
       this.pMemMBsStat.add(memoryMBs);
+      this.pMemMBQuantiles.add(memoryMBs);
     }
   }
 
@@ -209,6 +240,7 @@ public class ContainerMetrics implements MetricsSource {
       int totalPhysicalCpuPercent, int milliVcoresUsed) {
     if (totalPhysicalCpuPercent >=0) {
       this.cpuCoreUsagePercent.add(totalPhysicalCpuPercent);
+      this.cpuCoreUsagePercentQuantiles.add(totalPhysicalCpuPercent);
     }
     if (milliVcoresUsed >= 0) {
       this.milliVcoresUsed.add(milliVcoresUsed);
@@ -253,5 +285,42 @@ public class ContainerMetrics implements MetricsSource {
       }
     };
     unregisterContainerMetricsTimer.schedule(timerTask, unregisterDelayMs);
+  }
+
+  public static class ContainerMetricsQuantiles implements QuantileEstimator {
+
+    private final Histogram histogram = new Histogram(new UniformReservoir());
+
+    private Quantile[] quantiles;
+
+    ContainerMetricsQuantiles(Quantile[] q) {
+      quantiles = q;
+    }
+
+    @Override
+    public synchronized void insert(long value) {
+      histogram.update(value);
+    }
+
+    @Override
+    synchronized public long getCount() {
+      return histogram.getCount();
+    }
+
+    @Override
+    synchronized public void clear() {
+      // don't do anything because we want metrics over the lifetime of the
+      // container
+    }
+
+    @Override
+    public synchronized Map<Quantile, Long> snapshot() {
+      Snapshot snapshot = histogram.getSnapshot();
+      Map<Quantile, Long> values = new TreeMap<>();
+      for (Quantile quantile : quantiles) {
+        values.put(quantile, (long) snapshot.getValue(quantile.quantile));
+      }
+      return values;
+    }
   }
 }
