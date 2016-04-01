@@ -1156,3 +1156,6 @@ ATS V1.5:
     BUG-54764. MAPREDUCE-6436. JobHistory cache issue. (Kai Sasaki via zxu)
 
     BUG-53494. MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader and IndexOutOfBoundsException. (junping_du)
+
+    BUG-55443. YARN-4696. TimelineClient to add flush operation for deterministic writes (including testing)
+    and Changes to EntityGroupFSTimelineStore for testability. (stevel)
