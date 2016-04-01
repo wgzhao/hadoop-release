@@ -1129,3 +1129,30 @@ ATS V1.5:
     HDFS-9478. Reason for failing ipc.FairCallQueue contruction should
     be thrown. (Ajith S via Arpit Agarwal)
 
+    BUG-55060. ARN-3102. Decommisioned Nodes not listed in Web UI. (Kuhu Shukla via jlowe)
+
+    YARN-4723. NodesListManager$UnknownNodeId ClassCastException. (Kuhu Shukla via jlowe)
+
+    BUG-55058. YARN-4598. Invalid event: RESOURCE_FAILED at CONTAINER_CLEANEDUP_AFTER_KILL. (tangshangwen via jlowe)
+
+    BUG-55059. YARN-4428. Redirect RM page to AHS page when AHS turned on and RM page is not available. (Chang Li via jlowe)
+
+    BUG-55057. YARN-4610: Reservations continue looking for one app causes other apps to starve. (Jason Lowe)
+
+    BUG-55056. YARN-4414. Nodemanager connection errors are retried at multiple levels. (Chang Li via jlowe)
+
+    BUG-55055. YARN-3695. ServerProxy (NMProxy, etc.) shouldn't retry forever for non network exception. (Raju Bairishetti via jlowe)
+
+    BUG-55053. YARN-4422. Generic AHS sometimes doesn't show started, node, or logs on App page. (Eric Payne via jeagles)
+
+    BUG-54771. YARN-4546. YARN-4546. ResourceManager crash due to scheduling opportunity overflow. (Jason Lowe via junping_du)
+
+    BUG-54770. YARN-2046. Out of band heartbeats are sent only on container kill and possibly too early. (Ming Ma via jlowe) 
+
+    BUG-54769. MAPREDUCE-6492. AsyncDispatcher exit with NPE on TaskAttemptImpl#sendJHStartEventForAssignedFailTask. (Bibin A Chundatt via jlowe)
+
+    BUG-54768. MAPREDUCE-6577. MR AM unable to load native library without MR_AM_ADMIN_USER_ENV set. (sjlee)
+
+    BUG-54764. MAPREDUCE-6436. JobHistory cache issue. (Kai Sasaki via zxu)
+
+    BUG-53494. MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader and IndexOutOfBoundsException. (junping_du)
