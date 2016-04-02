@@ -1161,3 +1161,6 @@ ATS V1.5:
     and Changes to EntityGroupFSTimelineStore for testability. (stevel)
 
     BUG-53291. YARN-4737. Add CSRF filter support in YARN (Varun Vasudev via Jon Maron)
+
+    BUG-55473. HDFS-9130. Use GenericTestUtils#setLogLevel to the logging level.
+    Contributed by Mingliang Liu.

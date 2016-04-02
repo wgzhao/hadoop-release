@@ -33,13 +33,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.util.ByteArrayManager.Counter;
 import org.apache.hadoop.hdfs.util.ByteArrayManager.CounterMap;
 import org.apache.hadoop.hdfs.util.ByteArrayManager.FixedLengthManager;
 import org.apache.hadoop.hdfs.util.ByteArrayManager.ManagerMap;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.log4j.Level;
 import org.junit.Assert;
@@ -50,8 +50,8 @@ import org.junit.Test;
  */
 public class TestByteArrayManager {
   static {
-    ((Log4JLogger)LogFactory.getLog(ByteArrayManager.class)
-        ).getLogger().setLevel(Level.ALL);
+    GenericTestUtils.setLogLevel(LogFactory.getLog(ByteArrayManager.class),
+        Level.ALL);
   }
 
   static final Log LOG = LogFactory.getLog(TestByteArrayManager.class);
@@ -559,8 +559,8 @@ public class TestByteArrayManager {
   }
   
   public static void main(String[] args) throws Exception {
-    ((Log4JLogger)LogFactory.getLog(ByteArrayManager.class)
-        ).getLogger().setLevel(Level.OFF);
+    GenericTestUtils.setLogLevel(LogFactory.getLog(ByteArrayManager.class),
+        Level.OFF);
 
     final int arrayLength = 64 * 1024; //64k
     final int nThreads = 512;
