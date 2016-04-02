@@ -42,7 +42,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.hdfs.qjournal.MiniJournalCluster;
@@ -85,7 +84,7 @@ public class TestQuorumJournalManager {
   private final List<QuorumJournalManager> toClose = Lists.newLinkedList();
   
   static {
-    ((Log4JLogger)ProtobufRpcEngine.LOG).getLogger().setLevel(Level.ALL);
+    GenericTestUtils.setLogLevel(ProtobufRpcEngine.LOG, Level.ALL);
   }
 
   @Before
