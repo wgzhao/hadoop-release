@@ -1159,3 +1159,5 @@ ATS V1.5:
 
     BUG-55443. YARN-4696. TimelineClient to add flush operation for deterministic writes (including testing)
     and Changes to EntityGroupFSTimelineStore for testability. (stevel)
+
+    BUG-53291. YARN-4737. Add CSRF filter support in YARN (Varun Vasudev via Jon Maron)
