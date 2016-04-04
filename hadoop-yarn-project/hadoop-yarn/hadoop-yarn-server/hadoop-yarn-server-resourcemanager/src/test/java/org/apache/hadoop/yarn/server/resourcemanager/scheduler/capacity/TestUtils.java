@@ -131,6 +131,7 @@ public class TestUtils {
     ResourceScheduler mockScheduler = mock(ResourceScheduler.class);
     when(mockScheduler.getResourceCalculator()).thenReturn(
         new DefaultResourceCalculator());
+    rmContext.setYarnConfiguration(new Configuration());
     rmContext.setScheduler(mockScheduler);
 
     return rmContext;

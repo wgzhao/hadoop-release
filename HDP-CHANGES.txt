@@ -1255,3 +1255,7 @@ ATS V1.5:
     YARN-3983. Refactored CapacityScheduleri#FiCaSchedulerApp to easier extend container allocation logic. Contributed by Wangda Tan
 
     YARN-4026. Refactored ContainerAllocator to accept a list of priorites rather than a single priority. Contributed by Wangda Tan
+
+    Pulled common changes of scheduler from YARN-1651 to erie. (wangda)
+
+    YARN-4287. Capacity Scheduler: Rack Locality improvement (Nathan Roberts via wangda)

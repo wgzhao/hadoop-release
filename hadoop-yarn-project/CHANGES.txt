@@ -166,6 +166,8 @@ Release 2.8.0 - UNRELEASED
 
     YARN-3966. Fix excessive loggings in CapacityScheduler. (Jian He via wangda)
 
+    YARN-4287. Capacity Scheduler: Rack Locality improvement (Nathan Roberts via wangda)
+
   OPTIMIZATIONS
 
   BUG FIXES
