@@ -18,21 +18,18 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.webapp.dao;
 
-
-import java.util.ArrayList;
-import java.util.Collection;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.AllocationConfiguration;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FSLeafQueue;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FSQueue;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler;
+import org.apache.hadoop.yarn.util.resource.Resources;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
-
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.AllocationConfiguration;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FSLeafQueue;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FSQueue;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler;
-import org.apache.hadoop.yarn.util.resource.Resources;
+import java.util.Collection;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -57,7 +54,11 @@ public class FairSchedulerQueueInfo {
   private ResourceInfo steadyFairResources;
   private ResourceInfo fairResources;
   private ResourceInfo clusterResources;
-  
+
+  private long pendingContainers;
+  private long allocatedContainers;
+  private long reservedContainers;
+
   private String queueName;
   private String schedulingPolicy;
   
@@ -95,12 +96,34 @@ public class FairSchedulerQueueInfo {
     
     maxApps = allocConf.getQueueMaxApps(queueName);
 
-    childQueues = new ArrayList<FairSchedulerQueueInfo>();
+    pendingContainers = queue.getMetrics().getPendingContainers();
+    allocatedContainers = queue.getMetrics().getAllocatedContainers();
+    reservedContainers = queue.getMetrics().getReservedContainers();
+
     if (allocConf.isReservable(queueName) &&
         !allocConf.getShowReservationAsQueues(queueName)) {
       return;
     }
 
+    getChildQueues(queue, scheduler);
+  }
+
+  public long getPendingContainers() {
+    return pendingContainers;
+  }
+
+  public long getAllocatedContainers() {
+    return allocatedContainers;
+  }
+
+  public long getReservedContainers() {
+    return reservedContainers;
+  }
+
+  protected void getChildQueues(FSQueue queue, FairScheduler scheduler) {
+    // Return null to omit 'childQueues' field from the return value of
+    // REST API if it is empty. We omit the field to keep the consistency
+    // with CapacitySchedulerQueueInfo, which omits 'queues' field if empty.
     Collection<FSQueue> children = queue.getChildQueues();
     for (FSQueue child : children) {
       if (child instanceof FSLeafQueue) {
@@ -158,7 +181,7 @@ public class FairSchedulerQueueInfo {
   public ResourceInfo getUsedResources() {
     return usedResources;
   }
-  
+
   /**
    * Returns the queue's min share in as a fraction of the entire
    * cluster capacity.

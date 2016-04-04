@@ -1214,3 +1214,6 @@ ATS V1.5:
     to FiCaSchedulerApp. Contributed by Wangda Tan
 
     YARN-3966. Fix excessive loggings in CapacityScheduler. (Jian He via wangda)
+
+    YARN-3961. Expose pending, running and reserved containers of a queue in REST 
+    api and yarn top (adhoot via asuresh)
