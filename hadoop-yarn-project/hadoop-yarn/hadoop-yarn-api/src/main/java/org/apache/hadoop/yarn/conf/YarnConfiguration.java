@@ -2084,6 +2084,29 @@ public class YarnConfiguration extends Configuration {
   public static final String DEFAULT_NODELABEL_CONFIGURATION_TYPE =
       CENTALIZED_NODELABEL_CONFIGURATION_TYPE;
 
+  // RM and NM CSRF props
+  public static final String REST_CSRF = "webapp.rest-csrf.";
+  public static final String RM_CSRF_PREFIX = RM_PREFIX + REST_CSRF;
+  public static final String NM_CSRF_PREFIX = NM_PREFIX + REST_CSRF;
+  public static final String TIMELINE_CSRF_PREFIX = TIMELINE_SERVICE_PREFIX +
+      REST_CSRF;
+  public static final String RM_CSRF_ENABLED = RM_CSRF_PREFIX + "enabled";
+  public static final String NM_CSRF_ENABLED = NM_CSRF_PREFIX + "enabled";
+  public static final String TIMELINE_CSRF_ENABLED = TIMELINE_CSRF_PREFIX +
+      "enabled";
+  public static final String RM_CSRF_CUSTOM_HEADER = RM_CSRF_PREFIX +
+      "custom-header";
+  public static final String NM_CSRF_CUSTOM_HEADER = NM_CSRF_PREFIX +
+      "custom-header";
+  public static final String TIMELINE_CSRF_CUSTOM_HEADER =
+      TIMELINE_CSRF_PREFIX + "custom-header";
+  public static final String RM_CSRF_METHODS_TO_IGNORE = RM_CSRF_PREFIX +
+      "methods-to-ignore";
+  public static final String NM_CSRF_METHODS_TO_IGNORE = NM_CSRF_PREFIX +
+      "methods-to-ignore";
+  public static final String TIMELINE_CSRF_METHODS_TO_IGNORE =
+      TIMELINE_CSRF_PREFIX + "methods-to-ignore";
+
   @Private
   public static boolean isDistributedNodeLabelConfiguration(Configuration conf) {
     return DISTRIBUTED_NODELABEL_CONFIGURATION_TYPE.equals(conf.get(

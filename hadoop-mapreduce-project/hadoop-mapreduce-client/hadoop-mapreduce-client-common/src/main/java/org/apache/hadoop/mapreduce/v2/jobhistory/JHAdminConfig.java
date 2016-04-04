@@ -214,4 +214,17 @@ public class JHAdminConfig {
    */
   public static boolean DEFAULT_MR_HISTORY_MINICLUSTER_FIXED_PORTS = false;
 
+
+  /**
+   * CSRF settings.
+   */
+  public static final String MR_HISTORY_CSRF_PREFIX = MR_HISTORY_PREFIX +
+      "webapp.rest-csrf.";
+  public static final String MR_HISTORY_CSRF_ENABLED = MR_HISTORY_CSRF_PREFIX +
+      "enabled";
+  public static final String MR_HISTORY_CSRF_CUSTOM_HEADER =
+      MR_HISTORY_CSRF_PREFIX + "custom-header";
+  public static final String MR_HISTORY_METHODS_TO_IGNORE =
+      MR_HISTORY_CSRF_PREFIX + "methods-to-ignore";
+
 }

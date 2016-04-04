@@ -293,8 +293,11 @@ public class ApplicationHistoryServer extends CompositeService {
           WebApps
             .$for("applicationhistory", ApplicationHistoryClientService.class,
                 ahsClientService, "ws")
-             .with(conf).withAttribute(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
-                 conf.get(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS)).at(bindAddress).build(ahsWebApp);
+              .with(conf)
+              .withAttribute(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
+                  conf.get(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS))
+              .withCSRFProtection(YarnConfiguration.TIMELINE_CSRF_PREFIX)
+              .at(bindAddress).build(ahsWebApp);
        HttpServer2 httpServer = webApp.httpServer();
 
        String[] names = conf.getTrimmedStrings(YarnConfiguration.TIMELINE_SERVICE_UI_NAMES);
