@@ -64,12 +64,6 @@ public class QueueMetrics implements MetricsSource {
   @Metric("Allocated CPU in virtual cores") MutableGaugeInt allocatedVCores;
   @Metric("# of allocated containers") MutableGaugeInt allocatedContainers;
   @Metric("Aggregate # of allocated containers") MutableCounterLong aggregateContainersAllocated;
-  @Metric("Aggregate # of allocated node-local containers")
-    MutableCounterLong aggregateNodeLocalContainersAllocated;
-  @Metric("Aggregate # of allocated rack-local containers")
-    MutableCounterLong aggregateRackLocalContainersAllocated;
-  @Metric("Aggregate # of allocated off-switch containers")
-    MutableCounterLong aggregateOffSwitchContainersAllocated;
   @Metric("Aggregate # of released containers") MutableCounterLong aggregateContainersReleased;
   @Metric("Available memory in MB") MutableGaugeInt availableMB;
   @Metric("Available CPU in virtual cores") MutableGaugeInt availableVCores;
@@ -384,25 +378,6 @@ public class QueueMetrics implements MetricsSource {
     pendingVCores.decr(res.getVirtualCores() * containers);
   }
 
-  public void incrNodeTypeAggregations(String user, NodeType type) {
-    if (type == NodeType.NODE_LOCAL) {
-      aggregateNodeLocalContainersAllocated.incr();
-    } else if (type == NodeType.RACK_LOCAL) {
-      aggregateRackLocalContainersAllocated.incr();
-    } else if (type == NodeType.OFF_SWITCH) {
-      aggregateOffSwitchContainersAllocated.incr();
-    } else {
-      return;
-    }
-    QueueMetrics userMetrics = getUserMetrics(user);
-    if (userMetrics != null) {
-      userMetrics.incrNodeTypeAggregations(user, type);
-    }
-    if (parent != null) {
-      parent.incrNodeTypeAggregations(user, type);
-    }
-  }
-
   public void allocateResources(String user, int containers, Resource res,
       boolean decrPending) {
     allocatedContainers.incr(containers);
@@ -585,17 +560,5 @@ public class QueueMetrics implements MetricsSource {
 
   public long getAggegatedReleasedContainers() {
     return aggregateContainersReleased.value();
-  }
-
-  public long getAggregateNodeLocalContainersAllocated() {
-    return aggregateNodeLocalContainersAllocated.value();
-  }
-
-  public long getAggregateRackLocalContainersAllocated() {
-    return aggregateRackLocalContainersAllocated.value();
-  }
-
-  public long getAggregateOffSwitchContainersAllocated() {
-    return aggregateOffSwitchContainersAllocated.value();
   }
 }

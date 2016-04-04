@@ -694,9 +694,6 @@ ATS V1.5:
     BUG-48344. YARN-3849 (Too much of preemption activity causing continuos
     killing of containers across queues) to 2.3-maint. (Sunil G via wangda)
 
-    BUG-48340. YARN-4287 (Rack locality improvement) to 2.3-maint.
-    (Nathan Robert via wangda)
-
     HBASE-268. FileNotFoundException to be thrown in Open API in WASB when file
     is deleted from different process. (Dushyanth Chickabasapa via cnauroth)
 

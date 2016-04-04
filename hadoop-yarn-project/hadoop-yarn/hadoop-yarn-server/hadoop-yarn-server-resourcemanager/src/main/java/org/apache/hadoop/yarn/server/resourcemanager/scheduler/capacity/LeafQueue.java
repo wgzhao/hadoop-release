@@ -95,7 +95,6 @@ public class LeafQueue extends AbstractCSQueue {
   private float maxAMResourcePerQueuePercent;
   
   private int nodeLocalityDelay;
-  private volatile boolean rackLocalityFullReset;
 
   Map<ApplicationAttemptId, FiCaSchedulerApp> applicationAttemptMap = 
       new HashMap<ApplicationAttemptId, FiCaSchedulerApp>();
@@ -202,7 +201,6 @@ public class LeafQueue extends AbstractCSQueue {
     }
     
     nodeLocalityDelay = conf.getNodeLocalityDelay();
-    rackLocalityFullReset = conf.getRackLocalityFullReset();
 
     // re-init this since max allocation could have changed
     this.minimumAllocationFactor =
@@ -948,13 +946,7 @@ public class LeafQueue extends AbstractCSQueue {
               if (LOG.isDebugEnabled()) {
                 LOG.debug("Resetting scheduling opportunities");
               }
-              // Only reset scheduling opportunities for RACK_LOCAL if configured
-              // to do so. Not resetting means we will continue to schedule
-              // RACK_LOCAL without delay.
-              if (assignment.getType() == NodeType.NODE_LOCAL
-                  || getRackLocalityFullReset()) {
-                application.resetSchedulingOpportunities(priority);
-              }
+              application.resetSchedulingOpportunities(priority);
             }
             // Non-exclusive scheduling opportunity is different: we need reset
             // it every time to make sure non-labeled resource request will be
@@ -1088,12 +1080,7 @@ public class LeafQueue extends AbstractCSQueue {
     
     return userLimit;
   }
-
-  @Lock(NoLock.class)
-  public boolean getRackLocalityFullReset() {
-    return rackLocalityFullReset;
-  }
-
+  
   @Lock(NoLock.class)
   private Resource computeUserLimit(FiCaSchedulerApp application,
       Resource clusterResource, Resource required, User user,
@@ -1468,12 +1455,8 @@ public class LeafQueue extends AbstractCSQueue {
       float localityWaitFactor = 
         application.getLocalityWaitFactor(priority, 
             scheduler.getNumClusterNodes());
-
-      // Cap the delay by the number of nodes in the cluster. Under most conditions
-      // this means we will consider each node in the cluster before
-      // accepting an off-switch assignment.
-      return (Math.min(scheduler.getNumClusterNodes(),
-        (requiredContainers * localityWaitFactor)) < missedOpportunities);
+      
+      return ((requiredContainers * localityWaitFactor) < missedOpportunities);
     }
 
     // Check if we need containers on this rack 
@@ -1634,9 +1617,7 @@ public class LeafQueue extends AbstractCSQueue {
           " application attempt=" + application.getApplicationAttemptId() +
           " container=" + container + 
           " queue=" + this + 
-          " clusterResource=" + clusterResource + 
-          " type=" + type);
-
+          " clusterResource=" + clusterResource);
       createdContainer.setValue(allocatedContainer);
       CSAssignment assignment = new CSAssignment(container.getResource(), type);
       assignment.getAssignmentInformation().addAllocationDetails(

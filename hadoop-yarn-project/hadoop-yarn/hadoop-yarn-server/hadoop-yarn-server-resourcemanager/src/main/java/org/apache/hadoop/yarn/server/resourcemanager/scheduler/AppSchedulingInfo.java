@@ -347,11 +347,9 @@ public class AppSchedulingInfo {
           + " container=" + container.getId()
           + " host=" + container.getNodeId().toString()
           + " user=" + user
-          + " resource=" + request.getCapability()
-          + " type=" + type);
+          + " resource=" + request.getCapability());
     }
     metrics.allocateResources(user, 1, request.getCapability(), true);
-    metrics.incrNodeTypeAggregations(user, type);
     return resourceRequests;
   }
 
