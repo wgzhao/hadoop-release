@@ -19,18 +19,17 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmapp;
 
 import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.event.AbstractEvent;
 
-public class RMAppEvent extends AbstractEvent<RMAppEventType>{
+public class RMAppFinishedAttemptEvent extends RMAppEvent {
 
-  private final ApplicationId appId;
+  private final String diagnostics;
 
-  public RMAppEvent(ApplicationId appId, RMAppEventType type) {
-    super(type);
-    this.appId = appId;
+  public RMAppFinishedAttemptEvent(ApplicationId appId, String diagnostics) {
+    super(appId, RMAppEventType.ATTEMPT_FINISHED);
+    this.diagnostics = diagnostics;
   }
 
-  public ApplicationId getApplicationId() {
-    return this.appId;
+  public String getDiagnostics() {
+    return this.diagnostics;
   }
 }

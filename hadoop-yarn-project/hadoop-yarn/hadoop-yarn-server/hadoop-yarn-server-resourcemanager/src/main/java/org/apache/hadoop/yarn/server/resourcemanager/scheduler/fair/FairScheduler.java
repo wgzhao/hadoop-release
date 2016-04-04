@@ -53,6 +53,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.resource.ResourceWeights;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppEventType;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppRejectedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptEventType;
@@ -581,8 +582,7 @@ public class FairScheduler extends
               " submitted by user " + user + " with an empty queue name.";
       LOG.info(message);
       rmContext.getDispatcher().getEventHandler()
-          .handle(new RMAppEvent(applicationId,
-              RMAppEventType.APP_REJECTED, message));
+          .handle(new RMAppRejectedEvent(applicationId, message));
       return;
     }
 
@@ -593,8 +593,7 @@ public class FairScheduler extends
           + "The queue name cannot start/end with period.";
       LOG.info(message);
       rmContext.getDispatcher().getEventHandler()
-          .handle(new RMAppEvent(applicationId,
-              RMAppEventType.APP_REJECTED, message));
+          .handle(new RMAppRejectedEvent(applicationId, message));
       return;
     }
 
@@ -613,8 +612,7 @@ public class FairScheduler extends
               " cannot submit applications to queue " + queue.getName();
       LOG.info(msg);
       rmContext.getDispatcher().getEventHandler()
-          .handle(new RMAppEvent(applicationId,
-              RMAppEventType.APP_REJECTED, msg));
+          .handle(new RMAppRejectedEvent(applicationId, msg));
       return;
     }
   
@@ -710,8 +708,7 @@ public class FairScheduler extends
     if (appRejectMsg != null && rmApp != null) {
       LOG.error(appRejectMsg);
       rmContext.getDispatcher().getEventHandler().handle(
-          new RMAppEvent(rmApp.getApplicationId(),
-              RMAppEventType.APP_REJECTED, appRejectMsg));
+          new RMAppRejectedEvent(rmApp.getApplicationId(), appRejectMsg));
       return null;
     }
 
@@ -1290,8 +1287,7 @@ public class FairScheduler extends
                 + " submitted to a reservation which is not yet currently active: "
                 + resQName;
         this.rmContext.getDispatcher().getEventHandler()
-            .handle(new RMAppEvent(applicationId,
-                RMAppEventType.APP_REJECTED, message));
+            .handle(new RMAppRejectedEvent(applicationId, message));
         return null;
       }
       if (!queue.getParent().getQueueName().equals(queueName)) {
@@ -1300,8 +1296,7 @@ public class FairScheduler extends
                 + resQName + " which does not belong to the specified queue: "
                 + queueName;
         this.rmContext.getDispatcher().getEventHandler()
-            .handle(new RMAppEvent(applicationId,
-                RMAppEventType.APP_REJECTED, message));
+            .handle(new RMAppRejectedEvent(applicationId, message));
         return null;
       }
       // use the reservation queue to run the app

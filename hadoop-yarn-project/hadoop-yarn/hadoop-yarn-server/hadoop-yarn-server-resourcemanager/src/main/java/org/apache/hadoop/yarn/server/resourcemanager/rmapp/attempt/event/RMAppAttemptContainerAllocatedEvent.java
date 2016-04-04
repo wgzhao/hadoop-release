@@ -19,34 +19,13 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event;
 
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptEventType;
 
-public class RMAppAttemptUnregistrationEvent extends RMAppAttemptEvent {
+public class RMAppAttemptContainerAllocatedEvent extends RMAppAttemptEvent {
 
-  private final String finalTrackingUrl;
-  private final FinalApplicationStatus finalStatus;
-  private final String diagnostics;
-
-  public RMAppAttemptUnregistrationEvent(ApplicationAttemptId appAttemptId,
-      String trackingUrl, FinalApplicationStatus finalStatus, String diagnostics) {
-    super(appAttemptId, RMAppAttemptEventType.UNREGISTERED);
-    this.finalTrackingUrl = trackingUrl;
-    this.finalStatus = finalStatus;
-    this.diagnostics = diagnostics;
+  public RMAppAttemptContainerAllocatedEvent(ApplicationAttemptId appAttemptId) {
+    super(appAttemptId, RMAppAttemptEventType.CONTAINER_ALLOCATED);
   }
-
-  public String getFinalTrackingUrl() {
-    return this.finalTrackingUrl;
-  }
-
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    return this.finalStatus;
-  }
-
-  public String getDiagnostics() {
-    return this.diagnostics;
-  }
-
 }

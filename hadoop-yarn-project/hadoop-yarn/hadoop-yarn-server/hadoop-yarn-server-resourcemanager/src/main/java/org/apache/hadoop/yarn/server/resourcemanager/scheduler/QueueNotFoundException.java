@@ -22,11 +22,11 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 
 @Private
-public class QueueInvalidException extends YarnRuntimeException {
+public class QueueNotFoundException extends YarnRuntimeException {
 
   private static final long serialVersionUID = 187239430L;
 
-  public QueueInvalidException(String message) {
+  public QueueNotFoundException(String message) {
     super(message);
   }
 }
