@@ -106,7 +106,7 @@ public class TestRPC {
   int numThreads = 50;
 
   public interface TestProtocol extends VersionedProtocol {
-    public static final long versionID = 1L;
+    long versionID = 1L;
     
     void ping() throws IOException;
     void slowPing(boolean shouldSlow) throws IOException;
@@ -273,10 +273,10 @@ public class TestRPC {
   /**
    * A basic interface for testing client-side RPC resource cleanup.
    */
-  private static interface StoppedProtocol {
+  private interface StoppedProtocol {
     long versionID = 0;
 
-    public void stop();
+    void stop();
   }
   
   /**
@@ -654,6 +654,7 @@ public class TestRPC {
    * Switch off setting socketTimeout values on RPC sockets.
    * Verify that RPC calls still work ok.
    */
+  @Test
   public void testNoPings() throws IOException {
     Configuration conf = new Configuration();
     
@@ -1150,20 +1151,86 @@ public class TestRPC {
 
     final Configuration conf = new Configuration();
     conf.setInt(CommonConfigurationKeys.IPC_CLIENT_RPC_TIMEOUT_KEY, 1000);
-    final TestProtocol proxy =
+    InetSocketAddress addr = NetUtils.getConnectAddress(server);
+    TestProtocol proxy =
         RPC.getProxy(TestProtocol.class, TestProtocol.versionID,
-            NetUtils.getConnectAddress(server), conf);
+                addr, conf);
 
     try {
-      proxy.sleep(3000);
-      fail("RPC should time out.");
-    } catch (SocketTimeoutException e) {
-      LOG.info("got expected timeout.", e);
+      // Test RPC timeout with default ipc.client.ping.
+      try {
+        Configuration c = new Configuration(conf);
+        c.setInt(CommonConfigurationKeys.IPC_CLIENT_RPC_TIMEOUT_KEY, 1000);
+        proxy = RPC.getProxy(TestProtocol.class, 0, addr, c);
+        proxy.sleep(3000);
+        fail("RPC should time out.");
+      } catch (Exception e) {
+        assertTrue(e.getCause() instanceof SocketTimeoutException);
+        LOG.info("got expected timeout.", e);
+      } finally {
+        RPC.stopProxy(proxy);
+      }
+
+      // Test RPC timeout when ipc.client.ping is false.
+      try {
+        Configuration c = new Configuration(conf);
+        c.setBoolean(CommonConfigurationKeys.IPC_CLIENT_PING_KEY, false);
+        c.setInt(CommonConfigurationKeys.IPC_CLIENT_RPC_TIMEOUT_KEY, 1000);
+        proxy = RPC.getProxy(TestProtocol.class, 0, addr, c);
+        proxy.sleep(3000);
+        fail("RPC should time out.");
+      } catch (Exception e) {
+        assertTrue(e.getCause() instanceof SocketTimeoutException);
+        LOG.info("got expected timeout.", e);
+      } finally {
+        RPC.stopProxy(proxy);
+      }
+
+      // Test negative timeout value.
+      try {
+        Configuration c = new Configuration(conf);
+        c.setInt(CommonConfigurationKeys.IPC_CLIENT_RPC_TIMEOUT_KEY, -1);
+        proxy = RPC.getProxy(TestProtocol.class, 0, addr, c);
+        proxy.sleep(2000);
+      } catch (Exception e) {
+        LOG.info("got unexpected exception.", e);
+        fail("RPC should not time out.");
+      } finally {
+        RPC.stopProxy(proxy);
+      }
+
+      // Test RPC timeout greater than ipc.ping.interval.
+      try {
+        Configuration c = new Configuration(conf);
+        c.setBoolean(CommonConfigurationKeys.IPC_CLIENT_PING_KEY, true);
+        c.setInt(CommonConfigurationKeys.IPC_PING_INTERVAL_KEY, 800);
+        c.setInt(CommonConfigurationKeys.IPC_CLIENT_RPC_TIMEOUT_KEY, 1000);
+        proxy = RPC.getProxy(TestProtocol.class, 0, addr, c);
+
+        try {
+          // should not time out because effective rpc-timeout is
+          // multiple of ping interval: 1600 (= 800 * (1000 / 800 + 1))
+          proxy.sleep(1300);
+        } catch (Exception e) {
+          LOG.info("got unexpected exception.", e);
+          fail("RPC should not time out.");
+        }
+
+        proxy.sleep(2000);
+        fail("RPC should time out.");
+      } catch (Exception e) {
+        assertTrue(e.getCause() instanceof SocketTimeoutException);
+        LOG.info("got expected timeout.", e);
+      } finally {
+        RPC.stopProxy(proxy);
+      }
+
     } finally {
       server.stop();
       RPC.stopProxy(proxy);
     }
   }
+
 
   public static void main(String[] args) throws IOException {
     new TestRPC().testCallsInternal(conf);

@@ -1355,3 +1355,6 @@ ATS V1.5:
 
     BUG-54136. HADOOP-11252. RPC client does not time out by default.
     Contributed by Wilfred Spiegelenburg and Masatake Iwasaki.
+
+    BUG-54136. HADOOP-12672. RPC timeout should not override IPC ping interval
+    (iwasakims)
