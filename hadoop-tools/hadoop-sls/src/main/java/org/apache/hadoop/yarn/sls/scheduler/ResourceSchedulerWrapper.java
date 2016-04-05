@@ -943,7 +943,7 @@ public class ResourceSchedulerWrapper
   }
 
   @Override
-  protected void completedContainer(RMContainer rmContainer,
+  protected void completedContainerInternal(RMContainer rmContainer,
       ContainerStatus containerStatus, RMContainerEventType event) {
     // do nothing
   }

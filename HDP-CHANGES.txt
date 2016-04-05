@@ -1283,3 +1283,6 @@ ATS V1.5:
 
     YARN-3986. getTransferredContainers in AbstractYarnScheduler should be present in YarnScheduler 
     interface. (Rohith)
+
+    YARN-4502. Fix two AM containers get allocated when AM restart. 
+    (Vinod Kumar Vavilapalli via wangda)

@@ -18,12 +18,6 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.rmcontainer;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,13 +44,18 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptE
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerFinishedEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanContainerEvent;
 import org.apache.hadoop.yarn.state.InvalidStateTransitonException;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.ContainerRescheduledEvent;
 import org.apache.hadoop.yarn.state.MultipleArcTransition;
 import org.apache.hadoop.yarn.state.SingleArcTransition;
 import org.apache.hadoop.yarn.state.StateMachine;
 import org.apache.hadoop.yarn.state.StateMachineFactory;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
@@ -97,7 +96,7 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
     .addTransition(RMContainerState.ALLOCATED, RMContainerState.EXPIRED,
         RMContainerEventType.EXPIRE, new FinishedTransition())
     .addTransition(RMContainerState.ALLOCATED, RMContainerState.KILLED,
-        RMContainerEventType.KILL, new ContainerRescheduledTransition())
+        RMContainerEventType.KILL, new FinishedTransition())
 
     // Transitions from ACQUIRED state
     .addTransition(RMContainerState.ACQUIRED, RMContainerState.RUNNING,
@@ -498,7 +497,8 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
 
     @Override
     public void transition(RMContainerImpl container, RMContainerEvent event) {
-      // Clear ResourceRequest stored in RMContainer
+      // Clear ResourceRequest stored in RMContainer, we don't need to remember
+      // this anymore.
       container.setResourceRequests(null);
       
       // Register with containerAllocationExpirer.
@@ -517,17 +517,6 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
       // Unregister from containerAllocationExpirer.
       container.containerAllocationExpirer.unregister(container
           .getContainerId());
-    }
-  }
-
-  private static final class ContainerRescheduledTransition extends
-      FinishedTransition {
-
-    @Override
-    public void transition(RMContainerImpl container, RMContainerEvent event) {
-      // Tell scheduler to recover request of this container to app
-      container.eventHandler.handle(new ContainerRescheduledEvent(container));
-      super.transition(container, event);
     }
   }
 

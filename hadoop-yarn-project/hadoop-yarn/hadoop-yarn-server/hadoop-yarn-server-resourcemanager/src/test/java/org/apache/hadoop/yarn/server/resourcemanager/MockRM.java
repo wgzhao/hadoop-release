@@ -250,7 +250,8 @@ public class MockRM extends ResourceManager {
         nm.nodeHeartbeat(true);
       }
       container = getResourceScheduler().getRMContainer(containerId);
-      System.out.println("Waiting for container " + containerId + " to be allocated.");
+      System.out.println("Waiting for container " + containerId + " to be "
+          + containerState + ", container is null right now.");
       Thread.sleep(100);
       
       if (timeoutMillisecs <= timeoutSecs * 100) {
@@ -795,6 +796,15 @@ public class MockRM extends ResourceManager {
     ((AbstractYarnScheduler<SchedulerApplicationAttempt, SchedulerNode>) getResourceScheduler())
       .getSchedulerApplications().get(app.getApplicationId()).getQueue()
       .getMetrics().clearQueueMetrics();
+  }
+
+  public static RMAppAttempt waitForAttemptScheduled(RMApp app, MockRM rm)
+      throws Exception {
+    rm.waitForState(app.getApplicationId(), RMAppState.ACCEPTED);
+    RMAppAttempt attempt = app.getCurrentAppAttempt();
+    waitForSchedulerAppAttemptAdded(attempt.getAppAttemptId(), rm);
+    rm.waitForState(attempt.getAppAttemptId(), RMAppAttemptState.SCHEDULED);
+    return attempt;
   }
   
   public RMActiveServices getRMActiveService() {

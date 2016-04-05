@@ -126,14 +126,18 @@ public class AppSchedulingInfo {
    * application, by asking for more resources and releasing resources acquired
    * by the application.
    *
-   * @param requests resources to be acquired
-   * @param recoverPreemptedRequest recover Resource Request on preemption
-   * @return true if any resource was updated, false else
+   * @param requests
+   *          resources to be acquired
+   * @param recoverPreemptedRequestForAContainer
+   *          recover ResourceRequest on preemption
+   * @return true if any resource was updated, false otherwise
    */
-  synchronized public boolean updateResourceRequests(
-      List<ResourceRequest> requests, boolean recoverPreemptedRequest) {
+  public synchronized boolean updateResourceRequests(
+      List<ResourceRequest> requests,
+      boolean recoverPreemptedRequestForAContainer) {
     QueueMetrics metrics = queue.getMetrics();
-    
+
+    // Flag to track if any incoming requests update "ANY" requests
     boolean anyResourcesUpdated = false;
 
     // Update resource requests
@@ -195,9 +199,8 @@ public class AppSchedulingInfo {
       }
       lastRequest = asks.get(resourceName);
 
-      if (recoverPreemptedRequest && lastRequest != null) {
-        // Increment the number of containers to 1, as it is recovering a
-        // single container.
+      if (recoverPreemptedRequestForAContainer && lastRequest != null) {
+        // Increment number of containers if recovering preempted resources
         request.setNumContainers(lastRequest.getNumContainers() + 1);
       }
 
@@ -215,10 +218,11 @@ public class AppSchedulingInfo {
             .getNumContainers() : 0;
         Resource lastRequestCapability = lastRequest != null ? lastRequest
             .getCapability() : Resources.none();
+
         metrics.incrPendingResources(user, request.getNumContainers(),
-            request.getCapability());
+                        request.getCapability());
         metrics.decrPendingResources(user, lastRequestContainers,
-            lastRequestCapability);
+                        lastRequestCapability);
         
         // update queue:
         Resource increasedResource =
@@ -359,7 +363,7 @@ public class AppSchedulingInfo {
    * The {@link ResourceScheduler} is allocating data-local resources to the
    * application.
    * 
-   * @param allocatedContainers
+   * @param container
    *          resources allocated to the application
    */
   synchronized private void allocateNodeLocal(SchedulerNode node,
@@ -394,7 +398,7 @@ public class AppSchedulingInfo {
    * The {@link ResourceScheduler} is allocating data-local resources to the
    * application.
    * 
-   * @param allocatedContainers
+   * @param container
    *          resources allocated to the application
    */
   synchronized private void allocateRackLocal(SchedulerNode node,
@@ -416,7 +420,7 @@ public class AppSchedulingInfo {
    * The {@link ResourceScheduler} is allocating data-local resources to the
    * application.
    * 
-   * @param allocatedContainers
+   * @param container
    *          resources allocated to the application
    */
   synchronized private void allocateOffSwitch(SchedulerNode node,
