@@ -1811,3 +1811,6 @@ ATS V1.5:
 
     HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
     Contributed by Tibor Kiss.
+
+    BUG-93504. HDFS-8496. Calling stopWriter() with FSDatasetImpl lock held may
+    block other threads (cmccabe)
