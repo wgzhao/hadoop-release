@@ -56,6 +56,20 @@ import org.apache.hadoop.hdfs.tools.JMXGet;
 import org.apache.hadoop.net.unix.TemporarySocketDirectory;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.test.GenericTestUtils;
+import org.apache.log4j.Level;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -441,6 +455,7 @@ public abstract class LazyPersistTestCase {
 
   protected final void verifyRamDiskJMXMetric(String metricName,
       long expectedValue) throws Exception {
+    waitForMetric(metricName, (int)expectedValue);
     assertEquals(expectedValue, Integer.parseInt(jmx.getValue(metricName)));
   }
 
@@ -467,5 +482,10 @@ public abstract class LazyPersistTestCase {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  protected void waitForMetric(final String metricName, final int expectedValue)
+      throws TimeoutException, InterruptedException {
+    DFSTestUtil.waitForMetric(jmx, metricName, expectedValue);
   }
 }

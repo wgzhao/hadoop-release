@@ -1146,3 +1146,7 @@ ATS V1.5:
     BUG-55580. HDFS-9072. Fix random failures in TestJMXGet. (J. Andreina
     via kihwal)
 
+    BUG-55580. HDFS-9743. Fix TestLazyPersistFiles#testFallbackToDiskFull in
+    branch-2.7. (kihwal)
+
+
