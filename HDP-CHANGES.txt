@@ -1292,3 +1292,6 @@ ATS V1.5:
 
     YARN-4418. AM Resource Limit per partition can be updated to ResourceUsage as well. 
     (Sunil G via wangda)
+
+    YARN-4304. AM max resource configuration per partition to be displayed/updated correctly 
+    in UI and in various partition related metrics. (Sunil G via wangda)

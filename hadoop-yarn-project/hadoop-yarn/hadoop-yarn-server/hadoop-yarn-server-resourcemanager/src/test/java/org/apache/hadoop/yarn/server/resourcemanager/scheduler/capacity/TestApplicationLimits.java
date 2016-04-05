@@ -181,8 +181,10 @@ public class TestApplicationLimits {
     
     ActiveUsersManager activeUsersManager = mock(ActiveUsersManager.class);
     when(queue.getActiveUsersManager()).thenReturn(activeUsersManager);
-    
-    assertEquals(Resource.newInstance(8 * GB, 1), queue.getAMResourceLimit());
+
+    assertEquals(Resource.newInstance(8 * GB, 1),
+        queue.calculateAndGetAMResourceLimit());
+
     assertEquals(Resource.newInstance(4 * GB, 1),
       queue.getUserAMResourceLimit());
     
@@ -283,8 +285,7 @@ public class TestApplicationLimits {
     		queue.getUserAMResourceLimit());
     
     Resource amResourceLimit = Resource.newInstance(160 * GB, 1);
-    assertEquals(queue.getAMResourceLimit(), amResourceLimit);
-    assertEquals(queue.getAMResourceLimit(), amResourceLimit);
+    assertEquals(queue.calculateAndGetAMResourceLimit(), amResourceLimit);
     assertEquals(queue.getUserAMResourceLimit(), 
       Resource.newInstance(80*GB, 1));
     
@@ -304,7 +305,8 @@ public class TestApplicationLimits {
     root.updateClusterResource(clusterResource, new ResourceLimits(
         clusterResource));
     
-    assertEquals(queue.getAMResourceLimit(), Resource.newInstance(192*GB, 1));
+    assertEquals(queue.calculateAndGetAMResourceLimit(),
+        Resource.newInstance(192 * GB, 1));
     assertEquals(queue.getUserAMResourceLimit(), 
       Resource.newInstance(96*GB, 1));
     
@@ -354,7 +356,8 @@ public class TestApplicationLimits {
           queue.getQueuePath())
         );
     
-    assertEquals(queue.getAMResourceLimit(), Resource.newInstance(800*GB, 1));
+    assertEquals(queue.calculateAndGetAMResourceLimit(),
+        Resource.newInstance(800 * GB, 1));
     assertEquals(queue.getUserAMResourceLimit(), 
       Resource.newInstance(400*GB, 1));
 
@@ -384,7 +387,8 @@ public class TestApplicationLimits {
     final String user_1 = "user_1";
     final String user_2 = "user_2";
     
-    assertEquals(Resource.newInstance(16 * GB, 1), queue.getAMResourceLimit());
+    assertEquals(Resource.newInstance(16 * GB, 1),
+        queue.calculateAndGetAMResourceLimit());
     assertEquals(Resource.newInstance(8 * GB, 1),
       queue.getUserAMResourceLimit());
     
