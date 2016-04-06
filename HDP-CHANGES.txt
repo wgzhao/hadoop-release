@@ -1153,3 +1153,6 @@ ATS V1.5:
     explicitly. (Contributed by Steve Loughran)
 
     BUG-55475. YARN-4916. TestNMProxy.tesNMProxyRPCRetry fails. Contributed by Tibor Kiss.
+
+    BUG-55580. HDFS-9740. Use a reasonable limit in DFSTestUtil.waitForMetric()
+    (Contributed by Chang Li)
