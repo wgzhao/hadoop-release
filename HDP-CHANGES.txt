@@ -988,3 +988,5 @@ ATS V1.5:
 
     YARN-4623. TestSystemMetricsPublisher#testPublishAppAttemptMetricsForUnmanagedAM
     fails with NPE on branch-2.7. (Naganarasimha G R via junping_du)
+
+    BUG-55475. YARN-4916. TestNMProxy.tesNMProxyRPCRetry fails. Contributed by Tibor Kiss.
