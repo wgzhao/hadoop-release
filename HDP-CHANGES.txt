@@ -1149,7 +1149,7 @@ ATS V1.5:
     BUG-55580. HDFS-9743. Fix TestLazyPersistFiles#testFallbackToDiskFull in
     branch-2.7. (kihwal)
 
-
-
     BUG-55475. HADOOP-11212. NetUtils.wrapException to handle SocketException
     explicitly. (Contributed by Steve Loughran)
+
+    BUG-55475. YARN-4916. TestNMProxy.tesNMProxyRPCRetry fails. Contributed by Tibor Kiss.
