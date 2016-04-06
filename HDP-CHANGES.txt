@@ -1156,3 +1156,6 @@ ATS V1.5:
 
     BUG-55580. HDFS-9740. Use a reasonable limit in DFSTestUtil.waitForMetric()
     (Contributed by Chang Li)
+
+    BUG-55507. YARN-4769. Add support for CSRF header in the dump capacity
+    scheduler logs and kill app buttons in RM web UI.
