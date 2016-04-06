@@ -46,7 +46,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.logging.Log;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ChecksumException;
@@ -83,6 +82,7 @@ import org.apache.hadoop.util.Daemon;
 import org.apache.hadoop.util.DataChecksum;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
 
 /**
  * ErasureCodingWorker handles the erasure coding recovery work commands. These
@@ -92,7 +92,7 @@ import com.google.common.base.Preconditions;
  */
 @InterfaceAudience.Private
 public final class ErasureCodingWorker {
-  private static final Log LOG = DataNode.LOG;
+  private static final Logger LOG = DataNode.LOG;
   
   private final DataNode datanode; 
   private final Configuration conf;
@@ -905,7 +905,7 @@ public final class ErasureCodingWorker {
         return peer;
       } finally {
         if (!success) {
-          IOUtils.cleanup(LOG, peer);
+          IOUtils.cleanup(null, peer);
           IOUtils.closeSocket(sock);
         }
       }
