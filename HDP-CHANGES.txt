@@ -1150,3 +1150,6 @@ ATS V1.5:
     branch-2.7. (kihwal)
 
 
+
+    BUG-55475. HADOOP-11212. NetUtils.wrapException to handle SocketException
+    explicitly. (Contributed by Steve Loughran)
