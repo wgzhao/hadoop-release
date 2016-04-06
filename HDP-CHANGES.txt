@@ -1017,3 +1017,6 @@ ATS V1.5:
     BUG-54764. MAPREDUCE-6436. JobHistory cache issue. (Kai Sasaki via zxu)
 
     BUG-53494. MAPREDUCE-6635. Unsafe long to int conversion in UncompressedSplitLineReader and IndexOutOfBoundsException. (junping_du)
+
+    BUG-55507. YARN-4769. Add support for CSRF header in the dump capacity
+    scheduler logs and kill app buttons in RM web UI.
