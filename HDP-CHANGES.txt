@@ -1161,3 +1161,7 @@ ATS V1.5:
     scheduler logs and kill app buttons in RM web UI.
 
     BUG-55338. Ignore TestJavaSerialization tests until release.
+
+    BUG-55336. MAPREDUCE-6670. TestJobListCache#testEviction sometimes fails on
+    Windows with timeout. Contributed by Gergely Novák. (cherry picked from
+    commit de96d7c88a42cd54bd88ce2de63122998e967efa)
