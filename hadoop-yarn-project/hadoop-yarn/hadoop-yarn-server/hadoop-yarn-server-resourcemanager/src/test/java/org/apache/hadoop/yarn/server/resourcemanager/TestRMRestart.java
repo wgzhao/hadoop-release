@@ -2222,6 +2222,7 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
       // kill app0-attempt
       cs.killContainer(schedulerAppAttempt.getRMContainer(
           app0.getCurrentAppAttempt().getMasterContainer().getId()));
+      am0.waitForState(RMAppAttemptState.FAILED);
     }
     am0 = MockRM.launchAM(app0, rm1, nm1);
     am0.registerAppAttempt();
