@@ -378,9 +378,10 @@ public class SystemMetricsPublisher extends CompositeService {
         event.getFinalApplicationStatus().toString());
     eventInfo.put(AppAttemptMetricsConstants.STATE_EVENT_INFO,
         event.getYarnApplicationAttemptState().toString());
-    eventInfo.put(
-        AppAttemptMetricsConstants.MASTER_CONTAINER_EVENT_INFO,
-        event.getMasterContainerId().toString());
+    if (event.getMasterContainerId() != null) {
+      eventInfo.put(AppAttemptMetricsConstants.MASTER_CONTAINER_EVENT_INFO,
+          event.getMasterContainerId().toString());
+    }
     tEvent.setEventInfo(eventInfo);
     entity.addEvent(tEvent);
     putEntity(entity);
