@@ -1159,3 +1159,5 @@ ATS V1.5:
 
     BUG-55507. YARN-4769. Add support for CSRF header in the dump capacity
     scheduler logs and kill app buttons in RM web UI.
+
+    BUG-55338. Ignore TestJavaSerialization tests until release.

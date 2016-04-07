@@ -38,7 +38,9 @@ import org.apache.hadoop.io.serializer.JavaSerializationComparator;
 import org.apache.hadoop.mapreduce.MRConfig;
 import org.apache.zookeeper.Shell;
 import org.junit.Assume;
+import org.junit.Ignore;
 
+@Ignore
 public class TestJavaSerialization extends TestCase {
 
   private static String TEST_ROOT_DIR =
