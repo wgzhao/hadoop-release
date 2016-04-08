@@ -1176,3 +1176,6 @@ ATS V1.5:
     BUG-55703. YARN-4633. Fix random test failure in
     TestRMRestart#testRMRestartAfterPreemption. (Bibin A Chundatt via
     rohithsharmaks)
+
+    BUG-55760. YARN-2871. TestRMRestart#testRMRestartGetApplicationList 
+    sometimes fails in trunk. Contributed by zhihai xu.
