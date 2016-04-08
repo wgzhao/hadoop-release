@@ -951,3 +951,7 @@ covered by CHANGES.txt.
 
     BUG-47982. Update CallerContext name for MR app master / task (wangda)
 
+    BUG-55711. HDFS-9313. Possible NullPointerException in BlockManager if
+    no excess replica can be chosen. (Ming Ma)
+
+
