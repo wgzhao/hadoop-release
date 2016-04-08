@@ -1406,6 +1406,10 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
   @Override
   public int read(long position, byte[] buffer, int offset, int length)
       throws IOException {
+    validatePositionedReadArgs(position, buffer, offset, length);
+    if (length == 0) {
+      return 0;
+    }
     TraceScope scope =
         dfsClient.getPathTraceScope("DFSInputStream#byteArrayPread", src);
     try {
