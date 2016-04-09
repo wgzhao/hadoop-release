@@ -24,6 +24,9 @@ Release 2.8.0 - UNRELEASED
     avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
     (zhihai xu via devaraj)
 
+    MAPREDUCE-6633. AM should retry map attempts if the reduce task encounters
+    commpression related errors (Rushabh Shah via epayne)
+
     MAPREDUCE-6549. multibyte delimiters with LineRecordReader cause
     duplicate records (wilfreds via rkanter)
 
