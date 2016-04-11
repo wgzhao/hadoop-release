@@ -1168,3 +1168,7 @@ ATS V1.5:
 
     BUG-55808/YARN-3021. YARN's delegation-token handling disallows certain
     trust setups to operate properly over DistCp. (Yongjun Zhang via jianhe)
+
+    BUG-55340, BUG-55343. YARN-4928. Some yarn.server.timeline.* tests fail on
+    Windows attempting to use a test root path containing a colon. Contributed
+    by Gergely Novák.
