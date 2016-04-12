@@ -328,6 +328,9 @@ ATS V1.5:
     HADOOP-12825. Log slow name resolutions.
     (Sidharta Seethana via stevel)
 
+    RMP-6306. HDFS-8582. Support getting a list of reconfigurable config properties
+    and do not generate spurious reconfig warnings (Lei (Eddy) Xu)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
