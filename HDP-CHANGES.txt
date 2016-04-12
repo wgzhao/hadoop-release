@@ -99,6 +99,9 @@ ATS V1.5:
     Port YARN-3942(ATS V1.5) patch into 2.3-maint, which include the
     previous YARN-3360 Commits to fix the dependency.
 
+    RMP-6306. HDFS-9214. Support reconfiguring dfs.datanode.balance.max.concurrent.moves
+    without DN restart (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
