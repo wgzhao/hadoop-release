@@ -48,6 +48,8 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_MAX_NUM_BLOCKS_TO_LOG_DEF
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_MAX_NUM_BLOCKS_TO_LOG_KEY;
 import static org.apache.hadoop.util.ExitUtil.terminate;
 
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.ReconfigurationProtocolService;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -93,6 +95,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -123,6 +126,7 @@ import org.apache.hadoop.hdfs.protocol.DatanodeLocalInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.HdfsBlocksMetadata;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
+import org.apache.hadoop.hdfs.protocol.ReconfigurationProtocol;
 import org.apache.hadoop.hdfs.protocol.RecoveryInProgressException;
 import org.apache.hadoop.hdfs.protocol.datatransfer.BlockConstructionStage;
 import org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtocol;
@@ -144,6 +148,8 @@ import org.apache.hadoop.hdfs.protocolPB.InterDatanodeProtocolPB;
 import org.apache.hadoop.hdfs.protocolPB.InterDatanodeProtocolServerSideTranslatorPB;
 import org.apache.hadoop.hdfs.protocolPB.InterDatanodeProtocolTranslatorPB;
 import org.apache.hadoop.hdfs.protocolPB.PBHelper;
+import org.apache.hadoop.hdfs.protocolPB.ReconfigurationProtocolPB;
+import org.apache.hadoop.hdfs.protocolPB.ReconfigurationProtocolServerSideTranslatorPB;
 import org.apache.hadoop.hdfs.security.token.block.BlockPoolTokenSecretManager;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenSecretManager;
@@ -247,7 +253,7 @@ import org.slf4j.LoggerFactory;
 @InterfaceAudience.Private
 public class DataNode extends ReconfigurableBase
     implements InterDatanodeProtocol, ClientDatanodeProtocol,
-        TraceAdminProtocol, DataNodeMXBean {
+        TraceAdminProtocol, DataNodeMXBean, ReconfigurationProtocol {
   public static final Logger LOG = LoggerFactory.getLogger(DataNode.class);
   
   static{
@@ -866,7 +872,14 @@ public class DataNode extends ReconfigurableBase
             conf.getInt(DFS_DATANODE_HANDLER_COUNT_KEY,
                 DFS_DATANODE_HANDLER_COUNT_DEFAULT)).setVerbose(false)
         .setSecretManager(blockPoolTokenSecretManager).build();
-    
+
+    ReconfigurationProtocolServerSideTranslatorPB reconfigurationProtocolXlator
+        = new ReconfigurationProtocolServerSideTranslatorPB(this);
+    service = ReconfigurationProtocolService
+        .newReflectiveBlockingService(reconfigurationProtocolXlator);
+    DFSUtil.addPBProtocol(conf, ReconfigurationProtocolPB.class, service,
+        ipcServer);
+
     InterDatanodeProtocolServerSideTranslatorPB interDatanodeProtocolXlator = 
         new InterDatanodeProtocolServerSideTranslatorPB(this);
     service = InterDatanodeProtocolService
@@ -3123,19 +3136,19 @@ public class DataNode extends ReconfigurableBase
         confVersion, uptime);
   }
 
-  @Override // ClientDatanodeProtocol
+  @Override // ClientDatanodeProtocol & ReconfigurationProtocol
   public void startReconfiguration() throws IOException {
     checkSuperuserPrivilege();
     startReconfigurationTask();
   }
 
-  @Override // ClientDatanodeProtocol
+  @Override // ClientDatanodeProtocol & ReconfigurationProtocol
   public ReconfigurationTaskStatus getReconfigurationStatus() throws IOException {
     checkSuperuserPrivilege();
     return getReconfigurationTaskStatus();
   }
 
-  @Override // ClientDatanodeProtocol
+  @Override // ClientDatanodeProtocol & ReconfigurationProtocol
   public List<String> listReconfigurableProperties()
       throws IOException {
     return RECONFIGURABLE_PROPERTIES;

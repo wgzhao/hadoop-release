@@ -52,14 +52,14 @@ import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetDat
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetHdfsBlockLocationsRequestProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetHdfsBlockLocationsResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetReplicaVisibleLengthRequestProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.ListReconfigurablePropertiesRequestProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.ListReconfigurablePropertiesResponseProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.ListReconfigurablePropertiesRequestProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.ListReconfigurablePropertiesResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.RefreshNamenodesRequestProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetReconfigurationStatusRequestProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetReconfigurationStatusResponseProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.GetReconfigurationStatusConfigChangeProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.GetReconfigurationStatusRequestProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.GetReconfigurationStatusResponseProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.GetReconfigurationStatusConfigChangeProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.ShutdownDatanodeRequestProto;
-import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.StartReconfigurationRequestProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.StartReconfigurationRequestProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.TriggerBlockReportRequestProto;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.ipc.ProtobufHelper;
@@ -311,34 +311,15 @@ public class ClientDatanodeProtocolTranslatorPB implements
 
   @Override
   public ReconfigurationTaskStatus getReconfigurationStatus() throws IOException {
-    GetReconfigurationStatusResponseProto response;
-    Map<PropertyChange, Optional<String>> statusMap = null;
-    long startTime;
-    long endTime = 0;
     try {
-      response = rpcProxy.getReconfigurationStatus(NULL_CONTROLLER,
-          VOID_GET_RECONFIG_STATUS);
-      startTime = response.getStartTime();
-      if (response.hasEndTime()) {
-        endTime = response.getEndTime();
-      }
-      if (response.getChangesCount() > 0) {
-        statusMap = Maps.newHashMap();
-        for (GetReconfigurationStatusConfigChangeProto change :
-            response.getChangesList()) {
-          PropertyChange pc = new PropertyChange(
-              change.getName(), change.getNewValue(), change.getOldValue());
-          String errorMessage = null;
-          if (change.hasErrorMessage()) {
-            errorMessage = change.getErrorMessage();
-          }
-          statusMap.put(pc, Optional.fromNullable(errorMessage));
-        }
-      }
+      return ReconfigurationProtocolUtils.getReconfigurationStatus(
+          rpcProxy
+          .getReconfigurationStatus(
+              NULL_CONTROLLER,
+              VOID_GET_RECONFIG_STATUS));
     } catch (ServiceException e) {
       throw ProtobufHelper.getRemoteException(e);
     }
-    return new ReconfigurationTaskStatus(startTime, endTime, statusMap);
   }
 
   @Override
