@@ -105,6 +105,9 @@ ATS V1.5:
     RMP-6306. HDFS-9414. Refactor reconfiguration of ClientDatanodeProtocol for reusability
     (Xiaobing Zhou)
 
+    RMP-6306. HDFS-9094. Add command line option to ask NameNode reload configuration.
+    (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request

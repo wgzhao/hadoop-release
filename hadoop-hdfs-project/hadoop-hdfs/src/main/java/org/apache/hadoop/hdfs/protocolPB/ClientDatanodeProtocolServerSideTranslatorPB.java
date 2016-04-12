@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Optional;
+
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.ReconfigurationTaskStatus;
 import org.apache.hadoop.conf.ReconfigurationUtil.PropertyChange;
@@ -50,6 +51,8 @@ import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.Refres
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.RefreshNamenodesResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.ShutdownDatanodeRequestProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.ShutdownDatanodeResponseProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.ListReconfigurablePropertiesRequestProto;
+import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.ListReconfigurablePropertiesResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.StartReconfigurationRequestProto;
 import org.apache.hadoop.hdfs.protocol.proto.ReconfigurationProtocolProtos.StartReconfigurationResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.ClientDatanodeProtocolProtos.TriggerBlockReportRequestProto;
@@ -211,29 +214,25 @@ public class ClientDatanodeProtocolServerSideTranslatorPB implements
   }
 
   @Override
-  public ListReconfigurablePropertiesResponseProto listReconfigurableProperties(
-        RpcController controller,
-        ListReconfigurablePropertiesRequestProto request)
-      throws ServiceException {
-    ListReconfigurablePropertiesResponseProto.Builder builder =
-        ListReconfigurablePropertiesResponseProto.newBuilder();
-    try {
-      for (String name : impl.listReconfigurableProperties()) {
-        builder.addName(name);
-      }
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-    return builder.build();
-  }
-
-  @Override
   public GetReconfigurationStatusResponseProto getReconfigurationStatus(
       RpcController unused, GetReconfigurationStatusRequestProto request)
       throws ServiceException {
     try {
       return ReconfigurationProtocolServerSideUtils
           .getReconfigurationStatus(impl.getReconfigurationStatus());
+    } catch (IOException e) {
+      throw new ServiceException(e);
+    }
+  }
+
+  @Override
+  public ListReconfigurablePropertiesResponseProto listReconfigurableProperties(
+      RpcController controller,
+      ListReconfigurablePropertiesRequestProto request)
+      throws ServiceException {
+    try {
+      return ReconfigurationProtocolServerSideUtils
+          .listReconfigurableProperties(impl.listReconfigurableProperties());
     } catch (IOException e) {
       throw new ServiceException(e);
     }
