@@ -980,8 +980,8 @@ ATS V1.5:
     HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
     kerberos. (Yongjun Zhang)
 
-    BUG-52769. HADOOP-1023. Add more logging in WASB page blob read
-    function. (Duo Xu via Arpit Agarwal)
+    BUG-52769. Add more logging in WASB page blob read function.
+    (Duo Xu via Arpit Agarwal)
 
     BUG-53803. HADOOP-12903. IPC Server should allow suppressing exception logging by type,
     not log 'server too busy' messages. (Arpit Agarwal)
