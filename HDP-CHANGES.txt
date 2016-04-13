@@ -1191,3 +1191,6 @@ ATS V1.5:
 
     RMP-6306. HDFS-7833. DataNode reconfiguration does not recalculate valid
     volumes required, based on configured failed volumes tolerated. (Lei (Eddy) Xu)
+
+    RMP-6306. HDFS-9801. ReconfigurableBase should update the cached configuration
+    (Arpit Agarwal)
