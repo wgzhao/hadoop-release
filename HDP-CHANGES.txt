@@ -1188,3 +1188,6 @@ ATS V1.5:
 
     BUG-55580. HDFS-9740. Use a reasonable limit in DFSTestUtil.waitForMetric()
     (Contributed by Chang Li)
+
+    RMP-6306. HDFS-7833. DataNode reconfiguration does not recalculate valid
+    volumes required, based on configured failed volumes tolerated. (Lei (Eddy) Xu)
