@@ -1185,3 +1185,6 @@ ATS V1.5:
 
     HADOOP-12706. TestLocalFsFCStatistics#testStatisticsThreadLocalDataCleanUp
     times out occasionally (Sangjin Lee and Colin Patrick McCabe via jlowe)
+
+    HDFS-10281. TestPendingCorruptDnMessages fails intermittently. Contributed by
+    Mingliang Liu.
