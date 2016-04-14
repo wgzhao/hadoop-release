@@ -155,6 +155,7 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.FS_PROTECTED_DIRECTORIES;
 import static org.apache.hadoop.util.ExitUtil.terminate;
 import static org.apache.hadoop.util.ToolRunner.confirmPrompt;
 
@@ -278,8 +279,10 @@ public class NameNode extends ReconfigurableBase implements
 
   /** A list of property that are reconfigurable at runtime. */
   static final List<String> RECONFIGURABLE_PROPERTIES = Collections
-      .unmodifiableList(Arrays.asList(DFS_HEARTBEAT_INTERVAL_KEY,
-          DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY));
+      .unmodifiableList(Arrays
+          .asList(DFS_HEARTBEAT_INTERVAL_KEY,
+              DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY,
+              FS_PROTECTED_DIRECTORIES));
 
   private static final String USAGE = "Usage: java NameNode ["
       + StartupOption.BACKUP.getName() + "] | \n\t["
@@ -2152,6 +2155,8 @@ public class NameNode extends ReconfigurableBase implements
         LOG.info("RECONFIGURE* changed heartbeatRecheckInterval to "
             + datanodeManager.getHeartbeatRecheckInterval());
       }
+    case FS_PROTECTED_DIRECTORIES:
+      return getNamesystem().getFSDirectory().setProtectedDirectories(newVal);
     default:
       break;
     }
