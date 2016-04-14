@@ -1205,3 +1205,6 @@ ATS V1.5:
 
     RMP-6306. HDFS-9801. ReconfigurableBase should update the cached configuration
     (Arpit Agarwal)
+
+    HDFS-10281. TestPendingCorruptDnMessages fails intermittently. Contributed by
+    Mingliang Liu.
