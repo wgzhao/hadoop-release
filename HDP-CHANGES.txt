@@ -1188,3 +1188,6 @@ ATS V1.5:
 
     HDFS-10281. TestPendingCorruptDnMessages fails intermittently. Contributed by
     Mingliang Liu.
+
+    BUG-55569. HDFS-10270. TestJMXGet:testNameNode() fails. Contributed by
+    Gergely Novák
