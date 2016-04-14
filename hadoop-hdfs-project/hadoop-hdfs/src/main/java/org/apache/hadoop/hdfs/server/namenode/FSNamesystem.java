@@ -928,6 +928,36 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     return null;
   }
 
+  /**
+   * Locate DefaultAuditLogger, if any, to enable/disable CallerContext.
+   *
+   * @param value
+   *          true, enable CallerContext, otherwise false to disable it.
+   */
+  void setCallerContextEnabled(final boolean value) {
+    for (AuditLogger logger : auditLoggers) {
+      if (logger instanceof DefaultAuditLogger) {
+        ((DefaultAuditLogger) logger).setCallerContextEnabled(value);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Get the value indicating if CallerContext is enabled.
+   *
+   * @return true, if CallerContext is enabled, otherwise false, if it's
+   *         disabled.
+   */
+  boolean getCallerContextEnabled() {
+    for (AuditLogger logger : auditLoggers) {
+      if (logger instanceof DefaultAuditLogger) {
+        return ((DefaultAuditLogger) logger).getCallerContextEnabled();
+      }
+    }
+    return false;
+  }
+
   private List<AuditLogger> initAuditLoggers(Configuration conf) {
     // Initialize the custom access loggers if configured.
     Collection<String> alClasses = conf.getStringCollection(DFS_NAMENODE_AUDIT_LOGGERS_KEY);
@@ -8458,11 +8488,31 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * config file.
    */
   private static class DefaultAuditLogger extends HdfsAuditLogger {
-    private boolean isCallerContextEnabled;
+    private volatile boolean isCallerContextEnabled;
     private int callerContextMaxLen;
     private int callerSignatureMaxLen;
 
     private boolean logTokenTrackingId;
+
+    /**
+     * Enable or disable CallerContext.
+     *
+     * @param value
+     *          true, enable CallerContext, otherwise false to disable it.
+     */
+    void setCallerContextEnabled(final boolean value) {
+      isCallerContextEnabled = value;
+    }
+
+    /**
+     * Get the value indicating if CallerContext is enabled.
+     *
+     * @return true, if CallerContext is enabled, otherwise false, if it's
+     *         disabled.
+     */
+    boolean getCallerContextEnabled() {
+      return isCallerContextEnabled;
+    }
 
     @Override
     public void initialize(Configuration conf) {

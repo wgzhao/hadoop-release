@@ -114,6 +114,9 @@ ATS V1.5:
     RMP-6306. HDFS-9349. Support reconfiguring fs.protected.directories without NN restart
     (Xiaobing Zhou)
 
+    RMP-6306. HDFS-10209. Support enable caller context in HDFS namenode audit log without
+    restart namenode (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request

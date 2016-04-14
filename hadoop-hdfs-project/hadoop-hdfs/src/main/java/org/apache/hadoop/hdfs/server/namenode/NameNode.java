@@ -109,6 +109,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.HADOOP_CALLER_CONTEXT_ENABLED_KEY;
+import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.HADOOP_CALLER_CONTEXT_ENABLED_DEFAULT;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_TRASH_INTERVAL_DEFAULT;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_TRASH_INTERVAL_KEY;
@@ -282,7 +284,8 @@ public class NameNode extends ReconfigurableBase implements
       .unmodifiableList(Arrays
           .asList(DFS_HEARTBEAT_INTERVAL_KEY,
               DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY,
-              FS_PROTECTED_DIRECTORIES));
+              FS_PROTECTED_DIRECTORIES,
+              HADOOP_CALLER_CONTEXT_ENABLED_KEY));
 
   private static final String USAGE = "Usage: java NameNode ["
       + StartupOption.BACKUP.getName() + "] | \n\t["
@@ -2156,12 +2159,29 @@ public class NameNode extends ReconfigurableBase implements
             + datanodeManager.getHeartbeatRecheckInterval());
       }
     case FS_PROTECTED_DIRECTORIES:
-      return getNamesystem().getFSDirectory().setProtectedDirectories(newVal);
+      return reconfProtectedDirectories(newVal);
+    case HADOOP_CALLER_CONTEXT_ENABLED_KEY:
+      return reconfCallerContextEnabled(newVal);
     default:
       break;
     }
     throw new ReconfigurationException(property, newVal, getConf()
         .get(property));
+  }
+
+  private String reconfProtectedDirectories(String newVal) {
+    return getNamesystem().getFSDirectory().setProtectedDirectories(newVal);
+  }
+
+  private String reconfCallerContextEnabled(String newVal) {
+    Boolean callerContextEnabled;
+    if (newVal == null) {
+      callerContextEnabled = HADOOP_CALLER_CONTEXT_ENABLED_DEFAULT;
+    } else {
+      callerContextEnabled = Boolean.parseBoolean(newVal);
+    }
+    namesystem.setCallerContextEnabled(callerContextEnabled);
+    return Boolean.toString(callerContextEnabled);
   }
 
   @Override  // ReconfigurableBase
