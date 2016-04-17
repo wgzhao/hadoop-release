@@ -73,6 +73,8 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.sun.jersey.api.client.ClientHandlerException;
+
 /**
  * The job history events get routed to this class. This class writes the Job
  * history events to the DFS directly into a staging dir and then moved to a
@@ -997,12 +999,9 @@ public class JobHistoryEventHandler extends AbstractService
 
     try {
       timelineClient.putEntities(tEntity);
-    } catch (IOException ex) {
+    } catch (YarnException | IOException | ClientHandlerException ex) {
       LOG.error("Error putting entity " + tEntity.getEntityId() + " to Timeline"
-      + "Server", ex);
-    } catch (YarnException ex) {
-      LOG.error("Error putting entity " + tEntity.getEntityId() + " to Timeline"
-      + "Server", ex);
+          + "Server", ex);
     }
   }
 

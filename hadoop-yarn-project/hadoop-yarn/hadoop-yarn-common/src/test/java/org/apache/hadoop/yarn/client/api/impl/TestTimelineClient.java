@@ -281,7 +281,7 @@ public class TestTimelineClient {
         client.connectionRetry.getRetired());
   }
 
-  private static ClientResponse mockEntityClientResponse(
+  public static ClientResponse mockEntityClientResponse(
       TimelineClientImpl client, ClientResponse.Status status,
       boolean hasError, boolean hasRuntimeError) {
     ClientResponse response = mock(ClientResponse.class);
