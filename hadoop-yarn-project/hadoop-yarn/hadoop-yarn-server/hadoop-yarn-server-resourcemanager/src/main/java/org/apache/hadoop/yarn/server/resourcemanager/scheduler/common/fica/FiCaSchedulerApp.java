@@ -238,7 +238,9 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
 
       // Update reserved metrics
       queue.getMetrics().unreserveResource(getUser(),
-          rmContainer.getContainer().getResource());
+          rmContainer.getReservedResource());
+      queue.decReservedResource(node.getPartition(),
+          rmContainer.getReservedResource());
       return true;
     }
     return false;
