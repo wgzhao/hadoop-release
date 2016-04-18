@@ -1191,3 +1191,6 @@ ATS V1.5:
 
     HDFS-10283. o.a.h.hdfs.server.namenode.TestFSImageWithSnapshot#testSaveLoadImageWithAppending
     fails intermittently. Contributed by Mingliang Liu.
+
+    YARN-4965. Distributed shell AM failed due to ClientHandlerException thrown
+    by jersey. Contributed by Junping Du.
