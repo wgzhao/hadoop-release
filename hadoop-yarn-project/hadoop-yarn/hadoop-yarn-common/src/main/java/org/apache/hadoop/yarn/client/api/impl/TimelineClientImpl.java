@@ -664,4 +664,50 @@ public class TimelineClientImpl extends TimelineClient {
   public void setTimelineWriter(TimelineWriter writer) {
     this.timelineWriter = writer;
   }
+
+  @Private
+  @VisibleForTesting
+  public TimelineClientRetryOp
+      createTimelineClientRetryOpForOperateDelegationToken(
+          final PrivilegedExceptionAction<?> action) throws IOException {
+    return new TimelineClientRetryOpForOperateDelegationToken(
+        this.authUgi, action);
+  }
+
+  @Private
+  @VisibleForTesting
+  public class TimelineClientRetryOpForOperateDelegationToken
+      extends TimelineClientRetryOp {
+
+    private final UserGroupInformation authUgi;
+    private final PrivilegedExceptionAction<?> action;
+
+    public TimelineClientRetryOpForOperateDelegationToken(
+        UserGroupInformation authUgi, PrivilegedExceptionAction<?> action) {
+      this.authUgi = authUgi;
+      this.action = action;
+    }
+
+    @Override
+    public Object run() throws IOException {
+      // Try pass the request, if fail, keep retrying
+      authUgi.checkTGTAndReloginFromKeytab();
+      try {
+        return authUgi.doAs(action);
+      } catch (UndeclaredThrowableException e) {
+        throw new IOException(e.getCause());
+      } catch (InterruptedException e) {
+        throw new IOException(e);
+      }
+    }
+
+    @Override
+    public boolean shouldRetryOn(Exception e) {
+      // retry on connection exceptions
+      // and SocketTimeoutException
+      return (e instanceof ConnectException
+          || e instanceof SocketTimeoutException);
+    }
+  }
+
 }
