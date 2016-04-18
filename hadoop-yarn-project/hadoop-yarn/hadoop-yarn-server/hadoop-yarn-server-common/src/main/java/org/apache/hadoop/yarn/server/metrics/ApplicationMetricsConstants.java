@@ -84,9 +84,6 @@ public class ApplicationMetricsConstants {
   public static final String UNMANAGED_APPLICATION_ENTITY_INFO =
       "YARN_APPLICATION_UNMANAGED_APPLICATION";
 
-  public static final String APPLICATION_PRIORITY_INFO =
-      "YARN_APPLICATION_PRIORITY";
-
   public static final String APP_NODE_LABEL_EXPRESSION =
       "YARN_APP_NODE_LABEL_EXPRESSION";
 

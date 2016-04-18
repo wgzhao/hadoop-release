@@ -144,11 +144,6 @@ public class TestSystemMetricsPublisher {
           entity.getOtherInfo().get(
               ApplicationMetricsConstants.UNMANAGED_APPLICATION_ENTITY_INFO));
 
-      Assert.assertEquals(
-          app.getApplicationSubmissionContext().getPriority().getPriority(),
-          entity.getOtherInfo().get(
-              ApplicationMetricsConstants.APPLICATION_PRIORITY_INFO));
-
       Assert.assertEquals(app.getAmNodeLabelExpression(), entity.getOtherInfo()
           .get(ApplicationMetricsConstants.AM_NODE_LABEL_EXPRESSION));
 
@@ -412,7 +407,6 @@ public class TestSystemMetricsPublisher {
     when(app.getApplicationTags()).thenReturn(appTags);
     ApplicationSubmissionContext asc = mock(ApplicationSubmissionContext.class);
     when(asc.getUnmanagedAM()).thenReturn(false);
-    when(asc.getPriority()).thenReturn(Priority.newInstance(10));
     when(asc.getNodeLabelExpression()).thenReturn("high-cpu");
     when(app.getApplicationSubmissionContext()).thenReturn(asc);
     when(app.getAppNodeLabelExpression()).thenCallRealMethod();

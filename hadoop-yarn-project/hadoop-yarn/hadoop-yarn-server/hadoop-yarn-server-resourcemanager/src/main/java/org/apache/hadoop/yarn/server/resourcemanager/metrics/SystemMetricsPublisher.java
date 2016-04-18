@@ -110,10 +110,9 @@ public class SystemMetricsPublisher extends CompositeService {
               app.getQueue(),
               app.getSubmitTime(),
               createdTime, app.getCallerContext(), app.getApplicationTags(),
-              app.getApplicationSubmissionContext().getUnmanagedAM(),
-              app.getApplicationSubmissionContext().getPriority(),
               app.getAppNodeLabelExpression(),
-              app.getAmNodeLabelExpression()));
+              app.getAmNodeLabelExpression(),
+              app.getApplicationSubmissionContext().getUnmanagedAM()));
     }
   }
 
@@ -279,8 +278,6 @@ public class SystemMetricsPublisher extends CompositeService {
     entityInfo.put(
         ApplicationMetricsConstants.UNMANAGED_APPLICATION_ENTITY_INFO,
         event.isUnmanagedApp());
-    entityInfo.put(ApplicationMetricsConstants.APPLICATION_PRIORITY_INFO,
-        event.getApplicationPriority().getPriority());
     entityInfo.put(ApplicationMetricsConstants.APP_NODE_LABEL_EXPRESSION,
         event.getAppNodeLabelsExpression());
     entityInfo.put(ApplicationMetricsConstants.AM_NODE_LABEL_EXPRESSION,

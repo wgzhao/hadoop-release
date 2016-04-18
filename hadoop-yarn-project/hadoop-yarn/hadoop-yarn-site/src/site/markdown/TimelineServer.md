@@ -1097,7 +1097,6 @@ Response Body:
           "finishedTime":1430425008861,
           "elapsedTime":7857,
           "unmanagedApplication":"false",
-          "applicationPriority":0,
           "appNodeLabelExpression":"",
           "amNodeLabelExpression":""
           },
@@ -1121,7 +1120,6 @@ Response Body:
           "finishedTime":1430424963907,
           "elapsedTime":7257,
           "unmanagedApplication":"false",
-          "applicationPriority":0,
           "appNodeLabelExpression":"",
           "amNodeLabelExpression":""
           },
@@ -1145,7 +1143,6 @@ Response Body:
           "finishedTime":1430424776594,
           "elapsedTime":7199,
           "unmanagedApplication":"false",
-          "applicationPriority":0,
           "appNodeLabelExpression":"",
           "amNodeLabelExpression":""
           },
@@ -1170,7 +1167,6 @@ Response Body:
           "elapsedTime":18344,
           "applicationTags":"mrapplication,ta-example",
           "unmanagedApplication":"false",
-          "applicationPriority":0,
           "appNodeLabelExpression":"",
           "amNodeLabelExpression":""
           }
@@ -1215,7 +1211,6 @@ Response Body:
         <finishedTime>1430425008861</finishedTime>
         <elapsedTime>7857</elapsedTime>
         <unmanagedApplication>false</unmanagedApplication>
-        <applicationPriority>0</applicationPriority>
         <appNodeLabelExpression></appNodeLabelExpression>
         <amNodeLabelExpression></amNodeLabelExpression>
       </app>
@@ -1239,7 +1234,6 @@ Response Body:
         <finishedTime>1430424963907</finishedTime>
         <elapsedTime>7257</elapsedTime>
         <unmanagedApplication>false</unmanagedApplication>
-        <applicationPriority>0</applicationPriority>
         <appNodeLabelExpression></appNodeLabelExpression>
         <amNodeLabelExpression></amNodeLabelExpression>
       </app>
@@ -1263,7 +1257,6 @@ Response Body:
         <finishedTime>1430424776594</finishedTime>
         <elapsedTime>7199</elapsedTime>
         <unmanagedApplication>false</unmanagedApplication>
-        <applicationPriority>0</applicationPriority>
         <appNodeLabelExpression></appNodeLabelExpression>
         <amNodeLabelExpression></amNodeLabelExpression>
       </app>
@@ -1288,7 +1281,6 @@ Response Body:
         <elapsedTime>18344</elapsedTime>
         <applicationTags>mrapplication,ta-example</applicationTags>
         <unmanagedApplication>false</unmanagedApplication>
-        <applicationPriority>0</applicationPriority>
         <appNodeLabelExpression></appNodeLabelExpression>
         <amNodeLabelExpression></amNodeLabelExpression>
       </app>
@@ -1342,9 +1334,9 @@ None
 | `rpcPort` | int | The RPC port of the ApplicationMaster; zero if no IPC service declared |
 | `applicationTags` | string | The application tags. |
 | `unmanagedApplication` | boolean | Is the application unmanaged. |
-| `applicationPriority` | int | Priority of the submitted application. |
 | `appNodeLabelExpression` | string |Node Label expression which is used to identify the nodes on which application's containers are expected to run by default.|
 | `amNodeLabelExpression` | string | Node Label expression which is used to identify the node on which application's  AM container is expected to run.|
+
 ### Response Examples:
 
 #### JSON response
@@ -1382,7 +1374,6 @@ Response Body:
       "elapsedTime": 18344,
       "applicationTags": mrapplication,tag-example,
       "unmanagedApplication": "false",
-      "applicationPriority": 0,
       "appNodeLabelExpression": "",
       "amNodeLabelExpression": ""
     }
@@ -1424,7 +1415,6 @@ Response Body:
        <elapsedTime>18344</elapsedTime>
        <applicationTags>mrapplication,ta-example</applicationTags>
        <unmanagedApplication>false</unmanagedApplication>
-       <applicationPriority>0</applicationPriority>
        <appNodeLabelExpression><appNodeLabelExpression>
        <amNodeLabelExpression><amNodeLabelExpression>
      </app>
