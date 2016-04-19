@@ -1194,3 +1194,9 @@ ATS V1.5:
 
     YARN-4965. Distributed shell AM failed due to ClientHandlerException thrown
     by jersey. Contributed by Junping Du.
+
+    HADOOP-13026. Should not wrap IOExceptions into a AuthenticationException in 
+    KerberosAuthenticator. Contributed by Xuan Gong.
+
+    YARN-4955. Add retry for SocketTimeoutException in TimelineClient. Contributed by Xuan Gong.
+
