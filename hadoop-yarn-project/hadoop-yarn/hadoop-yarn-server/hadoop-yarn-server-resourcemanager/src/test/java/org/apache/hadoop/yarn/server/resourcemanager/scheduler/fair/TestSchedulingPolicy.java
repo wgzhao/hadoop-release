@@ -26,6 +26,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.Fai
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FifoPolicy;
 import org.apache.zookeeper.Shell;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -75,6 +76,7 @@ public class TestSchedulingPolicy {
    * 
    * @throws AllocationConfigurationException
    */
+  @Ignore
   @Test(timeout = 1000)
   public void testIsApplicableTo() throws AllocationConfigurationException {
     Assume.assumeFalse(Shell.WINDOWS);

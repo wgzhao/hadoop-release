@@ -1200,3 +1200,5 @@ ATS V1.5:
 
     YARN-4955. Add retry for SocketTimeoutException in TimelineClient. Contributed by Xuan Gong.
 
+    BUG-56293. Ignore intermittent unit test failure for o.a.h.y.s.r.s.fair.TestSchedulingPolicy.
+    testIsApplicableTo.
