@@ -541,3 +541,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-4625. Make ApplicationSubmissionContext and ApplicationSubmissionContextInfo
     more consistent. (xgong)
 
+    MAPREDUCE-6680. JHS UserLogDir scan algorithm sometime could skip directory
+    with update in CloudFS (Azure FileSystem, S3, etc). (Junping Du via jianhe)
