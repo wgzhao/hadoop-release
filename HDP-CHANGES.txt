@@ -1306,3 +1306,8 @@ ATS V1.5:
 
     HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
     determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
+
+    HADOOP-13026. Should not wrap IOExceptions into a AuthenticationException in 
+    KerberosAuthenticator. Contributed by Xuan Gong.
+
+    YARN-4955. Add retry for SocketTimeoutException in TimelineClient. Contributed by Xuan Gong.
