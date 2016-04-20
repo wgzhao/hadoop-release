@@ -1205,3 +1205,5 @@ ATS V1.5:
 
     MAPREDUCE-6680. JHS UserLogDir scan algorithm sometime could skip directory
     with update in CloudFS (Azure FileSystem, S3, etc). (Junping Du via jianhe)
+
+    BUG-56309. Intermittent failure for TestDiskFailures.testLocalDirsFailures.
