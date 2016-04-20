@@ -1207,3 +1207,5 @@ ATS V1.5:
     with update in CloudFS (Azure FileSystem, S3, etc). (Junping Du via jianhe)
 
     BUG-56309. Intermittent failure for TestDiskFailures.testLocalDirsFailures.
+
+    BUG-56289. [YARN-4968] Fix two scheduler related UTs in YARN
