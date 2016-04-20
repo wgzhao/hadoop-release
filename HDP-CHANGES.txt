@@ -351,6 +351,9 @@ ATS V1.5:
     RMP-6306. HDFS-8582. Support getting a list of reconfigurable config properties
     and do not generate spurious reconfig warnings (Lei (Eddy) Xu)
 
+    HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
+    protobuf maximum length restriction. Contributed by Chris Nauroth.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
