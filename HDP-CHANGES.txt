@@ -1222,3 +1222,6 @@ ATS V1.5:
 
     BUG-56474. HADOOP-12609. Fix intermittent failure of TestDecayRpcScheduler.
     (Contributed by Masatake Iwasaki)
+
+    BUG-56476. HADOOP-12699. TestKMS#testKMSProvider intermittently fails during
+    'test rollover draining'. Contributed by Xiao Chen.
