@@ -3090,3 +3090,5 @@ ATS V1.5:
 
     BUG-71400. YARN-4393. TestResourceLocalizationService#testFailedDirsResourceRelease fails intermittently.
     Contributed by Varun Saxena.
+
+    BUG-71401. YARN-4556. TestFifoScheduler.testResourceOverCommit fails. Contributed by Akihiro Suda.
