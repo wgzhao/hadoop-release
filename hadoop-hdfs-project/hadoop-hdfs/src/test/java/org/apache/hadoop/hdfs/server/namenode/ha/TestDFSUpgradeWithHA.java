@@ -51,6 +51,7 @@ import org.apache.hadoop.hdfs.util.PersistentLongFile;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.google.common.base.Joiner;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -620,6 +621,7 @@ public class TestDFSUpgradeWithHA {
   }
   
   @Test
+  @Ignore
   public void testRollbackWithJournalNodes() throws IOException,
       URISyntaxException {
     MiniQJMHACluster qjCluster = null;
