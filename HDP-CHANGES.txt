@@ -1218,3 +1218,7 @@ ATS V1.5:
     BUG-56482. YARN-4155. TestLogAggregationService.testLogAggregationServiceWithInterval failing.
     (Bibin A Chundatt via stevel)
 
+    BUG-56289. [YARN-4968] Fix two scheduler related UTs in YARN
+
+    BUG-56474. HADOOP-12609. Fix intermittent failure of TestDecayRpcScheduler.
+    (Contributed by Masatake Iwasaki)
