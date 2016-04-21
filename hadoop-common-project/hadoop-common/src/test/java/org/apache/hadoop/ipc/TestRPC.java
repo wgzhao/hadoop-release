@@ -57,6 +57,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.SocketFactory;
 
+import com.google.common.base.Supplier;
+import com.google.protobuf.ServiceException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.HadoopIllegalArgumentException;
@@ -1161,30 +1164,8 @@ public class TestRPC {
     final ExecutorService executorService =
         Executors.newFixedThreadPool(numClients);
     conf.setInt(CommonConfigurationKeys.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY, 0);
-    final String ns = CommonConfigurationKeys.IPC_NAMESPACE + ".0.";
-    conf.setBoolean(ns + CommonConfigurationKeys.IPC_BACKOFF_ENABLE, true);
-    conf.setStrings(ns + CommonConfigurationKeys.IPC_CALLQUEUE_IMPL_KEY,
-        "org.apache.hadoop.ipc.FairCallQueue");
-    conf.setStrings(ns + CommonConfigurationKeys.IPC_SCHEDULER_IMPL_KEY,
-        "org.apache.hadoop.ipc.DecayRpcScheduler");
-    conf.setInt(ns + CommonConfigurationKeys.IPC_SCHEDULER_PRIORITY_LEVELS_KEY,
-        2);
-    conf.setBoolean(ns +
-        DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_ENABLE_KEY,
-        true);
-    // set a small thresholds 2s and 4s for level 0 and level 1 for testing
-    conf.set(ns +
-        DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_THRESHOLDS_KEY
-        , "2s, 4s");
-
-    // Set max queue size to 3 so that 2 calls from the test won't trigger
-    // back off because the queue is full.
-    server = new RPC.Builder(conf)
-        .setProtocol(TestProtocol.class).setInstance(new TestImpl())
-        .setBindAddress(ADDRESS).setPort(0)
-        .setQueueSizePerHandler(queueSizePerHandler).setNumHandlers(1)
-        .setVerbose(true)
-        .build();
+    final String ns = CommonConfigurationKeys.IPC_NAMESPACE + ".0";
+    server = setupDecayRpcSchedulerandTestServer(ns + ".");
     server.start();
 
     proxy = RPC.getProxy(TestProtocol.class, TestProtocol.versionID,
@@ -1196,6 +1177,12 @@ public class TestRPC {
     setInternalState(server, "callQueue", spy);
 
     Exception lastException = null;
+    MetricsRecordBuilder rb1 =
+        getMetrics("DecayRpcSchedulerMetrics2." + ns);
+    final long beginCallVolume = MetricsAsserts.getLongCounter("CallVolume", rb1);
+    final int beginUniqueCaller = MetricsAsserts.getIntCounter("UniqueCallers",
+        rb1);
+
     try {
       // start a sleep RPC call that sleeps 3s.
       for (int i = 0; i < numClients; i++) {
@@ -1223,6 +1210,36 @@ public class TestRPC {
         } else {
           lastException = unwrapExeption;
         }
+
+        // Lets Metric system update latest metrics
+        GenericTestUtils.waitFor(new Supplier<Boolean>() {
+          @Override
+          public Boolean get() {
+            MetricsRecordBuilder rb2 =
+              getMetrics("DecayRpcSchedulerMetrics2." + ns);
+            long callVolume1 = MetricsAsserts.getLongCounter("CallVolume", rb2);
+            int uniqueCaller1 = MetricsAsserts.getIntCounter("UniqueCallers",
+              rb2);
+            long callVolumePriority0 = MetricsAsserts.getLongGauge(
+                "Priority.0.CallVolume", rb2);
+            long callVolumePriority1 = MetricsAsserts.getLongGauge(
+                "Priority.1.CallVolume", rb2);
+            double avgRespTimePriority0 = MetricsAsserts.getDoubleGauge(
+                "Priority.0.AvgResponseTime", rb2);
+            double avgRespTimePriority1 = MetricsAsserts.getDoubleGauge(
+                "Priority.1.AvgResponseTime", rb2);
+
+            LOG.info("CallVolume1: " + callVolume1);
+            LOG.info("UniqueCaller: " + uniqueCaller1);
+            LOG.info("Priority.0.CallVolume: " + callVolumePriority0);
+            LOG.info("Priority.1.CallVolume: " + callVolumePriority1);
+            LOG.info("Priority.0.AvgResponseTime: " + avgRespTimePriority0);
+            LOG.info("Priority.1.AvgResponseTime: " + avgRespTimePriority1);
+
+            return callVolume1 > beginCallVolume
+                && uniqueCaller1 > beginUniqueCaller;
+          }
+        }, 30, 60000);
       }
     } finally {
       server.stop();
@@ -1235,8 +1252,39 @@ public class TestRPC {
     assertTrue("RetriableException not received", succeeded);
   }
 
+  private Server setupDecayRpcSchedulerandTestServer(String ns)
+      throws Exception {
+    final int queueSizePerHandler = 3;
+
+    conf.setInt(CommonConfigurationKeys.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY, 0);
+    conf.setBoolean(ns + CommonConfigurationKeys.IPC_BACKOFF_ENABLE, true);
+    conf.setStrings(ns + CommonConfigurationKeys.IPC_CALLQUEUE_IMPL_KEY,
+        "org.apache.hadoop.ipc.FairCallQueue");
+    conf.setStrings(ns + CommonConfigurationKeys.IPC_SCHEDULER_IMPL_KEY,
+        "org.apache.hadoop.ipc.DecayRpcScheduler");
+    conf.setInt(ns + CommonConfigurationKeys.IPC_SCHEDULER_PRIORITY_LEVELS_KEY,
+        2);
+    conf.setBoolean(ns +
+            DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_ENABLE_KEY,
+        true);
+    // set a small thresholds 2s and 4s for level 0 and level 1 for testing
+    conf.set(ns +
+            DecayRpcScheduler.IPC_DECAYSCHEDULER_BACKOFF_RESPONSETIME_THRESHOLDS_KEY
+        , "2s, 4s");
+
+    // Set max queue size to 3 so that 2 calls from the test won't trigger
+    // back off because the queue is full.
+    // Set max queue size to 3 so that 2 calls from the test won't trigger
+    // back off because the queue is full.
+    Server server = new RPC.Builder(conf)
+        .setProtocol(TestProtocol.class).setInstance(new TestImpl())
+        .setBindAddress(ADDRESS).setPort(0)
+        .setQueueSizePerHandler(queueSizePerHandler).setNumHandlers(1)
+        .setVerbose(true).build();
+    return server;
+  }
+
   public static void main(String[] args) throws IOException {
     new TestRPC().testCallsInternal(conf);
-
   }
 }
