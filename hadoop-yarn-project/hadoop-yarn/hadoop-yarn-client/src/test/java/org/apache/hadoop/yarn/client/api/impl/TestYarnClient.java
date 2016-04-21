@@ -1194,7 +1194,7 @@ public class TestYarnClient {
       long duration = 60000;
       long deadline = (long) (arrival + 1.05 * duration);
       ReservationSubmissionRequest sRequest =
-          createSimpleReservationRequest(4, arrival, deadline, duration);
+          createSimpleReservationRequest(2, arrival, deadline, duration);
       ReservationSubmissionResponse sResponse = null;
       try {
         sResponse = client.submitReservation(sRequest);

@@ -1208,6 +1208,9 @@ ATS V1.5:
 
     BUG-56309. Intermittent failure for TestDiskFailures.testLocalDirsFailures.
 
-    BUG-56289. [YARN-4968] Fix two scheduler related UTs in YARN
+    BUG-56289. YARN-4968. Fix two scheduler related UTs in YARN. Contributed by Wangda Tan.
 
-    BUG-55790. Disabled intermittent unit tests
+    BUG-55790. Disabled intermittent unit tests.
+
+    BUG-55975. YARN-4954. TestYarnClient.testReservationAPIs fails on machines with less than 4 GB
+    available memory. Gergely Novák via junping_du.
