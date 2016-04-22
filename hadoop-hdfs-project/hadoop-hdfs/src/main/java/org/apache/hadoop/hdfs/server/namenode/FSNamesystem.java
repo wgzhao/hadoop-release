@@ -5671,14 +5671,16 @@ public class FSNamesystem implements Namesystem, FSClusterStats,
       while (fsRunning && shouldRun) {
         try {
           clearCorruptLazyPersistFiles();
+        } catch (Exception e) {
+          FSNamesystem.LOG.error(
+              "Ignoring exception in LazyPersistFileScrubber:", e);
+        }
+        try {
           Thread.sleep(scrubIntervalSec * 1000);
         } catch (InterruptedException e) {
           FSNamesystem.LOG.info(
               "LazyPersistFileScrubber was interrupted, exiting");
           break;
-        } catch (Exception e) {
-          FSNamesystem.LOG.error(
-              "Ignoring exception in LazyPersistFileScrubber:", e);
         }
       }
     }
