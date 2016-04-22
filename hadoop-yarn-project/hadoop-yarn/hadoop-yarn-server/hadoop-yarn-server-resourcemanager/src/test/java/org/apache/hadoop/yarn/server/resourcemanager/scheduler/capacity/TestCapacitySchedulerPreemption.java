@@ -43,7 +43,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.preemption.PreemptionManager;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.NodeUpdateSchedulerEvent;
-import org.apache.hadoop.yarn.util.Clock;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.log4j.Level;
 import org.junit.Assert;
@@ -58,9 +57,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.LogManager;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class TestCapacitySchedulerPreemption {
   private static final Log LOG = LogFactory.getLog(
       TestCapacitySchedulerPreemption.class);
@@ -70,8 +66,6 @@ public class TestCapacitySchedulerPreemption {
   private Configuration conf;
 
   RMNodeLabelsManager mgr;
-
-  Clock clock;
 
   @Before
   public void setUp() throws Exception {
@@ -86,6 +80,8 @@ public class TestCapacitySchedulerPreemption {
     // Set preemption related configurations
     conf.setInt(CapacitySchedulerConfiguration.PREEMPTION_WAIT_TIME_BEFORE_KILL,
         0);
+    conf.setLong(CapacitySchedulerConfiguration.PREEMPTION_MONITORING_INTERVAL,
+        60000L);
     conf.setBoolean(CapacitySchedulerConfiguration.LAZY_PREEMPTION_ENALBED,
         true);
     conf.setFloat(CapacitySchedulerConfiguration.TOTAL_PREEMPTION_PER_ROUND,
@@ -95,8 +91,6 @@ public class TestCapacitySchedulerPreemption {
         1.0f);
     mgr = new NullRMNodeLabelsManager();
     mgr.init(this.conf);
-    clock = mock(Clock.class);
-    when(clock.getTime()).thenReturn(0L);
   }
 
   private SchedulingEditPolicy getSchedulingEditPolicy(MockRM rm) {
