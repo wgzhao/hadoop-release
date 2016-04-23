@@ -78,6 +78,7 @@ import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -231,6 +232,7 @@ public class TestIPC {
   }
   
   @Test(timeout=60000)
+  @Ignore
   public void testSerial() throws IOException, InterruptedException {
     internalTestSerial(3, false, 2, 5, 100);
     internalTestSerial(3, true, 2, 5, 10);
@@ -663,6 +665,7 @@ public class TestIPC {
    * @throws InterruptedException 
    */
   @Test(timeout=60000)
+  @Ignore
   public void testIpcWithReaderQueuing() throws Exception {
     // 1 reader, 1 connectionQ slot, 1 callq
     for (int i=0; i < 10; i++) {

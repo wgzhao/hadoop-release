@@ -1226,5 +1226,6 @@ ATS V1.5:
     BUG-56476. HADOOP-12699. TestKMS#testKMSProvider intermittently fails during
     'test rollover draining'. Contributed by Xiao Chen.
 
-    BUG-56527. Disable TestDFSUpgradeWithHA.testRollbackWithJournalNodes due to intermittent failures
+    BUG-56527. Disable TestDFSUpgradeWithHA.testRollbackWithJournalNodes, TestIPC.testSerial and 
+    testIpcWithReaderQueuing due to intermittent failures
 
