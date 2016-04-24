@@ -3126,3 +3126,6 @@ ATS V1.5:
  
     BUG-68699. HDFS-11047. Remove deep copies of FinalizedReplica to alleviate
     heap consumption on DataNode. Contributed by Xiaobing Zhou
+
+    BUG-71590. HDFS-9525. hadoop utilities need to support provided delegation
+    tokens. Contributed by HeeSoo Kim
