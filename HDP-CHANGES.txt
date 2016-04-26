@@ -119,6 +119,9 @@ ATS V1.5:
 
     RMP-5369. HADOOP-12909. Change ipc.Client to support asynchronous calls (Xiaobing Zhou)
 
+    RMP-6306. HDFS-10207. Support enable Hadoop IPC backoff without namenode restart
+    (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request

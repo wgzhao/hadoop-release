@@ -47,7 +47,7 @@ public class CallQueueManager<E> {
     return (Class<? extends RpcScheduler>)schedulerClass;
   }
 
-  private final boolean clientBackOffEnabled;
+  private volatile boolean clientBackOffEnabled;
 
   // Atomic refs point to active callQueue
   // We have two so we can better control swapping
@@ -179,6 +179,10 @@ public class CallQueueManager<E> {
   // each getPriorityLevel call will increment the counter for the caller
   int getPriorityLevel(Schedulable e) {
     return scheduler.getPriorityLevel(e);
+  }
+
+  void setClientBackoffEnabled(boolean value) {
+    clientBackOffEnabled = value;
   }
 
   /**
