@@ -178,7 +178,8 @@ public class DistCp extends Configured implements Tool {
         if (distCpSync.sync()) {
           createInputFileListingWithDiff(job, distCpSync);
         } else {
-          inputOptions.disableUsingDiff();
+          throw new Exception("DistCp sync failed, input options: "
+              + inputOptions);
         }
       }
 
