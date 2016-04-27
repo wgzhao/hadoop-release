@@ -122,6 +122,9 @@ ATS V1.5:
     RMP-6306. HDFS-10207. Support enable Hadoop IPC backoff without namenode restart
     (Xiaobing Zhou)
 
+    RMP-5369. HDFS-10224. Implement asynchronous rename for DistributedFileSystem
+    (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
