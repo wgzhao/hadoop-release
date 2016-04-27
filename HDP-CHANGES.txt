@@ -334,6 +334,9 @@ ATS V1.5:
     HADOOP-12825. Log slow name resolutions.
     (Sidharta Seethana via stevel)
 
+    HADOOP-13039. Add documentation for configuration property
+    ipc.maximum.data.length (Contributed by Mingliang Liu)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
