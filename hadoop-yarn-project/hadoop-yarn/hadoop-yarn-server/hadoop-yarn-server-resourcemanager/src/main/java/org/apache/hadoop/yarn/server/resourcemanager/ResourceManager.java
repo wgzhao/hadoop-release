@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ha.HAServiceProtocol;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.http.lib.StaticUserWebFilter;
+import org.apache.hadoop.metrics2.MetricsSystem;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.source.JvmMetrics;
 import org.apache.hadoop.security.AuthenticationFilterInitializer;
@@ -164,6 +165,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
   private WebApp webApp;
   private AppReportFetcher fetcher = null;
   protected ResourceTrackerService resourceTracker;
+  private JvmMetrics jvmMetrics;
 
   @VisibleForTesting
   protected String webAppAddress;
@@ -256,7 +258,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
     
     rmContext.setYarnConfiguration(conf);
     
-    createAndInitActiveServices();
+    createAndInitActiveServices(false);
 
     webAppAddress = WebAppUtils.getWebAppBindURL(this.conf,
                       YarnConfiguration.RM_BIND_HOST,
@@ -402,6 +404,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
     private ResourceManager rm;
     private boolean recoveryEnabled;
     private RMActiveServiceContext activeServiceContext;
+    private boolean fromActive = false;
 
     RMActiveServices(ResourceManager rm) {
       super("RMActiveServices");
@@ -515,8 +518,13 @@ public class ResourceManager extends CompositeService implements Recoverable {
       addService(resourceTracker);
       rmContext.setResourceTrackerService(resourceTracker);
 
-      DefaultMetricsSystem.initialize("ResourceManager");
-      JvmMetrics.initSingleton("ResourceManager", null);
+      MetricsSystem ms = DefaultMetricsSystem.initialize("ResourceManager");
+      if (fromActive) {
+        JvmMetrics.reattach(ms, jvmMetrics);
+        UserGroupInformation.reattachMetrics();
+      } else {
+        jvmMetrics = JvmMetrics.initSingleton("ResourceManager", null);
+      }
 
       // Initialize the Reservation system
       if (conf.getBoolean(YarnConfiguration.RM_RESERVATION_SYSTEM_ENABLE,
@@ -992,10 +1000,14 @@ public class ResourceManager extends CompositeService implements Recoverable {
   /**
    * Helper method to create and init {@link #activeServices}. This creates an
    * instance of {@link RMActiveServices} and initializes it.
+   *
+   * @param fromActive Indicates if the call is from the active state transition
+   *                   or the RM initialization.
    * @throws Exception
    */
-  protected void createAndInitActiveServices() throws Exception {
+  protected void createAndInitActiveServices(boolean fromActive) {
     activeServices = new RMActiveServices(this);
+    activeServices.fromActive = fromActive;
     activeServices.init(conf);
   }
 
@@ -1026,7 +1038,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
     QueueMetrics.clearQueueMetrics();
     if (initialize) {
       resetDispatcher();
-      createAndInitActiveServices();
+      createAndInitActiveServices(true);
     }
   }
 
