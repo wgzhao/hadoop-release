@@ -223,6 +223,16 @@ public class CorruptReplicasMap{
   }
 
   /**
+   * method to get the set of corrupt blocks in corruptReplicasMap.
+   * @return Set of Block objects
+   */
+  Set<Block> getCorruptBlocks() {
+    Set<Block> corruptBlocks = new HashSet<Block>();
+    corruptBlocks.addAll(corruptReplicasMap.keySet());
+    return corruptBlocks;
+  }
+
+  /**
    * return the reason about corrupted replica for a given block
    * on a given dn
    * @param block block that has corrupted replica

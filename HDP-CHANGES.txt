@@ -3434,3 +3434,4 @@ ATS V1.5:
 
     BUG-66650. HDFS-6184. Capture NN's thread dump when it fails over.
 
+    BUG-57080. HDFS-10330. Add Corrupt Blocks Information in Metasave output.
