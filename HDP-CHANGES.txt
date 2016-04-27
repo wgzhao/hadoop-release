@@ -104,6 +104,9 @@ by CHANGES.txt.
     HDFS-10397. Distcp should ignore -delete option if -diff option is provided
     instead of exiting. (Mingliang Liu via Jing Zhao)
 
+    BUG-70505. HADOOP-12738. Create unit test to automatically compare Common
+    related classes and core-default.xml. Contributed by Ray Chiang.
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
