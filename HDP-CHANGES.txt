@@ -378,6 +378,9 @@ ATS V1.5:
     HADOOP-11772. RPC Invoker relies on static ClientCache which has
     synchronized(this) blocks. (wheat9)
 
+    HDFS-10335 Mover$Processor#chooseTarget() always chooses the first matching
+    target storage group.  Contributed by  Mingliang Liu
+
   BUG FIXES
 
 
