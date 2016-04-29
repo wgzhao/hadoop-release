@@ -244,6 +244,9 @@ covered by CHANGES.txt.
 
   OPTIMIZATIONS
 
+    HDFS-10335 Mover$Processor#chooseTarget() always chooses the first matching
+    target storage group.  Contributed by  Mingliang Liu
+
   BUG FIXES
 
     HDFS-27. HDFS CLI with --config set to default config complains log file
