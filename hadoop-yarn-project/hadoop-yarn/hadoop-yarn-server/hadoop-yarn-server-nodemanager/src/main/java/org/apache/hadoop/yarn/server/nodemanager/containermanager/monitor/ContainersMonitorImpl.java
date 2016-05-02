@@ -622,6 +622,16 @@ public class ContainersMonitorImpl extends AbstractService implements
     case START_MONITORING_CONTAINER:
       ContainerStartMonitoringEvent startEvent =
           (ContainerStartMonitoringEvent) monitoringEvent;
+
+      if (containerMetricsEnabled) {
+        ContainerMetrics usageMetrics = ContainerMetrics
+            .forContainer(containerId, containerMetricsPeriodMs,
+                containerMetricsUnregisterDelayMs);
+        usageMetrics.recordStateChangeDurations(
+            startEvent.getLaunchDuration(),
+            startEvent.getLocalizationDuration());
+      }
+
       synchronized (this.containersToBeAdded) {
         ProcessTreeInfo processTreeInfo =
             new ProcessTreeInfo(containerId, null, null,
