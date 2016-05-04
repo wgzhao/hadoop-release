@@ -4818,3 +4818,6 @@ ATS V1.5:
 
     HADOOP-15390. Yarn RM logs flooded by DelegationTokenRenewer trying to renew
     KMS tokens (xiaochen via rkanter)
+
+    HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
+    Bokor)
