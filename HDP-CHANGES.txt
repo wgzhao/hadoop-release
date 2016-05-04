@@ -4713,3 +4713,6 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
+    Bokor)
