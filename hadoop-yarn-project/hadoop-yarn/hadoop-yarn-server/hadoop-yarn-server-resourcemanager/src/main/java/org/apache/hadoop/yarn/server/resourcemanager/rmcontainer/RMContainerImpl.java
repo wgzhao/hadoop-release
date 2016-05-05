@@ -166,7 +166,9 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
   private ContainerStatus finishedStatus;
   private boolean isAMContainer;
   private List<ResourceRequest> resourceRequests;
+
   private boolean saveNonAMContainerMetaInfo;
+  private volatile String queueName;
 
   public RMContainerImpl(Container container,
       ApplicationAttemptId appAttemptId, NodeId nodeId, String user,
@@ -676,5 +678,14 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
       return containerId.compareTo(o.getContainerId());
     }
     return -1;
+  }
+
+  public void setQueueName(String queueName) {
+    this.queueName = queueName;
+  }
+
+  @Override
+  public String getQueueName() {
+    return queueName;
   }
 }

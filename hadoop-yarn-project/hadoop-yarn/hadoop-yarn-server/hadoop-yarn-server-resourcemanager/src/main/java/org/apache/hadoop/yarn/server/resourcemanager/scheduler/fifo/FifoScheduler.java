@@ -208,14 +208,6 @@ public class FifoScheduler extends
     @Override
     public void decPendingResource(String nodeLabel, Resource resourceToDec) {
     }
-<<<<<<< HEAD
-=======
-
-    @Override
-    public Priority getDefaultApplicationPriority() {
-      // TODO add implementation for FIFO scheduler
-      return null;
-    }
 
     @Override
     public void incReservedResource(String partition, Resource reservedRes) {
@@ -228,7 +220,6 @@ public class FifoScheduler extends
       // TODO add implementation for FIFO scheduler
 
     }
->>>>>>> fc055a3... YARN-4865. Track Reserved resources in ResourceUsage and QueueCapacities. (Sunil G via wangda)
   };
 
   public FifoScheduler() {
@@ -921,7 +912,7 @@ public class FifoScheduler extends
       return;
     }
     // Kill running containers
-    for(RMContainer container : node.getRunningContainers()) {
+    for(RMContainer container : node.getCopiedListOfRunningContainers()) {
       super.completedContainer(container,
           SchedulerUtils.createAbnormalContainerStatus(
               container.getContainerId(), 

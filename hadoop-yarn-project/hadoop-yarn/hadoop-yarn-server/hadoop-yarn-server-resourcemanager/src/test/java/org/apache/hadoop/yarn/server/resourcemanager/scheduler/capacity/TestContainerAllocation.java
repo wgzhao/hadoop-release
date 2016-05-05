@@ -460,7 +460,7 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getUnallocatedResource().getMemory());
+        .getAvailableResource().getMemory());
     Assert.assertNotNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G + 4G (reserved)
     Assert.assertEquals(10 * GB, cs.getRootQueue().getQueueResourceUsage()
@@ -489,7 +489,7 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getUnallocatedResource().getMemory());
+        .getAvailableResource().getMemory());
     Assert.assertNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G
     Assert.assertEquals(6 * GB, cs.getRootQueue().getQueueResourceUsage()
@@ -556,7 +556,7 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getUnallocatedResource().getMemory());
+        .getAvailableResource().getMemory());
     Assert.assertNotNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G + 4G (reserved)
     Assert.assertEquals(10 * GB, cs.getRootQueue().getQueueResourceUsage()

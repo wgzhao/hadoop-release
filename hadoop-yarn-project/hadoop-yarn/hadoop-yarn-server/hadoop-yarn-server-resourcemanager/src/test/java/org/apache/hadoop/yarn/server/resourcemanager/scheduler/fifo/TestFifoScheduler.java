@@ -321,7 +321,7 @@ public class TestFifoScheduler {
     
     Method method = scheduler.getClass().getDeclaredMethod("getNodes");
     @SuppressWarnings("unchecked")
-    Map<NodeId, FiCaSchedulerNode> schedulerNodes = 
+    Map<NodeId, FiCaSchedulerNode> schedulerNodes =
         (Map<NodeId, FiCaSchedulerNode>) method.invoke(scheduler);
     assertEquals(schedulerNodes.values().size(), 1);
     

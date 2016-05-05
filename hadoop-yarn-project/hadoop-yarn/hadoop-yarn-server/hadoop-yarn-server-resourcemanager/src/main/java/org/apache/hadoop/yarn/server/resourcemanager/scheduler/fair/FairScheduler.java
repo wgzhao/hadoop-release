@@ -856,7 +856,8 @@ public class FairScheduler extends
     updateRootQueueMetrics();
 
     // Remove running containers
-    List<RMContainer> runningContainers = node.getRunningContainers();
+    List<RMContainer> runningContainers =
+        node.getCopiedListOfRunningContainers();
     for (RMContainer container : runningContainers) {
       super.completedContainer(container,
           SchedulerUtils.createAbnormalContainerStatus(
