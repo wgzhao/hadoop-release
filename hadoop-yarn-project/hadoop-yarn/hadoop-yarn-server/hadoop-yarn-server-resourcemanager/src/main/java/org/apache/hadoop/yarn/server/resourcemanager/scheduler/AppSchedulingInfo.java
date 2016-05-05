@@ -18,16 +18,6 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -38,10 +28,21 @@ import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
+import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerState;
 import org.apache.hadoop.yarn.util.resource.Resources;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class keeps track of all the consumption of an application. This also
@@ -74,7 +75,9 @@ public class AppSchedulingInfo {
   boolean pending = true; // for app metrics
   
   private ResourceUsage appResourceUsage;
- 
+
+  private Set<String> requestedPartitions = new HashSet<>();
+
   public AppSchedulingInfo(ApplicationAttemptId appAttemptId,
       String user, Queue queue, ActiveUsersManager activeUsersManager,
       long epoch, ResourceUsage appResourceUsage) {
@@ -108,6 +111,10 @@ public class AppSchedulingInfo {
     return pending;
   }
   
+  public Set<String> getRequestedPartitions() {
+    return requestedPartitions;
+  }
+
   /**
    * Clear any pending requests from this application.
    */
@@ -205,14 +212,19 @@ public class AppSchedulingInfo {
       }
 
       asks.put(resourceName, request);
+
       if (updatePendingResources) {
-        
+
         // Similarly, deactivate application?
         if (request.getNumContainers() <= 0) {
           LOG.info("checking for deactivate of application :"
               + this.applicationId);
           checkForDeactivation();
         }
+
+        //update the applications requested labels set
+        requestedPartitions.add(request.getNodeLabelExpression() == null
+            ? RMNodeLabelsManager.NO_LABEL : request.getNodeLabelExpression());
         
         int lastRequestContainers = lastRequest != null ? lastRequest
             .getNumContainers() : 0;
