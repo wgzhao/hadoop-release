@@ -1338,3 +1338,28 @@ ATS V1.5:
     BUG-55494. HADOOP-11901. BytesWritable fails to support 2G chunks due to
     integer overflow. (Reynold Xin via wheat9)
 
+    YARN-4634. Scheduler UI/Metrics need to consider cases like non-queue label mappings. (Sunil G via wangda)
+
+    YARN-4607. Pagination support for AppAttempt page TotalOutstandingResource Requests table. 
+    Contributed by Bibin A Chundatt
+
+    YARN-4746. yarn web services should convert parse failures of appId, appAttemptId and 
+    containerId to 400. Contributed by Bibin A Chundatt
+
+    YARN-4699. Scheduler UI and REST o/p is not in sync when -replaceLabelsOnNode is used
+    to change label of a node. (Sunil G via wangda)
+
+    YARN-3215. Respect labels in CapacityScheduler when computing headroom. (Naganarasimha G R via wangda)
+
+    YARN-4865. Track Reserved resources in ResourceUsage and QueueCapacities. (Sunil G via wangda)
+
+    YARN-4934. Reserved Resource for QueueMetrics needs to be handled correctly in few cases. (Sunil G via wangda)
+
+    YARN-4890. Unit test intermittent failure: TestNodeLabelContainerAllocation#testQueueUsedCapacitiesUpdate. (Sunil G via wangda)
+
+    YARN-4846. Fix random failures for TestCapacitySchedulerPreemption
+    #testPreemptionPolicyShouldRespectAlreadyMarkedKillableContainers. (Bibin A Chundatt via wangda)
+
+    YARN-4390. Do surgical preemption based on reserved container in CapacityScheduler. 
+    Contributed by Wangda Tan
+
