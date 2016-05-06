@@ -1363,3 +1363,6 @@ ATS V1.5:
     YARN-4390. Do surgical preemption based on reserved container in CapacityScheduler. 
     Contributed by Wangda Tan
 
+    YARN-4984. LogAggregationService shouldn't swallow exception in handling createAppDir()
+    which cause thread leak. (Junping Du via wangda)
+
