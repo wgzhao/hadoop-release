@@ -66,7 +66,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairSchedule
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.DominantResourceFairnessPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer;
 import org.apache.hadoop.yarn.util.ControlledClock;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.SystemClock;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
@@ -83,16 +82,14 @@ import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -415,6 +412,43 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     conf.setCapacity(Q_B2, 50);
     conf.setDouble(CapacitySchedulerConfiguration
         .MAXIMUM_APPLICATION_MASTERS_RESOURCE_PERCENT, 0.5f);
+  }
+
+  // 1. submit an app to default queue and let it finish
+  // 2. restart rm with no default queue
+  // 3. getApplicationReport call should succeed (with no NPE)
+  @Test (timeout = 30000)
+  public void testRMRestartWithRemovedQueue() throws Exception{
+    conf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
+    conf.set(YarnConfiguration.YARN_ADMIN_ACL, "");
+    MemoryRMStateStore memStore = new MemoryRMStateStore();
+    memStore.init(conf);
+    rm1 = new MockRM(conf, memStore);
+    rm1.start();
+    MockNM nm1 =
+        new MockNM("127.0.0.1:1234", 8192, rm1.getResourceTrackerService());
+    nm1.registerNode();
+    final RMApp app1 = rm1.submitApp(1024, "app1", USER_1, null);
+    MockAM am1 = MockRM.launchAndRegisterAM(app1,rm1, nm1);
+    MockRM.finishAMAndVerifyAppState(app1, rm1, nm1, am1);
+
+    CapacitySchedulerConfiguration csConf = new CapacitySchedulerConfiguration(conf);
+    csConf.setQueues(CapacitySchedulerConfiguration.ROOT, new String[]{QUEUE_DOESNT_EXIST});
+    final String noQueue = CapacitySchedulerConfiguration.ROOT + "." + QUEUE_DOESNT_EXIST;
+    csConf.setCapacity(noQueue, 100);
+    rm2 = new MockRM(csConf,memStore);
+
+    rm2.start();
+    UserGroupInformation user2 = UserGroupInformation.createRemoteUser("user2");
+
+    ApplicationReport report =
+        user2.doAs(new PrivilegedExceptionAction<ApplicationReport>() {
+          @Override
+          public ApplicationReport run() throws Exception {
+            return rm2.getApplicationReport(app1.getApplicationId());
+          }
+    });
+    Assert.assertNotNull(report);
   }
 
   // Test CS recovery with multi-level queues and multi-users:

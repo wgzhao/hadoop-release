@@ -279,9 +279,7 @@ public class ClientRMService extends AbstractService implements
     return applicationsACLsManager
         .checkAccess(callerUGI, operationPerformed, owner,
             application.getApplicationId()) || queueACLsManager
-        .checkAccess(callerUGI, QueueACL.ADMINISTER_QUEUE,
-            application.getQueue(), application.getApplicationId(),
-            application.getName());
+        .checkAccess(callerUGI, QueueACL.ADMINISTER_QUEUE, application);
   }
 
   ApplicationId getNewApplicationId() {
@@ -1290,19 +1288,6 @@ public class ClientRMService extends AbstractService implements
       RMAuditLogger.logFailure("UNKNOWN", auditConstant, queueName,
           "ClientRMService", "Error getting UGI");
       throw RPCUtil.getRemoteException(ie);
-    }
-    // Check if user has access on the managed queue
-    if (!queueACLsManager.checkAccess(callerUGI, QueueACL.SUBMIT_APPLICATIONS,
-        queueName, null, null)) {
-      RMAuditLogger.logFailure(
-          callerUGI.getShortUserName(),
-          auditConstant,
-          "User doesn't have permissions to "
-              + QueueACL.SUBMIT_APPLICATIONS.toString(), "ClientRMService",
-          AuditConstants.UNAUTHORIZED_USER);
-      throw RPCUtil.getRemoteException(new AccessControlException("User "
-          + callerUGI.getShortUserName() + " cannot perform operation "
-          + QueueACL.SUBMIT_APPLICATIONS.name() + " on queue" + queueName));
     }
     return callerUGI.getShortUserName();
   }

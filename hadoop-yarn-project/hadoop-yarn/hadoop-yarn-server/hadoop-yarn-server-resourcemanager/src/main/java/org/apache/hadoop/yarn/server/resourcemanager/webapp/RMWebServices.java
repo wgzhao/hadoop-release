@@ -208,8 +208,7 @@ public class RMWebServices {
               ApplicationAccessType.VIEW_APP, app.getUser(),
               app.getApplicationId()) ||
             this.rm.getQueueACLsManager().checkAccess(callerUGI,
-                QueueACL.ADMINISTER_QUEUE, app.getQueue(),
-                app.getApplicationId(), app.getName()))) {
+                QueueACL.ADMINISTER_QUEUE, app))) {
       return false;
     }
     return true;
