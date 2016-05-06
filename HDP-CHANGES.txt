@@ -288,3 +288,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     YARN-3740. Fixed the typo in the configuration name:
     APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
+
+    HADOOP-12751. While using kerberos Hadoop incorrectly assumes names with
+    '@' to be non-simple. (Bolke de Bruin via Steve Loughran)
+
