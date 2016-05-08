@@ -1382,3 +1382,7 @@ ATS V1.5:
 
     YARN-998. Keep NM resource updated through dynamic resource config for RM/NM restart.
     (Contributed by Junping Du.)
+
+    HADOOP-13084. Fix ASF License warnings in branch-2.7. (Brahma Reddy
+    Battula via Akira Ajisaka)
+
