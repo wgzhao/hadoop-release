@@ -80,6 +80,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.VersionInfo;
+import org.apache.log4j.Level;
 import org.junit.Assume;
 
 import java.io.*;
@@ -1634,5 +1635,11 @@ public class DFSTestUtil {
     // Update the FEATURES map with the new layout version.
     LayoutVersion.updateMap(DataNodeLayoutVersion.FEATURES,
                             new LayoutVersion.LayoutFeature[] { feature });
+  }
+
+  public static void setNameNodeLogLevel(Level level) {
+    GenericTestUtils.setLogLevel(LogFactory.getLog(FSNamesystem.class), level);
+    GenericTestUtils.setLogLevel(LogFactory.getLog(BlockManager.class), level);
+    GenericTestUtils.setLogLevel(NameNode.stateChangeLog, level);
   }
 }
