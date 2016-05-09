@@ -241,3 +241,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     6635ccd21766faf8f6a15d937dc8919a9075c988)
 
     BUG-57308. HDFS-7706. Switch BlockManager logging to use slf4j.
+
+    BUG-57308. HDFS-7712. Switch blockStateChangeLog to use slf4j.
