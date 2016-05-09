@@ -232,3 +232,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-46749. HDFS-7097. Allow block reports to be processed during
     checkpointing on standby name node. (kihwal via wang)
+
+    BUG-57307. HDFS-7213. processIncrementalBlockReport performance degradation.
+    (Eric Payne via kihwal)
