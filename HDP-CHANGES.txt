@@ -249,3 +249,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57007. HDFS-9917. IBR accumulate more objects when SNN was down for
     sometime. (Contributed by Brahma Reddy Battula)
+
+    BUG-57309. HDFS-7398. Reset cached thread-local FSEditLogOp's on every
+    FSEditLog#logEdit. Contributed by Gera Shegalov.
