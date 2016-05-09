@@ -1366,3 +1366,5 @@ ATS V1.5:
     YARN-4984. LogAggregationService shouldn't swallow exception in handling createAppDir()
     which cause thread leak. (Junping Du via wangda)
 
+    BUG-57007. HDFS-9917. IBR accumulate more objects when SNN was down for
+    sometime. (Contributed by Brahma Reddy Battula)
