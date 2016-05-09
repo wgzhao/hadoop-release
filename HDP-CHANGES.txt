@@ -235,3 +235,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57307. HDFS-7213. processIncrementalBlockReport performance degradation.
     (Eric Payne via kihwal)
+
+    BUG-57308. HADOOP-11430. Add GenericTestUtils#disableLog,
+    GenericTestUtils#setLogLevel (cmccabe) (cherry picked from commit
+    6635ccd21766faf8f6a15d937dc8919a9075c988)
