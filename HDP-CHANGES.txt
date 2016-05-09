@@ -246,3 +246,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57308. HDFS-9839. Reduce verbosity of processReport logging.
     (Contributed by Arpit Agarwal)
+
+    BUG-57007. HDFS-9917. IBR accumulate more objects when SNN was down for
+    sometime. (Contributed by Brahma Reddy Battula)
