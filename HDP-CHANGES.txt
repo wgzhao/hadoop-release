@@ -252,3 +252,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57309. HDFS-7398. Reset cached thread-local FSEditLogOp's on every
     FSEditLog#logEdit. Contributed by Gera Shegalov.
+
+    BUG-57309. HDFS-7609. Avoid retry cache collision when Standby NameNode
+    loading edits. Contributed by Ming Ma.
