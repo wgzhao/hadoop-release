@@ -31,8 +31,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEvent;
 import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
@@ -47,13 +47,14 @@ import org.apache.hadoop.yarn.server.metrics.ApplicationMetricsConstants;
 import org.apache.hadoop.yarn.server.metrics.ContainerMetricsConstants;
 import org.apache.hadoop.yarn.server.resourcemanager.RMServerUtils;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppMetrics;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * The class that helps RM publish metrics to the timeline server. RM will
@@ -145,6 +146,18 @@ public class SystemMetricsPublisher extends CompositeService {
   }
 
   @SuppressWarnings("unchecked")
+  public void appStateUpdated(RMApp app, YarnApplicationState appState,
+      long updatedTime) {
+    if (publishSystemMetrics) {
+      dispatcher.getEventHandler().handle(
+          new ApplicaitonStateUpdatedEvent(
+              app.getApplicationId(),
+              appState,
+              updatedTime));
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   public void appAttemptRegistered(RMAppAttempt appAttempt,
       long registeredTime) {
     if (publishSystemMetrics) {
@@ -222,29 +235,33 @@ public class SystemMetricsPublisher extends CompositeService {
   protected void handleSystemMetricsEvent(
       SystemMetricsEvent event) {
     switch (event.getType()) {
-      case APP_CREATED:
-        publishApplicationCreatedEvent((ApplicationCreatedEvent) event);
-        break;
-      case APP_FINISHED:
-        publishApplicationFinishedEvent((ApplicationFinishedEvent) event);
-        break;
-      case APP_ACLS_UPDATED:
-        publishApplicationACLsUpdatedEvent((ApplicationACLsUpdatedEvent) event);
-        break;
-      case APP_ATTEMPT_REGISTERED:
-        publishAppAttemptRegisteredEvent((AppAttemptRegisteredEvent) event);
-        break;
-      case APP_ATTEMPT_FINISHED:
-        publishAppAttemptFinishedEvent((AppAttemptFinishedEvent) event);
-        break;
-      case CONTAINER_CREATED:
-        publishContainerCreatedEvent((ContainerCreatedEvent) event);
-        break;
-      case CONTAINER_FINISHED:
-        publishContainerFinishedEvent((ContainerFinishedEvent) event);
-        break;
-      default:
-        LOG.error("Unknown SystemMetricsEvent type: " + event.getType());
+    case APP_CREATED:
+      publishApplicationCreatedEvent((ApplicationCreatedEvent) event);
+      break;
+    case APP_FINISHED:
+      publishApplicationFinishedEvent((ApplicationFinishedEvent) event);
+      break;
+    case APP_ACLS_UPDATED:
+      publishApplicationACLsUpdatedEvent((ApplicationACLsUpdatedEvent) event);
+      break;
+    case APP_STATE_UPDATED:
+      publishApplicationStateUpdatedEvent(
+          (ApplicaitonStateUpdatedEvent)event);
+      break;
+    case APP_ATTEMPT_REGISTERED:
+      publishAppAttemptRegisteredEvent((AppAttemptRegisteredEvent) event);
+      break;
+    case APP_ATTEMPT_FINISHED:
+      publishAppAttemptFinishedEvent((AppAttemptFinishedEvent) event);
+      break;
+    case CONTAINER_CREATED:
+      publishContainerCreatedEvent((ContainerCreatedEvent) event);
+      break;
+    case CONTAINER_FINISHED:
+      publishContainerFinishedEvent((ContainerFinishedEvent) event);
+      break;
+    default:
+      LOG.error("Unknown SystemMetricsEvent type: " + event.getType());
     }
   }
 
@@ -315,6 +332,20 @@ public class SystemMetricsPublisher extends CompositeService {
     entity.addOtherInfo(ApplicationMetricsConstants.APP_MEM_METRICS,
         appMetrics.getMemorySeconds());
     
+    tEvent.setEventInfo(eventInfo);
+    entity.addEvent(tEvent);
+    putEntity(entity);
+  }
+
+  private void publishApplicationStateUpdatedEvent(
+      ApplicaitonStateUpdatedEvent event) {
+    TimelineEntity entity = createApplicationEntity(event.getApplicationId());
+    Map<String, Object> eventInfo = new HashMap<String, Object>();
+    eventInfo.put(ApplicationMetricsConstants.STATE_EVENT_INFO,
+        event.getAppState());
+    TimelineEvent tEvent = new TimelineEvent();
+    tEvent.setEventType(ApplicationMetricsConstants.STATE_UPDATED_EVENT_TYPE);
+    tEvent.setTimestamp(event.getTimestamp());
     tEvent.setEventInfo(eventInfo);
     entity.addEvent(tEvent);
     putEntity(entity);
@@ -463,7 +494,9 @@ public class SystemMetricsPublisher extends CompositeService {
     return entity;
   }
 
-  private void putEntity(TimelineEntity entity) {
+  @Private
+  @VisibleForTesting
+  public void putEntity(TimelineEntity entity) {
     try {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Publishing the entity " + entity.getEntityId() +
