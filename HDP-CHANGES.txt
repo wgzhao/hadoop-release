@@ -1276,3 +1276,5 @@ ATS V1.5:
 
     BUG-48217/YARN-5112. Excessive log warnings for directory permission
     issue on NM recovery. (jianhe via Junping Du)
+
+    BUG-57625. HADOOP-13103. Group resolution from LDAP may fail on javax.naming.ServiceUnavailableException
