@@ -862,3 +862,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-74011. MAPREDUCE-6689. MapReduce job can infinitely increase number of
     reducer resource requests. Contributed by Wangda Tan
+
+    BUG-56776. Hotfix for Target. Scheduler keeps skipping scheduling because
+    large amount of resources asked which causes pending resource overflows.
