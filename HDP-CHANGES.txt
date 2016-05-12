@@ -130,6 +130,9 @@ ATS V1.5:
 
     RMP-5369. HADOOP-12957. Limit the number of outstanding async calls (Xiaobing Zhou)
 
+    RMP-5369. HDFS-10346. Implement asynchronous setPermission/setOwner for
+    DistributedFileSystem (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
