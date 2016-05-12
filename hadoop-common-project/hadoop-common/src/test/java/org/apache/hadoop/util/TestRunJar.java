@@ -20,11 +20,9 @@ package org.apache.hadoop.util;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.jar.JarOutputStream;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -135,7 +133,8 @@ public class TestRunJar extends TestCase {
     when(runJar.getSystemClasses()).thenReturn(systemClasses);
 
     // create the test jar
-    File testJar = makeClassLoaderTestJar(mainCls, thirdCls);
+    File testJar = JarFinder.makeClassLoaderTestJar(this.getClass(),
+        TEST_ROOT_DIR, TEST_JAR_2_NAME, 2048, mainCls, thirdCls);
     // form the args
     String[] args = new String[3];
     args[0] = testJar.getAbsolutePath();
@@ -144,29 +143,5 @@ public class TestRunJar extends TestCase {
     // run RunJar
     runJar.run(args);
     // it should not throw an exception
-  }
-
-  private File makeClassLoaderTestJar(String... clsNames) throws IOException {
-    File jarFile = new File(TEST_ROOT_DIR, TEST_JAR_2_NAME);
-    JarOutputStream jstream =
-        new JarOutputStream(new FileOutputStream(jarFile));
-    for (String clsName: clsNames) {
-      String name = clsName.replace('.', '/') + ".class";
-      InputStream entryInputStream = this.getClass().getResourceAsStream(
-          "/" + name);
-      ZipEntry entry = new ZipEntry(name);
-      jstream.putNextEntry(entry);
-      BufferedInputStream bufInputStream = new BufferedInputStream(
-          entryInputStream, 2048);
-      int count;
-      byte[] data = new byte[2048];
-      while ((count = bufInputStream.read(data, 0, 2048)) != -1) {
-        jstream.write(data, 0, count);
-      }
-      jstream.closeEntry();
-    }
-    jstream.close();
-
-    return jarFile;
   }
 }
