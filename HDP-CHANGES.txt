@@ -1233,3 +1233,7 @@ ATS V1.5:
 
     BUG-70318. HADOOP-13467. Shell#getSignalKillCommand should use the bash
     builtin on Linux. (Arpit Agarwal)
+
+    BUG-56776. Hotfix for AT&T. Scheduler keeps skipping scheduling because
+    large amount of resources asked which causes pending resource overflows.
+>>>>>>> 1b8afbe... BUG-56776. Hotfix for AT&T. Scheduler keeps skipping scheduling because large amount of resources asked which causes pending resource overflows.
