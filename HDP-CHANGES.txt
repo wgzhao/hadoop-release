@@ -1234,3 +1234,6 @@ ATS V1.5:
 
     BUG-56920. YARN-4717. TestResourceLocalizationService.testPublicResourceInitializesLocalDir
     fails Intermittently due to IllegalArgumentException from cleanup (templedf via rkanter)
+
+    BUG-56776. Hotfix for AT&T. Scheduler keeps skipping scheduling because
+    large amount of resources asked which causes pending resource overflows.
