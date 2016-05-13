@@ -1267,3 +1267,6 @@ ATS V1.5:
 
     BUG-57056. HADOOP-11901. BytesWritable fails to support 2G chunks due to
     integer overflow. Contributed by Reynold Xin.
+
+    BUG-57518. HDFS-10335 Mover$Processor#chooseTarget() always chooses the
+    first matching target storage group.  Contributed by  Mingliang Liu
