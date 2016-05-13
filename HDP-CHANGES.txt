@@ -4321,3 +4321,6 @@ ATS V1.5:
     (Yunjiong Zhao via wangda)
 
     HADOOP-5732. Add SFTPFileSystem. Contributed by Ramtin Boustani and Inigo Goiri.
+
+    BUG-83458. HADOOP-11180. Change log message "token.Token: Cannot find class
+    for token kind kms-dt" to debug. Contributed by Yi Liu.
