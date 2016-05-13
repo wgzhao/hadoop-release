@@ -1386,3 +1386,5 @@ ATS V1.5:
     HADOOP-13084. Fix ASF License warnings in branch-2.7. (Brahma Reddy
     Battula via Akira Ajisaka)
 
+    BUG-56662. NMs going OutOfMemory because ContainerMetrics leak in ContainerMonitorImpl. 
+    (Junping Du via wangda)

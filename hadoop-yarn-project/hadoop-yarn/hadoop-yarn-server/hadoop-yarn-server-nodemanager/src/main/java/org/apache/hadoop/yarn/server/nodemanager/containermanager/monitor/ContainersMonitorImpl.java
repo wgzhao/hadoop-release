@@ -613,24 +613,24 @@ public class ContainersMonitorImpl extends AbstractService implements
   @Override
   public void handle(ContainersMonitorEvent monitoringEvent) {
 
-    if (!isEnabled()) {
+    if (!isEnabled() || !containerMetricsEnabled ||
+        monitoringEvent == null) {
       return;
     }
 
     ContainerId containerId = monitoringEvent.getContainerId();
+    ContainerMetrics usageMetrics = ContainerMetrics
+        .forContainer(containerId, containerMetricsPeriodMs,
+        containerMetricsUnregisterDelayMs);
+
     switch (monitoringEvent.getType()) {
     case START_MONITORING_CONTAINER:
       ContainerStartMonitoringEvent startEvent =
           (ContainerStartMonitoringEvent) monitoringEvent;
 
-      if (containerMetricsEnabled) {
-        ContainerMetrics usageMetrics = ContainerMetrics
-            .forContainer(containerId, containerMetricsPeriodMs,
-                containerMetricsUnregisterDelayMs);
-        usageMetrics.recordStateChangeDurations(
-            startEvent.getLaunchDuration(),
-            startEvent.getLocalizationDuration());
-      }
+      usageMetrics.recordStateChangeDurations(
+          startEvent.getLaunchDuration(),
+          startEvent.getLocalizationDuration());
 
       synchronized (this.containersToBeAdded) {
         ProcessTreeInfo processTreeInfo =
@@ -644,6 +644,7 @@ public class ContainersMonitorImpl extends AbstractService implements
       synchronized (this.containersToBeRemoved) {
         this.containersToBeRemoved.add(containerId);
       }
+      usageMetrics.finished();
       break;
     default:
       // TODO: Wrong event.
