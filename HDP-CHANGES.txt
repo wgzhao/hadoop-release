@@ -1270,3 +1270,6 @@ ATS V1.5:
 
     BUG-57518. HDFS-10335 Mover$Processor#chooseTarget() always chooses the
     first matching target storage group.  Contributed by  Mingliang Liu
+
+    BUG-56423. HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
+    protobuf maximum length restriction. Contributed by Chris Nauroth.

@@ -34,6 +34,8 @@ import org.apache.hadoop.hdfs.server.datanode.ReplicaInfo;
 import org.apache.hadoop.hdfs.server.datanode.StorageLocation;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.test.GenericTestUtils;
+import org.apache.log4j.Level;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -114,5 +116,14 @@ public class FsDatasetTestUtil {
       fail(String.format("Must release lock file at %s.",
           lockFile.getAbsolutePath()));
     }
+  }
+
+  /**
+   * Change the log level used by FsDatasetImpl.
+   *
+   * @param level the level to set
+   */
+  public static void setFsDatasetImplLogLevel(Level level) {
+    GenericTestUtils.setLogLevel(FsDatasetImpl.LOG, level);
   }
 }
