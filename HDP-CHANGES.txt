@@ -288,3 +288,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     YARN-3740. Fixed the typo in the configuration name:
     APPLICATION_HISTORY_PREFIX_MAX_APPS. (Xuan Gong via zjshen)
+
+    BUG-57687. MAPREDUCE-6302. Preempt reducers after a configurable timeout
+    irrespective of headroom. (kasha via wangda)
