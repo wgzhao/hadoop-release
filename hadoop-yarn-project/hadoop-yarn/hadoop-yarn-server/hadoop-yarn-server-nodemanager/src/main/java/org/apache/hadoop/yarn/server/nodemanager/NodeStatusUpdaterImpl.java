@@ -76,6 +76,7 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.Ap
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Container;
 import org.apache.hadoop.yarn.server.nodemanager.metrics.NodeManagerMetrics;
 import org.apache.hadoop.yarn.server.nodemanager.nodelabels.NodeLabelsProvider;
+import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.hadoop.yarn.util.YarnVersionInfo;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -342,8 +343,17 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     StringBuilder successfullRegistrationMsg = new StringBuilder();
     successfullRegistrationMsg.append("Registered with ResourceManager as ")
-        .append(this.nodeId).append(" with total resource of ")
-        .append(this.totalResource);
+        .append(this.nodeId);
+
+    Resource newResource = regNMResponse.getResource();
+    if (newResource != null) {
+      updateNMResource(newResource);
+      successfullRegistrationMsg.append(" with updated total resource of ")
+          .append(this.totalResource);
+    } else {
+      successfullRegistrationMsg.append(" with total resource of ")
+          .append(this.totalResource);
+    }
 
     if (regNMResponse.getAreNodeLabelsAcceptedByRM()) {
       successfullRegistrationMsg
@@ -400,6 +410,12 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
           createKeepAliveApplicationList(), nodeHealthStatus);
 
     return nodeStatus;
+  }
+
+  // Update NM's Resource.
+  private void updateNMResource(Resource resource) {
+    metrics.addResource(Resources.subtract(resource, totalResource));
+    this.totalResource = resource;
   }
 
   // Iterate through the NMContext and clone and get all the containers'
@@ -747,6 +763,15 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             if (systemCredentials != null && !systemCredentials.isEmpty()) {
               ((NMContext) context)
                 .setSystemCrendentialsForApps(parseCredentials(systemCredentials));
+            }
+            // Handling node resource update case.
+            Resource newResource = response.getResource();
+            if (newResource != null) {
+              updateNMResource(newResource);
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Node's resource is updated to " +
+                    newResource.toString());
+              }
             }
           } catch (ConnectException e) {
             //catch and throw the exception if tried MAX wait time to connect RM

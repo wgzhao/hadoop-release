@@ -47,6 +47,7 @@ message RegisterNodeManagerResponseProto {
   optional string diagnostics_message = 5;
   optional string rm_version = 6;
   optional bool areNodeLabelsAcceptedByRM = 7 [default = false];
+  optional ResourceProto resource = 8;
 }
 
 message NodeHeartbeatRequestProto {
@@ -75,6 +76,10 @@ message NodeHeartbeatResponseProto {
   repeated ContainerIdProto containers_to_be_removed_from_nm = 9;
   repeated SystemCredentialsForAppsProto system_credentials_for_apps = 10;
   optional bool areNodeLabelsAcceptedByRM = 11 [default = false];
+  // TODO: 12 and 13 are reserved for field of containers_to_decrease and 
+  // containers_to_signal which belongs to unreleased feature:
+  // YARN-1644 and YARN-1897.
+  optional ResourceProto resource = 14;
 }
 
 message SystemCredentialsForAppsProto {
