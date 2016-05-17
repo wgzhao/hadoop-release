@@ -98,6 +98,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-9764. DistCp doesn't print value for several arguments including
     -numListstatusThreads. (Wei-Chiu Chuang via Yongjun Zhang)
 
+    HDFS-10397. Distcp should ignore -delete option if -diff option is provided
+    instead of exiting. (Mingliang Liu via Jing Zhao)
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
