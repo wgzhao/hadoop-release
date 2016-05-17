@@ -3133,7 +3133,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     // sanity check
     if ((namespaceQuota <= 0 && namespaceQuota != HdfsConstants.QUOTA_DONT_SET &&
          namespaceQuota != HdfsConstants.QUOTA_RESET) ||
-        (storagespaceQuota <= 0 && storagespaceQuota != HdfsConstants.QUOTA_DONT_SET &&
+        (storagespaceQuota < 0 && storagespaceQuota != HdfsConstants.QUOTA_DONT_SET &&
          storagespaceQuota != HdfsConstants.QUOTA_RESET)) {
       throw new IllegalArgumentException("Invalid values for quota : " +
                                          namespaceQuota + " and " +
