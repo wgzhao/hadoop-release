@@ -523,3 +523,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-53854. HDFS-9313 Possible NullPointerException in BlockManager
     if no excess replica can be chosen. (Ming Ma)
 
+    BUG-56772. HADOOP-12423. Handle failure of registering shutdownhook by
+    ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
