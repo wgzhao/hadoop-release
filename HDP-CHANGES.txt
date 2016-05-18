@@ -1394,3 +1394,6 @@ ATS V1.5:
 
     BUG-56662. NMs going OutOfMemory because ContainerMetrics leak in ContainerMonitorImpl. 
     (Junping Du via wangda)
+
+    BUG-57946. HDFS-9226. Unit Tests failing due to mockito version issue.
+    (Contributed by Josh Elser)

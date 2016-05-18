@@ -84,7 +84,7 @@ public class TestDataNodeReconfiguration {
 
     DataNode[] result = new DataNode[numDateNode];
     for (int i = 0; i < numDateNode; i++) {
-      result[i] = DataNodeTestUtils.startDNWithMockNN(conf, NN_ADDR, DATA_DIR);
+      result[i] = InternalDataNodeTestUtils.startDNWithMockNN(conf, NN_ADDR, DATA_DIR);
     }
     return result;
   }
