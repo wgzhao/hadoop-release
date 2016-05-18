@@ -255,3 +255,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57309. HDFS-7609. Avoid retry cache collision when Standby NameNode
     loading edits. Contributed by Ming Ma.
+
+    BUG-57308. HDFS-7734. Class cast exception in NameNode#main. Contributed by
+    Yi Liu.
