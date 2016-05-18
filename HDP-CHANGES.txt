@@ -1310,3 +1310,6 @@ ATS V1.5:
 
     BUG-57078. HDFS-10347. Namenode report bad block method doesn't log the bad
     block or datanode. Contributed by Rushabh Shah.
+
+    BUG-55474. HDFS-10178. Permanent write failures can happen if pipeline
+    recoveries occur for the first packet. Contributed by Kihwal Lee.
