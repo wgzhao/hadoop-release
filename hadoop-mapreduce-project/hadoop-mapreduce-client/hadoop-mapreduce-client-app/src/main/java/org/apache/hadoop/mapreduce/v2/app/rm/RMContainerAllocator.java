@@ -507,7 +507,12 @@ public class RMContainerAllocator extends RMContainerRequestor
   }
 
   private void clearAllPendingReduceRequests() {
-    rampDownReduces(Integer.MAX_VALUE);
+    LOG.info("Ramping down all scheduled reduces:"
+        + scheduledRequests.reduces.size());
+    for (ContainerRequest req : scheduledRequests.reduces.values()) {
+      pendingReduces.add(req);
+    }
+    scheduledRequests.reduces.clear();
   }
 
   private void preemptReducer(int hangingMapRequests) {
@@ -679,13 +684,9 @@ public class RMContainerAllocator extends RMContainerRequestor
   @Private
   public void rampDownReduces(int rampDown) {
     //remove from the scheduled and move back to pending
-    while (rampDown > 0) {
+    for (int i = 0; i < rampDown; i++) {
       ContainerRequest request = scheduledRequests.removeReduce();
-      if (request == null) {
-        return;
-      }
       pendingReduces.add(request);
-      rampDown--;
     }
   }
   
@@ -904,11 +905,6 @@ public class RMContainerAllocator extends RMContainerRequestor
       Resources.add(assignedMapResource, assignedReduceResource));
   }
 
-  @VisibleForTesting
-  public int getNumOfPendingReduces() {
-    return pendingReduces.size();
-  }
-
   @Private
   @VisibleForTesting
   class ScheduledRequests {
@@ -924,9 +920,8 @@ public class RMContainerAllocator extends RMContainerRequestor
     @VisibleForTesting
     final Map<TaskAttemptId, ContainerRequest> maps =
       new LinkedHashMap<TaskAttemptId, ContainerRequest>();
-
-    @VisibleForTesting
-    final LinkedHashMap<TaskAttemptId, ContainerRequest> reduces =
+    
+    private final LinkedHashMap<TaskAttemptId, ContainerRequest> reduces = 
       new LinkedHashMap<TaskAttemptId, ContainerRequest>();
     
     boolean remove(TaskAttemptId tId) {
@@ -1321,8 +1316,7 @@ public class RMContainerAllocator extends RMContainerRequestor
   class AssignedRequests {
     private final Map<ContainerId, TaskAttemptId> containerToAttemptMap =
       new HashMap<ContainerId, TaskAttemptId>();
-    @VisibleForTesting
-    final LinkedHashMap<TaskAttemptId, Container> maps =
+    private final LinkedHashMap<TaskAttemptId, Container> maps = 
       new LinkedHashMap<TaskAttemptId, Container>();
     @VisibleForTesting
     final LinkedHashMap<TaskAttemptId, Container> reduces =
