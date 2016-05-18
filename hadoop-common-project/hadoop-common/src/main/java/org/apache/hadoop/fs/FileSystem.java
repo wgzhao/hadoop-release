@@ -71,6 +71,8 @@ import org.apache.hadoop.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /****************************************************************
  * An abstract base class for a fairly generic filesystem.  It
  * may be implemented as a distributed filesystem, or as a "local"
@@ -204,7 +206,13 @@ public abstract class FileSystem extends Configured implements Closeable {
    * @param conf the configuration
    */
   public void initialize(URI name, Configuration conf) throws IOException {
-    statistics = getStatistics(name.getScheme(), getClass());    
+    final String scheme;
+    if (name.getScheme() == null || name.getScheme().isEmpty()) {
+      scheme = getDefaultUri(conf).getScheme();
+    } else {
+      scheme = name.getScheme();
+    }
+    statistics = getStatistics(scheme, getClass());
     resolveSymlinks = conf.getBoolean(
         CommonConfigurationKeys.FS_CLIENT_RESOLVE_REMOTE_SYMLINKS_KEY,
         CommonConfigurationKeys.FS_CLIENT_RESOLVE_REMOTE_SYMLINKS_DEFAULT);
@@ -3403,6 +3411,8 @@ public abstract class FileSystem extends Configured implements Closeable {
   @Deprecated
   public static synchronized Statistics getStatistics(final String scheme,
       Class<? extends FileSystem> cls) {
+    checkArgument(scheme != null,
+        "No statistics is allowed for a file system with null scheme!");
     Statistics result = statisticsTable.get(cls);
     if (result == null) {
       final Statistics newStats = new Statistics(scheme);

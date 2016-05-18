@@ -1400,3 +1400,6 @@ ATS V1.5:
 
     BUG-54408. YARN-4832. NM side resource value should get updated if change applied
     in RM side. (Junping Du via jian)
+
+    HADOOP-13140. FileSystem#initialize must not attempt to create StorageStatistics
+    objects with null or empty schemes (Mingliang Liu via cmccabe)
