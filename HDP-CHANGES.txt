@@ -1308,3 +1308,5 @@ ATS V1.5:
 
     BUG-58437. HADOOP-13008. Add XFS Filter for UIs to Hadoop Common. Contributed by Larry McCay.
 
+    BUG-57078. HDFS-10347. Namenode report bad block method doesn't log the bad
+    block or datanode. Contributed by Rushabh Shah.
