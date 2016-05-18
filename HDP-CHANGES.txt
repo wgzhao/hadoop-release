@@ -1258,3 +1258,6 @@ ATS V1.5:
 
     BUG-56772. HADOOP-12423. Handle failure of registering shutdownhook by
     ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
+
+    BUG-56772. HADOOP-12950. ShutdownHookManager should have a timeout for each
+    of the Registered shutdown hook. Contributed by Xiaoyu Yao.
