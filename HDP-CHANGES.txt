@@ -1261,3 +1261,6 @@ ATS V1.5:
 
     BUG-56772. HADOOP-12950. ShutdownHookManager should have a timeout for each
     of the Registered shutdown hook. Contributed by Xiaoyu Yao.
+
+    BUG-56772. HADOOP-12993. Change ShutdownHookManger complete shutdown log
+    from INFO to DEBUG. Contributed by Xiaoyu Yao.
