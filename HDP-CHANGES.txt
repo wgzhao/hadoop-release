@@ -1255,3 +1255,6 @@ ATS V1.5:
 
     BUG-56577. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
+
+    BUG-56772. HADOOP-12423. Handle failure of registering shutdownhook by
+    ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
