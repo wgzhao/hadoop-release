@@ -78,7 +78,9 @@ public class DelegationTokenRenewer extends AbstractService {
   
   private static final Log LOG = 
       LogFactory.getLog(DelegationTokenRenewer.class);
-  
+  @VisibleForTesting
+  public static final Text HDFS_DELEGATION_KIND =
+      new Text("HDFS_DELEGATION_TOKEN");
   public static final String SCHEME = "hdfs";
 
   // global single timer (daemon)
@@ -243,7 +245,7 @@ public class DelegationTokenRenewer extends AbstractService {
         String user) {
       this.token = token;
       this.user = user;
-      if (token.getKind().equals(new Text("HDFS_DELEGATION_TOKEN"))) {
+      if (token.getKind().equals(HDFS_DELEGATION_KIND)) {
         try {
           AbstractDelegationTokenIdentifier identifier =
               (AbstractDelegationTokenIdentifier) token.decodeIdentifier();
@@ -442,9 +444,12 @@ public class DelegationTokenRenewer extends AbstractService {
     boolean hasHdfsToken = false;
     for (Token<?> token : tokens) {
       if (token.isManaged()) {
-        if (token.getKind().equals(new Text("HDFS_DELEGATION_TOKEN"))) {
+        if (token.getKind().equals(HDFS_DELEGATION_KIND)) {
           LOG.info(applicationId + " found existing hdfs token " + token);
           hasHdfsToken = true;
+        }
+        if (skipTokenRenewal(token)) {
+          continue;
         }
 
         DelegationTokenToRenew dttr = allTokens.get(token);
@@ -526,14 +531,26 @@ public class DelegationTokenRenewer extends AbstractService {
       return super.cancel();
     }
   }
-  
+
+  /*
+   * Skip renewing token if the renewer of the token is set to ""
+   * Caller is expected to have examined that token.isManaged() returns
+   * true before calling this method.
+   */
+  private boolean skipTokenRenewal(Token<?> token)
+      throws IOException {
+    @SuppressWarnings("unchecked")
+    Text renewer = ((Token<AbstractDelegationTokenIdentifier>)token).
+        decodeIdentifier().getRenewer();
+    return (renewer != null && renewer.toString().equals(""));
+  }
+
   /**
    * set task to renew the token
    */
   @VisibleForTesting
   protected void setTimerForTokenRenewal(DelegationTokenToRenew token)
       throws IOException {
-      
     // calculate timer time
     long expiresIn = token.expirationDate - System.currentTimeMillis();
     long renewIn = token.expirationDate - expiresIn/10; // little bit before the expiration
@@ -576,7 +593,7 @@ public class DelegationTokenRenewer extends AbstractService {
 
     if (hasProxyUserPrivileges
         && dttr.maxDate - dttr.expirationDate < credentialsValidTimeRemaining
-        && dttr.token.getKind().equals(new Text("HDFS_DELEGATION_TOKEN"))) {
+        && dttr.token.getKind().equals(HDFS_DELEGATION_KIND)) {
 
       final Collection<ApplicationId> applicationIds;
       synchronized (dttr.referringAppIds) {
@@ -593,7 +610,7 @@ public class DelegationTokenRenewer extends AbstractService {
         synchronized (tokenSet) {
           while (iter.hasNext()) {
             DelegationTokenToRenew t = iter.next();
-            if (t.token.getKind().equals(new Text("HDFS_DELEGATION_TOKEN"))) {
+            if (t.token.getKind().equals(HDFS_DELEGATION_KIND)) {
               iter.remove();
               allTokens.remove(t.token);
               t.cancelTimer();

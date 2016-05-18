@@ -1278,3 +1278,9 @@ ATS V1.5:
     issue on NM recovery. (jianhe via Junping Du)
 
     BUG-57625. HADOOP-13103. Group resolution from LDAP may fail on javax.naming.ServiceUnavailableException
+
+    BUG-55808. YARN-3021. YARN's delegation-token handling disallows certain
+    trust setups to operate properly over DistCp. Contributed by Yongjun Zhang
+    (cherry picked from commit bb6dde68f19be1885a9e7f7949316a03825b6f3e)
+
+    BUG-55808. YARN-5048. DelegationTokenRenewer#skipTokenRenewal may throw NPE (Jian He via Yongjun Zhang)
