@@ -1252,3 +1252,6 @@ ATS V1.5:
 
     BUG-56577. HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use
     incorrect class to determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
+
+    BUG-56577. HADOOP-12559. KMS connection failures should trigger TGT renewal.
+    Contributed by Zhe Zhang.
