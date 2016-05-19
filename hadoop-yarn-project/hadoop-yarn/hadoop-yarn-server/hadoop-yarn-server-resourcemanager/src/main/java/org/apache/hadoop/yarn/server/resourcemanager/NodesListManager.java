@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.server.resourcemanager;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -99,17 +100,21 @@ public class NodesListManager extends AbstractService implements
         YarnConfiguration.DEFAULT_RM_NODES_INCLUDE_FILE_PATH) + " out=" +
         conf.get(YarnConfiguration.RM_NODES_EXCLUDE_FILE_PATH, 
             YarnConfiguration.DEFAULT_RM_NODES_EXCLUDE_FILE_PATH));
-    for (String include : hostsReader.getHosts()) {
+
+    Set<String> hostsList = new HashSet<String>();
+    Set<String> excludeList = new HashSet<String>();
+    hostsReader.getHostDetails(hostsList, excludeList);
+
+    for (String include : hostsList) {
       LOG.debug("include: " + include);
     }
-    for (String exclude : hostsReader.getExcludedHosts()) {
+    for (String exclude : excludeList) {
       LOG.debug("exclude: " + exclude);
     }
   }
 
   public void refreshNodes(Configuration yarnConf) throws IOException,
       YarnException {
-    synchronized (hostsReader) {
       if (null == yarnConf) {
         yarnConf = new YarnConfiguration();
       }
@@ -119,15 +124,8 @@ public class NodesListManager extends AbstractService implements
       excludesFile =
           yarnConf.get(YarnConfiguration.RM_NODES_EXCLUDE_FILE_PATH,
               YarnConfiguration.DEFAULT_RM_NODES_EXCLUDE_FILE_PATH);
-      hostsReader.updateFileNames(includesFile, excludesFile);
-      hostsReader.refresh(
-          includesFile.isEmpty() ? null : this.rmContext
-              .getConfigurationProvider().getConfigurationInputStream(
-                  this.conf, includesFile), excludesFile.isEmpty() ? null
-              : this.rmContext.getConfigurationProvider()
-                  .getConfigurationInputStream(this.conf, excludesFile));
+    hostsReader.refresh(includesFile, excludesFile);
       printConfiguredHosts();
-    }
 
     for (NodeId nodeId: rmContext.getRMNodes().keySet()) {
       if (!isValidNode(nodeId.getHost())) {
@@ -149,16 +147,15 @@ public class NodesListManager extends AbstractService implements
   }
 
   public boolean isValidNode(String hostName) {
-    synchronized (hostsReader) {
-      Set<String> hostsList = hostsReader.getHosts();
-      Set<String> excludeList = hostsReader.getExcludedHosts();
-      String ip = NetUtils.normalizeHostName(hostName);
-      return (hostsList.isEmpty() || hostsList.contains(hostName) || hostsList
-          .contains(ip))
-          && !(excludeList.contains(hostName) || excludeList.contains(ip));
+    Set<String> hostsList = new HashSet<String>();
+    Set<String> excludeList = new HashSet<String>();
+    hostsReader.getHostDetails(hostsList, excludeList);
+    String ip = NetUtils.normalizeHostName(hostName);
+    return (hostsList.isEmpty() || hostsList.contains(hostName) || hostsList
+        .contains(ip))
+        && !(excludeList.contains(hostName) || excludeList.contains(ip));
     }
-  }
-  
+
   /**
    * Provides the currently unusable nodes. Copies it into provided collection.
    * @param unUsableNodes
@@ -190,7 +187,7 @@ public class NodesListManager extends AbstractService implements
       break;
     case NODE_USABLE:
       if (unusableRMNodesConcurrentSet.contains(eventNode)) {
-        LOG.debug(eventNode + " reported usable");
+      LOG.debug(eventNode + " reported usable");
         unusableRMNodesConcurrentSet.remove(eventNode);
       }
       for (RMApp app : rmContext.getRMApps().values()) {
