@@ -382,6 +382,11 @@ public class SimpleCopyListing extends CopyListing {
     return copyFilter.shouldCopy(path);
   }
 
+  /** Always return true for any path/options. */
+  protected boolean shouldCopy(Path path, DistCpOptions options) {
+    return true;
+  }
+
   /** {@inheritDoc} */
   @Override
   protected long getBytesToCopy() {
