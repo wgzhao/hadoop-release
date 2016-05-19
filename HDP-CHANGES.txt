@@ -1405,3 +1405,5 @@ ATS V1.5:
     objects with null or empty schemes (Mingliang Liu via cmccabe)
 
     MAPREDUCE-6514. Job hangs as ask is not updated after ramping down of all reducers. (wangda)
+
+    MAPREDUCE-6689. MapReduce job can infinitely increase number of reducer resource requests. (wangda)
