@@ -1407,3 +1407,6 @@ ATS V1.5:
     MAPREDUCE-6514. Job hangs as ask is not updated after ramping down of all reducers. (wangda)
 
     MAPREDUCE-6689. MapReduce job can infinitely increase number of reducer resource requests. (wangda)
+
+    BUG-55185. YARN-5076. YARN web interfaces lack XFS (Cross-Frame Script) protection.
+    (Jon Maron via junping_du)
