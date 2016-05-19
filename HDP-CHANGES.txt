@@ -1513,3 +1513,6 @@ ATS V1.5:
 
     BUG-58627. YARN-1556. NPE getting application report with a null appId. (Weiwei Yang
     via junping_du)
+
+    BUG-56869. HDFS-9902. Support different values of dfs.datanode.du.reserved
+    per storage type. (Contributed by Brahma Reddy Battula)
