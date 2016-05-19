@@ -5151,3 +5151,5 @@ ATS V1.5:
     Lokesh Jain.
 
     HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
+
+    YARN-5107. TestContainerMetrics fails. (aajisaka)
