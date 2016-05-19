@@ -355,8 +355,10 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
           }
           if (eventInfo.containsKey(
               ApplicationMetricsConstants.STATE_EVENT_INFO)) {
-            state = YarnApplicationState.valueOf(eventInfo.get(
-                ApplicationMetricsConstants.STATE_EVENT_INFO).toString());
+            if (!isFinalState(state)) {
+              state = YarnApplicationState.valueOf(eventInfo.get(
+                  ApplicationMetricsConstants.STATE_EVENT_INFO).toString());
+            }
           }
         } else if (event.getEventType().equals(
             ApplicationMetricsConstants.FINISHED_EVENT_TYPE)) {
@@ -405,6 +407,12 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
         diagnosticsInfo, null, createdTime, finishedTime, finalStatus,
         appResources, null, progress, type, null, appTags, unmanagedApplication,
         appNodeLabelExpression, amNodeLabelExpression), appViewACLs);
+  }
+
+  private static boolean isFinalState(YarnApplicationState state) {
+    return state == YarnApplicationState.FINISHED
+        || state == YarnApplicationState.FAILED
+        || state == YarnApplicationState.KILLED;
   }
 
   private static ApplicationAttemptReport convertToApplicationAttemptReport(
