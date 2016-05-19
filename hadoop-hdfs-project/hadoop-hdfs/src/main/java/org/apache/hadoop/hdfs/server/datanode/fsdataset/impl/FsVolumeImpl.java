@@ -63,6 +63,7 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.DiskChecker.DiskErrorException;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Time;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -116,11 +117,12 @@ public class FsVolumeImpl implements FsVolumeSpi {
       Configuration conf, StorageType storageType) throws IOException {
     this.dataset = dataset;
     this.storageID = storageID;
-    this.reserved = conf.getLong(
-        DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY,
-        DFSConfigKeys.DFS_DATANODE_DU_RESERVED_DEFAULT);
+    this.reserved = conf.getLong(DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY
+            + "." + StringUtils.toLowerCase(storageType.toString()), conf.getLong(
+            DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY,
+            DFSConfigKeys.DFS_DATANODE_DU_RESERVED_DEFAULT));
     this.reservedForRbw = new AtomicLong(0L);
-    this.currentDir = currentDir; 
+    this.currentDir = currentDir;
     File parent = currentDir.getParentFile();
     this.usage = new DF(parent, conf);
     this.storageType = storageType;
@@ -357,7 +359,7 @@ public class FsVolumeImpl implements FsVolumeSpi {
   public long getReservedForRbw() {
     return reservedForRbw.get();
   }
-    
+
   long getReserved(){
     return reserved;
   }
@@ -810,7 +812,7 @@ public class FsVolumeImpl implements FsVolumeSpi {
       throws IOException {
     getBlockPoolSlice(bpid).getVolumeMap(volumeMap, ramDiskReplicaMap);
   }
-  
+
   @Override
   public String toString() {
     return currentDir.getAbsolutePath();

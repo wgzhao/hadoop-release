@@ -25,6 +25,7 @@ import org.apache.hadoop.hdfs.server.datanode.BlockScanner;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.RoundRobinVolumeChoosingPolicy;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.VolumeChoosingPolicy;
+import org.apache.hadoop.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -57,11 +58,11 @@ public class TestFsVolumeList {
     blockScanner = new BlockScanner(null, blockScannerConf);
   }
 
-  @Test
+  @Test(timeout=30000)
   public void testGetNextVolumeWithClosedVolume() throws IOException {
     FsVolumeList volumeList = new FsVolumeList(
         Collections.<VolumeFailureInfo>emptyList(), blockScanner, blockChooser);
-    List<FsVolumeImpl> volumes = new ArrayList<>();
+    final List<FsVolumeImpl> volumes = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       File curDir = new File(baseDir, "nextvolume-" + i);
       curDir.mkdirs();
@@ -83,11 +84,11 @@ public class TestFsVolumeList {
     }
   }
 
-  @Test
+  @Test(timeout=30000)
   public void testCheckDirsWithClosedVolume() throws IOException {
     FsVolumeList volumeList = new FsVolumeList(
         Collections.<VolumeFailureInfo>emptyList(), blockScanner, blockChooser);
-    List<FsVolumeImpl> volumes = new ArrayList<>();
+    final List<FsVolumeImpl> volumes = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       File curDir = new File(baseDir, "volume-" + i);
       curDir.mkdirs();
@@ -103,7 +104,7 @@ public class TestFsVolumeList {
     volumeList.checkDirs();
   }
 
-  @Test
+  @Test(timeout=30000)
   public void testReleaseVolumeRefIfNoBlockScanner() throws IOException {
     FsVolumeList volumeList = new FsVolumeList(
         Collections.<VolumeFailureInfo>emptyList(), null, blockChooser);
@@ -119,5 +120,38 @@ public class TestFsVolumeList {
           + "VolumeList#addVolume().");
     } catch (IllegalStateException e) {
     }
+  }
+
+  @Test
+  public void testDfsReservedForDifferentStorageTypes() throws IOException {
+    Configuration conf = new Configuration();
+    conf.setLong(DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY, 100L);
+
+    File volDir = new File(baseDir, "volume-0");
+    volDir.mkdirs();
+    // when storage type reserved is not configured,should consider
+    // dfs.datanode.du.reserved.
+    FsVolumeImpl volume = new FsVolumeImpl(dataset, "storage-id", volDir, conf,
+        StorageType.RAM_DISK);
+    assertEquals("", 100L, volume.getReserved());
+    // when storage type reserved is configured.
+    conf.setLong(
+        DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY + "."
+            + StringUtils.toLowerCase(StorageType.RAM_DISK.toString()), 1L);
+    conf.setLong(
+        DFSConfigKeys.DFS_DATANODE_DU_RESERVED_KEY + "."
+            + StringUtils.toLowerCase(StorageType.SSD.toString()), 2L);
+    FsVolumeImpl volume1 = new FsVolumeImpl(dataset, "storage-id", volDir,
+        conf, StorageType.RAM_DISK);
+    assertEquals("", 1L, volume1.getReserved());
+    FsVolumeImpl volume2 = new FsVolumeImpl(dataset, "storage-id", volDir,
+        conf, StorageType.SSD);
+    assertEquals("", 2L, volume2.getReserved());
+    FsVolumeImpl volume3 = new FsVolumeImpl(dataset, "storage-id", volDir,
+        conf, StorageType.DISK);
+    assertEquals("", 100L, volume3.getReserved());
+    FsVolumeImpl volume4 = new FsVolumeImpl(dataset, "storage-id", volDir,
+        conf, StorageType.DEFAULT);
+    assertEquals("", 100L, volume4.getReserved());
   }
 }

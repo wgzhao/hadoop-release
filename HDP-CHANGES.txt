@@ -1313,3 +1313,6 @@ ATS V1.5:
 
     BUG-55474. HDFS-10178. Permanent write failures can happen if pipeline
     recoveries occur for the first packet. Contributed by Kihwal Lee.
+
+    BUG-56869. HDFS-9902. Support different values of dfs.datanode.du.reserved
+    per storage type. (Contributed by Brahma Reddy Battula)
