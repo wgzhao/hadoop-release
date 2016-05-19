@@ -1403,3 +1403,5 @@ ATS V1.5:
 
     HADOOP-13140. FileSystem#initialize must not attempt to create StorageStatistics
     objects with null or empty schemes (Mingliang Liu via cmccabe)
+
+    MAPREDUCE-6514. Job hangs as ask is not updated after ramping down of all reducers. (wangda)
