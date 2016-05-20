@@ -1528,3 +1528,6 @@ ATS V1.5:
     failing.
 
     BUG-58771. DShell AM fails with 'java.lang.NoClassDefFoundError'
+
+    BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue. Contributed by Mohammad Shahid Khan'
+
