@@ -852,3 +852,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-51462(YARN-4680): Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
+
+    BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue.
+    Contributed by Mohammad Shahid Khan
+
