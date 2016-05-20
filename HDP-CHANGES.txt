@@ -1413,3 +1413,6 @@ ATS V1.5:
 
     HDFS-10424. DatanodeLifelineProtocol not able to use under security cluster
     (cnauroth)
+
+    HDFS-10438. When NameNode HA is configured to use the lifeline RPC server,
+    it should log the address of that server. (cnauroth)
