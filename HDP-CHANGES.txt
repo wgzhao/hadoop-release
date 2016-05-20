@@ -1410,3 +1410,6 @@ ATS V1.5:
 
     BUG-55185. YARN-5076. YARN web interfaces lack XFS (Cross-Frame Script) protection.
     (Jon Maron via junping_du)
+
+    HDFS-10424. DatanodeLifelineProtocol not able to use under security cluster
+    (cnauroth)
