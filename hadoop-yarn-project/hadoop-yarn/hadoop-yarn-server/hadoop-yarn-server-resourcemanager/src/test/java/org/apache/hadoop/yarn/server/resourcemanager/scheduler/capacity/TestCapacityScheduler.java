@@ -74,6 +74,7 @@ import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.DrainDispatcher;
 import org.apache.hadoop.yarn.event.EventHandler;
+import org.apache.hadoop.yarn.exceptions.InvalidResourceRequestException;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.factories.RecordFactory;
@@ -691,7 +692,33 @@ public class TestCapacityScheduler {
     Assert.assertFalse(cs.getApplicationAttempt(appAttemptId).isBlacklisted(host));
     rm.stop();
   }
-  
+
+
+  @Test
+  public void testTooManyContainers() throws Exception {
+    Configuration conf = new Configuration();
+    conf.setClass(YarnConfiguration.RM_SCHEDULER, CapacityScheduler.class,
+        ResourceScheduler.class);
+    MockRM rm = new MockRM(conf);
+    rm.start();
+    MockNM nm1 =
+        new MockNM("127.0.0.1:1234", 15120, rm.getResourceTrackerService());
+    nm1.registerNode();
+
+
+    RMApp app0 = rm.submitApp(200);
+    MockAM am0 = launchAM(app0, rm, nm1);
+
+    try {
+      am0.allocate("127.0.0.1", 200, 200001, new ArrayList<ContainerId>());
+      Assert.fail("Should throw exception");
+    } catch (InvalidResourceRequestException e) {
+      System.out.println("too many containers");
+    }
+    rm.stop();
+  }
+
+
   @Test
   public void testAllocateReorder() throws Exception {
 

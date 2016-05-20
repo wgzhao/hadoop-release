@@ -267,14 +267,18 @@ public class RMContainerAllocator extends RMContainerRequestor
     }
 
     if (recalculateReduceSchedule) {
-      preemptReducesIfNeeded();
-      scheduleReduces(
-          getJob().getTotalMaps(), completedMaps,
-          scheduledRequests.maps.size(), scheduledRequests.reduces.size(), 
-          assignedRequests.maps.size(), assignedRequests.reduces.size(),
-          mapResourceRequest, reduceResourceRequest,
-          pendingReduces.size(), 
-          maxReduceRampupLimit, reduceSlowStart);
+      boolean reducerPreempted = preemptReducesIfNeeded();
+
+      if (!reducerPreempted) {
+        // Only schedule new reducers if no reducer preemption happens for
+        // this heartbeat
+        scheduleReduces(getJob().getTotalMaps(), completedMaps,
+            scheduledRequests.maps.size(), scheduledRequests.reduces.size(),
+            assignedRequests.maps.size(), assignedRequests.reduces.size(),
+            mapResourceRequest, reduceResourceRequest, pendingReduces.size(),
+            maxReduceRampupLimit, reduceSlowStart);
+      }
+
       recalculateReduceSchedule = false;
     }
 
@@ -455,30 +459,30 @@ public class RMContainerAllocator extends RMContainerRequestor
 
   @Private
   @VisibleForTesting
-  void preemptReducesIfNeeded() {
+  boolean preemptReducesIfNeeded() {
     if (reduceResourceRequest.equals(Resources.none())) {
-      return; // no reduces
+      return false; // no reduces
     }
 
     if (assignedRequests.maps.size() > 0) {
       // there are assigned mappers
-      return;
+      return false;
     }
 
     if (scheduledRequests.maps.size() <= 0) {
       // there are no pending requests for mappers
-      return;
+      return false;
     }
+
     // At this point:
     // we have pending mappers and all assigned resources are taken by reducers
-
     if (reducerUnconditionalPreemptionDelayMs >= 0) {
       // Unconditional preemption is enabled.
       // If mappers are pending for longer than the configured threshold,
       // preempt reducers irrespective of what the headroom is.
       if (preemptReducersForHangingMapRequests(
           reducerUnconditionalPreemptionDelayMs)) {
-        return;
+        return true;
       }
     }
 
@@ -488,12 +492,12 @@ public class RMContainerAllocator extends RMContainerRequestor
     if (ResourceCalculatorUtils.computeAvailableContainers(availableResourceForMap,
         mapResourceRequest, getSchedulerResourceTypes()) > 0) {
       // the available headroom is enough to run a mapper
-      return;
+      return false;
     }
 
     // Available headroom is not enough to run mapper. See if we should hold
     // off before preempting reducers and preempt if okay.
-    preemptReducersForHangingMapRequests(reducerNoHeadroomPreemptionDelayMs);
+    return preemptReducersForHangingMapRequests(reducerNoHeadroomPreemptionDelayMs);
   }
 
   private boolean preemptReducersForHangingMapRequests(long pendingThreshold) {
@@ -507,12 +511,7 @@ public class RMContainerAllocator extends RMContainerRequestor
   }
 
   private void clearAllPendingReduceRequests() {
-    LOG.info("Ramping down all scheduled reduces:"
-        + scheduledRequests.reduces.size());
-    for (ContainerRequest req : scheduledRequests.reduces.values()) {
-      pendingReduces.add(req);
-    }
-    scheduledRequests.reduces.clear();
+    rampDownReduces(Integer.MAX_VALUE);
   }
 
   private void preemptReducer(int hangingMapRequests) {
@@ -684,9 +683,13 @@ public class RMContainerAllocator extends RMContainerRequestor
   @Private
   public void rampDownReduces(int rampDown) {
     //remove from the scheduled and move back to pending
-    for (int i = 0; i < rampDown; i++) {
+    while (rampDown > 0) {
       ContainerRequest request = scheduledRequests.removeReduce();
+      if (request == null) {
+        return;
+      }
       pendingReduces.add(request);
+      rampDown--;
     }
   }
   
@@ -905,6 +908,11 @@ public class RMContainerAllocator extends RMContainerRequestor
       Resources.add(assignedMapResource, assignedReduceResource));
   }
 
+  @VisibleForTesting
+  public int getNumOfPendingReduces() {
+    return pendingReduces.size();
+  }
+
   @Private
   @VisibleForTesting
   class ScheduledRequests {
@@ -920,8 +928,9 @@ public class RMContainerAllocator extends RMContainerRequestor
     @VisibleForTesting
     final Map<TaskAttemptId, ContainerRequest> maps =
       new LinkedHashMap<TaskAttemptId, ContainerRequest>();
-    
-    private final LinkedHashMap<TaskAttemptId, ContainerRequest> reduces = 
+
+    @VisibleForTesting
+    final LinkedHashMap<TaskAttemptId, ContainerRequest> reduces =
       new LinkedHashMap<TaskAttemptId, ContainerRequest>();
     
     boolean remove(TaskAttemptId tId) {
@@ -1316,7 +1325,8 @@ public class RMContainerAllocator extends RMContainerRequestor
   class AssignedRequests {
     private final Map<ContainerId, TaskAttemptId> containerToAttemptMap =
       new HashMap<ContainerId, TaskAttemptId>();
-    private final LinkedHashMap<TaskAttemptId, Container> maps = 
+    @VisibleForTesting
+    final LinkedHashMap<TaskAttemptId, Container> maps =
       new LinkedHashMap<TaskAttemptId, Container>();
     @VisibleForTesting
     final LinkedHashMap<TaskAttemptId, Container> reduces =

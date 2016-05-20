@@ -1295,6 +1295,8 @@ public class YarnConfiguration extends Configuration {
   public static final long DEFAULT_NM_PROCESS_KILL_WAIT_MS =
       2000;
 
+  public static final String MAX_CONTAINERS = RM_PREFIX + "max-containers";
+
   /** Max time to wait to establish a connection to RM */
   public static final String RESOURCEMANAGER_CONNECT_MAX_WAIT_MS =
       RM_PREFIX + "connect.max-wait.ms";

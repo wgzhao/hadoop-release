@@ -1234,3 +1234,15 @@ ATS V1.5:
 
     BUG-56920. YARN-4717. TestResourceLocalizationService.testPublicResourceInitializesLocalDir
     fails Intermittently due to IllegalArgumentException from cleanup (templedf via rkanter)
+
+    BUG-56776. Hotfix for AT&T. Scheduler keeps skipping scheduling because
+    large amount of resources asked which causes pending resource overflows.
+
+    BUG-56776. MAPREDUCE-6514. Fixed MapReduce ApplicationMaster to properly
+    updated resources ask after ramping down of all reducers avoiding job hangs.
+    Contributed by Varun Saxena and Wangda Tan. Updated the 2.7 branch patch to
+    fix a minor issue in TestRMContainerAllocator.java
+
+    BUG-56776. MAPREDUCE-6689. MapReduce job can infinitely increase number of
+    reducer resource requests. Contributed by Wangda Tan (cherry picked from
+    commit c9bb96fa81fc925e33ccc0b02c98cc2d929df120)
