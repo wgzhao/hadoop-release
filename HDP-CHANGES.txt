@@ -1248,3 +1248,6 @@ ATS V1.5:
 
     BUG-82863. HDFS-10424. DatanodeLifelineProtocol not able to use under
     security cluster. Contributed by Chris Nauroth.
+
+    BUG-82863. HDFS-10438. When NameNode HA is configured to use the lifeline
+    RPC server, it should log the address of that server. (cnauroth)
