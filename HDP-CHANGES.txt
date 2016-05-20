@@ -1416,3 +1416,6 @@ ATS V1.5:
 
     HDFS-10438. When NameNode HA is configured to use the lifeline RPC server,
     it should log the address of that server. (cnauroth)
+
+    HADOOP-12767. Update apache httpclient version to 4.5.2; httpcore to 4.4.4.
+    (Artem Aliev via stevel)
