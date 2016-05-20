@@ -1316,3 +1316,6 @@ ATS V1.5:
 
     BUG-56869. HDFS-9902. Support different values of dfs.datanode.du.reserved
     per storage type. (Contributed by Brahma Reddy Battula)
+
+    BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue.
+    Contributed by Mohammad Shahid Khan
