@@ -1426,3 +1426,6 @@ ATS V1.5:
 
     BUG-58445. YARN-4417. Make RM and Timeline-server REST APIs more consistent.
     (Wangda Tan via jian)
+
+    BUG-48217/YARN-5112. Excessive log warnings for directory permission
+    issue on NM recovery. (jianhe via Junping Du)
