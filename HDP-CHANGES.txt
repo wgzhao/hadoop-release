@@ -1273,3 +1273,6 @@ ATS V1.5:
 
     BUG-56423. HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
     protobuf maximum length restriction. Contributed by Chris Nauroth.
+
+    BUG-48217/YARN-5112. Excessive log warnings for directory permission
+    issue on NM recovery. (jianhe via Junping Du)
