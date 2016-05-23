@@ -1505,3 +1505,6 @@ ATS V1.5:
 
     HADOOP-13145 In DistCp, prevent unnecessary getFileStatus call when not
     preserving metadata. Contributed by Chris Nauroth.
+
+    BUG-55291. HDFS-10223. peerFromSocketAndKey performs SASL exchange before setting connection timeouts
+
