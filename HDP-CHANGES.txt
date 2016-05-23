@@ -1419,3 +1419,5 @@ ATS V1.5:
 
     HADOOP-12767. Update apache httpclient version to 4.5.2; httpcore to 4.4.4.
     (Artem Aliev via stevel)
+
+    HADOOP-11262. Enable YARN to use S3A. (Pieter Reuse via lei)

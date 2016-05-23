@@ -379,13 +379,22 @@ public class S3AFileSystem extends FileSystem {
    *
    * @return "s3a"
    */
+  @Override
   public String getScheme() {
     return "s3a";
   }
 
-  /** Returns a URI whose scheme and authority identify this FileSystem.*/
+  /**
+   * Returns a URI whose scheme and authority identify this FileSystem.
+   */
+  @Override
   public URI getUri() {
     return uri;
+  }
+
+  @Override
+  public int getDefaultPort() {
+    return Constants.S3A_DEFAULT_PORT;
   }
 
   /**
@@ -453,8 +462,10 @@ public class S3AFileSystem extends FileSystem {
    * @throws IOException in the event of IO related errors.
    * @see #setPermission(Path, FsPermission)
    */
-  public FSDataOutputStream create(Path f, FsPermission permission, boolean overwrite, 
-    int bufferSize, short replication, long blockSize, Progressable progress) throws IOException {
+  @Override
+  public FSDataOutputStream create(Path f, FsPermission permission,
+      boolean overwrite, int bufferSize, short replication, long blockSize,
+      Progressable progress) throws IOException {
     String key = pathToKey(f);
 
     if (!overwrite && exists(f)) {
