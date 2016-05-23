@@ -1623,3 +1623,5 @@ ATS V1.5:
     HADOOP-13203. S3a: Consider reducing the number of connection aborts by
     setting correct length in s3 request.
     Contributed by Rajesh Balamohan and Steve Loughran.
+
+    BUG-59045. MAPREDUCE-6543. Migrate MR Client test cases part 2
