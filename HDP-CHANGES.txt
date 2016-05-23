@@ -1293,3 +1293,6 @@ ATS V1.5:
 
     BUG-57513. HDFS-9958. BlockManager#createLocatedBlocks can throw NPE for
     corruptBlocks on failed storages. Contributed by Kuhu Shukla.
+
+    BUG-58359. HDFS-10438. When NameNode HA is configured to use the lifeline
+    RPC server, it should log the address of that server. (cnauroth)
