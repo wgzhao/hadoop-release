@@ -1285,3 +1285,6 @@ ATS V1.5:
 
     BUG-55808. YARN-5048. DelegationTokenRenewer#skipTokenRenewal may throw
     NPE (Jian He via Yongjun Zhang)
+
+    BUG-55291. HDFS-10223. peerFromSocketAndKey performs SASL exchange before setting connection timeouts
+
