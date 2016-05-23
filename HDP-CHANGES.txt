@@ -1421,3 +1421,8 @@ ATS V1.5:
     (Artem Aliev via stevel)
 
     HADOOP-11262. Enable YARN to use S3A. (Pieter Reuse via lei)
+
+    BUG-58444. Fix 8 test failures in TestRMWebServicesApps. (Junping Du).
+
+    BUG-58445. YARN-4417. Make RM and Timeline-server REST APIs more consistent.
+    (Wangda Tan via jian)
