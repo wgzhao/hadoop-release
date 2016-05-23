@@ -1322,9 +1322,8 @@ public class TestRMWebServicesApps extends JerseyTestBase {
 
   public void verifyAppInfo(JSONObject info, RMApp app) throws JSONException,
       Exception {
-    assertEquals("incorrect number of elements", 30, info.length());
 
-    int expectedNumberOfElements = 30;
+    int expectedNumberOfElements = 32;
     String appNodeLabelExpression = null;
     String amNodeLabelExpression = null;
     if (app.getApplicationSubmissionContext()
