@@ -1499,3 +1499,6 @@ ATS V1.5:
     Contributed by Steve Loughran.
 
     HADOOP-13130. s3a failures can surface as RTEs, not IOEs. (Steve Loughran)
+
+    HADOOP-13145 In DistCp, prevent unnecessary getFileStatus call when not
+    preserving metadata. Contributed by Chris Nauroth.
