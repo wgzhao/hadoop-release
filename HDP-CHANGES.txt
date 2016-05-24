@@ -1491,3 +1491,6 @@ ATS V1.5:
 
     HADOOP-13158 S3AFileSystem#toString might throw NullPointerException due to
     null cannedACL. (Chris Nauroth via stevel)
+
+    HADOOP-12723 S3A: Add ability to plug in any AWSCredentialsProvider.
+    Contributed by Steven Wong.
