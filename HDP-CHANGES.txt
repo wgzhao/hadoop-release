@@ -1494,3 +1494,6 @@ ATS V1.5:
 
     HADOOP-12723 S3A: Add ability to plug in any AWSCredentialsProvider.
     Contributed by Steven Wong.
+
+    HADOOP-13183. S3A proxy tests fail after httpclient/httpcore upgrade.
+    Contributed by Steve Loughran.
