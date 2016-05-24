@@ -1466,3 +1466,6 @@ ATS V1.5:
     Chris Nauroth via stevel.
 
     HADOOP-13116 Jets3tNativeS3FileSystemContractTest does not run.
+
+    HADOOP-12045. Enable LocalFileSystem#setTimes to change atime.
+    Contributed by Kazuho Fujii.
