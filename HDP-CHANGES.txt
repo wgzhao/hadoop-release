@@ -1288,3 +1288,5 @@ ATS V1.5:
 
     BUG-55291. HDFS-10223. peerFromSocketAndKey performs SASL exchange before setting connection timeouts
 
+    BUG-57513. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
+    Daryn Sharp.
