@@ -1461,3 +1461,6 @@ ATS V1.5:
 
     HADOOP-12982 Document missing S3A and S3 properties.
     (Wei-Chiu Chuang via stevel)
+
+    HADOOP-13122 Customize User-Agent header sent in HTTP requests by S3A.
+    Chris Nauroth via stevel.
