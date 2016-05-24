@@ -1485,3 +1485,6 @@ ATS V1.5:
 
     HADOOP-13113 Enable parallel test execution for hadoop-aws.
     Chris Nauroth via stevel
+
+    HADOOP-13163 Reuse pre-computed filestatus in Distcp-CopyMapper
+    (Rajesh Balamohan via stevel)
