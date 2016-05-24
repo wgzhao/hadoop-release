@@ -1290,3 +1290,6 @@ ATS V1.5:
 
     BUG-57513. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
     Daryn Sharp.
+
+    BUG-57513. HDFS-9958. BlockManager#createLocatedBlocks can throw NPE for
+    corruptBlocks on failed storages. Contributed by Kuhu Shukla.
