@@ -78,6 +78,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-1540. Support file exclusion list in distcp. (Rich Haase via jing9)
 
+    HADOOP-12292. Make use of DeleteObjects optional.
+    (Thomas Demoor via stevel)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
