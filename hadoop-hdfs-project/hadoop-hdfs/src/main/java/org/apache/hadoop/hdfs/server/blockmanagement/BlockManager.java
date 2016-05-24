@@ -1248,11 +1248,23 @@ public class BlockManager implements BlockStatsMXBean {
           + " as corrupt because datanode " + dn + " (" + dn.getDatanodeUuid()
           + ") does not exist");
     }
-    
+
+    DatanodeStorageInfo storage = null;
+    if (storageID != null) {
+      storage = node.getStorageInfo(storageID);
+    }
+    if (storage == null) {
+      storage = storedBlock.findStorageInfo(node);
+    }
+
+    if (storage == null) {
+      blockLog.debug("BLOCK* findAndMarkBlockAsCorrupt: {} not found on {}",
+          blk, dn);
+      return;
+    }
     markBlockAsCorrupt(new BlockToMarkCorrupt(reportedBlock, storedBlock,
             blk.getGenerationStamp(), reason, Reason.CORRUPTION_REPORTED),
-        storageID == null ? null : node.getStorageInfo(storageID),
-        node);
+        storage, node);
   }
 
   /**

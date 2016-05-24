@@ -954,3 +954,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-83277. HDFS-11499. Decommissioning stuck because of failing recovery.
     Contributed by Lukas Majercak and Manoj Govindassamy.
+
+    BUG-92208. HDFS-9958. BlockManager#createLocatedBlocks can throw NPE for
+    corruptBlocks on failed storages. Contributed by Kuhu Shukla.
