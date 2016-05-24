@@ -1444,3 +1444,5 @@ ATS V1.5:
     HADOOP-12269. Update aws-sdk dependency to 1.10.6
     (Thomas Demoor via Lei (Eddy) Xu)
 
+    HADOOP-12346. Increase some default timeouts / retries for S3a connector.
+    (Sean Mackrory via Lei (Eddy) Xu)
