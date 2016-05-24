@@ -1469,3 +1469,6 @@ ATS V1.5:
 
     HADOOP-12045. Enable LocalFileSystem#setTimes to change atime.
     Contributed by Kazuho Fujii.
+
+    HADOOP-12258. Need translate java.nio.file.NoSuchFileException to
+    FileNotFoundException to avoid regression. Contributed by Zhihai Xu.

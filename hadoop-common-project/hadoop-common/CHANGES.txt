@@ -220,6 +220,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12588. Fix intermittent test failure of TestGangliaMetrics.
     (Masatake Iwasaki via aajisaka)
 
+    HADOOP-12258. Need translate java.nio.file.NoSuchFileException to
+    FileNotFoundException to avoid regression. (Zhihai Xu via cnauroth)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
