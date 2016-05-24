@@ -1488,3 +1488,6 @@ ATS V1.5:
 
     HADOOP-13163 Reuse pre-computed filestatus in Distcp-CopyMapper
     (Rajesh Balamohan via stevel)
+
+    HADOOP-13158 S3AFileSystem#toString might throw NullPointerException due to
+    null cannedACL. (Chris Nauroth via stevel)
