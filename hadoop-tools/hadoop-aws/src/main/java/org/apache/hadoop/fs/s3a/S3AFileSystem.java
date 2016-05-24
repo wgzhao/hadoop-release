@@ -88,7 +88,7 @@ public class S3AFileSystem extends FileSystem {
   private long partSize;
   private TransferManager transfers;
   private ThreadPoolExecutor threadPoolExecutor;
-  private int multiPartThreshold;
+  private long multiPartThreshold;
   public static final Logger LOG = LoggerFactory.getLogger(S3AFileSystem.class);
   private CannedAccessControlList cannedACL;
   private String serverSideEncryptionAlgorithm;
@@ -180,6 +180,10 @@ public class S3AFileSystem extends FileSystem {
         DEFAULT_ESTABLISH_TIMEOUT));
     awsConf.setSocketTimeout(conf.getInt(SOCKET_TIMEOUT,
       DEFAULT_SOCKET_TIMEOUT));
+    String signerOverride = conf.getTrimmed(SIGNING_ALGORITHM, "");
+    if(!signerOverride.isEmpty()) {
+      awsConf.setSignerOverride(signerOverride);
+    }
 
     initProxySupport(conf, awsConf, secureConnections);
 
@@ -187,7 +191,7 @@ public class S3AFileSystem extends FileSystem {
 
     maxKeys = conf.getInt(MAX_PAGING_KEYS, DEFAULT_MAX_PAGING_KEYS);
     partSize = conf.getLong(MULTIPART_SIZE, DEFAULT_MULTIPART_SIZE);
-    multiPartThreshold = conf.getInt(MIN_MULTIPART_THRESHOLD,
+    multiPartThreshold = conf.getLong(MIN_MULTIPART_THRESHOLD,
       DEFAULT_MIN_MULTIPART_THRESHOLD);
 
     if (partSize < 5 * 1024 * 1024) {
@@ -474,7 +478,7 @@ public class S3AFileSystem extends FileSystem {
     if (getConf().getBoolean(FAST_UPLOAD, DEFAULT_FAST_UPLOAD)) {
       return new FSDataOutputStream(new S3AFastOutputStream(s3, this, bucket,
           key, progress, statistics, cannedACL,
-          serverSideEncryptionAlgorithm, partSize, (long)multiPartThreshold,
+          serverSideEncryptionAlgorithm, partSize, multiPartThreshold,
           threadPoolExecutor), statistics);
     }
     // We pass null to FSDataOutputStream so it won't count writes that are being buffered to a file
@@ -1101,7 +1105,7 @@ public class S3AFileSystem extends FileSystem {
 
     final ObjectMetadata om = new ObjectMetadata();
     if (StringUtils.isNotBlank(serverSideEncryptionAlgorithm)) {
-      om.setServerSideEncryption(serverSideEncryptionAlgorithm);
+      om.setSSEAlgorithm(serverSideEncryptionAlgorithm);
     }
     PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, key, srcfile);
     putObjectRequest.setCannedAcl(cannedACL);
@@ -1109,8 +1113,8 @@ public class S3AFileSystem extends FileSystem {
 
     ProgressListener progressListener = new ProgressListener() {
       public void progressChanged(ProgressEvent progressEvent) {
-        switch (progressEvent.getEventCode()) {
-          case ProgressEvent.PART_COMPLETED_EVENT_CODE:
+        switch (progressEvent.getEventType()) {
+          case TRANSFER_PART_COMPLETED_EVENT:
             statistics.incrementWriteOps(1);
             break;
           default:
@@ -1165,7 +1169,7 @@ public class S3AFileSystem extends FileSystem {
     ObjectMetadata srcom = s3.getObjectMetadata(bucket, srcKey);
     final ObjectMetadata dstom = srcom.clone();
     if (StringUtils.isNotBlank(serverSideEncryptionAlgorithm)) {
-      dstom.setServerSideEncryption(serverSideEncryptionAlgorithm);
+      dstom.setSSEAlgorithm(serverSideEncryptionAlgorithm);
     }
     CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucket, srcKey, bucket, dstKey);
     copyObjectRequest.setCannedAccessControlList(cannedACL);
@@ -1173,8 +1177,8 @@ public class S3AFileSystem extends FileSystem {
 
     ProgressListener progressListener = new ProgressListener() {
       public void progressChanged(ProgressEvent progressEvent) {
-        switch (progressEvent.getEventCode()) {
-          case ProgressEvent.PART_COMPLETED_EVENT_CODE:
+        switch (progressEvent.getEventType()) {
+          case TRANSFER_PART_COMPLETED_EVENT:
             statistics.incrementWriteOps(1);
             break;
           default:
@@ -1261,7 +1265,7 @@ public class S3AFileSystem extends FileSystem {
     final ObjectMetadata om = new ObjectMetadata();
     om.setContentLength(0L);
     if (StringUtils.isNotBlank(serverSideEncryptionAlgorithm)) {
-      om.setServerSideEncryption(serverSideEncryptionAlgorithm);
+      om.setSSEAlgorithm(serverSideEncryptionAlgorithm);
     }
     PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, im, om);
     putObjectRequest.setCannedAcl(cannedACL);

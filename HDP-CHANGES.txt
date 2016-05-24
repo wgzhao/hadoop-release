@@ -1440,3 +1440,7 @@ ATS V1.5:
 
     HADOOP-12074. in Shell.java#runCommand() rethrow InterruptedException as
     InterruptedIOException (Lavkesh Lahngir via vinayakumarb)
+
+    HADOOP-12269. Update aws-sdk dependency to 1.10.6
+    (Thomas Demoor via Lei (Eddy) Xu)
+
