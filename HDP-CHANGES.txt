@@ -1452,3 +1452,6 @@ ATS V1.5:
 
     HADOOP-11687. Ignore x-* and response headers when copying an Amazon S3
     object. Contributed by Aaron Peterson and harsh.
+
+    HADOOP-12963 Allow using path style addressing for accessing the s3
+    endpoint. (Stephen Montgomery via stevel)
