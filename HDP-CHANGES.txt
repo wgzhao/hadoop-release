@@ -1455,3 +1455,6 @@ ATS V1.5:
 
     HADOOP-12963 Allow using path style addressing for accessing the s3
     endpoint. (Stephen Montgomery via stevel)
+
+    HADOOP-12891. S3AFileSystem should configure Multipart Copy threshold and
+    chunk size. (Andrew Olson via stevel)
