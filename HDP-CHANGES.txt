@@ -1482,3 +1482,6 @@ ATS V1.5:
     HADOOP-12844 Recover when S3A fails on IOException in read()
     HADOOP-13058 S3A FS fails during init against a read-only FS if multipart purge
     HADOOP-13047 S3a Forward seek in stream length to be configurable
+
+    HADOOP-13113 Enable parallel test execution for hadoop-aws.
+    Chris Nauroth via stevel
