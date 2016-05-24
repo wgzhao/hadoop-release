@@ -395,6 +395,9 @@ ATS V1.5:
     HDFS-10335 Mover$Processor#chooseTarget() always chooses the first matching
     target storage group.  Contributed by  Mingliang Liu
 
+    BUG-58017. HADOOP-13168. Support Future.get with timeout in ipc async calls
+    (Tsz Wo Nicholas Sze)
+
   BUG FIXES
 
 
