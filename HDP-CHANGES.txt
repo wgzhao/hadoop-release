@@ -1449,3 +1449,6 @@ ATS V1.5:
 
     HADOOP-12292. Make use of DeleteObjects optional.
     (Thomas Demoor via stevel)
+
+    HADOOP-11687. Ignore x-* and response headers when copying an Amazon S3
+    object. Contributed by Aaron Peterson and harsh.
