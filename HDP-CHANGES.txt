@@ -1458,3 +1458,6 @@ ATS V1.5:
 
     HADOOP-12891. S3AFileSystem should configure Multipart Copy threshold and
     chunk size. (Andrew Olson via stevel)
+
+    HADOOP-12982 Document missing S3A and S3 properties.
+    (Wei-Chiu Chuang via stevel)
