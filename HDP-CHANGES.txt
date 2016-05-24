@@ -1497,3 +1497,5 @@ ATS V1.5:
 
     HADOOP-13183. S3A proxy tests fail after httpclient/httpcore upgrade.
     Contributed by Steve Loughran.
+
+    HADOOP-13130. s3a failures can surface as RTEs, not IOEs. (Steve Loughran)
