@@ -1464,3 +1464,5 @@ ATS V1.5:
 
     HADOOP-13122 Customize User-Agent header sent in HTTP requests by S3A.
     Chris Nauroth via stevel.
+
+    HADOOP-13116 Jets3tNativeS3FileSystemContractTest does not run.
