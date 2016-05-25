@@ -4265,3 +4265,6 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-105961. YARN-3344. Fix warning - procfs stat file is not in the expected
+    format. (Ravindra Kumar Naik and Akira Ajisaka via kasha)
