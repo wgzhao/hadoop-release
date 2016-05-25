@@ -1508,3 +1508,5 @@ ATS V1.5:
 
     BUG-55291. HDFS-10223. peerFromSocketAndKey performs SASL exchange before setting connection timeouts
 
+    BUG-58029. YARN-5131. Distributed shell AM fails when extra container
+    arrives during finishing. Wangda Tan via junping_du.
