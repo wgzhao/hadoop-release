@@ -377,6 +377,9 @@ ATS V1.5:
     HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
     protobuf maximum length restriction. Contributed by Chris Nauroth.
 
+    BUG-58017. HDFS-10390. Implement asynchronous setAcl/getAclStatus for
+    DistributedFileSystem (Xiaobing Zhou)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
