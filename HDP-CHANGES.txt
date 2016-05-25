@@ -1299,3 +1299,9 @@ ATS V1.5:
 
     BUG-58358. HDFS-10424. DatanodeLifelineProtocol not able to use under
     security cluster. Contributed by Chris Nauroth.
+
+    BUG-55185. YARN-5076. YARN web interfaces lack XFS (Cross-Frame Script) protection.
+    (Jon Maron via junping_du)
+
+    BUG-58437. HADOOP-13008. Add XFS Filter for UIs to Hadoop Common. Contributed by Larry McCay.
+
