@@ -2162,12 +2162,4 @@
     <value>GET,OPTIONS,HEAD</value>
   </property>
 
-<property>
-  <description>
-    Value of the xframe-options
-  </description>
-  <name>mapreduce.jobhistory.webapp.xfs-filter.xframe-options</name>
-  <value>SAMEORIGIN</value>
-</property>
-
 </configuration>

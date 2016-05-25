@@ -40,7 +40,6 @@ import org.apache.hadoop.http.HttpServer2;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.security.http.RestCsrfPreventionFilter;
-import org.apache.hadoop.security.http.XFrameOptionsFilter;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import org.slf4j.Logger;
@@ -93,8 +92,7 @@ public class WebApps {
     boolean devMode = false;
     private String spnegoPrincipalKey;
     private String spnegoKeytabKey;
-    private String csrfConfigPrefix;
-    private String xfsConfigPrefix;
+    private String configPrefix;
     private final HashSet<ServletStruct> servlets = new HashSet<ServletStruct>();
     private final HashMap<String, Object> attributes = new HashMap<String, Object>();
 
@@ -167,25 +165,13 @@ public class WebApps {
 
     /**
      * Enable the CSRF filter.
-     * @param prefix The config prefix that identifies the
+     * @param csrfConfigPrefix The config prefix that identifies the
      *                         CSRF parameters applicable for this filter
      *                         instance.
      * @return the Builder instance
      */
-    public Builder<T> withCSRFProtection(String prefix) {
-      this.csrfConfigPrefix = prefix;
-      return this;
-    }
-
-    /**
-     * Enable the XFS filter.
-     * @param prefix The config prefix that identifies the
-     *                         XFS parameters applicable for this filter
-     *                         instance.
-     * @return the Builder instance
-     */
-    public Builder<T> withXFSProtection(String prefix) {
-      this.xfsConfigPrefix = prefix;
+    public Builder<T> withCSRFProtection(String csrfConfigPrefix) {
+      this.configPrefix = csrfConfigPrefix;
       return this;
     }
 
@@ -294,7 +280,7 @@ public class WebApps {
         for(Map.Entry<String, Object> entry : attributes.entrySet()) {
           server.setAttribute(entry.getKey(), entry.getValue());
         }
-        Map<String, String> params = getConfigParameters(csrfConfigPrefix);
+        Map<String, String> params = getCsrfConfigParameters();
 
         if (hasCSRFEnabled(params)) {
           LOG.info("CSRF Protection has been enabled for the {} application. "
@@ -305,15 +291,6 @@ public class WebApps {
           HttpServer2.defineFilter(server.getWebAppContext(), restCsrfClassName,
                                    restCsrfClassName, params,
                                    new String[] {"/*"});
-        }
-
-        params = getConfigParameters(xfsConfigPrefix);
-
-        if (hasXFSEnabled()) {
-          String xfsClassName = XFrameOptionsFilter.class.getName();
-          HttpServer2.defineFilter(server.getWebAppContext(), xfsClassName,
-              xfsClassName, params,
-              new String[] {"/*"});
         }
 
         HttpServer2.defineFilter(server.getWebAppContext(), "guice",
@@ -349,18 +326,14 @@ public class WebApps {
       return params != null && Boolean.valueOf(params.get("enabled"));
     }
 
-    /**
-     * XFS filter is enabled by default.  If the enabled flag is not explicitly
-     * specified and set to "false", this method returns true.
-     * @return true if XFS is enabled, false otherwise.
-     */
-    private boolean hasXFSEnabled() {
-      return conf.getBoolean(YarnConfiguration.YARN_XFS_ENABLED, true);
-    }
-
-    private Map<String, String> getConfigParameters(String configPrefix) {
-      return configPrefix != null ? conf.getPropsWithPrefix(configPrefix) :
-          null;
+    private Map<String, String> getCsrfConfigParameters() {
+      Map<String, String> params = null;
+      if (configPrefix != null) {
+        // need to obtain parameters for CSRF filter
+        params =
+            RestCsrfPreventionFilter.getFilterParams(conf, configPrefix);
+      }
+      return params;
     }
 
     public WebApp start() {

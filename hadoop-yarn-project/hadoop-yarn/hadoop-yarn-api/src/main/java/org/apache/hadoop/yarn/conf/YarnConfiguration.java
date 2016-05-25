@@ -2115,20 +2115,6 @@ public class YarnConfiguration extends Configuration {
         NODELABEL_CONFIGURATION_TYPE, DEFAULT_NODELABEL_CONFIGURATION_TYPE));
   }
 
-  // RM and NM XFS props
-  public static final String XFS = "webapp.xfs-filter.";
-  public static final String YARN_XFS_ENABLED = "yarn." + XFS + "enabled";
-  public static final String RM_XFS_PREFIX = RM_PREFIX + XFS;
-  public static final String NM_XFS_PREFIX = NM_PREFIX + XFS;
-  public static final String TIMELINE_XFS_PREFIX = TIMELINE_SERVICE_PREFIX +
-      XFS;
-  public static final String RM_XFS_OPTIONS = RM_XFS_PREFIX +
-      "xframe-options";
-  public static final String NM_XFS_OPTIONS = NM_XFS_PREFIX +
-      "xframe-options";
-  public static final String TIMELINE_XFS_OPTIONS =
-      TIMELINE_XFS_PREFIX + "xframe-options";
-
   public YarnConfiguration() {
     super();
   }
