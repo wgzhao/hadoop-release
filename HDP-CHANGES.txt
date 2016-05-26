@@ -1516,3 +1516,5 @@ ATS V1.5:
 
     BUG-56869. HDFS-9902. Support different values of dfs.datanode.du.reserved
     per storage type. (Contributed by Brahma Reddy Battula)
+
+    BUG-58692. Fix test failure due to NPE issues in TestRMWebAppFairScheduler. (junping_du)

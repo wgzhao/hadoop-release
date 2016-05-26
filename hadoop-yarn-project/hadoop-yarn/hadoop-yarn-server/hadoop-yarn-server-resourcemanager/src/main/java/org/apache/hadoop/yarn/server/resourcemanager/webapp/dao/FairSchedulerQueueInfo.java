@@ -29,7 +29,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.Collection;
+import java.util.ArrayList;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -95,6 +97,7 @@ public class FairSchedulerQueueInfo {
     fractionMemMaxShare = (float)maxResources.getMemory() / clusterResources.getMemory();
     
     maxApps = allocConf.getQueueMaxApps(queueName);
+    childQueues = new ArrayList<FairSchedulerQueueInfo>();
 
     pendingContainers = queue.getMetrics().getPendingContainers();
     allocatedContainers = queue.getMetrics().getAllocatedContainers();
