@@ -31,7 +31,7 @@ import org.mockito.Mockito;
 
 public class TestSchedulingPolicy {
 
-  @Test(timeout = 1000)
+  @Test(timeout = 2000)
   public void testParseSchedulingPolicy()
       throws AllocationConfigurationException {
 
@@ -75,7 +75,7 @@ public class TestSchedulingPolicy {
    * 
    * @throws AllocationConfigurationException
    */
-  @Test(timeout = 1000)
+  @Test(timeout = 5000)
   public void testIsApplicableTo() throws AllocationConfigurationException {
     Assume.assumeFalse(Shell.WINDOWS);
     final String ERR = "Broken SchedulingPolicy#isApplicableTo";

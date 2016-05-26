@@ -1518,3 +1518,5 @@ ATS V1.5:
     per storage type. (Contributed by Brahma Reddy Battula)
 
     BUG-58692. Fix test failure due to NPE issues in TestRMWebAppFairScheduler. (junping_du)
+
+    BUG-58693. Fix test timeout issue in TestSchedulingPolicy. (junping_du)
