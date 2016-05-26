@@ -487,10 +487,9 @@ public class TestLogsCLI {
           "-applicationId", appTest.toString()});
       assertTrue(exitCode == -1);
       assertTrue(sysErrStream.toString().contains(
-        "Guessed logs' owner is " + priorityUser + " and current user "
-            + UserGroupInformation.getCurrentUser().getUserName()
-            + " does not have permission to access"));
-      sysErrStream.reset();
+          "Can not find the logs for the application: "
+          + appTest.toString()));
+
     } finally {
       fs.delete(new Path(remoteLogRootDir), true);
       fs.delete(new Path(rootLogDir), true);
