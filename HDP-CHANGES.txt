@@ -1527,3 +1527,4 @@ ATS V1.5:
     BUG-58701. YARN-4155. TestLogAggregationService.testLogAggregationServiceWithInterval
     failing.
 
+    BUG-58771. DShell AM fails with 'java.lang.NoClassDefFoundError'

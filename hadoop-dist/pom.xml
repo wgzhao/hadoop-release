@@ -131,7 +131,11 @@
                       run mv ./share/hadoop/tools/lib/hadoop-aws-*.jar ./share/hadoop/common/
                       run mv ./share/hadoop/tools/lib/aws-java-sdk-*.jar ./share/hadoop/common/lib/
                       run mv ./share/hadoop/tools/lib/jackson-annotations-*.jar ./share/hadoop/common/lib/
+                      # jackson-core-version.jar is required, but not
+                      # jackson-core-asl-version.jar, so not using *.
+                      run mv ./share/hadoop/tools/lib/jackson-core-?.?.?.jar ./share/hadoop/common/lib/
                       run mv ./share/hadoop/tools/lib/jackson-databind-*.jar ./share/hadoop/common/lib/
+                      run mv ./share/hadoop/tools/lib/joda-time-*.jar ./share/hadoop/common/lib/
 
                       # Move WASB and dependencies to common.
                       run mv ./share/hadoop/tools/lib/hadoop-azure-*.jar ./share/hadoop/common/
