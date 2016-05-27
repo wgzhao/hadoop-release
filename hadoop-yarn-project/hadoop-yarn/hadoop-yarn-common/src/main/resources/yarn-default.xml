@@ -1788,7 +1788,7 @@
       Enable the CSRF filter for the timeline service web app
     </description>
     <name>yarn.timeline-service.webapp.rest-csrf.enabled</name>
-    <value>false</value>
+    <value>true</value>
   </property>
 
   <property>
