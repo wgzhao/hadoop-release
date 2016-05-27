@@ -139,6 +139,9 @@ ATS V1.5:
     RMP-5369. HDFS-10346. Implement asynchronous setPermission/setOwner for
     DistributedFileSystem (Xiaobing Zhou)
 
+    BUG-58017. HDFS-10390. Implement asynchronous setAcl/getAclStatus for
+    DistributedFileSystem (Xiaobing Zhou)
+
   IMPROVEMENTS
 
     HADOOP-10597. RPC Server signals backoff to clients when all request
@@ -377,9 +380,6 @@ ATS V1.5:
     HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
     protobuf maximum length restriction. Contributed by Chris Nauroth.
 
-    BUG-58017. HDFS-10390. Implement asynchronous setAcl/getAclStatus for
-    DistributedFileSystem (Xiaobing Zhou)
-
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
@@ -402,6 +402,8 @@ ATS V1.5:
     (Tsz Wo Nicholas Sze)
 
     HADOOP-10035. Cleanup TestFilterFileSystem. Contributed by Suresh Srinivas.
+
+    BUG-58017. HDFS-10431. Refactor and speedup TestAsyncDFSRename (Xiaobing Zhou)
 
   BUG FIXES
 
