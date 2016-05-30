@@ -1321,3 +1321,6 @@ ATS V1.5:
     Contributed by Mohammad Shahid Khan
 
     BUG-38471. HDFS-8887. Expose storage type and storage ID in BlockLocation.
+
+    BUG-38471. HDFS-8512. WebHDFS : GETFILESTATUS should return LocatedBlock with storage
+    type info. (xyao)

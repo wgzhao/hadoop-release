@@ -41,12 +41,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
@@ -694,6 +696,36 @@ public class TestWebHDFS {
     } finally {
       if (cluster != null)
         cluster.shutdown();
+    }
+  }
+
+  @Test
+  public void testWebHdfsGetBlockLocationsWithStorageType() throws Exception{
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    final int OFFSET = 42;
+    final int LENGTH = 512;
+    final Path PATH = new Path("/foo");
+    byte[] CONTENTS = new byte[1024];
+    RANDOM.nextBytes(CONTENTS);
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+      final WebHdfsFileSystem fs = WebHdfsTestUtil.getWebHdfsFileSystem(conf,
+          WebHdfsFileSystem.SCHEME);
+      try (OutputStream os = fs.create(PATH)) {
+        os.write(CONTENTS);
+      }
+      BlockLocation[] locations = fs.getFileBlockLocations(PATH, OFFSET,
+          LENGTH);
+      for (BlockLocation location: locations) {
+        StorageType[] storageTypes = location.getStorageTypes();
+        Assert.assertTrue(storageTypes != null && storageTypes.length > 0 &&
+            storageTypes[0] == StorageType.DISK);
+      }
+    } finally {
+      if (cluster != null) {
+        cluster.shutdown();
+      }
     }
   }
 
