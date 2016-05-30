@@ -114,9 +114,6 @@ Release 2.8.0 - UNRELEASED
     HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
     (Walter Su via wang).
 
-    HDFS-8512. WebHDFS : GETFILESTATUS should return LocatedBlock with storage
-    type info. (xyao)
-
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
