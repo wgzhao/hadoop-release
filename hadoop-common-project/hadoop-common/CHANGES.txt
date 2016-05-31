@@ -271,6 +271,9 @@ Release 2.7.2 - UNRELEASED
     HADOOP-11864. JWTRedirectAuthenticationHandler breaks java8 javadocs.
     (Larry McCay via stevel)
 
+    HADOOP-12076. Incomplete Cache Mechanism in CredentialProvider API.
+    (Larry McCay via cnauroth)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
