@@ -268,6 +268,9 @@ Release 2.7.2 - UNRELEASED
     HADOOP-12465. Incorrect javadoc in WritableUtils.java.
     (Jagadesh Kiran N via aajisaka)
 
+    HADOOP-11864. JWTRedirectAuthenticationHandler breaks java8 javadocs.
+    (Larry McCay via stevel)
+
 Release 2.7.1 - 2015-07-06 
 
   INCOMPATIBLE CHANGES
