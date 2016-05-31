@@ -34,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.zookeeper.PortAssignment;
 import org.apache.zookeeper.TestableZooKeeper;
@@ -65,8 +66,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
     protected static final Logger LOG = LoggerFactory.getLogger(ClientBaseWithFixes.class);
 
     public static int CONNECTION_TIMEOUT = 30000;
-    static final File BASETEST =
-        new File(System.getProperty("test.build.data", "build"));
+    static final File BASETEST = GenericTestUtils.getTestDir();
 
     protected final String hostPort = initHostPort();
     protected int maxCnxns = 0;
