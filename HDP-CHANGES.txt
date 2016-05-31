@@ -1531,3 +1531,5 @@ ATS V1.5:
 
     BUG-18218. YARN-3846. RM Web UI queue filter is not working for sub queue. Contributed by Mohammad Shahid Khan'
 
+    HADOOP-12689. S3 filesystem operations stopped working correctly
+    (Matt Paduano via raviprak)
