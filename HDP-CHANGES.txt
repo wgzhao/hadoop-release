@@ -1535,3 +1535,5 @@ ATS V1.5:
     (Matt Paduano via raviprak)
 
     HADOOP-12696. Add tests for S3Filesystem Contract (Matt Paduano via raviprak)
+
+    HADOOP-12801. Suppress obsolete S3FileSystem tests. (cnauroth)
