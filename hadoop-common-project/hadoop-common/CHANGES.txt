@@ -282,6 +282,9 @@ Release 2.7.1 - 2015-07-06
     HADOOP-12103. Small refactoring of DelegationTokenAuthenticationFilter to
     allow code sharing. (Yongjun Zhang)
 
+    HADOOP-12481. JWTRedirectAuthenticationHandler doesn't Retain Original Query
+    String (Larry McCay via cnauroth)
+
   OPTIMIZATIONS
 
     HADOOP-11812. Implement listLocatedStatus for ViewFileSystem to speed up
