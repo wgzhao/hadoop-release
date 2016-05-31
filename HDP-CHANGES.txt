@@ -1543,3 +1543,6 @@ ATS V1.5:
     HADOOP-12696. Add tests for S3Filesystem Contract (Matt Paduano via raviprak)
 
     HADOOP-12801. Suppress obsolete S3FileSystem tests. (cnauroth)
+
+    BUG-58131. HADOOP-13138. Unable to append to a SequenceFile with
+    Compression.NONE. (Vinayakumar B)
