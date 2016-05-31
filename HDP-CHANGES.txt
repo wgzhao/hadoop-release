@@ -1533,3 +1533,5 @@ ATS V1.5:
 
     HADOOP-12689. S3 filesystem operations stopped working correctly
     (Matt Paduano via raviprak)
+
+    HADOOP-12696. Add tests for S3Filesystem Contract (Matt Paduano via raviprak)
