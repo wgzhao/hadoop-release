@@ -86,6 +86,9 @@ Release 2.8.0 - UNRELEASED
 
     HADOOP-12696. Add tests for S3Filesystem Contract (Matt Paduano via raviprak)
 
+    HADOOP-11717. Support JWT tokens for web single sign on to the Hadoop
+    servers. (Larry McCay via omalley)
+
   OPTIMIZATIONS
 
     HADOOP-7713. dfs -count -q should label output column (Jonathan Allen

@@ -383,6 +383,9 @@ ATS V1.5:
     BUG-56634. HADOOP-13011. Clearly Document the Password Details for Keystore-based
     Credential Providers (Larry McCay)
 
+    BUG-56634. HADOOP-11717. Add Redirecting WebSSO behavior with JWT Token in Hadoop Auth
+    (Larry McCay)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
