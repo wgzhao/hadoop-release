@@ -927,6 +927,10 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
    */
   @Override
   public synchronized int read(final byte buf[], int off, int len) throws IOException {
+    validatePositionedReadArgs(pos, buf, off, len);
+    if (len == 0) {
+      return 0;
+    }
     ReaderStrategy byteArrayReader = new ByteArrayStrategy(buf);
     TraceScope scope =
         dfsClient.getPathTraceScope("DFSInputStream#byteArrayRead", src);

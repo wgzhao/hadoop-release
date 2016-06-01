@@ -1546,3 +1546,6 @@ ATS V1.5:
 
     BUG-58131. HADOOP-13138. Unable to append to a SequenceFile with
     Compression.NONE. (Vinayakumar B)
+
+    HDFS-10277. PositionedReadable test testReadFullyZeroByteFile failing in
+    HDFS. Contributed by Steve Loughran.
