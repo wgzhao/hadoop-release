@@ -2031,3 +2031,6 @@ ATS V1.5:
     HDFS-10329. Bad initialisation of StringBuffer in RequestHedgingProxyProvider. Contributed by Lin Yiqun.
     BUG-61987. Disable flaky UT TestDataNodeHotSwapVolumes#testRemoveVolumeBeingWritten
     HDFS-10270. TestJMXGet:testNameNode() fails. Contributed by Gergely Novák
+
+    BUG-62487. HDFS-9466. TestShortCircuitCache#testDataXceiverCleansUpSlotsOnFailure
+    is flaky (Wei-Chiu Chuang via cmccabe)
