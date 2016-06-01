@@ -1330,3 +1330,11 @@ ATS V1.5:
 
     BUG-51145. YARN-4596. SystemMetricPublisher should not swallow error messages from
     TimelineClient#putEntities. Contributed by Li Lu
+
+    BUG-52882. HDFS-7163. WebHdfsFileSystem should retry reads according to the configured retry policy.
+
+    BUG-52302. HDFS-7916. 'reportBadBlocks' from datanodes to standby Node BPServiceActor goes for infinite loop.
+    Contributed by Rushabh Shah.
+
+    BUG-53390. HDFS-6951. Correctly persist raw namespace xattrs to edit log and fsimage. Contributed by Charles Lamb.
+
