@@ -1558,3 +1558,6 @@ ATS V1.5:
 
     BUG-59214. YARN-5190. Registering/unregistering container metrics triggered by ContainerEvent and ContainersMonitorEvent
     are conflict which cause uncaught exception in ContainerMonitorImpl. (Junping Du via jian)
+
+    HDFS-10415. TestDistributedFileSystem#MyDistributedFileSystem attempts to
+    set up statistics before initialize() is called (Mingliang Liu via cmccabe)
