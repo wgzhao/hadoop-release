@@ -1352,3 +1352,6 @@ ATS V1.5:
 
     BUG-55949. HDFS-9476. TestDFSUpgradeFromImage#testUpgradeFromRel1BBWImage occasionally fail
     (Masatake Iwasaki)
+
+    BUG-54136. HADOOP-11252. RPC client does not time out by default.
+    Contributed by Wilfred Spiegelenburg and Masatake Iwasaki.
