@@ -1324,3 +1324,9 @@ ATS V1.5:
 
     BUG-38471. HDFS-8512. WebHDFS : GETFILESTATUS should return LocatedBlock with storage
     type info. (xyao)
+
+    BUG-51829. YARN-4820. ResourceManager web redirects in HA mode drops query parameters.
+    Contributed by Varun Vasudev.
+
+    BUG-51145. YARN-4596. SystemMetricPublisher should not swallow error messages from
+    TimelineClient#putEntities. Contributed by Li Lu
