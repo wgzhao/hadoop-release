@@ -4,9 +4,6 @@ Release 2.8.0 - UNRELEASED
 
   INCOMPATIBLE CHANGES
 
-    HADOOP-12416. Trash messages should be handled by Logger instead of being
-    delivered on System.out. (Mingliang Liu via aajisaka)
-
   NEW FEATURES
 
     HADOOP-12635. Adding Append API support for WASB. (Dushyanth via cnauroth)

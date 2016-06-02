@@ -92,11 +92,7 @@ public class Trash extends Configured {
       throw new IOException("Failed to get server trash configuration", e);
     }
     Trash trash = new Trash(fullyResolvedFs, conf);
-    boolean success = trash.moveToTrash(fullyResolvedPath);
-    if (success) {
-      LOG.info("Moved: '" + p + "' to trash at: " + trash.getCurrentTrashDir());
-    }
-    return success;
+    return trash.moveToTrash(fullyResolvedPath);
   }
   
   /**
