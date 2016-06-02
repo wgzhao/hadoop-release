@@ -51,6 +51,7 @@ class PendingReplicationBlocks {
   private final ArrayList<BlockInfo> timedOutItems;
   Daemon timerThread = null;
   private volatile boolean fsRunning = true;
+  private long timedOutCount = 0L;
 
   //
   // It might take anywhere between 5 to 10 minutes before
@@ -126,6 +127,7 @@ class PendingReplicationBlocks {
     synchronized (pendingReplications) {
       pendingReplications.clear();
       timedOutItems.clear();
+      timedOutCount = 0L;
     }
   }
 
@@ -150,8 +152,18 @@ class PendingReplicationBlocks {
   }
 
   /**
-   * Returns a list of blocks that have timed out their 
-   * replication requests. Returns null if no blocks have
+   * Used for metrics.
+   * @return The number of timeouts
+   */
+  long getNumTimedOuts() {
+    synchronized (timedOutItems) {
+      return timedOutCount + timedOutItems.size();
+    }
+  }
+
+  /**
+   * Returns a list of blocks that have timed out their
+   * reconstruction requests. Returns null if no blocks have
    * timed out.
    */
   BlockInfo[] getTimedOutBlocks() {
@@ -159,9 +171,11 @@ class PendingReplicationBlocks {
       if (timedOutItems.size() <= 0) {
         return null;
       }
+      int size = timedOutItems.size();
       BlockInfo[] blockList = timedOutItems.toArray(
-          new BlockInfo[timedOutItems.size()]);
+          new BlockInfo[size]);
       timedOutItems.clear();
+      timedOutCount += size;
       return blockList;
     }
   }

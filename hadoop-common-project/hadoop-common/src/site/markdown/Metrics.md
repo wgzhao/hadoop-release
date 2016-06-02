@@ -232,6 +232,7 @@ Each metrics record contains tags such as HAState and Hostname as additional inf
 | `LockQueueLength` | Number of threads waiting to acquire FSNameSystem lock |
 | `TotalSyncCount` | Total number of sync operations performed by edit log |
 | `TotalSyncTimes` | Total number of milliseconds spent by various edit logs in sync operation|
+| `NumTimedOutPendingReconstructions` | The number of timed out reconstructions. Not the number of unique blocks that timed out. |
 
 JournalNode
 -----------
