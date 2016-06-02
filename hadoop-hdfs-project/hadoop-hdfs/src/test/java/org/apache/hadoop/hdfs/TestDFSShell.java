@@ -40,6 +40,7 @@ import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
+import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.tools.DFSAdmin;
 import org.apache.hadoop.io.IOUtils;
@@ -47,6 +48,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.BZip2Codec;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.net.ServerSocketUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.test.PathUtils;
 import org.apache.hadoop.util.ReflectionUtils;
@@ -528,7 +530,8 @@ public class TestDFSShell {
       cluster = new MiniDFSCluster.Builder(conf)
           .format(true)
           .numDataNodes(2)
-          .nameNodePort(8020)
+          .nameNodePort(ServerSocketUtil.waitForPort(
+              NameNode.DEFAULT_PORT, 10))
           .waitSafeMode(true)
           .build();
       FileSystem srcFs = cluster.getFileSystem();
