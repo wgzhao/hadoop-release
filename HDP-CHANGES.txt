@@ -1346,3 +1346,6 @@ ATS V1.5:
 
     BUG-53460. HADOOP-13098. Dynamic LogLevel setting page should accept case-insensitive log level string
     (Junping Du)
+
+    BUG-55949. HDFS-9476. TestDFSUpgradeFromImage#testUpgradeFromRel1BBWImage occasionally fail
+    (Masatake Iwasaki)
