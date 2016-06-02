@@ -30,6 +30,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.test.GenericTestUtils;
 
 public class TestShell extends TestCase {
 
@@ -93,8 +94,7 @@ public class TestShell extends TestCase {
       // setExecutable does not work on Windows
       return;
     }
-    String rootDir = new File(System.getProperty(
-        "test.build.data", "/tmp")).getAbsolutePath();
+    String rootDir = GenericTestUtils.getTestDir().getAbsolutePath();
     File shellFile = new File(rootDir, "timeout.sh");
     String timeoutCommand = "sleep 4; echo \"hello\"";
     PrintWriter writer = new PrintWriter(new FileOutputStream(shellFile));

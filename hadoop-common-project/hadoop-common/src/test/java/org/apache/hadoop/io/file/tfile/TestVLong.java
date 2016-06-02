@@ -29,10 +29,10 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.test.GenericTestUtils;
 
 public class TestVLong extends TestCase {
-  private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+  private static String ROOT = GenericTestUtils.getTestDir().getAbsolutePath();
   private Configuration conf;
   private FileSystem fs;
   private Path path;

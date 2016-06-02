@@ -33,6 +33,7 @@ import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
+import org.apache.hadoop.test.GenericTestUtils;
 
 /**
  * 
@@ -42,8 +43,7 @@ import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
  */
 
 public class TestTFileStreams extends TestCase {
-  private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+  private static String ROOT = GenericTestUtils.getTestDir().getAbsolutePath();
 
   private final static int BLOCK_SIZE = 512;
   private final static int K = 1024;

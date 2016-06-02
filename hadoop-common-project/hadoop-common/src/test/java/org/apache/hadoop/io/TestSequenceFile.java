@@ -30,6 +30,7 @@ import org.apache.hadoop.io.SequenceFile.Metadata;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.hadoop.io.serializer.avro.AvroReflectSerialization;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.conf.*;
 import org.mockito.Mockito;
@@ -56,11 +57,11 @@ public class TestSequenceFile extends TestCase {
     int count = 1024 * 10;
     int megabytes = 1;
     int factor = 5;
-    Path file = new Path(System.getProperty("test.build.data",".")+"/test.seq");
-    Path recordCompressedFile = 
-      new Path(System.getProperty("test.build.data",".")+"/test.rc.seq");
-    Path blockCompressedFile = 
-      new Path(System.getProperty("test.build.data",".")+"/test.bc.seq");
+    Path file = new Path(GenericTestUtils.getTempPath("test.seq"));
+    Path recordCompressedFile = new Path(GenericTestUtils.getTempPath(
+        "test.rc.seq"));
+    Path blockCompressedFile = new Path(GenericTestUtils.getTempPath(
+        "test.bc.seq"));
  
     int seed = new Random().nextInt();
     LOG.info("Seed = " + seed);
@@ -313,13 +314,13 @@ public class TestSequenceFile extends TestCase {
     LOG.info("Testing SequenceFile with metadata");
     int count = 1024 * 10;
     CompressionCodec codec = new DefaultCodec();
-    Path file = new Path(System.getProperty("test.build.data",".")+"/test.seq.metadata");
-    Path sortedFile =
-      new Path(System.getProperty("test.build.data",".")+"/test.sorted.seq.metadata");
-    Path recordCompressedFile = 
-      new Path(System.getProperty("test.build.data",".")+"/test.rc.seq.metadata");
-    Path blockCompressedFile = 
-      new Path(System.getProperty("test.build.data",".")+"/test.bc.seq.metadata");
+    Path file = new Path(GenericTestUtils.getTempPath("test.seq.metadata"));
+    Path sortedFile = new Path(GenericTestUtils.getTempPath(
+        "test.sorted.seq.metadata"));
+    Path recordCompressedFile = new Path(GenericTestUtils.getTempPath(
+        "test.rc.seq.metadata"));
+    Path blockCompressedFile = new Path(GenericTestUtils.getTempPath(
+        "test.bc.seq.metadata"));
  
     FileSystem fs = FileSystem.getLocal(conf);
     SequenceFile.Metadata theMetadata = new SequenceFile.Metadata();
@@ -415,14 +416,14 @@ public class TestSequenceFile extends TestCase {
     LocalFileSystem fs = FileSystem.getLocal(conf);
   
     // create a sequence file 1
-    Path path1 = new Path(System.getProperty("test.build.data",".")+"/test1.seq");
+    Path path1 = new Path(GenericTestUtils.getTempPath("test1.seq"));
     SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, path1,
         Text.class, NullWritable.class, CompressionType.BLOCK);
     writer.append(new Text("file1-1"), NullWritable.get());
     writer.append(new Text("file1-2"), NullWritable.get());
     writer.close();
   
-    Path path2 = new Path(System.getProperty("test.build.data",".")+"/test2.seq");
+    Path path2 = new Path(GenericTestUtils.getTempPath("test2.seq"));
     writer = SequenceFile.createWriter(fs, conf, path2, Text.class,
         NullWritable.class, CompressionType.BLOCK);
     writer.append(new Text("file2-1"), NullWritable.get());
@@ -469,7 +470,7 @@ public class TestSequenceFile extends TestCase {
   public void testCreateUsesFsArg() throws Exception {
     FileSystem fs = FileSystem.getLocal(conf);
     FileSystem spyFs = Mockito.spy(fs);
-    Path p = new Path(System.getProperty("test.build.data", ".")+"/testCreateUsesFSArg.seq");
+    Path p = new Path(GenericTestUtils.getTempPath("testCreateUsesFSArg.seq"));
     SequenceFile.Writer writer = SequenceFile.createWriter(
         spyFs, conf, p, NullWritable.class, NullWritable.class);
     writer.close();
@@ -500,7 +501,7 @@ public class TestSequenceFile extends TestCase {
     LocalFileSystem fs = FileSystem.getLocal(conf);
 
     // create an empty file (which is not a valid sequence file)
-    Path path = new Path(System.getProperty("test.build.data",".")+"/broken.seq");
+    Path path = new Path(GenericTestUtils.getTempPath("broken.seq"));
     fs.create(path).close();
 
     // try to create SequenceFile.Reader
@@ -530,8 +531,8 @@ public class TestSequenceFile extends TestCase {
   public void testCreateWriterOnExistingFile() throws IOException {
     Configuration conf = new Configuration();
     FileSystem fs = FileSystem.getLocal(conf);
-    Path name = new Path(new Path(System.getProperty("test.build.data","."),
-        "createWriterOnExistingFile") , "file");
+    Path name = new Path(new Path(GenericTestUtils.getTempPath(
+        "createWriterOnExistingFile")), "file");
 
     fs.create(name);
     SequenceFile.createWriter(fs, conf, name, RandomDatum.class,
@@ -541,8 +542,8 @@ public class TestSequenceFile extends TestCase {
 
   public void testRecursiveSeqFileCreate() throws IOException {
     FileSystem fs = FileSystem.getLocal(conf);
-    Path name = new Path(new Path(System.getProperty("test.build.data","."),
-        "recursiveCreateDir") , "file");
+    Path name = new Path(new Path(GenericTestUtils.getTempPath(
+        "recursiveCreateDir")), "file");
     boolean createParent = false;
 
     try {
@@ -563,8 +564,8 @@ public class TestSequenceFile extends TestCase {
 
   public void testSerializationAvailability() throws IOException {
     Configuration conf = new Configuration();
-    Path path = new Path(System.getProperty("test.build.data", "."),
-        "serializationAvailability");
+    Path path = new Path(GenericTestUtils.getTempPath(
+        "serializationAvailability"));
     // Check if any serializers aren't found.
     try {
       SequenceFile.createWriter(

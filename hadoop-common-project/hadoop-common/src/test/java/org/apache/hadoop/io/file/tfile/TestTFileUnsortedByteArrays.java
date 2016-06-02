@@ -28,11 +28,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
 
 public class TestTFileUnsortedByteArrays extends TestCase {
-  private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+  private static String ROOT = GenericTestUtils.getTestDir().getAbsolutePath();
 
 
   private final static int BLOCK_SIZE = 512;

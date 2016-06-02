@@ -58,8 +58,7 @@ import org.apache.hadoop.util.Time;
 public class TestNativeIO {
   static final Log LOG = LogFactory.getLog(TestNativeIO.class);
 
-  static final File TEST_DIR = new File(
-    System.getProperty("test.build.data"), "testnativeio");
+  static final File TEST_DIR = GenericTestUtils.getTestDir("testnativeio");
 
   @Before
   public void checkLoaded() {
@@ -525,8 +524,7 @@ public class TestNativeIO {
 
   @Test (timeout = 30000)
   public void testRenameTo() throws Exception {
-    final File TEST_DIR = new File(new File(
-        System.getProperty("test.build.data","build/test/data")), "renameTest");
+    final File TEST_DIR = GenericTestUtils.getTestDir("renameTest") ;
     assumeTrue(TEST_DIR.mkdirs());
     File nonExistentFile = new File(TEST_DIR, "nonexistent");
     File targetFile = new File(TEST_DIR, "target");
@@ -575,9 +573,7 @@ public class TestNativeIO {
   @Test(timeout=10000)
   public void testMlock() throws Exception {
     assumeTrue(NativeIO.isAvailable());
-    final File TEST_FILE = new File(new File(
-        System.getProperty("test.build.data","build/test/data")),
-        "testMlockFile");
+    final File TEST_FILE = GenericTestUtils.getTestDir("testMlockFile");
     final int BUF_LEN = 12289;
     byte buf[] = new byte[BUF_LEN];
     int bufSum = 0;

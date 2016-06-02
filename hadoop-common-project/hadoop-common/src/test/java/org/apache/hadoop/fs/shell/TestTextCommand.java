@@ -27,10 +27,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.file.Files;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.Test;
 
 /**
@@ -38,12 +40,12 @@ import org.junit.Test;
  * by the Text command.
  */
 public class TestTextCommand {
-  private static final String TEST_ROOT_DIR =
-    System.getProperty("test.build.data", "build/test/data/") + "/testText";
+  private static final File TEST_ROOT_DIR =
+      GenericTestUtils.getTestDir("testText");
   private static final String AVRO_FILENAME =
-    new Path(TEST_ROOT_DIR, "weather.avro").toUri().getPath();
+    new File(TEST_ROOT_DIR, "weather.avro").toURI().getPath();
   private static final String TEXT_FILENAME =
-    new Path(TEST_ROOT_DIR, "testtextfile.txt").toUri().getPath();
+    new File(TEST_ROOT_DIR, "testtextfile.txt").toURI().getPath();
 
   /**
    * Tests whether binary Avro data files are displayed correctly.
@@ -126,7 +128,7 @@ public class TestTextCommand {
   }
 
   private void createFile(String fileName, byte[] contents) throws IOException {
-    (new File(TEST_ROOT_DIR)).mkdir();
+    Files.createDirectories(TEST_ROOT_DIR.toPath());
     File file = new File(fileName);
     file.createNewFile();
     FileOutputStream stream = new FileOutputStream(file);

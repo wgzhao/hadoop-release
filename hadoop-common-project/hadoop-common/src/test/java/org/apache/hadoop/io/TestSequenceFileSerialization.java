@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.hadoop.io.SequenceFile.Writer;
+import org.apache.hadoop.test.GenericTestUtils;
 
 public class TestSequenceFileSerialization extends TestCase {
   
@@ -45,8 +46,7 @@ public class TestSequenceFileSerialization extends TestCase {
   }
   
   public void testJavaSerialization() throws Exception {
-    Path file = new Path(System.getProperty("test.build.data",".") +
-        "/testseqser.seq");
+    Path file = new Path(GenericTestUtils.getTempPath("testseqser.seq"));
     
     fs.delete(file, true);
     Writer writer = SequenceFile.createWriter(fs, conf, file, Long.class,

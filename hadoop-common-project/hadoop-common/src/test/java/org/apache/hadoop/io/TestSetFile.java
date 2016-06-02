@@ -20,7 +20,6 @@ package org.apache.hadoop.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
@@ -29,12 +28,12 @@ import org.apache.commons.logging.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
+import org.apache.hadoop.test.GenericTestUtils;
 
 /** Support for flat files of binary key/value pairs. */
 public class TestSetFile extends TestCase {
   private static final Log LOG = LogFactory.getLog(TestSetFile.class);
-  private static String FILE =
-    System.getProperty("test.build.data",".") + "/test.set";
+  private static String FILE = GenericTestUtils.getTempPath("test.set");
 
   private static Configuration conf = new Configuration();
   
