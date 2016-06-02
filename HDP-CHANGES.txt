@@ -92,6 +92,9 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     HDFS-9239. DataNode Lifeline Protocol: an alternative protocol for
     reporting DataNode liveness. Contributed by Chris Nauroth.
 
+    BUG-53460. HADOOP-12847. hadoop daemonlog should support https and SPNEGO for
+    Kerberized cluster (Wei-Chiu Chuang)
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
@@ -336,6 +339,9 @@ ATS V1.5:
 
     HADOOP-13039. Add documentation for configuration property
     ipc.maximum.data.length (Contributed by Mingliang Liu)
+
+    BUG-53460. HADOOP-12984. Add GenericTestUtils.getTestDir method
+    and use it for temporary directory in tests (Steve Loughran)
 
   OPTIMIZATIONS
 
@@ -1338,3 +1344,5 @@ ATS V1.5:
 
     BUG-53390. HDFS-6951. Correctly persist raw namespace xattrs to edit log and fsimage. Contributed by Charles Lamb.
 
+    BUG-53460. HADOOP-13098. Dynamic LogLevel setting page should accept case-insensitive log level string
+    (Junping Du)
