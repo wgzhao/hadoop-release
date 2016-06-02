@@ -1549,3 +1549,6 @@ ATS V1.5:
 
     HDFS-10277. PositionedReadable test testReadFullyZeroByteFile failing in
     HDFS. Contributed by Steve Loughran.
+
+    BUG-55949. HDFS-9476. TestDFSUpgradeFromImage#testUpgradeFromRel1BBWImage occasionally fail
+    (Masatake Iwasaki)
