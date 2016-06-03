@@ -619,15 +619,15 @@ public class ContainersMonitorImpl extends AbstractService implements
     }
 
     ContainerId containerId = monitoringEvent.getContainerId();
-    ContainerMetrics usageMetrics = ContainerMetrics
-        .forContainer(containerId, containerMetricsPeriodMs,
-        containerMetricsUnregisterDelayMs);
+    ContainerMetrics usageMetrics;
 
     switch (monitoringEvent.getType()) {
     case START_MONITORING_CONTAINER:
       ContainerStartMonitoringEvent startEvent =
           (ContainerStartMonitoringEvent) monitoringEvent;
-
+      usageMetrics = ContainerMetrics
+          .forContainer(containerId, containerMetricsPeriodMs,
+          containerMetricsUnregisterDelayMs);
       usageMetrics.recordStateChangeDurations(
           startEvent.getLaunchDuration(),
           startEvent.getLocalizationDuration());
@@ -644,7 +644,12 @@ public class ContainersMonitorImpl extends AbstractService implements
       synchronized (this.containersToBeRemoved) {
         this.containersToBeRemoved.add(containerId);
       }
-      usageMetrics.finished();
+
+      usageMetrics = ContainerMetrics.getContainerMetrics(
+          containerId);
+      if (usageMetrics != null) {
+        usageMetrics.finished();
+      }
       break;
     default:
       // TODO: Wrong event.
