@@ -386,6 +386,9 @@ ATS V1.5:
     BUG-56634. HADOOP-11717. Add Redirecting WebSSO behavior with JWT Token in Hadoop Auth
     (Larry McCay)
 
+    BUG-57081. HDFS-10341. Add a metric to expose the timeout number of pending
+    replication blocks (Akira AJISAKA)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
