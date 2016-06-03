@@ -343,6 +343,9 @@ ATS V1.5:
     BUG-53460. HADOOP-12984. Add GenericTestUtils.getTestDir method
     and use it for temporary directory in tests (Steve Loughran)
 
+    BUG-57081. HDFS-10341. Add a metric to expose the timeout number of pending
+    replication blocks (Akira AJISAKA)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
