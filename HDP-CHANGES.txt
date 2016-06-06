@@ -1561,3 +1561,6 @@ ATS V1.5:
 
     HDFS-10415. TestDistributedFileSystem#MyDistributedFileSystem attempts to
     set up statistics before initialize() is called (Mingliang Liu via cmccabe)
+
+    HADOOP-13171. Add StorageStatistics to S3A; instrument some more operations.
+    Contributed by Steve Loughran.
