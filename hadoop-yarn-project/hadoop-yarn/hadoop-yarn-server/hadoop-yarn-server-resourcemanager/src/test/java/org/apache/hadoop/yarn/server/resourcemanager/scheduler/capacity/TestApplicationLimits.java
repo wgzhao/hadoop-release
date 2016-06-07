@@ -294,12 +294,12 @@ public class TestApplicationLimits {
     
     // Assert in metrics
     assertEquals(queue.getMetrics().getAMResourceLimitMB(),
-        amResourceLimit.getMemory());
+        amResourceLimit.getMemorySize());
     assertEquals(queue.getMetrics().getAMResourceLimitVCores(),
         amResourceLimit.getVirtualCores());
 
     assertEquals(
-        (int)(clusterResource.getMemory() * queue.getAbsoluteCapacity()),
+        (int)(clusterResource.getMemorySize() * queue.getAbsoluteCapacity()),
         queue.getMetrics().getAvailableMB()
         );
     
@@ -314,7 +314,7 @@ public class TestApplicationLimits {
       Resource.newInstance(96*GB, 1));
     
     assertEquals(
-        (int)(clusterResource.getMemory() * queue.getAbsoluteCapacity()),
+        (int)(clusterResource.getMemorySize() * queue.getAbsoluteCapacity()),
         queue.getMetrics().getAvailableMB()
         );
 

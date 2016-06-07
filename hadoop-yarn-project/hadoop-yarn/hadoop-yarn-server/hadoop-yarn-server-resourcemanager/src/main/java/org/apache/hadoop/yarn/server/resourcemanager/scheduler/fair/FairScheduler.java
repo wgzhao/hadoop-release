@@ -436,7 +436,7 @@ public class FairScheduler extends
     long duration = getClock().getTime() - start;
     fsOpDurations.addPreemptCallDuration(duration);
   }
-  
+
   protected void warnOrKillContainer(RMContainer container) {
     ApplicationAttemptId appAttemptId = container.getApplicationAttemptId();
     FSAppAttempt app = getSchedulerApp(appAttemptId);
@@ -517,7 +517,7 @@ public class FairScheduler extends
     double weight = 1.0;
     if (sizeBasedWeight) {
       // Set weight based on current memory demand
-      weight = Math.log1p(app.getDemand().getMemory()) / Math.log(2);
+      weight = Math.log1p(app.getDemand().getMemorySize()) / Math.log(2);
     }
     weight *= app.getPriority().getPriority();
     if (weightAdjuster != null) {
@@ -1157,7 +1157,7 @@ public class FairScheduler extends
   private boolean shouldAttemptPreemption() {
     if (preemptionEnabled) {
       return (preemptionUtilizationThreshold < Math.max(
-          (float) rootMetrics.getAllocatedMB() / clusterResource.getMemory(),
+          (float) rootMetrics.getAllocatedMB() / clusterResource.getMemorySize(),
           (float) rootMetrics.getAllocatedVirtualCores() /
               clusterResource.getVirtualCores()));
     }

@@ -185,7 +185,7 @@ public class TestYarnServerApiClasses {
 
     assertEquals(8080, copy.getHttpPort());
     assertEquals(9090, copy.getNodeId().getPort());
-    assertEquals(10000, copy.getResource().getMemory());
+    assertEquals(10000, copy.getResource().getMemorySize());
     assertEquals(2, copy.getResource().getVirtualCores());
 
   }
@@ -251,7 +251,6 @@ public class TestYarnServerApiClasses {
     assertEquals(1000, copy.getNodeHealthStatus().getLastHealthReportTime());
     assertEquals(9090, copy.getNodeId().getPort());
     assertEquals(1, copy.getResponseId());
-
   }
 
   @Test

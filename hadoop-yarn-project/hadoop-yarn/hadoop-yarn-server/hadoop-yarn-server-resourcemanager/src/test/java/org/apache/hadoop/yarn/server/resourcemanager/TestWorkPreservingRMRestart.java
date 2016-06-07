@@ -89,7 +89,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -268,15 +271,15 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
 
     // ************* check Queue metrics ************
     QueueMetrics queueMetrics = queue.getMetrics();
-    assertMetrics(queueMetrics, 1, 0, 1, 0, 2, availableResources.getMemory(),
-        availableResources.getVirtualCores(), usedResource.getMemory(),
+    assertMetrics(queueMetrics, 1, 0, 1, 0, 2, availableResources.getMemorySize(),
+        availableResources.getVirtualCores(), usedResource.getMemorySize(),
         usedResource.getVirtualCores());
 
     // ************ check user metrics ***********
     QueueMetrics userMetrics =
         queueMetrics.getUserMetrics(app.getUser());
-    assertMetrics(userMetrics, 1, 0, 1, 0, 2, availableResources.getMemory(),
-        availableResources.getVirtualCores(), usedResource.getMemory(),
+    assertMetrics(userMetrics, 1, 0, 1, 0, 2, availableResources.getMemorySize(),
+        availableResources.getVirtualCores(), usedResource.getMemorySize(),
         usedResource.getVirtualCores());
   }
 
@@ -336,8 +339,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
 
     // ************ check queue metrics ****************
     QueueMetrics queueMetrics = scheduler.getRootQueueMetrics();
-    assertMetrics(queueMetrics, 1, 0, 1, 0, 2, availableResources.getMemory(),
-        availableResources.getVirtualCores(), usedResources.getMemory(),
+    assertMetrics(queueMetrics, 1, 0, 1, 0, 2, availableResources.getMemorySize(),
+        availableResources.getVirtualCores(), usedResources.getMemorySize(),
         usedResources.getVirtualCores());
   }
 
@@ -548,8 +551,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
       q1UsedResource, 4);
     QueueMetrics queue1Metrics = schedulerApp1_1.getQueue().getMetrics();
     assertMetrics(queue1Metrics, 2, 0, 2, 0, 4,
-        q1availableResources.getMemory(),
-        q1availableResources.getVirtualCores(), q1UsedResource.getMemory(),
+        q1availableResources.getMemorySize(),
+        q1availableResources.getVirtualCores(), q1UsedResource.getMemorySize(),
         q1UsedResource.getVirtualCores());
 
     // assert queue B state.
@@ -559,8 +562,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
       q2UsedResource, 2);
     QueueMetrics queue2Metrics = schedulerApp2.getQueue().getMetrics();
     assertMetrics(queue2Metrics, 1, 0, 1, 0, 2,
-        q2availableResources.getMemory(),
-        q2availableResources.getVirtualCores(), q2UsedResource.getMemory(),
+        q2availableResources.getMemorySize(),
+        q2availableResources.getVirtualCores(), q2UsedResource.getMemorySize(),
         q2UsedResource.getVirtualCores());
 
     // assert parent queue state.
@@ -569,8 +572,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     checkParentQueue(parentQueue, 6, totalUsedResource, (float) 6 / 16,
       (float) 6 / 16);
     assertMetrics(parentQueue.getMetrics(), 3, 0, 3, 0, 6,
-        totalAvailableResource.getMemory(),
-        totalAvailableResource.getVirtualCores(), totalUsedResource.getMemory(),
+        totalAvailableResource.getMemorySize(),
+        totalAvailableResource.getVirtualCores(), totalUsedResource.getMemorySize(),
         totalUsedResource.getVirtualCores());
   }
 
@@ -991,8 +994,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
 
   private void assertMetrics(QueueMetrics qm, int appsSubmitted,
       int appsPending, int appsRunning, int appsCompleted,
-      int allocatedContainers, int availableMB, int availableVirtualCores,
-      int allocatedMB, int allocatedVirtualCores) {
+      int allocatedContainers, long availableMB, long availableVirtualCores,
+      long allocatedMB, long allocatedVirtualCores) {
     assertEquals(appsSubmitted, qm.getAppsSubmitted());
     assertEquals(appsPending, qm.getAppsPending());
     assertEquals(appsRunning, qm.getAppsRunning());

@@ -1190,7 +1190,7 @@ public class TestYarnClient {
       for(attempts = 10; attempts > 0; attempts--) {
         if (cluster.getResourceManager().getRMContext().getReservationSystem()
             .getPlan(ReservationSystemTestUtil.reservationQ).getTotalCapacity()
-            .getMemory() > 0) {
+            .getMemorySize() > 0) {
           break;
         }
         try {

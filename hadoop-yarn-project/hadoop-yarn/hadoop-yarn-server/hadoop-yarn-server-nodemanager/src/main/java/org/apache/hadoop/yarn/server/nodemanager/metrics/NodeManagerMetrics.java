@@ -106,9 +106,9 @@ public class NodeManagerMetrics {
 
   public void allocateContainer(Resource res) {
     allocatedContainers.incr();
-    allocatedMB = allocatedMB + res.getMemory();
+    allocatedMB = allocatedMB + res.getMemorySize();
     allocatedGB.set((int)Math.ceil(allocatedMB/1024d));
-    availableMB = availableMB - res.getMemory();
+    availableMB = availableMB - res.getMemorySize();
     availableGB.set((int)Math.floor(availableMB/1024d));
     allocatedVCores.incr(res.getVirtualCores());
     availableVCores.decr(res.getVirtualCores());
@@ -116,16 +116,16 @@ public class NodeManagerMetrics {
 
   public void releaseContainer(Resource res) {
     allocatedContainers.decr();
-    allocatedMB = allocatedMB - res.getMemory();
+    allocatedMB = allocatedMB - res.getMemorySize();
     allocatedGB.set((int)Math.ceil(allocatedMB/1024d));
-    availableMB = availableMB + res.getMemory();
+    availableMB = availableMB + res.getMemorySize();
     availableGB.set((int)Math.floor(availableMB/1024d));
     allocatedVCores.decr(res.getVirtualCores());
     availableVCores.incr(res.getVirtualCores());
   }
 
   public void addResource(Resource res) {
-    availableMB = availableMB + res.getMemory();
+    availableMB = availableMB + res.getMemorySize();
     availableGB.incr((int)Math.floor(availableMB/1024d));
     availableVCores.incr(res.getVirtualCores());
   }

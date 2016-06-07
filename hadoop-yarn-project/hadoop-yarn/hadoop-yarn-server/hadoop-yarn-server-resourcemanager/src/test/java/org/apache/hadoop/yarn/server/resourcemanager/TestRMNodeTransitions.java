@@ -17,19 +17,6 @@
  */
 package org.apache.hadoop.yarn.server.resourcemanager;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.hadoop.util.HostsFileReader;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -42,7 +29,6 @@ import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.event.InlineDispatcher;
 import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.api.records.NodeHealthStatus;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanAppEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanContainerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeEvent;
@@ -68,6 +54,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestRMNodeTransitions {
 
@@ -619,13 +618,13 @@ public class TestRMNodeTransitions {
   public void testResourceUpdateOnRunningNode() {
     RMNodeImpl node = getRunningNode();
     Resource oldCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", oldCapacity.getMemory(), 4096);
+    assertEquals("Memory resource is not match.", oldCapacity.getMemorySize(), 4096);
     assertEquals("CPU resource is not match.", oldCapacity.getVirtualCores(), 4);
     node.handle(new RMNodeResourceUpdateEvent(node.getNodeID(),
         ResourceOption.newInstance(Resource.newInstance(2048, 2), 
             ResourceOption.OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT)));
     Resource newCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", newCapacity.getMemory(), 2048);
+    assertEquals("Memory resource is not match.", newCapacity.getMemorySize(), 2048);
     assertEquals("CPU resource is not match.", newCapacity.getVirtualCores(), 2);
     
     Assert.assertEquals(NodeState.RUNNING, node.getState());
@@ -638,13 +637,13 @@ public class TestRMNodeTransitions {
   public void testResourceUpdateOnNewNode() {
     RMNodeImpl node = getNewNode(Resource.newInstance(4096, 4));
     Resource oldCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", oldCapacity.getMemory(), 4096);
+    assertEquals("Memory resource is not match.", oldCapacity.getMemorySize(), 4096);
     assertEquals("CPU resource is not match.", oldCapacity.getVirtualCores(), 4);
     node.handle(new RMNodeResourceUpdateEvent(node.getNodeID(),
         ResourceOption.newInstance(Resource.newInstance(2048, 2), 
             ResourceOption.OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT)));
     Resource newCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", newCapacity.getMemory(), 2048);
+    assertEquals("Memory resource is not match.", newCapacity.getMemorySize(), 2048);
     assertEquals("CPU resource is not match.", newCapacity.getVirtualCores(), 2);
     
     Assert.assertEquals(NodeState.NEW, node.getState());
@@ -654,13 +653,13 @@ public class TestRMNodeTransitions {
   public void testResourceUpdateOnRebootedNode() {
     RMNodeImpl node = getRebootedNode();
     Resource oldCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", oldCapacity.getMemory(), 4096);
+    assertEquals("Memory resource is not match.", oldCapacity.getMemorySize(), 4096);
     assertEquals("CPU resource is not match.", oldCapacity.getVirtualCores(), 4);
     node.handle(new RMNodeResourceUpdateEvent(node.getNodeID(),
         ResourceOption.newInstance(Resource.newInstance(2048, 2), 
             ResourceOption.OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT)));
     Resource newCapacity = node.getTotalCapability();
-    assertEquals("Memory resource is not match.", newCapacity.getMemory(), 2048);
+    assertEquals("Memory resource is not match.", newCapacity.getMemorySize(), 2048);
     assertEquals("CPU resource is not match.", newCapacity.getVirtualCores(), 2);
     
     Assert.assertEquals(NodeState.REBOOTED, node.getState());
