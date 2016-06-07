@@ -46,11 +46,11 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private MockClock clock;
 
   private static class StubbedFairScheduler extends FairScheduler {
-    public int lastPreemptMemory = -1;
+    public long lastPreemptMemory = -1;
 
     @Override
     protected void preemptResources(Resource toPreempt) {
-      lastPreemptMemory = toPreempt.getMemory();
+      lastPreemptMemory = toPreempt.getMemorySize();
     }
 
     public void resetLastPreemptResources() {

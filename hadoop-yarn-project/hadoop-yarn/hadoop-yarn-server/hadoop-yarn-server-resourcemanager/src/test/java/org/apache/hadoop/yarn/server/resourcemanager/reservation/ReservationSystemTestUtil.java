@@ -87,7 +87,7 @@ public class ReservationSystemTestUtil {
     Assert.assertNotNull(plan);
     Assert.assertTrue(plan instanceof InMemoryPlan);
     Assert.assertEquals(planQName, plan.getQueueName());
-    Assert.assertEquals(8192, plan.getTotalCapacity().getMemory());
+    Assert.assertEquals(8192, plan.getTotalCapacity().getMemorySize());
     Assert.assertTrue(
         plan.getReservationAgent() instanceof GreedyReservationAgent);
     Assert.assertTrue(
@@ -100,7 +100,7 @@ public class ReservationSystemTestUtil {
     Assert.assertNotNull(newPlan);
     Assert.assertTrue(newPlan instanceof InMemoryPlan);
     Assert.assertEquals(newQ, newPlan.getQueueName());
-    Assert.assertEquals(1024, newPlan.getTotalCapacity().getMemory());
+    Assert.assertEquals(1024, newPlan.getTotalCapacity().getMemorySize());
     Assert
         .assertTrue(newPlan.getReservationAgent() instanceof GreedyReservationAgent);
     Assert
