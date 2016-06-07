@@ -1809,9 +1809,6 @@ ATS V1.5:
     YARN-4844. Add getMemorySize/getVirtualCoresSize to
     o.a.h.y.api.records.Resource. (wangda)
 
-    BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira
-    AJISAKA)
-
     BUG-50479. HADOOP-11252. RPC client does not time out by default (Masatake
     Iwasaki)
 
@@ -3535,3 +3532,6 @@ ATS V1.5:
 
     BUG-80980. YARN-5704. Provide config knobs to control enabling/disabling new/work
     in progress features in container-executor.
+
+    BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira
+    AJISAKA)
