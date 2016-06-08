@@ -349,10 +349,10 @@ public class RMContainerAllocator extends RMContainerRequestor
           eventHandler.handle(new JobHistoryEvent(jobId,
             new NormalizedResourceEvent(
               org.apache.hadoop.mapreduce.TaskType.MAP, mapResourceRequest
-                .getMemorySize())));
+                .getMemory())));
           LOG.info("mapResourceRequest:" + mapResourceRequest);
-          if (mapResourceRequest.getMemorySize() > supportedMaxContainerCapability
-            .getMemorySize()
+          if (mapResourceRequest.getMemory() > supportedMaxContainerCapability
+            .getMemory()
               || mapResourceRequest.getVirtualCores() > supportedMaxContainerCapability
                 .getVirtualCores()) {
             String diagMsg =
@@ -366,7 +366,7 @@ public class RMContainerAllocator extends RMContainerRequestor
           }
         }
         // set the resources
-        reqEvent.getCapability().setMemory(mapResourceRequest.getMemorySize());
+        reqEvent.getCapability().setMemory(mapResourceRequest.getMemory());
         reqEvent.getCapability().setVirtualCores(
           mapResourceRequest.getVirtualCores());
         scheduledRequests.addMap(reqEvent);//maps are immediately scheduled
@@ -376,10 +376,10 @@ public class RMContainerAllocator extends RMContainerRequestor
           eventHandler.handle(new JobHistoryEvent(jobId,
             new NormalizedResourceEvent(
               org.apache.hadoop.mapreduce.TaskType.REDUCE,
-              reduceResourceRequest.getMemorySize())));
+              reduceResourceRequest.getMemory())));
           LOG.info("reduceResourceRequest:" + reduceResourceRequest);
-          if (reduceResourceRequest.getMemorySize() > supportedMaxContainerCapability
-            .getMemorySize()
+          if (reduceResourceRequest.getMemory() > supportedMaxContainerCapability
+            .getMemory()
               || reduceResourceRequest.getVirtualCores() > supportedMaxContainerCapability
                 .getVirtualCores()) {
             String diagMsg =
@@ -394,7 +394,7 @@ public class RMContainerAllocator extends RMContainerRequestor
           }
         }
         // set the resources
-        reqEvent.getCapability().setMemory(reduceResourceRequest.getMemorySize());
+        reqEvent.getCapability().setMemory(reduceResourceRequest.getMemory());
         reqEvent.getCapability().setVirtualCores(
           reduceResourceRequest.getVirtualCores());
         if (reqEvent.getEarlierAttemptFailed()) {

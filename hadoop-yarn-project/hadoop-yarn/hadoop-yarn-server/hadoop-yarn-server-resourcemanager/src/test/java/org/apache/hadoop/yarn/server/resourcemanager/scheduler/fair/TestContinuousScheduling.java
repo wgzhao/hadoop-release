@@ -109,9 +109,9 @@ public class TestContinuousScheduling extends FairSchedulerTestBase {
 
     // Advance time and let continuous scheduling kick in
     mockClock.tick(1);
-    while (1024 != app.getCurrentConsumption().getMemorySize()) {
+    while (1024 != app.getCurrentConsumption().getMemory()) {
       Thread.sleep(100);
     }
-    assertEquals(1024, app.getCurrentConsumption().getMemorySize());
+    assertEquals(1024, app.getCurrentConsumption().getMemory());
   }
 }

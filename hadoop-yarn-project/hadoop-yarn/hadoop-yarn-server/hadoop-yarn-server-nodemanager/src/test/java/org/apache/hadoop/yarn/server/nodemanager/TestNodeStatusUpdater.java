@@ -182,7 +182,7 @@ public class TestNodeStatusUpdater {
       InetSocketAddress expected = NetUtils.getConnectAddress(
           conf.getSocketAddr(YarnConfiguration.NM_ADDRESS, null, -1));
       Assert.assertEquals(NetUtils.getHostPortString(expected), nodeId.toString());
-      Assert.assertEquals(5 * 1024, resource.getMemorySize());
+      Assert.assertEquals(5 * 1024, resource.getMemory());
       registeredNodes.add(nodeId);
 
       RegisterNodeManagerResponse response = recordFactory
@@ -836,7 +836,7 @@ public class TestNodeStatusUpdater {
             conf.getSocketAddr(YarnConfiguration.NM_ADDRESS, null, -1));
         Assert.assertEquals(NetUtils.getHostPortString(expected),
             nodeId.toString());
-        Assert.assertEquals(5 * 1024, resource.getMemorySize());
+        Assert.assertEquals(5 * 1024, resource.getMemory());
         registeredNodes.add(nodeId);
 
         RegisterNodeManagerResponse response = recordFactory

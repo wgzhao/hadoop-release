@@ -20,7 +20,7 @@ package org.apache.hadoop.yarn.util.resource;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
 
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
@@ -31,18 +31,12 @@ public class Resources {
   private static final Resource NONE = new Resource() {
 
     @Override
-    @SuppressWarnings("deprecation")
     public int getMemory() {
       return 0;
     }
 
     @Override
-    public long getMemorySize() {
-      return 0;
-    }
-
-    @Override
-    public void setMemory(long memory) {
+    public void setMemory(int memory) {
       throw new RuntimeException("NONE cannot be modified!");
     }
 
@@ -52,22 +46,17 @@ public class Resources {
     }
 
     @Override
-    public long getVirtualCoresSize() {
-      return 0;
-    }
-
-    @Override
-    public void setVirtualCores(long cores) {
+    public void setVirtualCores(int cores) {
       throw new RuntimeException("NONE cannot be modified!");
     }
 
     @Override
     public int compareTo(Resource o) {
-      long diff = 0 - o.getMemorySize();
+      int diff = 0 - o.getMemory();
       if (diff == 0) {
         diff = 0 - o.getVirtualCores();
       }
-      return Long.signum(diff);
+      return diff;
     }
     
   };
@@ -75,19 +64,13 @@ public class Resources {
   private static final Resource UNBOUNDED = new Resource() {
 
     @Override
-    @SuppressWarnings("deprecation")
     public int getMemory() {
       return Integer.MAX_VALUE;
     }
 
     @Override
-    public long getMemorySize() {
-      return Long.MAX_VALUE;
-    }
-
-    @Override
-    public void setMemory(long memory) {
-      throw new RuntimeException("UNBOUNDED cannot be modified!");
+    public void setMemory(int memory) {
+      throw new RuntimeException("NONE cannot be modified!");
     }
 
     @Override
@@ -96,31 +79,26 @@ public class Resources {
     }
 
     @Override
-    public long getVirtualCoresSize() {
-      return Long.MAX_VALUE;
-    }
-
-    @Override
-    public void setVirtualCores(long cores) {
-      throw new RuntimeException("UNBOUNDED cannot be modified!");
+    public void setVirtualCores(int cores) {
+      throw new RuntimeException("NONE cannot be modified!");
     }
 
     @Override
     public int compareTo(Resource o) {
-      long diff = Long.MAX_VALUE - o.getMemorySize();
+      int diff = 0 - o.getMemory();
       if (diff == 0) {
-        diff = Long.MAX_VALUE - o.getVirtualCoresSize();
+        diff = 0 - o.getVirtualCores();
       }
-      return Long.signum(diff);
+      return diff;
     }
     
   };
 
-  public static Resource createResource(long memory) {
+  public static Resource createResource(int memory) {
     return createResource(memory, (memory > 0) ? 1 : 0);
   }
 
-  public static Resource createResource(long memory, long cores) {
+  public static Resource createResource(int memory, int cores) {
     Resource resource = Records.newRecord(Resource.class);
     resource.setMemory(memory);
     resource.setVirtualCores(cores);
@@ -136,11 +114,11 @@ public class Resources {
   }
 
   public static Resource clone(Resource res) {
-    return createResource(res.getMemorySize(), res.getVirtualCores());
+    return createResource(res.getMemory(), res.getVirtualCores());
   }
 
   public static Resource addTo(Resource lhs, Resource rhs) {
-    lhs.setMemory(lhs.getMemorySize() + rhs.getMemorySize());
+    lhs.setMemory(lhs.getMemory() + rhs.getMemory());
     lhs.setVirtualCores(lhs.getVirtualCores() + rhs.getVirtualCores());
     return lhs;
   }
@@ -150,7 +128,7 @@ public class Resources {
   }
 
   public static Resource subtractFrom(Resource lhs, Resource rhs) {
-    lhs.setMemory(lhs.getMemorySize() - rhs.getMemorySize());
+    lhs.setMemory(lhs.getMemory() - rhs.getMemory());
     lhs.setVirtualCores(lhs.getVirtualCores() - rhs.getVirtualCores());
     return lhs;
   }
@@ -164,7 +142,7 @@ public class Resources {
   }
 
   public static Resource multiplyTo(Resource lhs, double by) {
-    lhs.setMemory((int)(lhs.getMemorySize() * by));
+    lhs.setMemory((int)(lhs.getMemory() * by));
     lhs.setVirtualCores((int)(lhs.getVirtualCores() * by));
     return lhs;
   }
@@ -172,7 +150,7 @@ public class Resources {
   public static Resource multiply(Resource lhs, double by) {
     return multiplyTo(clone(lhs), by);
   }
-
+  
   public static Resource multiplyAndNormalizeUp(
       ResourceCalculator calculator,Resource lhs, double by, Resource factor) {
     return calculator.multiplyAndNormalizeUp(lhs, by, factor);
@@ -185,7 +163,7 @@ public class Resources {
   
   public static Resource multiplyAndRoundDown(Resource lhs, double by) {
     Resource out = clone(lhs);
-    out.setMemory((int)(lhs.getMemorySize() * by));
+    out.setMemory((int)(lhs.getMemory() * by));
     out.setVirtualCores((int)(lhs.getVirtualCores() * by));
     return out;
   }
@@ -274,7 +252,7 @@ public class Resources {
   }
   
   public static boolean fitsIn(Resource smaller, Resource bigger) {
-    return smaller.getMemorySize() <= bigger.getMemorySize() &&
+    return smaller.getMemory() <= bigger.getMemory() &&
         smaller.getVirtualCores() <= bigger.getVirtualCores();
   }
 
@@ -284,12 +262,12 @@ public class Resources {
   }
   
   public static Resource componentwiseMin(Resource lhs, Resource rhs) {
-    return createResource(Math.min(lhs.getMemorySize(), rhs.getMemorySize()),
+    return createResource(Math.min(lhs.getMemory(), rhs.getMemory()),
         Math.min(lhs.getVirtualCores(), rhs.getVirtualCores()));
   }
   
   public static Resource componentwiseMax(Resource lhs, Resource rhs) {
-    return createResource(Math.max(lhs.getMemorySize(), rhs.getMemorySize()),
+    return createResource(Math.max(lhs.getMemory(), rhs.getMemory()),
         Math.max(lhs.getVirtualCores(), rhs.getVirtualCores()));
   }
 }

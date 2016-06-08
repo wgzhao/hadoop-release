@@ -406,7 +406,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
    */
   public synchronized Resource getHeadroom() {
     // Corner case to deal with applications being slightly over-limit
-    if (resourceLimit.getMemorySize() < 0) {
+    if (resourceLimit.getMemory() < 0) {
       resourceLimit.setMemory(0);
     }
     
@@ -442,7 +442,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
         if (requests != null) {
           LOG.debug("showRequests:" + " application=" + getApplicationId()
               + " headRoom=" + getHeadroom() + " currentConsumption="
-              + attemptResourceUsage.getUsed().getMemorySize());
+              + attemptResourceUsage.getUsed().getMemory());
           for (ResourceRequest request : requests.values()) {
             LOG.debug("showRequests:" + " application=" + getApplicationId()
                 + " request=" + request);
@@ -593,7 +593,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
       for (RMContainer rmContainer : this.liveContainers.values()) {
         long usedMillis = currentTimeMillis - rmContainer.getCreationTime();
         Resource resource = rmContainer.getContainer().getResource();
-        memorySeconds += resource.getMemorySize() * usedMillis /
+        memorySeconds += resource.getMemory() * usedMillis /  
             DateUtils.MILLIS_PER_SECOND;
         vcoreSeconds += resource.getVirtualCores() * usedMillis  
             / DateUtils.MILLIS_PER_SECOND;

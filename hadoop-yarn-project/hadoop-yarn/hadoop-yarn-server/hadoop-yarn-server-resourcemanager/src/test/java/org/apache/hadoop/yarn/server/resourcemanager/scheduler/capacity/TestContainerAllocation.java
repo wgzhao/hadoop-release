@@ -377,15 +377,15 @@ public class TestContainerAllocation {
     
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertNotNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G + 4G (reserved)
     Assert.assertEquals(10 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(4 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(4 * GB, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     // Cancel asks of app2 and re-kick RM
     am2.allocate("*", 4 * GB, 0, new ArrayList<ContainerId>());
@@ -394,14 +394,14 @@ public class TestContainerAllocation {
     // App2's reservation will be cancelled
     Assert.assertTrue(schedulerApp2.getReservedContainers().size() == 0);
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     Assert.assertEquals(6 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(0, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(0, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     rm1.close();
   }
@@ -460,15 +460,15 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertNotNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G + 4G (reserved)
     Assert.assertEquals(10 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(4 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(4 * GB, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     // Mark one app1 container as killed/completed and re-kick RM
     for (RMContainer container : schedulerApp1.getLiveContainers()) {
@@ -489,15 +489,15 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G
     Assert.assertEquals(6 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(0 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(0 * GB, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     rm1.close();
   }
@@ -556,15 +556,15 @@ public class TestContainerAllocation {
 
     // NM1 has available resource = 2G (8G - 2 * 1G - 4G)
     Assert.assertEquals(2 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertNotNull(cs.getNode(nm1.getNodeId()).getReservedContainer());
     // Usage of queue = 4G + 2 * 1G + 4G (reserved)
     Assert.assertEquals(10 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(4 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(4 * GB, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     // Remove the node
     cs.handle(new NodeRemovedSchedulerEvent(rmNode1));
@@ -576,11 +576,11 @@ public class TestContainerAllocation {
 
     // Usage and Reserved capacity of queue is 0
     Assert.assertEquals(0 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getUsed().getMemorySize());
+        .getUsed().getMemory());
     Assert.assertEquals(0 * GB, cs.getRootQueue().getQueueResourceUsage()
-        .getReserved().getMemorySize());
+        .getReserved().getMemory());
     Assert.assertEquals(0 * GB, leafQueue.getQueueResourceUsage().getReserved()
-        .getMemorySize());
+        .getMemory());
 
     rm1.close();
   }

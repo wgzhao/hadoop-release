@@ -578,7 +578,7 @@ public class TestRMNodeLabelsManager extends NodeLabelTestBase {
     for (RMNodeLabel info : infos) {
       if (info.getLabelName().equals(labelName)) {
         Assert.assertEquals(activeNMs, info.getNumActiveNMs());
-        Assert.assertEquals(memory, info.getResource().getMemorySize());
+        Assert.assertEquals(memory, info.getResource().getMemory());
         return;
       }
     }

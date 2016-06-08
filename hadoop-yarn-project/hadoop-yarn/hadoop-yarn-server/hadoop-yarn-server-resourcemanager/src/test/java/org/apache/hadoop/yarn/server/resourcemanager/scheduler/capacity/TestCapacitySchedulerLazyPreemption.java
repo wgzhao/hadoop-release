@@ -128,9 +128,9 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1/NM2 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertEquals(0 * GB, cs.getNode(nm2.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
 
     // AM asks for a 1 * GB container
     am2.allocate(Arrays.asList(ResourceRequest
@@ -207,9 +207,9 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1/NM2 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertEquals(0 * GB, cs.getNode(nm2.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
 
     // AM asks for a 1 * GB container with unknown host and unknown rack
     am2.allocate(Arrays.asList(ResourceRequest
@@ -298,9 +298,9 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1/NM2 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertEquals(0 * GB, cs.getNode(nm2.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
 
     // AM asks for a 1 * GB container for h3 with hard locality,
     // h3 doesn't exist in the cluster
@@ -395,7 +395,7 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     am2.allocate("*", 1 * GB, 1, new ArrayList<ContainerId>());
 
     // Get edit policy and do one update
@@ -495,7 +495,7 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     am2.allocate("*", 3 * GB, 1, new ArrayList<ContainerId>());
 
     // Get edit policy and do one update
@@ -584,9 +584,9 @@ public class TestCapacitySchedulerLazyPreemption
 
     // NM1/NM2 has available resource = 0G
     Assert.assertEquals(0 * GB, cs.getNode(nm1.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
     Assert.assertEquals(0 * GB, cs.getNode(nm2.getNodeId())
-        .getAvailableResource().getMemorySize());
+        .getAvailableResource().getMemory());
 
     // AM asks for a 1 * GB container
     am2.allocate(Arrays.asList(ResourceRequest

@@ -441,7 +441,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
         priority, capability);
 
     // Can we allocate a container on this node?
-    long availableContainers =
+    int availableContainers =
         rc.computeAvailableContainers(available, capability);
 
     // How much need to unreserve equals to:

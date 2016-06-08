@@ -48,8 +48,8 @@ public class MockNM {
 
   private int responseId;
   private NodeId nodeId;
-  private long memory;
-  private long vCores;
+  private int memory;
+  private int vCores;
   private ResourceTrackerService resourceTracker;
   private int httpPort = 2;
   private MasterKey currentContainerTokenMasterKey;
@@ -131,7 +131,7 @@ public class MockNM {
     this.currentNMTokenMasterKey = registrationResponse.getNMTokenMasterKey();
     Resource newResource = registrationResponse.getResource();
     if (newResource != null) {
-      memory = newResource.getMemorySize();
+      memory = newResource.getMemory();
       vCores = newResource.getVirtualCores();
     }
     return registrationResponse;
@@ -199,18 +199,18 @@ public class MockNM {
 
     Resource newResource = heartbeatResponse.getResource();
     if (newResource != null) {
-      memory = newResource.getMemorySize();
+      memory = newResource.getMemory();
       vCores = newResource.getVirtualCores();
     }
 
     return heartbeatResponse;
   }
 
-  public long getMemory() {
+  public int getMemory() {
     return memory;
   }
 
-  public long getvCores() {
+  public int getvCores() {
     return vCores;
   }
 }
