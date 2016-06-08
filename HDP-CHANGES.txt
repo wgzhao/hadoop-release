@@ -890,3 +890,7 @@ ATS V1.5:
 
     MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
 
+
+    BUG-59443. MAPREDUCE-6635. Unsafe long to int conversion in
+    UncompressedSplitLineReader and IndexOutOfBoundsException. Contributed by
+    Junping Du.
