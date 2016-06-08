@@ -1358,3 +1358,25 @@ ATS V1.5:
 
     BUG-54136. HADOOP-12672. RPC timeout should not override IPC ping interval
     (iwasakims)
+
+    HADOOP-11785. Reduce the number of listStatus operation in distcp buildListing (Zoran Dimitrijevic via Colin P. McCabe)
+
+    HADOOP-11827. Speed-up distcp buildListing() using threadpool (Zoran Dimitrijevic via raviprak)
+
+    HDFS-9612. DistCp worker threads are not terminated after jobs are done. (Wei-Chiu Chuang via Yongjun Zhang)
+
+    HADOOP-11876. Refactor code to make it more readable, minor maybePrintStats bug (Zoran Dimitrijevic via raviprak)
+
+    HDFS-8828. Utilize Snapshot diff report to build diff copy list in distcp. (Yufei Gu via Yongjun Zhang)
+
+    HADOOP-1540. Support file exclusion list in distcp. Contributed by Rich Haase.
+
+    HDFS-9764. DistCp doesn't print value for several arguments including -numListstatusThreads. (Wei-Chiu Chuang via Yongjun Zhang)
+
+    HDFS-10397. Distcp should ignore -delete option if -diff option is provided instead of exiting. Contributed by Mingliang Liu.
+
+    BUG-58154. HADOOP-1540 breaks backward compatibilty
+
+    HDFS-10216. Distcp -diff throws exception when handling relative path. Contributed by Takashi Ohnishi.
+
+    HDFS-10313. Distcp need to enforce the order of snapshot names passed to -diff. (Lin Yiqun via Yongjun Zhang)
