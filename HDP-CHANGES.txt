@@ -113,6 +113,9 @@ by CHANGES.txt.
     BUG-70505. HADOOP-12738. Create unit test to automatically compare Common
     related classes and core-default.xml. Contributed by Ray Chiang.
 
+    BUG-70505. HADOOP-12666. Support Microsoft Azure Data Lake - as a file
+    system in Hadoop. Contributed by Vishwajeet Dusane.
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
