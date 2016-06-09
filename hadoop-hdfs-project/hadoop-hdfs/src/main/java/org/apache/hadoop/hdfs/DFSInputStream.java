@@ -299,6 +299,7 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
     try {
       Thread.sleep(waitTime);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new InterruptedIOException(
           "Interrupted while getting the last block length.");
     }
@@ -410,6 +411,7 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
         try {
           Thread.sleep(500); // delay between retries.
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new InterruptedIOException(
               "Interrupted while getting the length.");
         }
@@ -1026,6 +1028,7 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
           DFSClient.LOG.warn("DFS chooseDataNode: got # " + (failures + 1) + " IOException, will wait for " + waitTime + " msec.");
           Thread.sleep((long)waitTime);
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new InterruptedIOException(
               "Interrupted while choosing DataNode for read.");
         }
