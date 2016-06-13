@@ -1380,3 +1380,6 @@ ATS V1.5:
     HDFS-10216. Distcp -diff throws exception when handling relative path. Contributed by Takashi Ohnishi.
 
     HDFS-10313. Distcp need to enforce the order of snapshot names passed to -diff. (Lin Yiqun via Yongjun Zhang)
+
+    BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
+    Tibor Kiss.
