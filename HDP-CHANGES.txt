@@ -1607,3 +1607,6 @@ ATS V1.5:
 
     MAPREDUCE-6197. Cache MapOutputLocations in ShuffleHandler. (Junping Du
     via jian)
+
+    BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
+    Tibor Kiss.
