@@ -413,6 +413,7 @@ Options:
 * -C: Display the paths of files and directories only.
 * -d: Directories are listed as plain files.
 * -h: Format file sizes in a human-readable fashion (eg 64.0m instead of 67108864).
+* -q: Print ? instead of non-printable characters.
 * -R: Recursively list subdirectories encountered.
 
 For a file ls returns stat on the file with the following format:
