@@ -387,6 +387,13 @@ public class TestRPC {
     assertEquals(3, server.getNumReaders());
     assertEquals(200, server.getMaxQueueSize());
     server.stop();    
+
+    server = new RPC.Builder(conf).setProtocol(TestProtocol.class)
+        .setInstance(new TestImpl()).setBindAddress(ADDRESS).setPort(0)
+        .setQueueSizePerHandler(10).setNumHandlers(2)
+        .setVerbose(false).build();
+    assertEquals(2 * 10, server.getMaxQueueSize());
+    server.stop();
   }
 
   @Test
