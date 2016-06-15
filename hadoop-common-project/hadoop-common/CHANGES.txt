@@ -108,6 +108,10 @@ Release 2.8.0 - UNRELEASED
     (adhoot via rkanter)
 
   BUG FIXES
+
+    HADOOP-11252. RPC client does not time out by default.
+    (Wilfred Spiegelenburg and Masatake Iwasaki via aajisaka)
+
     HADOOP-11802: DomainSocketWatcher thread terminates sometimes after there
     is an I/O error during requestShortCircuitShm (cmccabe)
 
