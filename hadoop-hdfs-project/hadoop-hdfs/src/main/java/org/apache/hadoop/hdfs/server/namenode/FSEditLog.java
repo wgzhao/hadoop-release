@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,7 +174,7 @@ public class FSEditLog implements LogsPurgeable {
   
   // these are statistics counters.
   private long numTransactions;        // number of transactions
-  private long numTransactionsBatchedInSync;
+  private final AtomicLong numTransactionsBatchedInSync = new AtomicLong();
   private long totalTimeTransactions;  // total time for all transactions
   private NameNodeMetrics metrics;
 
@@ -607,7 +608,7 @@ public class FSEditLog implements LogsPurgeable {
           // If this transaction was already flushed, then nothing to do
           //
           if (mytxid <= synctxid) {
-            numTransactionsBatchedInSync++;
+            numTransactionsBatchedInSync.incrementAndGet();
             if (metrics != null) {
               // Metrics is non-null only when used inside name node
               metrics.incrTransactionsBatchedInSync();
@@ -707,7 +708,7 @@ public class FSEditLog implements LogsPurgeable {
     buf.append(" Total time for transactions(ms): ");
     buf.append(totalTimeTransactions);
     buf.append(" Number of transactions batched in Syncs: ");
-    buf.append(numTransactionsBatchedInSync);
+    buf.append(numTransactionsBatchedInSync.get());
     buf.append(" Number of syncs: ");
     buf.append(editLogStream.getNumSync());
     buf.append(" SyncTimes(ms): ");
@@ -1245,7 +1246,9 @@ public class FSEditLog implements LogsPurgeable {
         "Cannot start log segment at txid %s when next expected " +
         "txid is %s", segmentTxId, txid + 1);
     
-    numTransactions = totalTimeTransactions = numTransactionsBatchedInSync = 0;
+    numTransactions = 0;
+    totalTimeTransactions = 0;
+    numTransactionsBatchedInSync.set(0L);
 
     // TODO no need to link this back to storage anymore!
     // See HDFS-2174.

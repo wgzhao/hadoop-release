@@ -1566,3 +1566,5 @@ ATS V1.5:
     Contributed by Steve Loughran.
 
     YARN-4844. Add getMemorySize/getVirtualCoresSize to o.a.h.y.api.records.Resource. (wangda)
+
+    BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira AJISAKA)
