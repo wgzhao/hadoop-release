@@ -629,6 +629,21 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
         LOG.warn("Failed to authorize when generating application report for "
             + app.appReport.getApplicationId()
             + ". Use a placeholder for its latest attempt id. ", e);
+        LOG.warn(((AuthorizationException) e).getMessage());
+        if (app.appViewACLs != null) {
+          LOG.warn(app.appViewACLs.size() + "ACLs for this app. ");
+          for (Map.Entry<ApplicationAccessType, String> aclItem
+              : app.appViewACLs.entrySet()) {
+            LOG.warn(aclItem.getKey().toString() + ": " + aclItem.getValue());
+          }
+        }
+        LOG.warn("Current user: "
+            + UserGroupInformation.getCurrentUser().getShortUserName());
+        LOG.warn("groups: ");
+        for (String group
+            : UserGroupInformation.getCurrentUser().getGroupNames()) {
+          LOG.warn(group);
+        }
       } else { // Attempt not found
         LOG.info("No application attempt found for "
             + app.appReport.getApplicationId()
