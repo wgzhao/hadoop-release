@@ -144,6 +144,9 @@ ATS V1.5:
 
   IMPROVEMENTS
 
+    BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
+    (Masatake Iwasaki)
+
     HADOOP-10597. RPC Server signals backoff to clients when all request
     queues are full. (Ming Ma via Arpit Agarwal)
 
