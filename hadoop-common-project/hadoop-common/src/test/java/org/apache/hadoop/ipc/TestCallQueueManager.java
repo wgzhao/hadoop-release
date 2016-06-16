@@ -256,7 +256,7 @@ public class TestCallQueueManager {
     HashMap<Runnable, Thread> threads = new HashMap<Runnable, Thread>();
 
     // Create putters and takers
-    for (int i=0; i < 50; i++) {
+    for (int i=0; i < 1000; i++) {
       Putter p = new Putter(manager, -1, -1);
       Thread pt = new Thread(p);
       producers.add(p);
@@ -265,7 +265,7 @@ public class TestCallQueueManager {
       pt.start();
     }
 
-    for (int i=0; i < 20; i++) {
+    for (int i=0; i < 100; i++) {
       Taker t = new Taker(manager, -1, -1);
       Thread tt = new Thread(t);
       consumers.add(t);
@@ -274,7 +274,7 @@ public class TestCallQueueManager {
       tt.start();
     }
 
-    Thread.sleep(10);
+    Thread.sleep(500);
 
     for (int i=0; i < 5; i++) {
       manager.swapQueue(schedulerClass, queueClass, 5000, "", conf);

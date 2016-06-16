@@ -254,6 +254,9 @@ Release 2.7.2 - UNRELEASED
 
     HADOOP-12232. Upgrade Tomcat dependency to 6.0.44. (cnauroth)
 
+    HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
+    drop nearly impossible. (Zhihai Xu via wang)
+
   OPTIMIZATIONS
 
   BUG FIXES

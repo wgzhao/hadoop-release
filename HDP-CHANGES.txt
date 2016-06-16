@@ -144,6 +144,9 @@ ATS V1.5:
 
   IMPROVEMENTS
 
+    BUG-60272. HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
+    drop nearly impossible. (zhihai xu)
+
     BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
     (Masatake Iwasaki)
 
