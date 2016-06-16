@@ -1573,3 +1573,5 @@ ATS V1.5:
     BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira AJISAKA)
 
     BUG-50479. HADOOP-11252. RPC client does not time out by default (Masatake Iwasaki)
+
+    HADOOP-13241. document s3a better. Contributed by Steve Loughran.
