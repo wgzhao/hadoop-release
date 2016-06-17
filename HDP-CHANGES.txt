@@ -422,6 +422,8 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-60391. HADOOP-12605. Fix intermittent failure of TestIPC.testIpcWithReaderQueuingi
+    (Masatake Iwasaki)
 
     inserted in target server principal. (mfoley)
 
