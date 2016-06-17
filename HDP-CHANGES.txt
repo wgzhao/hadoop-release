@@ -119,6 +119,9 @@ by CHANGES.txt.
     BUG-70505. HADOOP-12875. [Azure Data Lake] Support for contract test and
     unit test cases. Contributed by Vishwajeet Dusane.
 
+    BUG-70505. HADOOP-13242. Authenticate to Azure Data Lake using client ID
+    and keys. Contributed by Atul Sikaria.
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
