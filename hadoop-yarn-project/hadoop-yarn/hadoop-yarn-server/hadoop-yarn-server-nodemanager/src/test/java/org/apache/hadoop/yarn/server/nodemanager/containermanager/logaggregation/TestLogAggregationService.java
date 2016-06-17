@@ -894,7 +894,7 @@ public class TestLogAggregationService extends BaseContainerManagerTest {
         Assert.assertEquals(numOfContainerLogs, thisContainerMap.size());
         for (String fileType : logFiles) {
           String expectedValue =
-              containerStr + " Hello " + fileType + "!End of LogType:"
+              containerStr + " Hello " + fileType + "!\nEnd of LogType:"
                   + fileType;
           LOG.info("Expected log-content : " + new String(expectedValue));
           String foundValue = thisContainerMap.remove(fileType);
