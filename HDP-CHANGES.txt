@@ -422,6 +422,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-60277. HDFS-10291. TestShortCircuitLocalRead failing
+    (Steve Loughran)
+
     BUG-60391. HADOOP-12605. Fix intermittent failure of TestIPC.testIpcWithReaderQueuingi
     (Masatake Iwasaki)
 
