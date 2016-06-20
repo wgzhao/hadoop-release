@@ -1583,3 +1583,6 @@ ATS V1.5:
     BUG-50479. HADOOP-11252. RPC client does not time out by default (Masatake Iwasaki)
 
     HADOOP-13241. document s3a better. Contributed by Steve Loughran.
+
+    HADOOP-13288. Guard null stats key in FileSystemStorageStatistics
+    (Mingliang Liu via Colin P. McCabe)
