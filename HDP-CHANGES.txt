@@ -422,6 +422,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-60497. HDFS-10437. ReconfigurationProtocol not covered by HDFSPolicyProvider.
+    (Arpit Agarwal)
+
     BUG-60277. HDFS-10291. TestShortCircuitLocalRead failing
     (Steve Loughran)
 
