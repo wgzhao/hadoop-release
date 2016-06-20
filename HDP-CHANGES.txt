@@ -1589,3 +1589,6 @@ ATS V1.5:
 
     HADOOP-13288. Guard null stats key in FileSystemStorageStatistics
     (Mingliang Liu via Colin P. McCabe)
+
+    HADOOP-13291. Probing stats in DFSOpsCountStatistics/S3AStorageStatistics
+    should be correctly implemented. Contributed by Mingliang Liu.
