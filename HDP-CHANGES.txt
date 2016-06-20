@@ -403,6 +403,9 @@ ATS V1.5:
     HADOOP-13305. Define common statistics names across schemes. Contributed by
     Mingliang Liu.
 
+    HADOOP-13280. FileSystemStorageStatistics#getLong(“readOps“) should return
+    readOps + largeReadOps (Mingliang Liu via cmccabe)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
