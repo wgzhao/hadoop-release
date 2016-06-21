@@ -1592,3 +1592,6 @@ ATS V1.5:
 
     HADOOP-13291. Probing stats in DFSOpsCountStatistics/S3AStorageStatistics
     should be correctly implemented. Contributed by Mingliang Liu.
+
+    HADOOP-3733. "s3x:" URLs break when Secret Key contains a slash, even if
+    encoded. Contributed by Steve Loughran.
