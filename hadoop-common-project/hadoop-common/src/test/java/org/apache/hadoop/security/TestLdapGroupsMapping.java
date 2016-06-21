@@ -356,7 +356,7 @@ public class TestLdapGroupsMapping extends TestLdapGroupsMappingBase {
         LOG.debug("Got the exception while LDAP querying: ", ne);
         assertExceptionContains("LDAP response read timed out, timeout used:" +
             readTimeoutMs + "ms", ne);
-        assertExceptionContains("remaining name", ne);
+        assertFalse(ne.getMessage().contains("remaining name"));
       } finally {
         finLatch.countDown();
       }
