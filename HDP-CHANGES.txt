@@ -1598,3 +1598,6 @@ ATS V1.5:
 
     HADOOP-13287. TestS3ACredentials#testInstantiateFromURL fails if AWS secret
     key contains +. Contributed by Chris Nauroth.
+
+    MAPREDUCE-6639. Process hangs in LocatedFileStatusFetcher if FileSystem.get
+    throws. (Ryan Blue via stevel)
