@@ -1104,9 +1104,7 @@ public class TestResourceLocalizationService {
     private volatile boolean stopLocalization = false;
     private AtomicInteger numLocalizers = new AtomicInteger(0);
     @Override
-    public void startLocalizer(Path nmPrivateContainerTokensPath,
-        InetSocketAddress nmAddr, String user, String appId, String locId,
-        LocalDirsHandlerService dirsHandler) throws IOException,
+    public void startLocalizer(LocalizerStartContext ctx) throws IOException,
         InterruptedException {
       numLocalizers.incrementAndGet();
       while (!stopLocalization) {
