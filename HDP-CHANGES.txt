@@ -1610,3 +1610,6 @@ ATS V1.5:
 
     BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
     Tibor Kiss.
+
+    HDFS-10556. DistCpOptions should be validated automatically. Contributed by
+    Mingliang Liu.
