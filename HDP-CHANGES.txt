@@ -1604,3 +1604,6 @@ ATS V1.5:
 
     HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust. (Steve
     Loughran via jing9)
+
+    MAPREDUCE-6197. Cache MapOutputLocations in ShuffleHandler. (Junping Du
+    via jian)
