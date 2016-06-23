@@ -1094,6 +1094,9 @@ Release 2.7.0 - 2015-04-20
     HDFS-8071. Redundant checkFileProgress() in PART II of getAdditionalBlock().
     (shv)
 
+    HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains
+    INodeReference. (Xiao Chen via lei)
+
   OPTIMIZATIONS
 
     HDFS-7454. Reduce memory footprint for AclEntries in NameNode.

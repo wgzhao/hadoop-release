@@ -144,6 +144,9 @@ ATS V1.5:
 
   IMPROVEMENTS
 
+    BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains
+    INodeReference (Xiao Chen)
+
     BUG-60272. HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
     drop nearly impossible. (zhihai xu)
 
