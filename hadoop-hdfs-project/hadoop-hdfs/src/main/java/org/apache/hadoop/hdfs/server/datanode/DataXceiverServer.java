@@ -222,11 +222,13 @@ class DataXceiverServer implements Runnable {
     }
     peers.put(peer, t);
     peersXceiver.put(peer, xceiver);
+    datanode.metrics.incrDataNodeActiveXceiversCount();
   }
 
   synchronized void closePeer(Peer peer) {
     peers.remove(peer);
     peersXceiver.remove(peer);
+    datanode.metrics.decrDataNodeActiveXceiversCount();
     IOUtils.cleanup(null, peer);
   }
 
@@ -266,6 +268,7 @@ class DataXceiverServer implements Runnable {
     }
     peers.clear();
     peersXceiver.clear();
+    datanode.metrics.setDataNodeActiveXceiversCount(0);
   }
 
   // Return the number of peers.
@@ -287,5 +290,6 @@ class DataXceiverServer implements Runnable {
   synchronized void releasePeer(Peer peer) {
     peers.remove(peer);
     peersXceiver.remove(peer);
+    datanode.metrics.decrDataNodeActiveXceiversCount();
   }
 }

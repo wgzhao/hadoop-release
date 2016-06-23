@@ -31,6 +31,7 @@ import org.apache.hadoop.metrics2.lib.MetricsRegistry;
 import org.apache.hadoop.metrics2.lib.MutableCounterLong;
 import org.apache.hadoop.metrics2.lib.MutableQuantiles;
 import org.apache.hadoop.metrics2.lib.MutableRate;
+import org.apache.hadoop.metrics2.lib.MutableGaugeInt;
 import org.apache.hadoop.metrics2.source.JvmMetrics;
 
 /**
@@ -99,6 +100,9 @@ public class DataNodeMetrics {
 
   @Metric("Count of network errors on the datanode")
   MutableCounterLong datanodeNetworkErrors;
+
+  @Metric("Count of active dataNode xceivers")
+  private MutableGaugeInt dataNodeActiveXceiversCount;
 
   @Metric MutableRate readBlockOp;
   @Metric MutableRate writeBlockOp;
@@ -408,5 +412,17 @@ public class DataNodeMetrics {
     for (MutableQuantiles q : ramDiskBlocksLazyPersistWindowMsQuantiles) {
       q.add(latencyMs);
     }
+  }
+
+  public void incrDataNodeActiveXceiversCount() {
+    dataNodeActiveXceiversCount.incr();
+  }
+
+  public void decrDataNodeActiveXceiversCount() {
+    dataNodeActiveXceiversCount.decr();
+  }
+
+  public void setDataNodeActiveXceiversCount(int value) {
+    this.dataNodeActiveXceiversCount.set(value);
   }
 }
