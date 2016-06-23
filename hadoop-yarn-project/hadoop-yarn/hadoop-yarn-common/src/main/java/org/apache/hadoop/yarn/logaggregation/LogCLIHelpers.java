@@ -46,7 +46,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.logaggregation.AggregatedLogFormat.LogKey;
 import org.apache.hadoop.yarn.logaggregation.AggregatedLogFormat.LogReader;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-
 import com.google.common.annotations.VisibleForTesting;
 
 public class LogCLIHelpers implements Configurable {
@@ -65,7 +64,7 @@ public class LogCLIHelpers implements Configurable {
     List<String> logs = new ArrayList<String>();
     options.setLogTypes(logs);
     options.setBytes(Long.MAX_VALUE);
-    return dumpAContainersLogsForALogType(options, false);
+    return dumpAContainerLogsForLogType(options, false);
   }
 
   @Private
@@ -117,14 +116,14 @@ public class LogCLIHelpers implements Configurable {
 
   @Private
   @VisibleForTesting
-  public int dumpAContainersLogsForALogType(ContainerLogsRequest options)
+  public int dumpAContainerLogsForLogType(ContainerLogsRequest options)
       throws IOException {
-    return dumpAContainersLogsForALogType(options, true);
+    return dumpAContainerLogsForLogType(options, true);
   }
 
   @Private
   @VisibleForTesting
-  public int dumpAContainersLogsForALogType(ContainerLogsRequest options,
+  public int dumpAContainerLogsForLogType(ContainerLogsRequest options,
       boolean outputFailure) throws IOException {
     ApplicationId applicationId = options.getAppId();
     String jobOwner = options.getAppOwner();
@@ -183,7 +182,7 @@ public class LogCLIHelpers implements Configurable {
   }
 
   @Private
-  public int dumpAContainersLogsForALogTypeWithoutNodeId(
+  public int dumpAContainerLogsForLogTypeWithoutNodeId(
       ContainerLogsRequest options) throws IOException {
     ApplicationId applicationId = options.getAppId();
     String jobOwner = options.getAppOwner();
