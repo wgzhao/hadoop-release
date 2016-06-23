@@ -104,6 +104,25 @@ ATS V1.5:
 
   IMPROVEMENTS
 
+<<<<<<< HEAD
+||||||| parent of 027e61f... BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains INodeReference
+    BUG-60272. HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
+    drop nearly impossible. (zhihai xu)
+
+    BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
+    (Masatake Iwasaki)
+
+=======
+    BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains
+    INodeReference (Xiao Chen)
+
+    BUG-60272. HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
+    drop nearly impossible. (zhihai xu)
+
+    BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
+    (Masatake Iwasaki)
+
+>>>>>>> 027e61f... BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains INodeReference
     HADOOP-10597. RPC Server signals backoff to clients when all request
     queues are full. (Ming Ma via Arpit Agarwal)
 
