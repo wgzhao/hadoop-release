@@ -1616,3 +1616,6 @@ ATS V1.5:
 
     HDFS-10556. DistCpOptions should be validated automatically. Contributed by
     Mingliang Liu.
+
+    HADOOP-12636. Prevent ServiceLoader failure init for unused FileSystems.
+    (Inigo Goiri via cdouglas)
