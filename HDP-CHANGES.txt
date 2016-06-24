@@ -1751,3 +1751,7 @@ ATS V1.5:
     Iwasaki via Colin P. McCabe)
 
     HDFS-10228. TestHDFSCLI fails. (Contributed by Akira AJISAKA)
+
+    HADOOP-12636. Prevent ServiceLoader failure init for unused FileSystems.
+    Contributed by Inigo Goiri
+

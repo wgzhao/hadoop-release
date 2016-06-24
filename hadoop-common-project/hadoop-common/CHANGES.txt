@@ -1436,6 +1436,9 @@ Release 2.8.0 - UNRELEASED
     HADOOP-12706. TestLocalFsFCStatistics#testStatisticsThreadLocalDataCleanUp
     times out occasionally (Sangjin Lee and Colin Patrick McCabe via jlowe)
 
+    HADOOP-12636. Prevent ServiceLoader failure init for unused FileSystems.
+    (Inigo Goiri via cdouglas)
+
 Release 2.7.2 - UNRELEASED
 
   INCOMPATIBLE CHANGES
