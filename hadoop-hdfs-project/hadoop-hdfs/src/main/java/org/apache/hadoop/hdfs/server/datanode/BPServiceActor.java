@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ import org.apache.hadoop.hdfs.server.protocol.StorageReport;
 import org.apache.hadoop.hdfs.server.protocol.VolumeFailureSummary;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RemoteException;
+import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.VersionInfo;
 import org.apache.hadoop.util.VersionUtil;
@@ -135,6 +137,10 @@ class BPServiceActor implements Runnable {
         || runningState == BPServiceActor.RunningState.CONNECTING;
   }
 
+  String getRunningState() {
+    return runningState.toString();
+  }
+
   @Override
   public String toString() {
     return bpos.toString() + " service to " + nnAddr;
@@ -142,6 +148,22 @@ class BPServiceActor implements Runnable {
   
   InetSocketAddress getNNSocketAddress() {
     return nnAddr;
+  }
+
+  private String getNameNodeAddress() {
+    return NetUtils.getHostPortString(getNNSocketAddress());
+  }
+
+  Map<String, String> getActorInfoMap() {
+    final Map<String, String> info = new HashMap<String, String>();
+    info.put("NamenodeAddress", getNameNodeAddress());
+    info.put("BlockPoolID", bpos.getBlockPoolId());
+    info.put("ActorState", getRunningState());
+    info.put("LastHeartbeat",
+        String.valueOf(getScheduler().getLastHearbeatTime()));
+    info.put("LastBlockReport",
+        String.valueOf(getScheduler().getLastBlockReportTime()));
+    return info;
   }
 
   private final CountDownLatch initialRegistrationComplete;
@@ -376,6 +398,7 @@ class BPServiceActor implements Runnable {
                   (nCmds + " commands: " + Joiner.on("; ").join(cmds)))) +
           ".");
     }
+    scheduler.updateLastBlockReportTime(monotonicNow());
     scheduler.scheduleNextBlockReport();
     return cmds.size() == 0 ? null : cmds;
   }
@@ -422,6 +445,7 @@ class BPServiceActor implements Runnable {
                 " storage reports from service actor: " + this);
     }
     
+    scheduler.updateLastHeartbeatTime(monotonicNow());
     VolumeFailureSummary volumeFailureSummary = dn.getFSDataset()
         .getVolumeFailureSummary();
     int numFailedVolumes = volumeFailureSummary != null ?
@@ -986,6 +1010,12 @@ class BPServiceActor implements Runnable {
     volatile long nextLifelineTime = monotonicNow();
 
     @VisibleForTesting
+    volatile long lastBlockReportTime = monotonicNow();
+
+    @VisibleForTesting
+    volatile long lastHeartbeatTime = monotonicNow();
+
+    @VisibleForTesting
     boolean resetBlockReportTime = true;
 
     private final AtomicBoolean forceFullBlockReport =
@@ -1021,6 +1051,22 @@ class BPServiceActor implements Runnable {
       nextHeartbeatTime = monotonicNow() + heartbeatIntervalMs;
       scheduleNextLifeline(nextHeartbeatTime);
       return nextHeartbeatTime;
+    }
+
+    void updateLastHeartbeatTime(long heartbeatTime) {
+      lastHeartbeatTime = heartbeatTime;
+    }
+
+    void updateLastBlockReportTime(long blockReportTime) {
+      lastBlockReportTime = blockReportTime;
+    }
+
+    long getLastHearbeatTime() {
+      return (monotonicNow() - lastHeartbeatTime)/1000;
+    }
+
+    long getLastBlockReportTime() {
+      return (monotonicNow() - lastBlockReportTime)/1000;
     }
 
     long scheduleNextLifeline(long baseTime) {
