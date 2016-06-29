@@ -1946,3 +1946,7 @@ ATS V1.5:
     BUG-50581 . Enable CORS for the RM webapp by default.
     HADOOP-12691 . Add CSRF Filter for REST APIs to Hadoop Common. Contributed by Larry McCay.
     HADOOP-12635 . Adding Append API support for WASB. Contributed by Dushyanth.
+
+    BUG-57761. HDFS-10396. Using -diff option with DistCp may get "Comparison
+    method violates its general contract" exception. Contributed by Yongjun Zhang.
+
