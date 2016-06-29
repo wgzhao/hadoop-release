@@ -1392,3 +1392,7 @@ ATS V1.5:
     scenario. (Mingliang Liu)
 
     BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira AJISAKA)
+
+    BUG-57761. HDFS-10396. Using -diff option with DistCp may get "Comparison
+    method violates its general contract" exception. Contributed by Yongjun Zhang.
+
