@@ -400,6 +400,9 @@ ATS V1.5:
 
     YARN-5294. Pass remote ip address down to YarnAuthorizationProvider. (jianhe)
 
+    HADOOP-13305. Define common statistics names across schemes. Contributed by
+    Mingliang Liu.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
