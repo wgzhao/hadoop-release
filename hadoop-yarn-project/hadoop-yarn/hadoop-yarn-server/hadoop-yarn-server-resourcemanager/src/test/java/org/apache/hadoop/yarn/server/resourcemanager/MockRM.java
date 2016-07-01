@@ -767,6 +767,10 @@ public class MockRM extends ResourceManager {
     }
   }
 
+  /**
+   * NOTE: nm.nodeHeartbeat is explicitly invoked,
+   * don't invoke it before calling launchAM
+   */
   public static MockAM launchAM(RMApp app, MockRM rm, MockNM nm)
       throws Exception {
     rm.waitForState(app.getApplicationId(), RMAppState.ACCEPTED);
