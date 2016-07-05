@@ -12,19 +12,16 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.hadoop</groupId>
     <artifactId>hadoop-main</artifactId>
-    <version>2.7.1-SNAPSHOT</version>
+    <version>2.7.1.2.3.6.0-3796</version>
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-project</artifactId>
-  <version>2.7.1-SNAPSHOT</version>
+  <version>2.7.1.2.3.6.0-3796</version>
   <description>Apache Hadoop Project POM</description>
   <name>Apache Hadoop Project POM</name>
   <packaging>pom</packaging>
@@ -72,7 +69,7 @@
     <protobuf.version>2.5.0</protobuf.version>
     <protoc.path>${env.HADOOP_PROTOC_PATH}</protoc.path>
 
-    <zookeeper.version>3.4.6</zookeeper.version>
+    <zookeeper.version>3.4.6.2.3.6.0-3796</zookeeper.version>
     <curator.version>2.7.1</curator.version>
     <findbugs.version>3.0.0</findbugs.version>
 
@@ -1085,8 +1082,8 @@
             </goals>
             <configuration>
               <target>
-                <mkdir dir="${test.build.dir}"/>
-                <mkdir dir="${test.build.data}"/>
+                <mkdir dir="${test.build.dir}" />
+                <mkdir dir="${test.build.data}" />
               </target>
             </configuration>
           </execution>
@@ -1135,8 +1132,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <reuseForks>false</reuseForks>
-          <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
-          <argLine>${maven-surefire-plugin.argLine}</argLine>
+          <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+          <argLine>-Xms2048m -Xmx3072m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError</argLine>
           <environmentVariables>
             <HADOOP_COMMON_HOME>${hadoop.common.build.dir}</HADOOP_COMMON_HOME>
             <!-- HADOOP_HOME required for tests on Windows to find winutils -->
@@ -1272,7 +1269,7 @@
               <source>${javac.version}</source>
               <target>${javac.version}</target>
               <compilerArguments>
-                <Xlint/>
+                <Xlint />
                 <Xmaxwarns>9999</Xmaxwarns>
               </compilerArguments>
             </configuration>
