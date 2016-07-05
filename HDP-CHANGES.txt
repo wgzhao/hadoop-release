@@ -1624,4 +1624,7 @@ ATS V1.5:
     setting correct length in s3 request.
     Contributed by Rajesh Balamohan and Steve Loughran.
 
-    BUG-59045. MAPREDUCE-6543. Migrate MR Client test cases part 2
+    BUG-59045. MAPREDUCE-6543. Migrate MR Client test cases part 2.
+
+    BUG-59897. YARN-5214. Fixed locking in DirectoryCollection to avoid hanging NMs
+    when various code-paths hit slow disks. (Junping Du via vinodkv)
