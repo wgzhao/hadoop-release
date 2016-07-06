@@ -21,6 +21,7 @@ package org.apache.hadoop.yarn.server.resourcemanager.webapp;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -211,12 +212,18 @@ public class RMWebServices extends WebServices {
   protected Boolean hasAccess(RMApp app, HttpServletRequest hsr) {
     // Check for the authorization.
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    List<String> forwardedAddresses = null;
+    String forwardedFor = hsr.getHeader("X-Forwarded-For");
+    if (forwardedFor != null) {
+      forwardedAddresses = Arrays.asList(forwardedFor.split(","));
+    }
     if (callerUGI != null
         && !(this.rm.getApplicationACLsManager().checkAccess(callerUGI,
               ApplicationAccessType.VIEW_APP, app.getUser(),
               app.getApplicationId()) ||
             this.rm.getQueueACLsManager().checkAccess(callerUGI,
-                QueueACL.ADMINISTER_QUEUE, app))) {
+                QueueACL.ADMINISTER_QUEUE, app, hsr.getRemoteAddr(),
+                forwardedAddresses))) {
       return false;
     }
     return true;

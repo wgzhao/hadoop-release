@@ -398,6 +398,8 @@ ATS V1.5:
     BUG-57081. HDFS-10341. Add a metric to expose the timeout number of pending
     replication blocks (Akira AJISAKA)
 
+    YARN-5294. Pass remote ip address down to YarnAuthorizationProvider. (jianhe)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
