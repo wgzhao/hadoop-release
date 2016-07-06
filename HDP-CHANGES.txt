@@ -1628,3 +1628,6 @@ ATS V1.5:
 
     BUG-59897. YARN-5214. Fixed locking in DirectoryCollection to avoid hanging NMs
     when various code-paths hit slow disks. (Junping Du via vinodkv)
+
+    YARN-5296. NMs going OutOfMemory because ContainerMetrics leak in ContainerMonitorImpl.
+    (Junping Du via jian)
