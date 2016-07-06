@@ -1557,6 +1557,30 @@ public class YarnConfiguration extends Configuration {
   public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX =
       TIMELINE_SERVICE_PREFIX + "entity-group-fs-store.";
 
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "active-dir";
+
+  public static final String
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR_DEFAULT =
+      "/tmp/entity-file-history/active";
+
+  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "done-dir";
+  public static final String
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR_DEFAULT =
+      "/tmp/entity-file-history/done";
+
+  public static final String TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_CLASSES =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "group-id-plugin-classes";
+
+  public static final String TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_CLASSPATH =
+      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX
+          + "group-id-plugin-classpath";
+
+  public static final String TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_SYSTEM_CLASSES
+      = TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX
+          + "group-id-plugin-system-classes";
+
   public static final String
       TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_SUMMARY_STORE =
       TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "summary-store";
@@ -1597,15 +1621,6 @@ public class YarnConfiguration extends Configuration {
   public static final long
       DEFAULT_TIMELINE_SERVICE_LEVELDB_CACHE_READ_CACHE_SIZE = 10 * 1024 * 1024;
 
-  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR =
-      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "done-dir";
-  public static final String
-      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_DONE_DIR_DEFAULT =
-      "/tmp/entity-file-history/done";
-
-  public static final String TIMELINE_SERVICE_ENTITY_GROUP_PLUGIN_CLASSES =
-      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "group-id-plugin-classes";
-
   // how old the most recent log of an UNKNOWN app needs to be in the active
   // directory before we treat it as COMPLETED
   public static final String
@@ -1614,13 +1629,6 @@ public class YarnConfiguration extends Configuration {
   public static final int
       TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_UNKNOWN_ACTIVE_SECONDS_DEFAULT
       = 24 * 60 * 60;
-
-  public static final String TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR =
-      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_PREFIX + "active-dir";
-
-  public static final String
-      TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_ACTIVE_DIR_DEFAULT =
-      "/tmp/entity-file-history/active";
 
   public static final String
       TIMELINE_SERVICE_ENTITYGROUP_FS_STORE_RETRY_POLICY_SPEC =
