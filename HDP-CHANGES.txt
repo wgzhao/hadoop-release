@@ -1633,3 +1633,6 @@ ATS V1.5:
 
     YARN-5296. NMs going OutOfMemory because ContainerMetrics leak in ContainerMonitorImpl.
     (Junping Du via jian)
+
+    BUG-56284. HDFS-10309. Balancer doesn't honor dfs.blocksize value defined with suffix
+    k(kilo), m(mega), g(giga) (Amit Anand)
