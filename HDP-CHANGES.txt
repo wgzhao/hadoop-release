@@ -406,6 +406,9 @@ ATS V1.5:
     HADOOP-13280. FileSystemStorageStatistics#getLong(“readOps“) should return
     readOps + largeReadOps (Mingliang Liu via cmccabe)
 
+     HADOOP-13283. Support reset operation for new global storage statistics
+     and per FS storage stats. Contributed by Mingliang Liu.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
