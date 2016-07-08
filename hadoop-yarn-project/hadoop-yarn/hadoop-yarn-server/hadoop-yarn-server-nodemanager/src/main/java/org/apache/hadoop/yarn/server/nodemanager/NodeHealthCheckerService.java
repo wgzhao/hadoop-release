@@ -38,6 +38,11 @@ public class NodeHealthCheckerService extends CompositeService {
     dirsHandler = new LocalDirsHandlerService();
   }
 
+  public NodeHealthCheckerService(LocalDirsHandlerService dirsHandler) {
+    super(NodeHealthCheckerService.class.getName());
+    this.dirsHandler = dirsHandler;
+  }
+
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
     if (NodeHealthScriptRunner.shouldRun(conf)) {

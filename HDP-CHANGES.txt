@@ -1645,3 +1645,5 @@ ATS V1.5:
 
     BUG-56284. HDFS-10309. Balancer doesn't honor dfs.blocksize value defined with suffix
     k(kilo), m(mega), g(giga) (Amit Anand)
+
+    BUG-61736. Bad local dir/Bad log dir is not displayed in metrics. (Jian He via junping_du)

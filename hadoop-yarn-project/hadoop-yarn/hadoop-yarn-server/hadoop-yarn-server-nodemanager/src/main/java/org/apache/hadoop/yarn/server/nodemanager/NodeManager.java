@@ -243,11 +243,10 @@ public class NodeManager extends CompositeService
     // NodeManager level dispatcher
     this.dispatcher = new AsyncDispatcher();
 
-    nodeHealthChecker = new NodeHealthCheckerService();
     dirsHandler = new LocalDirsHandlerService(metrics);
+    nodeHealthChecker = new NodeHealthCheckerService(dirsHandler);
 
     addService(nodeHealthChecker);
-    dirsHandler = nodeHealthChecker.getDiskHandler();
 
     this.context = createNMContext(containerTokenSecretManager,
         nmTokenSecretManager, nmStore);
