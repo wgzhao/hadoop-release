@@ -145,6 +145,10 @@ public class ApplicationMasterService extends AbstractService implements
           serverConf.getInt(YarnConfiguration.RM_SCHEDULER_CLIENT_THREAD_COUNT, 
               YarnConfiguration.DEFAULT_RM_SCHEDULER_CLIENT_THREAD_COUNT));
     
+    // TODO more exceptions could be added later.
+    this.server.addTerseExceptions(
+        ApplicationMasterNotRegisteredException.class);
+
     // Enable service authorization?
     if (conf.getBoolean(
         CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHORIZATION, 
@@ -446,11 +450,6 @@ public class ApplicationMasterService extends AbstractService implements
         String message =
             "AM is not registered for known application attempt: " + appAttemptId
                 + " or RM had restarted after AM registered . AM should re-register.";
-        LOG.info(message);
-        RMAuditLogger.logFailure(
-          this.rmContext.getRMApps().get(appAttemptId.getApplicationId())
-            .getUser(), AuditConstants.AM_ALLOCATE, "",
-          "ApplicationMasterService", message, applicationId, appAttemptId);
         throw new ApplicationMasterNotRegisteredException(message);
       }
 

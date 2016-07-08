@@ -1661,3 +1661,6 @@ ATS V1.5:
 
     YARN-5048. DelegationTokenRenewer#skipTokenRenewal may throw NPE.
     (Jian He via Yongjun Zhang)
+
+    BUG-60790. YARN-5297. Avoid printing a stack trace when recovering an app after the
+    RM restarts. (Junping Du)
