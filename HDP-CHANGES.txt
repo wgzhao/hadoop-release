@@ -1654,3 +1654,4 @@ ATS V1.5:
     HDFS-9549. TestCacheDirectives#testExceedsCapacity is flaky (Xiao Chen via
     cmccabe)
 
+    BUG-61637. YARN-5337. Fix Dshell OOM issues. (Jian He via junping_du)
