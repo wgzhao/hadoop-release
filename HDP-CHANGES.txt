@@ -1241,7 +1241,6 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
-<<<<<<< HEAD
     BUG-56920. YARN-3602. TestResourceLocalizationService.testPublicResourceInitializesLocalDir
     fails Intermittently due to IOException from cleanup. (zhihai xu via xgong)
 
@@ -1397,3 +1396,6 @@ ATS V1.5:
     method violates its general contract" exception. Contributed by Yongjun Zhang.
 
     BUG-56491. Enable intermittent unit tests for further investigation
+
+    BUG-60447. HADOOP-13255. KMSClientProvider should check and renew tgt when
+    doing delegation token operations. Contributed by Xiao Chen.
