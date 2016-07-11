@@ -1659,3 +1659,5 @@ ATS V1.5:
     YARN-3021. YARN's delegation-token handling disallows certain trust setups 
     to operate properly over DistCp. (Yongjun Zhang via jianhe)
 
+    YARN-5048. DelegationTokenRenewer#skipTokenRenewal may throw NPE.
+    (Jian He via Yongjun Zhang)
