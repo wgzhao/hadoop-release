@@ -4651,3 +4651,6 @@ ATS V1.5:
     own User Directory. Contributed by Rohith Sharma K S.
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
+
+    BUG-94581. YARN-5037. Fix random failure of
+    TestRMRestart#testQueueMetricsOnRMRestart (sandflee via Varun Saxena).
