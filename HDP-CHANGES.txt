@@ -1436,3 +1436,6 @@ ATS V1.5:
 
     BUG-63102. HDFS-10688. BPServiceActor may run into a tight loop for sending
     block report when hitting IOException. Contributed by Chen Liang.
+
+    HADOOP-13362. DefaultMetricsSystem leaks the source name when a source
+    unregisters. (Junping Du via jlowe)
