@@ -1241,6 +1241,7 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
+<<<<<<< HEAD
     BUG-56920. YARN-3602. TestResourceLocalizationService.testPublicResourceInitializesLocalDir
     fails Intermittently due to IOException from cleanup. (zhihai xu via xgong)
 
@@ -1383,3 +1384,10 @@ ATS V1.5:
 
     BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
     Tibor Kiss.
+
+    HDFS-9700. DFSClient and DFSOutputStream should set TCP_NODELAY
+    on sockets for DataTransferProtocol. (Gary Helmling)
+
+    BUG-9259. Make SO_SNDBUF size configurable at DFSClient side for hdfs write
+    scenario. (Mingliang Liu)
+
