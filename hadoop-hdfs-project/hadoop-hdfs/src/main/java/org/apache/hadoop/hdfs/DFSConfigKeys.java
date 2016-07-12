@@ -884,4 +884,9 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final int
       DFS_DATANODE_TRANSFER_SOCKET_RECV_BUFFER_SIZE_DEFAULT =
       HdfsConstants.DEFAULT_DATA_SOCKET_SIZE;
+  
+  public static final String  DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_KEY =
+      "dfs.client.socket.send.buffer.size";
+  public static final int DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_DEFAULT =
+      HdfsConstants.DEFAULT_DATA_SOCKET_SIZE;  
 }
