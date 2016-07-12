@@ -366,7 +366,7 @@ public class RMContainerAllocator extends RMContainerRequestor
           }
         }
         // set the resources
-        reqEvent.getCapability().setMemory(mapResourceRequest.getMemorySize());
+        reqEvent.getCapability().setMemorySize(mapResourceRequest.getMemorySize());
         reqEvent.getCapability().setVirtualCores(
           mapResourceRequest.getVirtualCores());
         scheduledRequests.addMap(reqEvent);//maps are immediately scheduled
@@ -394,7 +394,7 @@ public class RMContainerAllocator extends RMContainerRequestor
           }
         }
         // set the resources
-        reqEvent.getCapability().setMemory(reduceResourceRequest.getMemorySize());
+        reqEvent.getCapability().setMemorySize(reduceResourceRequest.getMemorySize());
         reqEvent.getCapability().setVirtualCores(
           reduceResourceRequest.getVirtualCores());
         if (reqEvent.getEarlierAttemptFailed()) {

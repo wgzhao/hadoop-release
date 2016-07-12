@@ -327,7 +327,9 @@ public class MockRM extends ResourceManager {
       Map<ApplicationAccessType, String> acls, String queue, String amLabel)
       throws Exception {
     Resource resource = Records.newRecord(Resource.class);
-    resource.setMemory(masterMemory);
+
+    resource.setMemorySize(masterMemory);
+
     return submitApp(resource, name, user, acls, false, queue,
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
       YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS), null, null, true, false,
@@ -379,7 +381,7 @@ public class MockRM extends ResourceManager {
       int maxAppAttempts, Credentials ts, String appType,
       boolean waitForAccepted, boolean keepContainers) throws Exception {
     Resource resource = Records.newRecord(Resource.class);
-    resource.setMemory(masterMemory);
+    resource.setMemorySize(masterMemory);
     return submitApp(resource, name, user, acls, unmanaged, queue,
         maxAppAttempts, ts, appType, waitForAccepted, keepContainers,
         false, null, 0, null, true);
@@ -388,7 +390,8 @@ public class MockRM extends ResourceManager {
   public RMApp submitApp(int masterMemory, long attemptFailuresValidityInterval)
       throws Exception {
     Resource resource = Records.newRecord(Resource.class);
-    resource.setMemory(masterMemory);
+    resource.setMemorySize(masterMemory);
+
     return submitApp(resource, "", UserGroupInformation.getCurrentUser()
       .getShortUserName(), null, false, null,
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
@@ -402,7 +405,7 @@ public class MockRM extends ResourceManager {
       boolean waitForAccepted, boolean keepContainers, boolean isAppIdProvided,
       ApplicationId applicationId) throws Exception {
     Resource resource = Records.newRecord(Resource.class);
-    resource.setMemory(masterMemory);
+    resource.setMemorySize(masterMemory);
     return submitApp(resource, name, user, acls, unmanaged, queue,
       maxAppAttempts, ts, appType, waitForAccepted, keepContainers,
       isAppIdProvided, applicationId, 0, null, true);
@@ -411,7 +414,7 @@ public class MockRM extends ResourceManager {
   public RMApp submitApp(int masterMemory,
       LogAggregationContext logAggregationContext) throws Exception {
     Resource resource = Records.newRecord(Resource.class);
-    resource.setMemory(masterMemory);
+    resource.setMemorySize(masterMemory);
     return submitApp(resource, "", UserGroupInformation.getCurrentUser()
       .getShortUserName(), null, false, null,
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,

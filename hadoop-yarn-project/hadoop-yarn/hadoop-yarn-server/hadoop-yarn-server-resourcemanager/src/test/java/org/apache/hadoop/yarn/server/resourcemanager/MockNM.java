@@ -49,7 +49,7 @@ public class MockNM {
   private int responseId;
   private NodeId nodeId;
   private long memory;
-  private long vCores;
+  private int vCores;
   private ResourceTrackerService resourceTracker;
   private int httpPort = 2;
   private MasterKey currentContainerTokenMasterKey;
@@ -210,7 +210,7 @@ public class MockNM {
     return memory;
   }
 
-  public long getvCores() {
+  public int getvCores() {
     return vCores;
   }
 }

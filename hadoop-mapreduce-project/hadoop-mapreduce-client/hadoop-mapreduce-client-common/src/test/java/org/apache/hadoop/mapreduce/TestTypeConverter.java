@@ -86,7 +86,7 @@ public class TestTypeConverter {
     ApplicationResourceUsageReport appUsageRpt = Records
         .newRecord(ApplicationResourceUsageReport.class);
     Resource r = Records.newRecord(Resource.class);
-    r.setMemory(2048);
+    r.setMemorySize(2048);
     appUsageRpt.setNeededResources(r);
     appUsageRpt.setNumReservedContainers(1);
     appUsageRpt.setNumUsedContainers(3);
@@ -123,7 +123,7 @@ public class TestTypeConverter {
     ApplicationResourceUsageReport appUsageRpt = Records
         .newRecord(ApplicationResourceUsageReport.class);
     Resource r = Records.newRecord(Resource.class);
-    r.setMemory(2048);
+    r.setMemorySize(2048);
     appUsageRpt.setNeededResources(r);
     appUsageRpt.setNumReservedContainers(1);
     appUsageRpt.setNumUsedContainers(3);

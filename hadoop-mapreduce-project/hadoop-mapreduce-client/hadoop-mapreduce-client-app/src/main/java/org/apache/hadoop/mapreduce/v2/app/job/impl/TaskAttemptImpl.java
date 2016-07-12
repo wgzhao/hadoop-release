@@ -542,7 +542,7 @@ public abstract class TaskAttemptImpl implements
 
     //TODO:create the resource reqt for this Task attempt
     this.resourceCapability = recordFactory.newRecordInstance(Resource.class);
-    this.resourceCapability.setMemory(
+    this.resourceCapability.setMemorySize(
         getMemoryRequired(conf, taskId.getTaskType()));
     this.resourceCapability.setVirtualCores(
         getCpuRequired(conf, taskId.getTaskType()));
