@@ -729,6 +729,12 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH_KEY = "dfs.encrypt.data.transfer.cipher.key.bitlength";
   public static final int    DFS_ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH_DEFAULT = 128;
   public static final String DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES_KEY = "dfs.encrypt.data.transfer.cipher.suites";
+  public static final String DFS_XFRAME_OPTION_ENABLED = "dfs.xframe.enabled";
+  public static final boolean DFS_XFRAME_OPTION_ENABLED_DEFAULT = true;
+
+  public static final String DFS_XFRAME_OPTION_VALUE = "dfs.xframe.value";
+  public static final String DFS_XFRAME_OPTION_VALUE_DEFAULT = "SAMEORIGIN";
+
   public static final String DFS_DATA_ENCRYPTION_ALGORITHM_KEY = "dfs.encrypt.data.transfer.algorithm";
   public static final String DFS_TRUSTEDCHANNEL_RESOLVER_CLASS = "dfs.trustedchannel.resolver.class";
   public static final String DFS_DATA_TRANSFER_PROTECTION_KEY = "dfs.data.transfer.protection";

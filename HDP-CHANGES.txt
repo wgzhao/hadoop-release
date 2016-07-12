@@ -1667,3 +1667,9 @@ ATS V1.5:
 
     BUG-61921. MAPREDUCE-6593. TestJobHistoryEventHandler.testTimelineEventHandling
     fails because of NPE. (Naganarasimha G R)
+
+    HADOOP-12964. Http server vulnerable to clickjacking
+
+    HADOOP-13352. Make X-FRAME-OPTIONS configurable in HttpServer2. Contributed by Anu Engineer.
+
+    HDFS-10579. HDFS web interfaces lack configs for X-FRAME-OPTIONS protection. Contributed by Anu Engineer.
