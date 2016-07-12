@@ -1679,3 +1679,5 @@ ATS V1.5:
     BUG-61987. HFDS-9137 should be backported correctly.
     
     YARN-5270. Solve miscellaneous issues caused by YARN-4844. (wangda via jianhe)
+
+    BUG-62047. YARN-5023. TestAMRestart#testShouldNotCountFailureToMaxAttemptRetry random failure.
