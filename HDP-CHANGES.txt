@@ -1401,3 +1401,6 @@ ATS V1.5:
     doing delegation token operations. Contributed by Xiao Chen.
 
     MAPREDUCE-6543. Migrate MR Client test cases part 2
+
+    BUG-60724. HDFS-10271. Extra bytes are getting released from reservedSpace
+    for append (Contributed by Brahma Reddy Battula)
