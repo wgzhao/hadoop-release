@@ -1391,3 +1391,4 @@ ATS V1.5:
     BUG-9259. Make SO_SNDBUF size configurable at DFSClient side for hdfs write
     scenario. (Mingliang Liu)
 
+    BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira AJISAKA)
