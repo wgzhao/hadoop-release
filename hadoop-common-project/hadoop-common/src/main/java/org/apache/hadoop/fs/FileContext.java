@@ -233,7 +233,7 @@ public class FileContext {
   private FileContext(final AbstractFileSystem defFs,
     final FsPermission theUmask, final Configuration aConf) {
     defaultFS = defFs;
-    umask = FsPermission.getUMask(aConf);
+    umask = theUmask;
     conf = aConf;
     try {
       ugi = UserGroupInformation.getCurrentUser();
