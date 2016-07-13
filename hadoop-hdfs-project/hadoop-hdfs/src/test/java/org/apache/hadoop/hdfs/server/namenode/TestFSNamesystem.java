@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 
+import com.google.common.base.Supplier;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.hdfs.DFSTestUtil;
@@ -36,8 +37,8 @@ import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.NamenodeRole;
 import org.apache.hadoop.hdfs.server.namenode.ha.HAContext;
 import org.apache.hadoop.hdfs.server.namenode.ha.HAState;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.Snapshot;
+import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -45,6 +46,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 
 public class TestFSNamesystem {
 
@@ -258,7 +260,15 @@ public class TestFSNamesystem {
     }
 
     latch.await();
-    Assert.assertEquals("Expected number of blocked thread not found",
-                        threadCount, rwLock.getQueueLength());
+    try {
+      GenericTestUtils.waitFor(new Supplier<Boolean>() {
+        @Override
+        public Boolean get() {
+          return (threadCount == rwLock.getQueueLength());
+        }
+      }, 100, 1000);
+    } catch (TimeoutException e) {
+      fail("Expected number of blocked thread not found");
+    }
   }
 }
