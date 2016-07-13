@@ -1690,3 +1690,5 @@ ATS V1.5:
     BUG-62180. HADOOP-12259. Utility to Dynamic port allocation (brahmareddy via rkanter)
 
     BUG-62186. MAPREDUCE-6579. TestNetworkedJob.testNetworkedJob failed due to YARN-3946.
+
+    BUG-62187. TestNodesListManager.testNodeUsableEvent. (Junping Du)
