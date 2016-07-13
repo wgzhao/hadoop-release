@@ -1692,3 +1692,6 @@ ATS V1.5:
     BUG-62186. MAPREDUCE-6579. TestNetworkedJob.testNetworkedJob failed due to YARN-3946.
 
     BUG-62187. TestNodesListManager.testNodeUsableEvent. (Junping Du)
+
+    BUG-62212. Backport HDFS-8915 to fix intermittent UT failure
+    o.a.h.hdfs.server.namenode.TestFSNamesystem#testFSLockGetWaiterCount
