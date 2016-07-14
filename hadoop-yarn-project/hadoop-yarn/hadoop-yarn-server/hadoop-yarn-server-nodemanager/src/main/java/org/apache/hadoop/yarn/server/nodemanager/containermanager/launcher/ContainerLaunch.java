@@ -235,6 +235,8 @@ public class ContainerLaunch implements Callable<Integer> {
       pidFilePath = dirsHandler.getLocalPathForWrite(pidFileSubpath);
       List<String> localDirs = dirsHandler.getLocalDirs();
       List<String> logDirs = dirsHandler.getLogDirs();
+      List<String> filecacheDirs = getNMFilecacheDirs(localDirs);
+      List<String> userLocalDirs = getUserLocalDirs(localDirs);
 
       List<String> containerLogDirs = new ArrayList<String>();
       for( String logDir : logDirs) {
@@ -251,6 +253,7 @@ public class ContainerLaunch implements Callable<Integer> {
       try {
         // /////////// Write out the container-script in the nmPrivate space.
         List<Path> appDirs = new ArrayList<Path>(localDirs.size());
+
         for (String localDir : localDirs) {
           Path usersdir = new Path(localDir, ContainerLocalizer.USERCACHE);
           Path userdir = new Path(usersdir, user);
@@ -275,7 +278,8 @@ public class ContainerLaunch implements Callable<Integer> {
             new Path(containerWorkDir, 
                 FINAL_CONTAINER_TOKENS_FILE).toUri().getPath());
         // Sanitize the container's environment
-        sanitizeEnv(environment, containerWorkDir, appDirs, containerLogDirs,
+        sanitizeEnv(environment, containerWorkDir, appDirs, userLocalDirs,
+            containerLogDirs,
           localResources, nmPrivateClasspathJarDir);
         
         // Write out the environment
@@ -320,6 +324,8 @@ public class ContainerLaunch implements Callable<Integer> {
             .setContainerWorkDir(containerWorkDir)
             .setLocalDirs(localDirs)
             .setLogDirs(logDirs)
+            .setFilecacheDirs(filecacheDirs)
+            .setUserLocalDirs(userLocalDirs)
             .setContainerLocalDirs(containerLocalDirs)
             .setContainerLogDirs(containerLogDirs)
             .build());
@@ -370,6 +376,34 @@ public class ContainerLaunch implements Callable<Integer> {
             ContainerEventType.CONTAINER_EXITED_WITH_SUCCESS));
     return 0;
   }
+
+  protected List<String> getUserLocalDirs(List<String> localDirs) {
+    List<String> userLocalDirs = new ArrayList<>(localDirs.size());
+    String user = container.getUser();
+
+    for (String localDir : localDirs) {
+      String userLocalDir = localDir + Path.SEPARATOR +
+          ContainerLocalizer.USERCACHE + Path.SEPARATOR + user + Path.SEPARATOR;
+
+      userLocalDirs.add(userLocalDir);
+    }
+
+    return userLocalDirs;
+  }
+
+  protected List<String> getNMFilecacheDirs(List<String> localDirs) {
+    List<String> filecacheDirs = new ArrayList<>(localDirs.size());
+
+    for (String localDir : localDirs) {
+      String filecacheDir = localDir + Path.SEPARATOR +
+          ContainerLocalizer.FILECACHE;
+
+      filecacheDirs.add(filecacheDir);
+    }
+
+    return filecacheDirs;
+  }
+
 
   protected String getPidFileSubpath(String appIdStr, String containerIdStr) {
     return getContainerPrivateDir(appIdStr, containerIdStr) + Path.SEPARATOR
@@ -762,7 +796,8 @@ public class ContainerLaunch implements Callable<Integer> {
   }
   
   public void sanitizeEnv(Map<String, String> environment, Path pwd,
-      List<Path> appDirs, List<String> containerLogDirs,
+      List<Path> appDirs, List<String> userLocalDirs, List<String>
+      containerLogDirs,
       Map<Path, List<String>> resources,
       Path nmPrivateClasspathJarDir) throws IOException {
     /**
@@ -783,6 +818,9 @@ public class ContainerLaunch implements Callable<Integer> {
 
     environment.put(Environment.LOCAL_DIRS.name(),
         StringUtils.join(",", appDirs));
+
+    environment.put(Environment.LOCAL_USER_DIRS.name(), StringUtils.join(",",
+        userLocalDirs));
 
     environment.put(Environment.LOG_DIRS.name(),
       StringUtils.join(",", containerLogDirs));
