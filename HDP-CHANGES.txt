@@ -2014,3 +2014,9 @@ ATS V1.5:
     HDFS-8896. DataNode object isn't GCed when shutdown, because it has GC root in ShutdownHookManager. Contributed by Walter Su.
     HADOOP-12886. Exclude weak ciphers in SSLFactory through ssl-server.xml. Contributed by Wei-Chiu Chuang.
     HDFS-9871. "Bytes Being Moved" -ve(-1 B) when cluster was already balanced. (Contributed by Brahma Reddy Battulla)
+    HDFS-9670. DistCp throws NPE when source is root. (John Zhuge via Yongjun Zhang)
+    HDFS-9412. getBlocks occupies FSLock and takes too long to complete. Contributed by He Tianyi.
+    HADOOP-12993. Change ShutdownHookManger complete shutdown log from INFO to DEBUG. Contributed by Xiaoyu Yao.
+    HDFS-10235. Last contact for Live Nodes should be relative time. Contributed by Brahma Reddy Battula.
+    HDFS-6407. Add sorting and pagination in the datanode tab of the NN Web UI. Contributed by Haohui Mai.
+    HDFS-8816. Improve visualization for the Datanode tab in the NN UI. Contributed by Haohui Mai.
