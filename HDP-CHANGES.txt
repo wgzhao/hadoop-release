@@ -1976,14 +1976,18 @@ ATS V1.5:
     HDFS-9566. Remove expensive 'BlocksMap#getStorages(Block b, final DatanodeStorage.State state)' method (Contributed by Daryn Sharp)
     HDFS-9706. Log more details in debug logs in BlockReceiver's constructor. (Xiao Chen via Yongjun Zhang)
     HADOOP-12731. Remove useless boxing/unboxing code. Contributed by Kousuke Saruta.
-  HDFS-9715. Check storage ID uniqueness on datanode startup (Contributed by Lei (Eddy) Xu)
-  HDFS-8546. Use try with resources in DataStorage and Storage.
-HADOOP-12776. Remove getaclstatus call for non-acl commands in getfacl. (Contributed by Brahma Reddy Battula)
-  HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
-  HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
-  HDFS-9760. WebHDFS AuthFilter cannot be configured with custom AltKerberos auth handler (Ryan Sasson via aw)
-  HDFS-9777. Fix typos in DFSAdmin command line and documentation.(Wei-Chiu Chuang via umamahesh)
-  HDFS-9713. DataXceiver#copyBlock should return if block is pinned. Contributed by Uma Maheswara Rao G.
-  HDFS-9748. Avoid duplication in pendingReplications when addExpectedReplicasToPending is called twice. Contributed by Walter Su.
-  HDFS-9739. DatanodeStorage.isValidStorageId() is broken (Contributed by Mingliang Liu)
-  BUG-62306. Ignore o.a.h.security.TestLdapGroupsMapping#testLdapConnectionTimeout
+    HDFS-9715. Check storage ID uniqueness on datanode startup (Contributed by Lei (Eddy) Xu)
+    HDFS-8546. Use try with resources in DataStorage and Storage.
+    HADOOP-12776. Remove getaclstatus call for non-acl commands in getfacl. (Contributed by Brahma Reddy Battula)
+    HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
+    HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
+    HDFS-9760. WebHDFS AuthFilter cannot be configured with custom AltKerberos auth handler (Ryan Sasson via aw)
+    HDFS-9777. Fix typos in DFSAdmin command line and documentation.(Wei-Chiu Chuang via umamahesh)
+    HDFS-9713. DataXceiver#copyBlock should return if block is pinned. Contributed by Uma Maheswara Rao G.
+    HDFS-9748. Avoid duplication in pendingReplications when addExpectedReplicasToPending is called twice. Contributed by Walter Su.
+    HDFS-9739. DatanodeStorage.isValidStorageId() is broken (Contributed by Mingliang Liu)
+    BUG-62306. Ignore o.a.h.security.TestLdapGroupsMapping#testLdapConnectionTimeout
+    HADOOP-12817. Enable TLS v1.1 and 1.2 (rkanter)
+    HDFS-6832. Fix the usage of 'hdfs namenode' command. Contributed by Manjunath Ballur.
+    HDFS-9608. Disk IO imbalance in HDFS with heterogeneous storages. Contributed by Wei Zhou.
+    Update HDP-CHANGES.txt
