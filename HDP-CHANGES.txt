@@ -2020,3 +2020,5 @@ ATS V1.5:
     HDFS-10235. Last contact for Live Nodes should be relative time. Contributed by Brahma Reddy Battula.
     HDFS-6407. Add sorting and pagination in the datanode tab of the NN Web UI. Contributed by Haohui Mai.
     HDFS-8816. Improve visualization for the Datanode tab in the NN UI. Contributed by Haohui Mai.
+
+    HADOOP-13368. DFSOpsCountStatistics$OpType#fromSymbol and s3a.Statistic#fromSymbol should be O(1) operation. Contributed by Mingliang Liu.
