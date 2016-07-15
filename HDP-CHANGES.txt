@@ -2000,3 +2000,7 @@ ATS V1.5:
     HADOOP-12831. LocalFS/FSOutputSummer NPEs in constructor if bytes per checksum set to 0 (Mingliang Liu via gtcarrera9)
     HADOOP-12849. TestSymlinkLocalFSFileSystem fails intermittently. Contributed by Mingliang Liu.
     HADOOP-12668. Support excluding weak Ciphers in HttpServer2 through ssl-server.conf. Contributed by Vijay Singh.
+    HADOOP-12906. AuthenticatedURL should convert a 404/Not Found into an FileNotFoundException. (Steve Loughran via gtcarrera9)
+    HADOOP-12895. SSLFactory#createSSLSocketFactory exception message is wrong. Contributed by Wei-Chiu Chuang.
+    HDFS-9882. Add heartbeatsTotal in Datanode metrics. (Contributed by Hua Liu)
+    HDFS-9521. TransferFsImage.receiveFile should account and log separate times for image download and fsync to disk. Contributed by Wellington Chevreuil
