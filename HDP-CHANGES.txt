@@ -1986,3 +1986,4 @@ HADOOP-12776. Remove getaclstatus call for non-acl commands in getfacl. (Contrib
   HDFS-9713. DataXceiver#copyBlock should return if block is pinned. Contributed by Uma Maheswara Rao G.
   HDFS-9748. Avoid duplication in pendingReplications when addExpectedReplicasToPending is called twice. Contributed by Walter Su.
   HDFS-9739. DatanodeStorage.isValidStorageId() is broken (Contributed by Mingliang Liu)
+  BUG-62306. Ignore o.a.h.security.TestLdapGroupsMapping#testLdapConnectionTimeout
