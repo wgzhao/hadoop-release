@@ -2020,5 +2020,9 @@ ATS V1.5:
     HDFS-10235. Last contact for Live Nodes should be relative time. Contributed by Brahma Reddy Battula.
     HDFS-6407. Add sorting and pagination in the datanode tab of the NN Web UI. Contributed by Haohui Mai.
     HDFS-8816. Improve visualization for the Datanode tab in the NN UI. Contributed by Haohui Mai.
-
     HADOOP-13368. DFSOpsCountStatistics$OpType#fromSymbol and s3a.Statistic#fromSymbol should be O(1) operation. Contributed by Mingliang Liu.
+    HDFS-8131. Implement a space balanced block placement policy. Contributed by Liu Shaohui. (cherry picked from commit de30d66b2673d0344346fb985e786247ca682317)
+    HADOOP-12469. distcp should not ignore the ignoreFailures option. Contributed by Mingliang Liu.
+    HADOOP-13030. Handle special characters in passwords in KMS startup script. Contributed by Xiao Chen.
+    HADOOP-5470. RunJar.unJar() should write the last modified time found in the jar entry to the uncompressed file. (Contributed by Andras Bakor)
+    HDFS-10329. Bad initialisation of StringBuffer in RequestHedgingProxyProvider. Contributed by Lin Yiqun.
