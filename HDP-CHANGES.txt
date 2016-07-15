@@ -2004,3 +2004,9 @@ ATS V1.5:
     HADOOP-12895. SSLFactory#createSSLSocketFactory exception message is wrong. Contributed by Wei-Chiu Chuang.
     HDFS-9882. Add heartbeatsTotal in Datanode metrics. (Contributed by Hua Liu)
     HDFS-9521. TransferFsImage.receiveFile should account and log separate times for image download and fsync to disk. Contributed by Wellington Chevreuil
+    HADOOP-10965. Print fully qualified path in CommandWithDestination error messages. Contributed by John Zhuge.
+    HDFS-10189. PacketResponder#toString should include the downstreams for PacketResponderType.HAS_DOWNSTREAM_IN_PIPELINE (Joe Pallas via cmccabe)
+    HADOOP-12926. lz4.c does not detect 64-bit mode properly. Contributed by Alan Burlison.
+    HDFS-3677. dfs.namenode.edits.dir.required is missing from hdfs-default.xml. Contributed by Mark Yang.
+    HDFS-9949. Add a test case to ensure that the DataNode does not regenerate its UUID when a storage directory is cleared (Harsh J via cmccabe)
+    HADOOP-11404. Clarify the "expected client Kerberos principal is null" authorization message. Contributed by Stephen Chu
