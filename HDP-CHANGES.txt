@@ -1968,4 +1968,7 @@ ATS V1.5:
     HDFS-9619. SimulatedFSDataset sometimes can not find blockpool for the correct namenode (Contributed by Wei-Chiu Chuang)
     HDFS-9605. Add links to failed volumes to explorer.html in HDFS Web UI. Contributed by Archana T.
     HADOOP-12604. Exception may be swallowed in KMSClientProvider. (Yongjun Zhang)
+    HADOOP-12423. Handle failure of registering shutdownhook by ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
+    HDFS-6054. MiniQJMHACluster should not use static port to avoid binding failure in unit test. (Yongjun Zhang)
+    HDFS-9623. Update example configuration of block state change log in log4j.properties. Contributed by Masatake Iwasaki.
     
