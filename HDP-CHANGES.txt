@@ -1976,3 +1976,5 @@ ATS V1.5:
     HDFS-9566. Remove expensive 'BlocksMap#getStorages(Block b, final DatanodeStorage.State state)' method (Contributed by Daryn Sharp)
     HDFS-9706. Log more details in debug logs in BlockReceiver's constructor. (Xiao Chen via Yongjun Zhang)
     HADOOP-12731. Remove useless boxing/unboxing code. Contributed by Kousuke Saruta.
+  HDFS-9715. Check storage ID uniqueness on datanode startup (Contributed by Lei (Eddy) Xu)
+  HDFS-8546. Use try with resources in DataStorage and Storage.
