@@ -1996,3 +1996,7 @@ ATS V1.5:
     HDFS-7452. skip StandbyException log for getCorruptFiles() (Contributed by Bramha Reddy Battula)
     HADOOP-12828. Print user when services are started. (Wei-Chiu Chuang via Yongjun Zhang)
     HDFS-8923. Add -source flag to balancer usage message.  Contributed by Chris Trezzo
+    HADOOP-12622. Improve the loggings in RetryPolicies and RetryInvocationHandler. Contributed by Junping Du
+    HADOOP-12831. LocalFS/FSOutputSummer NPEs in constructor if bytes per checksum set to 0 (Mingliang Liu via gtcarrera9)
+    HADOOP-12849. TestSymlinkLocalFSFileSystem fails intermittently. Contributed by Mingliang Liu.
+    HADOOP-12668. Support excluding weak Ciphers in HttpServer2 through ssl-server.conf. Contributed by Vijay Singh.
