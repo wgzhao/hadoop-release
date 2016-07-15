@@ -1972,3 +1972,7 @@ ATS V1.5:
     HDFS-6054. MiniQJMHACluster should not use static port to avoid binding failure in unit test. (Yongjun Zhang)
     HDFS-9623. Update example configuration of block state change log in log4j.properties. Contributed by Masatake Iwasaki.
     
+    HDFS-9210. Fix some misuse of %n in VolumeScanner#printStats. Contributed by Xiaoyu Yao.
+    HDFS-9566. Remove expensive 'BlocksMap#getStorages(Block b, final DatanodeStorage.State state)' method (Contributed by Daryn Sharp)
+    HDFS-9706. Log more details in debug logs in BlockReceiver's constructor. (Xiao Chen via Yongjun Zhang)
+    HADOOP-12731. Remove useless boxing/unboxing code. Contributed by Kousuke Saruta.
