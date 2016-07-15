@@ -2037,3 +2037,13 @@ ATS V1.5:
 
     BUG-62488. HDFS-6533. TestBPOfferService#testBasicFunctionalitytest fails
     intermittently. (Contributed by Wei-Chiu Chuang)
+    HADOOP-13249. RetryInvocationHandler need wrap InterruptedException in IOException when call Thread.sleep. Contributed by Zhihai Xu.
+    HDFS-10481. HTTPFS server should correctly impersonate as end user to open file. Contributed by Xiao Chen.
+    HDFS-10471. DFSAdmin#SetQuotaCommand's help msg is not correct. Contributed by Yiqun Lin.
+    HDFS-10367. TestDFSShell.testMoveWithTargetPortEmpty fails with Address bind exception. Contributed by Brahma Reddy Battula.
+    HDFS-10217. show 'blockScheduled' tooltip in datanodes table.
+    HDFS-10417. Improve error message from checkBlockLocalPathAccess. Contributed by Tianyin Xu.
+    HDFS-10360. DataNode may format directory and lose blocks if current/VERSION is missing. (Wei-Chiu Chuang via lei)
+    HDFS-10410. RedundantEditLogInputStream.LOG is set to wrong class. (John Zhuge via lei)
+    HADOOP-13146. Refactor RetryInvocationHandler. Contributed by Tsz Wo Nicholas Sze.
+    HADOOP-12751. While using kerberos Hadoop incorrectly assumes names with '@' to be non-simple. (Bolke de Bruin via stevel).
