@@ -1991,3 +1991,4 @@ ATS V1.5:
     HDFS-6832. Fix the usage of 'hdfs namenode' command. Contributed by Manjunath Ballur.
     HDFS-9608. Disk IO imbalance in HDFS with heterogeneous storages. Contributed by Wei Zhou.
     Update HDP-CHANGES.txt
+    BUG-62406. Increase timeout for TestIPC#testSerial

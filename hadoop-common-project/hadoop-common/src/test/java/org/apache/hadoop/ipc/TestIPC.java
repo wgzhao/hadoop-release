@@ -245,7 +245,7 @@ public class TestIPC {
     }
   }
   
-  @Test(timeout=60000)
+  @Test(timeout=120000)
   public void testSerial() throws IOException, InterruptedException {
     internalTestSerial(3, false, 2, 5, 100);
     internalTestSerial(3, true, 2, 5, 10);
