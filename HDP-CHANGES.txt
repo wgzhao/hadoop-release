@@ -1978,3 +1978,11 @@ ATS V1.5:
     HADOOP-12731. Remove useless boxing/unboxing code. Contributed by Kousuke Saruta.
   HDFS-9715. Check storage ID uniqueness on datanode startup (Contributed by Lei (Eddy) Xu)
   HDFS-8546. Use try with resources in DataStorage and Storage.
+HADOOP-12776. Remove getaclstatus call for non-acl commands in getfacl. (Contributed by Brahma Reddy Battula)
+  HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
+  HADOOP-12788. OpensslAesCtrCryptoCodec should log which random number generator is used. Contributed by Wei-Chiu Chuang.
+  HDFS-9760. WebHDFS AuthFilter cannot be configured with custom AltKerberos auth handler (Ryan Sasson via aw)
+  HDFS-9777. Fix typos in DFSAdmin command line and documentation.(Wei-Chiu Chuang via umamahesh)
+  HDFS-9713. DataXceiver#copyBlock should return if block is pinned. Contributed by Uma Maheswara Rao G.
+  HDFS-9748. Avoid duplication in pendingReplications when addExpectedReplicasToPending is called twice. Contributed by Walter Su.
+  HDFS-9739. DatanodeStorage.isValidStorageId() is broken (Contributed by Mingliang Liu)
