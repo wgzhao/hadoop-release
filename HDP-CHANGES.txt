@@ -1992,3 +1992,7 @@ ATS V1.5:
     HDFS-9608. Disk IO imbalance in HDFS with heterogeneous storages. Contributed by Wei Zhou.
     Update HDP-CHANGES.txt
     BUG-62406. Increase timeout for TestIPC#testSerial
+    HDFS-9842. dfs.datanode.balance.bandwidthPerSec should accept friendly size units. (Contributed by Lin Yiqun)
+    HDFS-7452. skip StandbyException log for getCorruptFiles() (Contributed by Bramha Reddy Battula)
+    HADOOP-12828. Print user when services are started. (Wei-Chiu Chuang via Yongjun Zhang)
+    HDFS-8923. Add -source flag to balancer usage message.  Contributed by Chris Trezzo
