@@ -438,6 +438,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-62442. HADOOP-13351. TestDFSClientSocketSize buffer size tests are flaky
+    (Aaron Fabbri)
+
     BUG-60497. HDFS-10437. ReconfigurationProtocol not covered by HDFSPolicyProvider.
     (Arpit Agarwal)
 
