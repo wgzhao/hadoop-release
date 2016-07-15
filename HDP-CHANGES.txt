@@ -1949,3 +1949,23 @@ ATS V1.5:
     BUG-57761. HDFS-10396. Using -diff option with DistCp may get "Comparison
     method violates its general contract" exception. Contributed by Yongjun Zhang.
     HDFS-10623. Remove unused import of httpclient.HttpConnection from TestWebHdfsTokens. (Contributed by Hanisha Koneru)
+
+    HDFS-9624. DataNode start slowly due to the initial DU command operations. (Lin Yiqun via wang)
+    HDFS-8887. Expose storage type and storage ID in BlockLocation. (Andrew Wang)
+    HADOOP-12700. Remove unused import in TestCompressorDecompressor.java. Contributed by John Zhuge.
+    HDFS-9517. Fix missing @Test annotation on TestDistCpUtils.testUnpackAttributes (Wei-Chiu Chuang via cmccabe)
+    HADOOP-12603. TestSymlinkLocalFSFileContext#testSetTimesSymlinkToDir occasionally fail. Contributed by Wei-Chiu Chuang.
+    HADOOP-12653. Use SO_REUSEADDR to avoid getting "Address already in use" when using kerberos and attempting to bind to any port on the local IP address (cmccabe)
+    HDFS-9630. DistCp minor refactoring and clean up. Contributed by Kai Zheng.
+    HADOOP-12159. Move DistCpUtils#compareFs() to org.apache.hadoop.fs.FileUtil and fix for HA namespaces (rchiang via rkanter)
+    HDFS-9584. NPE in distcp when ssl configuration file does not exist in class path. Contributed by Surendra Singh Lilhore.
+    HADOOP-12590. TestCompressorDecompressor failing without stack traces  (John Zhuge via stevel)
+    HDFS-9493. Test o.a.h.hdfs.server.namenode.TestMetaSave fails in trunk.  (Tony Wu via lei)
+    HDFS-9626. TestBlockReplacement#testBlockReplacement fails occasionally. Contributed by Xiao Chen.
+    HADOOP-12573. TestRPC.testClientBackOff failing. (Xiao Chen via stevel)
+    HADOOP-12663. Remove Hard-Coded Values From FileSystem.java. (BELUGA BEHR via stevel)
+    HADOOP-12675. Fix description about retention period in usage of expunge  command. (Masatake Iwasaki via stevel)
+    HDFS-9619. SimulatedFSDataset sometimes can not find blockpool for the correct namenode (Contributed by Wei-Chiu Chuang)
+    HDFS-9605. Add links to failed volumes to explorer.html in HDFS Web UI. Contributed by Archana T.
+    HADOOP-12604. Exception may be swallowed in KMSClientProvider. (Yongjun Zhang)
+    
