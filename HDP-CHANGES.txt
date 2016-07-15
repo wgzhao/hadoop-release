@@ -2010,3 +2010,7 @@ ATS V1.5:
     HDFS-3677. dfs.namenode.edits.dir.required is missing from hdfs-default.xml. Contributed by Mark Yang.
     HDFS-9949. Add a test case to ensure that the DataNode does not regenerate its UUID when a storage directory is cleared (Harsh J via cmccabe)
     HADOOP-11404. Clarify the "expected client Kerberos principal is null" authorization message. Contributed by Stephen Chu
+    HADOOP-12950. ShutdownHookManager should have a timeout for each of the Registered shutdown hook. Contributed by Xiaoyu Yao.
+    HDFS-8896. DataNode object isn't GCed when shutdown, because it has GC root in ShutdownHookManager. Contributed by Walter Su.
+    HADOOP-12886. Exclude weak ciphers in SSLFactory through ssl-server.xml. Contributed by Wei-Chiu Chuang.
+    HDFS-9871. "Bytes Being Moved" -ve(-1 B) when cluster was already balanced. (Contributed by Brahma Reddy Battulla)
