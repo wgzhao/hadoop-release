@@ -2059,3 +2059,11 @@ ATS V1.5:
     HDFS-10525. Fix NPE in CacheReplicationMonitor#rescanCachedBlockMap (Xiao Chen via cmccabe)
     HADOOP-13244. o.a.h.ipc.Server#Server should honor handlerCount when queueSizePerHandler is specified in consturctor. Contributed by Kai Sasaki.
     HADOOP-13179. GenericOptionsParser is not thread-safe because commons-cli OptionBuilder is not thread-safe. (Contributed by hongbin ma)
+    HADOOP-13320. Fix arguments check in documentation for WordCount v2.0. Contributed by niccolo becchi.
+    HDFS-10589. Javadoc for HAState#HAState and HAState#setStateInternal contains non-existent params. Contributed by shenyinjie.
+    HADOOP-12345. Pad hostname correctly in CredentialsSys.java. Contributed by Pradeep Nayak Udupi Kadbet.
+    HADOOP-13316. Enforce Kerberos authentication for required ops in DelegationTokenAuthenticator. Contributed by Xiao Chen.
+    HDFS-7597. DelegationTokenIdentifier should cache the TokenIdentifier to UGI mapping. Contributed by Daryn Sharp, Bob Hansen, and Xiao Chen.
+    HDFS-10448. CacheManager#addInternal tracks bytesNeeded incorrectly when dealing with replication factors other than 1 (Yiqun Lin via cmccabe)
+    HDFS-10493. Add links to datanode web UI in namenode datanodes page. Contributed by Weiwei Yang.
+    HADOOP-12943. Add -w -r options in dfs -test command. Contributed by Weiwei Yang.
