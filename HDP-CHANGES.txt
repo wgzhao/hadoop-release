@@ -2053,3 +2053,9 @@ ATS V1.5:
     HADOOP-10971. Add -C flag to make `hadoop fs -ls` print filenames only. Contributed by Kengo Seki.
     HADOOP-8934. Shell command ls should include sort options (Jonathan Allen via aw)
     HADOOP-13213. Small Documentation bug with AuthenticatedURL in hadoop-auth. Contributed by Tom Ellis.
+    HADOOP-12975. Add jitter to CachingGetSpaceUsed's thread (Elliott Clark via Colin P. McCabe)
+    HADOOP-13072. WindowsGetSpaceUsed constructor should be public (Vinayakumar B via cmccabe)
+    HADOOP-12973. Make DU pluggable. (Elliott Clark via cmccabe)
+    HDFS-10525. Fix NPE in CacheReplicationMonitor#rescanCachedBlockMap (Xiao Chen via cmccabe)
+    HADOOP-13244. o.a.h.ipc.Server#Server should honor handlerCount when queueSizePerHandler is specified in consturctor. Contributed by Kai Sasaki.
+    HADOOP-13179. GenericOptionsParser is not thread-safe because commons-cli OptionBuilder is not thread-safe. (Contributed by hongbin ma)
