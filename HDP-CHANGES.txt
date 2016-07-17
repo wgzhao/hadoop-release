@@ -2067,3 +2067,7 @@ ATS V1.5:
     HDFS-10448. CacheManager#addInternal tracks bytesNeeded incorrectly when dealing with replication factors other than 1 (Yiqun Lin via cmccabe)
     HDFS-10493. Add links to datanode web UI in namenode datanodes page. Contributed by Weiwei Yang.
     HADOOP-12943. Add -w -r options in dfs -test command. Contributed by Weiwei Yang.
+    HDFS-10617. PendingReconstructionBlocks.size() should be synchronized. Contributed by Eric Badger.
+    HADOOP-13290. Appropriate use of generics in FairCallQueue. Contributed by Jonathan Hung.
+    HADOOP-11361. Fix a race condition in MetricsSourceAdapter.updateJmxCache. Contributed by Vinayakumar B, Yongjun Zhang, and Brahma Reddy Battula. (ozawa)
+    HADOOP-13315. FileContext#umask is not initialized properly. (John Zhuge via lei)
