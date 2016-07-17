@@ -2047,3 +2047,9 @@ ATS V1.5:
     HDFS-10410. RedundantEditLogInputStream.LOG is set to wrong class. (John Zhuge via lei)
     HADOOP-13146. Refactor RetryInvocationHandler. Contributed by Tsz Wo Nicholas Sze.
     HADOOP-12751. While using kerberos Hadoop incorrectly assumes names with '@' to be non-simple. (Bolke de Bruin via stevel).
+    HADOOP-13079. Add -q option to Ls to print ? instead of non-printable characters. Contributed by John Zhuge.
+    HADOOP-12043. Display warning if defaultFs is not set when running fs commands. Contributed by Eddy Xu.
+    HADOOP-11581. Multithreaded correctness Warnings #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
+    HADOOP-10971. Add -C flag to make `hadoop fs -ls` print filenames only. Contributed by Kengo Seki.
+    HADOOP-8934. Shell command ls should include sort options (Jonathan Allen via aw)
+    HADOOP-13213. Small Documentation bug with AuthenticatedURL in hadoop-auth. Contributed by Tom Ellis.
