@@ -2029,3 +2029,4 @@ ATS V1.5:
     HADOOP-13030. Handle special characters in passwords in KMS startup script. Contributed by Xiao Chen.
     HADOOP-5470. RunJar.unJar() should write the last modified time found in the jar entry to the uncompressed file. (Contributed by Andras Bakor)
     HDFS-10329. Bad initialisation of StringBuffer in RequestHedgingProxyProvider. Contributed by Lin Yiqun.
+    BUG-61987. Disable flaky UT TestDataNodeHotSwapVolumes#testRemoveVolumeBeingWritten

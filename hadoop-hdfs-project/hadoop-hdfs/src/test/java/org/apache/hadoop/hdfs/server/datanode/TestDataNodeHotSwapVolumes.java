@@ -47,6 +47,7 @@ import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.StorageBlockReport;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -597,6 +598,7 @@ public class TestDataNodeHotSwapVolumes {
   }
 
   @Test(timeout=180000)
+  @Ignore
   public void testRemoveVolumeBeingWritten()
       throws InterruptedException, TimeoutException, ReconfigurationException,
       IOException, BrokenBarrierException {
