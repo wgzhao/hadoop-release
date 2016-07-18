@@ -438,6 +438,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-62542. HADOOP-13351. TestDFSClientSocketSize buffer size tests are flaky
+    (Aaron Fabbri)
+
     YARN-4623. TestSystemMetricsPublisher#testPublishAppAttemptMetricsForUnmanagedAM
     fails with NPE on branch-2.7. (Naganarasimha G R via junping_du)
 
