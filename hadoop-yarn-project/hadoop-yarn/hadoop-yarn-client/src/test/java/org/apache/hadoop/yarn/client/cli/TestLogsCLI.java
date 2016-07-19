@@ -327,26 +327,26 @@ public class TestLogsCLI {
     int exitCode = cli.run(new String[] { "-applicationId", appId.toString() });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-      "Hello container_0_0001_01_000001 in syslog!"));
+        logMessage(containerId1, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-      "Hello container_0_0001_01_000002 in syslog!"));
+        logMessage(containerId2, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-      "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-      "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     sysOutStream.reset();
 
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
         "-log_files", ".*"});
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000001 in syslog!"));
+        logMessage(containerId1, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000002 in syslog!"));
+        logMessage(containerId2, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     int fullSize = sysOutStream.toByteArray().length;
     sysOutStream.reset();
 
@@ -354,13 +354,13 @@ public class TestLogsCLI {
         "-log_files", "std*"});
     assertTrue(exitCode == 0);
     assertFalse(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000001 in syslog!"));
+        logMessage(containerId1, "syslog")));
     assertFalse(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000002 in syslog!"));
+        logMessage(containerId2, "syslog")));
     assertFalse(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     sysOutStream.reset();
 
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
@@ -388,7 +388,7 @@ public class TestLogsCLI {
             containerId1.toString() });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000001 in syslog!"));
+        logMessage(containerId1, "syslog")));
     assertTrue(sysOutStream.toString().contains("Log Upload Time"));
     assertTrue(!sysOutStream.toString().contains(
       "Logs for container " + containerId1.toString()
@@ -411,9 +411,9 @@ public class TestLogsCLI {
     String fullContext = sysOutStream.toString();
     sysOutStream.reset();
 
-    String logMessage = "Hello container_0_0001_01_000003 in stdout!";
+    String logMessage = logMessage(containerId3, "stdout");
     int fileContentSize = logMessage.getBytes().length;
-    int tailContentSize = "\nEnd of LogType:syslog\n\n".getBytes().length;
+    int tailContentSize = "\nEnd of LogType:stdout\n\n".getBytes().length;
 
     // specify how many bytes we should get from logs
     // specify a position number, it would get the first n bytes from
@@ -468,9 +468,9 @@ public class TestLogsCLI {
             containerId3.toString() });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     sysOutStream.reset();
 
     // set -log_files option as stdout
@@ -481,9 +481,9 @@ public class TestLogsCLI {
             containerId3.toString() , "-log_files", "stdout"});
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     assertTrue(!sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     sysOutStream.reset();
 
     YarnClient mockYarnClientWithException =
@@ -496,9 +496,9 @@ public class TestLogsCLI {
             "-containerId", containerId3.toString() });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     assertTrue(sysOutStream.toString().contains(
         containerId3 + " on " + LogAggregationUtils.getNodeString(nodeId)));
     sysOutStream.reset();
@@ -508,9 +508,9 @@ public class TestLogsCLI {
         cli.run(new String[] { "-containerId", containerId3.toString() });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in syslog!"));
+        logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
-        "Hello container_0_0001_01_000003 in stdout!"));
+        logMessage(containerId3, "stdout")));
     assertTrue(sysOutStream.toString().contains(
         containerId3 + " on " + LogAggregationUtils.getNodeString(nodeId)));
     sysOutStream.reset();
@@ -660,7 +660,7 @@ public class TestLogsCLI {
           "-appOwner", testUser});
       assertTrue(exitCode == 0);
       assertTrue(sysOutStream.toString().contains(
-          "Hello " + containerId + " in syslog!"));
+          logMessage(containerId, "syslog")));
       sysOutStream.reset();
 
       // Verify that we can not get the application logs
@@ -682,8 +682,8 @@ public class TestLogsCLI {
       exitCode = cli.run(new String[] {
           "-applicationId", appId.toString()});
       assertTrue(exitCode == 0);
-      assertTrue(sysOutStream.toString().contains("Hello "
-          + containerId + " in syslog!"));
+      assertTrue(sysOutStream.toString().contains(
+          logMessage(containerId, "syslog")));
       sysOutStream.reset();
 
       // Verify that we could get the err message "Can not find the appOwner"
@@ -845,16 +845,14 @@ public class TestLogsCLI {
       assertTrue(container1Dir[0].getPath().getName().equals(
           containerId1.toString()));
       String container1= readContainerContent(container1Dir[0].getPath(), fs);
-      assertTrue(container1.contains("Hello " + containerId1
-          + " in syslog!"));
+      assertTrue(container1.contains(logMessage(containerId1, "syslog")));
 
       FileStatus[] container2Dir = fs.listStatus(nodeDir[1].getPath());
       assertTrue(container2Dir.length == 1);
       assertTrue(container2Dir[0].getPath().getName().equals(
           containerId2.toString()));
       String container2= readContainerContent(container2Dir[0].getPath(), fs);
-      assertTrue(container2.contains("Hello " + containerId2
-          + " in syslog!"));
+      assertTrue(container2.contains(logMessage(containerId2, "syslog")));
     } finally {
       fs.delete(new Path(remoteLogRootDir), true);
       fs.delete(new Path(rootLogDir), true);
@@ -1088,9 +1086,15 @@ public class TestLogsCLI {
     for (String logType : logTypes) {
       Writer writer =
           new FileWriter(new File(containerLogsDir.toString(), logType));
-      writer.write("Hello " + containerId + " in " + logType + "!");
+      writer.write(logMessage(containerId, logType));
       writer.close();
     }
+  }
+
+  private static String logMessage(ContainerId containerId, String logType) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Hello " + containerId + " in " + logType + "!");
+    return sb.toString();
   }
 
   private static void uploadContainerLogIntoRemoteDir(UserGroupInformation ugi,
