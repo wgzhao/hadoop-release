@@ -2071,3 +2071,5 @@ ATS V1.5:
     HADOOP-13290. Appropriate use of generics in FairCallQueue. Contributed by Jonathan Hung.
     HADOOP-11361. Fix a race condition in MetricsSourceAdapter.updateJmxCache. Contributed by Vinayakumar B, Yongjun Zhang, and Brahma Reddy Battula. (ozawa)
     HADOOP-13315. FileContext#umask is not initialized properly. (John Zhuge via lei)
+
+    HDFS-10643. HDFS namenode should always use service user (hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
