@@ -2073,3 +2073,5 @@ ATS V1.5:
     HADOOP-13315. FileContext#umask is not initialized properly. (John Zhuge via lei)
 
     HDFS-10643. HDFS namenode should always use service user (hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
+
+    BUG-62768. TestJobListCache.testAddExisting failed as timeout. (Junping Du)

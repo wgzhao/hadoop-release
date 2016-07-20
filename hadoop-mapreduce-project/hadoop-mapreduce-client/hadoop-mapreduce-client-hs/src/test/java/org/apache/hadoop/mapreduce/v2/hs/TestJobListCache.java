@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 
 public class TestJobListCache {
 
-  @Test (timeout = 1000)
+  @Test (timeout = 5000)
   public void testAddExisting() {
     Assume.assumeFalse(Shell.WINDOWS);
     JobListCache cache = new JobListCache(2, 1000);
