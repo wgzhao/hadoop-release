@@ -122,7 +122,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -1757,7 +1756,6 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
 
   @SuppressWarnings("resource")
   @Test (timeout = 60000)
-  @Ignore
   public void testQueueMetricsOnRMRestart() throws Exception {
     if(getSchedulerType().equals(SchedulerType.FAIR)) {
       Assume.assumeFalse(Shell.WINDOWS);
@@ -2196,7 +2194,6 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
   }
 
   @Test(timeout = 120000)
-  @Ignore
   public void testRMRestartAfterPreemption() throws Exception {
     Configuration conf = new Configuration();
     conf.setInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, 2);

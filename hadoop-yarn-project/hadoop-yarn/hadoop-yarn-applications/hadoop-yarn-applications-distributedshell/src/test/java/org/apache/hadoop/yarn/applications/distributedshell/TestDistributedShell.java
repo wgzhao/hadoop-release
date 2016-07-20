@@ -66,12 +66,10 @@ import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sun.jersey.api.client.ClientHandlerException;
 
-@Ignore
 public class TestDistributedShell {
 
   private static final Log LOG =

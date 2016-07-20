@@ -53,7 +53,6 @@ import org.apache.hadoop.hdfs.tools.DFSAdmin;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -301,7 +300,6 @@ public class TestRollingUpgrade {
   }
 
   @Test
-  @Ignore
   public void testRollback() throws Exception {
     // start a cluster
     final Configuration conf = new HdfsConfiguration();

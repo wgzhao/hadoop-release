@@ -27,8 +27,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.HadoopTestCase;
 import org.apache.hadoop.util.ToolRunner;
-import org.junit.Ignore;
-
 public class TestTeraSort extends HadoopTestCase {
   private static Log LOG = LogFactory.getLog(TestTeraSort.class);
   
@@ -78,7 +76,6 @@ public class TestTeraSort extends HadoopTestCase {
     assertEquals(ToolRunner.run(job, new TeraValidate(), svArgs), 0);
   }
 
-  @Ignore
   public void testTeraSort() throws Exception {
     // Run TeraGen to generate input for 'terasort'
     runTeraGen(createJobConf(), SORT_INPUT_PATH);

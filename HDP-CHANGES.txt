@@ -1396,3 +1396,4 @@ ATS V1.5:
     BUG-57761. HDFS-10396. Using -diff option with DistCp may get "Comparison
     method violates its general contract" exception. Contributed by Yongjun Zhang.
 
+    BUG-56491. Enable intermittent unit tests for further investigation

@@ -30,7 +30,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -80,7 +79,6 @@ public class TestDistributedShellWithNodeLabels {
   }
   
   @Test(timeout=90000)
-  @Ignore
   public void testDSShellWithNodeLabelExpression() throws Exception {
     initializeNodeLabels();
     

@@ -80,7 +80,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestNMLeveldbStateStoreService {
@@ -647,7 +646,6 @@ public class TestNMLeveldbStateStoreService {
   }
 
   @Test
-  @Ignore
   public void testDeletionTaskStorage() throws IOException {
     // test empty when no state
     RecoveredDeletionServiceState state =
