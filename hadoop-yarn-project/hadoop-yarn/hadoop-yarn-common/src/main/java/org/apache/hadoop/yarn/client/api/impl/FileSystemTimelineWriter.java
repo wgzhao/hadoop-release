@@ -272,6 +272,9 @@ public class FileSystemTimelineWriter extends TimelineWriter{
       logFDsCache.close();
       logFDsCache = null;
     }
+    if (fs != null) {
+      fs.close();
+    }
   }
 
   @Override
