@@ -67,12 +67,9 @@ public class TestMiniDFSCluster {
     File testDataCluster1 = new File(testDataPath, CLUSTER_1);
     String c1Path = testDataCluster1.getAbsolutePath();
     conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, c1Path);
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).build();
-    try {
+    try (MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).build()){
       assertEquals(new File(c1Path + "/data"),
           new File(cluster.getDataDirectory()));
-    } finally {
-      cluster.shutdown();
     }
   }
 
@@ -133,27 +130,23 @@ public class TestMiniDFSCluster {
     File testDataCluster5 = new File(testDataPath, CLUSTER_5);
     String c5Path = testDataCluster5.getAbsolutePath();
     conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, c5Path);
-    MiniDFSCluster cluster5 = new MiniDFSCluster.Builder(conf)
-      .numDataNodes(1)
-      .checkDataNodeHostConfig(true)
-      .build();
-    try {
+    try (MiniDFSCluster cluster5 = new MiniDFSCluster.Builder(conf)
+        .numDataNodes(1)
+        .checkDataNodeHostConfig(true)
+        .build()) {
       assertEquals("DataNode hostname config not respected", "MYHOST",
           cluster5.getDataNodes().get(0).getDatanodeId().getHostName());
-    } finally {
-      MiniDFSCluster.shutdownCluster(cluster5);
     }
   }
 
   @Test
   public void testSetUpFederatedCluster() throws Exception {
     Configuration conf = new Configuration();
-    MiniDFSCluster  cluster =
-            new MiniDFSCluster.Builder(conf).nnTopology(
-                    MiniDFSNNTopology.simpleHAFederatedTopology(2))
-                .numDataNodes(2)
-                .build();
-    try {
+
+    try (MiniDFSCluster cluster =
+        new MiniDFSCluster.Builder(conf)
+            .nnTopology(MiniDFSNNTopology.simpleHAFederatedTopology(2))
+            .numDataNodes(2).build()) {
       cluster.waitActive();
       cluster.transitionToActive(1);
       cluster.transitionToActive(3);
@@ -185,8 +178,6 @@ public class TestMiniDFSCluster {
             DFSUtil.addKeySuffixes(
             DFS_NAMENODE_HTTP_ADDRESS_KEY, "ns1", "nn1")));
       }
-    } finally {
-      MiniDFSCluster.shutdownCluster(cluster);
     }
   }
 

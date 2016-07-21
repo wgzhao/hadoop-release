@@ -480,6 +480,7 @@ ATS V1.5:
     BUG-70331. HADOOP-13863. Azure: Add a new SAS key mode for WASB. Contributed by Dushyanth
 
     BUG-68464. HADOOP-13686. Adding additional unit test for Trash (I). Contributed by Weiwei Yang.
+    BUG-68464. HDFS-10287. MiniDFSCluster should implement AutoCloseable. Contributed by Andras Bokor.
 
   OPTIMIZATIONS
 
