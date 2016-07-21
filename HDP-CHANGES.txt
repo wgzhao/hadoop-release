@@ -1399,3 +1399,5 @@ ATS V1.5:
 
     BUG-60447. HADOOP-13255. KMSClientProvider should check and renew tgt when
     doing delegation token operations. Contributed by Xiao Chen.
+
+    MAPREDUCE-6543. Migrate MR Client test cases part 2
