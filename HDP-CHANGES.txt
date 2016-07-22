@@ -1413,3 +1413,6 @@ ATS V1.5:
 
     HADOOP-12568. Update core-default.xml to describe posixGroups support.
     Contributed by Wei-Chiu Chuang.
+
+    HADOOP-12793. Write a new group mapping service guide
+    (Wei-Chiu Chuang via iwasakims)
