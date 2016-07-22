@@ -1407,3 +1407,6 @@ ATS V1.5:
 
     BUG-60724. HDFS-9530. ReservedSpace is not cleared for abandoned Blocks
     (Contributed by Brahma Reddy Battula)
+
+    HADOOP-9477. Add posixGroups support for LDAP groups mapping service.
+    (Dapeng Sun via Yongjun Zhang)

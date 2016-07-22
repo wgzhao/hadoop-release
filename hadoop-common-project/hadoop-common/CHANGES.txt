@@ -209,6 +209,9 @@ Release 2.7.2 - UNRELEASED
 
   NEW FEATURES
 
+    HADOOP-9477. Add posixGroups support for LDAP groups mapping service.
+    (Dapeng Sun via Yongjun Zhang)
+
   IMPROVEMENTS
 
   OPTIMIZATIONS
