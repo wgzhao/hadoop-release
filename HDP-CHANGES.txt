@@ -1404,3 +1404,6 @@ ATS V1.5:
 
     HADOOP-12291. Add support for nested groups in LdapGroupsMapping.
     Contributed by Esther Kundin.
+
+    HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust. (Steve
+    Loughran via jing9)
