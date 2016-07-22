@@ -1431,3 +1431,5 @@ ATS V1.5:
 
     HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust. (Steve
     Loughran via jing9)
+
+    BUG-62306. Ignore o.a.h.security.TestLdapGroupsMapping#testLdapConnectionTimeout

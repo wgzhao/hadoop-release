@@ -55,6 +55,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -263,6 +264,7 @@ public class TestLdapGroupsMapping extends TestLdapGroupsMappingBase {
    * @throws InterruptedException
    */
   @Test (timeout = 30000)
+  @Ignore
   public void testLdapConnectionTimeout()
       throws IOException, InterruptedException {
     final int connectionTimeoutMs = 3 * 1000; // 3s
