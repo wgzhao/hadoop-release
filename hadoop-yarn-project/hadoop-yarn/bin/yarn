@@ -267,7 +267,8 @@ elif [ "$COMMAND" = "historyserver" ] ; then
 elif [ "$COMMAND" = "timelineserver" ] ; then
   CLASSPATH=${CLASSPATH}:$YARN_CONF_DIR/timelineserver-config/log4j.properties
   CLASS='org.apache.hadoop.yarn.server.applicationhistoryservice.ApplicationHistoryServer'
-  YARN_OPTS="$YARN_OPTS $YARN_TIMELINESERVER_OPTS"
+  YARN_TIMELINESERVER_OPTS="$YARN_TIMELINESERVER_OPTS -Djava.util.logging.config.file=ats.logging.properties"
+  YARN_OPTS="$YARN_OPTS $YARN_TIMELINESERVER_OPTS "
   if [ "$YARN_TIMELINESERVER_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$YARN_TIMELINESERVER_HEAPSIZE""m"
   fi
