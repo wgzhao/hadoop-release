@@ -1401,3 +1401,6 @@ ATS V1.5:
 
     HADOOP-13105. Support timeouts in LDAP queries in LdapGroupsMapping.
     Contributed by Mingliang Liu.
+
+    HADOOP-12291. Add support for nested groups in LdapGroupsMapping.
+    Contributed by Esther Kundin.
