@@ -1383,3 +1383,6 @@ ATS V1.5:
 
     BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
     Tibor Kiss.
+
+    HADOOP-9477. Add posixGroups support for LDAP groups mapping service.
+    (Dapeng Sun via Yongjun Zhang)
