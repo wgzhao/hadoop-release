@@ -1410,3 +1410,6 @@ ATS V1.5:
 
     HADOOP-9477. Add posixGroups support for LDAP groups mapping service.
     (Dapeng Sun via Yongjun Zhang)
+
+    HADOOP-12568. Update core-default.xml to describe posixGroups support.
+    Contributed by Wei-Chiu Chuang.
