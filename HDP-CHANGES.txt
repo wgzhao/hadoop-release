@@ -1422,3 +1422,6 @@ ATS V1.5:
 
     HADOOP-12782. Faster LDAP group name resolution with ActiveDirectory.
     Contributed by Wei-Chiu Chuang
+
+    HADOOP-13105. Support timeouts in LDAP queries in LdapGroupsMapping.
+    Contributed by Mingliang Liu.
