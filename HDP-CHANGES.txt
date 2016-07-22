@@ -1392,3 +1392,6 @@ ATS V1.5:
 
     HADOOP-12793. Write a new group mapping service guide
     (Wei-Chiu Chuang via iwasakims)
+
+    HADOOP-12001. Fixed LdapGroupsMapping to include configurable Posix UID and
+    GID attributes during the search. Contributed by Patrick White.
