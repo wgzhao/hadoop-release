@@ -19,17 +19,23 @@
 
 package org.apache.hadoop.hdfs.web;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.adl.TestableAdlFileSystem;
-import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.web.oauth2.ConfCredentialBasedAccessTokenProvider;
-import org.apache.hadoop.hdfs.web.oauth2.CredentialBasedAccessTokenProvider;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.adl.TestableAdlFileSystem;
+import org.apache.hadoop.hdfs.web.oauth2.AccessTokenProvider;
+import org.apache.hadoop.hdfs.web.oauth2.ConfCredentialBasedAccessTokenProvider;
+
+import static org.apache.hadoop.hdfs.DFSConfigKeys.ACCESS_TOKEN_PROVIDER_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_WEBHDFS_OAUTH_ENABLED_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.OAUTH_CLIENT_ID_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.OAUTH_REFRESH_URL_KEY;
+import static org.apache.hadoop.hdfs.web.oauth2.CredentialBasedAccessTokenProvider.OAUTH_CREDENTIAL_KEY;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * This class is responsible for testing adl file system required configuration
@@ -41,14 +47,13 @@ public class TestConfigurationSetting {
   public void testAllConfiguration() throws URISyntaxException, IOException {
     TestableAdlFileSystem fs = new TestableAdlFileSystem();
     Configuration conf = new Configuration();
-    conf.set(DFSConfigKeys.OAUTH_REFRESH_URL_KEY,
-        "http://localhost:1111/refresh");
-    conf.set(CredentialBasedAccessTokenProvider.OAUTH_CREDENTIAL_KEY,
-        "credential");
-    conf.set(DFSConfigKeys.OAUTH_CLIENT_ID_KEY, "MY_CLIENTID");
-    conf.set(DFSConfigKeys.ACCESS_TOKEN_PROVIDER_KEY,
-        ConfCredentialBasedAccessTokenProvider.class.getName());
-    conf.set(DFSConfigKeys.DFS_WEBHDFS_OAUTH_ENABLED_KEY, "true");
+    conf.set(OAUTH_REFRESH_URL_KEY, "http://localhost:1111/refresh");
+    conf.set(OAUTH_CREDENTIAL_KEY, "credential");
+    conf.set(OAUTH_CLIENT_ID_KEY, "MY_CLIENTID");
+    conf.setClass(ACCESS_TOKEN_PROVIDER_KEY,
+        ConfCredentialBasedAccessTokenProvider.class,
+        AccessTokenProvider.class);
+    conf.setBoolean(DFS_WEBHDFS_OAUTH_ENABLED_KEY, true);
 
     URI uri = new URI("adl://localhost:1234");
     fs.initialize(uri, conf);
@@ -109,4 +114,26 @@ public class TestConfigurationSetting {
     Assert.assertEquals(false, fs.isOverrideOwnerFeatureOn());
     fs.close();
   }
+
+  @Test
+  public void testOAuthEnable() throws Exception {
+    try (TestableAdlFileSystem fs = new TestableAdlFileSystem()) {
+      Configuration conf = new Configuration();
+      conf.set(OAUTH_REFRESH_URL_KEY, "http://localhost:1111/refresh");
+      conf.set(OAUTH_CREDENTIAL_KEY, "credential");
+      conf.set(OAUTH_CLIENT_ID_KEY, "MY_CLIENTID");
+      conf.setClass(ACCESS_TOKEN_PROVIDER_KEY,
+          ConfCredentialBasedAccessTokenProvider.class,
+          AccessTokenProvider.class);
+      // disable OAuth2 in configuration, verify overridden
+      conf.setBoolean(DFS_WEBHDFS_OAUTH_ENABLED_KEY, false);
+
+      URI uri = new URI("adl://localhost:1234");
+      fs.initialize(uri, conf);
+      Assert.assertFalse(conf.getBoolean(DFS_WEBHDFS_OAUTH_ENABLED_KEY, false));
+      Assert.assertTrue(fs.getConf().getBoolean(DFS_WEBHDFS_OAUTH_ENABLED_KEY,
+            false));
+    }
+  }
+
 }

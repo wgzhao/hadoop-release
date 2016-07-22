@@ -119,6 +119,10 @@ by CHANGES.txt.
     BUG-70505. HADOOP-13393. Omit unsupported fs.defaultFS setting in ADLS
     documentation
 
+    BUG-70505. HADOOP-13392. [Azure Data Lake] OAuth2 configuration should be
+    default set to true when AdlFileSystem is configured. Contributed by
+    Vishwajeet Dusane and Chris Douglas.
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
