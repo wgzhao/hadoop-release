@@ -2075,3 +2075,8 @@ ATS V1.5:
     HDFS-10643. HDFS namenode should always use service user (hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
 
     BUG-62768. TestJobListCache.testAddExisting failed as timeout. (Junping Du)
+
+    HDFS-10660. Expose storage policy apis via HDFSAdmin interface. (Contributed by Rakesh R)
+    HDFS-8345. Storage policy APIs must be exposed via the FileSystem interface. (Arpit Agarwal)
+    HADOOP-11713. ViewFileSystem should support snapshot methods. Contributed by Rakesh R.
+    HDFS-5640. Add snapshot methods to FileContext. Contributed by Rakesh R.
