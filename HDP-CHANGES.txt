@@ -2080,3 +2080,4 @@ ATS V1.5:
     HDFS-8345. Storage policy APIs must be exposed via the FileSystem interface. (Arpit Agarwal)
     HADOOP-11713. ViewFileSystem should support snapshot methods. Contributed by Rakesh R.
     HDFS-5640. Add snapshot methods to FileContext. Contributed by Rakesh R.
+    BUG-62219. Fix HDP hadoop branches to not reference jetty-6.1.26.hwx.

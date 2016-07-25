@@ -114,6 +114,7 @@
     <native-maven-plugin.version>1.0-alpha-8</native-maven-plugin.version>
     <surefire.fork.timeout>900</surefire.fork.timeout>
     <aws-java-sdk.version>1.10.6</aws-java-sdk.version>
+    <jetty.version>6.1.26</jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -462,7 +463,7 @@
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty</artifactId>
-        <version>6.1.26.hwx</version>
+        <version>${jetty.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.mortbay.jetty</groupId>
@@ -473,7 +474,7 @@
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-util</artifactId>
-        <version>6.1.26.hwx</version>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
@@ -592,7 +593,7 @@
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-servlet-tester</artifactId>
-        <version>6.1.26.hwx</version>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
