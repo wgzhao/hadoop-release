@@ -3279,3 +3279,6 @@ ATS V1.5:
     performance awful. Contributed by Steve Loughran
 
     HADOOP-13336 S3A to support per-bucket configuration. Contributed by Steve Loughran.
+
+    HADOOP-13406 S3AFileSystem: Consider reusing filestatus in delete() and mkdirs().
+    Contributed by Rajesh Balamohan
