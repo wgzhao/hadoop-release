@@ -117,11 +117,6 @@
       <artifactId>httpclient</artifactId>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
 
     <!-- Used for loading test resources and converting a File to byte[] -->
     <dependency>
