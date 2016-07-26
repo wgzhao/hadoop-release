@@ -2087,3 +2087,6 @@ ATS V1.5:
 
     HADOOP-13422. ZKDelegationTokenSecretManager JaasConfig does not work well
     with other ZK users in process. Contributed by Sergey Shelukhin.
+
+    BUG-63212. HDFS-10642. TestLazyPersistReplicaRecovery#testDnRestartWithSavedReplicas
+    fails intermittently. (Contributed by Mingliang Liu)
