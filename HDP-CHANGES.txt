@@ -1433,3 +1433,6 @@ ATS V1.5:
     Loughran via jing9)
 
     BUG-62306. Ignore o.a.h.security.TestLdapGroupsMapping#testLdapConnectionTimeout
+
+    BUG-63102. HDFS-10688. BPServiceActor may run into a tight loop for sending
+    block report when hitting IOException. Contributed by Chen Liang.
