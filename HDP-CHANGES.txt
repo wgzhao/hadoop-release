@@ -2084,3 +2084,6 @@ ATS V1.5:
     HDFS-10688. BPServiceActor may run into a tight loop for sending block report when hitting IOException. Contributed by Chen Liang.
 
     BUG-63171. Ignore several intermittent failures for YARN/MapReduce. (Junping Du)
+
+    HADOOP-13422. ZKDelegationTokenSecretManager JaasConfig does not work well
+    with other ZK users in process. Contributed by Sergey Shelukhin.
