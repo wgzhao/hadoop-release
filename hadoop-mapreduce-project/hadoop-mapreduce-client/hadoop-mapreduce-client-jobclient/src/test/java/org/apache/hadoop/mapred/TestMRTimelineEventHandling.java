@@ -34,6 +34,7 @@ import org.apache.zookeeper.Shell;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
+import org.junit.Ignore;
 
 public class TestMRTimelineEventHandling {
 
@@ -140,6 +141,7 @@ public class TestMRTimelineEventHandling {
   }
 
   @Test
+  @Ignore
   public void testMapreduceJobTimelineServiceEnabled()
       throws Exception {
     Assume.assumeFalse(Shell.WINDOWS);

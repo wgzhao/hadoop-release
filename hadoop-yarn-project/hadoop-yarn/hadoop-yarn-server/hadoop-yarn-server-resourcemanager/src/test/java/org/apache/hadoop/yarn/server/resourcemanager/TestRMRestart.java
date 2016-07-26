@@ -120,6 +120,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.Mockito;
 
 import com.google.common.base.Supplier;
@@ -2191,6 +2192,7 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
   }
 
   @Test(timeout = 120000)
+  @Ignore
   public void testRMRestartAfterPreemption() throws Exception {
     Configuration conf = new Configuration();
     conf.setInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, 2);

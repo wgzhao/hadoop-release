@@ -55,6 +55,7 @@ import org.apache.zookeeper.Shell;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -360,6 +361,7 @@ public class TestAMRestart {
   // AM container preempted, nm disk failure
   // should not be counted towards AM max retry count.
   @Test(timeout = 100000)
+  @Ignore
   public void testShouldNotCountFailureToMaxAttemptRetry() throws Exception {
     YarnConfiguration conf = new YarnConfiguration();
     conf.setClass(YarnConfiguration.RM_SCHEDULER, CapacityScheduler.class,

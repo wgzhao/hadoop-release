@@ -91,6 +91,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mortbay.log.Log;
@@ -925,6 +926,7 @@ public class TestAMRMClient {
   }
 
   @Test(timeout = 60000)
+  @Ignore
   public void testAMRMClientOnAMRMTokenRollOver() throws YarnException,
       IOException {
     AMRMClient<ContainerRequest> amClient = null;
