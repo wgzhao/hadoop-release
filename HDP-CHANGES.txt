@@ -2081,3 +2081,4 @@ ATS V1.5:
     HADOOP-11713. ViewFileSystem should support snapshot methods. Contributed by Rakesh R.
     HDFS-5640. Add snapshot methods to FileContext. Contributed by Rakesh R.
     BUG-62219. Fix HDP hadoop branches to not reference jetty-6.1.26.hwx.
+HDFS-10688. BPServiceActor may run into a tight loop for sending block report when hitting IOException. Contributed by Chen Liang.
