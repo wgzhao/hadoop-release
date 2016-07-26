@@ -1232,3 +1232,5 @@ ATS V1.5:
     BUG-63288. HDFS-10271. Extra bytes are getting released from reservedSpace for append (Contributed by Brahma Reddy Battula)
 
     BUG-63288. HDFS-9530. ReservedSpace is not cleared for abandoned Blocks (Contributed by Brahma Reddy Battula)
+
+    BUG-63281. HDFS-10688. BPServiceActor may run into a tight loop for sending block report when hitting IOException. Contributed by Chen Liang.
