@@ -35,6 +35,8 @@ import org.apache.hadoop.minikdc.MiniKdc;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.authentication.client.Authenticator;
+import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
 import org.apache.hadoop.security.authorize.AuthorizationException;
 import org.apache.hadoop.security.ssl.KeyStoreTestUtil;
 import org.apache.hadoop.security.token.Token;
@@ -1870,146 +1872,7 @@ public class TestKMS {
       }
     });
   }
-
-  @Test
-  public void testDelegationTokensOpsSimple() throws Exception {
-    final Configuration conf = new Configuration();
-    final Authenticator mock = mock(PseudoAuthenticator.class);
-    testDelegationTokensOps(conf, mock);
-  }
-
-  @Test
-  public void testDelegationTokensOpsKerberized() throws Exception {
-    final Configuration conf = new Configuration();
-    conf.set("hadoop.security.authentication", "kerberos");
-    testDelegationTokensOps(conf, true);
-  }
-
-  private void testDelegationTokensOps(Configuration conf,
-      final boolean useKrb) throws Exception {
-    UserGroupInformation.setConfiguration(conf);
-    File confDir = getTestDir();
-    conf = createBaseKMSConf(confDir);
-    if (useKrb) {
-      conf.set("hadoop.kms.authentication.type", "kerberos");
-      conf.set("hadoop.kms.authentication.kerberos.keytab",
-          keytab.getAbsolutePath());
-      conf.set("hadoop.kms.authentication.kerberos.principal",
-          "HTTP/localhost");
-      conf.set("hadoop.kms.authentication.kerberos.name.rules", "DEFAULT");
-    }
-    writeConf(confDir, conf);
-
-    runServer(null, null, confDir, new KMSCallable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        final Configuration clientConf = new Configuration();
-        final URI uri = createKMSUri(getKMSUrl());
-        clientConf.set(KeyProviderFactory.KEY_PROVIDER_PATH,
-            createKMSUri(getKMSUrl()).toString());
-
-        doAs("client", new PrivilegedExceptionAction<Void>() {
-          @Override
-          public Void run() throws Exception {
-            KeyProvider kp = createProvider(uri, clientConf);
-            // test delegation token retrieval
-            KeyProviderDelegationTokenExtension kpdte =
-                KeyProviderDelegationTokenExtension.
-                    createKeyProviderDelegationTokenExtension(kp);
-            final Credentials credentials = new Credentials();
-            final Token<?>[] tokens =
-                kpdte.addDelegationTokens("client1", credentials);
-            Assert.assertEquals(1, credentials.getAllTokens().size());
-            InetSocketAddress kmsAddr =
-                new InetSocketAddress(getKMSUrl().getHost(),
-                    getKMSUrl().getPort());
-            Assert.assertEquals(KMSClientProvider.TOKEN_KIND,
-                credentials.getToken(SecurityUtil.buildTokenService(kmsAddr)).
-                    getKind());
-
-            // Test non-renewer user cannot renew.
-            for (Token<?> token : tokens) {
-              if (!(token.getKind().equals(KMSClientProvider.TOKEN_KIND))) {
-                LOG.info("Skipping token {}", token);
-                continue;
-              }
-              LOG.info("Got dt for " + uri + "; " + token);
-              try {
-                token.renew(clientConf);
-                Assert.fail("client should not be allowed to renew token with"
-                    + "renewer=client1");
-              } catch (Exception e) {
-                GenericTestUtils.assertExceptionContains(
-                    "tries to renew a token with renewer", e);
-              }
-            }
-
-            final UserGroupInformation otherUgi;
-            if (useKrb) {
-              UserGroupInformation
-                  .loginUserFromKeytab("client1", keytab.getAbsolutePath());
-              otherUgi = UserGroupInformation.getLoginUser();
-            } else {
-              otherUgi = UserGroupInformation.createUserForTesting("client1",
-                  new String[] {"other group"});
-            }
-            try {
-              // test delegation token renewal via renewer
-              otherUgi.doAs(new PrivilegedExceptionAction<Void>() {
-                @Override
-                public Void run() throws Exception {
-                  boolean renewed = false;
-                  for (Token<?> token : tokens) {
-                    if (!(token.getKind()
-                        .equals(KMSClientProvider.TOKEN_KIND))) {
-                      LOG.info("Skipping token {}", token);
-                      continue;
-                    }
-                    LOG.info("Got dt for " + uri + "; " + token);
-                    long tokenLife = token.renew(clientConf);
-                    LOG.info("Renewed token of kind {}, new lifetime:{}",
-                        token.getKind(), tokenLife);
-                    Thread.sleep(100);
-                    long newTokenLife = token.renew(clientConf);
-                    LOG.info("Renewed token of kind {}, new lifetime:{}",
-                        token.getKind(), newTokenLife);
-                    Assert.assertTrue(newTokenLife > tokenLife);
-                    renewed = true;
-                  }
-                  Assert.assertTrue(renewed);
-
-                  // test delegation token cancellation
-                  for (Token<?> token : tokens) {
-                    if (!(token.getKind()
-                        .equals(KMSClientProvider.TOKEN_KIND))) {
-                      LOG.info("Skipping token {}", token);
-                      continue;
-                    }
-                    LOG.info("Got dt for " + uri + "; " + token);
-                    token.cancel(clientConf);
-                    LOG.info("Cancelled token of kind {}", token.getKind());
-                    try {
-                      token.renew(clientConf);
-                      Assert
-                          .fail("should not be able to renew a canceled token");
-                    } catch (Exception e) {
-                      LOG.info("Expected exception when renewing token", e);
-                    }
-                  }
-                  return null;
-                }
-              });
-              return null;
-            } finally {
-              otherUgi.logoutUserFromKeytab();
-            }
-          }
-        });
-        return null;
-      }
-    });
-  }
-
+  
   @Test
   public void testKMSWithZKSigner() throws Exception {
     doKMSWithZK(true, false);
