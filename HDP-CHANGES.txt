@@ -104,15 +104,6 @@ ATS V1.5:
 
   IMPROVEMENTS
 
-<<<<<<< HEAD
-||||||| parent of 027e61f... BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains INodeReference
-    BUG-60272. HADOOP-12189. Improve CallQueueManager#swapQueue to make queue elements
-    drop nearly impossible. (zhihai xu)
-
-    BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
-    (Masatake Iwasaki)
-
-=======
     BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains
     INodeReference (Xiao Chen)
 
@@ -122,7 +113,6 @@ ATS V1.5:
     BUG-50479. HADOOP-12672. RPC timeout should not override IPC ping interval
     (Masatake Iwasaki)
 
->>>>>>> 027e61f... BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that contains INodeReference
     HADOOP-10597. RPC Server signals backoff to clients when all request
     queues are full. (Ming Ma via Arpit Agarwal)
 
@@ -406,6 +396,9 @@ ATS V1.5:
 
     HDFS-8831. Trash Support for deletion in HDFS encryption zone. Contributed
     by Xiaoyu Yao.
+
+    HADOOP-13263. Reload cached groups in background after expiry. (Contributed
+    bt Stephen O'Donnell)
 
 
   OPTIMIZATIONS
@@ -1609,7 +1602,7 @@ ATS V1.5:
     HADOOP-12659. Incorrect usage of config parameters in token manager of KMS.
     Contributed by Mingliang Liu.
 
-    HDFS-9365. Balaner does not work with the HDFS-6376 HA setup.
+    HDFS-9365. Balancer does not work with the HDFS-6376 HA setup.
 
     BUG-56634. HADOOP-12076. Incomplete Cache Mechanism in CredentialProvider
     API
@@ -1637,9 +1630,6 @@ ATS V1.5:
     HDFS-10556. DistCpOptions should be validated automatically. Contributed by
     Mingliang Liu.
 
-    BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that
-    contains INodeReference
-
     HDFS-10458. getFileEncryptionInfo should return quickly for non-encrypted
     cluster.
 
@@ -1652,9 +1642,6 @@ ATS V1.5:
     HADOOP-13270. BZip2CompressionInputStream finds the same compression marker
     twice in corner case, causing duplicate data blocks. Contributed by Kai
     Sasaki.
-
-    HADOOP-13263. Reload cached groups in background after expiry. (Contributed
-    bt Stephen O'Donnell)
 
     HADOOP-13155. Implement TokenRenewer to renew and cancel delegation tokens
     in KMS. Contributed by Xiao Chen.
