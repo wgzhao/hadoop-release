@@ -2090,3 +2090,5 @@ ATS V1.5:
 
     BUG-63212. HDFS-10642. TestLazyPersistReplicaRecovery#testDnRestartWithSavedReplicas
     fails intermittently. (Contributed by Mingliang Liu)
+
+    HADOOP-13382. Remove unneeded commons-httpclient dependencies from POM files in Hadoop and sub-projects, while adding it in to the only place it is still needed, hadoop-openstack.  Ported to Hortonworks HDP-2.5 by Matt Foley.
