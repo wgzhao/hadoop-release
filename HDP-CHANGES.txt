@@ -1755,3 +1755,5 @@ ATS V1.5:
     HADOOP-12636. Prevent ServiceLoader failure init for unused FileSystems.
     Contributed by Inigo Goiri
 
+    BUG-63212. HDFS-10642. TestLazyPersistReplicaRecovery#testDnRestartWithSavedReplicas
+    fails intermittently. (Contributed by Mingliang Liu)

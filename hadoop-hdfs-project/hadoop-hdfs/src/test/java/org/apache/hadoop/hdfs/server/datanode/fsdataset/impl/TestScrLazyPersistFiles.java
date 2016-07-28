@@ -39,11 +39,11 @@ import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import static org.apache.hadoop.fs.StorageType.DEFAULT;
 import static org.apache.hadoop.fs.StorageType.RAM_DISK;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class TestScrLazyPersistFiles extends LazyPersistTestCase {
@@ -69,7 +69,7 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
    */
   @Test
   public void testRamDiskShortCircuitRead()
-    throws IOException, InterruptedException {
+      throws IOException, InterruptedException, TimeoutException {
     getClusterBuilder().setNumDatanodes(REPL_FACTOR)
                        .setStorageTypes(new StorageType[]{RAM_DISK, DEFAULT})
                        .setRamDiskStorageLimit(2 * BLOCK_SIZE - 1)
@@ -112,7 +112,7 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
    */
   @Test
   public void testRamDiskEvictionWithShortCircuitReadHandle()
-    throws IOException, InterruptedException {
+      throws IOException, InterruptedException, TimeoutException {
     // 5 replica + delta, SCR.
     getClusterBuilder().setNumDatanodes(REPL_FACTOR)
                        .setStorageTypes(new StorageType[]{RAM_DISK, DEFAULT})
@@ -162,7 +162,7 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
 
   @Test
   public void testShortCircuitReadAfterEviction()
-      throws IOException, InterruptedException {
+      throws IOException, InterruptedException, TimeoutException {
     Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
     getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
@@ -173,16 +173,16 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
 
   @Test
   public void testLegacyShortCircuitReadAfterEviction()
-      throws IOException, InterruptedException {
-    getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
+      throws IOException, InterruptedException, TimeoutException {
+      getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
                        .setUseLegacyBlockReaderLocal(true)
                        .build();
     doShortCircuitReadAfterEvictionTest();
   }
 
-  private void doShortCircuitReadAfterEvictionTest() throws IOException,
-      InterruptedException {
+  private void doShortCircuitReadAfterEvictionTest()
+      throws IOException, InterruptedException, TimeoutException {
     final String METHOD_NAME = GenericTestUtils.getMethodName();
     Path path1 = new Path("/" + METHOD_NAME + ".01.dat");
     Path path2 = new Path("/" + METHOD_NAME + ".02.dat");
@@ -231,9 +231,9 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
   }
 
   @Test
-  public void testShortCircuitReadBlockFileCorruption() throws IOException,
-      InterruptedException {
-    Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
+  public void testShortCircuitReadBlockFileCorruption()
+      throws IOException, InterruptedException, TimeoutException {
+      Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
     getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
                        .setUseLegacyBlockReaderLocal(false)
@@ -242,8 +242,8 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
   }
 
   @Test
-  public void testLegacyShortCircuitReadBlockFileCorruption() throws IOException,
-      InterruptedException {
+  public void testLegacyShortCircuitReadBlockFileCorruption()
+      throws IOException, InterruptedException, TimeoutException {
     getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
                        .setUseLegacyBlockReaderLocal(true)
@@ -251,8 +251,8 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
     doShortCircuitReadBlockFileCorruptionTest();
   }
 
-  public void doShortCircuitReadBlockFileCorruptionTest() throws IOException,
-      InterruptedException {
+  public void doShortCircuitReadBlockFileCorruptionTest()
+      throws IOException, InterruptedException, TimeoutException {
     final String METHOD_NAME = GenericTestUtils.getMethodName();
     Path path1 = new Path("/" + METHOD_NAME + ".01.dat");
     Path path2 = new Path("/" + METHOD_NAME + ".02.dat");
@@ -277,8 +277,8 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
   }
 
   @Test
-  public void testShortCircuitReadMetaFileCorruption() throws IOException,
-      InterruptedException {
+  public void testShortCircuitReadMetaFileCorruption()
+      throws IOException, InterruptedException, TimeoutException {
     Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
     getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
@@ -288,8 +288,8 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
   }
 
   @Test
-  public void testLegacyShortCircuitReadMetaFileCorruption() throws IOException,
-      InterruptedException {
+  public void testLegacyShortCircuitReadMetaFileCorruption()
+      throws IOException, InterruptedException, TimeoutException {
     getClusterBuilder().setRamDiskReplicaCapacity(1 + EVICTION_LOW_WATERMARK)
                        .setUseScr(true)
                        .setUseLegacyBlockReaderLocal(true)
@@ -297,8 +297,8 @@ public class TestScrLazyPersistFiles extends LazyPersistTestCase {
     doShortCircuitReadMetaFileCorruptionTest();
   }
 
-  public void doShortCircuitReadMetaFileCorruptionTest() throws IOException,
-      InterruptedException {
+  public void doShortCircuitReadMetaFileCorruptionTest()
+      throws IOException, InterruptedException, TimeoutException {
     final String METHOD_NAME = GenericTestUtils.getMethodName();
     Path path1 = new Path("/" + METHOD_NAME + ".01.dat");
     Path path2 = new Path("/" + METHOD_NAME + ".02.dat");
