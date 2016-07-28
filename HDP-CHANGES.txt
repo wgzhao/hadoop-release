@@ -412,6 +412,9 @@ ATS V1.5:
     HADOOP-12291. Add support for nested groups in LdapGroupsMapping.
     Contributed by Esther Kundin.
 
+    BUG-53803. HDFS-9941. Do not log StandbyException on NN, other
+    minor logging fixes. (Arpit Agarwal)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
@@ -1069,9 +1072,6 @@ ATS V1.5:
 
     BUG-53803. HADOOP-12903. IPC Server should allow suppressing exception logging by type,
     not log 'server too busy' messages. (Arpit Agarwal)
-
-    BUG-53803. HDFS-9941. Do not log StandbyException on NN, other
-    minor logging fixes. (Arpit Agarwal)
 
     BUG-53573 HADOOP-12107 long running apps may have a huge number of StatisticsData instances under FileSystem
 
