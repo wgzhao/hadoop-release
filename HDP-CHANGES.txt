@@ -400,6 +400,8 @@ ATS V1.5:
     HADOOP-13263. Reload cached groups in background after expiry. (Contributed
     bt Stephen O'Donnell)
 
+    HDFS-9259. Make SO_SNDBUF size configurable at DFSClient side for hdfs write
+    scenario. (Mingliang Liu)
 
   OPTIMIZATIONS
 
@@ -1448,9 +1450,6 @@ ATS V1.5:
     HDFS-9700. DFSClient and DFSOutputStream should set TCP_NODELAY
     on sockets for DataTransferProtocol. (Gary Helmling)
 
-    BUG-9259. Make SO_SNDBUF size configurable at DFSClient side for hdfs write
-    scenario. (Mingliang Liu)
-
     BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira AJISAKA)
 
     BUG-57761. HDFS-10396. Using -diff option with DistCp may get "Comparison
@@ -1463,10 +1462,10 @@ ATS V1.5:
 
     MAPREDUCE-6543. Migrate MR Client test cases part 2
 
-    BUG-60724. HDFS-10271. Extra bytes are getting released from reservedSpace
+    HDFS-10271. Extra bytes are getting released from reservedSpace
     for append (Contributed by Brahma Reddy Battula)
 
-    BUG-60724. HDFS-9530. ReservedSpace is not cleared for abandoned Blocks
+    HDFS-9530. ReservedSpace is not cleared for abandoned Blocks
     (Contributed by Brahma Reddy Battula)
 
     HADOOP-9477. Add posixGroups support for LDAP groups mapping service.
