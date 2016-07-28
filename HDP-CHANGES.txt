@@ -2963,3 +2963,6 @@ ATS V1.5:
     HDFS-10569. A bug causes OutOfIndex error in BlockListAsLongs. Contributed by Weiwei Yang.
 
     BUG-66193. YARN-4591. YARN Web UIs should provide a robots.txt. Junping Du.
+
+    BUG-65466. HDFS-9276. Failed to Update HDFS Delegation Token for long running application in HA mode.
+    Contributed by Liangliang Gu and John Zhuge
