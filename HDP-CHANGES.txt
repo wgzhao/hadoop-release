@@ -2911,3 +2911,9 @@ ATS V1.5:
     files in Hadoop and sub-projects, while adding it in to the only place it
     is still needed, hadoop-openstack.  Ported to Hortonworks HDP-2.5 by Matt
     Foley.
+
+    HDFS-8844. TestHDFSCLI does not cleanup the test directory
+    (Masatake Iwasaki via Colin P. McCabe)
+
+    HDFS-10228. TestHDFSCLI fails. (Contributed by Akira AJISAKA)
+
