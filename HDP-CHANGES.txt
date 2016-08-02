@@ -2918,3 +2918,6 @@ ATS V1.5:
     HDFS-10228. TestHDFSCLI fails. (Contributed by Akira AJISAKA)
 
     HDFS-8642. Make TestFileTruncate more reliable. (Contributed by Rakesh R)
+
+    HADOOP-13434. Add quoting to Shell class. (Owen O'Malley)
+
