@@ -604,8 +604,8 @@ public class TestDFSPermission {
     }
   }
 
-  /* Check if namenode performs permission checking correctly 
-   * for the given user for operations mkdir, open, setReplication, 
+  /* Check if namenode performs permission checking correctly
+   * for the given user for operations mkdir, open, setReplication,
    * getFileInfo, isDirectory, exists, getContentLength, list, rename,
    * and delete */
   private void testPermissionCheckingPerUser(UserGroupInformation ugi,

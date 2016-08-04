@@ -590,7 +590,19 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
     // Get the full path name of this inode.
     return FSDirectory.getFullPathName(this);
   }
-  
+
+  public byte[][] getPathComponents() {
+    int n = 0;
+    for (INode inode = this; inode != null; inode = inode.getParent()) {
+      n++;
+    }
+    byte[][] components = new byte[n][];
+    for (INode inode = this; inode != null; inode = inode.getParent()) {
+      components[--n] = inode.getLocalNameBytes();
+    }
+    return components;
+  }
+
   @Override
   public String toString() {
     return getLocalName();

@@ -1889,10 +1889,7 @@ public class FSDirectory implements Closeable {
   FSPermissionChecker getPermissionChecker(String fsOwner, String superGroup,
       UserGroupInformation ugi) throws AccessControlException {
     return new FSPermissionChecker(
-        fsOwner, superGroup, ugi,
-        attributeProvider == null ?
-            DefaultINodeAttributesProvider.DEFAULT_PROVIDER
-            : attributeProvider);
+        fsOwner, superGroup, ugi, attributeProvider);
   }
 
   void checkOwner(FSPermissionChecker pc, INodesInPath iip)
@@ -2042,15 +2039,12 @@ public class FSDirectory implements Closeable {
 
   INodeAttributes getAttributes(String fullPath, byte[] path,
       INode node, int snapshot) {
-    INodeAttributes nodeAttrs = node;
+    INodeAttributes nodeAttrs = node.getSnapshotINode(snapshot);
     if (attributeProvider != null) {
-      nodeAttrs = node.getSnapshotINode(snapshot);
-      fullPath = fullPath + (fullPath.endsWith(Path.SEPARATOR) ? ""
-                                                               : Path.SEPARATOR)
+      fullPath = fullPath
+          + (fullPath.endsWith(Path.SEPARATOR) ? "" : Path.SEPARATOR)
           + DFSUtil.bytes2String(path);
       nodeAttrs = attributeProvider.getAttributes(fullPath, nodeAttrs);
-    } else {
-      nodeAttrs = node.getSnapshotINode(snapshot);
     }
     return nodeAttrs;
   }
