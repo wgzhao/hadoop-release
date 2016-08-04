@@ -2921,3 +2921,6 @@ ATS V1.5:
 
     HADOOP-13434. Add quoting to Shell class. (Owen O'Malley)
 
+    HADOOP-13467. Shell#getSignalKillCommand should use the bash builtin on
+    Linux. (Arpit Agarwal)
+
