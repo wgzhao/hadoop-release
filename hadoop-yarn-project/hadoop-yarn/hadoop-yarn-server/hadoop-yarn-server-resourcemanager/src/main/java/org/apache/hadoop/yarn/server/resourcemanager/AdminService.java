@@ -299,6 +299,9 @@ public class AdminService extends CompositeService implements
   @Override
   public synchronized void transitionToActive(
       HAServiceProtocol.StateChangeRequestInfo reqInfo) throws IOException {
+    if (isRMActive()) {
+      return;
+    }
     // call refreshAdminAcls before HA state transition
     // for the case that adminAcls have been updated in previous active RM
     try {
@@ -309,15 +312,7 @@ public class AdminService extends CompositeService implements
 
     UserGroupInformation user = checkAccess("transitionToActive");
     checkHaStateChange(reqInfo);
-    try {
-      rm.transitionToActive();
-    } catch (Exception e) {
-      RMAuditLogger.logFailure(user.getShortUserName(), "transitionToActive",
-          "", "RMHAProtocolService",
-          "Exception transitioning to active");
-      throw new ServiceFailedException(
-          "Error when transitioning to Active mode", e);
-    }
+
     try {
       // call all refresh*s for active RM to get the updated configurations.
       refreshAll();
@@ -327,10 +322,22 @@ public class AdminService extends CompositeService implements
           .getDispatcher()
           .getEventHandler()
           .handle(
-          new RMFatalEvent(RMFatalEventType.TRANSITION_TO_ACTIVE_FAILED, e));
+              new RMFatalEvent(RMFatalEventType.TRANSITION_TO_ACTIVE_FAILED,
+                  e));
       throw new ServiceFailedException(
-          "Error on refreshAll during transistion to Active", e);
+          "Error on refreshAll during transition to Active", e);
     }
+
+    try {
+      rm.transitionToActive();
+    } catch (Exception e) {
+      RMAuditLogger.logFailure(user.getShortUserName(), "transitionToActive",
+          "", "RM",
+          "Exception transitioning to active");
+      throw new ServiceFailedException(
+          "Error when transitioning to Active mode", e);
+    }
+
     RMAuditLogger.logSuccess(user.getShortUserName(), "transitionToActive",
         "RMHAProtocolService");
   }
@@ -385,17 +392,21 @@ public class AdminService extends CompositeService implements
     RefreshQueuesResponse response =
         recordFactory.newRecordInstance(RefreshQueuesResponse.class);
     try {
-      rmContext.getScheduler().reinitialize(getConfig(), this.rmContext);
-      // refresh the reservation system
-      ReservationSystem rSystem = rmContext.getReservationSystem();
-      if (rSystem != null) {
-        rSystem.reinitialize(getConfig(), rmContext);
-      }
+      refreshQueues();
       RMAuditLogger.logSuccess(user.getShortUserName(), argName,
           "AdminService");
       return response;
     } catch (IOException ioe) {
       throw logAndWrapException(ioe, user.getShortUserName(), argName, msg);
+    }
+  }
+
+  private void refreshQueues() throws IOException, YarnException {
+    rmContext.getScheduler().reinitialize(getConfig(), this.rmContext);
+    // refresh the reservation system
+    ReservationSystem rSystem = rmContext.getReservationSystem();
+    if (rSystem != null) {
+      rSystem.reinitialize(getConfig(), rmContext);
     }
   }
 
@@ -421,6 +432,13 @@ public class AdminService extends CompositeService implements
     }
   }
 
+  private void refreshNodes() throws IOException, YarnException {
+    Configuration conf =
+        getConfiguration(new Configuration(false),
+            YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
+    rmContext.getNodesListManager().refreshNodes(conf);
+  }
+
   @Override
   public RefreshSuperUserGroupsConfigurationResponse refreshSuperUserGroupsConfiguration(
       RefreshSuperUserGroupsConfigurationRequest request)
@@ -430,6 +448,16 @@ public class AdminService extends CompositeService implements
 
     checkRMStatus(user.getShortUserName(), argName, "refresh super-user-groups.");
 
+    refreshSuperUserGroupsConfiguration();
+    RMAuditLogger.logSuccess(user.getShortUserName(),
+        argName, "AdminService");
+
+    return recordFactory.newRecordInstance(
+        RefreshSuperUserGroupsConfigurationResponse.class);
+  }
+
+  private void refreshSuperUserGroupsConfiguration()
+      throws IOException, YarnException {
     // Accept hadoop common configs in core-site.xml as well as RM specific
     // configurations in yarn-site.xml
     Configuration conf =
@@ -438,11 +466,6 @@ public class AdminService extends CompositeService implements
             YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
     RMServerUtils.processRMProxyUsersConf(conf);
     ProxyUsers.refreshSuperUserGroupsConfiguration(conf);
-    RMAuditLogger.logSuccess(user.getShortUserName(),
-        argName, "AdminService");
-    
-    return recordFactory.newRecordInstance(
-        RefreshSuperUserGroupsConfigurationResponse.class);
   }
 
   @Override
@@ -454,14 +477,18 @@ public class AdminService extends CompositeService implements
 
     checkRMStatus(user.getShortUserName(), argName, "refresh user-groups.");
 
-    Groups.getUserToGroupsMappingService(
-        getConfiguration(new Configuration(false),
-            YarnConfiguration.CORE_SITE_CONFIGURATION_FILE)).refresh();
-
-    RMAuditLogger.logSuccess(user.getShortUserName(), argName, "AdminService");
+    refreshUserToGroupsMappings();
+    RMAuditLogger.logSuccess(user.getShortUserName(), argName,
+            "AdminService");
 
     return recordFactory.newRecordInstance(
         RefreshUserToGroupsMappingsResponse.class);
+  }
+
+  private void refreshUserToGroupsMappings() throws IOException, YarnException {
+    Groups.getUserToGroupsMappingService(
+        getConfiguration(new Configuration(false),
+            YarnConfiguration.CORE_SITE_CONFIGURATION_FILE)).refresh();
   }
 
   @Override
@@ -506,21 +533,33 @@ public class AdminService extends CompositeService implements
 
     checkRMStatus(user.getShortUserName(), argName, "refresh Service ACLs.");
 
+    refreshServiceAcls();
+    refreshActiveServicesAcls();
+    RMAuditLogger.logSuccess(user.getShortUserName(), argName,
+            "AdminService");
+
+    return recordFactory.newRecordInstance(RefreshServiceAclsResponse.class);
+  }
+
+  private void refreshServiceAcls() throws IOException, YarnException {
     PolicyProvider policyProvider = RMPolicyProvider.getInstance();
     Configuration conf =
         getConfiguration(new Configuration(false),
             YarnConfiguration.HADOOP_POLICY_CONFIGURATION_FILE);
 
     refreshServiceAcls(conf, policyProvider);
+  }
+
+  private void refreshActiveServicesAcls() throws IOException, YarnException  {
+    PolicyProvider policyProvider = RMPolicyProvider.getInstance();
+    Configuration conf =
+        getConfiguration(new Configuration(false),
+            YarnConfiguration.HADOOP_POLICY_CONFIGURATION_FILE);
     rmContext.getClientRMService().refreshServiceAcls(conf, policyProvider);
     rmContext.getApplicationMasterService().refreshServiceAcls(
         conf, policyProvider);
     rmContext.getResourceTrackerService().refreshServiceAcls(
         conf, policyProvider);
-
-    RMAuditLogger.logSuccess(user.getShortUserName(), argName, "AdminService");
-
-    return recordFactory.newRecordInstance(RefreshServiceAclsResponse.class);
   }
 
   private synchronized void refreshServiceAcls(Configuration configuration,
@@ -660,16 +699,15 @@ public class AdminService extends CompositeService implements
 
   private void refreshAll() throws ServiceFailedException {
     try {
-      refreshQueues(RefreshQueuesRequest.newInstance());
-      refreshNodes(RefreshNodesRequest.newInstance());
-      refreshSuperUserGroupsConfiguration(
-          RefreshSuperUserGroupsConfigurationRequest.newInstance());
-      refreshUserToGroupsMappings(
-          RefreshUserToGroupsMappingsRequest.newInstance());
+      checkAcls("refreshAll");
+      refreshQueues();
+      refreshNodes();
+      refreshSuperUserGroupsConfiguration();
+      refreshUserToGroupsMappings();
       if (getConfig().getBoolean(
           CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHORIZATION,
           false)) {
-        refreshServiceAcls(RefreshServiceAclsRequest.newInstance());
+        refreshServiceAcls();
       }
     } catch (Exception ex) {
       throw new ServiceFailedException(ex.getMessage());
