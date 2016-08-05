@@ -21,6 +21,7 @@ package org.apache.hadoop.yarn.client.cli;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -209,14 +210,17 @@ public class TestLogsCLI {
     pw.println("                                 aggregated logs. This option can only be");
     pw.println("                                 used with finished applications.");
     pw.println(" -log_files <Log File Name>      Specify comma-separated value to get");
-    pw.println("                                 specified container log files. Use \"ALL\"");
-    pw.println("                                 to fetch all the log files for the");
-    pw.println("                                 container. It also supports Java Regex.");
+    pw.println("                                 exact matched log files. Use \"ALL\" or");
+    pw.println("                                 \"*\"to fetch all the log files for the");
+    pw.println("                                 container. Specific -regex for using java");
+    pw.println("                                 regex to find matched log files.");
     pw.println(" -nodeAddress <Node Address>     NodeAddress in the format nodename:port");
     pw.println(" -out <Local Directory>          Local directory for storing individual");
     pw.println("                                 container logs. The container logs will");
     pw.println("                                 be stored based on the node the container");
     pw.println("                                 ran on.");
+    pw.println(" -regex                          Work with -log_files to find matched");
+    pw.println("                                 files by using java regex.");
     pw.println(" -show_application_log_info      Show the containerIds which belong to the");
     pw.println("                                 specific Application. You can combine");
     pw.println("                                 this with --nodeAddress to get");
@@ -284,6 +288,7 @@ public class TestLogsCLI {
 
     // create two logs for container3 in localLogDir
     logTypes.add("stdout");
+    logTypes.add("stdout1234");
     createContainerLogInLocalDir(appLogsDir, containerId3, fs, logTypes);
 
     Path path =
@@ -334,10 +339,12 @@ public class TestLogsCLI {
         logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
         logMessage(containerId3, "stdout")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout1234")));
     sysOutStream.reset();
 
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
-        "-log_files", ".*"});
+        "-log_files", ".*", "-regex"});
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toString().contains(
         logMessage(containerId1, "syslog")));
@@ -347,11 +354,28 @@ public class TestLogsCLI {
         logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
         logMessage(containerId3, "stdout")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout1234")));
+    sysOutStream.reset();
+
+    exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
+        "-log_files", "*"});
+    assertTrue(exitCode == 0);
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId1, "syslog")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId2, "syslog")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "syslog")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout1234")));
     int fullSize = sysOutStream.toByteArray().length;
     sysOutStream.reset();
 
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
-        "-log_files", "std*"});
+        "-log_files", "stdout"});
     assertTrue(exitCode == 0);
     assertFalse(sysOutStream.toString().contains(
         logMessage(containerId1, "syslog")));
@@ -361,6 +385,23 @@ public class TestLogsCLI {
         logMessage(containerId3, "syslog")));
     assertTrue(sysOutStream.toString().contains(
         logMessage(containerId3, "stdout")));
+    assertFalse(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout1234")));
+    sysOutStream.reset();
+
+    exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
+        "-log_files", "std*", "-regex"});
+    assertTrue(exitCode == 0);
+    assertFalse(sysOutStream.toString().contains(
+        logMessage(containerId1, "syslog")));
+    assertFalse(sysOutStream.toString().contains(
+        logMessage(containerId2, "syslog")));
+    assertFalse(sysOutStream.toString().contains(
+        logMessage(containerId3, "syslog")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout")));
+    assertTrue(sysOutStream.toString().contains(
+        logMessage(containerId3, "stdout1234")));
     sysOutStream.reset();
 
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
@@ -374,7 +415,7 @@ public class TestLogsCLI {
     // specify the bytes which is larger than the actual file size,
     // we would get the full logs
     exitCode = cli.run(new String[] {"-applicationId", appId.toString(),
-        "-log_files", ".*", "-size", "10000" });
+        "-log_files", "*", "-size", "10000" });
     assertTrue(exitCode == 0);
     assertTrue(sysOutStream.toByteArray().length == fullSize);
     sysOutStream.reset();
@@ -566,7 +607,7 @@ public class TestLogsCLI {
     LogsCLI cli = spy(new LogsCLIForTest(mockYarnClient));
     doReturn(0).when(cli).printContainerLogsFromRunningApplication(
         any(Configuration.class), any(ContainerLogsRequest.class),
-        any(LogCLIHelpers.class));
+        any(LogCLIHelpers.class), anyBoolean());
 
     cli.setConf(new YarnConfiguration());
     int exitCode = cli.run(new String[] {"-applicationId", appId.toString()});
@@ -579,16 +620,16 @@ public class TestLogsCLI {
     // printContainerLogsFromRunningApplication twice
     verify(cli, times(2)).printContainerLogsFromRunningApplication(
         any(Configuration.class), logsRequestCaptor.capture(),
-        any(LogCLIHelpers.class));
+        any(LogCLIHelpers.class), anyBoolean());
 
-    // Verify that the log-type is *
+    // Verify that the log-type is "ALL"
     List<ContainerLogsRequest> capturedRequests =
         logsRequestCaptor.getAllValues();
     Assert.assertEquals(2, capturedRequests.size());
-    List<String> logTypes0 = capturedRequests.get(0).getLogTypes();
-    List<String> logTypes1 = capturedRequests.get(1).getLogTypes();
-    Assert.assertEquals(".*", logTypes0.get(0));
-    Assert.assertEquals(".*", logTypes1.get(0));
+    Set<String> logTypes0 = capturedRequests.get(0).getLogTypes();
+    Set<String> logTypes1 = capturedRequests.get(1).getLogTypes();
+    Assert.assertTrue(logTypes0.contains("ALL") && (logTypes0.size() == 1));
+    Assert.assertTrue(logTypes1.contains("ALL") && (logTypes1.size() == 1));
   }
 
   @Test (timeout = 15000)
