@@ -2924,3 +2924,5 @@ ATS V1.5:
     HADOOP-13467. Shell#getSignalKillCommand should use the bash builtin on
     Linux. (Arpit Agarwal)
 
+    HADOOP-10823. TestReloadingX509TrustManager is flaky. Contributed by
+    Mingliang Liu.
