@@ -925,4 +925,21 @@ public interface MRJobConfig {
           128;
 
   String MR_JOB_SEND_TOKEN_CONF = "mapreduce.job.send-token-conf";
+
+  /**
+   * Number of OPPORTUNISTIC Containers per 100 containers that will be
+   * requested by the MRAppMaster. The Default value is 0, which implies all
+   * maps will be guaranteed. A value of 100 means all maps will be requested
+   * as opportunistic. For any other value say 'x', the FIRST 'x' maps
+   * requested by the AM will be opportunistic. If the total number of maps
+   * for the job is less than 'x', then ALL maps will be OPPORTUNISTIC
+   */
+  public static final String MR_NUM_OPPORTUNISTIC_MAPS_PER_100 =
+      "mapreduce.job.num-opportunistic-maps-per-100";
+  public static final int DEFAULT_MR_NUM_OPPORTUNISTIC_MAPS_PER_100 = 0;
+
+  /**
+   * A comma-separated list of properties whose value will be redacted.
+   */
+  String MR_JOB_REDACTED_PROPERTIES = "mapreduce.job.redacted-properties";
 }

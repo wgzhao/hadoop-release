@@ -4816,3 +4816,6 @@ ATS V1.5:
 
     BUG-113258. YARN-8720. CapacityScheduler does not enforce max resource
     allocation check at queue level. Contributed by Tarun Parimi.
+
+    BUG-115597. MAPREDUCE-6741. Add MR support to redact job conf properties.
+    Contributed by Haibo Chen
