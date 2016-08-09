@@ -2272,4 +2272,12 @@
   <name>mapreduce.job.send-token-conf</name>
   <value></value>
 </property>
+
+<property>
+  <description>
+    The list of job configuration properties whose value will be redacted.
+  </description>
+  <name>mapreduce.job.redacted-properties</name>
+  <value></value>
+</property>
 </configuration>
