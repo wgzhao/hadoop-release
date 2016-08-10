@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.FakeTimer;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -585,6 +586,7 @@ public class TestGroupsCaching {
   }
 
   @Test
+  @Ignore
   public void testBackgroundRefreshCounters()
       throws IOException, InterruptedException {
     conf.setLong(

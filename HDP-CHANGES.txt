@@ -2926,3 +2926,5 @@ ATS V1.5:
 
     HADOOP-10823. TestReloadingX509TrustManager is flaky. Contributed by
     Mingliang Liu.
+
+    BUG-64186. Disable UT org.apache.hadoop.security.TestGroupsCaching.testBackgroundRefreshCounters
