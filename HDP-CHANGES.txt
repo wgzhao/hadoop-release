@@ -1757,3 +1757,7 @@ ATS V1.5:
 
     BUG-63212. HDFS-10642. TestLazyPersistReplicaRecovery#testDnRestartWithSavedReplicas
     fails intermittently. (Contributed by Mingliang Liu)
+
+    BUG-64105. MAPREDUCE-6637. Testcase Failure :
+    TestFileInputFormat.testSplitLocationInfo. Contributed by Brahma Reddy
+    Battula.
