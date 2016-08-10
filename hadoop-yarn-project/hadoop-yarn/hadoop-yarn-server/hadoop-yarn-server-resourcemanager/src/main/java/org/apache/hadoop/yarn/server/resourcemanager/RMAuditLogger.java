@@ -66,12 +66,12 @@ public class RMAuditLogger {
     public static final String UPDATE_RESERVATION_REQUEST = "Update Reservation Request";
     public static final String DELETE_RESERVATION_REQUEST = "Delete Reservation Request";
   }
-  
+
   static String createSuccessLog(String user, String operation, String target,
       ApplicationId appId, ApplicationAttemptId attemptId,
       ContainerId containerId) {
     return createSuccessLog(user, operation, target, appId, attemptId,
-        containerId, null);
+        containerId, null, Server.getRemoteIp());
   }
 
   /**
@@ -79,10 +79,13 @@ public class RMAuditLogger {
    */
   static String createSuccessLog(String user, String operation, String target,
       ApplicationId appId, ApplicationAttemptId attemptId,
-      ContainerId containerId, CallerContext callerContext) {
+      ContainerId containerId, CallerContext callerContext,
+      InetAddress ip) {
     StringBuilder b = new StringBuilder();
     start(Keys.USER, user, b);
-    addRemoteIP(b);
+    if (ip != null) {
+      add(Keys.IP, ip.getHostAddress(), b);
+    }
     add(Keys.OPERATION, operation, b);
     add(Keys.TARGET, target ,b);
     add(Keys.RESULT, AuditConstants.SUCCESS, b);
@@ -168,10 +171,37 @@ public class RMAuditLogger {
       ApplicationId appId, CallerContext callerContext) {
     if (LOG.isInfoEnabled()) {
       LOG.info(createSuccessLog(user, operation, target, appId, null, null,
-          callerContext));
+          callerContext, Server.getRemoteIp()));
     }
   }
 
+  /**
+   * Create a readable and parseable audit log string for a successful event.
+   *
+   * @param user
+   *          User who made the service request to the ResourceManager.
+   * @param operation
+   *          Operation requested by the user.
+   * @param target
+   *          The target on which the operation is being performed.
+   * @param appId
+   *          Application Id in which operation was performed.
+   * @param ip
+   *          The ip address of the caller.
+   *
+   *          <br>
+   *          <br>
+   *          Note that the {@link RMAuditLogger} uses tabs ('\t') as a key-val
+   *          delimiter and hence the value fields should not contains tabs
+   *          ('\t').
+   */
+  public static void logSuccess(String user, String operation, String target,
+      ApplicationId appId, InetAddress ip) {
+    if (LOG.isInfoEnabled()) {
+      LOG.info(createSuccessLog(user, operation, target, appId, null, null,
+          null, ip));
+    }
+  }
 
   /**
    * Create a readable and parseable audit log string for a successful event.

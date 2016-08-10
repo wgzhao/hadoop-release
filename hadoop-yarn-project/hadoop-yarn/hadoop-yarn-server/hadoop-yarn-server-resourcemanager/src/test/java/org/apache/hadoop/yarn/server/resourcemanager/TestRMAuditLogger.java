@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.CallerContext;
@@ -35,6 +36,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.server.resourcemanager.RMAuditLogger.Keys;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -95,18 +97,37 @@ public class TestRMAuditLogger {
     testSuccessLogFormatHelper(checkIP, appId, attemptId, containerId, null);
   }
 
+  private void testSuccessLogFormatHelper(boolean checkIP, ApplicationId appId,
+      ApplicationAttemptId attemptId, ContainerId containerId,
+      CallerContext callerContext) {
+    testSuccessLogFormatHelper(checkIP, appId, attemptId, containerId,
+        callerContext, Server.getRemoteIp());
+  }
+
   /**
    * Test the AuditLog format for successful events.
    */
   private void testSuccessLogFormatHelper(boolean checkIP, ApplicationId appId,
       ApplicationAttemptId attemptId, ContainerId containerId,
-      CallerContext callerContext) {
-    String sLog = RMAuditLogger.createSuccessLog(USER, OPERATION, TARGET,
-        appId, attemptId, containerId, callerContext);
+      CallerContext callerContext, InetAddress remoteIp) {
+
+    String sLog;
+    if (checkIP) {
+      sLog = RMAuditLogger.createSuccessLog(USER, OPERATION, TARGET, appId,
+          attemptId, containerId, callerContext, remoteIp);
+    } else {
+      sLog = RMAuditLogger.createSuccessLog(USER, OPERATION, TARGET, appId,
+          attemptId, containerId, callerContext, null);
+    }
     StringBuilder expLog = new StringBuilder();
     expLog.append("USER=test\t");
     if (checkIP) {
-      InetAddress ip = Server.getRemoteIp();
+      InetAddress ip;
+      if(remoteIp != null) {
+        ip = remoteIp;
+      } else {
+        ip = Server.getRemoteIp();
+      }
       expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
     }
     expLog.append("OPERATION=oper\tTARGET=tgt\tRESULT=SUCCESS");
@@ -131,6 +152,13 @@ public class TestRMAuditLogger {
     assertEquals(expLog.toString(), sLog);
   }
 
+  private void testSuccessLogFormatHelperWithIP(boolean checkIP,
+      ApplicationId appId, ApplicationAttemptId attemptId,
+      ContainerId containerId, InetAddress ip) {
+    testSuccessLogFormatHelper(checkIP, appId, attemptId, containerId, null,
+        ip);
+  }
+
   /**
    * Test the AuditLog format for successful events passing nulls.
    */
@@ -145,6 +173,33 @@ public class TestRMAuditLogger {
     }
     expLog.append("OPERATION=null\tTARGET=null\tRESULT=SUCCESS");
     assertEquals(expLog.toString(), sLog);
+  }
+
+  /**
+   * Tests the SuccessLog with two IP addresses.
+   *
+   * @param checkIP
+   * @param appId
+   * @param attemptId
+   * @param containerId
+   */
+  private void testSuccessLogFormatHelperWithIP(boolean checkIP,
+      ApplicationId appId, ApplicationAttemptId attemptId,
+      ContainerId containerId) {
+    testSuccessLogFormatHelperWithIP(checkIP, appId, attemptId, containerId,
+        InetAddress.getLoopbackAddress());
+    byte[] ipAddr = new byte[] {100, 10, 10, 1};
+
+    InetAddress addr = null;
+    try {
+      addr = InetAddress.getByAddress(ipAddr);
+    } catch (UnknownHostException uhe) {
+      // should not happen as long as IP address format
+      // stays the same
+      Assert.fail("Check ip address being constructed");
+    }
+    testSuccessLogFormatHelperWithIP(checkIP, appId, attemptId, containerId,
+        addr);
   }
 
   /**
@@ -170,6 +225,7 @@ public class TestRMAuditLogger {
     testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID,
         new CallerContext.Builder(CALLER_CONTEXT).setSignature(CALLER_SIGNATURE)
             .build());
+    testSuccessLogFormatHelperWithIP(checkIP, APPID, ATTEMPTID, CONTAINERID);
     testSuccessLogNulls(checkIP);
   }
 

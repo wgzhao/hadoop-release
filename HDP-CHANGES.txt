@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    YARN-5382. RM does not audit log kill request for active applications.
+    Contributed by Vrushali C
