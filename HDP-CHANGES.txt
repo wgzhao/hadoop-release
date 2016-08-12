@@ -4302,3 +4302,5 @@ ATS V1.5:
     replica is corrupt. Contributed by Brahma Reddy Battula.
 
     YARN-4465. SchedulerUtils#validateRequest for Label check should happen only when nodelabel enabled. (Bibin via wangda)
+
+    BUG-83346. YARN-4833. For Queue AccessControlException client retries multiple times on both RM. Contributed by Bibin A Chundatt.

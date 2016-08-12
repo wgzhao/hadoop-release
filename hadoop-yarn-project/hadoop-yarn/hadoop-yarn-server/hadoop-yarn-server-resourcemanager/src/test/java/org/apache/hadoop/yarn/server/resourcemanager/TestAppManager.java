@@ -30,11 +30,14 @@ import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.MockApps;
+import org.apache.hadoop.yarn.api.protocolrecords.SubmitApplicationRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.Dispatcher;
@@ -57,8 +60,10 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AMLivelinessM
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAllocationExpirer;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.YarnScheduler;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.security.ClientToAMTokenSecretManagerInRM;
 import org.apache.hadoop.yarn.server.security.ApplicationACLsManager;
+import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.junit.After;
@@ -276,6 +281,44 @@ public class TestAppManager{
       isA(RMApp.class));
   }
 
+  @Test
+  public void testQueueSubmitWithNoPermission() throws IOException {
+    YarnConfiguration conf = new YarnConfiguration();
+    conf.set(YarnConfiguration.RM_SCHEDULER,
+        CapacityScheduler.class.getCanonicalName());
+    conf.set("yarn.scheduler.capacity.root.acl_submit_applications", " ");
+    conf.set("yarn.scheduler.capacity.root.acl_administer_queue", " ");
+
+    conf.set("yarn.scheduler.capacity.root.default.acl_submit_applications",
+        " ");
+    conf.set("yarn.scheduler.capacity.root.default.acl_administer_queue", " ");
+    conf.set(YarnConfiguration.YARN_ACL_ENABLE, "true");
+    MockRM mockRM = new MockRM(conf);
+    ClientRMService rmService = mockRM.getClientRMService();
+    SubmitApplicationRequest req =
+        Records.newRecord(SubmitApplicationRequest.class);
+    ApplicationSubmissionContext sub =
+        Records.newRecord(ApplicationSubmissionContext.class);
+    sub.setApplicationId(appId);
+    ResourceRequest resReg =
+        ResourceRequest.newInstance(Priority.newInstance(0),
+            ResourceRequest.ANY, Resource.newInstance(1024, 1), 1);
+    sub.setAMContainerResourceRequest(resReg);
+    req.setApplicationSubmissionContext(sub);
+    try {
+      rmService.submitApplication(req);
+    } catch (Exception e) {
+      if (e instanceof YarnException) {
+        Assert.assertTrue(e.getCause() instanceof AccessControlException);
+      } else {
+        Assert.fail("Yarn exception is expected");
+      }
+    } finally {
+      mockRM.close();
+    }
+  }
+
+  @Test
   public void testRMAppRetireSome() throws Exception {
     long now = System.currentTimeMillis();
 
