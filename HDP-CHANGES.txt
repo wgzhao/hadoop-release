@@ -2991,3 +2991,5 @@ ATS V1.5:
 
     BUG-67889. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
+
+    YARN-5476. Not existed application reported as ACCEPTED state by YarnClientImpl. Contributed by Junping Du.
