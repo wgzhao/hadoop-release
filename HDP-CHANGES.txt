@@ -2990,3 +2990,5 @@ ATS V1.5:
 
     MAPREDUCE-6565. Configuration to use host name in delegation token service is not read from job.xml during MapReduce
     job execution. Contributed by Li Lu.
+
+    YARN-5476. Not existed application reported as ACCEPTED state by YarnClientImpl. Contributed by Junping Du.
