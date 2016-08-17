@@ -1361,8 +1361,10 @@ ATS V1.5:
     BUG-56423. HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
     protobuf maximum length restriction. Contributed by Chris Nauroth.
 
-    BUG-48217/YARN-5112. Excessive log warnings for directory permission
+    BUG-58182. YARN-5112. Excessive log warnings for directory permission
     issue on NM recovery. (jianhe via Junping Du)
+    
+    BUG-48217. YARN-4325. Nodemanager log handlers fail to send finished/failed events in some cases. Contributed by Junping Du
 
     BUG-57625. HADOOP-13103. Group resolution from LDAP may fail on javax.naming.ServiceUnavailableException
 
@@ -1387,7 +1389,7 @@ ATS V1.5:
     BUG-58358. HDFS-10424. DatanodeLifelineProtocol not able to use under
     security cluster. Contributed by Chris Nauroth.
 
-    BUG-55185. YARN-5076. YARN web interfaces lack XFS (Cross-Frame Script) protection.
+    BUG-55186. YARN-5076. YARN web interfaces lack XFS (Cross-Frame Script) protection.
     (Jon Maron via junping_du)
 
     BUG-58437. HADOOP-13008. Add XFS Filter for UIs to Hadoop Common. Contributed by Larry McCay.
@@ -1764,3 +1766,9 @@ ATS V1.5:
     BUG-64105. MAPREDUCE-6637. Testcase Failure :
     TestFileInputFormat.testSplitLocationInfo. Contributed by Brahma Reddy
     Battula.
+  
+    YARN-2910. FSLeafQueue can throw ConcurrentModificationException. (Wilfred Spiegelenburg via kasha)
+    
+    YARN-2104. Scheduler queue filter failed to work because index of queue column changed. Contributed by Wangda Tan
+    
+    BUG-56227. YARN-4983. JVM and UGI metrics disappear after RM transitioned to standby mode
