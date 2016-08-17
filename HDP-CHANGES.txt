@@ -3179,3 +3179,6 @@ ATS V1.5:
 
     HADOOP-13324. s3a tests don't authenticate with S3 frankfurt (or other V4
     auth only endpoints). Contributed by Steve Loughran.
+
+    HADOOP-13188 S3A file-create should throw error rather than overwrite
+    directories. Contributed by Steve Loughran.
