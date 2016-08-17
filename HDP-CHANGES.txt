@@ -3182,3 +3182,6 @@ ATS V1.5:
 
     HADOOP-13188 S3A file-create should throw error rather than overwrite
     directories. Contributed by Steve Loughran.
+
+    HADOOP-13208. S3A listFiles(recursive=true) to do a bulk listObjects instead
+    of walking the pseudo-tree of directories. Contributed by Steve Loughran.
