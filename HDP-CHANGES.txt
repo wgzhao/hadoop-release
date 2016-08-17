@@ -1229,3 +1229,7 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
+    BUG-65679. MAPREDUCE-6514. Fixed MapReduce ApplicationMaster to properly
+    updated resources ask after ramping down of all reducers avoiding job hangs.
+    Contributed by Varun Saxena and Wangda Tan. Updated the 2.7 branch patch to
+    fix a minor issue in TestRMContainerAllocator.java
