@@ -1772,3 +1772,35 @@ ATS V1.5:
     YARN-2104. Scheduler queue filter failed to work because index of queue column changed. Contributed by Wangda Tan
     
     BUG-56227. YARN-4983. JVM and UGI metrics disappear after RM transitioned to standby mode
+
+    BUG-62670. HDFS-10417. Improve error message from checkBlockLocalPathAccess.
+    Contributed by Tianyin Xu.
+
+    BUG-62670. HADOOP-13197. Add non-decayed call metrics for DecayRpcScheduler.
+    Contributed by Xiaoyu Yao.
+
+    BUG-62670. HADOOP-13285. DecayRpcScheduler MXBean should only report
+    decayed CallVolumeSummary. Contributed by Xiaoyu Yao.
+
+    BUG-62670. HADOOP-12901. Add warning log when KMSClientProvider cannot
+    create a connection to the KMS server. (Xiao Chen via wang)
+
+    BUG-62670. HADOOP-12916. Allow RPC scheduler/callqueue backoff using
+    response times. Contributed by Xiaoyu Yao.
+
+    BUG-62670. HDFS-10253. Fix TestRefreshCallQueue failure (Contributed by Xiaoyu Yao)
+
+    BUG-62670. HADOOP-12985. Support MetricsSource interface
+    for DecayRpcScheduler Metrics. Contributed by Xiaoyu Yao.
+
+    BUG-62670. HADOOP-13159. Fix potential NPE in Metrics2 source
+    for DecayRpcScheduler. Contributed by Xiaoyu Yao.
+
+    BUG-62670. HADOOP-12962. KMS key names are incorrectly encoded
+    when creating key. Contributed by Xiao Chen.
+
+    BUG-62670. HADOOP-11404. Clarify the "expected client Kerberos
+    principal is null" authorization message. Contributed by Stephen Chu
+
+    BUG-62670. HDFS-8758. Implement the continuation library in libhdfspp.
+    Contributed by Haohui Mai.
