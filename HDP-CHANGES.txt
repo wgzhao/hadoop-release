@@ -3176,3 +3176,6 @@ ATS V1.5:
 
     HADOOP-13207. Specify FileSystem listStatus, listFiles and RemoteIterator.
     Contributed by Steve Loughran.
+
+    HADOOP-13324. s3a tests don't authenticate with S3 frankfurt (or other V4
+    auth only endpoints). Contributed by Steve Loughran.
