@@ -1766,11 +1766,9 @@ ATS V1.5:
     BUG-64105. MAPREDUCE-6637. Testcase Failure :
     TestFileInputFormat.testSplitLocationInfo. Contributed by Brahma Reddy
     Battula.
-  
-    YARN-2910. FSLeafQueue can throw ConcurrentModificationException. (Wilfred Spiegelenburg via kasha)
-    
+
     YARN-2104. Scheduler queue filter failed to work because index of queue column changed. Contributed by Wangda Tan
-    
+
     BUG-56227. YARN-4983. JVM and UGI metrics disappear after RM transitioned to standby mode
 
     BUG-62670. HDFS-10417. Improve error message from checkBlockLocalPathAccess.
