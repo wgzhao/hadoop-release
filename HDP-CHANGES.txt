@@ -3445,3 +3445,6 @@ ATS V1.5:
 
     BUG-75455. HDFS-10499. TestNameNodeMetadataConsistency#testGenerationStampInFuture
     Fails Intermittently. Contributed by Yiqun Lin.
+
+    BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent lease update
+
