@@ -2928,3 +2928,6 @@ ATS V1.5:
     Mingliang Liu.
 
     BUG-64186. Disable UT org.apache.hadoop.security.TestGroupsCaching.testBackgroundRefreshCounters
+
+    BUG-64662. HADOOP-13512. ReloadingX509TrustManager should keep reloading in
+    case of exception. (Contributed by Mingliang Liu)
