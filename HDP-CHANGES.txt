@@ -3435,3 +3435,6 @@ ATS V1.5:
     YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
 
     HADOOP-12054. RPC client should not retry for InvalidToken exceptions.
+
+    BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent lease update.
+
