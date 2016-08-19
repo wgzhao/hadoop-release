@@ -3188,3 +3188,6 @@ ATS V1.5:
 
     HADOOP-13389 TestS3ATemporaryCredentials.testSTS error when using IAM
     credentials. Contributed by Steven K. Wong.
+
+    HADOOP-13252. Tune S3A provider plugin mechanism.
+    Contributed by Steve Loughran.
