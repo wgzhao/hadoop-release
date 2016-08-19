@@ -1808,3 +1808,6 @@ ATS V1.5:
 
     HADOOP-13459. hadoop-azure runs several test cases repeatedly, causing 
     unnecessarily long running time. Contributed by Chris Nauroth.
+
+    HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
+    Contributed by Tibor Kiss.
