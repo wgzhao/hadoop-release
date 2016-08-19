@@ -1805,3 +1805,6 @@ ATS V1.5:
 
     HADOOP-13403. AzureNativeFileSystem rename/delete performance improvements. 
     Contributed by Subramanyam Pattipaka.
+
+    HADOOP-13459. hadoop-azure runs several test cases repeatedly, causing 
+    unnecessarily long running time. Contributed by Chris Nauroth.
