@@ -4651,3 +4651,6 @@ ATS V1.5:
     own User Directory. Contributed by Rohith Sharma K S.
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
+
+    BUG-121878. MAPREDUCE-6763. Shuffle server listen queue is too small (Jason
+    Lowe via Varun Saxena)
