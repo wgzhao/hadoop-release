@@ -1802,3 +1802,6 @@ ATS V1.5:
 
     BUG-62670. HDFS-8758. Implement the continuation library in libhdfspp.
     Contributed by Haohui Mai.
+
+    HADOOP-13403. AzureNativeFileSystem rename/delete performance improvements. 
+    Contributed by Subramanyam Pattipaka.
