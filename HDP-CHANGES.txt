@@ -2951,3 +2951,6 @@ ATS V1.5:
 
     BUG-64511. HDFS-9618. Fix mismatch between log level and guard in
     BlockManager#computeRecoveryWorkForBlocks (iwasakims)
+
+    BUG-64765. HDFS-10764. Fix INodeFile#getBlocks to not return null. 
+    Contributed by Arpit Agarwal.
