@@ -129,14 +129,14 @@ public class INodeFile extends INodeWithAdditionalFields
       long preferredBlockSize, byte storagePolicyID) {
     super(id, name, permissions, mtime, atime);
     header = HeaderFormat.toLong(preferredBlockSize, replication, storagePolicyID);
-    this.blocks = blklist;
+    setBlocks(blklist);
   }
   
   public INodeFile(INodeFile that) {
     super(that);
     this.header = that.header;
-    this.blocks = that.blocks;
     this.features = that.features;
+    setBlocks(that.blocks);
   }
   
   public INodeFile(INodeFile that, FileDiffList diffs) {
@@ -209,9 +209,6 @@ public class INodeFile extends INodeWithAdditionalFields
 
   /** Assert all blocks are complete. */
   private void assertAllBlocksComplete() {
-    if (blocks == null) {
-      return;
-    }
     for (int i = 0; i < blocks.length; i++) {
       Preconditions.checkState(blocks[i].isComplete(), "Failed to finalize"
           + " %s %s since blocks[%s] is non-complete, where blocks=%s.",
@@ -248,7 +245,7 @@ public class INodeFile extends INodeWithAdditionalFields
   boolean removeLastBlock(Block oldblock) {
     Preconditions.checkState(isUnderConstruction(),
         "file is no longer under construction");
-    if (blocks == null || blocks.length == 0) {
+    if (blocks.length == 0) {
       return false;
     }
     int size_1 = blocks.length - 1;
@@ -471,7 +468,7 @@ public class INodeFile extends INodeWithAdditionalFields
    * add a block to the block list
    */
   void addBlock(BlockInfo newblock) {
-    if (this.blocks == null) {
+    if (this.blocks.length == 0) {
       this.setBlocks(new BlockInfo[]{newblock});
     } else {
       int size = this.blocks.length;
@@ -485,6 +482,7 @@ public class INodeFile extends INodeWithAdditionalFields
   /** Set the blocks. */
   public void setBlocks(BlockInfo[] blocks) {
     this.blocks = blocks;
+    this.blocks = (blocks != null ? blocks : BlockInfo.EMPTY_ARRAY);
   }
 
   @Override
@@ -634,7 +632,7 @@ public class INodeFile extends INodeWithAdditionalFields
    */
   public final long computeFileSize(boolean includesLastUcBlock,
       boolean usePreferredBlockSize4LastUcBlock) {
-    if (blocks == null || blocks.length == 0) {
+    if (blocks.length == 0) {
       return 0;
     }
     final int last = blocks.length - 1;
@@ -699,7 +697,7 @@ public class INodeFile extends INodeWithAdditionalFields
    * Return the penultimate allocated block for this file.
    */
   BlockInfo getPenultimateBlock() {
-    if (blocks == null || blocks.length <= 1) {
+    if (blocks.length <= 1) {
       return null;
     }
     return blocks[blocks.length - 2];
@@ -707,12 +705,12 @@ public class INodeFile extends INodeWithAdditionalFields
 
   @Override
   public BlockInfo getLastBlock() {
-    return blocks == null || blocks.length == 0? null: blocks[blocks.length-1];
+    return blocks.length == 0 ? null : blocks[blocks.length - 1];
   }
 
   @Override
   public int numBlocks() {
-    return blocks == null ? 0 : blocks.length;
+    return blocks.length;
   }
 
   @VisibleForTesting
@@ -723,7 +721,7 @@ public class INodeFile extends INodeWithAdditionalFields
     out.print(", fileSize=" + computeFileSize(snapshotId));
     // only compare the first block
     out.print(", blocks=");
-    out.print(blocks == null || blocks.length == 0? null: blocks[0]);
+    out.print(blocks.length == 0 ? null: blocks[0]);
     out.println();
   }
 
