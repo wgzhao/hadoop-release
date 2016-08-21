@@ -2945,3 +2945,6 @@ ATS V1.5:
 
     HADOOP-13403. AzureNativeFileSystem rename/delete performance improvements.
     Contributed by Subramanyam Pattipaka.
+
+    MAPREDUCE-6762. ControlledJob#toString failed with NPE when job status is not successfully updated.
+    Contributed by Weiwei Yang.
