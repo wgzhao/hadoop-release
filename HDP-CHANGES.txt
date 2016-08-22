@@ -953,3 +953,5 @@ covered by CHANGES.txt.
 
     BUG-56434. MAPREDUCE-6680. JHS UserLogDir scan algorithm sometime could skip directory
     with update in CloudFS (Azure FileSystem, S3, etc). (Junping Du via jianhe)
+
+    YARN-234. Remove deprecated AHS property for Window's configuration. Junping Du.
