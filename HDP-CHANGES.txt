@@ -4814,3 +4814,4 @@ ATS V1.5:
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
 BUG-123479. HADOOP-11722. Some Instances of Services using ZKDelegationTokenSecretManager go down when old token cannot be deleted. Contributed by Arun Suresh.
+BUG-123588. HADOOP-13487. Hadoop KMS should load old delegation tokens from Zookeeper on startup. Contributed by Xiao Chen.
