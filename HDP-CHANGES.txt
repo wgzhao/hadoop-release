@@ -4815,3 +4815,4 @@ ATS V1.5:
     BUG-100352. Remove RM registry purge for app attempt and container events.
 BUG-122760. HADOOP-14521. KMS client needs retry logic. Contributed by Rushabh S Shah.
 BUG-122760. HADOOP-15390. Yarn RM logs flooded by DelegationTokenRenewer trying to renew KMS tokens (xiaochen via rkanter)
+BUG-124907. HADOOP-13487. Hadoop KMS should load old delegation tokens from Zookeeper on startup. Contributed by Xiao Chen.
