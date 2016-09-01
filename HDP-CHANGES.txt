@@ -169,3 +169,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     HADOOP-11674. oneByteBuf in CryptoInputStream and CryptoOutputStream
 		should be non static. (Sean Busbey via yliu)
 
+    BUG-64957. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
