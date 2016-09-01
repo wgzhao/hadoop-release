@@ -890,3 +890,6 @@ ATS V1.5:
 
     MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
 
+    BUG-65105. HDFS-10271. Extra bytes are getting released from reservedSpace
+    for append (Contributed by Brahma Reddy Battula)
+
