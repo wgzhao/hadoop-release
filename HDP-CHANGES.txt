@@ -893,3 +893,5 @@ ATS V1.5:
     BUG-65105. HDFS-10271. Extra bytes are getting released from reservedSpace
     for append (Contributed by Brahma Reddy Battula)
 
+    BUG-65105. HDFS-9530. ReservedSpace is not cleared for abandoned Blocks
+    (Contributed by Brahma Reddy Battula)
