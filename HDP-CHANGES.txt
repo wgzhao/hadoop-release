@@ -855,3 +855,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-52495. HDFS-9347. Invariant assumption in TestQuorumJournalManager.shutdown()
     is wrong (Wei-Chiu Chuang)
 
+    BUG-65125. HDFS-10396. Using -diff option with DistCp may get "Comparison method
+    violates its general contract" exception. Contributed by Yongjun Zhang.
