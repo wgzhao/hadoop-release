@@ -2936,3 +2936,6 @@ ATS V1.5:
 
     HADOOP-13354. Update WASB driver to use the latest version (4.2.0) of SDK
     for Microsoft Azure Storage Clients. Contributed by Sivaguru Sankaridurg.
+
+    HADOOP-13459. hadoop-azure runs several test cases repeatedly, causing
+    unnecessarily long running time. Contributed by Chris Nauroth.
