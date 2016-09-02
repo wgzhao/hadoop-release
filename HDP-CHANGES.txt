@@ -890,3 +890,7 @@ ATS V1.5:
 
     MAPREDUCE-6621. Memory Leak in JobClient#submitJobInternal(). (xgong)
 
+    BUG-65378. MAPREDUCE-6514. Fixed MapReduce ApplicationMaster to properly
+    updated resources ask after ramping down of all reducers avoiding job hangs.
+    Contributed by Varun Saxena and Wangda Tan. Updated the 2.7 branch patch to
+    fix a minor issue in TestRMContainerAllocator.java
