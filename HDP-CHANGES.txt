@@ -2933,3 +2933,6 @@ ATS V1.5:
     case of exception. (Contributed by Mingliang Liu)
 
     BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+
+    HADOOP-13354. Update WASB driver to use the latest version (4.2.0) of SDK
+    for Microsoft Azure Storage Clients. Contributed by Sivaguru Sankaridurg.
