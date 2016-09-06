@@ -266,3 +266,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-65455. HDFS-9618. Fix mismatch between log level and guard in
     BlockManager#computeRecoveryWorkForBlocks (iwasakims)
+
+    BUG-65456. HDFS-6425. Large postponedMisreplicatedBlocks has impact on
+    blockReport latency. Contributed by Ming Ma.

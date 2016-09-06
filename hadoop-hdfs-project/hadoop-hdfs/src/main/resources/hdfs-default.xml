@@ -958,7 +958,7 @@
         dfs.image.transfer.bandwidthPerSec parameter should be configured such
         that normal image transfer can complete successfully.
         This timeout prevents client hangs when the sender fails during
-        image transfer. This is socket timeout during image tranfer.
+        image transfer. This is socket timeout during image transfer.
   </description>
 </property>
 
@@ -1035,7 +1035,7 @@
         (e.g HBase random-IO workloads).
 
         This may improve performance for some workloads by freeing buffer
-        cache spage usage for more cacheable data.
+        cache space usage for more cacheable data.
 
         If the Hadoop native libraries are not available, this configuration
         has no effect.
@@ -1053,7 +1053,7 @@
         after it is written to disk.
 
         This may improve performance for some workloads by freeing buffer
-        cache spage usage for more cacheable data.
+        cache space usage for more cacheable data.
 
         If the Hadoop native libraries are not available, this configuration
         has no effect.
@@ -2221,6 +2221,14 @@
     dump the contents of the old format fsimage by oiv_legacy command. If
     the value is not specified, old format fsimage will not be saved in
     checkpoint.
+  </description>
+</property>
+
+<property>
+  <name>dfs.namenode.blocks.per.postponedblocks.rescan</name>
+  <value>10000</value>
+  <description>Number of blocks to rescan for each iteration of
+    postponedMisreplicatedBlocks.
   </description>
 </property>
 
