@@ -261,3 +261,5 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-65454. HDFS-6860. BlockStateChange logs are too noisy. Contributed by
     Chang Li and Xiaoyu Yao.
+
+    BUG-65457. HDFS-7962. Remove duplicated logs in BlockManager. (yliu)
