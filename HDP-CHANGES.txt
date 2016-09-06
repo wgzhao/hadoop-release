@@ -269,3 +269,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-65456. HDFS-6425. Large postponedMisreplicatedBlocks has impact on
     blockReport latency. Contributed by Ming Ma.
+
+    BUG-64071. HDFS-9906. Remove spammy log spew when a datanode is restarted.
+    (Contributed by Brahma Reddy Battula)
