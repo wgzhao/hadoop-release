@@ -1474,7 +1474,7 @@ public class BlockManager {
       namesystem.writeUnlock();
     }
 
-    if (blockLog.isInfoEnabled()) {
+    if (blockLog.isDebugEnabled()) {
       // log which blocks have been scheduled for replication
       for(ReplicationWork rw : work){
         DatanodeStorageInfo[] targets = rw.targets;
@@ -1488,8 +1488,7 @@ public class BlockManager {
               rw.block, targetList);
         }
       }
-    }
-    if (blockLog.isDebugEnabled()) {
+
       blockLog.debug("BLOCK* neededReplications = {} pendingReplications = {}",
           neededReplications.size(), pendingReplications.size());
     }

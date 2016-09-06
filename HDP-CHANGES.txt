@@ -263,3 +263,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     Chang Li and Xiaoyu Yao.
 
     BUG-65457. HDFS-7962. Remove duplicated logs in BlockManager. (yliu)
+
+    BUG-65455. HDFS-9618. Fix mismatch between log level and guard in
+    BlockManager#computeRecoveryWorkForBlocks (iwasakims)
