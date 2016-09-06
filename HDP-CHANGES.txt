@@ -258,3 +258,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57308. HDFS-7734. Class cast exception in NameNode#main. Contributed by
     Yi Liu.
+
+    BUG-65454. HDFS-6860. BlockStateChange logs are too noisy. Contributed by
+    Chang Li and Xiaoyu Yao.
