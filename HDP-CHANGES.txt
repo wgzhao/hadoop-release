@@ -2985,3 +2985,5 @@ ATS V1.5:
     javadoc. Contributed by Akira AJISAKA.
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket. Contributed by Xiao Chen.
