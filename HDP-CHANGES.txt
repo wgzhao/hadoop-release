@@ -3089,3 +3089,7 @@ ATS V1.5:
 
     BUG-72833. YARN-5456. container-executor support for FreeBSD, NetBSD, and
     others if conf path is absolute.
+
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket.
+    Contributed by Xiao Chen.
+
