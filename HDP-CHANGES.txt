@@ -3330,3 +3330,7 @@ ATS V1.5:
 
     YARN-3920. FairScheduler container reservation on a node should be configurable to limit it to large 
     containers (adhoot via asuresh)
+
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket.
+    Contributed by Xiao Chen.
+
