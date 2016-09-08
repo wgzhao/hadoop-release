@@ -2942,3 +2942,6 @@ ATS V1.5:
 
     HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
     Contributed by Tibor Kiss.
+
+    HADOOP-13403. AzureNativeFileSystem rename/delete performance improvements.
+    Contributed by Subramanyam Pattipaka.
