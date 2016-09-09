@@ -142,7 +142,7 @@ public abstract class GenericTestUtils {
   }
   
   public static void assertExceptionContains(String string, Throwable t) {
-    String msg = t.getMessage();
+    String msg = StringUtils.stringifyException(t);
     Assert.assertTrue(
         "Expected to find '" + string + "' but got unexpected exception:"
         + StringUtils.stringifyException(t), msg.contains(string));
