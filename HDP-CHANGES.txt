@@ -1232,3 +1232,5 @@ ATS V1.5:
     BUG-63654. YARN-3982. container-executor parsing of container-executor.cfg broken
     in trunk and branch-2.
 
+    BUG-64899. HADOOP-12950. ShutdownHookManager should have a timeout for each
+    of the Registered shutdown hook. Contributed by Xiaoyu Yao.
