@@ -3282,3 +3282,5 @@ ATS V1.5:
 
     HADOOP-13406 S3AFileSystem: Consider reusing filestatus in delete() and mkdirs().
     Contributed by Rajesh Balamohan
+
+    HADOOP-13540 improve section on troubleshooting s3a auth problems. Contributed by Steve Loughran
