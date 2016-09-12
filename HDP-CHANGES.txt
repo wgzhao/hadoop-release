@@ -860,3 +860,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-65703. HDFS-9314. Improve BlockPlacementPolicyDefault's picking of
     excess replicas. Contributed by Xiao Chen.
+
+    BUG-65706. HADOOP-12423. Handle failure of registering shutdownhook by
+    ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
