@@ -3173,3 +3173,6 @@ ATS V1.5:
 
     BUG-72157. YARN-4767. Network issues can cause persistent RM UI outage.
     (Daniel Templeton via kasha)
+
+    HADOOP-13207. Specify FileSystem listStatus, listFiles and RemoteIterator.
+    Contributed by Steve Loughran.
