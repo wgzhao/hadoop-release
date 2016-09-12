@@ -2470,7 +2470,7 @@ public class BlockManager implements BlockStatsMXBean {
     if (reportedState == ReplicaState.FINALIZED
         && (storedBlock.findStorageInfo(storageInfo) == -1 ||
             corruptReplicas.isReplicaCorrupt(storedBlock, dn))) {
-      toAdd.add(new BlockInfoToAdd(storedBlock, block));
+      toAdd.add(new BlockInfoToAdd(storedBlock, new Block(block)));
     }
     return storedBlock;
   }
