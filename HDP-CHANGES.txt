@@ -2933,3 +2933,9 @@ ATS V1.5:
     case of exception. (Contributed by Mingliang Liu)
 
     BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+
+    HADOOP-13207. Specify FileSystem listStatus, listFiles and RemoteIterator.
+    Contributed by Steve Loughran.
+
+    HADOOP-13208. S3A listFiles(recursive=true) to do a bulk listObjects instead
+    of walking the pseudo-tree of directories. Contributed by Steve Loughran.

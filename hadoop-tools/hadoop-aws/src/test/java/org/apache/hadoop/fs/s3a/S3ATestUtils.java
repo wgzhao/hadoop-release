@@ -123,7 +123,7 @@ public class S3ATestUtils {
       try {
         callback.call();
         return;
-      } catch (FailFastException e) {
+      } catch (InterruptedException | FailFastException e) {
         throw e;
       } catch (Exception e) {
         lastException = e;
@@ -306,7 +306,7 @@ public class S3ATestUtils {
      * @return true if the value is {@code ==} the other's
      */
     public boolean diffEquals(MetricDiff that) {
-      return this.currentValue() == that.currentValue();
+      return this.diff() == that.diff();
     }
 
     /**
@@ -315,7 +315,7 @@ public class S3ATestUtils {
      * @return true if the value is {@code <} the other's
      */
     public boolean diffLessThan(MetricDiff that) {
-      return this.currentValue() < that.currentValue();
+      return this.diff() < that.diff();
     }
 
     /**
@@ -324,7 +324,7 @@ public class S3ATestUtils {
      * @return true if the value is {@code <=} the other's
      */
     public boolean diffLessThanOrEquals(MetricDiff that) {
-      return this.currentValue() <= that.currentValue();
+      return this.diff() <= that.diff();
     }
 
     /**
