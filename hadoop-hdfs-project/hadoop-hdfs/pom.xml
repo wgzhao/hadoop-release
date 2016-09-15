@@ -216,6 +216,13 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
       <artifactId>mockserver-netty</artifactId>
       <version>3.9.2</version>
       <scope>test</scope>
+      <exclusions>
+        <!-- take newer version through transitive hadoop-common dependency -->
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- 'mvn dependency:analyze' fails to detect use of this dependency -->
     <dependency>
