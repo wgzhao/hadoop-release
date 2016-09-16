@@ -258,3 +258,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-57308. HDFS-7734. Class cast exception in NameNode#main. Contributed by
     Yi Liu.
+
+    BUG-65973. YARN-4398. Remove unnecessary synchronization in RMStateStore.
+    Contributed by Ning Ding
