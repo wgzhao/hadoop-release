@@ -36,10 +36,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
 import org.apache.hadoop.crypto.key.kms.server.KMSConfiguration;
 import org.apache.hadoop.crypto.key.kms.server.MiniKMS;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileUtil;
-import org.apache.hadoop.fs.FsShell;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.hdfs.client.CreateEncryptionZoneFlag;
 import org.apache.hadoop.hdfs.client.HdfsAdmin;
 import org.apache.hadoop.http.HttpConfig;
@@ -202,7 +199,7 @@ public class TestTrashWithSecureEncryptionZones {
     miniKMS = miniKMSBuilder.setKmsConfDir(baseDir).build();
     miniKMS.start();
 
-    baseConf.set(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI,
+    baseConf.set(CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH,
         getKeyProviderURI());
     baseConf.setBoolean(DFSConfigKeys
         .DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);

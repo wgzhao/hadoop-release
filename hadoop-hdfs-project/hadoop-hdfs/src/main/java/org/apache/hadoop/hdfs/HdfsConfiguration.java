@@ -21,6 +21,7 @@ package org.apache.hadoop.hdfs;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 
 /**
  * Adds deprecated keys into the configuration.
@@ -138,6 +139,8 @@ public class HdfsConfiguration extends Configuration {
         DFSConfigKeys.DFS_NAMESERVICES),
       new DeprecationDelta("dfs.federation.nameservice.id",
         DFSConfigKeys.DFS_NAMESERVICE_ID),
+      new DeprecationDelta("dfs.encryption.key.provider.uri",
+        CommonConfigurationKeysPublic.HADOOP_SECURITY_KEY_PROVIDER_PATH),
       new DeprecationDelta("dfs.client.file-block-storage-locations.timeout",
         DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS),
     });

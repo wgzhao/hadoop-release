@@ -23,12 +23,7 @@ import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.crypto.key.JavaKeyStoreProvider;
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileSystemTestHelper;
-import org.apache.hadoop.fs.FileSystemTestWrapper;
-import org.apache.hadoop.fs.FsShell;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.client.CreateEncryptionZoneFlag;
@@ -84,7 +79,7 @@ public class TestTrashWithEncryptionZones {
     // Set up java key store
     String testRoot = fsHelper.getTestRootDir();
     testRootDir = new File(testRoot).getAbsoluteFile();
-    conf.set(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI,
+    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH,
         getKeyProviderURI());
     conf.setBoolean(DFSConfigKeys
         .DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);

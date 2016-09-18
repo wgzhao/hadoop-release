@@ -1944,7 +1944,8 @@ public class DFSUtil {
   public static KeyProvider createKeyProvider(
       final Configuration conf) throws IOException {
     final String providerUriStr =
-        conf.getTrimmed(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI, "");
+        conf.getTrimmed(CommonConfigurationKeys.
+            HADOOP_SECURITY_KEY_PROVIDER_PATH, "");
     // No provider set in conf
     if (providerUriStr.isEmpty()) {
       return null;
@@ -1958,8 +1959,8 @@ public class DFSUtil {
     KeyProvider keyProvider = KeyProviderFactory.get(providerUri, conf);
     if (keyProvider == null) {
       throw new IOException("Could not instantiate KeyProvider from " + 
-          DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI + " setting of '" + 
-          providerUriStr +"'");
+          CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH +
+          " setting of '" + providerUriStr +"'");
     }
     if (keyProvider.isTransient()) {
       throw new IOException("KeyProvider " + keyProvider.toString()
@@ -1990,7 +1991,8 @@ public class DFSUtil {
 
   /**
    * Probe for HDFS Encryption being enabled; this uses the value of
-   * the option {@link DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI},
+   * the option {@link
+   * CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH},
    * returning true if that property contains a non-empty, non-whitespace
    * string.
    * @param conf configuration to probe
@@ -1998,6 +2000,7 @@ public class DFSUtil {
    */
   public static boolean isHDFSEncryptionEnabled(Configuration conf) {
     return !conf.getTrimmed(
-        DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI, "").isEmpty();
+        CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH,
+        "").isEmpty();
   }
 }

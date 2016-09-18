@@ -34,6 +34,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 
 public class KeyProviderCache {
 
@@ -81,11 +82,12 @@ public class KeyProviderCache {
 
   private URI createKeyProviderURI(Configuration conf) {
     final String providerUriStr =
-        conf.getTrimmed(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI, "");
+        conf.getTrimmed(
+            CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH, "");
     // No provider set in conf
     if (providerUriStr.isEmpty()) {
       LOG.error("Could not find uri with key ["
-          + DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI
+          + CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH
           + "] to create a keyProvider !!");
       return null;
     }
