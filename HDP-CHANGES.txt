@@ -3191,3 +3191,6 @@ ATS V1.5:
 
     HADOOP-13252. Tune S3A provider plugin mechanism.
     Contributed by Steve Loughran.
+
+    HADOOP-13169. Randomize file list in SimpleCopyListing.
+    Contributed by Rajesh Balamohan.
