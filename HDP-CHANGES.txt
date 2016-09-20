@@ -525,3 +525,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-66128. HADOOP-12950. ShutdownHookManager should have a timeout for each
     of the Registered shutdown hook. Contributed by Xiaoyu Yao.
+
+    BUG-66128. HADOOP-12993. Change ShutdownHookManger complete shutdown log
+    from INFO to DEBUG. Contributed by Xiaoyu Yao.
