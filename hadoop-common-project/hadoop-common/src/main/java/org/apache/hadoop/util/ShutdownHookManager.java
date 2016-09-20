@@ -20,6 +20,7 @@ package org.apache.hadoop.util;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.util.concurrent.HadoopExecutors;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -52,7 +52,7 @@ public class ShutdownHookManager {
   private static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.SECONDS;
 
   private static final ExecutorService EXECUTOR =
-      Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+      HadoopExecutors.newSingleThreadExecutor(new ThreadFactoryBuilder()
           .setDaemon(true).build());
   static {
     try {
@@ -268,4 +268,10 @@ public class ShutdownHookManager {
     return shutdownInProgress.get();
   }
 
+  /**
+   * clear all registered shutdownHooks.
+   */
+  public void clearShutdownHooks() {
+    hooks.clear();
+  }
 }
