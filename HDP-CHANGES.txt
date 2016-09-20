@@ -519,3 +519,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     YARN-3413. Changed Nodelabel attributes (like exclusivity) to be settable only via addToClusterNodeLabels 
     but not changeable at runtime. (Wangda Tan via vinodkv)
+
+    BUG-66128. HADOOP-12423. Handle failure of registering shutdownhook by
+    ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
