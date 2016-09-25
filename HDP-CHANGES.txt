@@ -848,3 +848,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-66128. HADOOP-12423. Handle failure of registering shutdownhook by
     ShutdownHookManager in static block (Contributed by Abhishek Agarwal)
+
+    BUG-66128. HADOOP-12950. ShutdownHookManager should have a timeout for each
+    of the Registered shutdown hook. Contributed by Xiaoyu Yao.
