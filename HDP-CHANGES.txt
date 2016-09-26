@@ -887,3 +887,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-12901. Add warning log when KMSClientProvider cannot
     create a connection to the KMS server. (Xiao Chen via wang)
+
+    BUG-80455. HADOOP-13638. KMS should set UGI's Configuration object properly.
+    Contributed by Wei-Chiu Chuang.
