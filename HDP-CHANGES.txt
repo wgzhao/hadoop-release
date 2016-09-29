@@ -476,6 +476,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-66654. HADOOP-13546. Override equals and hashCode to avoid connection leakage
+    (Xiaobing Zhou)
+
     BUG-62442. HADOOP-13351. TestDFSClientSocketSize buffer size tests are flaky
     (Aaron Fabbri)
 

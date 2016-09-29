@@ -140,27 +140,33 @@ public class TestProtoBufRpc {
     // Set RPC engine to protobuf RPC engine
     RPC.setProtocolEngine(conf, TestRpcService.class, ProtobufRpcEngine.class);
 
+    server = setupTestServer(conf);
+    addr = NetUtils.getConnectAddress(server);
+  }
+
+  static RPC.Server setupTestServer(Configuration serverConf)
+      throws IOException {
     // Create server side implementation
     PBServerImpl serverImpl = new PBServerImpl();
     BlockingService service = TestProtobufRpcProto
         .newReflectiveBlockingService(serverImpl);
 
     // Get RPC server for server side implementation
-    server = new RPC.Builder(conf).setProtocol(TestRpcService.class)
+    RPC.Server result = new RPC.Builder(serverConf).setProtocol(TestRpcService.class)
         .setInstance(service).setBindAddress(ADDRESS).setPort(PORT).build();
-    addr = NetUtils.getConnectAddress(server);
-    
+
     // now the second protocol
     PBServer2Impl server2Impl = new PBServer2Impl();
     BlockingService service2 = TestProtobufRpc2Proto
         .newReflectiveBlockingService(server2Impl);
     
-    server.addProtocol(RPC.RpcKind.RPC_PROTOCOL_BUFFER, TestRpcService2.class,
+    result.addProtocol(RPC.RpcKind.RPC_PROTOCOL_BUFFER, TestRpcService2.class,
         service2);
-    server.start();
+    result.start();
+
+    return result;
   }
-  
-  
+
   @After
   public void tearDown() throws Exception {
     server.stop();
@@ -185,7 +191,11 @@ public class TestProtoBufRpc {
     TestRpcService client = getClient();
     testProtoBufRpc(client);
   }
-  
+
+  static EmptyRequestProto newEmptyRequest() {
+    return EmptyRequestProto.newBuilder().build();
+  }
+
   // separated test out so that other tests can call it.
   public static void testProtoBufRpc(TestRpcService client) throws Exception {  
     // Test ping method
