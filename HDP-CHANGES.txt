@@ -2948,3 +2948,6 @@ ATS V1.5:
 
     MAPREDUCE-6762. ControlledJob#toString failed with NPE when job status is not successfully updated.
     Contributed by Weiwei Yang.
+
+    BUG-64511. HDFS-9618. Fix mismatch between log level and guard in
+    BlockManager#computeRecoveryWorkForBlocks (iwasakims)
