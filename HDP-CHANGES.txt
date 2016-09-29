@@ -2954,3 +2954,7 @@ ATS V1.5:
 
     BUG-64765. HDFS-10764. Fix INodeFile#getBlocks to not return null. 
     Contributed by Arpit Agarwal.
+
+    HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty block reports. Contributed by Mingliang Liu.
+
+

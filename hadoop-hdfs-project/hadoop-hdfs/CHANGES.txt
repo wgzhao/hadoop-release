@@ -352,6 +352,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-6533. TestBPOfferService#testBasicFunctionalitytest fails
     intermittently. (Wei-Chiu Chuang via Arpit Agarwal)
 
+    HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty
+    block reports. (Mingliang Liu via shv)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)
