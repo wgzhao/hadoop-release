@@ -3197,3 +3197,6 @@ ATS V1.5:
 
     HADOOP-13599. s3a close() to be non-synchronized, so avoid risk of deadlock
     on shutdown. Contributed by Steve Loughran.
+
+    HADOOP-13164 Optimize S3AFileSystem::deleteUnnecessaryFakeDirectories.
+    Contributed by Rajesh Balamohan.
