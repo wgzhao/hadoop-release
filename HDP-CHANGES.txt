@@ -482,6 +482,7 @@ ATS V1.5:
     BUG-68464. HADOOP-13686. Adding additional unit test for Trash (I). Contributed by Weiwei Yang.
     BUG-68464. HDFS-10287. MiniDFSCluster should implement AutoCloseable. Contributed by Andras Bokor.
     BUG-68464. HDFS-10892. Add unit tests for HDFS command 'dfs -tail' and 'dfs -stat'. Contributed by Mingliang Liu
+    BUG-68464. HDFS-10934. TestDFSShell#testStat fails intermittently. Contributed by Eric Badger
 
   OPTIMIZATIONS
 
