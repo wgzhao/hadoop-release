@@ -3200,3 +3200,6 @@ ATS V1.5:
 
     HADOOP-13164 Optimize S3AFileSystem::deleteUnnecessaryFakeDirectories.
     Contributed by Rajesh Balamohan.
+
+    HADOOP-13674. S3A can provide a more detailed error message when accessing a
+    bucket through an incorrect S3 endpoint. Contributed by Chris Nauroth.
