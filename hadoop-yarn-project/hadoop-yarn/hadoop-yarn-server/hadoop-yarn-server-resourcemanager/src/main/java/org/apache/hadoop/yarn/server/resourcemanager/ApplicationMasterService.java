@@ -112,12 +112,18 @@ public class ApplicationMasterService extends AbstractService implements
   private final ConcurrentMap<ApplicationAttemptId, AllocateResponseLock> responseMap =
       new ConcurrentHashMap<ApplicationAttemptId, AllocateResponseLock>();
   private final RMContext rmContext;
+  long maxContainers = Integer.MAX_VALUE;
 
   public ApplicationMasterService(RMContext rmContext, YarnScheduler scheduler) {
     super(ApplicationMasterService.class.getName());
     this.amLivelinessMonitor = rmContext.getAMLivelinessMonitor();
     this.rScheduler = scheduler;
     this.rmContext = rmContext;
+  }
+
+  @Override
+  protected void serviceInit(Configuration conf) throws Exception {
+    maxContainers = conf.getLong(YarnConfiguration.MAX_CONTAINERS, 600000);
   }
 
   @Override
@@ -499,12 +505,12 @@ public class ApplicationMasterService extends AbstractService implements
           req.setNodeLabelExpression(asc.getNodeLabelExpression());
         }
       }
-              
+
       // sanity check
       try {
         RMServerUtils.normalizeAndValidateRequests(ask,
             rScheduler.getMaximumResourceCapability(), app.getQueue(),
-            rScheduler, rmContext);
+            rScheduler, rmContext, maxContainers);
       } catch (InvalidResourceRequestException e) {
         LOG.warn("Invalid resource ask by application " + appAttemptId, e);
         throw e;
