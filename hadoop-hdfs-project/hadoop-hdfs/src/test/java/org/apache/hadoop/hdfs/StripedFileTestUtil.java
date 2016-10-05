@@ -66,7 +66,7 @@ public class StripedFileTestUtil {
   static int numDNs = NUM_DATA_BLOCKS + NUM_PARITY_BLOCKS + 2;
   static int BLOCK_GROUP_SIZE = blockSize * NUM_DATA_BLOCKS;
 
-  static byte[] generateBytes(int cnt) {
+  public static byte[] generateBytes(int cnt) {
     byte[] bytes = new byte[cnt];
     for (int i = 0; i < cnt; i++) {
       bytes[i] = getByte(i);
