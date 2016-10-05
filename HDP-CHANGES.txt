@@ -2969,3 +2969,5 @@ ATS V1.5:
 
     BUG-65466. HADOOP-8751. NPE in Token.toString() when Token is constructed using null identifier. Contributed by kanaka kumar avvaru.
 
+    BUG-65704. YARN-3982. container-executor parsing of container-executor.cfg
+    broken in trunk and branch-2. Contributed by Varun Vasudev
