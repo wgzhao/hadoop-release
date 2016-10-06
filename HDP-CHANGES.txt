@@ -3203,3 +3203,6 @@ ATS V1.5:
 
     HADOOP-13674. S3A can provide a more detailed error message when accessing a
     bucket through an incorrect S3 endpoint. Contributed by Chris Nauroth.
+
+    HADOOP-13323. Downgrade stack trace on FS load from Warn to debug.
+    Contributed by Steve Loughran.
