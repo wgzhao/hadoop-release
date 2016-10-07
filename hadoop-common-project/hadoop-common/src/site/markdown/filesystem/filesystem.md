@@ -251,9 +251,6 @@ these inconsistent views are only likely when listing a directory with many chil
 Other filesystems may have stronger consistency guarantees, or return inconsistent
 data more readily.
 
-<<<<<<< HEAD
-### ` List[BlockLocation] getFileBlockLocations(FileStatus f, int s, int l)`
-=======
 ### `FileStatus[] listStatus(Path path)`
 
 This is exactly equivalent to `listStatus(Path, DEFAULT_FILTER)` where
@@ -409,7 +406,6 @@ The atomicity and consistency constraints are as for
 `listStatus(Path, PathFilter)`.
 
 ### `BlockLocation[] getFileBlockLocations(FileStatus f, int s, int l)`
->>>>>>> 0456069... HADOOP-13207. Specify FileSystem listStatus, listFiles and RemoteIterator. Contributed by Steve Loughran.
 
 #### Preconditions
 
