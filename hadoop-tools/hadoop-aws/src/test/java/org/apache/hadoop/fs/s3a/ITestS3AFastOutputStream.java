@@ -31,12 +31,11 @@ import org.apache.hadoop.fs.Path;
 import java.io.IOException;
 
 /**
- * Tests regular and multi-part upload functionality for S3AFastOutputStream.
- * File sizes are kept small to reduce test duration on slow connections
+ * Regression testing of fast upload flags; this should switch to
+ * block output.
  */
 public class ITestS3AFastOutputStream {
   private FileSystem fs;
-
 
   @Rule
   public Timeout testTimeout = new Timeout(30 * 60 * 1000);
@@ -63,12 +62,7 @@ public class ITestS3AFastOutputStream {
 
   @Test
   public void testRegularUpload() throws IOException {
-    ContractTestUtils.createAndVerifyFile(fs, getTestPath(), 1024 * 1024);
+    ContractTestUtils.createAndVerifyFile(fs, getTestPath(), 1024);
   }
 
-  @Test
-  public void testMultiPartUpload() throws IOException {
-    ContractTestUtils.createAndVerifyFile(fs, getTestPath(), 6 * 1024 *
-        1024);
-  }
 }
