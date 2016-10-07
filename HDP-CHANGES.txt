@@ -3219,3 +3219,6 @@ ATS V1.5:
 
     HADOOP-12009. Clarify FileSystem.listStatus() sorting order & fix
     FileSystemContractBaseTest:testListStatus. backport to 2.8
+
+    HADOOP-12977 s3a to handle delete("/", true) robustly.
+    Contributed by Steve Loughran.
