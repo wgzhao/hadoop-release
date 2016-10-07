@@ -3222,3 +3222,6 @@ ATS V1.5:
 
     HADOOP-12977 s3a to handle delete("/", true) robustly.
     Contributed by Steve Loughran.
+
+    HADOOP-13541 explicitly declare the Joda time version S3A depends on.
+    Contributed by Stevel Loughran
