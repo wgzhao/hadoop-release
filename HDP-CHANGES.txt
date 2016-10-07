@@ -3214,3 +3214,5 @@ ATS V1.5:
 
     HADOOP-12229 Fix inconsistent subsection titles in filesystem.md.
     Contributed by Masatake Iwasaki
+
+    HADOOP-12242. Add in-page TOC to filesystem specification pages. (iwasakims)
