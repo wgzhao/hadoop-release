@@ -3206,3 +3206,5 @@ ATS V1.5:
 
     HADOOP-13323. Downgrade stack trace on FS load from Warn to debug.
     Contributed by Steve Loughran.
+
+    HADOOP-13239 Deprecate s3:// in branch-2. Contributed by Mingliang Liu.
