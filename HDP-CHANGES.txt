@@ -3228,3 +3228,6 @@ ATS V1.5:
 
     HADOOP-13692. hadoop-aws should declare explicit dependency on Jackson 2
     jars to prevent classpath conflicts. Contributed by Chris Nauroth.
+
+    HADOOP-13405 doc for fs.s3a.acl.default indicates incorrect values.
+    Contributed by Shen Yinjie
