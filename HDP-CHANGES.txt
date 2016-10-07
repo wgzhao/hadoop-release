@@ -2999,3 +2999,4 @@ ATS V1.5:
     BUG-67226. HADOOP-13565. KerberosAuthenticationHandler#authenticate should
     not rebuild SPN based on client request. Contributed by Xiaoyu Yao.
 
+    YARN-5659. getPathFromYarnURL should use standard methods. Contributed by Sergey Shelukhin.
