@@ -3231,3 +3231,6 @@ ATS V1.5:
 
     HADOOP-13405 doc for fs.s3a.acl.default indicates incorrect values.
     Contributed by Shen Yinjie
+
+    HADOOP-13447. Refactor S3AFileSystem to support introduction of separate
+    metadata repository and tests. Contributed by Chris Nauroth.
