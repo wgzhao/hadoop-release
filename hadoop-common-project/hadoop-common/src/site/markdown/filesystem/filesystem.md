@@ -19,6 +19,10 @@
 
 # class `org.apache.hadoop.fs.FileSystem`
 
+* [Invariants](#Invariants)
+* [Predicates and other state access operations](#Predicates_and_other_state_access_operations)
+* [State Changing Operations](#State_Changing_Operations)
+
 The abstract `FileSystem` class is the original class to access Hadoop filesystems;
 non-abstract subclasses exist for all Hadoop-supported filesystems.
 
@@ -61,38 +65,6 @@ all operations on a valid FileSystem MUST result in a new FileSystem that is als
 
     def isFile(FS, p) = p in files(FS)
 
-###  `boolean isSymlink(Path p)`
-
-
-    def isSymlink(FS, p) = p in symlinks(FS)
-
-### 'boolean inEncryptionZone(Path p)'
-
-Return True if the data for p is encrypted. The nature of the encryption and the
-mechanism for creating an encryption zone are implementation details not covered
-in this specification. No guarantees are made about the quality of the
-encryption. The metadata is not encrypted.
-
-#### Preconditions
-
-    if not exists(FS, p) : raise FileNotFoundException
-
-#### Postconditions
-
-#### Invariants
-
-All files and directories under a directory in an encryption zone are also in an
-encryption zone
-
-    forall d in directories(FS): inEncyptionZone(FS, d) implies
-      forall c in children(FS, d) where (isFile(FS, c) or isDir(FS, c)) :
-        inEncyptionZone(FS, c)
-
-For all files in an encrypted zone, the data is encrypted, but the encryption
-type and specification are not defined.
-
-      forall f in files(FS) where  inEncyptionZone(FS, c):
-        isEncrypted(data(f))
 
 ### `FileStatus getFileStatus(Path p)`
 
@@ -100,11 +72,9 @@ Get the status of a path
 
 #### Preconditions
 
-
     if not exists(FS, p) : raise FileNotFoundException
 
 #### Postconditions
-
 
     result = stat: FileStatus where:
         if isFile(FS, p) :
@@ -121,6 +91,7 @@ Get the status of a path
             stat.isEncrypted = True
         else
             stat.isEncrypted = False
+
 
 ### `Path getHomeDirectory()`
 
@@ -197,7 +168,7 @@ to the same path:
       fs == getFileStatus(fs.path)
 
 
-### Atomicity and Consistency
+#### Atomicity and Consistency
 
 By the time the `listStatus()` operation returns to the caller, there
 is no guarantee that the information contained in the response is current.
@@ -453,7 +424,7 @@ return that `"/default/localhost"` path. While this is no longer an issue,
 the convention is generally retained.
 
 
-###  `getFileBlockLocations(Path P, int S, int L)`
+###  `BlockLocation[] getFileBlockLocations(Path P, int S, int L)`
 
 #### Preconditions
 
@@ -467,7 +438,7 @@ the convention is generally retained.
     result = getFileBlockLocations(getFileStatus(FS, P), S, L)
 
 
-###  `getDefaultBlockSize()`
+###  `long getDefaultBlockSize()`
 
 Get the "default" block size for a filesystem. This often used during
 split calculations to divide work optimally across a set of worker processes.
@@ -488,7 +459,7 @@ Any FileSystem that does not actually break files into blocks SHOULD
 return a number for this that results in efficient processing.
 A FileSystem MAY make this user-configurable (the S3 and Swift filesystem clients do this).
 
-###  `getDefaultBlockSize(Path P)`
+###  `long getDefaultBlockSize(Path p)`
 
 Get the "default" block size for a path —that is, the block size to be used
 when writing objects to a path in the filesystem.
@@ -511,7 +482,7 @@ SHOULD be returned.
 It is not an error if the path does not exist: the default/recommended value
 for that part of the filesystem MUST be returned.
 
-###  `getBlockSize(Path P)`
+###  `long getBlockSize(Path p)`
 
 This method is exactly equivalent to querying the block size
 of the `FileStatus` structure returned in `getFileStatus(p)`.
@@ -537,7 +508,7 @@ the `FileStatus` returned from `getFileStatus(P)`.
 
 ## State Changing Operations
 
-### `boolean mkdirs(Path p, FsPermission permission )`
+### `boolean mkdirs(Path p, FsPermission permission)`
 
 Create a directory and all its parents
 
@@ -694,7 +665,7 @@ exists in the metadata, but no copies of any its blocks can be located;
 -`FileNotFoundException` would seem more accurate and useful.
 
 
-### `FileSystem.delete(Path P, boolean recursive)`
+### `boolean delete(Path p, boolean recursive)`
 
 #### Preconditions
 
@@ -798,12 +769,8 @@ implement `delete()` as recursive listing and file delete operation.
 This can break the expectations of client applications -and means that
 they cannot be used as drop-in replacements for HDFS.
 
-<!--  ============================================================= -->
-<!--  METHOD: rename() -->
-<!--  ============================================================= -->
 
-
-### `FileSystem.rename(Path src, Path d)`
+### `boolean rename(Path src, Path d)`
 
 In terms of its specification, `rename()` is one of the most complex operations within a filesystem .
 
@@ -970,7 +937,7 @@ The behavior of HDFS here should not be considered a feature to replicate.
 to the `DFSFileSystem` implementation is an ongoing matter for debate.
 
 
-### `concat(Path p, Path sources[])`
+### `void concat(Path p, Path sources[])`
 
 Joins multiple blocks together to create a single file. This
 is a little-used operation currently implemented only by HDFS.

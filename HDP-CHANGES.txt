@@ -3211,3 +3211,6 @@ ATS V1.5:
 
     HADOOP-13446. Support running isolated unit tests separate from AWS
     integration tests. Contributed by Chris Nauroth.
+
+    HADOOP-12229 Fix inconsistent subsection titles in filesystem.md.
+    Contributed by Masatake Iwasaki
