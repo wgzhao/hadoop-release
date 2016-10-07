@@ -3216,3 +3216,6 @@ ATS V1.5:
     Contributed by Masatake Iwasaki
 
     HADOOP-12242. Add in-page TOC to filesystem specification pages. (iwasakims)
+
+    HADOOP-12009. Clarify FileSystem.listStatus() sorting order & fix
+    FileSystemContractBaseTest:testListStatus. backport to 2.8
