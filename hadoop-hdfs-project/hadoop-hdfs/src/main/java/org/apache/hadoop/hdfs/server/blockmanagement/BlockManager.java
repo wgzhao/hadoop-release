@@ -23,6 +23,7 @@ import static org.apache.hadoop.util.ExitUtil.terminate;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -1615,8 +1616,12 @@ public class BlockManager implements BlockStatsMXBean {
 
   private boolean isInNewRack(DatanodeDescriptor[] srcs,
       DatanodeDescriptor target) {
+    LOG.debug("check if target {} increases racks, srcs={}", target,
+        Arrays.asList(srcs));
     for (DatanodeDescriptor src : srcs) {
-      if (src.getNetworkLocation().equals(target.getNetworkLocation())) {
+      if (!src.isDecommissionInProgress() &&
+          src.getNetworkLocation().equals(target.getNetworkLocation())) {
+        LOG.debug("the target {} is in the same rack with src {}", target, src);
         return false;
       }
     }
