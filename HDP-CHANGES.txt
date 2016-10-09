@@ -3532,3 +3532,6 @@ ATS V1.5:
 
     BUG-80980. YARN-4749. Generalize config file handling in container-executor.
     Contributed by Sidharta Seethana.
+
+    BUG-80980. YARN-5704. Provide config knobs to control enabling/disabling new/work
+    in progress features in container-executor.
