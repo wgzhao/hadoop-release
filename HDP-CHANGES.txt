@@ -3237,3 +3237,6 @@ ATS V1.5:
 
     HADOOP-13560. S3ABlockOutputStream to support huge (many GB) file writes.
     Contributed by Steve Loughran.
+
+    HADOOP-13387 users always get told off for using S3 —even when not using it.
+    Contributed by stevel.
