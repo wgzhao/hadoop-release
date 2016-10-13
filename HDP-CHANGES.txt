@@ -2974,3 +2974,5 @@ ATS V1.5:
 
     BUG-57079. HDFS-10343. BlockManager#createLocatedBlocks may return blocks on
     failed storages. Contributed by Kuhu Shukla.
+
+    BUG-67343. HDFS-9008 was not backported correctly. Contributed by Mingliang Liu.
