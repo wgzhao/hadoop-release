@@ -3137,3 +3137,6 @@ ATS V1.5:
 
     BUG-73083. HADOOP-13707. If kerberos is enabled while HTTP SPNEGO is not
     configured, some links cannot be accessed. Contributed by Yuanbo Liu.
+
+    BUG-71577. HDFS-10987. Make Decommission less expensive when lot of blocks present.
+    Contributed by Brahma Reddy Battula.
