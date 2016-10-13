@@ -2098,8 +2098,7 @@ public class DFSAdmin extends FsShell {
       DatanodeLocalInfo dnInfo = dnProxy.getDatanodeInfo();
       System.out.println(dnInfo.getDatanodeLocalReport());
     } catch (IOException ioe) {
-      System.err.println("Datanode unreachable.");
-      return -1;
+      throw new IOException("Datanode unreachable. " + ioe, ioe);
     }
     return 0;
   }
