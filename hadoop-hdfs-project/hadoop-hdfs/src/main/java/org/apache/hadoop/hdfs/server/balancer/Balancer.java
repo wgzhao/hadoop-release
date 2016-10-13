@@ -851,6 +851,7 @@ public class Balancer {
             } else if ("-source".equalsIgnoreCase(args[i])) {
               Set<String> sourceNodes = new HashSet<>();
               i = processHostList(args, i, "source", sourceNodes);
+              b.setSourceNodes(sourceNodes);
             } else if ("-idleiterations".equalsIgnoreCase(args[i])) {
               checkArgument(++i < args.length,
                   "idleiterations value is missing: args = " + Arrays
