@@ -3156,3 +3156,5 @@ ATS V1.5:
 
     BUG-71583. HDFS-11069. Tighten the authorization of datanode RPC.
     Contributed by Kihwal Lee
+
+    BUG-73085. HDFS-10735 Distcp using webhdfs on secure HA clusters fails with StandbyException
