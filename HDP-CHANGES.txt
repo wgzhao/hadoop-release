@@ -479,6 +479,8 @@ ATS V1.5:
 
     BUG-70331. HADOOP-13863. Azure: Add a new SAS key mode for WASB. Contributed by Dushyanth
 
+    BUG-68464. HADOOP-13686. Adding additional unit test for Trash (I). Contributed by Weiwei Yang.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
