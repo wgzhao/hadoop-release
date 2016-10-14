@@ -490,6 +490,7 @@ ATS V1.5:
     BUG-68464. HDFS-10972. Add unit test for HDFS command 'dfsadmin -getDatanodeInfo'. Contributed by Xiaobing Zhou
     BUG-68464. HDFS-10965. Add unit test for HDFS command 'dfsadmin -printTopology'. Contributed by Xiaobing Zhou
     BUG-68464. HDFS-10998. Add unit tests for HDFS command 'dfsadmin -fetchImage' in HA. Contributed by Xiaobing Zhou
+    BUG-68464. HDFS-11008. Change unit test for testing parsing "-source" parameter in Balancer CLI. Contributed by Mingliang Liu
 
   OPTIMIZATIONS
 
