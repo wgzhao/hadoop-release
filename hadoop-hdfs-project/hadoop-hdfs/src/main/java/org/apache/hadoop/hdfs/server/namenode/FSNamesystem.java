@@ -5641,7 +5641,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
         BlockCollection bc = getBlockCollection(blk.getBlockCollectionId());
         final INode inode = (INode)bc;
         skip++;
-        if (inode != null && blockManager.countNodes(blk).liveReplicas() == 0) {
+        if (inode != null) {
           String src = FSDirectory.getFullPathName(inode);
           if (src.startsWith(path)){
             corruptFiles.add(new CorruptFileBlockInfo(src, blk));
