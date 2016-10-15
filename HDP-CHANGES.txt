@@ -2982,3 +2982,6 @@ ATS V1.5:
 
     BUG-67140. HADOOP-13024. Distcp with -delete feature on raw data not
     implemented. Contributed by Mavin Martin.
+
+    BUG-66100. HADOOP-12457. [JDK8] Fix a failure of compiling common by
+    javadoc. Contributed by Akira AJISAKA.
