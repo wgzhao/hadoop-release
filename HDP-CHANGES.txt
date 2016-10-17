@@ -4290,3 +4290,5 @@ ATS V1.5:
 
     BUG-83149. HADOOP-13034. Log message about input options in distcp lacks
     some items (Takashi Ohnishi via aw)
+
+    BUG-83149. HDFS-9820. Improve distcp to support efficient restore to an earlier snapshot
