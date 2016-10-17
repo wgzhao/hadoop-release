@@ -486,6 +486,7 @@ ATS V1.5:
     BUG-68464. HDFS-10893. Refactor TestDFSShell by setting up MiniDFSCluser once for all commands test. Contributed by Mingliang Liu
     BUG-68464. HDFS-10643. [Unit Test] Namenode should use loginUser(hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
     BUG-68464. HDFS-10906. Add unit tests for Trash with HDFS encryption zones. Contributed by Hanisha Koneru.
+    BUG-68464. HDFS-10922. Adding additional unit tests for Trash (II). Contributed by Weiwei Yang.
 
   OPTIMIZATIONS
 
