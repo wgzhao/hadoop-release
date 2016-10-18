@@ -3000,3 +3000,7 @@ ATS V1.5:
     not rebuild SPN based on client request. Contributed by Xiaoyu Yao.
 
     YARN-5659. getPathFromYarnURL should use standard methods. Contributed by Sergey Shelukhin.
+
+    BUG-68737. YARN-5718. TimelineClient (and other places in YARN) shouldn't over-write HDFS client retry settings which 
+    could cause unexpected behavior. Contributed by Junping Du.
+
