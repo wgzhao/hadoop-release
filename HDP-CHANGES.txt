@@ -951,3 +951,5 @@ covered by CHANGES.txt.
 
     BUG-47982. Update CallerContext name for MR app master / task (wangda)
 
+    BUG-67358. YARN-5309. Fix SSLFactory truststore reloader thread leak in
+    TimelineClientImpl. Contributed by Weiwei Yang.
