@@ -495,6 +495,7 @@ ATS V1.5:
     BUG-68464. HDFS-8898. Create API and command-line argument to get quota and quota usage without detailed content summary. Contributed by Ming Ma.
     BUG-68464. HDFS-10242. Cannot create space quota of zero. Contributed by Takashi Ohnishi.
     BUG-68464. HDFS-11011. Add unit tests for HDFS command 'dfsadmin -set/clrSpaceQuota'. Contributed by Xiaobing Zhou.
+    BUG-68464. HDFS-11030. TestDataNodeVolumeFailure#testVolumeFailure is flaky (though passing). Contributed by Mingliang Liu
 
   OPTIMIZATIONS
 
