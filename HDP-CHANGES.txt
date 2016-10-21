@@ -3240,3 +3240,6 @@ ATS V1.5:
 
     HADOOP-13387 users always get told off for using S3 —even when not using it.
     Contributed by stevel.
+
+    HADOOP-13716. Add LambdaTestUtils class for tests; fix eventual consistency
+    problem in contract test setup. Contributed by Steve Loughran.
