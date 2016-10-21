@@ -2985,3 +2985,6 @@ ATS V1.5:
 
     BUG-66100. HADOOP-12457. [JDK8] Fix a failure of compiling common by
     javadoc. Contributed by Akira AJISAKA.
+
+    BUG-67889. HDFS-10757. KMSClientProvider combined with KeyProviderCache
+    can result in wrong UGI being used. Contributed by Xiaoyu Yao.
