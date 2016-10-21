@@ -489,6 +489,7 @@ ATS V1.5:
     BUG-68464. HDFS-10922. Adding additional unit tests for Trash (II). Contributed by Weiwei Yang.
     BUG-68464. HDFS-10972. Add unit test for HDFS command 'dfsadmin -getDatanodeInfo'. Contributed by Xiaobing Zhou
     BUG-68464. HDFS-10965. Add unit test for HDFS command 'dfsadmin -printTopology'. Contributed by Xiaobing Zhou
+    BUG-68464. HDFS-10998. Add unit tests for HDFS command 'dfsadmin -fetchImage' in HA. Contributed by Xiaobing Zhou
 
   OPTIMIZATIONS
 
