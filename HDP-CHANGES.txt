@@ -3038,7 +3038,6 @@ ATS V1.5:
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
 
-<<<<<<< HEAD
     MAPREDUCE-6565. Configuration to use host name in delegation token service is not read from job.xml during MapReduce
     job execution. Contributed by Li Lu.
 
@@ -3550,3 +3549,6 @@ ATS V1.5:
     BUG-84147. HADOOP-14512. WASB atomic rename should not throw exception if
     the file is neither in src nor in dst when doing the rename. Contributed by
     Duo Xu
+
+    BUG-84620. HADOOP-13716. Add LambdaTestUtils class for tests; fix eventual consistency 
+    problem in contract test setup. Contributed by Steve Loughran.

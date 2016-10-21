@@ -73,4 +73,17 @@ public interface S3ATestConstants {
    * Run the encryption tests?
    */
   String KEY_ENCRYPTION_TESTS = TEST_FS_S3A + "encryption.enabled";
+
+  /**
+   * Endpoint for the S3 CSV/scale tests. This defaults to
+   * being us-east.
+   */
+  String KEY_CSVTEST_ENDPOINT = S3A_SCALE_TEST + "csvfile.endpoint";
+
+  /**
+   * Endpoint for the S3 CSV/scale tests. This defaults to
+   * being us-east.
+   */
+  String DEFAULT_CSVTEST_ENDPOINT = "s3.amazonaws.com";
+
 }
