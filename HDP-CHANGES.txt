@@ -2987,3 +2987,5 @@ ATS V1.5:
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
 
     HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket. Contributed by Xiao Chen.
+
+    HADOOP-13749. KMSClientProvider combined with KeyProviderCache can result in wrong UGI being used. Contributed by Xiaoyu Yao.
