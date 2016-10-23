@@ -2988,6 +2988,3 @@ ATS V1.5:
 
     BUG-67889. HDFS-10757. KMSClientProvider combined with KeyProviderCache
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
-
-    BUG-65553. HDFS-10984. Expose nntop output as metrics. Contributed by
-    Siddharth Wagle.
