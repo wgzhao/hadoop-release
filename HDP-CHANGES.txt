@@ -3246,3 +3246,6 @@ ATS V1.5:
 
     HADOOP-13614. Purge some superfluous/obsolete S3 FS tests that are slowing
     test runs down. Contributed by Steve Loughran.
+
+    HADOOP-12774. s3a should use UGI.getCurrentUser.getShortname() for username.
+    Contributed by Steve Loughran.
