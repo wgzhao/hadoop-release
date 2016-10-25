@@ -3249,3 +3249,6 @@ ATS V1.5:
 
     HADOOP-12774. s3a should use UGI.getCurrentUser.getShortname() for username.
     Contributed by Steve Loughran.
+
+    HADOOP-13309. Document S3A known limitations in file ownership and permission
+    model. Contributed by Chris Nauroth.
