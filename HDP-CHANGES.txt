@@ -3132,3 +3132,5 @@ ATS V1.5:
 
     BUG-71590. HADOOP-13018. Make Kdiag check whether hadoop.token.files points
     to existent and valid files. Contributed by Ravi Prakash
+
+    BUG-71580. HDFS-11015. Enforce timeout in balancer. Contributed by Kihwal Lee.
