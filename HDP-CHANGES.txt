@@ -3252,3 +3252,6 @@ ATS V1.5:
 
     HADOOP-13309. Document S3A known limitations in file ownership and permission
     model. Contributed by Chris Nauroth.
+
+    HADOOP-13502. Split fs.contract.is-blobstore flag into more descriptive flags
+    for use by contract tests. Contributed by Chris Nauroth.
