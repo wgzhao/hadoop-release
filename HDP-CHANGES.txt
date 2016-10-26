@@ -3307,3 +3307,5 @@ ATS V1.5:
     HADOOP-7256. Resource leak during failure scenario of closing of
     resources. Contributed by Ramkrishna S. Vasudevan. (harsh)
 
+    BUG-68080. HDFS-11054. Suppress verbose log message in
+    BlockPlacementPolicyDefault. Contributed by Chen Liang.
