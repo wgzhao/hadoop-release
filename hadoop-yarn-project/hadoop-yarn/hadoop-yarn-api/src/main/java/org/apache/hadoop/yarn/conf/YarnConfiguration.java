@@ -1193,6 +1193,15 @@ public class YarnConfiguration extends Configuration {
   public static final String DEFAULT_NM_DOCKER_DEFAULT_CONTAINER_NETWORK =
       "host";
 
+  /** Admin controlled whitelist of mount that are mounted into all docker
+   * containers. Each entry in the list is a ':' separated pair of
+   * source and destination directories. This setting
+   * should be used with care to avoid mounting sensitive files/directories.
+   */
+
+  public static final String NM_DOCKER_WHITELISTED_MOUNTS =
+      DOCKER_CONTAINER_RUNTIME_PREFIX + "whitelisted-mounts";
+
   /** The path to the Linux container executor.*/
   public static final String NM_LINUX_CONTAINER_EXECUTOR_PATH =
     NM_PREFIX + "linux-container-executor.path";

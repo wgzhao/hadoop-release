@@ -50,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,7 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
   private String defaultNetwork;
   private CGroupsHandler cGroupsHandler;
   private AccessControlList privilegedContainersAcl;
+  private Map<String, String> whitelistedMounts;
 
   public static boolean isDockerContainerRequested(
       Map<String, String> env) {
@@ -124,6 +126,28 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     }
   }
 
+  private Map<String,String> getWhitelistedMounts(String[] mounts)
+      throws ContainerExecutionException {
+    if (mounts == null) {
+      return null;
+    }
+
+    Map<String, String> mountsSrcDest = new HashMap<>();
+
+    for(String mount : mounts) {
+      String[] srcDestPair = StringUtils.split(mount, ':');
+
+      if (srcDestPair.length != 2) {
+        throw new ContainerExecutionException("Invalid whitelisted mount "
+            + "specification: " + mount);
+      }
+
+      mountsSrcDest.put(srcDestPair[0], srcDestPair[1]);
+    }
+
+    return mountsSrcDest;
+  }
+
   @Override
   public void initialize(Configuration conf)
       throws ContainerExecutionException {
@@ -152,6 +176,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     privilegedContainersAcl = new AccessControlList(conf.get(
         YarnConfiguration.NM_DOCKER_PRIVILEGED_CONTAINERS_ACL,
         YarnConfiguration.DEFAULT_NM_DOCKER_PRIVILEGED_CONTAINERS_ACL));
+    whitelistedMounts = getWhitelistedMounts(conf.getStrings(
+        YarnConfiguration.NM_DOCKER_WHITELISTED_MOUNTS));
   }
 
   @Override
@@ -372,6 +398,12 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
           String dst = dir[1];
           runCommand.addMountLocation(src, dst + ":ro", true);
         }
+      }
+    }
+
+    if (whitelistedMounts != null) {
+      for(Entry<String,String> mount : whitelistedMounts.entrySet() ) {
+        runCommand.addMountLocation(mount.getKey(), mount.getValue(), false);
       }
     }
 
