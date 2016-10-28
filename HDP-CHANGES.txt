@@ -1239,3 +1239,6 @@ ATS V1.5:
 
     BUG-66724. Hotfix for AT&T. Scheduler keeps skipping scheduling because
     large amount of resources asked which causes pending resource overflows.
+
+    BUG-67952. MAPREDUCE-5817. Mappers get rescheduled on node transition even
+    after all reducers are completed. (Sangjin Lee via kasha)
