@@ -3161,3 +3161,6 @@ ATS V1.5:
 
     BUG-73084. HDFS-11003. Expose XmitsInProgress through DataNodeMXBean.
     Contributed By Brahma Reddy Battula
+
+    BUG-71585. HDFS-10455. Logging the username when deny the setOwner operation. Contributed by Tianyin Xiu
+
