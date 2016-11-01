@@ -26,6 +26,10 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfoContiguous;
 import org.hamcrest.CoreMatchers;
+import org.apache.hadoop.test.GenericTestUtils;
+
+import com.google.common.base.Supplier;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +38,6 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -72,8 +75,7 @@ public class TestNameNodeMetadataConsistency {
    * safe mode while it is in startup mode.
    */
   @Test
-  public void testGenerationStampInFuture() throws
-      IOException, InterruptedException {
+  public void testGenerationStampInFuture() throws Exception {
 
     String testData = " This is test data";
     int datalen = testData.length();
@@ -115,11 +117,7 @@ public class TestNameNodeMetadataConsistency {
 
     // Since Data Node is already shutdown we didn't remove blocks
     cluster.restartDataNode(dnProps);
-    waitTil(TimeUnit.SECONDS.toMillis(SCAN_WAIT));
-    cluster.triggerBlockReports();
-
-    // Give some buffer to process the block reports
-    waitTil(TimeUnit.SECONDS.toMillis(SCAN_WAIT));
+    waitForNumBytes(testData.length());
 
     // Make sure that we find all written bytes in future block
     assertEquals(datalen, cluster.getNameNode().getBytesWithFutureGenerationStamps());
@@ -136,9 +134,7 @@ public class TestNameNodeMetadataConsistency {
    * hence we should not have positive count of Blocks in future.
    */
   @Test
-  public void testEnsureGenStampsIsStartupOnly() throws
-      IOException, InterruptedException {
-
+  public void testEnsureGenStampsIsStartupOnly() throws Exception {
     String testData = " This is test data";
     cluster.restartDataNodes();
     cluster.restartNameNodes();
@@ -166,21 +162,31 @@ public class TestNameNodeMetadataConsistency {
     cluster.getNameNode().getNamesystem().writeUnlock();
 
     cluster.restartDataNode(dnProps);
-    waitTil(TimeUnit.SECONDS.toMillis(SCAN_WAIT));
-    cluster.triggerBlockReports();
-    waitTil(TimeUnit.SECONDS.toMillis(SCAN_WAIT));
-
+    waitForNumBytes(0);
 
     // Make sure that there are no bytes in future since isInStartupSafe
     // mode is not true.
     assertEquals(0, cluster.getNameNode().getBytesWithFutureGenerationStamps());
   }
 
-  private void waitTil(long waitPeriod) {
-    try {
-      Thread.sleep(waitPeriod);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+  private void waitForNumBytes(final int numBytes) throws Exception {
+    GenericTestUtils.waitFor(new Supplier<Boolean>() {
+
+      @Override
+      public Boolean get() {
+        try {
+          cluster.triggerBlockReports();
+          // Compare the number of bytes
+          if (cluster.getNameNode().getBytesWithFutureGenerationStamps()
+              == numBytes) {
+            return true;
+          }
+        } catch (Exception e) {
+          // Ignore the exception
+        }
+
+        return false;
+      }
+    }, SCAN_WAIT * 1000, 60000);
   }
 }

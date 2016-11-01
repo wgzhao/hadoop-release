@@ -3442,3 +3442,6 @@ ATS V1.5:
     BUG-75453. testReservationAPIs UT fails. (wangda)
 
     BUG-75457. NM web server related UT fails with "NMWebapps failed to start."
+
+    BUG-75455. HDFS-10499. TestNameNodeMetadataConsistency#testGenerationStampInFuture
+    Fails Intermittently. Contributed by Yiqun Lin.
