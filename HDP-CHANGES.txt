@@ -497,6 +497,7 @@ ATS V1.5:
     BUG-68464. HDFS-11011. Add unit tests for HDFS command 'dfsadmin -set/clrSpaceQuota'. Contributed by Xiaobing Zhou.
     BUG-68464. HDFS-11030. TestDataNodeVolumeFailure#testVolumeFailure is flaky (though passing). Contributed by Mingliang Liu
     BUG-68464. HDFS-11031. Add additional unit test for DataNode startup behavior when volumes fail. Contributed by Mingliang Liu.
+    BUG-68464. HDFS-11065. Add space quota tests for heterogenous storages. Contributed by Xiaobing Zhou
 
   OPTIMIZATIONS
 
