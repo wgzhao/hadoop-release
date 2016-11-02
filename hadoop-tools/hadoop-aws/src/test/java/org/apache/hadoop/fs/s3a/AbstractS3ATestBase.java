@@ -48,7 +48,6 @@ public abstract class AbstractS3ATestBase extends AbstractFSContractTestBase
   @Override
   public void teardown() throws Exception {
     super.teardown();
-    describe("closing file system");
     IOUtils.closeStream(getFileSystem());
   }
 

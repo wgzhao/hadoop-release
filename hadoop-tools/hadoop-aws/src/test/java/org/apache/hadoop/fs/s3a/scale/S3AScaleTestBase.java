@@ -20,18 +20,18 @@ package org.apache.hadoop.fs.s3a.scale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.contract.ContractTestUtils;
 import org.apache.hadoop.fs.s3a.S3AFileSystem;
+import org.apache.hadoop.fs.Path;
+
 import org.apache.hadoop.fs.s3a.S3AInputStream;
 import org.apache.hadoop.fs.s3a.S3AInstrumentation;
 import org.apache.hadoop.fs.s3a.S3ATestConstants;
-import org.apache.hadoop.fs.s3a.Statistic;
-import org.apache.hadoop.metrics2.lib.MutableGaugeLong;
+import org.apache.hadoop.fs.s3a.S3ATestUtils;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-import static org.apache.hadoop.fs.s3a.S3ATestUtils.*;
-
 /**
  * Base class for scale tests; here is where the common scale configuration
  * keys are defined.
@@ -49,18 +47,71 @@ import static org.apache.hadoop.fs.s3a.S3ATestUtils.*;
 public class S3AScaleTestBase extends Assert implements S3ATestConstants {
 
   @Rule
-  public final TestName methodName = new TestName();
+  public TestName methodName = new TestName();
 
   @Rule
-  public Timeout testTimeout = createTestTimeout();
+  public Timeout testTimeout = new Timeout(30 * 60 * 1000);
 
-  @Before
-  public void nameThread() {
+  @BeforeClass
+  public static void nameThread() {
     Thread.currentThread().setName("JUnit");
   }
 
-  public static final int _1KB = 1024;
-  public static final int _1MB = _1KB * _1KB;
+  /**
+   * The number of operations to perform: {@value}.
+   */
+  public static final String KEY_OPERATION_COUNT =
+      SCALE_TEST + "operation.count";
+
+  /**
+   * The number of directory operations to perform: {@value}.
+   */
+  public static final String KEY_DIRECTORY_COUNT =
+      SCALE_TEST + "directory.count";
+
+  /**
+   * The readahead buffer: {@value}.
+   */
+  public static final String KEY_READ_BUFFER_SIZE =
+      S3A_SCALE_TEST + "read.buffer.size";
+
+  public static final int DEFAULT_READ_BUFFER_SIZE = 16384;
+
+  /**
+   * Key for a multi MB test file: {@value}.
+   */
+  public static final String KEY_CSVTEST_FILE =
+      S3A_SCALE_TEST + "csvfile";
+  /**
+   * Default path for the multi MB test file: {@value}.
+   */
+  public static final String DEFAULT_CSVTEST_FILE
+      = "s3a://landsat-pds/scene_list.gz";
+
+  /**
+   * Endpoint for the S3 CSV/scale tests. This defaults to
+   * being us-east.
+   */
+  public static final String KEY_CSVTEST_ENDPOINT =
+      S3A_SCALE_TEST + "csvfile.endpoint";
+
+  /**
+   * Endpoint for the S3 CSV/scale tests. This defaults to
+   * being us-east.
+   */
+  public static final String DEFAULT_CSVTEST_ENDPOINT =
+      "s3.amazonaws.com";
+
+  /**
+   * The default number of operations to perform: {@value}.
+   */
+  public static final long DEFAULT_OPERATION_COUNT = 2005;
+
+  /**
+   * Default number of directories to create when performing
+   * directory performance/scale tests.
+   */
+  public static final int DEFAULT_DIRECTORY_COUNT = 2;
 
   protected S3AFileSystem fs;
 
@@ -68,8 +119,6 @@ public class S3AScaleTestBase extends Assert implements S3ATestConstants {
       LoggerFactory.getLogger(S3AScaleTestBase.class);
 
   private Configuration conf;
-
-  private boolean enabled;
 
   /**
    * Configuration generator. May be overridden to inject
@@ -88,33 +137,11 @@ public class S3AScaleTestBase extends Assert implements S3ATestConstants {
     return conf;
   }
 
-  /**
-   * Setup. This triggers creation of the configuration.
-   */
   @Before
   public void setUp() throws Exception {
-    demandCreateConfiguration();
+    conf = createConfiguration();
     LOG.debug("Scale test operation count = {}", getOperationCount());
-    // multipart purges are disabled on the scale tests
-    fs = createTestFileSystem(conf, false);
-    // check for the test being enabled
-    enabled = getTestPropertyBool(
-        getConf(),
-        KEY_SCALE_TESTS_ENABLED,
-        DEFAULT_SCALE_TESTS_ENABLED);
-    Assume.assumeTrue("Scale test disabled: to enable set property " +
-        KEY_SCALE_TESTS_ENABLED, enabled);
-  }
-
-  /**
-   * Create the configuration if it is not already set up.
-   * @return the configuration.
-   */
-  private synchronized Configuration demandCreateConfiguration() {
-    if (conf == null) {
-      conf = createConfiguration();
-    }
-    return conf;
+    fs = S3ATestUtils.createTestFileSystem(conf);
   }
 
   @After
@@ -133,27 +160,7 @@ public class S3AScaleTestBase extends Assert implements S3ATestConstants {
   }
 
   /**
-   * Create the timeout for tests. Some large tests may need a larger value.
-   * @return the test timeout to use
-   */
-  protected Timeout createTestTimeout() {
-    demandCreateConfiguration();
-    return new Timeout(
-        getTestTimeoutSeconds() * 1000);
-  }
-
-  /**
-   * Get the test timeout in seconds.
-   * @return the test timeout as set in system properties or the default.
-   */
-  protected static int getTestTimeoutSeconds() {
-    return getTestPropertyInt(null,
-        KEY_TEST_TIMEOUT,
-        DEFAULT_TEST_TIMEOUT);
-  }
-
-  /**
-   * Describe a test in the logs.
+   * Describe a test in the logs
    * @param text text to print
    * @param args arguments to format in the printing
    */
@@ -182,30 +189,4 @@ public class S3AScaleTestBase extends Assert implements S3ATestConstants {
     }
   }
 
-  /**
-   * Get the gauge value of a statistic. Raises an assertion if
-   * there is no such gauge.
-   * @param statistic statistic to look up
-   * @return the value.
-   */
-  public long gaugeValue(Statistic statistic) {
-    S3AInstrumentation instrumentation = fs.getInstrumentation();
-    MutableGaugeLong gauge = instrumentation.lookupGauge(statistic.getSymbol());
-    assertNotNull("No gauge " + statistic
-        + " in " + instrumentation.dump("", " = ", "\n", true), gauge);
-    return gauge.value();
-  }
-
-  protected boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * Flag to indicate that this test is being used sequentially. This
-   * is used by some of the scale tests to validate test time expectations.
-   * @return true if the build indicates this test is being run in parallel.
-   */
-  protected boolean isParallelExecution() {
-    return Boolean.getBoolean(S3ATestConstants.KEY_PARALLEL_TEST_EXECUTION);
-  }
 }

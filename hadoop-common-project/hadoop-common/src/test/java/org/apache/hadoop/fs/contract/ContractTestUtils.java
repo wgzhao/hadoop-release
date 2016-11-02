@@ -964,7 +964,7 @@ public class ContractTestUtils extends Assert {
    * @return the number of megabytes/second of the recorded operation
    */
   public static double bandwidthMBs(long bytes, long durationNS) {
-    return bytes / (1024.0 * 1024) * 1.0e9 / durationNS;
+    return (bytes * 1000.0) / durationNS;
   }
 
   /**
@@ -1414,14 +1414,6 @@ public class ContractTestUtils extends Assert {
       return endTime - startTime;
     }
 
-    /**
-     * Intermediate duration of the operation.
-     * @return how much time has passed since the start (in nanos).
-     */
-    public long elapsedTime() {
-      return now() - startTime;
-    }
-
     public double bandwidth(long bytes) {
       return bandwidthMBs(bytes, duration());
     }
@@ -1429,11 +1421,10 @@ public class ContractTestUtils extends Assert {
     /**
      * Bandwidth as bytes per second.
      * @param bytes bytes in
-     * @return the number of bytes per second this operation. 0 if duration == 0.
+     * @return the number of bytes per second this operation timed.
      */
     public double bandwidthBytes(long bytes) {
-      double duration = duration();
-      return duration > 0 ? bytes / duration : 0;
+      return (bytes * 1.0) / duration();
     }
 
     /**

@@ -18,20 +18,29 @@
 
 package org.apache.hadoop.fs.s3a;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ForwardingListeningExecutorService;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import org.apache.hadoop.classification.InterfaceAudience;
 
 /**
  * This ExecutorService blocks the submission of new tasks when its queue is
@@ -41,16 +50,16 @@ import org.apache.hadoop.classification.InterfaceAudience;
  * This is inspired by <a href="https://github.com/apache/incubator-s4/blob/master/subprojects/s4-comm/src/main/java/org/apache/s4/comm/staging/BlockingThreadPoolExecutorService.java">
  * this s4 threadpool</a>
  */
-@InterfaceAudience.Private
-class  BlockingThreadPoolExecutorService
-    extends SemaphoredDelegatingExecutor {
+public class BlockingThreadPoolExecutorService
+    extends ForwardingListeningExecutorService {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(BlockingThreadPoolExecutorService.class);
 
-  private static final AtomicInteger POOLNUMBER = new AtomicInteger(1);
+  private Semaphore queueingPermits;
+  private ListeningExecutorService executorDelegatee;
 
-  private final ThreadPoolExecutor eventProcessingExecutor;
+  private static final AtomicInteger POOLNUMBER = new AtomicInteger(1);
 
   /**
    * Returns a {@link java.util.concurrent.ThreadFactory} that names each
@@ -60,7 +69,7 @@ class  BlockingThreadPoolExecutorService
    * @param prefix The prefix of every created Thread's name
    * @return a {@link java.util.concurrent.ThreadFactory} that names threads
    */
-  static ThreadFactory getNamedThreadFactory(final String prefix) {
+  public static ThreadFactory getNamedThreadFactory(final String prefix) {
     SecurityManager s = System.getSecurityManager();
     final ThreadGroup threadGroup = (s != null) ? s.getThreadGroup() :
         Thread.currentThread().getThreadGroup();
@@ -104,12 +113,6 @@ class  BlockingThreadPoolExecutorService
     };
   }
 
-  private BlockingThreadPoolExecutorService(int permitCount,
-      ThreadPoolExecutor eventProcessingExecutor) {
-    super(MoreExecutors.listeningDecorator(eventProcessingExecutor),
-        permitCount, false);
-    this.eventProcessingExecutor = eventProcessingExecutor;
-  }
 
   /**
    * A thread pool that that blocks clients submitting additional tasks if
@@ -122,12 +125,10 @@ class  BlockingThreadPoolExecutorService
    * @param unit time unit
    * @param prefixName prefix of name for threads
    */
-  public static BlockingThreadPoolExecutorService newInstance(
-      int activeTasks,
-      int waitingTasks,
-      long keepAliveTime, TimeUnit unit,
-      String prefixName) {
-
+  public BlockingThreadPoolExecutorService(int activeTasks, int waitingTasks,
+      long keepAliveTime, TimeUnit unit, String prefixName) {
+    super();
+    queueingPermits = new Semaphore(waitingTasks + activeTasks, false);
     /* Although we generally only expect up to waitingTasks tasks in the
     queue, we need to be able to buffer all tasks in case dequeueing is
     slower than enqueueing. */
@@ -146,25 +147,126 @@ class  BlockingThreadPoolExecutorService
             }
           });
     eventProcessingExecutor.allowCoreThreadTimeOut(true);
-    return new BlockingThreadPoolExecutorService(waitingTasks + activeTasks,
-        eventProcessingExecutor);
-  }
+    executorDelegatee =
+        MoreExecutors.listeningDecorator(eventProcessingExecutor);
 
-  /**
-   * Get the actual number of active threads
-   * @return the active thread count
-   */
-  int getActiveCount() {
-    return eventProcessingExecutor.getActiveCount();
   }
 
   @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder(
-        "BlockingThreadPoolExecutorService{");
-    sb.append(super.toString());
-    sb.append(", activeCount=").append(getActiveCount());
-    sb.append('}');
-    return sb.toString();
+  protected ListeningExecutorService delegate() {
+    return executorDelegatee;
   }
+
+  @Override
+  public <T> ListenableFuture<T> submit(Callable<T> task) {
+    try {
+      queueingPermits.acquire();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return Futures.immediateFailedCheckedFuture(e);
+    }
+    return super.submit(new CallableWithPermitRelease<T>(task));
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submit(Runnable task, T result) {
+    try {
+      queueingPermits.acquire();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return Futures.immediateFailedCheckedFuture(e);
+    }
+    return super.submit(new RunnableWithPermitRelease(task), result);
+  }
+
+  @Override
+  public ListenableFuture<?> submit(Runnable task) {
+    try {
+      queueingPermits.acquire();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return Futures.immediateFailedCheckedFuture(e);
+    }
+    return super.submit(new RunnableWithPermitRelease(task));
+  }
+
+  @Override
+  public void execute(Runnable command) {
+    try {
+      queueingPermits.acquire();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    super.execute(new RunnableWithPermitRelease(command));
+  }
+
+  /**
+   * Releases a permit after the task is executed.
+   */
+  class RunnableWithPermitRelease implements Runnable {
+
+    private Runnable delegatee;
+
+    public RunnableWithPermitRelease(Runnable delegatee) {
+      this.delegatee = delegatee;
+    }
+
+    @Override
+    public void run() {
+      try {
+        delegatee.run();
+      } finally {
+        queueingPermits.release();
+      }
+
+    }
+  }
+
+  /**
+   * Releases a permit after the task is completed.
+   */
+  class CallableWithPermitRelease<T> implements Callable<T> {
+
+    private Callable<T> delegatee;
+
+    public CallableWithPermitRelease(Callable<T> delegatee) {
+      this.delegatee = delegatee;
+    }
+
+    @Override
+    public T call() throws Exception {
+      try {
+        return delegatee.call();
+      } finally {
+        queueingPermits.release();
+      }
+    }
+
+  }
+
+  @Override
+  public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+      throws InterruptedException {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
+  public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+      long timeout, TimeUnit unit) throws InterruptedException {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
+  public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+      throws InterruptedException, ExecutionException {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
+  public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout,
+      TimeUnit unit)
+      throws InterruptedException, ExecutionException, TimeoutException {
+    throw new RuntimeException("Not implemented");
+  }
+
 }
