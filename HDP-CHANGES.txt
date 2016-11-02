@@ -2986,3 +2986,5 @@ ATS V1.5:
 
     BUG-66100. HADOOP-12457. [JDK8] Fix a failure of compiling common by
     javadoc. Contributed by Akira AJISAKA.
+
+    HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
