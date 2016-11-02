@@ -1459,7 +1459,11 @@ public class DataNode extends ReconfigurableBase
   BPOfferService[] getAllBpOs() {
     return blockPoolManager.getAllNamenodeThreads();
   }
-  
+
+  BPOfferService getBPOfferService(String bpid){
+    return blockPoolManager.get(bpid);
+  }
+
   int getBpOsCount() {
     return blockPoolManager.getAllNamenodeThreads().length;
   }
