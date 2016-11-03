@@ -854,3 +854,29 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-66128. HADOOP-12993. Change ShutdownHookManger complete shutdown log
     from INFO to DEBUG. Contributed by Xiaoyu Yao.
+
+    HADOOP-12682. Fix TestKMS#testKMSRestart* failure. Contributed by Wei-Chiu
+    Chuang.
+    
+    HADOOP-12901. Add warning log when KMSClientProvider cannot create a
+    connection to the KMS server. (Xiao Chen via wang)
+    
+    HADOOP-12962. KMS key names are incorrectly encoded when creating key.
+    Contributed by Xiao Chen.
+    
+    HADOOP-13155. Implement TokenRenewer to renew and cancel delegation tokens
+    in KMS. Contributed by Xiao Chen.
+    
+    HADOOP-13251. Authenticate with Kerberos credentials when renewing KMS
+    delegation token. Contributed by Xiao Chen.
+    
+    HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
+    determine isKeyTab in JDK8. Contributed by Xiaoyu Yao.
+    
+    HADOOP-12559. KMS connection failures should trigger TGT renewal.
+    Contributed by Zhe Zhang.
+    
+    HADOOP-13255. KMSClientProvider should check and renew tgt when doing
+    delegation token operations. Contributed by Xiao Chen.
+    
+    
