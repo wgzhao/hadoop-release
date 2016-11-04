@@ -3164,3 +3164,5 @@ ATS V1.5:
 
     BUG-71585. HDFS-10455. Logging the username when deny the setOwner operation. Contributed by Tianyin Xiu
 
+    BUG-71586. HADOOP-7930. Kerberos relogin interval in UserGroupInformation
+    should be configurable (xiaochen via rkanter)
