@@ -3134,3 +3134,6 @@ ATS V1.5:
     to existent and valid files. Contributed by Ravi Prakash
 
     BUG-71580. HDFS-11015. Enforce timeout in balancer. Contributed by Kihwal Lee.
+
+    BUG-73083. HADOOP-13707. If kerberos is enabled while HTTP SPNEGO is not
+    configured, some links cannot be accessed. Contributed by Yuanbo Liu.
