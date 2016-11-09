@@ -626,8 +626,18 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     // The desired container won't fit here, so reserve
     if (isReservable(container) &&
         reserve(request.getPriority(), node, container, type, reserved)) {
+      if (isWaitingForAMContainer()) {
+        updateAMDiagnosticMsg(capability,
+            " exceed the available resources of the node and the request is"
+                + " reserved");
+      }
       return FairScheduler.CONTAINER_RESERVED;
     } else {
+      if (isWaitingForAMContainer()) {
+        updateAMDiagnosticMsg(capability,
+            " exceed the available resources of the node and the request cannot"
+                + " be reserved");
+      }
       if (LOG.isDebugEnabled()) {
         LOG.debug("Not creating reservation as container " + container.getId()
             + " is not reservable");
@@ -669,6 +679,11 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
         // Check the AM resource usage for the leaf queue
         if (getLiveContainers().size() == 0 && !getUnmanagedAM()) {
           if (!getQueue().canRunAppAM(getAMResource())) {
+            if (isWaitingForAMContainer()) {
+              List<ResourceRequest> ask = appSchedulingInfo.getAllResourceRequests();
+              updateAMDiagnosticMsg(ask.get(0).getCapability(), " exceeds maximum "
+                  + "AM resource allowed).");
+            }
             return Resources.none();
           }
         }
@@ -772,22 +787,32 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     ResourceRequest rackRequest = getResourceRequest(prio, node.getRackName());
     ResourceRequest nodeRequest = getResourceRequest(prio, node.getNodeName());
 
-    return
-        // There must be outstanding requests at the given priority:
+    boolean ret = true;
+    if (!(// There must be outstanding requests at the given priority:
         anyRequest != null && anyRequest.getNumContainers() > 0 &&
-            // If locality relaxation is turned off at *-level, there must be a
-            // non-zero request for the node's rack:
-            (anyRequest.getRelaxLocality() ||
-                (rackRequest != null && rackRequest.getNumContainers() > 0)) &&
-            // If locality relaxation is turned off at rack-level, there must be a
-            // non-zero request at the node:
-            (rackRequest == null || rackRequest.getRelaxLocality() ||
-                (nodeRequest != null && nodeRequest.getNumContainers() > 0)) &&
-            // The requested container must be able to fit on the node:
-            Resources.lessThanOrEqual(RESOURCE_CALCULATOR, null,
-                anyRequest.getCapability(), node.getRMNode().getTotalCapability());
-  }
+        // If locality relaxation is turned off at *-level, there must be a
+        // non-zero request for the node's rack:
+        (anyRequest.getRelaxLocality() ||
+        (rackRequest != null && rackRequest.getNumContainers() > 0)) &&
+        // If locality relaxation is turned off at rack-level, there must be a
+        // non-zero request at the node:
+        (rackRequest == null || rackRequest.getRelaxLocality() ||
+        (nodeRequest != null && nodeRequest.getNumContainers() > 0)) &&
+        // The requested container must be able to fit on the node:
+        Resources.lessThanOrEqual(RESOURCE_CALCULATOR, null,
+        anyRequest.getCapability(), node.getRMNode().getTotalCapability()))) {
+      ret = false;
+    } else if (!FairScheduler.fitsInMaxShare(getQueue(), anyRequest.getCapability())) {
+      // The requested container must fit in queue maximum share
+      if (isWaitingForAMContainer()) {
+        updateAMDiagnosticMsg(anyRequest.getCapability(),
+            " exceeds current queue or its parents maximum resource allowed).");
+      }
+      ret = false;
+    }
 
+    return ret;
+  }
 
   static class RMContainerComparator implements Comparator<RMContainer>,
       Serializable {
@@ -878,6 +903,21 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
   @Override
   public Resource assignContainer(FSSchedulerNode node) {
     return assignContainer(node, false);
+  }
+
+  /**
+   * Build the diagnostic message and update it.
+   *
+   * @param resource resource request
+   * @param reason the reason why AM doesn't get the resource
+   */
+  private void updateAMDiagnosticMsg(Resource resource, String reason) {
+    StringBuilder diagnosticMessageBldr = new StringBuilder();
+    diagnosticMessageBldr.append(" (Resource request: ");
+    diagnosticMessageBldr.append(resource);
+    diagnosticMessageBldr.append(reason);
+    updateAMContainerDiagnostics(AMState.INACTIVATED,
+        diagnosticMessageBldr.toString());
   }
 
   /**
