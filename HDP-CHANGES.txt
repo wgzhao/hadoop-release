@@ -129,6 +129,9 @@ by CHANGES.txt.
     default set to true when AdlFileSystem is configured. Contributed by
     Vishwajeet Dusane and Chris Douglas.
 
+    BUG-70505. HADOOP-13037. Refactor Azure Data Lake Store as an independent
+    FileSystem. Contributed by Vishwajeet Dusane
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
