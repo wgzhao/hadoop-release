@@ -502,6 +502,7 @@ ATS V1.5:
     BUG-68464. HDFS-9188. Make block corruption related tests FsDataset-agnostic. (lei)
     BUG-68464. HDFS-11083. Add unit test for DFSAdmin -report command. Contributed by Xiaobing Zhou
     BUG-68464. HDFS-11085. Add unit test for NameNode failing to start when name dir is unwritable. Contributed by Xiaobing Zhou
+    BUG-68464. HDFS-11122. TestDFSAdmin#testReportCommand fails due to timed out. Contributed by Yiqun Lin
 
   OPTIMIZATIONS
 

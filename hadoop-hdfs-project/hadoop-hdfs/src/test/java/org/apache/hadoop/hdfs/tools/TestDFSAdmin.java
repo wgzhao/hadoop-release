@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.ReconfigurationUtil;
+import org.apache.hadoop.fs.ChecksumException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSClient;
@@ -45,6 +46,7 @@ import org.apache.hadoop.hdfs.server.common.Storage;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.StorageLocation;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.test.PathUtils;
 import org.apache.hadoop.util.ToolRunner;
@@ -68,6 +70,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -483,7 +486,7 @@ public class TestDFSAdmin {
     return sb.toString();
   }
 
-  @Test(timeout = 30000)
+  @Test(timeout = 120000)
   public void testReportCommand() throws Exception {
     redirectStream();
 
@@ -541,6 +544,14 @@ public class TestDFSAdmin {
       assertEquals("Fail to corrupt all replicas for block " + block,
           replFactor, blockFilesCorrupted);
 
+      try {
+        IOUtils.copyBytes(fs.open(file), new IOUtils.NullOutputStream(),
+            conf, true);
+        fail("Should have failed to read the file with corrupted blocks.");
+      } catch (ChecksumException ignored) {
+        // expected exception reading corrupt blocks
+      }
+
       /*
        * Increase replication factor, this should invoke transfer request.
        * Receiving datanode fails on checksum and reports it to namenode
@@ -553,6 +564,7 @@ public class TestDFSAdmin {
         public Boolean get() {
           LocatedBlocks blocks = null;
           try {
+            miniCluster.triggerBlockReports();
             blocks = client.getNamenode().getBlockLocations(file.toString(), 0,
                 Long.MAX_VALUE);
           } catch (IOException e) {
@@ -560,7 +572,7 @@ public class TestDFSAdmin {
           }
           return blocks != null && blocks.get(0).isCorrupt();
         }
-      }, 100, 60000);
+      }, 1000, 60000);
 
       BlockManagerTestUtil.updateState(
           miniCluster.getNameNode().getNamesystem().getBlockManager());
