@@ -3175,3 +3175,6 @@ ATS V1.5:
 
     BUG-73091. HADOOP-13824. FsShell can suppress the real error if no error
     message is present. Contributed by  John Zhuge.
+
+    BUG-71587. HDFS-11087. NamenodeFsck should check if the output writer is
+    still writable. Contributed by Erik Krogen.
