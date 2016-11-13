@@ -514,7 +514,11 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
     }
     if (res.totalFiles % 100 == 0) {
       out.println();
-      out.flush();
+      // checkError here will attempt to flush the stream, or report an error
+      // if the stream has encountered an error or been closed by the client
+      if (out.checkError()) {
+        throw new IOException("fsck encountered an error in its output stream");
+      }
     }
   }
 
