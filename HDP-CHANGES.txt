@@ -447,6 +447,8 @@ ATS V1.5:
     HDFS-9941. Do not log StandbyException on NN, other minor logging fixes.
     (Arpit Agarwal)
 
+    HADOOP-13470. GenericTestUtils$LogCapturer is flaky. (Contributed by Mingliang Liu)
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
