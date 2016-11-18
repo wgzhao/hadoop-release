@@ -410,4 +410,10 @@
     <Bug pattern="NP_NULL_PARAM_DEREF"/>
   </Match>
 
+
+  <Match>
+    <Class name="org.apache.hadoop.metrics2.impl.MetricsConfig"/>
+    <Method name="toString"/>
+    <Bug pattern="DM_DEFAULT_ENCODING"/>
+  </Match>
 </FindBugsFilter>
