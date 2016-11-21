@@ -5008,3 +5008,5 @@ ATS V1.5:
 
     HADOOP-14461 Azure: handle failure gracefully in case of missing account
     access key. Contributed by Mingliang Liu.
+
+    HADOOP-12705 Upgrade Jackson 2.2.3 to 2.7.8

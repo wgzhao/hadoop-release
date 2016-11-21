@@ -34,7 +34,6 @@
   <properties>
     <file.encoding>UTF-8</file.encoding>
     <downloadSources>true</downloadSources>
-    <jackson2.version>2.7.2</jackson2.version>
     <hadoop.tmp.dir>${project.build.directory}/test</hadoop.tmp.dir>
     <fs.azure.scale.test.enabled>unset</fs.azure.scale.test.enabled>
     <fs.azure.scale.test.huge.filesize>unset</fs.azure.scale.test.huge.filesize>
