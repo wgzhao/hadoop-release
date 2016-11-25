@@ -3263,3 +3263,6 @@ ATS V1.5:
     "Can not create a Path from an empty string".  Contributed by Steve Loughran.
 
     HADOOP-13680. fs.s3a.readahead.range to use getLongBytes. Contributed by Abhishek Modi.
+
+    HADOOP-12804. Read Proxy Password from Credential Providers in S3 FileSystem.
+    Contributed by Larry McCay.
