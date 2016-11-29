@@ -875,3 +875,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-12682. Fix TestKMS#testKMSRestart* failure.
     Contributed by Wei-Chiu Chuang.
+
+    BUG-80455. HADOOP-13838. KMSTokenRenewer should close providers
+    (xiaochen via rkanter)
