@@ -53,7 +53,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 import static org.apache.hadoop.util.PlatformName.IBM_JAVA;
 import static org.junit.Assert.fail;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestConfiguration extends TestCase {
 
