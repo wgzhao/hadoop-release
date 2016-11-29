@@ -3467,3 +3467,6 @@ ATS V1.5:
     BUG-77323. HDFS-11395.
     RequestHedgingProxyProvider#RequestHedgingInvocationHandler hides the
     Exception thrown from NameNode. Contributed by Nandakumar.
+
+    BUG-72507. HADOOP-13823. s3a rename: fail if dest file exists.
+    Contributed by Steve Loughran.
