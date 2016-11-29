@@ -2991,3 +2991,6 @@ ATS V1.5:
     HADOOP-13749. KMSClientProvider combined with KeyProviderCache can result in wrong UGI being used. Contributed by Xiaoyu Yao.
 
     HADOOP-13638. KMS should set UGI's Configuration object properly. Contributed by Wei-Chiu Chuang.
+
+    HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
+
