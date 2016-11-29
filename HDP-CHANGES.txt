@@ -3266,3 +3266,5 @@ ATS V1.5:
 
     HADOOP-12804. Read Proxy Password from Credential Providers in S3 FileSystem.
     Contributed by Larry McCay.
+
+    HADOOP-13823. s3a rename: fail if dest file exists. Contributed by Steve Loughran.
