@@ -3258,3 +3258,6 @@ ATS V1.5:
 
     HADOOP-13801 regression: ITestS3AMiniYarnCluster failing.
     Contributed by Steve Loughran.
+
+    HADOOP-13830 Intermittent failure of ITestS3NContractRootDir.testRecursiveRootListing
+    "Can not create a Path from an empty string".  Contributed by Steve Loughran.
