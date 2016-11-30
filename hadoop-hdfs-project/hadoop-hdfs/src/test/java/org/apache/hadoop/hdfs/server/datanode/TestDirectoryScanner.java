@@ -46,6 +46,7 @@ import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.server.datanode.checker.VolumeCheckResult;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.server.common.GenerationStamp;
@@ -634,6 +635,12 @@ public class TestDirectoryScanner {
     public byte[] loadLastPartialChunkChecksum(
         File blockFile, File metaFile) throws IOException {
       return null;
+    }
+
+    @Override
+    public VolumeCheckResult check(VolumeCheckContext context)
+        throws Exception {
+      return VolumeCheckResult.HEALTHY;
     }
   }
 
