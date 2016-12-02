@@ -1,4 +1,4 @@
-Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
+glChanges only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 by CHANGES.txt.
 
   INCOMPATIBLE CHANGES
@@ -3147,3 +3147,6 @@ ATS V1.5:
 
     BUG-73087. HDFS-10627. Volume Scanner marks a block as "suspect" even if the
     exception is network-related. Contributed by Rushabh S Shah.
+
+    BUG-71591. HADOOP-11180. Change log message "token.Token: Cannot find class
+    for token kind kms-dt" to debug. Contributed by Yi Liu.
