@@ -4741,7 +4741,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       //create ha status
       final NNHAStatusHeartbeat haState = new NNHAStatusHeartbeat(
           haContext.getState().getServiceState(),
-          getFSImage().getLastAppliedOrWrittenTxId());
+          getFSImage().getCorrectLastAppliedOrWrittenTxId());
 
       return new HeartbeatResponse(cmds, haState, rollingUpgradeInfo,
           blockReportLeaseId);
@@ -4882,9 +4882,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     public void run() {
       while (fsRunning && shouldRun) {
         try {
-          FSEditLog editLog = getFSImage().getEditLog();
-          long numEdits =
-              editLog.getLastWrittenTxId() - editLog.getCurSegmentTxId();
+          long numEdits = getCorrectTransactionsSinceLastLogRoll();
           if (numEdits > rollThreshold) {
             FSNamesystem.LOG.info("NameNode rolling its own edit log because"
                 + " number of edits in open segment exceeds threshold of "
@@ -5039,17 +5037,30 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   @Metric({"TransactionsSinceLastLogRoll",
       "Number of transactions since last edit log roll"})
   public long getTransactionsSinceLastLogRoll() {
+    if (isInStandbyState() || !getEditLog().isSegmentOpenWithoutLock()) {
+      return 0;
+    } else {
+      return getEditLog().getLastWrittenTxIdWithoutLock() -
+          getEditLog().getCurSegmentTxIdWithoutLock() + 1;
+    }
+  }
+
+  /**
+   * Get the correct number of transactions since last edit log roll.
+   * This method holds a lock of FSEditLog and must not be used for metrics.
+   */
+  private long getCorrectTransactionsSinceLastLogRoll() {
     if (isInStandbyState() || !getEditLog().isSegmentOpen()) {
       return 0;
     } else {
       return getEditLog().getLastWrittenTxId() -
-        getEditLog().getCurSegmentTxId() + 1;
+          getEditLog().getCurSegmentTxId() + 1;
     }
   }
-  
+
   @Metric({"LastWrittenTransactionId", "Transaction ID written to the edit log"})
   public long getLastWrittenTransactionId() {
-    return getEditLog().getLastWrittenTxId();
+    return getEditLog().getLastWrittenTxIdWithoutLock();
   }
   
   @Metric({"LastCheckpointTime",
@@ -7440,7 +7451,9 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     List<Map<String, String>> jasList = new ArrayList<Map<String, String>>();
     FSEditLog log = getFSImage().getEditLog();
     if (log != null) {
-      boolean openForWrite = log.isOpenForWrite();
+      // This flag can be false because we cannot hold a lock of FSEditLog
+      // for metrics.
+      boolean openForWrite = log.isOpenForWriteWithoutLock();
       for (JournalAndStream jas : log.getJournals()) {
         final Map<String, String> jasMap = new HashMap<String, String>();
         String manager = jas.getManager().toString();
