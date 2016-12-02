@@ -3268,3 +3268,6 @@ ATS V1.5:
     Contributed by Larry McCay.
 
     HADOOP-13823. s3a rename: fail if dest file exists. Contributed by Steve Loughran.
+
+    HADOOP-13857. S3AUtils.translateException to map (wrapped) InterruptedExceptions to
+    InterruptedIOEs. Contributed by Steve Loughran
