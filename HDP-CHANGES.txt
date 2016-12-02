@@ -3271,3 +3271,6 @@ ATS V1.5:
 
     HADOOP-13857. S3AUtils.translateException to map (wrapped) InterruptedExceptions to
     InterruptedIOEs. Contributed by Steve Loughran
+
+    HADOOP-13855. Fix a couple of the s3a statistic names to be consistent with the rest.
+    Contributed by Steve Loughran
