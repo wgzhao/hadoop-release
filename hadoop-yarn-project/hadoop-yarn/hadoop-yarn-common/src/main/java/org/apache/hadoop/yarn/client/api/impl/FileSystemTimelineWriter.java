@@ -289,7 +289,7 @@ public class FileSystemTimelineWriter extends TimelineWriter{
     ObjectMapper mapper = new ObjectMapper();
     mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
     mapper.setSerializationInclusion(Inclusion.NON_NULL);
-    mapper.configure(Feature.CLOSE_CLOSEABLE, false);
+    mapper.configure(Feature.FLUSH_AFTER_WRITE_VALUE, false);
     return mapper;
   }
 
@@ -370,6 +370,7 @@ public class FileSystemTimelineWriter extends TimelineWriter{
 
     public void flush() throws IOException {
       if (stream != null) {
+        jsonGenerator.flush();
         stream.hflush();
       }
     }

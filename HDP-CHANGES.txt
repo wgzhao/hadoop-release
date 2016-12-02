@@ -2992,3 +2992,5 @@ ATS V1.5:
     job execution. Contributed by Li Lu.
 
     YARN-5476. Not existed application reported as ACCEPTED state by YarnClientImpl. Contributed by Junping Du.
+
+    YARN-5915. ATS 1.5 FileSystemTimelineWriter causes flush() to be called after every event write. Atul Skaria.
