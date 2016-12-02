@@ -3601,5 +3601,5 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for
     comparison. Contributed by Santhosh Nayak
 
-
-
+    BUG-73258. YARN-5915. ATS 1.5 FileSystemTimelineWriter causes flush() to be
+    called after every event write.
