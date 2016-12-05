@@ -2993,3 +2993,6 @@ ATS V1.5:
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
 
     YARN-5476. Not existed application reported as ACCEPTED state by YarnClientImpl. Contributed by Junping Du.
+
+    BUG-70317. HADOOP-13675. Bug in return value for delete() calls in WASB. Contributed by Dushyanth
+
