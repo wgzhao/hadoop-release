@@ -777,7 +777,10 @@ public class LeafQueue extends AbstractCSQueue {
       }
       return NULL_ASSIGNMENT;
     }
-    
+
+    Resource initAmountNeededUnreserve =
+        currentResourceLimits.getAmountNeededUnreserve();
+
     for (Iterator<FiCaSchedulerApp> assignmentIterator =
         orderingPolicy.getAssignmentIterator();
         assignmentIterator.hasNext();) {
@@ -860,8 +863,11 @@ public class LeafQueue extends AbstractCSQueue {
           //       This works since we never assign lower priority requests
           //       before all higher priority ones are serviced.
           Resource userLimit = 
-              computeUserLimitAndSetHeadroom(application, clusterResource, 
+              computeUserLimitAndSetHeadroom(application, clusterResource,
                   required, node.getPartition(), schedulingMode);
+          
+          currentResourceLimits.setAmountNeededUnreserve(
+              initAmountNeededUnreserve);
 
           // Check queue max-capacity limit
           if (!super.canAssignToThisQueue(clusterResource, node.getPartition(),
