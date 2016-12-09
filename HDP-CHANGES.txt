@@ -892,3 +892,6 @@ ATS V1.5:
 
     BUG-70315. HADOOP-12472. Make GenericTestUtils.assertExceptionContains robust.
     Contributed by Steve Loughran.
+
+    BUG-70315. HADOOP-13105. Support timeouts in LDAP queries in LdapGroupsMapping.
+    Contributed by Mingliang Liu.
