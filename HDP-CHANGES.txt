@@ -3172,3 +3172,6 @@ ATS V1.5:
 
     BUG-73091. HADOOP-12442. Display help if the command option to 'hdfs dfs' is
     not valid (Contributed by nijel)
+
+    BUG-73091. HADOOP-13824. FsShell can suppress the real error if no error
+    message is present. Contributed by  John Zhuge.
