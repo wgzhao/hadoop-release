@@ -3274,3 +3274,6 @@ ATS V1.5:
 
     HADOOP-13855. Fix a couple of the s3a statistic names to be consistent with the rest.
     Contributed by Steve Loughran
+
+    HADOOP-13871. ITestS3AInputStreamPerformance.testTimeToOpenAndReadWholeFileBlocks
+    performance awful. Contributed by Steve Loughran
