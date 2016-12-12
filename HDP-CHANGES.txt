@@ -3004,3 +3004,5 @@ ATS V1.5:
     BUG-68737. YARN-5718. TimelineClient (and other places in YARN) shouldn't over-write HDFS client retry settings which 
     could cause unexpected behavior. Contributed by Junping Du.
 
+    BUG-68020. YARN-5551 : Ignore file backed pages from memory computation when smaps is enabled. Contributed
+    by Rajesh Balamohan.
