@@ -135,6 +135,9 @@ by CHANGES.txt.
     BUG-70505. HADOOP-13257. Improve Azure Data Lake contract tests.
     Contributed by Vishwajeet Dusane
 
+    BUG-70505. HDFS-11240. Remove snapshot version of SDK dependency from Azure
+    Data Lake Store File System
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
