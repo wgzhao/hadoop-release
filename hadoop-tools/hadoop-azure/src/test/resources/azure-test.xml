@@ -26,6 +26,14 @@
     <name>fs.azure.account.key.{ACCOUNTNAME}.blob.core.windows.net</name>
     <value>{ACCOUNTKEY}</value>
   </property>
+  <property>
+    <name>fs.azure.sas.key.mode</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>fs.azure.local.sas.key.mode</name>
+    <value>false</value>
+  </property>
   -->
 
   <!-- Save the above configuration properties in a separate file named -->
