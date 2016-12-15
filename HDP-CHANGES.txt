@@ -3037,3 +3037,5 @@ ATS V1.5:
 
     BUG-68020. YARN-5551 : Ignore file backed pages from memory computation when smaps is enabled. Contributed
     by Rajesh Balamohan.
+
+    BUG-70723. MAPREDUCE-6625. TestCLI#testGetJob fails occasionally (haibochen via rkanter).
