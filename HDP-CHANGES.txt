@@ -1814,3 +1814,6 @@ ATS V1.5:
 
     BUG-66575. HDFS-9618. Fix mismatch between log level and guard in
     BlockManager#computeRecoveryWorkForBlocks (iwasakims)
+
+    BUG-70718. HADOOP-13831. Correct check for error code to detect Azure
+    Storage Throttling and provide retries. Contributed by Gaurav Kanade
