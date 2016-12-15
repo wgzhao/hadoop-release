@@ -2999,3 +2999,6 @@ ATS V1.5:
     YARN-5915. ATS 1.5 FileSystemTimelineWriter causes flush() to be called after every event write. Atul Skaria.
 
     BUG-70317. HADOOP-13675. Bug in return value for delete() calls in WASB. Contributed by Dushyanth
+
+    BUG-70718. HADOOP-13831. Correct check for error code to detect Azure
+    Storage Throttling and provide retries. Contributed by Gaurav Kanade
