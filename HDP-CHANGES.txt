@@ -1383,3 +1383,5 @@ ATS V1.5:
 
     BUG-55339. MAPREDUCE-6672. TestTeraSort fails on Windows. Contributed by
     Tibor Kiss.
+
+    BUG-70313. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
