@@ -543,3 +543,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     MAPREDUCE-6680. JHS UserLogDir scan algorithm sometime could skip directory
     with update in CloudFS (Azure FileSystem, S3, etc). (Junping Du via jianhe)
+
+    BUG-70718. HADOOP-13831. Correct check for error code to detect Azure
+    Storage Throttling and provide retries. Contributed by Gaurav Kanade
