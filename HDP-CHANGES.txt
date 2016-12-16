@@ -857,3 +857,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-70098. HADOOP-12682. Fix TestKMS#testKMSRestart* failure. Contributed by
     Wei-Chiu Chuang.
+
+    BUG-70098. HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use
+    incorrect class to determine isKeyTab in JDK8. Contributed by Xiaoyu Yao.
