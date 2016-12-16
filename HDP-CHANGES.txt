@@ -957,4 +957,5 @@ covered by CHANGES.txt.
     BUG-55711. HDFS-9313. Possible NullPointerException in BlockManager if
     no excess replica can be chosen. (Ming Ma)
 
-
+    BUG-68080. HDFS-11054. Suppress verbose log message in
+    BlockPlacementPolicyDefault. Contributed by Chen Liang.
