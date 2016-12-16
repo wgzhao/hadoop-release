@@ -860,3 +860,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-70098. HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use
     incorrect class to determine isKeyTab in JDK8. Contributed by Xiaoyu Yao.
+
+    BUG-70098. HADOOP-12787. KMS SPNEGO sequence does not work with WEBHDFS.
+    Contributed by Xiaoyu Yao.
