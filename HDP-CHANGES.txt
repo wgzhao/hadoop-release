@@ -854,3 +854,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-70098. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
+
+    BUG-70098. HADOOP-12682. Fix TestKMS#testKMSRestart* failure. Contributed by
+    Wei-Chiu Chuang.
