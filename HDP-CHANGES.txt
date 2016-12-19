@@ -3041,4 +3041,15 @@ ATS V1.5:
     BUG-70723. MAPREDUCE-6625. TestCLI#testGetJob fails occasionally (haibochen via rkanter).
 
     BUG-70718. HADOOP-13831. Correct check for error code to detect Azure
-    Storage Throttling and provide retries. Contributed by Gaurav Kanade
+    Storage Throttling and provide retries. Contributed by Gaurav Kanade.
+
+    HADOOP-12252. LocalDirAllocator should not throw NPE with empty string configuration. Contributed by Zhihai Xu
+
+    HADOOP-8436. NPE In getLocalPathForWrite ( path, conf ) when the required context item is not configured. 
+    Contributed by Brahma Reddy Battula. (harsh)
+
+    HADOOP-8437. getLocalPathForWrite should throw IOException for invalid paths. Contributed by 
+    Brahma Reddy Battula.
+
+    HADOOP-10048. LocalDirAllocator should avoid holding locks while accessing the filesystem.
+    Contributed by Jason Lowe.
