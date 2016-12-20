@@ -3350,3 +3350,6 @@ ATS V1.5:
     BUG-68738. YARN-5718. TimelineClient (and other places in YARN) shouldn't
     over-write HDFS client retry settings which could cause unexpected behavior.
     Contributed by Junping Du.
+
+    BUG-65469. HDFS-6763. Initialize file system-wide quota once on
+    transitioning to active (kihwal)
