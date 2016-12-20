@@ -841,6 +841,7 @@ ATS V1.5:
     only via addToClusterNodeLabels but not changeable at runtime. (Wangda Tan
     via vinodkv)
 
+<<<<<<< HEAD
     BUG-45264. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
@@ -3361,3 +3362,6 @@ ATS V1.5:
 
     HADOOP-12017. Hadoop archives command should use configurable replication
     factor when closing (Bibin A Chundatt via vinayakumarb)
+
+    HDFS-6763. Initialize file system-wide quota once on transitioning to active
+    (kihwal)
