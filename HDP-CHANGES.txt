@@ -522,3 +522,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-70805. HDFS-9906. Remove spammy log spew when a datanode is restarted.
     (Contributed by Brahma Reddy Battula)
+
+    HDFS-6763. Initialize file system-wide quota once on transitioning to active
+    (kihwal)

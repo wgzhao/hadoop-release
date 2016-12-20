@@ -56,7 +56,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-8846. Add a unit test for INotify functionality across a layout
     version upgrade (Zhe Zhang via Colin P. McCabe)
 
-  OPTIMIZATIONS
+    HDFS-6763. Initialize file system-wide quota once on transitioning to active
+    (kihwal)
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
 
