@@ -1242,3 +1242,6 @@ ATS V1.5:
 
     BUG-67952. MAPREDUCE-5817. Mappers get rescheduled on node transition even
     after all reducers are completed. (Sangjin Lee via kasha)
+
+    BUG-70717. HADOOP-12185. NetworkTopology is not efficient
+    adding/getting/removing nodes. Contributed by Inigo Goiri
