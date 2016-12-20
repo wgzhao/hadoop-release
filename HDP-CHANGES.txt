@@ -3349,3 +3349,5 @@ ATS V1.5:
     BUG-72830. YARN-5704. Provide config knobs to control enabling/disabling new/work in progress features in container-executor.
     Contributed by Sidharta Seethana.
 
+    HDFS-6763. Initialize file system-wide quota once on transitioning to active
+    (kihwal)
