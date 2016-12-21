@@ -303,3 +303,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.0 and hence not covered
 
     BUG-69914. YARN-4610: Reservations continue looking for one app causes
     other apps to starve. (Jason Lowe)
+
+    BUG-71003. HADOOP-13362. DefaultMetricsSystem leaks the source name when a
+    source unregisters. Contributed by Junping Du
