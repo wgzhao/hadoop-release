@@ -519,3 +519,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     YARN-3413. Changed Nodelabel attributes (like exclusivity) to be settable only via addToClusterNodeLabels 
     but not changeable at runtime. (Wangda Tan via vinodkv)
+
+    BUG-70741. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
