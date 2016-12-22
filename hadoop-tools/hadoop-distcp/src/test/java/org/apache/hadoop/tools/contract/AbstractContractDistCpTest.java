@@ -21,6 +21,7 @@ package org.apache.hadoop.tools.contract;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.*;
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.apache.hadoop.conf.Configuration;
@@ -76,8 +77,10 @@ public abstract class AbstractContractDistCpTest
     // clear which paths are local and which paths are remote.
     Path testSubDir = new Path(getClass().getSimpleName(),
         testName.getMethodName());
-    localDir = localFS.makeQualified(new Path(new Path(
-        GenericTestUtils.getTestDir().toURI()), testSubDir));
+        String testDirProp = System.getProperty("test.build.data", "target" + File.separator + "test" + File.separator + "data");
+    File testDir = new File(testDirProp).getAbsoluteFile();
+         localDir = localFS.makeQualified(new Path(new Path(testDir.toURI()), testSubDir));
+        mkdirs(localFS, localDir);
     mkdirs(localFS, localDir);
     remoteDir = remoteFS.makeQualified(
         new Path(getContract().getTestPath(), testSubDir));
