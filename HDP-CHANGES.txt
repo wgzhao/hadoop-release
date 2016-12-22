@@ -3053,3 +3053,9 @@ ATS V1.5:
 
     HADOOP-10048. LocalDirAllocator should avoid holding locks while accessing the filesystem.
     Contributed by Jason Lowe.
+
+    YARN-4990. Re-direction of a particular log file within in a container in NM UI does not redirect properly.
+    Contributed by Xuan Gong.
+
+    YARN-5524. Yarn live log aggregation does not throw if command line arg is wrong.
+    Contributed by Xuan Gong.
