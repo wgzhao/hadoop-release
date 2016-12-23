@@ -477,6 +477,8 @@ ATS V1.5:
 
     HADOOP-13470. GenericTestUtils$LogCapturer is flaky. (Contributed by Mingliang Liu)
 
+    BUG-70331. HADOOP-13863. Azure: Add a new SAS key mode for WASB. Contributed by Dushyanth
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
