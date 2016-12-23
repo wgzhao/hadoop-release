@@ -39,6 +39,7 @@ import java.io.File;
 import org.apache.hadoop.security.ProviderUtils;
 import org.apache.hadoop.security.alias.CredentialProvider;
 import org.apache.hadoop.security.alias.CredentialProviderFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.AbstractFileSystem;
 import org.apache.hadoop.fs.FileContext;
@@ -47,8 +48,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount.CreateOptions;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -64,7 +63,7 @@ public class TestWasbUriAndConfiguration {
   protected String accountName;
   protected String accountKey;
   protected static Configuration conf = null;
-  private boolean runningInSASMode = false;
+
   @Rule
   public final TemporaryFolder tempDir = new TemporaryFolder();
 
@@ -76,12 +75,6 @@ public class TestWasbUriAndConfiguration {
       testAccount.cleanup();
       testAccount = null;
     }
-  }
-
-  @Before
-  public void setMode() {
-    runningInSASMode = AzureBlobStorageTestAccount.createTestConfiguration().
-        getBoolean(AzureNativeFileSystemStore.KEY_USE_SAS_KEY_MODE, false);
   }
 
   private boolean validateIOStreams(Path filePath) throws IOException {
@@ -135,8 +128,6 @@ public class TestWasbUriAndConfiguration {
 
   @Test
   public void testConnectUsingSAS() throws Exception {
-
-    Assume.assumeFalse(runningInSASMode);
     // Create the test account with SAS credentials.
     testAccount = AzureBlobStorageTestAccount.create("",
         EnumSet.of(CreateOptions.UseSas, CreateOptions.CreateContainer));
@@ -151,8 +142,6 @@ public class TestWasbUriAndConfiguration {
 
   @Test
   public void testConnectUsingSASReadonly() throws Exception {
-
-    Assume.assumeFalse(runningInSASMode);
     // Create the test account with SAS credentials.
     testAccount = AzureBlobStorageTestAccount.create("", EnumSet.of(
         CreateOptions.UseSas, CreateOptions.CreateContainer,
@@ -329,8 +318,6 @@ public class TestWasbUriAndConfiguration {
 
   @Test
   public void testCredsFromCredentialProvider() throws Exception {
-
-    Assume.assumeFalse(runningInSASMode);
     String account = "testacct";
     String key = "testkey";
     // set up conf to have a cred provider

@@ -52,6 +52,7 @@ import org.apache.hadoop.fs.azure.StorageInterface.CloudBlobDirectoryWrapper;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudBlobWrapper;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudBlockBlobWrapper;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudPageBlobWrapper;
+import org.apache.hadoop.fs.azure.StorageInterfaceImpl.CloudPageBlobWrapperImpl;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.BandwidthGaugeUpdater;
 import org.apache.hadoop.fs.azure.metrics.ErrorMetricUpdater;
@@ -149,21 +150,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
   private static final String KEY_ENABLE_STORAGE_CLIENT_LOGGING = "fs.azure.storage.client.logging";
 
-  /**
-   * Configuration keys to identify if WASB needs to run in SAS Key mode. In SAS Key mode
-   * all interactions with Azure storage is performed using SAS uris. There are two sub modes
-   * within the SAS Key mode , one is remote SAS key mode where the SAS keys are generated
-   * from a remote process and local mode where SAS keys are generated within WASB.
-   * The variable is declared public for visibility in Tests
-   */
-  public static final String KEY_USE_SAS_KEY_MODE = "fs.azure.sas.key.mode";
-
-  /**
-   * By default the SAS Key mode is expected to run in Romote key mode. This flags sets it
-   * to run on the local mode.
-   */
-  public static final String KEY_USE_LOCAL_SAS_KEY_MODE = "fs.azure.local.sas.key.mode";
-
   private static final String PERMISSION_METADATA_KEY = "hdi_permission";
   private static final String OLD_PERMISSION_METADATA_KEY = "asv_permission";
   private static final String IS_FOLDER_METADATA_KEY = "hdi_isfolder";
@@ -246,13 +232,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private static final int STORAGE_CONNECTION_TIMEOUT_DEFAULT = 90;
 
   /**
-   * Default values to control SAS Key mode.
-   * By default we set the values to false.
-   */
-  private static final boolean DEFAULT_USE_SAS_KEY_MODE = false;
-  private static final boolean DEFAULT_USE_LOCAL_SAS_KEY_MODE = false;
-
-  /**
    * Enable flat listing of blobs as default option. This is useful only if
    * listing depth is AZURE_UNBOUNDED_DEPTH.
    */
@@ -298,10 +277,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
   // Set if we're running against a storage emulator..
   private boolean isStorageEmulator = false;
-
-  // Configs controlling WASB SAS key mode.
-  private boolean useSasKeyMode = false;
-  private boolean useLocalSasKeyMode = false;
 
   /**
    * A test hook interface that can modify the operation context we use for
@@ -435,12 +410,16 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   @Override
   public void initialize(URI uri, Configuration conf, AzureFileSystemInstrumentation instrumentation)
       throws IllegalArgumentException, AzureException, IOException  {
-
+    
     if (null == instrumentation) {
       throw new IllegalArgumentException("Null instrumentation");
     }
     this.instrumentation = instrumentation;
 
+    if (null == this.storageInteractionLayer) {
+      this.storageInteractionLayer = new StorageInterfaceImpl();
+    }
+    
     // Check that URI exists.
     //
     if (null == uri) {
@@ -466,17 +445,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     //
     sessionUri = uri;
     sessionConfiguration = conf;
-
-    useSasKeyMode = conf.getBoolean(KEY_USE_SAS_KEY_MODE, DEFAULT_USE_SAS_KEY_MODE);
-    useLocalSasKeyMode = conf.getBoolean(KEY_USE_LOCAL_SAS_KEY_MODE, DEFAULT_USE_LOCAL_SAS_KEY_MODE);
-
-    if (null == this.storageInteractionLayer) {
-      if (!useSasKeyMode) {
-        this.storageInteractionLayer = new StorageInterfaceImpl();
-      } else {
-        this.storageInteractionLayer = new SASStorageInterfaceImpl(useLocalSasKeyMode, conf);
-      }
-    }
 
     // Start an Azure storage session.
     //
@@ -823,28 +791,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   }
 
   /**
-   * Method to set up the Storage Interaction layer in SAS Key mode.
-   * @param accountName - Storage account provided in the initializer
-   * @param containerName - Container name provided in the initializer
-   * @param sessionUri - URI provided in the initializer
-   */
-  private void connectToAzureStorageInSASKeyMode(String accountName, String containerName,
-      URI sessionUri) throws AzureException, StorageException, URISyntaxException {
-
-    if (!(this.storageInteractionLayer instanceof SASStorageInterfaceImpl)) {
-      throw new AzureException("Invalid State reached. connectToAzureStorageInSASKeyMode called"
-          + " when SASStorageInterfaceImpl not used");
-    }
-
-    ((SASStorageInterfaceImpl)this.storageInteractionLayer).setStorageAccountName(accountName);
-
-    container = storageInteractionLayer.getContainerReference(containerName);
-    rootDirectory = container.getDirectoryReference("");
-
-    canCreateOrModifyContainer = true;
-  }
-
-  /**
    * Connect to Azure storage using account key credentials.
    */
   private void connectUsingConnectionStringCredentials(
@@ -971,11 +917,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       if (isStorageEmulatorAccount(accountName)) {
         // It is an emulator account, connect to it with no credentials.
         connectUsingCredentials(accountName, null, containerName);
-        return;
-      }
-
-      if (useSasKeyMode) {
-        connectToAzureStorageInSASKeyMode(accountName, containerName, sessionUri);
         return;
       }
 
@@ -1389,7 +1330,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
    */
   private OutputStream openOutputStream(final CloudBlobWrapper blob)
       throws StorageException {
-    if (blob instanceof CloudPageBlobWrapper){
+    if (blob instanceof CloudPageBlobWrapperImpl){
       return new PageBlobOutputStream(
           (CloudPageBlobWrapper)blob, getInstrumentedContext(), sessionConfiguration);
     } else {
