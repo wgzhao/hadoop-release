@@ -484,6 +484,7 @@ ATS V1.5:
     BUG-68464. HDFS-10892. Add unit tests for HDFS command 'dfs -tail' and 'dfs -stat'. Contributed by Mingliang Liu
     BUG-68464. HDFS-10934. TestDFSShell#testStat fails intermittently. Contributed by Eric Badger
     BUG-68464. HDFS-10893. Refactor TestDFSShell by setting up MiniDFSCluser once for all commands test. Contributed by Mingliang Liu
+    BUG-68464. HDFS-10643. [Unit Test] Namenode should use loginUser(hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
 
   OPTIMIZATIONS
 
