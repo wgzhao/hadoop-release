@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,8 +121,9 @@ public abstract class Storage extends StorageInfo {
     public StorageDirType getStorageDirType();
     public boolean isOfType(StorageDirType type);
   }
-  
-  protected List<StorageDirectory> storageDirs = new ArrayList<StorageDirectory>();
+
+  protected List<StorageDirectory> storageDirs =
+      new CopyOnWriteArrayList<StorageDirectory>();
   
   private class DirIterator implements Iterator<StorageDirectory> {
     final StorageDirType dirType;
