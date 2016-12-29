@@ -1245,3 +1245,5 @@ ATS V1.5:
 
     BUG-70717. HADOOP-12185. NetworkTopology is not efficient
     adding/getting/removing nodes. Contributed by Inigo Goiri
+
+    BUG-70724. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
