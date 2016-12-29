@@ -1247,3 +1247,6 @@ ATS V1.5:
     adding/getting/removing nodes. Contributed by Inigo Goiri
 
     BUG-70724. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
+
+    BUG-70724. HADOOP-13467. Shell#getSignalKillCommand should use the bash
+    builtin on Linux. (Arpit Agarwal)
