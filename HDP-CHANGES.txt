@@ -179,3 +179,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-74492. HADOOP-12901. Add warning log when KMSClientProvider cannot
     create a connection to the KMS server. (Xiao Chen via wang)
+
+    BUG-74492. HADOOP-13155. Implement TokenRenewer to renew and cancel
+    delegation tokens in KMS. Contributed by Xiao Chen.
