@@ -48,3 +48,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-76216. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
+
+    BUG-76216. HADOOP-13155. Implement TokenRenewer to renew and cancel
+    delegation tokens in KMS. Contributed by Xiao Chen.
