@@ -135,7 +135,8 @@ public class FsVolumeImpl implements FsVolumeSpi {
     this.configuredCapacity = -1;
     // dataset.datanode may be null in some tests.
     this.fileIoProvider = dataset.datanode != null ?
-        dataset.datanode.getFileIoProvider() : new FileIoProvider(conf);
+        dataset.datanode.getFileIoProvider() :
+        new FileIoProvider(conf, dataset.datanode);
     cacheExecutor = initializeCacheExecutor(parent);
     this.metrics = DataNodeVolumeMetrics.create(conf, parent.getAbsolutePath());
   }

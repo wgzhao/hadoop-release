@@ -101,7 +101,7 @@ public class TestDeleteBlockPool {
       verifyBlockPoolDirectories(false, dn1StorageDir2, bpid1);
      
       fs1.delete(new Path("/alpha"), true);
-      final FileIoProvider fileIoProvider = new FileIoProvider(conf);
+      final FileIoProvider fileIoProvider = new FileIoProvider(conf, dn2);
       
       // Wait till all blocks are deleted from the dn2 for bpid1.
       File finalDir1 = MiniDFSCluster.getFinalizedDir(dn2StorageDir1, bpid1);
