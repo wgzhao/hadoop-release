@@ -171,3 +171,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-64957. HDFS-9276. Failed to Update HDFS Delegation Token for long
     running application in HA mode. Contributed by Liangliang Gu and John Zhuge
+
+    BUG-71034. YARN-2992. ZKRMStateStore crashes due to session expiry.
+    Contributed by Karthik Kambatla
