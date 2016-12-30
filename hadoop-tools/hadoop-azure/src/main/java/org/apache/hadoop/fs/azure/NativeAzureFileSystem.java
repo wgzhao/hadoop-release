@@ -278,7 +278,8 @@ public class NativeAzureFileSystem extends FileSystem {
      *    "innerFile2"
      *  ]
      * } }</pre>
-     * @throws IOException
+     * @param fs file system on which a file is written.
+     * @throws IOException Thrown when fail to write file.
      */
     public void writeFile(NativeAzureFileSystem fs) throws IOException {
       Path path = getRenamePendingFilePath();
@@ -302,6 +303,8 @@ public class NativeAzureFileSystem extends FileSystem {
     /**
      * Return the contents of the JSON file to represent the operations
      * to be performed for a folder rename.
+     *
+     * @return JSON string which represents the operation.
      */
     public String makeRenamePendingFileContents() {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -428,7 +431,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * when everything is working normally. See redo() for the alternate
      * execution path for the case where we're recovering from a folder rename
      * failure.
-     * @throws IOException
+     * @throws IOException Thrown when fail to renaming.
      */
     public void execute() throws IOException {
 
@@ -482,7 +485,8 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     /** Clean up after execution of rename.
-     * @throws IOException */
+     * @throws IOException Thrown when fail to clean up.
+     * */
     public void cleanup() throws IOException {
 
       if (fs.getStoreInterface().isAtomicRenameKey(srcKey)) {
@@ -506,7 +510,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * Recover from a folder rename failure by redoing the intended work,
      * as recorded in the -RenamePending.json file.
      * 
-     * @throws IOException
+     * @throws IOException Thrown when fail to redo.
      */
     public void redo() throws IOException {
 
@@ -1260,6 +1264,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
   /**
    * Creates a new metrics source name that's unique within this process.
+   * @return metric source name
    */
   @VisibleForTesting
   public static String newMetricsSourceName() {
@@ -1434,6 +1439,8 @@ public class NativeAzureFileSystem extends FileSystem {
   /**
    * Convert the path to a key. By convention, any leading or trailing slash is
    * removed, except for the special case of a single slash.
+   * @param path path converted to a key
+   * @return key string
    */
   @VisibleForTesting
   public String pathToKey(Path path) {
@@ -1488,7 +1495,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * Get the absolute version of the path (fully qualified).
    * This is public for testing purposes.
    *
-   * @param path
+   * @param path path to be absolute path.
    * @return fully qualified path
    */
   @VisibleForTesting
@@ -3750,7 +3757,7 @@ public class NativeAzureFileSystem extends FileSystem {
    *          The root path to consider.
    * @param destination
    *          The destination path to move any recovered files to.
-   * @throws IOException
+   * @throws IOException Thrown when fail to recover files.
    */
   public void recoverFilesWithDanglingTempData(Path root, Path destination)
       throws IOException {
@@ -3768,7 +3775,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * 
    * @param root
    *          The root path to consider.
-   * @throws IOException
+   * @throws IOException Thrown when fail to delete.
    */
   public void deleteFilesWithDanglingTempData(Path root) throws IOException {
 
@@ -3788,7 +3795,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * Upload data to a random temporary file then do storage side renaming to
    * recover the original key.
    * 
-   * @param aKey
+   * @param aKey a key to be encoded.
    * @return Encoded version of the original key.
    */
   private static String encodeKey(String aKey) {
