@@ -174,3 +174,7 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-71034. YARN-2992. ZKRMStateStore crashes due to session expiry.
     Contributed by Karthik Kambatla
+
+    BUG-71121. HADOOP-12559. KMS connection failures should trigger TGT renewal.
+    Contributed by Zhe Zhang.
+
