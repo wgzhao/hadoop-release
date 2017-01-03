@@ -3087,3 +3087,6 @@ ATS V1.5:
 
     YARN-5524. Yarn live log aggregation does not throw if command line arg is wrong.
     Contributed by Xuan Gong.
+
+    BUG-71400. YARN-4393. TestResourceLocalizationService#testFailedDirsResourceRelease fails intermittently.
+    Contributed by Varun Saxena.
