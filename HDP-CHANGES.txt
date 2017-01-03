@@ -3092,3 +3092,5 @@ ATS V1.5:
     Contributed by Varun Saxena.
 
     BUG-71401. YARN-4556. TestFifoScheduler.testResourceOverCommit fails. Contributed by Akihiro Suda.
+
+    BUG-71401. YARN-5069. TestFifoScheduler.testResourceOverCommit race condition. Contributed by Eric Payne.
