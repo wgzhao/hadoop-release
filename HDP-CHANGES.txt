@@ -104,6 +104,9 @@ by CHANGES.txt.
     HDFS-10397. Distcp should ignore -delete option if -diff option is provided
     instead of exiting. (Mingliang Liu via Jing Zhao)
 
+    BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
+    to WASB client. Contributed by Santhosh G Nayak
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
