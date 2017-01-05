@@ -27,6 +27,9 @@ import org.apache.hadoop.security.token.delegation.web.DelegationTokenIdentifier
 public class WasbDelegationTokenIdentifier extends DelegationTokenIdentifier {
   public static final Text TOKEN_KIND = new Text("WASB delegation");
 
+  public WasbDelegationTokenIdentifier(){
+    super(TOKEN_KIND);
+  }
   public WasbDelegationTokenIdentifier(Text kind) {
     super(kind);
   }
