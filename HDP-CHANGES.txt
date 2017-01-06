@@ -3097,3 +3097,5 @@ ATS V1.5:
 
     BUG-65978. YARN-3591. Resource localization on a bad disk causes subsequent
     containers failure. Contributed by Lavkesh Lahngir.
+
+    BUG-70511. YARN-5999. AMRMClientAsync will stop if any exceptions thrown on allocate call. Contributed by Jian He
