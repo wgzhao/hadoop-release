@@ -953,3 +953,5 @@ covered by CHANGES.txt.
 
     BUG-67358. YARN-5309. Fix SSLFactory truststore reloader thread leak in
     TimelineClientImpl. Contributed by Weiwei Yang.
+
+    BUG-70725. HDFS-9726. Refactor IBR code to a new class.

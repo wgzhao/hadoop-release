@@ -32,8 +32,10 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.client.BlockReportOptions;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocolPB.DatanodeProtocolClientSideTranslatorPB;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.protocol.BlockReportContext;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
+import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.ReceivedDeletedBlockInfo;
 import org.apache.hadoop.hdfs.server.protocol.ReceivedDeletedBlockInfo.BlockStatus;
 import org.apache.hadoop.hdfs.server.protocol.StorageBlockReport;
@@ -92,9 +94,10 @@ public final class TestTriggerBlockReport {
     DataNode datanode = cluster.getDataNodes().get(0);
     BPServiceActor actor =
         datanode.getAllBpOs()[0].getBPServiceActors().get(0);
-    String storageUuid =
-        datanode.getFSDataset().getVolumes().get(0).getStorageID();
-    actor.notifyNamenodeDeletedBlock(rdbi, storageUuid);
+    final FsDatasetSpi<?> dataset = datanode.getFSDataset();
+    final DatanodeStorage storage =
+        dataset.getStorage(dataset.getVolumes().get(0).getStorageID());
+    actor.getIbrManager().addRDBI(rdbi, storage);
 
     // Manually trigger a block report.
     datanode.triggerBlockReport(
