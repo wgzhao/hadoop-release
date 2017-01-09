@@ -95,8 +95,7 @@ class BPServiceActor implements Runnable {
   private final DataNode dn;
   private final DNConf dnConf;
 
-  private final IncrementalBlockReportManager ibrManager
-      = new IncrementalBlockReportManager();
+  private final IncrementalBlockReportManager ibrManager;
 
   private DatanodeRegistration bpRegistration;
   final LinkedList<BPServiceActorAction> bpThreadQueue 
@@ -107,6 +106,7 @@ class BPServiceActor implements Runnable {
     this.dn = bpos.getDataNode();
     this.nnAddr = nnAddr;
     this.dnConf = dn.getDnConf();
+    this.ibrManager = new IncrementalBlockReportManager(dnConf.ibrInterval);
     scheduler = new Scheduler(dnConf.heartBeatInterval, dnConf.blockReportInterval);
   }
 
@@ -544,17 +544,7 @@ class BPServiceActor implements Runnable {
         //
         // There is no work to do;  sleep until hearbeat timer elapses, 
         // or work arrives, and then iterate again.
-        //
-        long waitTime = scheduler.getHeartbeatWaitTime();
-        synchronized(ibrManager) {
-          if (waitTime > 0 && !ibrManager.sendImmediately()) {
-            try {
-              ibrManager.wait(waitTime);
-            } catch (InterruptedException ie) {
-              LOG.warn("BPOfferService for " + this + " interrupted");
-            }
-          }
-        } // synchronized
+        ibrManager.waitTillNextIBR(scheduler.getHeartbeatWaitTime());
       } catch(RemoteException re) {
         String reClass = re.getClassName();
         if (UnregisteredNodeException.class.getName().equals(reClass) ||
@@ -741,7 +731,7 @@ class BPServiceActor implements Runnable {
   void triggerBlockReport(BlockReportOptions options) {
     if (options.isIncremental()) {
       LOG.info(bpos.toString() + ": scheduling an incremental block report.");
-      ibrManager.triggerIBR();
+      ibrManager.triggerIBR(true);
     } else {
       LOG.info(bpos.toString() + ": scheduling a full block report.");
       synchronized(ibrManager) {

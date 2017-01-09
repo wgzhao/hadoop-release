@@ -285,7 +285,6 @@ public class DataNode extends ReconfigurableBase
   volatile FsDatasetSpi<? extends FsVolumeSpi> data = null;
   private String clusterId = null;
 
-  public final static String EMPTY_DEL_HINT = "";
   final AtomicInteger xmitsInProgress = new AtomicInteger();
   Daemon dataXceiverServer = null;
   DataXceiverServer xserver = null;
@@ -937,11 +936,12 @@ public class DataNode extends ReconfigurableBase
   }
   
   // calls specific to BP
-  public void notifyNamenodeReceivedBlock(
-      ExtendedBlock block, String delHint, String storageUuid) {
+  public void notifyNamenodeReceivedBlock(ExtendedBlock block, String delHint,
+      String storageUuid, boolean isOnTransientStorage) {
     BPOfferService bpos = blockPoolManager.get(block.getBlockPoolId());
     if(bpos != null) {
-      bpos.notifyNamenodeReceivedBlock(block, delHint, storageUuid);
+      bpos.notifyNamenodeReceivedBlock(block, delHint, storageUuid,
+          isOnTransientStorage);
     } else {
       LOG.error("Cannot find BPOfferService for reporting block received for bpid="
           + block.getBlockPoolId());
@@ -2119,15 +2119,11 @@ public class DataNode extends ReconfigurableBase
    * @param delHint hint on which excess block to delete
    * @param storageUuid UUID of the storage where block is stored
    */
-  void closeBlock(ExtendedBlock block, String delHint, String storageUuid) {
+  void closeBlock(ExtendedBlock block, String delHint, String storageUuid,
+      boolean isTransientStorage) {
     metrics.incrBlocksWritten();
-    BPOfferService bpos = blockPoolManager.get(block.getBlockPoolId());
-    if(bpos != null) {
-      bpos.notifyNamenodeReceivedBlock(block, delHint, storageUuid);
-    } else {
-      LOG.warn("Cannot find BPOfferService for reporting block received for bpid="
-          + block.getBlockPoolId());
-    }
+    notifyNamenodeReceivedBlock(block, delHint, storageUuid,
+        isTransientStorage);
     FsVolumeSpi volume = getFSDataset().getVolume(block);
     if (blockScanner != null && !volume.isTransientStorage()) {
       blockScanner.addBlock(block);
@@ -2496,7 +2492,7 @@ public class DataNode extends ReconfigurableBase
   public String updateReplicaUnderRecovery(final ExtendedBlock oldBlock,
       final long recoveryId, final long newBlockId, final long newLength)
       throws IOException {
-    final String storageID = data.updateReplicaUnderRecovery(oldBlock,
+    final Replica r = data.updateReplicaUnderRecovery(oldBlock,
         recoveryId, newBlockId, newLength);
     // Notify the namenode of the updated block info. This is important
     // for HA, since otherwise the standby node may lose track of the
@@ -2505,7 +2501,9 @@ public class DataNode extends ReconfigurableBase
     newBlock.setGenerationStamp(recoveryId);
     newBlock.setBlockId(newBlockId);
     newBlock.setNumBytes(newLength);
-    notifyNamenodeReceivedBlock(newBlock, "", storageID);
+    final String storageID = r.getStorageUuid();
+    notifyNamenodeReceivedBlock(newBlock, null, storageID,
+        r.isOnTransientStorage());
     return storageID;
   }
 
