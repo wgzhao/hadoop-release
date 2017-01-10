@@ -94,13 +94,13 @@ public class DNConf {
   final long dfsclientSlowIoWarningThresholdMs;
   final long datanodeSlowIoWarningThresholdMs;
   final int writePacketSize;
-  
+
   final String minimumNameNodeVersion;
   final String encryptionAlgorithm;
   final SaslPropertiesResolver saslPropsResolver;
   final TrustedChannelResolver trustedChannelResolver;
   private final boolean ignoreSecurePortsForTesting;
-  
+
   final long xceiverStopTimeout;
   final long restartReplicaExpiry;
 
@@ -130,9 +130,9 @@ public class DNConf {
         DFS_DATANODE_TRANSFERTO_ALLOWED_KEY,
         DFS_DATANODE_TRANSFERTO_ALLOWED_DEFAULT);
 
-    writePacketSize = conf.getInt(DFS_CLIENT_WRITE_PACKET_SIZE_KEY, 
+    writePacketSize = conf.getInt(DFS_CLIENT_WRITE_PACKET_SIZE_KEY,
         DFS_CLIENT_WRITE_PACKET_SIZE_DEFAULT);
-    
+
     readaheadLength = conf.getLong(
         DFSConfigKeys.DFS_DATANODE_READAHEAD_BYTES_KEY,
         DFSConfigKeys.DFS_DATANODE_READAHEAD_BYTES_DEFAULT);
@@ -177,7 +177,7 @@ public class DNConf {
           "dfs.blockreport.intervalMsec." + " Setting initial delay to 0 msec:");
     }
     initialBlockReportDelayMs = initBRDelay;
-    
+
     heartBeatInterval = conf.getLong(DFS_HEARTBEAT_INTERVAL_KEY,
         DFS_HEARTBEAT_INTERVAL_DEFAULT) * 1000L;
     long confLifelineIntervalMs =
@@ -194,14 +194,14 @@ public class DNConf {
               confLifelineIntervalMs));
     }
     lifelineIntervalMs = confLifelineIntervalMs;
-    
+
     // do we need to sync block file contents to disk when blockfile is closed?
-    this.syncOnClose = conf.getBoolean(DFS_DATANODE_SYNCONCLOSE_KEY, 
+    this.syncOnClose = conf.getBoolean(DFS_DATANODE_SYNCONCLOSE_KEY,
         DFS_DATANODE_SYNCONCLOSE_DEFAULT);
 
     this.minimumNameNodeVersion = conf.get(DFS_DATANODE_MIN_SUPPORTED_NAMENODE_VERSION_KEY,
         DFS_DATANODE_MIN_SUPPORTED_NAMENODE_VERSION_DEFAULT);
-    
+
     this.encryptDataTransfer = conf.getBoolean(DFS_ENCRYPT_DATA_TRANSFER_KEY,
         DFS_ENCRYPT_DATA_TRANSFER_DEFAULT);
     this.encryptionAlgorithm = conf.get(DFS_DATA_ENCRYPTION_ALGORITHM_KEY);
@@ -211,7 +211,7 @@ public class DNConf {
     this.ignoreSecurePortsForTesting = conf.getBoolean(
         IGNORE_SECURE_PORTS_FOR_TESTING_KEY,
         IGNORE_SECURE_PORTS_FOR_TESTING_DEFAULT);
-    
+
     this.xceiverStopTimeout = conf.getLong(
         DFS_DATANODE_XCEIVER_STOP_TIMEOUT_MILLIS_KEY,
         DFS_DATANODE_XCEIVER_STOP_TIMEOUT_MILLIS_DEFAULT);
@@ -233,10 +233,10 @@ public class DNConf {
   String getMinimumNameNodeVersion() {
     return this.minimumNameNodeVersion;
   }
-  
+
   /**
    * Returns the configuration.
-   * 
+   *
    * @return Configuration the configuration
    */
   public Configuration getConf() {
@@ -320,5 +320,9 @@ public class DNConf {
    */
   public long getLifelineIntervalMs() {
     return lifelineIntervalMs;
+  }
+
+  public long getSlowIoWarningThresholdMs() {
+    return datanodeSlowIoWarningThresholdMs;
   }
 }

@@ -36,15 +36,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.ReplicaOutputStreams;
 import org.apache.hadoop.hdfs.server.protocol.BlockCommand;
 import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.io.nativeio.NativeIO;
 import org.apache.hadoop.io.nativeio.NativeIOException;
 
 /**
  * This class is a container of multiple thread pools, each for a volume,
  * so that we can schedule async disk operations easily.
- * 
+ *
  * Examples of async disk operations are deletion of block files.
  * We don't want to create a new thread for each of the deletion request, and
  * we don't want to do all deletions in the heartbeat thread since deletion
@@ -52,34 +52,34 @@ import org.apache.hadoop.io.nativeio.NativeIOException;
  * is inefficient when we have more than 1 volume.  AsyncDiskService is the
  * solution for these.
  * Another example of async disk operation is requesting sync_file_range().
- * 
+ *
  * This class and {@link org.apache.hadoop.util.AsyncDiskService} are similar.
  * They should be combined.
  */
 class FsDatasetAsyncDiskService {
   public static final Log LOG = LogFactory.getLog(FsDatasetAsyncDiskService.class);
-  
+
   // ThreadPool core pool size
   private static final int CORE_THREADS_PER_VOLUME = 1;
   // ThreadPool maximum pool size
   private static final int MAXIMUM_THREADS_PER_VOLUME = 4;
   // ThreadPool keep-alive time for threads over core pool size
-  private static final long THREADS_KEEP_ALIVE_SECONDS = 60; 
-  
+  private static final long THREADS_KEEP_ALIVE_SECONDS = 60;
+
   private final DataNode datanode;
   private final FsDatasetImpl fsdatasetImpl;
   private final ThreadGroup threadGroup;
   private Map<File, ThreadPoolExecutor> executors
       = new HashMap<File, ThreadPoolExecutor>();
-  private Map<String, Set<Long>> deletedBlockIds 
+  private Map<String, Set<Long>> deletedBlockIds
       = new HashMap<String, Set<Long>>();
   private static final int MAX_DELETED_BLOCKS = 64;
   private int numDeletedBlocks = 0;
-  
+
   /**
    * Create a AsyncDiskServices with a set of volumes (specified by their
    * root directories).
-   * 
+   *
    * The AsyncDiskServices uses one ThreadPool per volume to do the async
    * disk operations.
    */
@@ -148,7 +148,7 @@ class FsDatasetAsyncDiskService {
       executors.remove(volume);
     }
   }
-  
+
   synchronized long countPendingDeletions() {
     long count = 0;
     for (ThreadPoolExecutor exec : executors.values()) {
@@ -156,7 +156,7 @@ class FsDatasetAsyncDiskService {
     }
     return count;
   }
-  
+
   /**
    * Execute the task sometime in the future, using ThreadPools.
    */
@@ -172,7 +172,7 @@ class FsDatasetAsyncDiskService {
       executor.execute(task);
     }
   }
-  
+
   /**
    * Gracefully shut down all ThreadPool. Will wait for all deletion
    * tasks to finish.
@@ -182,25 +182,25 @@ class FsDatasetAsyncDiskService {
       LOG.warn("AsyncDiskService has already shut down.");
     } else {
       LOG.info("Shutting down all async disk service threads");
-      
+
       for (Map.Entry<File, ThreadPoolExecutor> e : executors.entrySet()) {
         e.getValue().shutdown();
       }
       // clear the executor map so that calling execute again will fail.
       executors = null;
-      
+
       LOG.info("All async disk service threads have been shut down");
     }
   }
 
   public void submitSyncFileRangeRequest(FsVolumeImpl volume,
-      final FileDescriptor fd, final long offset, final long nbytes,
+      final ReplicaOutputStreams streams, final long offset, final long nbytes,
       final int flags) {
     execute(volume.getCurrentDir(), new Runnable() {
       @Override
       public void run() {
         try {
-          NativeIO.POSIX.syncFileRangeIfPossible(fd, offset, nbytes, flags);
+          streams.syncFileRangeIfPossible(offset, nbytes, flags);
         } catch (NativeIOException e) {
           LOG.warn("sync_file_range error", e);
         }
@@ -220,7 +220,7 @@ class FsDatasetAsyncDiskService {
         volumeRef, blockFile, metaFile, block, trashDirectory);
     execute(((FsVolumeImpl) volumeRef.getVolume()).getCurrentDir(), deletionTask);
   }
-  
+
   /** A task for deleting a block file and its associated meta file, as well
    *  as decrement the dfs usage of the volume.
    *  Optionally accepts a trash directory. If one is specified then the files
@@ -234,7 +234,7 @@ class FsDatasetAsyncDiskService {
     final File metaFile;
     final ExtendedBlock block;
     final String trashDirectory;
-    
+
     ReplicaFileDeleteTask(FsVolumeReference volumeRef, File blockFile,
         File metaFile, ExtendedBlock block, String trashDirectory) {
       this.volumeRef = volumeRef;
@@ -299,7 +299,7 @@ class FsDatasetAsyncDiskService {
       IOUtils.cleanup(null, volumeRef);
     }
   }
-  
+
   private synchronized void updateDeletedBlockId(ExtendedBlock block) {
     Set<Long> blockIds = deletedBlockIds.get(block.getBlockPoolId());
     if (blockIds == null) {
