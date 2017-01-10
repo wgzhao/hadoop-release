@@ -3102,3 +3102,6 @@ ATS V1.5:
 
     BUG-60231. MAPREDUCE-6711. After enabling preemption on cluster, jobs failed without making
     any attempts made after being preempted. Contributed by Prabu Joseph.
+
+    BUG-71745. YARN-6068. Log aggregation get failed when NM restart even with recovery. 
+    Contributed by Junping Du.
