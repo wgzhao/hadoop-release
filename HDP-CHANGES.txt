@@ -521,3 +521,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     but not changeable at runtime. (Wangda Tan via vinodkv)
 
     BUG-71311. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
+
+    BUG-71311. HADOOP-13467. Shell#getSignalKillCommand should use the bash
+    builtin on Linux. (Arpit Agarwal)
