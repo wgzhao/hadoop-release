@@ -3277,3 +3277,5 @@ ATS V1.5:
 
     HADOOP-13871. ITestS3AInputStreamPerformance.testTimeToOpenAndReadWholeFileBlocks
     performance awful. Contributed by Steve Loughran
+
+    HADOOP-13336 S3A to support per-bucket configuration. Contributed by Steve Loughran.
