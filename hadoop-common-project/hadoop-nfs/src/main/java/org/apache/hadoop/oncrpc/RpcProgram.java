@@ -49,16 +49,27 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
   private final int lowProgVersion;
   private final int highProgVersion;
   protected final boolean allowInsecurePorts;
-  
+
   /**
    * If not null, this will be used as the socket to use to connect to the
    * system portmap daemon when registering this RPC server program.
    */
   private final DatagramSocket registrationSocket;
-  
+  /*
+   * Timeout value in millisecond for the rpc connection to portmap
+   */
+  private final int portmapUdpTimeoutMillis;
+
+  protected RpcProgram(String program, String host, int port, int progNumber,
+      int lowProgVersion, int highProgVersion,
+      DatagramSocket registrationSocket, boolean allowInsecurePorts) {
+    this(program, host, port, progNumber, lowProgVersion, highProgVersion,
+            registrationSocket, allowInsecurePorts, 500);
+  }
+
   /**
    * Constructor
-   * 
+   *
    * @param program program name
    * @param host host where the Rpc server program is started
    * @param port port where the Rpc server program is listening to
@@ -69,10 +80,12 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
    *        with portmap daemon
    * @param allowInsecurePorts true to allow client connections from
    *        unprivileged ports, false otherwise
+   * @param  portmapUdpTimeoutMillis timeout in milliseconds for RPC connection
    */
   protected RpcProgram(String program, String host, int port, int progNumber,
       int lowProgVersion, int highProgVersion,
-      DatagramSocket registrationSocket, boolean allowInsecurePorts) {
+      DatagramSocket registrationSocket, boolean allowInsecurePorts,
+      int portmapUdpTimeoutMillis) {
     this.program = program;
     this.host = host;
     this.port = port;
@@ -81,6 +94,7 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
     this.highProgVersion = highProgVersion;
     this.registrationSocket = registrationSocket;
     this.allowInsecurePorts = allowInsecurePorts;
+    this.portmapUdpTimeoutMillis = portmapUdpTimeoutMillis;
     LOG.info("Will " + (allowInsecurePorts ? "" : "not ") + "accept client "
         + "connections from unprivileged ports");
   }
@@ -101,7 +115,7 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
       register(mapEntry, true);
     }
   }
-  
+
   /**
    * Unregister this program with the local portmapper.
    */
@@ -118,14 +132,16 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
       register(mapEntry, false);
     }
   }
-  
+
   /**
-   * Register the program with Portmap or Rpcbind
+   * Register the program with Portmap or Rpcbind.
+   * @param mapEntry port map entries
+   * @param set specifies registration or not
    */
   protected void register(PortmapMapping mapEntry, boolean set) {
     XDR mappingRequest = PortmapRequest.create(mapEntry, set);
     SimpleUdpClient registrationClient = new SimpleUdpClient(host, RPCB_PORT,
-        mappingRequest, registrationSocket);
+        mappingRequest, true, registrationSocket, portmapUdpTimeoutMillis);
     try {
       registrationClient.run();
     } catch (IOException e) {
@@ -139,18 +155,18 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
   // Start extra daemons or services
   public void startDaemons() {}
   public void stopDaemons() {}
-  
+
   @Override
   public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
       throws Exception {
     RpcInfo info = (RpcInfo) e.getMessage();
     RpcCall call = (RpcCall) info.header();
-    
+
     SocketAddress remoteAddress = info.remoteAddress();
     if (LOG.isTraceEnabled()) {
       LOG.trace(program + " procedure #" + call.getProcedure());
     }
-    
+
     if (this.progNumber != call.getProgram()) {
       LOG.warn("Invalid RPC call program " + call.getProgram());
       sendAcceptedReply(call, remoteAddress, AcceptState.PROG_UNAVAIL, ctx);
@@ -163,10 +179,10 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
       sendAcceptedReply(call, remoteAddress, AcceptState.PROG_MISMATCH, ctx);
       return;
     }
-    
+
     handleInternal(ctx, info);
   }
-  
+
   public boolean doPortMonitoring(SocketAddress remoteAddress) {
     if (!allowInsecurePorts) {
       if (LOG.isTraceEnabled()) {
@@ -189,7 +205,7 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
     }
     return true;
   }
-  
+
   private void sendAcceptedReply(RpcCall call, SocketAddress remoteAddress,
       AcceptState acceptState, ChannelHandlerContext ctx) {
     RpcAcceptedReply reply = RpcAcceptedReply.getInstance(call.getXid(),
@@ -206,7 +222,7 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
     RpcResponse rsp = new RpcResponse(b, remoteAddress);
     RpcUtil.sendRpcResponse(ctx, rsp);
   }
-  
+
   protected static void sendRejectedReply(RpcCall call,
       SocketAddress remoteAddress, ChannelHandlerContext ctx) {
     XDR out = new XDR();
@@ -221,15 +237,19 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
   }
 
   protected abstract void handleInternal(ChannelHandlerContext ctx, RpcInfo info);
-  
+
   @Override
   public String toString() {
     return "Rpc program: " + program + " at " + host + ":" + port;
   }
-  
+
   protected abstract boolean isIdempotent(RpcCall call);
-  
+
   public int getPort() {
     return port;
+  }
+
+  public int getPortmapUdpTimeoutMillis() {
+    return portmapUdpTimeoutMillis;
   }
 }

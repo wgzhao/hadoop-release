@@ -3108,3 +3108,7 @@ ATS V1.5:
 
     HADOOP-12056. Use DirectoryStream in DiskChecker#checkDirs to detect errors when listing a
     directory. Contributed by Zhihai Xu.
+
+    HDFS-11307. The rpc to portmap service for NFS has hardcoded timeout. Contributed by
+    Mukul Kumar Singh.
+
