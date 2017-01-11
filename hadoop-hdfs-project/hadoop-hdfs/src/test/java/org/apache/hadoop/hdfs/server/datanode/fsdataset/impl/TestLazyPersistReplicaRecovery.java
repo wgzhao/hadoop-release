@@ -20,6 +20,7 @@ package org.apache.hadoop.hdfs.server.datanode.fsdataset.impl;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.test.GenericTestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import static org.apache.hadoop.fs.StorageType.DEFAULT;
 import static org.apache.hadoop.fs.StorageType.RAM_DISK;
 
 public class TestLazyPersistReplicaRecovery extends LazyPersistTestCase {
+  @Ignore("Flaky test, disabling")
   @Test
   public void testDnRestartWithSavedReplicas()
       throws IOException, InterruptedException, TimeoutException {

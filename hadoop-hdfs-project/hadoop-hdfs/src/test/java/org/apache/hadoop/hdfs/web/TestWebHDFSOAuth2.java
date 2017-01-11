@@ -32,6 +32,7 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -82,6 +83,7 @@ public class TestWebHDFSOAuth2 {
     mockWebHDFS = startClientAndServer(WEBHDFS_PORT);
   }
 
+  @Ignore("Flaky test, disabling")
   @Test
   public void listStatusReturnsAsExpected() throws URISyntaxException, IOException {
     MockServerClient mockWebHDFSServerClient = new MockServerClient("localhost", WEBHDFS_PORT);
