@@ -3105,3 +3105,6 @@ ATS V1.5:
 
     BUG-71745. YARN-6068. Log aggregation get failed when NM restart even with recovery. 
     Contributed by Junping Du.
+
+    HADOOP-12056. Use DirectoryStream in DiskChecker#checkDirs to detect errors when listing a
+    directory. Contributed by Zhihai Xu.
