@@ -159,7 +159,7 @@ public abstract class DelegateToFileSystem extends AbstractFileSystem {
 
   @Override
   public int getUriDefaultPort() {
-    return 0;
+    return getDefaultPortIfDefined(fsImpl);
   }
 
   @Override
