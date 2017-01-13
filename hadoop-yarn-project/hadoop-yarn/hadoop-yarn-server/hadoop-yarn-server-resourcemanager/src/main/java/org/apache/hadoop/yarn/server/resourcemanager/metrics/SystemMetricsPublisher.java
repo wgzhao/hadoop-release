@@ -118,6 +118,15 @@ public class SystemMetricsPublisher extends CompositeService {
   }
 
   @SuppressWarnings("unchecked")
+  public void appUpdated(RMApp app, long updatedTime) {
+    if (publishSystemMetrics) {
+      dispatcher.getEventHandler()
+          .handle(new ApplicationUpdatedEvent(app.getApplicationId(),
+              app.getQueue(), updatedTime));
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   public void appFinished(RMApp app, RMAppState state, long finishedTime) {
     if (publishSystemMetrics) {
       dispatcher.getEventHandler().handle(
@@ -238,6 +247,9 @@ public class SystemMetricsPublisher extends CompositeService {
     case APP_CREATED:
       publishApplicationCreatedEvent((ApplicationCreatedEvent) event);
       break;
+    case APP_UPDATED :
+      publishApplicationUpdatedEvent((ApplicationUpdatedEvent) event);
+      break;
     case APP_FINISHED:
       publishApplicationFinishedEvent((ApplicationFinishedEvent) event);
       break;
@@ -345,6 +357,19 @@ public class SystemMetricsPublisher extends CompositeService {
         event.getAppState());
     TimelineEvent tEvent = new TimelineEvent();
     tEvent.setEventType(ApplicationMetricsConstants.STATE_UPDATED_EVENT_TYPE);
+    tEvent.setTimestamp(event.getTimestamp());
+    tEvent.setEventInfo(eventInfo);
+    entity.addEvent(tEvent);
+    putEntity(entity);
+  }
+
+  private void publishApplicationUpdatedEvent(ApplicationUpdatedEvent event) {
+    TimelineEntity entity = createApplicationEntity(event.getApplicationId());
+    Map<String, Object> eventInfo = new HashMap<String, Object>();
+    eventInfo.put(ApplicationMetricsConstants.QUEUE_ENTITY_INFO,
+        event.getQueue());
+    TimelineEvent tEvent = new TimelineEvent();
+    tEvent.setEventType(ApplicationMetricsConstants.UPDATED_EVENT_TYPE);
     tEvent.setTimestamp(event.getTimestamp());
     tEvent.setEventInfo(eventInfo);
     entity.addEvent(tEvent);

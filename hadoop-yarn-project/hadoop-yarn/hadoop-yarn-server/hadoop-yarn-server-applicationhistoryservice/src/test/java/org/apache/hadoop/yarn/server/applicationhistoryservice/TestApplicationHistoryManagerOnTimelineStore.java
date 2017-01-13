@@ -81,10 +81,10 @@ public class TestApplicationHistoryManagerOnTimelineStore {
     TimelineEntities entities = new TimelineEntities();
     entities.addEntity(createApplicationTimelineEntity(
         ApplicationId.newInstance(0, SCALE + 1), true, true, false,
-        YarnApplicationState.FINISHED));
+        YarnApplicationState.FINISHED, false));
     entities.addEntity(createApplicationTimelineEntity(
         ApplicationId.newInstance(0, SCALE + 2), true, false, true,
-        YarnApplicationState.FINISHED));
+        YarnApplicationState.FINISHED, false));
     store.put(entities);
   }
 
@@ -142,10 +142,10 @@ public class TestApplicationHistoryManagerOnTimelineStore {
       ApplicationId appId = ApplicationId.newInstance(0, i);
       if (i == 2) {
         entities.addEntity(createApplicationTimelineEntity(
-            appId, true, false, false, YarnApplicationState.FINISHED));
+            appId, true, false, false, YarnApplicationState.FINISHED, true));
       } else {
         entities.addEntity(createApplicationTimelineEntity(
-            appId, false, false, false, YarnApplicationState.FINISHED));
+            appId, false, false, false, YarnApplicationState.FINISHED, false));
       }
       store.put(entities);
       for (int j = 1; j <= scale; ++j) {
@@ -168,7 +168,7 @@ public class TestApplicationHistoryManagerOnTimelineStore {
         ApplicationAttemptId.newInstance(appId, 1);
     ContainerId containerId = ContainerId.newContainerId(appAttemptId, 1);
     entities.addEntity(createApplicationTimelineEntity(
-        appId, true, false, false, YarnApplicationState.RUNNING));
+        appId, true, false, false, YarnApplicationState.RUNNING, false));
     entities.addEntity(createAppAttemptTimelineEntity(appAttemptId));
     entities.addEntity(createContainerEntity(containerId));
     store.put(entities);
@@ -195,7 +195,15 @@ public class TestApplicationHistoryManagerOnTimelineStore {
       Assert.assertEquals("test app", app.getName());
       Assert.assertEquals("test app type", app.getApplicationType());
       Assert.assertEquals("user1", app.getUser());
-      Assert.assertEquals("test queue", app.getQueue());
+
+      if (i == 2) {
+        // Change event is fired only in case of app with ID 2, hence verify
+        // with updated changes. And make sure last updated change is accepted.
+        Assert.assertEquals("changed queue1", app.getQueue());
+      } else {
+        Assert.assertEquals("test queue", app.getQueue());
+      }
+
       Assert.assertEquals(Integer.MAX_VALUE + 2L
           + app.getApplicationId().getId(), app.getStartTime());
       Assert.assertEquals(Integer.MAX_VALUE + 3L
@@ -463,7 +471,8 @@ public class TestApplicationHistoryManagerOnTimelineStore {
 
   private static TimelineEntity createApplicationTimelineEntity(
       ApplicationId appId, boolean emptyACLs, boolean noAttemptId,
-      boolean wrongAppId, YarnApplicationState state) {
+      boolean wrongAppId, YarnApplicationState state,
+      boolean enableUpdateEvent) {
     TimelineEntity entity = new TimelineEntity();
     entity.setEntityType(ApplicationMetricsConstants.ENTITY_TYPE);
     if (wrongAppId) {
@@ -530,7 +539,30 @@ public class TestApplicationHistoryManagerOnTimelineStore {
         YarnApplicationState.KILLED);
     tEvent.setEventInfo(eventInfo);
     entity.addEvent(tEvent);
+
+    if (enableUpdateEvent) {
+      tEvent = new TimelineEvent();
+      createAppModifiedEvent(appId, tEvent, "changed queue");
+      entity.addEvent(tEvent);
+      // Change priority alone
+      tEvent = new TimelineEvent();
+      createAppModifiedEvent(appId, tEvent, "changed queue");
+      // Now change queue
+      tEvent = new TimelineEvent();
+      createAppModifiedEvent(appId, tEvent, "changed queue1");
+      entity.addEvent(tEvent);
+    }
+
     return entity;
+  }
+
+  private static void createAppModifiedEvent(ApplicationId appId,
+      TimelineEvent tEvent, String queue) {
+    tEvent.setEventType(ApplicationMetricsConstants.UPDATED_EVENT_TYPE);
+    tEvent.setTimestamp(Integer.MAX_VALUE + 4L + appId.getId());
+    Map<String, Object> eventInfo = new HashMap<String, Object>();
+    eventInfo.put(ApplicationMetricsConstants.QUEUE_ENTITY_INFO, queue);
+    tEvent.setEventInfo(eventInfo);
   }
 
   private static TimelineEntity createAppAttemptTimelineEntity(

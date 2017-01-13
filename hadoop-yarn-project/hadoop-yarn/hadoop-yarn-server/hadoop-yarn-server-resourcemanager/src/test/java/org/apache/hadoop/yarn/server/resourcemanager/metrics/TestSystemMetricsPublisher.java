@@ -111,6 +111,17 @@ public class TestSystemMetricsPublisher {
       ApplicationId appId = ApplicationId.newInstance(0, i);
       RMApp app = createRMApp(appId);
       metricsPublisher.appCreated(app, app.getStartTime());
+      if (i == 1) {
+        when(app.getQueue()).thenReturn("new test queue");
+        ApplicationSubmissionContext asc = mock(
+            ApplicationSubmissionContext.class);
+        when(asc.getUnmanagedAM()).thenReturn(false);
+        when(asc.getNodeLabelExpression()).thenReturn("high-cpu");
+        when(app.getApplicationSubmissionContext()).thenReturn(asc);
+        metricsPublisher.appUpdated(app, 4L);
+      } else {
+        metricsPublisher.appUpdated(app, 4L);
+      }
       metricsPublisher.appStateUpdated(app, YarnApplicationState.RUNNING,
           stateUpdateTimeStamp);
       metricsPublisher.appFinished(app, RMAppState.FINISHED,
@@ -128,7 +139,7 @@ public class TestSystemMetricsPublisher {
                 ApplicationMetricsConstants.ENTITY_TYPE,
                 EnumSet.allOf(Field.class));
         // ensure Five events are both published before leaving the loop
-      } while (entity == null || entity.getEvents().size() < 4);
+      } while (entity == null || entity.getEvents().size() < 5);
       // verify all the fields
       Assert.assertEquals(ApplicationMetricsConstants.ENTITY_TYPE,
           entity.getEntityType());
@@ -139,9 +150,11 @@ public class TestSystemMetricsPublisher {
               app.getName(),
               entity.getOtherInfo().get(
                   ApplicationMetricsConstants.NAME_ENTITY_INFO));
-      Assert.assertEquals(app.getQueue(),
-          entity.getOtherInfo()
-              .get(ApplicationMetricsConstants.QUEUE_ENTITY_INFO));
+
+      if (i != 1) {
+        Assert.assertEquals(app.getQueue(), entity.getOtherInfo()
+            .get(ApplicationMetricsConstants.QUEUE_ENTITY_INFO));
+      }
 
       Assert.assertEquals(
           app.getApplicationSubmissionContext().getUnmanagedAM(),
@@ -192,6 +205,7 @@ public class TestSystemMetricsPublisher {
       Assert.assertEquals("context", entity.getOtherInfo()
           .get(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT));
       boolean hasCreatedEvent = false;
+      boolean hasUpdatedEvent = false;
       boolean hasFinishedEvent = false;
       boolean hasACLsUpdatedEvent = false;
       boolean hasStateUpdateEvent = false;
@@ -215,6 +229,15 @@ public class TestSystemMetricsPublisher {
           Assert.assertEquals(YarnApplicationState.FINISHED.toString(), event
               .getEventInfo().get(ApplicationMetricsConstants.STATE_EVENT_INFO));
         } else if (event.getEventType().equals(
+            ApplicationMetricsConstants.UPDATED_EVENT_TYPE)) {
+          hasUpdatedEvent = true;
+          Assert.assertEquals(4L, event.getTimestamp());
+          if (1 == i) {
+            Assert.assertEquals("new test queue", event.getEventInfo()
+                .get(ApplicationMetricsConstants.QUEUE_ENTITY_INFO));
+          }
+        } else if (event.getEventType()
+            .equals(
             ApplicationMetricsConstants.ACLS_UPDATED_EVENT_TYPE)) {
           hasACLsUpdatedEvent = true;
           Assert.assertEquals(4L, event.getTimestamp());
@@ -232,6 +255,7 @@ public class TestSystemMetricsPublisher {
       Assert.assertTrue(hasFinishedEvent);
       Assert.assertTrue(hasACLsUpdatedEvent);
       Assert.assertTrue(hasStateUpdateEvent);
+      Assert.assertTrue(hasUpdatedEvent);
     }
   }
 
