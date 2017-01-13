@@ -53,6 +53,9 @@ import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -82,6 +85,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -957,8 +961,10 @@ public class TestProportionalCapacityPreemptionPolicy {
     ProportionalCapacityPreemptionPolicy policy = buildPolicy(qData);
     policy.editSchedule();
 
-    verify(mDisp, times(10)).handle(argThat(new IsPreemptionRequestFor(appC)));
-    assertEquals(10, policy.getQueuePartitions().get("queueE").get("").preemptableExtra.getMemorySize());
+    verify(mDisp, times(9)).handle(argThat(new IsPreemptionRequestFor(appC)));
+    assertEquals(10, policy.getQueuePartitions().get("queueE")
+        .get("").preemptableExtra.getMemorySize());
+
     //2nd level child(E) preempts 10, but parent A has only 9 extra
     //check the parent can prempt only the extra from > 2 level child
     TempQueuePerPartition tempQueueAPartition = policy.getQueuePartitions().get("queueA").get("");
@@ -993,6 +999,31 @@ public class TestProportionalCapacityPreemptionPolicy {
 
     // 5 containers will be preempted here
     verify(mDisp, times(5)).handle(argThat(new IsPreemptionRequestFor(appA)));
+  }
+
+  @Test
+  public void testPreemptionNotHappenForSingleReservedQueue() {
+    /*
+     * Test case to make sure, when reserved > pending, preemption will not
+     * happen if there's only one demanding queue.
+     */
+
+    int[][] qData = new int[][]{
+        //  /   A   B   C
+        { 100, 40, 40, 20 },  // abs
+        { 100, 100, 100, 100 },  // maxCap
+        { 100,  70,  0,  0 },  // used
+        {  10, 30,  0,  0 },  // pending
+        {   0,  50,  0,  0 },  // reserved
+        {   1,  1,  0,  0 },  // apps
+        {  -1,  1,  1,  1 },  // req granularity
+        {   3,  0,  0,  0 },  // subqueues
+    };
+    ProportionalCapacityPreemptionPolicy policy = buildPolicy(qData);
+    policy.editSchedule();
+
+    // No preemption happens
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appA)));
   }
 
   static class IsPreemptionRequestFor
@@ -1213,7 +1244,14 @@ public class TestProportionalCapacityPreemptionPolicy {
     List<ApplicationAttemptId> appAttemptIdList = 
         new ArrayList<ApplicationAttemptId>();
     when(lq.getTotalPendingResourcesConsideringUserLimit(isA(Resource.class),
-        isA(String.class))).thenReturn(pending[i]);
+        isA(String.class), eq(false))).thenReturn(pending[i]);
+
+    when(lq.getTotalPendingResourcesConsideringUserLimit(isA(Resource.class),
+        isA(String.class), eq(true))).thenReturn(Resources.componentwiseMax(
+        Resources.subtract(pending[i],
+            reserved[i] == null ? Resources.none() : reserved[i]),
+        Resources.none()));
+
     // need to set pending resource in resource usage as well
     ResourceUsage ru = new ResourceUsage();
     ru.setPending(pending[i]);
@@ -1343,29 +1381,6 @@ public class TestProportionalCapacityPreemptionPolicy {
       }
     }
     return ret;
-  }
-
-  void printString(CSQueue nq, String indent) {
-    if (nq instanceof ParentQueue) {
-      System.out.println(indent + nq.getQueueName()
-          + " cur:" + nq.getAbsoluteUsedCapacity()
-          + " guar:" + nq.getAbsoluteCapacity()
-          );
-      for (CSQueue q : ((ParentQueue)nq).getChildQueues()) {
-        printString(q, indent + "  ");
-      }
-    } else {
-      System.out.println(indent + nq.getQueueName()
-          + " pen:"
-              + ((LeafQueue) nq).getTotalPendingResourcesConsideringUserLimit(
-                                        isA(Resource.class), isA(String.class))
-          + " cur:" + nq.getAbsoluteUsedCapacity()
-          + " guar:" + nq.getAbsoluteCapacity()
-          );
-      for (FiCaSchedulerApp a : ((LeafQueue)nq).getApplications()) {
-        System.out.println(indent + "  " + a.getApplicationId());
-      }
-    }
   }
 
 }

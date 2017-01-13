@@ -3354,3 +3354,6 @@ ATS V1.5:
 
     HDFS-6763. Initialize file system-wide quota once on transitioning to active
     (kihwal)
+
+    BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit should deduct reserved from pending to avoid 
+    unnecessary preemption of reserved container. (Wangda Tan)

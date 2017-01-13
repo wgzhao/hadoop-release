@@ -73,6 +73,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -586,19 +587,21 @@ public class ProportionalCapacityPreemptionPolicyMockFramework {
       qc.setUsedCapacity(partitionName, used);
       when(queue.getUsedCapacity()).thenReturn(used);
       ru.setPending(partitionName, pending);
-      if (!isParent(queueExprArray, idx)) {
-        LeafQueue lq = (LeafQueue) queue;
-        when(lq.getTotalPendingResourcesConsideringUserLimit(isA(Resource.class),
-            isA(String.class))).thenReturn(pending);
-      }
-      ru.setUsed(partitionName, parseResourceFromString(values[2].trim()));
-
       // Setup reserved resource if it contained by input config
       Resource reserved = Resources.none();
       if(values.length == 5) {
         reserved = parseResourceFromString(values[4].trim());
         ru.setReserved(partitionName, reserved);
       }
+      if (!isParent(queueExprArray, idx)) {
+        LeafQueue lq = (LeafQueue) queue;
+        when(lq.getTotalPendingResourcesConsideringUserLimit(isA(Resource.class),
+            isA(String.class), eq(false))).thenReturn(pending);
+        when(lq.getTotalPendingResourcesConsideringUserLimit(isA(Resource.class),
+            isA(String.class), eq(true))).thenReturn(
+            Resources.subtract(pending, reserved));
+      }
+      ru.setUsed(partitionName, parseResourceFromString(values[2].trim()));
 
       LOG.debug("Setup queue=" + queueName + " partition=" + partitionName
           + " [abs_guaranteed=" + absGuaranteed + ",abs_max=" + absMax
