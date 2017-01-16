@@ -203,4 +203,6 @@ public interface FsVolumeSpi
   }
 
   FileIoProvider getFileIoProvider();
+
+  DataNodeVolumeMetrics getMetrics();
 }

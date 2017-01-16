@@ -25,6 +25,7 @@ import java.nio.channels.ClosedChannelException;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.server.datanode.FileIoProvider;
 import org.apache.hadoop.hdfs.server.datanode.checker.VolumeCheckResult;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.DataNodeVolumeMetrics;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
@@ -108,6 +109,11 @@ public class ExternalVolumeImpl implements FsVolumeSpi {
 
   @Override
   public FileIoProvider getFileIoProvider() {
+    return null;
+  }
+
+  @Override
+  public DataNodeVolumeMetrics getMetrics() {
     return null;
   }
 
