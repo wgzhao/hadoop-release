@@ -1194,7 +1194,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     final FileIoProvider fileIoProvider = datanode.getFileIoProvider();
 
     try {
-      
+
       fileIoProvider.renameTo(replicaInfo.getVolume(), oldmeta, newmeta);
     } catch (IOException e) {
       throw new IOException("Block " + replicaInfo + " reopen failed. " +
@@ -2109,10 +2109,11 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
    * if some volumes failed - the caller must emove all the blocks that belong
    * to these failed volumes.
    * @return the failed volumes. Returns null if no volume failed.
+   * @param failedVolumes
    */
   @Override // FsDatasetSpi
-  public Set<File> checkDataDir() {
-   return volumes.checkDirs();
+  public void handleVolumeFailures(Set<FsVolumeSpi> failedVolumes) {
+    volumes.handleVolumeFailures(failedVolumes);
   }
 
 

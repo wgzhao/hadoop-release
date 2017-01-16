@@ -485,10 +485,9 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
   public boolean isCached(String bpid, long blockId);
 
     /**
-     * Check if all the data directories are healthy
-     * @return A set of unhealthy data directories.
+     * Handle volume failures by removing the failed volumes.
      */
-  public Set<File> checkDataDir();
+  void handleVolumeFailures(Set<FsVolumeSpi> failedVolumes);
 
   /**
    * Shutdown the FSDataset
