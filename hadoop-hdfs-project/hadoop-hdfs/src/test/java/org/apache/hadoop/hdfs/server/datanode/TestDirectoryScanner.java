@@ -638,6 +638,11 @@ public class TestDirectoryScanner {
     }
 
     @Override
+    public FileIoProvider getFileIoProvider() {
+      return null;
+    }
+
+    @Override
     public VolumeCheckResult check(VolumeCheckContext context)
         throws Exception {
       return VolumeCheckResult.HEALTHY;

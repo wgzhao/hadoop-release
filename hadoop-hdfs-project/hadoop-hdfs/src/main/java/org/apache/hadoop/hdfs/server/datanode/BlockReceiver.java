@@ -242,8 +242,7 @@ class BlockReceiver implements Closeable {
 
       final boolean isCreate = isDatanode || isTransfer
           || stage == BlockConstructionStage.PIPELINE_SETUP_CREATE;
-      streams = replicaInfo.createStreams(isCreate, requestedChecksum,
-          datanodeSlowLogThresholdMs);
+      streams = replicaInfo.createStreams(isCreate, requestedChecksum);
       assert streams != null : "null streams!";
 
       // read checksum meta information
@@ -389,9 +388,8 @@ class BlockReceiver implements Closeable {
       checksumOut.flush();
       long flushEndNanos = System.nanoTime();
       if (isSync) {
-        long fsyncStartNanos = flushEndNanos;
         streams.syncChecksumOut();
-        datanode.metrics.addFsyncNanos(System.nanoTime() - fsyncStartNanos);
+        datanode.metrics.addFsyncNanos(System.nanoTime() - flushEndNanos);
       }
       flushTotalNanos += flushEndNanos - flushStartNanos;
     }
@@ -686,8 +684,10 @@ class BlockReceiver implements Closeable {
           int numBytesToDisk = (int)(offsetInBlock-onDiskLen);
 
           // Write data to disk.
-          long duration = streams.writeToDisk(dataBuf.array(),
+          long begin = Time.monotonicNow();
+          streams.writeDataToDisk(dataBuf.array(),
               startByteToDisk, numBytesToDisk);
+          long duration = Time.monotonicNow() - begin;
 
           final byte[] lastCrc;
           if (shouldNotWriteChecksum) {
@@ -1005,9 +1005,7 @@ class BlockReceiver implements Closeable {
    * will be overwritten.
    */
   private void adjustCrcFilePosition() throws IOException {
-    if (streams.getDataOut() != null) {
-      streams.flushDataOut();
-    }
+    streams.flushDataOut();
     if (checksumOut != null) {
       checksumOut.flush();
     }

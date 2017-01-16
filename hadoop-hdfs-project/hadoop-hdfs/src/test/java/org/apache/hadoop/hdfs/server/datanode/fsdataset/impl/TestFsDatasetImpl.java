@@ -42,6 +42,7 @@ import org.apache.hadoop.hdfs.server.datanode.DNConf;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.apache.hadoop.hdfs.server.datanode.DataStorage;
+import org.apache.hadoop.hdfs.server.datanode.FileIoProvider;
 import org.apache.hadoop.hdfs.server.datanode.FinalizedReplica;
 import org.apache.hadoop.hdfs.server.datanode.ReplicaHandler;
 import org.apache.hadoop.hdfs.server.datanode.ReplicaInfo;
@@ -163,6 +164,8 @@ public class TestFsDatasetImpl {
     this.conf.setLong(DFS_DATANODE_SCAN_PERIOD_HOURS_KEY, 0);
     final DNConf dnConf = new DNConf(conf);
 
+    final FileIoProvider fileIoProvider = new FileIoProvider(conf);
+    when(datanode.getFileIoProvider()).thenReturn(fileIoProvider);
     when(datanode.getConf()).thenReturn(conf);
     when(datanode.getDnConf()).thenReturn(dnConf);
     final BlockScanner disabledBlockScanner = new BlockScanner(datanode, conf);
