@@ -137,14 +137,14 @@ final class BlockingThreadPoolExecutorService
         new ThreadPoolExecutor(activeTasks, activeTasks, keepAliveTime, unit,
             workQueue, newDaemonThreadFactory(prefixName),
             new RejectedExecutionHandler() {
-          @Override
-            public void rejectedExecution(Runnable r,
-                ThreadPoolExecutor executor) {
-              // This is not expected to happen.
-              LOG.error("Could not submit task to executor {}",
-                  executor.toString());
-            }
-          });
+              @Override
+              public void rejectedExecution(Runnable r,
+                  ThreadPoolExecutor executor) {
+                // This is not expected to happen.
+                LOG.error("Could not submit task to executor {}",
+                    executor.toString());
+              }
+            });
     eventProcessingExecutor.allowCoreThreadTimeOut(true);
     return new BlockingThreadPoolExecutorService(waitingTasks + activeTasks,
         eventProcessingExecutor);

@@ -30,7 +30,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -141,8 +140,6 @@ public class S3AFileSystem extends FileSystem {
   private S3AStorageStatistics storageStatistics;
   private long readAhead;
   private S3AInputPolicy inputPolicy;
-  private static final AtomicBoolean warnedOfCoreThreadDeprecation =
-      new AtomicBoolean(false);
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   // The maximum number of entries that can be deleted in any call to s3
@@ -207,13 +204,6 @@ public class S3AFileSystem extends FileSystem {
                     }
                   });
 
-      if (conf.get("fs.s3a.threads.core") != null &&
-          warnedOfCoreThreadDeprecation.compareAndSet(false, true)) {
-        LoggerFactory.getLogger(
-            "org.apache.hadoop.conf.Configuration.deprecation")
-            .warn("Unsupported option \"fs.s3a.threads.core\"" +
-                " will be ignored {}", conf.get("fs.s3a.threads.core"));
-      }
       int maxThreads = conf.getInt(MAX_THREADS, DEFAULT_MAX_THREADS);
       if (maxThreads < 2) {
         LOG.warn(MAX_THREADS + " must be at least 2: forcing to 2.");

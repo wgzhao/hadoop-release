@@ -72,5 +72,5 @@ public enum S3AInputPolicy {
       return Normal;
     }
   }
-  
+
 }
