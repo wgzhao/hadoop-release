@@ -91,6 +91,10 @@ public class DataNodeTestUtils {
     return dn.getFSDataset();
   }
 
+  public static long getPendingAsyncDeletions(DataNode dn) {
+    return FsDatasetTestUtil.getPendingAsyncDeletions(dn.getFSDataset());
+  }
+
   /**
    * Fetch a copy of ReplicaInfo from a datanode by block id
    * @param dn datanode to retrieve a replicainfo object from
