@@ -3109,11 +3109,6 @@ public class DataNode extends ReconfigurableBase
     return clusterId;
   }
 
-  @Override // DataNodeMXBean
-  public String getFileIoProviderStatistics() {
-    return fileIoProvider.getStatistics();
-  }
-
   public void refreshNamenodes(Configuration conf) throws IOException {
     blockPoolManager.refreshNamenodes(conf);
   }

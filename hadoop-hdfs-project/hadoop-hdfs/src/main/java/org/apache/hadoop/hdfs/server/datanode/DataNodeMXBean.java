@@ -99,11 +99,6 @@ public interface DataNodeMXBean {
   public Map<String, Map<String, Long>> getDatanodeNetworkCounts();
 
   /**
-   * Gets the {@link FileIoProvider} statistics.
-   */
-  String getFileIoProviderStatistics();
-
-  /**
    * Gets the average info (e.g. time) of SendPacketDownstream when the
    * DataNode acts as the penultimate (2nd to the last) node in pipeline.
    * <p>
