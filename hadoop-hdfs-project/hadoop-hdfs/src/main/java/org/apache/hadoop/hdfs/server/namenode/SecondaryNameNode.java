@@ -1043,7 +1043,7 @@ public class SecondaryNameNode implements Runnable,
 
   }
     
-  static void doMerge(
+  void doMerge(
       CheckpointSignature sig, RemoteEditLogManifest manifest,
       boolean loadImage, FSImage dstImage, FSNamesystem dstNamesystem)
       throws IOException {   
@@ -1072,8 +1072,8 @@ public class SecondaryNameNode implements Runnable,
     Checkpointer.rollForwardByApplyingLogs(manifest, dstImage, dstNamesystem);
     // The following has the side effect of purging old fsimages/edit logs.
     dstImage.saveFSImageInAllDirs(dstNamesystem, dstImage.getLastAppliedTxId());
-    if (!dstNamesystem.isRollingUpgrade()) {
-      dstStorage.writeAll();
+    if (!namenode.isRollingUpgrade()) {
+      dstImage.updateStorageVersion();
     }
   }
 }

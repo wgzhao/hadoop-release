@@ -3114,3 +3114,5 @@ ATS V1.5:
 
     BUG-72118. YARN-3148. Allow CORS related headers to passthrough in
     WebAppProxyServlet. Contributed by Varun Saxena.
+
+    HDFS-11209. SNN can't checkpoint when rolling upgrade is not finalized. Contributed by Xiaoyu Yao.

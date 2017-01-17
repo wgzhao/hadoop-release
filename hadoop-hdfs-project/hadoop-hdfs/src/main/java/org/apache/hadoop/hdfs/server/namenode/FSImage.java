@@ -543,7 +543,7 @@ public class FSImage implements Closeable {
 
     // and save it but keep the same checkpointTime
     saveNamespace(target);
-    getStorage().writeAll();
+    updateStorageVersion();
   }
   
   void finalizeUpgrade(boolean finalizeEditLog) throws IOException {
@@ -1110,7 +1110,7 @@ public class FSImage implements Closeable {
       try {
         saveFSImageInAllDirs(source, nnf, imageTxId, canceler);
         if (!source.isRollingUpgrade()) {
-          storage.writeAll();
+          updateStorageVersion();
         }
       } finally {
         if (editLogWasOpen) {
