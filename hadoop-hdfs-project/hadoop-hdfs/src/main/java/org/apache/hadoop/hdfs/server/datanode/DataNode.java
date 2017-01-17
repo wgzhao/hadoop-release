@@ -97,6 +97,7 @@ import org.apache.hadoop.hdfs.server.datanode.checker.StorageLocationChecker;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodeMetrics;
+import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodePeerMetrics;
 import org.apache.hadoop.hdfs.server.datanode.web.DatanodeHttpServer;
 import org.apache.hadoop.hdfs.server.protocol.BlockRecoveryCommand.RecoveringBlock;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeProtocol;
@@ -312,6 +313,7 @@ public class DataNode extends ReconfigurableBase
   private int infoSecurePort;
 
   DataNodeMetrics metrics;
+  private DataNodePeerMetrics peerMetrics;
   private InetSocketAddress streamingAddr;
 
   // See the note below in incrDatanodeNetworkErrors re: concurrency.
@@ -1233,6 +1235,7 @@ public class DataNode extends ReconfigurableBase
     initIpcServer(conf);
 
     metrics = DataNodeMetrics.create(conf, getDisplayName());
+    peerMetrics = DataNodePeerMetrics.create(conf, getDisplayName());
     metrics.getJvmMetrics().setPauseMonitor(pauseMonitor);
 
     blockPoolManager = new BlockPoolManager(this);
@@ -1623,6 +1626,10 @@ public class DataNode extends ReconfigurableBase
 
   public DataNodeMetrics getMetrics() {
     return metrics;
+  }
+
+  public DataNodePeerMetrics getPeerMetrics() {
+    return peerMetrics;
   }
 
   /** Ensure the authentication method is kerberos */
@@ -3365,5 +3372,10 @@ public class DataNode extends ReconfigurableBase
   public void removeSpanReceiver(long id) throws IOException {
     checkSuperuserPrivilege();
     spanReceiverHost.removeSpanReceiver(id);
+  }
+
+  @Override // DataNodeMXBean
+  public String getSendPacketDownstreamAvgInfo() {
+    return peerMetrics.dumpSendPacketDownstreamAvgInfoAsJson();
   }
 }
