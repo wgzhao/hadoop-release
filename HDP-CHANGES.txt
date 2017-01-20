@@ -3126,3 +3126,6 @@ ATS V1.5:
     BUG-72720. MAPREDUCE-6485. Create a new task attempt with failed map task
     priority if in-progress attempts are unassigned. (Xianyin Xin via
     rohithsharmaks)
+
+    BUG-72143. MAPREDUCE-6684. High contention on scanning of user directory
+    under immediate_done in Job History Server. Contributed by Haibo Chen
