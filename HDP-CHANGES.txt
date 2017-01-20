@@ -3119,3 +3119,6 @@ ATS V1.5:
 
     BUG-72124. MAPREDUCE-6701. application master log can not be available when clicking jobhistory's am logs
     link. Contributed by Haibo Chen.
+
+    BUG-72151. YARN-5711. Propogate exceptions back to client when using hedging RM failover provider.
+    Contributed by Subru Krishnan.
