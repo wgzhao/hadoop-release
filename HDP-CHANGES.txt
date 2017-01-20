@@ -3129,3 +3129,6 @@ ATS V1.5:
 
     BUG-72143. MAPREDUCE-6684. High contention on scanning of user directory
     under immediate_done in Job History Server. Contributed by Haibo Chen
+
+    BUG-72083. YARN-5353. ResourceManager can leak delegation tokens when they
+    are shared across apps. (Jason Lowe via Varun Saxena).
