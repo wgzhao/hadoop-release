@@ -3116,3 +3116,6 @@ ATS V1.5:
     WebAppProxyServlet. Contributed by Varun Saxena.
 
     HDFS-11209. SNN can't checkpoint when rolling upgrade is not finalized. Contributed by Xiaoyu Yao.
+
+    BUG-72124. MAPREDUCE-6701. application master log can not be available when clicking jobhistory's am logs
+    link. Contributed by Haibo Chen.
