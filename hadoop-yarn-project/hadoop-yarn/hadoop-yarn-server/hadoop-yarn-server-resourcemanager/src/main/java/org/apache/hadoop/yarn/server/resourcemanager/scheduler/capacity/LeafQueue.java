@@ -648,23 +648,24 @@ public class LeafQueue extends AbstractCSQueue {
             + " AM node-partition name " + partitionName);
       }
 
-      if (!Resources.lessThanOrEqual(resourceCalculator, lastClusterResource,
-          amIfStarted, amLimit)) {
-        if (getNumActiveApplications() < 1
-            || (Resources.lessThanOrEqual(resourceCalculator,
-                lastClusterResource, queueUsage.getAMUsed(partitionName),
-                Resources.none()))) {
-          LOG.warn("maximum-am-resource-percent is insufficient to start a"
-              + " single application in queue, it is likely set too low."
-              + " skipping enforcement to allow at least one application"
-              + " to start");
-        } else {
-          application.updateAMContainerDiagnostics(AMState.INACTIVATED,
-              CSAMContainerLaunchDiagnosticsConstants.QUEUE_AM_RESOURCE_LIMIT_EXCEED);
-          LOG.info("Not activating application " + applicationId
-              + " as  amIfStarted: " + amIfStarted + " exceeds amLimit: "
-              + amLimit);
-          continue;
+        if (!Resources.lessThanOrEqual(resourceCalculator, lastClusterResource,
+            amIfStarted, amLimit)) {
+          if (getNumActiveApplications() < 1 || (Resources.lessThanOrEqual(
+              resourceCalculator, lastClusterResource,
+              queueUsage.getAMUsed(partitionName), Resources.none()))) {
+            LOG.warn("maximum-am-resource-percent is insufficient to start a"
+                + " single application in queue, it is likely set too low."
+                + " skipping enforcement to allow at least one application"
+                + " to start");
+          } else{
+            application.updateAMContainerDiagnostics(AMState.INACTIVATED,
+                CSAMContainerLaunchDiagnosticsConstants.QUEUE_AM_RESOURCE_LIMIT_EXCEED);
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Not activating application " + applicationId
+                  + " as  amIfStarted: " + amIfStarted + " exceeds amLimit: "
+                  + amLimit);
+            }
+            continue;
         }
       }
 
@@ -682,25 +683,26 @@ public class LeafQueue extends AbstractCSQueue {
           application.getAMResource(partitionName),
           user.getConsumedAMResources(partitionName));
 
-      if (!Resources.lessThanOrEqual(resourceCalculator, lastClusterResource,
-          userAmIfStarted, userAMLimit)) {
-        if (getNumActiveApplications() < 1
-            || (Resources.lessThanOrEqual(resourceCalculator,
-                lastClusterResource, queueUsage.getAMUsed(partitionName),
-                Resources.none()))) {
-          LOG.warn("maximum-am-resource-percent is insufficient to start a"
-              + " single application in queue for user, it is likely set too"
-              + " low. skipping enforcement to allow at least one application"
-              + " to start");
-        } else {
-          application.updateAMContainerDiagnostics(AMState.INACTIVATED,
-              CSAMContainerLaunchDiagnosticsConstants.USER_AM_RESOURCE_LIMIT_EXCEED);
-          LOG.info("Not activating application " + applicationId
-              + " for user: " + user + " as userAmIfStarted: "
-              + userAmIfStarted + " exceeds userAmLimit: " + userAMLimit);
-          continue;
+        if (!Resources.lessThanOrEqual(resourceCalculator, lastClusterResource,
+            userAmIfStarted, userAMLimit)) {
+          if (getNumActiveApplications() < 1 || (Resources.lessThanOrEqual(
+              resourceCalculator, lastClusterResource,
+              queueUsage.getAMUsed(partitionName), Resources.none()))) {
+            LOG.warn("maximum-am-resource-percent is insufficient to start a"
+                + " single application in queue for user, it is likely set too"
+                + " low. skipping enforcement to allow at least one application"
+                + " to start");
+          } else {
+            application.updateAMContainerDiagnostics(AMState.INACTIVATED,
+                CSAMContainerLaunchDiagnosticsConstants.USER_AM_RESOURCE_LIMIT_EXCEED);
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Not activating application " + applicationId
+                  + " for user: " + user + " as userAmIfStarted: "
+                  + userAmIfStarted + " exceeds userAmLimit: " + userAMLimit);
+            }
+            continue;
+          }
         }
-      }
       user.activateApplication();
       orderingPolicy.addSchedulableEntity(application);
       application.updateAMContainerDiagnostics(AMState.ACTIVATED, null);
@@ -727,17 +729,26 @@ public class LeafQueue extends AbstractCSQueue {
     getPendingAppsOrderingPolicy().addSchedulableEntity(application);
     applicationAttemptMap.put(application.getApplicationAttemptId(), application);
 
-    // Activate applications
-    activateApplications();
-    
-    LOG.info("Application added -" +
-        " appId: " + application.getApplicationId() +
-        " user: " + user + "," + " leaf-queue: " + getQueueName() +
-        " #user-pending-applications: " + user.getPendingApplications() +
-        " #user-active-applications: " + user.getActiveApplications() +
-        " #queue-pending-applications: " + getNumPendingApplications() +
-        " #queue-active-applications: " + getNumActiveApplications()
-        );
+      // Activate applications
+      if (Resources.greaterThan(resourceCalculator, lastClusterResource,
+          lastClusterResource, Resources.none())) {
+        activateApplications();
+      } else {
+        application.updateAMContainerDiagnostics(AMState.INACTIVATED,
+            CSAMContainerLaunchDiagnosticsConstants.CLUSTER_RESOURCE_EMPTY);
+        LOG.info("Skipping activateApplications for "
+            + application.getApplicationAttemptId()
+            + " since cluster resource is " + Resources.none());
+      }
+
+      LOG.info(
+          "Application added -" + " appId: " + application.getApplicationId()
+              + " user: " + application.getUser() + "," + " leaf-queue: "
+              + getQueueName() + " #user-pending-applications: " + user
+              .getPendingApplications() + " #user-active-applications: " + user
+              .getActiveApplications() + " #queue-pending-applications: "
+              + getNumPendingApplications() + " #queue-active-applications: "
+              + getNumActiveApplications());
   }
 
   @Override

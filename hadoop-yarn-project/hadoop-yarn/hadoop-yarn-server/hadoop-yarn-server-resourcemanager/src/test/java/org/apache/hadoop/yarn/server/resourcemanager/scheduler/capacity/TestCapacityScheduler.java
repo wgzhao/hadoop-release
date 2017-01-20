@@ -2899,6 +2899,8 @@ public class TestCapacityScheduler {
   @Test(timeout = 30000)
   public void testAMUsedResource() throws Exception {
     MockRM rm = setUpMove();
+    rm.registerNode("127.0.0.1:1234", 4 * GB);
+
     Configuration conf = rm.getConfig();
     int minAllocMb =
         conf.getInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
@@ -3070,6 +3072,7 @@ public class TestCapacityScheduler {
   private void verifyAMLimitForLeafQueue(CapacitySchedulerConfiguration config)
       throws Exception {
     MockRM rm = setUpMove(config);
+    rm.registerNode("127.0.0.1:1234", 2 * GB);
 
     String queueName = "a1";
     String userName = "user_0";
