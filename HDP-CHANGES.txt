@@ -3122,3 +3122,7 @@ ATS V1.5:
 
     BUG-72151. YARN-5711. Propogate exceptions back to client when using hedging RM failover provider.
     Contributed by Subru Krishnan.
+ 
+    BUG-72720. MAPREDUCE-6485. Create a new task attempt with failed map task
+    priority if in-progress attempts are unassigned. (Xianyin Xin via
+    rohithsharmaks)
