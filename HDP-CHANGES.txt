@@ -3159,3 +3159,6 @@ ATS V1.5:
 
     BUG-72141. MAPREDUCE-6350. JobHistory doesn't support fully-functional
     search. Contributed by Siqi Li.
+
+    BUG-72141. MAPREDUCE-6616. Fail to create jobhistory file if there are some
+    multibyte characters in the job name. Contributed by Kousuke Saruta.
