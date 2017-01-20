@@ -3152,3 +3152,7 @@ ATS V1.5:
     BUG-72039. YARN-5539. TimelineClient failed to retry on
     java.net.SocketTimeoutException: Read timed out (Junping Du via Varun
     Saxena)
+
+    BUG-72134. YARN-3387. Previous AM's container completed status couldn't pass
+    to current AM if AM and RM restarted during the same time. Contributed by
+    Sandflee
