@@ -3138,3 +3138,6 @@ ATS V1.5:
 
     BUG-72140. MAPREDUCE-6797. Job history server scans can become blocked on a
     single, slow entry. Contributed by Prabhu Joseph
+
+    BUG-72138. YARN-857. Localization failures should be available in container
+    diagnostics. Contributed by  Vinod Kumar Vavilapalli.
