@@ -169,6 +169,25 @@ public class TestWebAppProxyServlet {
       assertEquals(HttpURLConnection.HTTP_OK, proxyConn.getResponseCode());
       assertTrue(isResponseCookiePresent(
           proxyConn, "checked_application_0_0000", "true"));
+
+      // test that redirection is squashed correctly
+      URL redirectUrl = new URL("http://localhost:" + proxyPort
+          + "/proxy/redirect/application_00_0");
+      proxyConn = (HttpURLConnection) redirectUrl.openConnection();
+      proxyConn.setInstanceFollowRedirects(false);
+      proxyConn.connect();
+      assertEquals("The proxy returned an unexpected status code rather than"
+          + "redirecting the connection (302)",
+          HttpURLConnection.HTTP_MOVED_TEMP, proxyConn.getResponseCode());
+
+      String expected =
+          WebAppUtils.getResolvedRMWebAppURLWithScheme(configuration)
+            + "/cluster/failure/application_00_0";
+      String redirect = proxyConn.getHeaderField(ProxyUtils.LOCATION);
+
+      assertEquals("The proxy did not redirect the connection to the failure "
+          + "page of the RM", expected, redirect);
+
       // cannot found application 1: null
       appReportFetcher.answer = 1;
       proxyConn = (HttpURLConnection) url.openConnection();
@@ -178,6 +197,7 @@ public class TestWebAppProxyServlet {
           proxyConn.getResponseCode());
       assertFalse(isResponseCookiePresent(
           proxyConn, "checked_application_0_0000", "true"));
+
       // cannot found application 2: ApplicationNotFoundException
       appReportFetcher.answer = 4;
       proxyConn = (HttpURLConnection) url.openConnection();
@@ -187,6 +207,7 @@ public class TestWebAppProxyServlet {
           proxyConn.getResponseCode());
       assertFalse(isResponseCookiePresent(
           proxyConn, "checked_application_0_0000", "true"));
+
       // wrong user
       appReportFetcher.answer = 2;
       proxyConn = (HttpURLConnection) url.openConnection();
@@ -196,6 +217,7 @@ public class TestWebAppProxyServlet {
       assertTrue(s
           .contains("to continue to an Application Master web interface owned by"));
       assertTrue(s.contains("WARNING: The following page may not be safe!"));
+
       //case if task has a not running status
       appReportFetcher.answer = 3;
       proxyConn = (HttpURLConnection) url.openConnection();

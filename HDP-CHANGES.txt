@@ -3170,3 +3170,6 @@ ATS V1.5:
     BUG-72036. YARN-5549. AMLauncher#createAMContainerLaunchContext() should not
     log the command to be launched indiscriminately. (Daniel Templeton via
     rchiang)
+
+    BUG-72157. YARN-4767. Network issues can cause persistent RM UI outage.
+    (Daniel Templeton via kasha)
