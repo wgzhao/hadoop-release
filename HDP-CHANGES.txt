@@ -3135,3 +3135,6 @@ ATS V1.5:
 
     BUG-72122. YARN-4403. (AM/NM/Container)LivelinessMonitor should use
     monotonic time when calculating period. Contributed by Junping Du
+
+    BUG-72140. MAPREDUCE-6797. Job history server scans can become blocked on a
+    single, slow entry. Contributed by Prabhu Joseph
