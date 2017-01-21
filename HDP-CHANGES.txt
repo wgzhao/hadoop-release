@@ -143,6 +143,8 @@ by CHANGES.txt.
 
     BUG-73681/YARN-5864. Capacity Scheduler queue priority. (Wangda Tan)
 
+    BUG-70505. HADOOP-13962. Update ADLS SDK to 2.1.4. (John Zhuge via lei)
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
