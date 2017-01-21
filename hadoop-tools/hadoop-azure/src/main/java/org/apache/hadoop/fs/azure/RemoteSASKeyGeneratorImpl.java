@@ -101,6 +101,7 @@ public class RemoteSASKeyGeneratorImpl extends SASKeyGeneratorImpl {
   private String credServiceUrl = "";
   private WasbRemoteCallHelper remoteCallHelper = null;
   private boolean isSecurityEnabled;
+  private boolean isKerberosSupportEnabled;
 
   public RemoteSASKeyGeneratorImpl(Configuration conf) {
     super(conf);
@@ -141,7 +142,9 @@ public class RemoteSASKeyGeneratorImpl extends SASKeyGeneratorImpl {
 
     remoteCallHelper = new WasbRemoteCallHelper();
     this.isSecurityEnabled = UserGroupInformation.isSecurityEnabled();
-    LOG.debug("Initialization of RemoteSASKeyGenerator instance successfull");
+    this.isKerberosSupportEnabled = conf.getBoolean(
+        Constants.AZURE_KERBEROS_SUPPORT_PROPERTY_NAME, false);
+    LOG.debug("Initialization of RemoteSASKeyGenerator instance successful");
     return true;
   }
 
@@ -164,11 +167,23 @@ public class RemoteSASKeyGeneratorImpl extends SASKeyGeneratorImpl {
         uriBuilder.addParameter(DELEGATION_TOKEN_QUERY_PARAM_NAME,
             this.delegationToken);
       }
-      return getSASKey(uriBuilder.build());
+
+      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+      UserGroupInformation connectUgi = ugi.getRealUser();
+      if (connectUgi == null) {
+        connectUgi = ugi;
+      } else {
+        uriBuilder.addParameter(Constants.DOAS_PARAM, ugi.getShortUserName());
+      }
+
+      return getSASKey(uriBuilder.build(), connectUgi);
     } catch (URISyntaxException uriSyntaxEx) {
       throw new SASKeyGenerationException("Encountered URISyntaxException "
           + "while building the HttpGetRequest to remote cred service",
           uriSyntaxEx);
+    } catch (IOException e) {
+      throw new SASKeyGenerationException("Encountered IOException"
+          + " while building the HttpGetRequest to remote service", e);
     }
   }
 
@@ -181,55 +196,59 @@ public class RemoteSASKeyGeneratorImpl extends SASKeyGeneratorImpl {
           relativePath, container, storageAccount);
       URIBuilder uriBuilder = new URIBuilder(credServiceUrl);
       uriBuilder.setPath("/" + BLOB_SAS_OP);
-      uriBuilder.addParameter(STORAGE_ACCOUNT_QUERY_PARAM_NAME,
-          storageAccount);
-      uriBuilder.addParameter(CONTAINER_QUERY_PARAM_NAME,
-          container);
+      uriBuilder.addParameter(STORAGE_ACCOUNT_QUERY_PARAM_NAME, storageAccount);
+      uriBuilder.addParameter(CONTAINER_QUERY_PARAM_NAME, container);
       uriBuilder.addParameter(RELATIVE_PATH_QUERY_PARAM_NAME,
           relativePath);
       uriBuilder.addParameter(SAS_EXPIRY_QUERY_PARAM_NAME, ""
           + getSasKeyExpiryPeriod());
+
       if (isSecurityEnabled && (delegationToken != null && !delegationToken
           .isEmpty())) {
         uriBuilder.addParameter(DELEGATION_TOKEN_QUERY_PARAM_NAME,
             this.delegationToken);
       }
-      return getSASKey(uriBuilder.build());
+
+        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+        UserGroupInformation connectUgi = ugi.getRealUser();
+        if (connectUgi == null) {
+          connectUgi = ugi;
+        } else{
+          uriBuilder.addParameter(Constants.DOAS_PARAM, ugi.getShortUserName());
+        }
+      return getSASKey(uriBuilder.build(), connectUgi);
     } catch (URISyntaxException uriSyntaxEx) {
       throw new SASKeyGenerationException("Encountered URISyntaxException"
           + " while building the HttpGetRequest to " + " remote service",
           uriSyntaxEx);
+    } catch (IOException e) {
+      throw new SASKeyGenerationException("Encountered IOException"
+      + " while building the HttpGetRequest to remote service", e);
     }
   }
 
-  private URI getSASKey(final URI uri)
+  private URI getSASKey(final URI uri, UserGroupInformation connectUgi)
       throws URISyntaxException, SASKeyGenerationException {
-    UserGroupInformation connectUgi = null;
     RemoteSASKeyGenerationResponse sasKeyResponse = null;
     try {
-      connectUgi = UserGroupInformation.getCurrentUser();
       connectUgi.checkTGTAndReloginFromKeytab();
-      try {
-        sasKeyResponse = connectUgi.doAs(
-            new PrivilegedExceptionAction<RemoteSASKeyGenerationResponse>() {
-              @Override
-              public RemoteSASKeyGenerationResponse run() throws Exception {
-                AuthenticatedURL.Token token = null;
-                if (UserGroupInformation.isSecurityEnabled() && (
-                    delegationToken == null || delegationToken.isEmpty())) {
-                  token = new AuthenticatedURL.Token();
-                  final Authenticator kerberosAuthenticator = new KerberosDelegationTokenAuthenticator();
-                  kerberosAuthenticator.authenticate(uri.toURL(), token);
-                  Validate.isTrue(token.isSet(),
-                      "Authenticated Token is NOT present. The request cannot proceed.");
-                }
-                return makeRemoteRequest(uri,
-                    (token != null ? token.toString() : null));
+      sasKeyResponse = connectUgi.doAs(new PrivilegedExceptionAction<RemoteSASKeyGenerationResponse>() {
+            @Override
+            public RemoteSASKeyGenerationResponse run() throws Exception {
+              AuthenticatedURL.Token token = null;
+              if (isKerberosSupportEnabled && UserGroupInformation.isSecurityEnabled() && (
+                  delegationToken == null || delegationToken.isEmpty())) {
+                token = new AuthenticatedURL.Token();
+                final Authenticator kerberosAuthenticator = new KerberosDelegationTokenAuthenticator();
+                kerberosAuthenticator.authenticate(uri.toURL(), token);
+                Validate.isTrue(token.isSet(),
+                    "Authenticated Token is NOT present. The request cannot proceed.");
               }
-            });
-      } catch (InterruptedException e) {
-        LOG.error("Error fetching the SAS Key from Remote Service", e);
-      }
+              return makeRemoteRequest(uri, (token != null ? token.toString() : null));
+            }
+          });
+    } catch (InterruptedException e) {
+      LOG.error("Error fetching the SAS Key from Remote Service", e);
     } catch (IOException e) {
       LOG.error("Error fetching the SAS Key from Remote Service", e);
     }
@@ -240,9 +259,8 @@ public class RemoteSASKeyGeneratorImpl extends SASKeyGeneratorImpl {
     } else if (sasKeyResponse.getResponseCode() == REMOTE_CALL_SUCCESS_CODE) {
       return new URI(sasKeyResponse.getSasKey());
     } else {
-      throw new SASKeyGenerationException("Remote Service encountered error" +
-          " in SAS Key generation : " +
-          sasKeyResponse.getResponseMessage());
+      throw new SASKeyGenerationException("Remote Service encountered error"
+          + " in SAS Key generation : " + sasKeyResponse.getResponseMessage());
     }
   }
 
