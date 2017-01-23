@@ -3286,3 +3286,6 @@ ATS V1.5:
     HADOOP-13540 improve section on troubleshooting s3a auth problems. Contributed by Steve Loughran
 
     HADOOP-12667 s3a to support createNonRecursive API. Contributed by Sean Mackrory
+
+    BUG-72150. YARN-5873. RM crashes with NPE if generic application history is
+    enabled. Contributed by Varun Saxena.
