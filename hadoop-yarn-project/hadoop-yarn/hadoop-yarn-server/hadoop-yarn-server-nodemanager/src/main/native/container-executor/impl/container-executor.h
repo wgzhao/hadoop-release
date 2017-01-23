@@ -15,6 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* FreeBSD protects the getline() prototype. See getline(3) for more */
+#ifdef __FreeBSD__
+#define _WITH_GETLINE
+#endif
+
 #include <pwd.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -97,7 +103,7 @@ extern FILE *ERRORFILE;
 
 
 // get the executable's filename
-char* get_executable();
+char* get_executable(char *argv0);
 
 /**
  * Check the permissions on the container-executor to make sure that security is

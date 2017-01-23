@@ -20,6 +20,20 @@ set(CMAKE_BUILD_TYPE, Release)
 
 include(../../../../../hadoop-common-project/hadoop-common/src/JNIFlags.cmake NO_POLICY_SCOPE)
 
+# determine if container-executor.conf.dir is an absolute
+# path in case the OS we're compiling on doesn't have
+# a hook in get_executable. We'll use this define
+# later in the code to potentially throw a compile error
+string(REGEX MATCH . HCD_ONE "${HADOOP_CONF_DIR}")
+string(COMPARE EQUAL ${HCD_ONE} / HADOOP_CONF_DIR_IS_ABS)
+
+# Note: can't use -D_FILE_OFFSET_BITS=64, see MAPREDUCE-4258
+string(REPLACE "-D_FILE_OFFSET_BITS=64" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+string(REPLACE "-D_FILE_OFFSET_BITS=64" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+include(CheckIncludeFiles)
+check_include_files("sys/types.h;sys/sysctl.h" HAVE_SYS_SYSCTL_H)
+
 include(CheckFunctionExists)
 check_function_exists(canonicalize_file_name HAVE_CANONICALIZE_FILE_NAME)
 check_function_exists(fcloseall HAVE_FCLOSEALL)
@@ -28,6 +42,9 @@ check_function_exists(fdopendir HAVE_FDOPENDIR)
 check_function_exists(fstatat HAVE_FSTATAT)
 check_function_exists(openat HAVE_OPENAT)
 check_function_exists(unlinkat HAVE_UNLINKAT)
+
+include(CheckSymbolExists)
+check_symbol_exists(sysctl "sys/types.h;sys/sysctl.h" HAVE_SYSCTL)
 
 if(APPLE)
   include_directories( /System/Library/Frameworks )
