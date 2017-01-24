@@ -3117,3 +3117,6 @@ ATS V1.5:
 
     BUG-71579. HDFS-9350. Avoid creating temprorary strings in Block.toString()
     and getBlockName() (Staffan Friberg via cmccabe)
+
+    BUG-71579. HDFS-9947. Block#toString should not output information from
+    derived classes (cmccabe)
