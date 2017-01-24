@@ -483,6 +483,12 @@ public class RMContainerImpl implements RMContainer, Comparable<RMContainer> {
       container.reservedResource = e.getReservedResource();
       container.reservedNode = e.getReservedNode();
       container.reservedPriority = e.getReservedPriority();
+
+      // Update nodeId of Container inside the RMContainer as well
+      Container c = container.getContainer();
+      if (c != null) {
+        c.setNodeId(container.reservedNode);
+      }
     }
   }
 

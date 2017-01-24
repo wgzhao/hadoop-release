@@ -26,6 +26,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
+import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.QueueACL;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.QueueState;
@@ -89,7 +90,9 @@ public abstract class AbstractCSQueue implements CSQueue {
   protected CapacitySchedulerContext csContext;
   protected YarnAuthorizationProvider authorizer = null;
 
-  public AbstractCSQueue(CapacitySchedulerContext cs, 
+  protected volatile Priority priority = Priority.newInstance(0);
+
+  public AbstractCSQueue(CapacitySchedulerContext cs,
       String queueName, CSQueue parent, CSQueue old) throws IOException {
     this.labelManager = cs.getRMContext().getNodeLabelManager();
     this.parent = parent;
@@ -295,6 +298,8 @@ public abstract class AbstractCSQueue implements CSQueue {
         .getReservationContinueLook();
 
     this.preemptionDisabled = isQueueHierarchyPreemptionDisabled(this);
+    this.priority = csContext.getConfiguration().getQueuePriority(
+        getQueuePath());
   }
   
   protected QueueInfo getQueueInfo() {
@@ -674,5 +679,10 @@ public abstract class AbstractCSQueue implements CSQueue {
   public Iterator<RMContainer> getKillableContainers(String partition) {
     return csContext.getPreemptionManager().getKillableContainers(queueName,
         partition);
+  }
+
+  @Override
+  public Priority getPriority() {
+    return this.priority;
   }
 }

@@ -24,6 +24,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.Dispatcher;
@@ -32,7 +33,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.MockRM;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.monitor.SchedulingMonitor;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
-import org.apache.hadoop.yarn.server.resourcemanager.resource.Priority;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerNode;
@@ -42,6 +42,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.Capacity
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.ParentQueue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.QueueCapacities;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.policy.QueueOrderingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.preemption.PreemptionManager;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.ContainerPreemptEvent;
@@ -53,9 +54,6 @@ import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -221,7 +219,9 @@ public class TestProportionalCapacityPreemptionPolicy {
     };
     ProportionalCapacityPreemptionPolicy policy = buildPolicy(qData);
     policy.editSchedule();
-    verify(mDisp, times(16)).handle(argThat(new IsPreemptionRequestFor(appA)));
+
+    // A will preempt guaranteed-allocated.
+    verify(mDisp, times(10)).handle(argThat(new IsPreemptionRequestFor(appA)));
   }
   
   @Test
@@ -589,8 +589,8 @@ public class TestProportionalCapacityPreemptionPolicy {
     };
     ProportionalCapacityPreemptionPolicy policy = buildPolicy(qData);
     policy.editSchedule();
-    // correct imbalance between over-capacity queues
-    verify(mDisp, times(5)).handle(argThat(new IsPreemptionRequestFor(appA)));
+    // Will not preempt for over capacity queues
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appA)));
   }
 
   @Test
@@ -703,7 +703,7 @@ public class TestProportionalCapacityPreemptionPolicy {
   public void testZeroGuarOverCap() {
     int[][] qData = new int[][] {
       //  /    A   B   C    D   E   F
-         { 200, 100, 0, 99, 0, 100, 100 },  // abs
+         { 200, 100, 0, 100, 0, 100, 100 },  // abs
         { 200, 200, 200, 200, 200, 200, 200 },  // maxCap
         { 170,  170, 60, 20, 90, 0,  0 },  // used
         {  85,   50,  30,  10,  10,  20, 20 },  // pending
@@ -714,13 +714,13 @@ public class TestProportionalCapacityPreemptionPolicy {
     };
     ProportionalCapacityPreemptionPolicy policy = buildPolicy(qData);
     policy.editSchedule();
-    // we verify both that C has priority on B and D (has it has >0 guarantees)
-    // and that B and D are force to share their over capacity fairly (as they
-    // are both zero-guarantees) hence D sees some of its containers preempted
-    verify(mDisp, times(15)).handle(argThat(new IsPreemptionRequestFor(appC)));
+    // No preemption should happen because zero guaranteed queues should be
+    // treated as always satisfied, they should not preempt from each other.
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appA)));
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appB)));
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appC)));
+    verify(mDisp, never()).handle(argThat(new IsPreemptionRequestFor(appD)));
   }
-  
-  
   
   @Test
   public void testHierarchicalLarge() {
@@ -1226,6 +1226,14 @@ public class TestProportionalCapacityPreemptionPolicy {
     ParentQueue pq = mock(ParentQueue.class);
     List<CSQueue> cqs = new ArrayList<CSQueue>();
     when(pq.getChildQueues()).thenReturn(cqs);
+
+    // Ordering policy
+    QueueOrderingPolicy policy = mock(QueueOrderingPolicy.class);
+    when(policy.getConfigName()).thenReturn(
+        CapacitySchedulerConfiguration.QUEUE_PRIORITY_UTILIZATION_ORDERING_POLICY);
+    when(pq.getQueueOrderingPolicy()).thenReturn(policy);
+    when(pq.getPriority()).thenReturn(Priority.newInstance(0));
+
     for (int i = 0; i < subqueues; ++i) {
       pqs.add(pq);
     }
@@ -1294,6 +1302,8 @@ public class TestProportionalCapacityPreemptionPolicy {
     if(setAMResourcePercent != 0.0f){
       when(lq.getMaxAMResourcePerQueuePercent()).thenReturn(setAMResourcePercent);
     }
+
+    when(lq.getPriority()).thenReturn(Priority.newInstance(0));
     p.getChildQueues().add(lq);
     return lq;
   }
@@ -1348,7 +1358,7 @@ public class TestProportionalCapacityPreemptionPolicy {
     ContainerId cId = ContainerId.newContainerId(appAttId, id);
     Container c = mock(Container.class);
     when(c.getResource()).thenReturn(r);
-    when(c.getPriority()).thenReturn(Priority.create(cpriority));
+    when(c.getPriority()).thenReturn(Priority.newInstance(cpriority));
     RMContainer mC = mock(RMContainer.class);
     when(mC.getContainerId()).thenReturn(cId);
     when(mC.getContainer()).thenReturn(c);

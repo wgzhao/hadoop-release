@@ -97,8 +97,7 @@ public class TestApplicationLimits {
         thenReturn(Resources.createResource(16*GB, 32));
     when(csContext.getClusterResource()).
         thenReturn(Resources.createResource(10 * 16 * GB, 10 * 32));
-    when(csContext.getNonPartitionedQueueComparator()).
-        thenReturn(CapacityScheduler.nonPartitionedQueueComparator);
+
     when(csContext.getResourceCalculator()).
         thenReturn(resourceCalculator);
     when(csContext.getRMContext()).thenReturn(rmContext);
@@ -264,8 +263,7 @@ public class TestApplicationLimits {
         thenReturn(Resources.createResource(GB, 1));
     when(csContext.getMaximumResourceCapability()).
         thenReturn(Resources.createResource(16*GB, 16));
-    when(csContext.getNonPartitionedQueueComparator()).
-        thenReturn(CapacityScheduler.nonPartitionedQueueComparator);
+
     when(csContext.getResourceCalculator()).thenReturn(resourceCalculator);
     when(csContext.getRMContext()).thenReturn(rmContext);
     when(csContext.getPreemptionManager()).thenReturn(new PreemptionManager());
@@ -573,8 +571,6 @@ public class TestApplicationLimits {
         thenReturn(Resources.createResource(GB));
     when(csContext.getMaximumResourceCapability()).
         thenReturn(Resources.createResource(16*GB));
-    when(csContext.getNonPartitionedQueueComparator()).
-        thenReturn(CapacityScheduler.nonPartitionedQueueComparator);
     when(csContext.getResourceCalculator()).thenReturn(resourceCalculator);
     when(csContext.getRMContext()).thenReturn(rmContext);
     

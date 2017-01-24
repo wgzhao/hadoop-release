@@ -59,10 +59,6 @@ public interface CapacitySchedulerContext {
   Configuration getConf();
 
   ResourceCalculator getResourceCalculator();
-
-  Comparator<CSQueue> getNonPartitionedQueueComparator();
-  
-  PartitionedQueueComparator getPartitionedQueueComparator();
   
   FiCaSchedulerNode getNode(NodeId nodeId);
 

@@ -111,7 +111,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,23 +140,6 @@ public class CapacityScheduler extends
   private PreemptionManager preemptionManager = new PreemptionManager();
 
   private volatile boolean isLazyPreemptionEnabled = false;
-
-  static final Comparator<CSQueue> nonPartitionedQueueComparator =
-      new Comparator<CSQueue>() {
-    @Override
-    public int compare(CSQueue q1, CSQueue q2) {
-      if (q1.getUsedCapacity() < q2.getUsedCapacity()) {
-        return -1;
-      } else if (q1.getUsedCapacity() > q2.getUsedCapacity()) {
-        return 1;
-      }
-
-      return q1.getQueuePath().compareTo(q2.getQueuePath());
-    }
-  };
-  
-  static final PartitionedQueueComparator partitionedQueueComparator =
-      new PartitionedQueueComparator();
 
   @Override
   public void setConf(Configuration conf) {
@@ -258,16 +240,6 @@ public class CapacityScheduler extends
   @Override
   public ResourceCalculator getResourceCalculator() {
     return calculator;
-  }
-
-  @Override
-  public Comparator<CSQueue> getNonPartitionedQueueComparator() {
-    return nonPartitionedQueueComparator;
-  }
-  
-  @Override
-  public PartitionedQueueComparator getPartitionedQueueComparator() {
-    return partitionedQueueComparator;
   }
 
   @Override
@@ -1871,5 +1843,64 @@ public class CapacityScheduler extends
   @Override
   public ResourceUsage getClusterResourceUsage() {
     return root.getQueueResourceUsage();
+  }
+
+  /**
+   * Try to move a reserved container to a targetNode.
+   * If the targetNode is reserved by another application (other than this one).
+   * The previous reservation will be cancelled.
+   *
+   * @param toBeMovedContainer reserved container will be moved
+   * @param targetNode targetNode
+   * @return true if move succeeded. Return false if the targetNode is reserved by
+   *         a different container or move failed because of any other reasons.
+   */
+  public synchronized boolean moveReservedContainer(RMContainer toBeMovedContainer,
+      FiCaSchedulerNode targetNode) {
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Trying to move container=" + toBeMovedContainer + " to node="
+          + targetNode.getNodeID());
+    }
+
+    FiCaSchedulerNode sourceNode = getNode(toBeMovedContainer.getReservedNode());
+    if (null == sourceNode) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Failed to move reservation, cannot find source node="
+            + toBeMovedContainer.getReservedNode());
+      }
+      return false;
+    }
+
+    // Target node updated?
+    if (getNode(targetNode.getNodeID()) != targetNode) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Failed to move reservation, node updated or removed, moving "
+            + "cancelled.");
+      }
+      return false;
+    }
+
+    // Target node's reservation status changed?
+    if (targetNode.getReservedContainer() != null) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            "Target node's reservation status changed, moving cancelled.");
+      }
+      return false;
+    }
+
+    FiCaSchedulerApp app = getApplicationAttempt(
+        toBeMovedContainer.getApplicationAttemptId());
+    if (null == app) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Cannot find to-be-moved container's application="
+            + toBeMovedContainer.getApplicationAttemptId());
+      }
+      return false;
+    }
+
+    // finally, move the reserved container
+    return app.moveReservation(toBeMovedContainer, sourceNode, targetNode);
   }
 }
