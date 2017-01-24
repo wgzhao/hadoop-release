@@ -3140,3 +3140,7 @@ ATS V1.5:
 
     BUG-71577. HDFS-10987. Make Decommission less expensive when lot of blocks present.
     Contributed by Brahma Reddy Battula.
+
+    BUG-68047. HDFS-10609. Uncaught InvalidEncryptionKeyException during
+    pipeline recovery may abort downstream applications. Contributed by Wei-Chiu
+    Chuang.
