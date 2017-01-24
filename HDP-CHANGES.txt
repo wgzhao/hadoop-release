@@ -3114,3 +3114,6 @@ ATS V1.5:
 
     BUG-71579. HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas.
     (Wei-Chiu Chuang via Yongjun Zhang)
+
+    BUG-71579. HDFS-9350. Avoid creating temprorary strings in Block.toString()
+    and getBlockName() (Staffan Friberg via cmccabe)
