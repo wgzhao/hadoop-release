@@ -3184,3 +3184,6 @@ ATS V1.5:
 
     BUG-71588. HDFS-11229. HDFS-11056 failed to close meta file. Contributed by
     Wei-Chiu Chuang.
+
+    BUG-73096. HDFS-11263. ClassCastException when we use Bzipcodec for Fsimage
+    compression. Contributed by Brahma Reddy Battula.
