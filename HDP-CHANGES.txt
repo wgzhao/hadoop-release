@@ -3144,3 +3144,6 @@ ATS V1.5:
     BUG-68047. HDFS-10609. Uncaught InvalidEncryptionKeyException during
     pipeline recovery may abort downstream applications. Contributed by Wei-Chiu
     Chuang.
+
+    BUG-73087. HDFS-10627. Volume Scanner marks a block as "suspect" even if the
+    exception is network-related. Contributed by Rushabh S Shah.
