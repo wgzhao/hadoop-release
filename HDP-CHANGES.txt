@@ -3106,3 +3106,5 @@ ATS V1.5:
 
     HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case. Contributed by Xiaoyu Yao.
 
+    BUG-68046. HADOOP-11780. Prevent IPC reader thread death. Contributed by
+    Daryn Sharp.
