@@ -133,7 +133,8 @@ public class Block implements Writable, Comparable<Block> {
   /**
    */
   public String getBlockName() {
-    return BLOCK_FILE_PREFIX + String.valueOf(blockId);
+    return new StringBuilder().append(BLOCK_FILE_PREFIX)
+        .append(blockId).toString();
   }
 
   /**
@@ -161,7 +162,9 @@ public class Block implements Writable, Comparable<Block> {
    * @return the string representation of the block
    */
   public static String toString(final Block b) {
-    return b.getBlockName() + "_" + b.getGenerationStamp();
+    StringBuilder sb = new StringBuilder();
+    b.appendStringTo(sb);
+    return sb.toString();
   }
 
   /**
