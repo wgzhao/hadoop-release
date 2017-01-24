@@ -64,6 +64,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.logaggregation.ContainerLogsRequest;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.logaggregation.LogCLIHelpers;
+import org.apache.hadoop.yarn.logaggregation.PerContainerLogFileInfo;
 import org.apache.hadoop.yarn.util.Times;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import org.codehaus.jettison.json.JSONArray;
@@ -410,9 +411,10 @@ public class LogsCLI extends Configured implements Tool {
     return false;
   }
 
-  private List<PerLogFileInfo> getContainerLogFiles(Configuration conf,
-      String containerIdStr, String nodeHttpAddress) throws IOException {
-    List<PerLogFileInfo> logFileInfos = new ArrayList<>();
+  private List<PerContainerLogFileInfo> getContainerLogFiles(
+      Configuration conf, String containerIdStr, String nodeHttpAddress)
+      throws IOException {
+    List<PerContainerLogFileInfo> logFileInfos = new ArrayList<>();
     Client webServiceClient = Client.create();
     try {
       WebResource webResource = webServiceClient
@@ -427,11 +429,20 @@ public class LogsCLI extends Configured implements Tool {
         try {
           JSONObject json =
               response.getEntity(JSONObject.class);
-          JSONArray array = json.getJSONArray("containerLogInfo");
+          JSONArray array = json.getJSONArray("containerLogsInfo");
           for (int i = 0; i < array.length(); i++) {
-            String fileName = array.getJSONObject(i).getString("fileName");
-            String fileSize = array.getJSONObject(i).getString("fileSize");
-            logFileInfos.add(new PerLogFileInfo(fileName, fileSize));
+            JSONObject log = array.getJSONObject(i);
+            Object ob = log.get("containerLogInfo");
+            if (ob instanceof JSONArray) {
+              JSONArray obArray = (JSONArray)ob;
+              for (int j = 0; j < obArray.length(); j++) {
+                logFileInfos.add(generatePerContainerLogFileInfoFromJSON(
+                    obArray.getJSONObject(j)));
+              }
+            } else if (ob instanceof JSONObject) {
+              logFileInfos.add(generatePerContainerLogFileInfoFromJSON(
+                  (JSONObject)ob));
+            }
           }
         } catch (Exception e) {
           System.err.println("Unable to parse json from webservice. Error:");
@@ -446,6 +457,19 @@ public class LogsCLI extends Configured implements Tool {
     }
     return logFileInfos;
   }
+
+  private PerContainerLogFileInfo generatePerContainerLogFileInfoFromJSON(
+      JSONObject meta) throws JSONException {
+    String fileName = meta.has("fileName") ?
+        meta.getString("fileName") : "N/A";
+    String fileSize = meta.has("fileSize") ?
+        meta.getString("fileSize") : "N/A";
+    String lastModificationTime = meta.has("lastModifiedTime") ?
+        meta.getString("lastModifiedTime") : "N/A";
+    return new PerContainerLogFileInfo(fileName, fileSize,
+        lastModificationTime);
+  }
+
 
   @Private
   @VisibleForTesting
@@ -1162,41 +1186,17 @@ public class LogsCLI extends Configured implements Tool {
       outStream.println(containerString);
       outStream.println(StringUtils.repeat("=", containerString.length()));
       outStream.printf(LogCLIHelpers.PER_LOG_FILE_INFO_PATTERN,
-          "LogType", "LogLength");
+          "LogFile", "LogLength", "LastModificationTime");
       outStream.println(StringUtils.repeat("=", containerString.length()));
-      List<PerLogFileInfo> infos = getContainerLogFiles(
+      List<PerContainerLogFileInfo> infos = getContainerLogFiles(
           getConf(), containerId, nodeHttpAddress);
-      for (PerLogFileInfo info : infos) {
+      for (PerContainerLogFileInfo info : infos) {
         outStream.printf(LogCLIHelpers.PER_LOG_FILE_INFO_PATTERN,
-            info.getFileName(), info.getFileLength());
+            info.getFileName(), info.getFileSize(),
+            info.getLastModifiedTime());
       }
     }
     return 0;
-  }
-
-  private static class PerLogFileInfo {
-    private String fileName;
-    private String fileLength;
-    public PerLogFileInfo(String fileName, String fileLength) {
-      setFileName(fileName);
-      setFileLength(fileLength);
-    }
-
-    public String getFileName() {
-      return fileName;
-    }
-
-    public void setFileName(String fileName) {
-      this.fileName = fileName;
-    }
-
-    public String getFileLength() {
-      return fileLength;
-    }
-
-    public void setFileLength(String fileLength) {
-      this.fileLength = fileLength;
-    }
   }
 
   @VisibleForTesting
@@ -1204,11 +1204,11 @@ public class LogsCLI extends Configured implements Tool {
       boolean useRegex) throws IOException {
     // fetch all the log files for the container
     // filter the log files based on the given -log_files pattern
-    List<PerLogFileInfo> allLogFileInfos=
+    List<PerContainerLogFileInfo> allLogFileInfos=
         getContainerLogFiles(getConf(), request.getContainerId(),
             request.getNodeHttpAddress());
     List<String> fileNames = new ArrayList<String>();
-    for (PerLogFileInfo fileInfo : allLogFileInfos) {
+    for (PerContainerLogFileInfo fileInfo : allLogFileInfos) {
       fileNames.add(fileInfo.getFileName());
     }
     return getMatchedLogFiles(request, fileNames,
