@@ -3123,3 +3123,6 @@ ATS V1.5:
 
     BUG-71579. HDFS-11018. Incorrect check and message in
     FsDatasetImpl#invalidate. Contributed by Yiqun Lin.
+ 
+    BUG-68699. HDFS-11047. Remove deep copies of FinalizedReplica to alleviate
+    heap consumption on DataNode. Contributed by Xiaobing Zhou
