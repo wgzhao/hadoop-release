@@ -1233,3 +1233,6 @@ ATS V1.5:
 
     BUG-70296. HADOOP-13467. Shell#getSignalKillCommand should use the bash
     builtin on Linux. (Arpit Agarwal)
+
+    BUG-67976. YARN-4109. Exception on RM scheduler page loading with labels.
+    (Mohammad Shahid Khan via rohithsharmaks)
