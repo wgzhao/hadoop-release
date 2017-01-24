@@ -153,6 +153,9 @@ Release 2.8.0 - UNRELEASED
     HDFS-9148. Incorrect assert message in TestWriteToReplica#testWriteToTemporary
     (Tony Wu via lei)
 
+    HDFS-9251. Refactor TestWriteToReplica and TestFsDatasetImpl to avoid
+    explicitly creating Files in the tests code. (lei)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
