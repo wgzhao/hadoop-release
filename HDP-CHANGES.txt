@@ -3150,3 +3150,7 @@ ATS V1.5:
 
     BUG-71591. HADOOP-11180. Change log message "token.Token: Cannot find class
     for token kind kms-dt" to debug. Contributed by Yi Liu.
+
+    BUG-73088. HADOOP-13792. Stackoverflow for schemeless defaultFS with
+    trailing slash. Contributed by John Zhuge
+
