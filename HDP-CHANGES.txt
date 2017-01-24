@@ -3158,3 +3158,6 @@ ATS V1.5:
     Contributed by Kihwal Lee
 
     BUG-73085. HDFS-10735 Distcp using webhdfs on secure HA clusters fails with StandbyException
+
+    BUG-73084. HDFS-11003. Expose XmitsInProgress through DataNodeMXBean.
+    Contributed By Brahma Reddy Battula
