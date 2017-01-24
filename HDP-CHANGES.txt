@@ -3108,3 +3108,6 @@ ATS V1.5:
 
     BUG-68046. HADOOP-11780. Prevent IPC reader thread death. Contributed by
     Daryn Sharp.
+
+    BUG-71584. HDFS-9500. Fix software version counts for DataNodes during
+    rolling upgrade. Contributed by Erik Krogen.
