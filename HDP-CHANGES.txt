@@ -3154,3 +3154,5 @@ ATS V1.5:
     BUG-73088. HADOOP-13792. Stackoverflow for schemeless defaultFS with
     trailing slash. Contributed by John Zhuge
 
+    BUG-71583. HDFS-11069. Tighten the authorization of datanode RPC.
+    Contributed by Kihwal Lee
