@@ -3129,3 +3129,6 @@ ATS V1.5:
 
     BUG-71590. HDFS-9525. hadoop utilities need to support provided delegation
     tokens. Contributed by HeeSoo Kim
+
+    BUG-71590. HADOOP-13018. Make Kdiag check whether hadoop.token.files points
+    to existent and valid files. Contributed by Ravi Prakash
