@@ -29,6 +29,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
@@ -222,9 +223,10 @@ public class FairSchedulerTestBase {
     RMContext rmContext = resourceManager.getRMContext();
     RMApp rmApp = new RMAppImpl(attId.getApplicationId(), rmContext, conf,
         null, null, null, ApplicationSubmissionContext.newInstance(null, null,
-        null, null, null, false, false, 0, amResource, null), null, null,
-        0, null, null, null);
+        null, null, mock(ContainerLaunchContext.class), false, false, 0,
+        amResource, null), null, null, 0, null, null, null);
     rmContext.getRMApps().put(attId.getApplicationId(), rmApp);
+
     AppAddedSchedulerEvent appAddedEvent = new AppAddedSchedulerEvent(
         attId.getApplicationId(), queue, user);
     scheduler.handle(appAddedEvent);

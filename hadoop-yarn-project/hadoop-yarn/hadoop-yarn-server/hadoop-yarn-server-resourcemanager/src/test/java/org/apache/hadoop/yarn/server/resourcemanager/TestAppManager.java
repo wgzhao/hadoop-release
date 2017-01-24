@@ -23,6 +23,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.security.AccessControlException;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.MockApps;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
@@ -64,6 +69,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -240,6 +246,7 @@ public class TestAppManager{
   public void tearDown() {
     setAppEventType(RMAppEventType.KILL);
     ((Service)rmContext.getDispatcher()).stop();
+    UserGroupInformation.reset();
   }
 
   @Test
@@ -269,7 +276,6 @@ public class TestAppManager{
       isA(RMApp.class));
   }
 
-  @Test
   public void testRMAppRetireSome() throws Exception {
     long now = System.currentTimeMillis();
 
@@ -481,6 +487,39 @@ public class TestAppManager{
     Assert.assertEquals("app event type sent is wrong", RMAppEventType.START,
         getAppEventType());
   }
+
+
+  @Test
+  public void testRMAppSubmitWithInvalidTokens() throws Exception {
+    // Setup invalid security tokens
+    DataOutputBuffer dob = new DataOutputBuffer();
+    ByteBuffer securityTokens = ByteBuffer.wrap(dob.getData(), 0,
+        dob.getLength());
+    Configuration conf = new Configuration();
+    conf.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION,
+        "kerberos");
+    UserGroupInformation.setConfiguration(conf);
+    asContext.getAMContainerSpec().setTokens(securityTokens);
+    try {
+      appMonitor.submitApplication(asContext, "test");
+      Assert.fail("Application submission should fail because" +
+          " Tokens are invalid.");
+    } catch (YarnException e) {
+      // Exception is expected
+      Assert.assertTrue("The thrown exception is not" +
+          " java.io.EOFException",
+          e.getMessage().contains("java.io.EOFException"));
+    }
+    int timeoutSecs = 0;
+    while ((getAppEventType() == RMAppEventType.KILL) &&
+        timeoutSecs++ < 20) {
+      Thread.sleep(1000);
+    }
+    Assert.assertEquals("app event type sent is wrong",
+        RMAppEventType.APP_REJECTED, getAppEventType());
+    asContext.getAMContainerSpec().setTokens(null);
+  }
+
 
   @Test (timeout = 30000)
   public void testRMAppSubmitMaxAppAttempts() throws Exception {

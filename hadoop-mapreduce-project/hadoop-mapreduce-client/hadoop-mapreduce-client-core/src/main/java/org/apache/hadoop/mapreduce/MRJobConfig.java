@@ -898,4 +898,5 @@ public interface MRJobConfig {
   public static final int DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA_BUFFER_KB =
           128;
 
+  String MR_JOB_SEND_TOKEN_CONF = "mapreduce.job.send-token-conf";
 }

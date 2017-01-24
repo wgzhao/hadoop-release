@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.classification.InterfaceAudience.Public;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
+import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
 import org.apache.hadoop.yarn.server.api.ApplicationInitializationContext;
 import org.apache.hadoop.yarn.server.api.AuxiliaryService;
@@ -91,6 +93,22 @@ public abstract class ContainerLaunchContext {
   @Public
   @Stable
   public abstract void setTokens(ByteBuffer tokens);
+
+  /**
+   * Get the configuration used by RM to renew tokens.
+   * @return The configuration used by RM to renew the tokens.
+   */
+  @Public
+  @Unstable
+  public abstract ByteBuffer getTokensConf();
+
+  /**
+   * Set the configuration used by RM to renew the tokens.
+   * @param tokensConf The configuration used by RM to renew the tokens
+   */
+  @Public
+  @Unstable
+  public abstract void setTokensConf(ByteBuffer tokensConf);
 
   /**
    * Get <code>LocalResource</code> required by the container.

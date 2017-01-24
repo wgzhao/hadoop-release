@@ -17,8 +17,6 @@
  */
 package org.apache.hadoop.yarn.server.resourcemanager;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -29,7 +27,6 @@ import org.apache.hadoop.io.DataInputByteBuffer;
 import org.apache.hadoop.ipc.CallerContext;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.security.AccessControlException;
-import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
@@ -291,14 +288,15 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
 
     RMAppImpl application =
         createAndPopulateNewRMApp(submissionContext, submitTime, user, false);
-    ApplicationId appId = submissionContext.getApplicationId();
 
     if (UserGroupInformation.isSecurityEnabled()) {
       try {
-        this.rmContext.getDelegationTokenRenewer().addApplicationAsync(appId,
-            parseCredentials(submissionContext),
-            submissionContext.getCancelTokensWhenComplete(),
-            application.getUser());
+        this.rmContext.getDelegationTokenRenewer()
+            .addApplicationAsync(applicationId,
+                BuilderUtils.parseCredentials(submissionContext),
+                submissionContext.getCancelTokensWhenComplete(),
+                application.getUser(),
+                BuilderUtils.parseTokensConf(submissionContext));
       } catch (Exception e) {
         LOG.warn("Unable to parse credentials.", e);
         // Sending APP_REJECTED is fine, since we assume that the
@@ -315,7 +313,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       // enqueued should be guaranteed to be first processed when dispatcher
       // gets started.
       this.rmContext.getDispatcher().getEventHandler()
-        .handle(new RMAppEvent(applicationId, RMAppEventType.START));
+          .handle(new RMAppEvent(applicationId, RMAppEventType.START));
     }
   }
 
@@ -455,20 +453,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
     
     return null;
   }
-  
-  protected Credentials parseCredentials(
-      ApplicationSubmissionContext application) throws IOException {
-    Credentials credentials = new Credentials();
-    DataInputByteBuffer dibb = new DataInputByteBuffer();
-    ByteBuffer tokens = application.getAMContainerSpec().getTokens();
-    if (tokens != null) {
-      dibb.reset(tokens);
-      credentials.readTokenStorageStream(dibb);
-      tokens.rewind();
-    }
-    return credentials;
-  }
-  
+
   @Override
   public void recover(RMState state) throws Exception {
     RMStateStore store = rmContext.getStateStore();
