@@ -3120,3 +3120,6 @@ ATS V1.5:
 
     BUG-71579. HDFS-9947. Block#toString should not output information from
     derived classes (cmccabe)
+
+    BUG-71579. HDFS-11018. Incorrect check and message in
+    FsDatasetImpl#invalidate. Contributed by Yiqun Lin.
