@@ -3187,3 +3187,6 @@ ATS V1.5:
 
     BUG-73096. HDFS-11263. ClassCastException when we use Bzipcodec for Fsimage
     compression. Contributed by Brahma Reddy Battula.
+
+    BUG-73090. HDFS-10625. VolumeScanner to report why a block is found bad.
+    Contributed by Rushabh S Shah and Yiqun Lin.
