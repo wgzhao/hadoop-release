@@ -3195,3 +3195,6 @@ ATS V1.5:
     corrupt incorrectly. Contributed by Wei-Chiu Chuang and Yongjun Zhang.
 
     BUG-73092. HDFS-11258. File mtime change could not save to editlog. Contributed by Jimmy Xiang.
+
+    BUG-73093. HDFS-11195. Return error when appending files by webhdfs rest api
+    fails. Contributed by Yuanbo Liu.
