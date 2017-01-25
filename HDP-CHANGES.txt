@@ -3296,3 +3296,10 @@ ATS V1.5:
 
     BUG-72833. YARN-5456. container-executor support for FreeBSD, NetBSD, and others if conf path is absolute. 
     Contributed by Allen Wittenauer.
+
+    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history server addr not resolvable.
+
+    BUG-73260. MAPREDUCE-6792. Allow user's full principal name as owner of MapReduce staging directory
+    in JobSubmissionFiles#JobStagingDir().
+
+    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history server addr not resolvable.
