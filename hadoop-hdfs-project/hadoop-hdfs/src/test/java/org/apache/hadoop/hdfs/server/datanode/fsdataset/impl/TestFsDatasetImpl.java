@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.server.datanode.fsdataset.impl;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.io.FileUtils;
@@ -444,6 +445,9 @@ public class TestFsDatasetImpl {
       Configuration config = new HdfsConfiguration();
       config.setLong(
           DFSConfigKeys.DFS_DATANODE_XCEIVER_STOP_TIMEOUT_MILLIS_KEY, 1000);
+      config.setTimeDuration(
+          DFSConfigKeys.DFS_DATANODE_DISK_CHECK_MIN_GAP_KEY, 0,
+          TimeUnit.MILLISECONDS);
       config.setInt(DFSConfigKeys.DFS_DATANODE_FAILED_VOLUMES_TOLERATED_KEY, 1);
 
       cluster = new MiniDFSCluster.Builder(config).numDataNodes(1).build();
@@ -457,10 +461,12 @@ public class TestFsDatasetImpl {
       out.hflush();
 
       ExtendedBlock block = DFSTestUtil.getFirstBlock(fs, filePath);
-      FsVolumeImpl volume = (FsVolumeImpl) dataNode.getFSDataset().getVolume(
-          block);
+      final FsVolumeImpl volume = (FsVolumeImpl) dataNode.getFSDataset().
+          getVolume(block);
       File finalizedDir = volume.getFinalizedDir(cluster.getNamesystem()
           .getBlockPoolId());
+      LocatedBlock lb = DFSTestUtil.getAllBlocks(fs, filePath).get(0);
+      DatanodeInfo info = lb.getLocations()[0];
 
       if (finalizedDir.exists()) {
         // Remove write and execute access so that checkDiskErrorThread detects
@@ -472,12 +478,13 @@ public class TestFsDatasetImpl {
           + "than 0", volume.getReferenceCount() > 0);
       // Invoke the synchronous checkDiskError method
       dataNode.checkDiskError();
-      // Sleep for 1 second so that datanode can interrupt and cluster clean up
-      Thread.sleep(1000);
-      assertEquals("There are active threads still referencing volume: "
-          + volume.getBasePath(), 0, volume.getReferenceCount());
-      LocatedBlock lb = DFSTestUtil.getAllBlocks(fs, filePath).get(0);
-      DatanodeInfo info = lb.getLocations()[0];
+      // Wait for a bit so that the datanode can interrupt and cluster clean up
+      GenericTestUtils.waitFor(new Supplier<Boolean>() {
+        @Override public Boolean get() {
+          return volume.getReferenceCount() == 0;
+        }
+      }, 100, 10000);
+      assertThat(dataNode.getFSDataset().getNumFailedVolumes(), is(1));
 
       try {
         out.close();
@@ -489,7 +496,7 @@ public class TestFsDatasetImpl {
       finalizedDir.setWritable(true);
       finalizedDir.setExecutable(true);
     } finally {
-    cluster.shutdown();
+      cluster.shutdown();
     }
   }
 
