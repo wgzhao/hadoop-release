@@ -3339,3 +3339,5 @@ ATS V1.5:
 
     HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
 
+    HADOOP-13988. KMSClientProvider does not work with WebHDFS and Apache Knox w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
+
