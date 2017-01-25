@@ -3190,3 +3190,6 @@ ATS V1.5:
 
     BUG-73090. HDFS-10625. VolumeScanner to report why a block is found bad.
     Contributed by Rushabh S Shah and Yiqun Lin.
+
+    BUG-73090. HDFS-11160. VolumeScanner reports write-in-progress replicas as
+    corrupt incorrectly. Contributed by Wei-Chiu Chuang and Yongjun Zhang.
