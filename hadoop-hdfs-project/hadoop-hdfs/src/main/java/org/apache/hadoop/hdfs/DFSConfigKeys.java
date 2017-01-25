@@ -447,14 +447,18 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String  DFS_NAMENODE_CHECKPOINT_DIR_KEY = "dfs.namenode.checkpoint.dir";
   public static final String  DFS_NAMENODE_CHECKPOINT_EDITS_DIR_KEY = "dfs.namenode.checkpoint.edits.dir";
 
-  public static final String  DFS_METRICS_ROLLING_AVERAGES_WINDOW_SIZE_KEY =
-      "dfs.metrics.rolling.average.window.size";
-  public static final int     DFS_METRICS_ROLLING_AVERAGES_WINDOW_SIZE_DEFAULT =
-      3600;
-  public static final String  DFS_METRICS_ROLLING_AVERAGES_WINDOW_NUMBERS_KEY =
-      "dfs.metrics.rolling.average.window.numbers";
-  public static final int DFS_METRICS_ROLLING_AVERAGES_WINDOW_NUMBERS_DEFAULT =
-      48;
+  // The following setting is not meant to be changed by administrators.
+  public static final String DFS_METRICS_ROLLING_AVERAGES_WINDOW_LENGTH_KEY =
+      "dfs.metrics.rolling.averages.window.length";
+  public static final int DFS_METRICS_ROLLING_AVERAGES_WINDOW_LENGTH_DEFAULT =
+      300 * 1000;
+
+  // The following setting is not meant to be changed by administrators.
+  public static final String DFS_METRICS_ROLLING_AVERAGE_NUM_WINDOWS_KEY =
+      "dfs.metrics.rolling.average.num.windows";
+  public static final int DFS_METRICS_ROLLING_AVERAGE_NUM_WINDOWS_DEFAULT =
+      36;
+
   public static final String  DFS_DATANODE_PEER_STATS_ENABLED_KEY =
       "dfs.datanode.peer.stats.enabled";
   public static final boolean DFS_DATANODE_PEER_STATS_ENABLED_DEFAULT = false;
@@ -651,6 +655,11 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final long DFS_CLIENT_MMAP_RETRY_TIMEOUT_MS_DEFAULT = 5 * 60 * 1000;
   public static final String DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS = "dfs.client.short.circuit.replica.stale.threshold.ms";
   public static final long DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS_DEFAULT = 30 * 60 * 1000;
+
+  public static final String DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_KEY =
+      "dfs.datanode.slow.peers.report.interval";
+  public static final int DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_DEFAULT =
+      1800 * 1000;
 
   // property for fsimage compression
   public static final String DFS_IMAGE_COMPRESS_KEY = "dfs.image.compress";

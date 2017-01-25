@@ -314,6 +314,7 @@ public class DataNode extends ReconfigurableBase
   private int infoSecurePort;
 
   DataNodeMetrics metrics;
+  @Nullable
   private DataNodePeerMetrics peerMetrics;
   private InetSocketAddress streamingAddr;
 
@@ -385,6 +386,7 @@ public class DataNode extends ReconfigurableBase
     this.connectToDnViaHostname = false;
     this.getHdfsBlockLocationsEnabled = false;
     this.pipelineSupportECN = false;
+    this.dnConf = new DNConf(conf);
     storageLocationChecker = null;
     volumeChecker = new DatasetVolumeChecker(conf, new Timer());
   }
@@ -1245,7 +1247,8 @@ public class DataNode extends ReconfigurableBase
     initIpcServer(conf);
 
     metrics = DataNodeMetrics.create(conf, getDisplayName());
-    peerMetrics = DataNodePeerMetrics.create(conf, getDisplayName());
+    peerMetrics = dnConf.peerStatsEnabled ?
+        DataNodePeerMetrics.create(conf, getDisplayName()) : null;
     metrics.getJvmMetrics().setPauseMonitor(pauseMonitor);
 
     blockPoolManager = new BlockPoolManager(this);
@@ -3381,6 +3384,7 @@ public class DataNode extends ReconfigurableBase
 
   @Override // DataNodeMXBean
   public String getSendPacketDownstreamAvgInfo() {
-    return peerMetrics.dumpSendPacketDownstreamAvgInfoAsJson();
+    return peerMetrics != null ?
+        peerMetrics.dumpSendPacketDownstreamAvgInfoAsJson() : null;
   }
 }
