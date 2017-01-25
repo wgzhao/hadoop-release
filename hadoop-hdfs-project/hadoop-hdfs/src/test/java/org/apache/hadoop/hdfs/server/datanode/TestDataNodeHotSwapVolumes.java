@@ -63,6 +63,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
@@ -114,6 +115,8 @@ public class TestDataNodeHotSwapVolumes {
         1000);
     /* Allow 1 volume failure */
     conf.setInt(DFSConfigKeys.DFS_DATANODE_FAILED_VOLUMES_TOLERATED_KEY, 1);
+    conf.setTimeDuration(DFSConfigKeys.DFS_DATANODE_DISK_CHECK_MIN_GAP_KEY,
+        0, TimeUnit.MILLISECONDS);
 
     MiniDFSNNTopology nnTopology =
         MiniDFSNNTopology.simpleFederatedTopology(numNameNodes);
@@ -557,9 +560,12 @@ public class TestDataNodeHotSwapVolumes {
 
     // Make sure that vol0 and vol2's metadata are not left in memory.
     FsDatasetSpi<?> dataset = dn.getFSDataset();
-    for (FsVolumeSpi volume : dataset.getVolumes()) {
-      assertThat(volume.getBasePath(), is(not(anyOf(
-          is(newDirs.get(0)), is(newDirs.get(2))))));
+    try (FsDatasetSpi.FsVolumeReferences volumes =
+        dataset.getFsVolumeReferences()) {
+      for (FsVolumeSpi volume : volumes) {
+        assertThat(volume.getBasePath(), is(not(anyOf(
+            is(newDirs.get(0)), is(newDirs.get(2))))));
+      }
     }
     DataStorage storage = dn.getStorage();
     for (int i = 0; i < storage.getNumStorageDirs(); i++) {
@@ -736,16 +742,6 @@ public class TestDataNodeHotSwapVolumes {
         is(dn.getConf().get(DFS_DATANODE_DATA_DIR_KEY)));
   }
 
-  /** Get the FsVolume on the given basePath */
-  private FsVolumeImpl getVolume(DataNode dn, File basePath) {
-    for (FsVolumeSpi vol : dn.getFSDataset().getVolumes()) {
-      if (vol.getBasePath().equals(basePath.getPath())) {
-        return (FsVolumeImpl)vol;
-      }
-    }
-    return null;
-  }
-
   /**
    * Verify that {@link DataNode#checkDiskErrors()} removes all metadata in
    * DataNode upon a volume failure. Thus we can run reconfig on the same
@@ -766,7 +762,7 @@ public class TestDataNodeHotSwapVolumes {
     final String oldDataDir = dn.getConf().get(DFS_DATANODE_DATA_DIR_KEY);
     File dirToFail = new File(cluster.getDataDirectory(), "data1");
 
-    FsVolumeImpl failedVolume = getVolume(dn, dirToFail);
+    FsVolumeImpl failedVolume = DataNodeTestUtils.getVolume(dn, dirToFail);
     assertTrue("No FsVolume was found for " + dirToFail,
         failedVolume != null);
     long used = failedVolume.getDfsUsed();
@@ -774,7 +770,7 @@ public class TestDataNodeHotSwapVolumes {
     DataNodeTestUtils.injectDataDirFailure(dirToFail);
     // Call and wait DataNode to detect disk failure.
     long lastDiskErrorCheck = dn.getLastDiskErrorCheck();
-    dn.checkDiskErrorAsync();
+    dn.checkDiskErrorAsync(failedVolume);
     while (dn.getLastDiskErrorCheck() == lastDiskErrorCheck) {
       Thread.sleep(100);
     }
@@ -789,7 +785,7 @@ public class TestDataNodeHotSwapVolumes {
         is(dn.getConf().get(DFS_DATANODE_DATA_DIR_KEY)));
 
     createFile(new Path("/test2"), 32, (short)2);
-    FsVolumeImpl restoredVolume = getVolume(dn, dirToFail);
+    FsVolumeImpl restoredVolume = DataNodeTestUtils.getVolume(dn, dirToFail);
     assertTrue(restoredVolume != null);
     assertTrue(restoredVolume != failedVolume);
     // More data has been written to this volume.

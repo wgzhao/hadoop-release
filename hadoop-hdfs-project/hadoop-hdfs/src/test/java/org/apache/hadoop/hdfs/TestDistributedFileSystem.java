@@ -83,6 +83,7 @@ import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeFaultInjector;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeReference;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.namenode.ha.HATestUtil;
 import org.apache.hadoop.hdfs.web.HftpFileSystem;
@@ -911,8 +912,11 @@ public class TestDistributedFileSystem {
 
       Set<String> dnStorageIds = new HashSet<>();
       for (DataNode d : cluster.getDataNodes()) {
-        for (FsVolumeSpi vol : d.getFSDataset().getVolumes()) {
-          dnStorageIds.add(vol.getStorageID());
+        try (FsDatasetSpi.FsVolumeReferences references =
+                 d.getFSDataset().getFsVolumeReferences()) {
+          for (FsVolumeSpi vol : references) {
+            dnStorageIds.add(vol.getStorageID());
+          }
         }
       }
 

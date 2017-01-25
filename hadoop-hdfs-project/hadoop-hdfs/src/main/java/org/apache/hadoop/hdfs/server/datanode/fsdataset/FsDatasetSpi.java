@@ -18,13 +18,15 @@
 package org.apache.hadoop.hdfs.server.datanode.fsdataset;
 
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
+import java.nio.channels.ClosedChannelException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +52,6 @@ import org.apache.hadoop.hdfs.server.datanode.ReplicaNotFoundException;
 import org.apache.hadoop.hdfs.server.datanode.StorageLocation;
 import org.apache.hadoop.hdfs.server.datanode.UnexpectedReplicaStateException;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetFactory;
-import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeImpl;
 import org.apache.hadoop.hdfs.server.datanode.metrics.FSDatasetMBean;
 import org.apache.hadoop.hdfs.server.protocol.BlockRecoveryCommand.RecoveringBlock;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
@@ -58,13 +59,12 @@ import org.apache.hadoop.hdfs.server.protocol.NamespaceInfo;
 import org.apache.hadoop.hdfs.server.protocol.ReplicaRecoveryInfo;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
 import org.apache.hadoop.hdfs.server.protocol.VolumeFailureSummary;
-import org.apache.hadoop.util.DiskChecker.DiskErrorException;
 import org.apache.hadoop.util.ReflectionUtils;
 
 /**
  * This is a service provider interface for the underlying storage that
  * stores replicas for a data node.
- * The default implementation stores replicas on local drives. 
+ * The default implementation stores replicas on local drives.
  */
 @InterfaceAudience.Private
 public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
@@ -92,8 +92,103 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
     }
   }
 
-  /** @return a list of volumes. */
-  public List<V> getVolumes();
+  /**
+   * It behaviors as an unmodifiable list of FsVolume. Individual FsVolume can
+   * be obtained by using {@link #get(int)}.
+   *
+   * This also holds the reference counts for these volumes. It releases all the
+   * reference counts in {@link #close()}.
+   */
+  class FsVolumeReferences implements Iterable<FsVolumeSpi>, Closeable {
+    private final List<FsVolumeReference> references;
+
+    public <S extends FsVolumeSpi> FsVolumeReferences(List<S> curVolumes) {
+      references = new ArrayList<>();
+      for (FsVolumeSpi v : curVolumes) {
+        try {
+          references.add(v.obtainReference());
+        } catch (ClosedChannelException e) {
+          // This volume has been closed.
+        }
+      }
+    }
+
+    private static class FsVolumeSpiIterator implements
+        Iterator<FsVolumeSpi> {
+      private final List<FsVolumeReference> references;
+      private int idx = 0;
+
+      FsVolumeSpiIterator(List<FsVolumeReference> refs) {
+        references = refs;
+      }
+
+      @Override
+      public boolean hasNext() {
+        return idx < references.size();
+      }
+
+      @Override
+      public FsVolumeSpi next() {
+        int refIdx = idx++;
+        return references.get(refIdx).getVolume();
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public Iterator<FsVolumeSpi> iterator() {
+      return new FsVolumeSpiIterator(references);
+    }
+
+    /**
+     * Get the number of volumes.
+     */
+    public int size() {
+      return references.size();
+    }
+
+    /**
+     * Get the volume for a given index.
+     */
+    public FsVolumeSpi get(int index) {
+      return references.get(index).getVolume();
+    }
+
+    /**
+     * Get the reference for a given index.
+     */
+    public FsVolumeReference getReference(int index) {
+      return references.get(index);
+    }
+
+    @Override
+    public void close() throws IOException {
+      IOException ioe = null;
+      for (FsVolumeReference ref : references) {
+        try {
+          ref.close();
+        } catch (IOException e) {
+          ioe = e;
+        }
+      }
+      references.clear();
+      if (ioe != null) {
+        throw ioe;
+      }
+    }
+  }
+
+  /**
+   * Returns a list of FsVolumes that hold reference counts.
+   *
+   * The caller must release the reference of each volume by calling
+   * {@link FsVolumeReferences#close()}.
+   */
+  public FsVolumeReferences getFsVolumeReferences();
 
   /**
    * Add a new volume to the FsDataset.<p/>
@@ -171,7 +266,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
   public long getLength(ExtendedBlock b) throws IOException;
 
   /**
-   * Get reference to the replica meta info in the replicasMap. 
+   * Get reference to the replica meta info in the replicasMap.
    * To be called from methods that are synchronized on {@link FSDataset}
    * @return replica from the replicas map
    */
@@ -187,7 +282,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * @return the generation stamp stored with the block.
    */
   public Block getStoredBlock(String bpid, long blkid) throws IOException;
-  
+
   /**
    * Returns an input stream at specified offset of the specified block
    * @param b block
@@ -211,7 +306,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Creates a temporary replica and returns the meta information of the replica
-   * 
+   *
    * @param b block
    * @return the meta info of the replica which is being written to
    * @throws IOException if an error occurs
@@ -221,7 +316,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Creates a RBW replica and returns the meta info of the replica
-   * 
+   *
    * @param b block
    * @return the meta info of the replica which is being written to
    * @throws IOException if an error occurs
@@ -231,7 +326,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Recovers a RBW replica and returns the meta info of the replica
-   * 
+   *
    * @param b block
    * @param newGS the new generation stamp for the replica
    * @param minBytesRcvd the minimum number of bytes that the replica could have
@@ -252,7 +347,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Append to a finalized replica and returns the meta info of the replica
-   * 
+   *
    * @param b block
    * @param newGS the new generation stamp for the replica
    * @param expectedBlockLen the number of bytes the replica is expected to have
@@ -265,7 +360,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
   /**
    * Recover a failed append to a finalized replica
    * and returns the meta info of the replica
-   * 
+   *
    * @param b block
    * @param newGS the new generation stamp for the replica
    * @param expectedBlockLen the number of bytes the replica is expected to have
@@ -274,11 +369,11 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    */
   public ReplicaHandler recoverAppend(
       ExtendedBlock b, long newGS, long expectedBlockLen) throws IOException;
-  
+
   /**
    * Recover a failed pipeline close
    * It bumps the replica's generation stamp and finalize it if RBW replica
-   * 
+   *
    * @param b block
    * @param newGS the new generation stamp for the replica
    * @param expectedBlockLen the number of bytes the replica is expected to have
@@ -287,7 +382,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    */
   Replica recoverClose(ExtendedBlock b, long newGS, long expectedBlockLen
       ) throws IOException;
-  
+
   /**
    * Finalizes the block previously opened for writing using writeToBlock.
    * The block size is what is in the parameter b and it must match the amount
@@ -334,19 +429,19 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    *
    * @throws ReplicaNotFoundException          If the replica is not found
    *
-   * @throws UnexpectedReplicaStateException   If the replica is not in the 
+   * @throws UnexpectedReplicaStateException   If the replica is not in the
    *                                             expected state.
-   * @throws FileNotFoundException             If the block file is not found or there 
+   * @throws FileNotFoundException             If the block file is not found or there
    *                                              was an error locating it.
    * @throws EOFException                      If the replica length is too short.
-   * 
-   * @throws IOException                       May be thrown from the methods called. 
+   *
+   * @throws IOException                       May be thrown from the methods called.
    */
   public void checkBlock(ExtendedBlock b, long minLength, ReplicaState state)
       throws ReplicaNotFoundException, UnexpectedReplicaStateException,
       FileNotFoundException, EOFException, IOException;
-      
-  
+
+
   /**
    * Is the block valid?
    * @return - true if the specified block is valid
@@ -390,10 +485,9 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
   public boolean isCached(String bpid, long blockId);
 
     /**
-     * Check if all the data directories are healthy
-     * @return A set of unhealthy data directories.
+     * Handle volume failures by removing the failed volumes.
      */
-  public Set<File> checkDataDir();
+  void handleVolumeFailures(Set<FsVolumeSpi> failedVolumes);
 
   /**
    * Shutdown the FSDataset
@@ -413,7 +507,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Checks how many valid storage volumes there are in the DataNode.
-   * @return true if more than the minimum number of valid volumes are left 
+   * @return true if more than the minimum number of valid volumes are left
    * in the FSDataSet.
    */
   public boolean hasEnoughResource();
@@ -425,7 +519,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
 
   /**
    * Initialize a replica recovery.
-   * @return actual state of the replica on this data-node or 
+   * @return actual state of the replica on this data-node or
    * null if data-node does not have the replica.
    */
   public ReplicaRecoveryInfo initReplicaRecovery(RecoveringBlock rBlock
@@ -444,26 +538,26 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * @param conf Configuration
    */
   public void addBlockPool(String bpid, Configuration conf) throws IOException;
-  
+
   /**
    * Shutdown and remove the block pool from underlying storage.
    * @param bpid Block pool Id to be removed
    */
   public void shutdownBlockPool(String bpid) ;
-  
+
   /**
-   * Deletes the block pool directories. If force is false, directories are 
-   * deleted only if no block files exist for the block pool. If force 
+   * Deletes the block pool directories. If force is false, directories are
+   * deleted only if no block files exist for the block pool. If force
    * is true entire directory for the blockpool is deleted along with its
    * contents.
    * @param bpid BlockPool Id to be deleted.
    * @param force If force is false, directories are deleted only if no
-   *        block files exist for the block pool, otherwise entire 
+   *        block files exist for the block pool, otherwise entire
    *        directory for the blockpool is deleted along with its contents.
    * @throws IOException
    */
   public void deleteBlockPool(String bpid, boolean force) throws IOException;
-  
+
   /**
    * Get {@link BlockLocalPathInfo} for the given block.
    */
@@ -471,9 +565,9 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
       ) throws IOException;
 
   /**
-   * Get a {@link HdfsBlocksMetadata} corresponding to the list of blocks in 
+   * Get a {@link HdfsBlocksMetadata} corresponding to the list of blocks in
    * <code>blocks</code>.
-   * 
+   *
    * @param bpid pool to query
    * @param blockIds List of block ids for which to return metadata
    * @return metadata Metadata for the list of blocks
@@ -514,7 +608,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * submit a sync_file_range request to AsyncDiskService
    */
   public void submitBackgroundSyncFileRangeRequest(final ExtendedBlock block,
-      final FileDescriptor fd, final long offset, final long nbytes,
+      final ReplicaOutputStreams outs, final long offset, final long nbytes,
       final int flags);
 
   /**
@@ -546,7 +640,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * Check whether the block was pinned
    */
   public boolean getPinning(ExtendedBlock block) throws IOException;
-  
+
   /**
    * Confirm whether the block is deleting
    */

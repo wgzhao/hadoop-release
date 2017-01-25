@@ -69,7 +69,12 @@ public class VolumeScanner extends Thread {
   /**
    * The configuration.
    */
-  private final Conf conf;
+  private Conf conf;
+
+  @VisibleForTesting
+  void setConf(Conf conf) {
+    this.conf = conf;
+  }
 
   /**
    * The DataNode this VolumEscanner is associated with.
@@ -281,12 +286,13 @@ public class VolumeScanner extends Thread {
             volume.getBasePath(), block);
         return;
       }
-      LOG.warn("Reporting bad {} on {}", block, volume.getBasePath());
+      LOG.warn("Reporting bad " + block + " with volume "
+          + volume.getBasePath(), e);
       try {
         scanner.datanode.reportBadBlocks(block);
       } catch (IOException ie) {
         // This is bad, but not bad enough to shut down the scanner.
-        LOG.warn("Cannot report bad " + block.getBlockId(), e);
+        LOG.warn("Cannot report bad block " + block, ie);
       }
     }
   }
@@ -429,6 +435,7 @@ public class VolumeScanner extends Thread {
     if (block == null) {
       return -1; // block not found.
     }
+    LOG.debug("start scanning block {}", block);
     BlockSender blockSender = null;
     try {
       blockSender = new BlockSender(block, 0, -1,
@@ -610,6 +617,7 @@ public class VolumeScanner extends Thread {
               break;
             }
             if (timeout > 0) {
+              LOG.debug("{}: wait for {} milliseconds", this, timeout);
               wait(timeout);
               if (stopping) {
                 break;

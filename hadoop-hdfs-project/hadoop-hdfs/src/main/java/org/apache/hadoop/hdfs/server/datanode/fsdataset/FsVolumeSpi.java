@@ -24,11 +24,16 @@ import java.nio.channels.ClosedChannelException;
 
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
+import org.apache.hadoop.hdfs.server.datanode.FileIoProvider;
+import org.apache.hadoop.hdfs.server.datanode.checker.Checkable;
+import org.apache.hadoop.hdfs.server.datanode.checker.VolumeCheckResult;
 
 /**
  * This is an interface for the underlying volume.
  */
-public interface FsVolumeSpi {
+public interface FsVolumeSpi
+    extends Checkable<FsVolumeSpi.VolumeCheckContext, VolumeCheckResult> {
+
   /**
    * Obtain a reference object that had increased 1 reference count of the
    * volume.
@@ -179,4 +184,25 @@ public interface FsVolumeSpi {
    * Get the FSDatasetSpi which this volume is a part of.
    */
   public FsDatasetSpi getDataset();
+
+  /**
+   * Load last partial chunk checksum from checksum file.
+   * Need to be called with FsDataset lock acquired.
+   * @param blockFile
+   * @param metaFile
+   * @return the last partial checksum
+   * @throws IOException
+   */
+  byte[] loadLastPartialChunkChecksum(File blockFile, File metaFile)
+      throws IOException;
+
+  /**
+   * Context for the {@link #check} call.
+   */
+  class VolumeCheckContext {
+  }
+
+  FileIoProvider getFileIoProvider();
+
+  DataNodeVolumeMetrics getMetrics();
 }

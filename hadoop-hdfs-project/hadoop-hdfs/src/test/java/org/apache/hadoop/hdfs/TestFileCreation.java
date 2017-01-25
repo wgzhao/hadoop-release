@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -974,7 +975,7 @@ public class TestFileCreation {
       out.hflush();
       int actualRepl = out.getCurrentBlockReplication();
       assertTrue(f + " should be replicated to " + DATANODE_NUM + " datanodes.",
-                 actualRepl == DATANODE_NUM);
+          actualRepl == DATANODE_NUM);
 
       // set the soft and hard limit to be 1 second so that the
       // namenode triggers lease recovery
@@ -990,20 +991,14 @@ public class TestFileCreation {
       for(DatanodeInfo datanodeinfo: locatedblock.getLocations()) {
         DataNode datanode = cluster.getDataNode(datanodeinfo.getIpcPort());
         ExtendedBlock blk = locatedblock.getBlock();
-        Block b = DataNodeTestUtils.getFSDataset(datanode).getStoredBlock(
-            blk.getBlockPoolId(), blk.getBlockId());
-        final File blockfile = DataNodeTestUtils.getFile(datanode,
-            blk.getBlockPoolId(), b.getBlockId());
-        System.out.println("blockfile=" + blockfile);
-        if (blockfile != null) {
-          BufferedReader in = new BufferedReader(new FileReader(blockfile));
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(
+            datanode.getFSDataset().getBlockInputStream(blk, 0)))) {
           assertEquals("something", in.readLine());
-          in.close();
           successcount++;
         }
       }
       System.out.println("successcount=" + successcount);
-      assertTrue(successcount > 0); 
+      assertTrue(successcount > 0);
     } finally {
       IOUtils.closeStream(dfs);
       cluster.shutdown();

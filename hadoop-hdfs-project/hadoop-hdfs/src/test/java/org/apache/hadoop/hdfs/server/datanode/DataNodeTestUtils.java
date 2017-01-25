@@ -22,15 +22,24 @@ package org.apache.hadoop.hdfs.server.datanode;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.ReconfigurationException;
+import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
-import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
+import org.apache.hadoop.hdfs.protocolPB.DatanodeProtocolClientSideTranslatorPB;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetTestUtil;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeImpl;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
 import org.apache.hadoop.hdfs.server.protocol.InterDatanodeProtocol;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Utility class for accessing package-private DataNode information during tests.
@@ -38,6 +47,8 @@ import org.apache.hadoop.hdfs.server.protocol.InterDatanodeProtocol;
  * dependencies to {@link MiniDFSCluster}.
  */
 public class DataNodeTestUtils {
+  private static final Log LOG =
+      LogFactory.getLog(DataNodeTestUtils.class);
   private static final String DIR_FAILURE_SUFFIX = ".origin";
   public final static String TEST_CLUSTER_ID = "testClusterID";
   public final static String TEST_POOL_ID = "BP-TEST";
@@ -89,25 +100,6 @@ public class DataNodeTestUtils {
    */
   public static FsDatasetSpi<?> getFSDataset(DataNode dn) {
     return dn.getFSDataset();
-  }
-
-  public static File getFile(DataNode dn, String bpid, long bid) {
-    return FsDatasetTestUtil.getFile(dn.getFSDataset(), bpid, bid);
-  }
-
-  public static File getBlockFile(DataNode dn, String bpid, Block b
-      ) throws IOException {
-    return FsDatasetTestUtil.getBlockFile(dn.getFSDataset(), bpid, b);
-  }
-
-  public static File getMetaFile(DataNode dn, String bpid, Block b)
-      throws IOException {
-    return FsDatasetTestUtil.getMetaFile(dn.getFSDataset(), bpid, b);
-  }
-  
-  public static boolean unlinkBlock(DataNode dn, ExtendedBlock bk, int numLinks
-      ) throws IOException {
-    return FsDatasetTestUtil.unlinkBlock(dn.getFSDataset(), bk, numLinks);
   }
 
   public static long getPendingAsyncDeletions(DataNode dn) {
@@ -188,5 +180,47 @@ public class DataNodeTestUtils {
     if (directoryScanner != null) {
       dn.getDirectoryScanner().reconcile();
     }
+  }
+
+  /**
+   * Reconfigure a DataNode by setting a new list of volumes.
+   *
+   * @param dn DataNode to reconfigure
+   * @param newVols new volumes to configure
+   * @throws Exception if there is any failure
+   */
+  public static void reconfigureDataNode(DataNode dn, File... newVols)
+      throws Exception {
+    StringBuilder dnNewDataDirs = new StringBuilder();
+    for (File newVol: newVols) {
+      if (dnNewDataDirs.length() > 0) {
+        dnNewDataDirs.append(',');
+      }
+      dnNewDataDirs.append(newVol.getAbsolutePath());
+    }
+    try {
+      assertThat(
+          dn.reconfigurePropertyImpl(
+              DFSConfigKeys.DFS_DATANODE_DATA_DIR_KEY,
+              dnNewDataDirs.toString()),
+          is(dn.getConf().get(DFSConfigKeys.DFS_DATANODE_DATA_DIR_KEY)));
+    } catch (ReconfigurationException e) {
+      // This can be thrown if reconfiguration tries to use a failed volume.
+      // We need to swallow the exception, because some of our tests want to
+      // cover this case.
+      LOG.warn("Could not reconfigure DataNode.", e);
+    }
+  }
+
+  /** Get the FsVolume on the given basePath. */
+  public static FsVolumeImpl getVolume(DataNode dn, File basePath) throws
+      IOException {
+    try (FsDatasetSpi.FsVolumeReferences volumes = dn.getFSDataset()
+        .getFsVolumeReferences()) {
+      for (FsVolumeSpi vol : volumes) {
+        return (FsVolumeImpl) vol;
+      }
+    }
+    return null;
   }
 }

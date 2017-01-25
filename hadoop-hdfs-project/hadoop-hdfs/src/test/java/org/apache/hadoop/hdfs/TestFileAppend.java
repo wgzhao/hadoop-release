@@ -24,9 +24,12 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
@@ -42,9 +45,17 @@ import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.protocol.LocatedBlocks;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
+import org.apache.hadoop.hdfs.server.datanode.ReplicaBeingWritten;
+import org.apache.hadoop.hdfs.server.datanode.ReplicaHandler;
 import org.apache.hadoop.hdfs.server.datanode.SimulatedFSDataset;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.ReplicaOutputStreams;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetTestUtil;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetUtil;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RemoteException;
+import org.apache.hadoop.util.DataChecksum;
+import org.apache.hadoop.util.Time;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,6 +68,8 @@ public class TestFileAppend{
 
   private static byte[] fileContents = null;
 
+  static final DataChecksum DEFAULT_CHECKSUM =
+      DataChecksum.newDataChecksum(DataChecksum.Type.CRC32C, 512);
   //
   // writes to file but does not close it
   //
@@ -109,12 +122,8 @@ public class TestFileAppend{
         expected, "Read 1", false);
   }
 
-  /**
-   * Test that copy on write for blocks works correctly
-   * @throws IOException an exception might be thrown
-   */
   @Test
-  public void testCopyOnWrite() throws IOException {
+  public void testBreakHardlinksIfNeeded() throws IOException {
     Configuration conf = new HdfsConfiguration();
     if (simulatedStorage) {
       SimulatedFSDataset.setFactory(conf);
@@ -125,9 +134,7 @@ public class TestFileAppend{
                                                    cluster.getNameNodePort());
     DFSClient client = new DFSClient(addr, conf);
     try {
-
       // create a new file, write to it and close it.
-      //
       Path file1 = new Path("/filestatus.dat");
       FSDataOutputStream stm = AppendTestUtil.createFile(fs, file1, 1);
       writeFile(stm);
@@ -141,39 +148,37 @@ public class TestFileAppend{
       LocatedBlocks locations = client.getNamenode().getBlockLocations(
                                   file1.toString(), 0, Long.MAX_VALUE);
       List<LocatedBlock> blocks = locations.getLocatedBlocks();
+      final FsDatasetSpi<?> fsd = dn[0].getFSDataset();
 
       //
       // Create hard links for a few of the blocks
       //
       for (int i = 0; i < blocks.size(); i = i + 2) {
         ExtendedBlock b = blocks.get(i).getBlock();
-        final File f = DataNodeTestUtils.getFile(dn[0],
-            b.getBlockPoolId(), b.getLocalBlock().getBlockId());
+        final File f = FsDatasetTestUtil.getBlockFile(
+            fsd, b.getBlockPoolId(), b.getLocalBlock());
         File link = new File(f.toString() + ".link");
         System.out.println("Creating hardlink for File " + f + " to " + link);
         HardLink.createHardLink(f, link);
       }
 
-      //
       // Detach all blocks. This should remove hardlinks (if any)
-      //
       for (int i = 0; i < blocks.size(); i++) {
         ExtendedBlock b = blocks.get(i).getBlock();
-        System.out.println("testCopyOnWrite detaching block " + b);
-        assertTrue("Detaching block " + b + " should have returned true",
-            DataNodeTestUtils.unlinkBlock(dn[0], b, 1));
+        System.out.println("breakHardlinksIfNeeded detaching block " + b);
+        assertTrue("breakHardlinksIfNeeded(" + b + ") should have returned true",
+            FsDatasetTestUtil.breakHardlinksIfNeeded(fsd, b));
       }
 
       // Since the blocks were already detached earlier, these calls should
       // return false
-      //
       for (int i = 0; i < blocks.size(); i++) {
         ExtendedBlock b = blocks.get(i).getBlock();
-        System.out.println("testCopyOnWrite detaching block " + b);
-        assertTrue("Detaching block " + b + " should have returned false",
-            !DataNodeTestUtils.unlinkBlock(dn[0], b, 1));
+        System.out.println("breakHardlinksIfNeeded re-attempting to " +
+                "detach block " + b);
+        assertTrue("breakHardlinksIfNeeded(" + b + ") should have returned false",
+            FsDatasetTestUtil.breakHardlinksIfNeeded(fsd, b));
       }
-
     } finally {
       client.close();
       fs.close();
@@ -600,6 +605,64 @@ public class TestFileAppend{
       }
     } finally {
       IOUtils.closeStream(fs);
+      cluster.shutdown();
+    }
+  }
+
+  @Test(timeout = 10000)
+  public void testConcurrentAppendRead()
+      throws IOException, TimeoutException, InterruptedException {
+    // Create a finalized replica and append to it
+    // Read block data and checksum. Verify checksum.
+    Configuration conf = new HdfsConfiguration();
+    conf.setInt(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, 1024);
+    conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
+    conf.setInt("dfs.min.replication", 1);
+
+    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).build();
+    try {
+      cluster.waitActive();
+      DataNode dn = cluster.getDataNodes().get(0);
+      FsDatasetSpi<?> dataSet = DataNodeTestUtils.getFSDataset(dn);
+
+      // create a file with 1 byte of data.
+      long initialFileLength = 1;
+      DistributedFileSystem fs = cluster.getFileSystem();
+      Path fileName = new Path("/appendCorruptBlock");
+      DFSTestUtil.createFile(fs, fileName, initialFileLength, (short) 1, 0);
+      DFSTestUtil.waitReplication(fs, fileName, (short) 1);
+      Assert.assertTrue("File not created", fs.exists(fileName));
+
+      // Call FsDatasetImpl#append to append the block file,
+      // which converts it to a rbw replica.
+      ExtendedBlock block = DFSTestUtil.getFirstBlock(fs, fileName);
+      long newGS = block.getGenerationStamp() + 1;
+      ReplicaHandler replicaHandler =
+          dataSet.append(block, newGS, initialFileLength);
+
+      // write data to block file
+      ReplicaBeingWritten rbw =
+          (ReplicaBeingWritten)replicaHandler.getReplica();
+      ReplicaOutputStreams
+          outputStreams = rbw.createStreams(false, DEFAULT_CHECKSUM);
+      OutputStream dataOutput = outputStreams.getDataOut();
+
+      byte[] appendBytes = new byte[1];
+      dataOutput.write(appendBytes, 0, 1);
+      dataOutput.flush();
+      dataOutput.close();
+
+      // update checksum file
+      FsDatasetUtil.computeChecksum(rbw.getMetaFile(), rbw.getMetaFile(),
+          rbw.getBlockFile());
+
+      // read the block
+      // the DataNode BlockSender should read from the rbw replica's in-memory
+      // checksum, rather than on-disk checksum. Otherwise it will see a
+      // checksum mismatch error.
+      final byte[] readBlock = DFSTestUtil.readFileBuffer(fs, fileName);
+      assertEquals("should have read only one byte!", 1, readBlock.length);
+    } finally {
       cluster.shutdown();
     }
   }

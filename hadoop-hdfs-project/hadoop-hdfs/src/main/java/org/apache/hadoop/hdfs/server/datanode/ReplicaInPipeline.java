@@ -20,6 +20,7 @@ package org.apache.hadoop.hdfs.server.datanode;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 import org.apache.hadoop.hdfs.protocol.Block;
@@ -125,7 +126,7 @@ public class ReplicaInPipeline extends ReplicaInfo
   public long getBytesAcked() {
     return bytesAcked;
   }
-  
+
   @Override // ReplicaInPipelineInterface
   public void setBytesAcked(long bytesAcked) {
     long newBytesAcked = bytesAcked - this.bytesAcked;
@@ -212,7 +213,8 @@ public class ReplicaInPipeline extends ReplicaInfo
   
   @Override // ReplicaInPipelineInterface
   public ReplicaOutputStreams createStreams(boolean isCreate, 
-      DataChecksum requestedChecksum) throws IOException {
+      DataChecksum requestedChecksum)
+      throws IOException {
     File blockFile = getBlockFile();
     File metaFile = getMetaFile();
     if (DataNode.LOG.isDebugEnabled()) {
@@ -223,13 +225,14 @@ public class ReplicaInPipeline extends ReplicaInfo
     }
     long blockDiskSize = 0L;
     long crcDiskSize = 0L;
-    
+
     // the checksum that should actually be used -- this
     // may differ from requestedChecksum for appends.
     final DataChecksum checksum;
-    
-    RandomAccessFile metaRAF = new RandomAccessFile(metaFile, "rw");
-    
+
+    RandomAccessFile metaRAF = getFileIoProvider().getRandomAccessFile(
+        getVolume(), metaFile, "rw");
+
     if (!isCreate) {
       // For append or recovery, we must enforce the existing checksum.
       // Also, verify that the file has correct lengths, etc.
@@ -237,14 +240,14 @@ public class ReplicaInPipeline extends ReplicaInfo
       try {
         BlockMetadataHeader header = BlockMetadataHeader.readHeader(metaRAF);
         checksum = header.getChecksum();
-        
+
         if (checksum.getBytesPerChecksum() !=
             requestedChecksum.getBytesPerChecksum()) {
           throw new IOException("Client requested checksum " +
               requestedChecksum + " when appending to an existing block " +
               "with different chunk size: " + checksum);
         }
-        
+
         int bytesPerChunk = checksum.getBytesPerChecksum();
         int checksumSize = checksum.getChecksumSize();
         
@@ -266,26 +269,40 @@ public class ReplicaInPipeline extends ReplicaInfo
       // for create, we can use the requested checksum
       checksum = requestedChecksum;
     }
-    
+
     FileOutputStream blockOut = null;
     FileOutputStream crcOut = null;
     try {
-      blockOut = new FileOutputStream(
-          new RandomAccessFile( blockFile, "rw" ).getFD() );
-      crcOut = new FileOutputStream(metaRAF.getFD() );
+      blockOut = getFileIoProvider().getFileOutputStream(
+          getVolume(), new RandomAccessFile(blockFile, "rw").getFD());
+      crcOut = getFileIoProvider().getFileOutputStream(
+          getVolume(), metaRAF.getFD());
       if (!isCreate) {
         blockOut.getChannel().position(blockDiskSize);
         crcOut.getChannel().position(crcDiskSize);
       }
       return new ReplicaOutputStreams(blockOut, crcOut, checksum,
-          getVolume().isTransientStorage());
+          getVolume(), getFileIoProvider());
     } catch (IOException e) {
       IOUtils.closeStream(blockOut);
+      IOUtils.closeStream(crcOut);
       IOUtils.closeStream(metaRAF);
       throw e;
     }
   }
-  
+
+  @Override
+  public OutputStream createRestartMetaStream() throws IOException {
+    File blockFile = getBlockFile();
+    File restartMeta = new File(blockFile.getParent()  +
+        File.pathSeparator + "." + blockFile.getName() + ".restart");
+    if (!getFileIoProvider().deleteWithExistsCheck(getVolume(), restartMeta)) {
+      DataNode.LOG.warn("Failed to delete restart meta file: " +
+          restartMeta.getPath());
+    }
+    return getFileIoProvider().getFileOutputStream(getVolume(), restartMeta);
+  }
+
   @Override
   public String toString() {
     return super.toString()

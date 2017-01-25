@@ -101,12 +101,13 @@ public class TestDeleteBlockPool {
       verifyBlockPoolDirectories(false, dn1StorageDir2, bpid1);
      
       fs1.delete(new Path("/alpha"), true);
+      final FileIoProvider fileIoProvider = new FileIoProvider(conf, dn2);
       
       // Wait till all blocks are deleted from the dn2 for bpid1.
       File finalDir1 = MiniDFSCluster.getFinalizedDir(dn2StorageDir1, bpid1);
       File finalDir2 = MiniDFSCluster.getFinalizedDir(dn2StorageDir1, bpid2);
-      while ((!DatanodeUtil.dirNoFilesRecursive(finalDir1)) ||
-          (!DatanodeUtil.dirNoFilesRecursive(finalDir2))) {
+      while ((!DatanodeUtil.dirNoFilesRecursive(null, finalDir1, fileIoProvider)) ||
+          (!DatanodeUtil.dirNoFilesRecursive(null, finalDir2, fileIoProvider))) {
         try {
           Thread.sleep(3000);
         } catch (Exception ignored) {

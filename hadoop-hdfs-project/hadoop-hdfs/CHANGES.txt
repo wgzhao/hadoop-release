@@ -147,6 +147,15 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9188. Make block corruption related tests FsDataset-agnostic. (lei)
 
+    HDFS-8859. Improve DataNode ReplicaMap memory footprint to save about 45%.
+    (yliu)
+
+    HDFS-9148. Incorrect assert message in TestWriteToReplica#testWriteToTemporary
+    (Tony Wu via lei)
+
+    HDFS-9251. Refactor TestWriteToReplica and TestFsDatasetImpl to avoid
+    explicitly creating Files in the tests code. (lei)
+
   OPTIMIZATIONS
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
@@ -356,6 +365,11 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty
     block reports. (Mingliang Liu via shv)
+
+    HDFS-9589. Block files which have been hardlinked should be duplicated
+    before the DataNode appends to the them (cmccabe)
+
+    HDFS-9701. DN may deadlock when hot-swapping under load. (Xiao Chen via lei)
 
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from

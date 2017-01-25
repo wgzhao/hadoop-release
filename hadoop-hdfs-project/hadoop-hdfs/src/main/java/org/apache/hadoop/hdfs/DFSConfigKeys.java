@@ -446,6 +446,23 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String  DFS_CLIENT_SOCKET_TIMEOUT_KEY = "dfs.client.socket-timeout";
   public static final String  DFS_NAMENODE_CHECKPOINT_DIR_KEY = "dfs.namenode.checkpoint.dir";
   public static final String  DFS_NAMENODE_CHECKPOINT_EDITS_DIR_KEY = "dfs.namenode.checkpoint.edits.dir";
+
+  // The following setting is not meant to be changed by administrators.
+  public static final String DFS_METRICS_ROLLING_AVERAGES_WINDOW_LENGTH_KEY =
+      "dfs.metrics.rolling.averages.window.length";
+  public static final int DFS_METRICS_ROLLING_AVERAGES_WINDOW_LENGTH_DEFAULT =
+      300 * 1000;
+
+  // The following setting is not meant to be changed by administrators.
+  public static final String DFS_METRICS_ROLLING_AVERAGE_NUM_WINDOWS_KEY =
+      "dfs.metrics.rolling.average.num.windows";
+  public static final int DFS_METRICS_ROLLING_AVERAGE_NUM_WINDOWS_DEFAULT =
+      36;
+
+  public static final String  DFS_DATANODE_PEER_STATS_ENABLED_KEY =
+      "dfs.datanode.peer.stats.enabled";
+  public static final boolean DFS_DATANODE_PEER_STATS_ENABLED_DEFAULT = false;
+
   public static final String  DFS_HOSTS = "dfs.hosts";
   public static final String  DFS_HOSTS_EXCLUDE = "dfs.hosts.exclude";
   public static final String  DFS_CLIENT_LOCAL_INTERFACES = "dfs.client.local.interfaces";
@@ -501,6 +518,22 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final int     DFS_DATANODE_DIRECTORYSCAN_INTERVAL_DEFAULT = 21600;
   public static final String  DFS_DATANODE_DIRECTORYSCAN_THREADS_KEY = "dfs.datanode.directoryscan.threads";
   public static final int     DFS_DATANODE_DIRECTORYSCAN_THREADS_DEFAULT = 1;
+
+  public static final String DFS_DATANODE_DISK_CHECK_MIN_GAP_KEY =
+      "dfs.datanode.disk.check.min.gap";
+  public static final long DFS_DATANODE_DISK_CHECK_MIN_GAP_DEFAULT =
+      900000; // 15 minutes.
+
+  public static final String DFS_DATANODE_DISK_CHECK_TIMEOUT_KEY =
+      "dfs.datanode.disk.check.timeout";
+  public static final long DFS_DATANODE_DISK_CHECK_TIMEOUT_DEFAULT =
+      600000; // 10 minutes.
+
+  public static final String
+      DFS_DATANODE_DIRECTORYSCAN_THROTTLE_LIMIT_MS_PER_SEC_KEY =
+      "dfs.datanode.directoryscan.throttle.limit.ms.per.sec";
+  public static final int
+      DFS_DATANODE_DIRECTORYSCAN_THROTTLE_LIMIT_MS_PER_SEC_DEFAULT = 1000;
   public static final String  DFS_DATANODE_DNS_INTERFACE_KEY = "dfs.datanode.dns.interface";
   public static final String  DFS_DATANODE_DNS_INTERFACE_DEFAULT = "default";
   public static final String  DFS_DATANODE_DNS_NAMESERVER_KEY = "dfs.datanode.dns.nameserver";
@@ -623,6 +656,11 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS = "dfs.client.short.circuit.replica.stale.threshold.ms";
   public static final long DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS_DEFAULT = 30 * 60 * 1000;
 
+  public static final String DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_KEY =
+      "dfs.datanode.slow.peers.report.interval";
+  public static final int DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_DEFAULT =
+      1800 * 1000;
+
   // property for fsimage compression
   public static final String DFS_IMAGE_COMPRESS_KEY = "dfs.image.compress";
   public static final boolean DFS_IMAGE_COMPRESS_DEFAULT = false;
@@ -643,10 +681,26 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_IMAGE_TRANSFER_CHUNKSIZE_KEY = "dfs.image.transfer.chunksize";
   public static final int DFS_IMAGE_TRANSFER_CHUNKSIZE_DEFAULT = 64 * 1024;
 
+  // Datanode File IO Stats
+  public static final String DFS_DATANODE_ENABLE_FILEIO_PROFILING_KEY =
+      "dfs.datanode.enable.fileio.profiling";
+  public static final boolean DFS_DATANODE_ENABLE_FILEIO_PROFILING_DEFAULT =
+      false;
+  public static final String DFS_DATANODE_ENABLE_FILEIO_FAULT_INJECTION_KEY =
+      "dfs.datanode.enable.fileio.fault.injection";
+  public static final boolean
+      DFS_DATANODE_ENABLE_FILEIO_FAULT_INJECTION_DEFAULT = false;
+  public static final String
+      DFS_DATANODE_FILEIO_PROFILING_SAMPLING_FRACTION_KEY =
+      "dfs.datanode.fileio.profiling.sampling.fraction";
+  public static final double
+      DFS_DATANODE_FILEIO_PROFILING_SAMPLING_FRACTION_DEAFULT = 1.0;
+
   //Keys with no defaults
   public static final String  DFS_DATANODE_PLUGINS_KEY = "dfs.datanode.plugins";
   public static final String  DFS_DATANODE_FSDATASET_FACTORY_KEY = "dfs.datanode.fsdataset.factory";
   public static final String  DFS_DATANODE_FSDATASET_VOLUME_CHOOSING_POLICY_KEY = "dfs.datanode.fsdataset.volume.choosing.policy";
+
   public static final String  DFS_DATANODE_AVAILABLE_SPACE_VOLUME_CHOOSING_POLICY_BALANCED_SPACE_THRESHOLD_KEY = "dfs.datanode.available-space-volume-choosing-policy.balanced-space-threshold";
   public static final long    DFS_DATANODE_AVAILABLE_SPACE_VOLUME_CHOOSING_POLICY_BALANCED_SPACE_THRESHOLD_DEFAULT = 1024L * 1024L * 1024L * 10L; // 10 GB
   public static final String  DFS_DATANODE_AVAILABLE_SPACE_VOLUME_CHOOSING_POLICY_BALANCED_SPACE_PREFERENCE_FRACTION_KEY = "dfs.datanode.available-space-volume-choosing-policy.balanced-space-preference-fraction";

@@ -52,21 +52,21 @@ public class BlockMetadataHeader {
   private static final Log LOG = LogFactory.getLog(BlockMetadataHeader.class);
 
   public static final short VERSION = 1;
-  
+
   /**
    * Header includes everything except the checksum(s) themselves.
    * Version is two bytes. Following it is the DataChecksum
-   * that occupies 5 bytes. 
+   * that occupies 5 bytes.
    */
   private final short version;
   private DataChecksum checksum = null;
-    
+
   @VisibleForTesting
   public BlockMetadataHeader(short version, DataChecksum checksum) {
     this.checksum = checksum;
     this.version = version;
   }
-  
+
   /** Get the version */
   public short getVersion() {
     return version;
@@ -79,17 +79,15 @@ public class BlockMetadataHeader {
 
   /**
    * Read the checksum header from the meta file.
+   * inputStream must be closed by the caller.
    * @return the data checksum obtained from the header.
    */
-  public static DataChecksum readDataChecksum(File metaFile) throws IOException {
-    DataInputStream in = null;
-    try {
-      in = new DataInputStream(new BufferedInputStream(
-        new FileInputStream(metaFile), HdfsConstants.IO_FILE_BUFFER_SIZE));
-      return readDataChecksum(in, metaFile);
-    } finally {
-      IOUtils.closeStream(in);
-    }
+  public static DataChecksum readDataChecksum(
+      FileInputStream inputStream, File metaFile)
+      throws IOException {
+    DataInputStream in = new DataInputStream(new BufferedInputStream(
+        inputStream, HdfsConstants.IO_FILE_BUFFER_SIZE));
+    return readDataChecksum(in, metaFile);
   }
 
   /**
@@ -110,6 +108,7 @@ public class BlockMetadataHeader {
 
   /**
    * Read the header without changing the position of the FileChannel.
+   * This is used by the client for short-circuit reads.
    *
    * @param fc The FileChannel to read.
    * @return the Metadata Header.
@@ -139,24 +138,20 @@ public class BlockMetadataHeader {
   public static BlockMetadataHeader readHeader(DataInputStream in) throws IOException {
     return readHeader(in.readShort(), in);
   }
-  
+
   /**
    * Reads header at the top of metadata file and returns the header.
-   * 
    * @return metadata header for the block
    * @throws IOException
    */
-  public static BlockMetadataHeader readHeader(File file) throws IOException {
-    DataInputStream in = null;
-    try {
-      in = new DataInputStream(new BufferedInputStream(
-                               new FileInputStream(file)));
+  public static BlockMetadataHeader readHeader(
+      FileInputStream fis) throws IOException {
+    try (DataInputStream in = new DataInputStream(
+        new BufferedInputStream(fis))) {
       return readHeader(in);
-    } finally {
-      IOUtils.closeStream(in);
     }
   }
-  
+
   /**
    * Read the header at the beginning of the given block meta file.
    * The current file position will be altered by this method.
@@ -168,27 +163,27 @@ public class BlockMetadataHeader {
     raf.readFully(buf, 0, buf.length);
     return readHeader(new DataInputStream(new ByteArrayInputStream(buf)));
   }
-  
+
   // Version is already read.
-  private static BlockMetadataHeader readHeader(short version, DataInputStream in) 
+  private static BlockMetadataHeader readHeader(short version, DataInputStream in)
                                    throws IOException {
     DataChecksum checksum = DataChecksum.newDataChecksum(in);
     return new BlockMetadataHeader(version, checksum);
   }
-  
+
   /**
    * This writes all the fields till the beginning of checksum.
    * @param out DataOutputStream
    * @throws IOException
    */
   @VisibleForTesting
-  public static void writeHeader(DataOutputStream out, 
-                                  BlockMetadataHeader header) 
+  public static void writeHeader(DataOutputStream out,
+                                  BlockMetadataHeader header)
                                   throws IOException {
     out.writeShort(header.getVersion());
     header.getChecksum().writeHeader(out);
   }
-  
+
   /**
    * Writes all the fields till the beginning of checksum.
    * @throws IOException on error
@@ -205,4 +200,3 @@ public class BlockMetadataHeader {
     return Short.SIZE/Byte.SIZE + DataChecksum.getChecksumHeaderSize();
   }
 }
-

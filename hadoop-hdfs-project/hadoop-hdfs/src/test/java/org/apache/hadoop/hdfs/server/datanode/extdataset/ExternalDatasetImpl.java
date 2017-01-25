@@ -51,7 +51,7 @@ public class ExternalDatasetImpl implements FsDatasetSpi<ExternalVolumeImpl> {
       StorageType.DEFAULT);
 
   @Override
-  public List<ExternalVolumeImpl> getVolumes() {
+  public FsVolumeReferences getFsVolumeReferences() {
     return null;
   }
 
@@ -137,7 +137,7 @@ public class ExternalDatasetImpl implements FsDatasetSpi<ExternalVolumeImpl> {
   @Override
   public ReplicaInputStreams getTmpInputStreams(ExtendedBlock b, long blkoff,
       long ckoff) throws IOException {
-    return new ReplicaInputStreams(null, null, null);
+    return new ReplicaInputStreams(null, null, null, null);
   }
 
   @Override
@@ -242,8 +242,7 @@ public class ExternalDatasetImpl implements FsDatasetSpi<ExternalVolumeImpl> {
   }
 
   @Override
-  public Set<File> checkDataDir() {
-    return null;
+  public void handleVolumeFailures(Set<FsVolumeSpi> failedVolumes) {
   }
 
   @Override
@@ -326,8 +325,8 @@ public class ExternalDatasetImpl implements FsDatasetSpi<ExternalVolumeImpl> {
   }
 
   @Override
-  public void submitBackgroundSyncFileRangeRequest(ExtendedBlock block, FileDescriptor fd, long offset, long nbytes, int flags) {
-
+  public void submitBackgroundSyncFileRangeRequest(ExtendedBlock block,
+      ReplicaOutputStreams outs, long offset, long nbytes, int flags) {
   }
 
   @Override
@@ -436,14 +435,14 @@ public class ExternalDatasetImpl implements FsDatasetSpi<ExternalVolumeImpl> {
   }
 
   @Override
-  public void setPinning(ExtendedBlock block) throws IOException {    
+  public void setPinning(ExtendedBlock block) throws IOException {
   }
 
   @Override
   public boolean getPinning(ExtendedBlock block) throws IOException {
     return false;
   }
-  
+
   @Override
   public boolean isDeletingBlock(String bpid, long blockId) {
     return false;

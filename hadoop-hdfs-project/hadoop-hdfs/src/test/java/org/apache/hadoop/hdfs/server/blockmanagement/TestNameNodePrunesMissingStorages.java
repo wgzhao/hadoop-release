@@ -19,6 +19,9 @@
 package org.apache.hadoop.hdfs.server.blockmanagement;
 
 import com.google.common.base.Supplier;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -33,8 +36,11 @@ import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
+import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
+import org.apache.hadoop.hdfs.server.protocol.SlowPeerReports;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.Assert;
@@ -43,9 +49,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -101,7 +105,7 @@ public class TestNameNodePrunesMissingStorages {
       // Stop the DataNode and send fake heartbeat with missing storage.
       cluster.stopDataNode(0);
       cluster.getNameNodeRpc().sendHeartbeat(dnReg, prunedReports, 0L, 0L, 0, 0,
-          0, null, true);
+          0, null, true, SlowPeerReports.EMPTY_REPORT);
 
       // Check that the missing storage was pruned.
       assertThat(dnDescriptor.getStorageInfos().length, is(expectedStoragesAfterTest));
@@ -199,15 +203,16 @@ public class TestNameNodePrunesMissingStorages {
         datanodeToRemoveStorageFromIdx++;
       }
       // Find the volume within the datanode which holds that first storage.
-      List<? extends FsVolumeSpi> volumes =
-          datanodeToRemoveStorageFrom.getFSDataset().getVolumes();
-      assertEquals(NUM_STORAGES_PER_DN, volumes.size());
       String volumeDirectoryToRemove = null;
-      for (FsVolumeSpi volume : volumes) {
-        if (volume.getStorageID().equals(storageIdToRemove)) {
-          volumeDirectoryToRemove = volume.getBasePath();
+      try (FsDatasetSpi.FsVolumeReferences volumes =
+          datanodeToRemoveStorageFrom.getFSDataset().getFsVolumeReferences()) {
+        assertEquals(NUM_STORAGES_PER_DN, volumes.size());
+        for (FsVolumeSpi volume : volumes) {
+          if (volume.getStorageID().equals(storageIdToRemove)) {
+            volumeDirectoryToRemove = volume.getBasePath();
+          }
         }
-      }
+      };
       // Shut down the datanode and remove the volume.
       // Replace the volume directory with a regular file, which will
       // cause a volume failure.  (If we merely removed the directory,

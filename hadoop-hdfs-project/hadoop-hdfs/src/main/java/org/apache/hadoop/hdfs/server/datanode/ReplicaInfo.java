@@ -23,15 +23,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.fs.FileUtil;
-import org.apache.hadoop.fs.HardLink;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.util.LightWeightResizableGSet;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -40,8 +38,12 @@ import com.google.common.annotations.VisibleForTesting;
  * It provides a general interface for meta information of a replica.
  */
 @InterfaceAudience.Private
-abstract public class ReplicaInfo extends Block implements Replica {
-  
+abstract public class ReplicaInfo extends Block
+    implements Replica, LightWeightResizableGSet.LinkedElement {
+
+  /** For implementing {@link LightWeightResizableGSet.LinkedElement} interface */
+  private LightWeightResizableGSet.LinkedElement next;
+
   /** volume where the replica belongs */
   private FsVolumeSpi volume;
   
@@ -60,6 +62,10 @@ abstract public class ReplicaInfo extends Block implements Replica {
   private boolean hasSubdirs;
   
   private static final Map<String, File> internedBaseDirs = new HashMap<String, File>();
+
+  /** This is used by some tests and FsDatasetUtil#computeChecksum. */
+  private static final FileIoProvider DEFAULT_FILE_IO_PROVIDER =
+      new FileIoProvider(null, null);
 
   /**
    * Constructor
@@ -119,7 +125,18 @@ abstract public class ReplicaInfo extends Block implements Replica {
   public FsVolumeSpi getVolume() {
     return volume;
   }
-  
+
+  /**
+   * Get the {@link FileIoProvider} for disk IO operations.
+   */
+  public FileIoProvider getFileIoProvider() {
+    // In tests and when invoked via FsDatasetUtil#computeChecksum, the
+    // target volume for this replica may be unknown and hence null.
+    // Use the DEFAULT_FILE_IO_PROVIDER with no-op hooks.
+    return (volume != null) ? volume.getFileIoProvider()
+        : DEFAULT_FILE_IO_PROVIDER;
+  }
+
   /**
    * Set the volume where this replica is located on disk
    */
@@ -197,91 +214,87 @@ abstract public class ReplicaInfo extends Block implements Replica {
   }
 
   /**
-   * check if this replica has already been unlinked.
-   * @return true if the replica has already been unlinked 
-   *         or no need to be detached; false otherwise
-   */
-  public boolean isUnlinked() {
-    return true;                // no need to be unlinked
-  }
-
-  /**
-   * set that this replica is unlinked
-   */
-  public void setUnlinked() {
-    // no need to be unlinked
-  }
-
-  /**
    * Number of bytes reserved for this replica on disk.
    */
   public long getBytesReserved() {
     return 0;
   }
-  
-   /**
+
+  /**
+   * Number of bytes originally reserved for this replica. The actual
+   * reservation is adjusted as data is written to disk.
+   *
+   * @return the number of bytes originally reserved for this replica.
+   */
+  public long getOriginalBytesReserved() {
+    return 0;
+  }
+
+  /**
    * Copy specified file into a temporary file. Then rename the
    * temporary file to the original name. This will cause any
    * hardlinks to the original file to be removed. The temporary
    * files are created in the same directory. The temporary files will
    * be recovered (especially on Windows) on datanode restart.
    */
-  private void unlinkFile(File file, Block b) throws IOException {
-    File tmpFile = DatanodeUtil.createTmpFile(b, DatanodeUtil.getUnlinkTmpFile(file));
-    try {
-      FileInputStream in = new FileInputStream(file);
-      try {
-        FileOutputStream out = new FileOutputStream(tmpFile);
-        try {
-          IOUtils.copyBytes(in, out, 16*1024);
-        } finally {
-          out.close();
-        }
-      } finally {
-        in.close();
+  private void breakHardlinks(File file, Block b) throws IOException {
+    final FileIoProvider fileIoProvider = getFileIoProvider();
+    final File tmpFile = DatanodeUtil.createFileWithExistsCheck(
+        getVolume(), b, DatanodeUtil.getUnlinkTmpFile(file), fileIoProvider);
+    try (FileInputStream in = fileIoProvider.getFileInputStream(
+        getVolume(), file)) {
+      try (FileOutputStream out = fileIoProvider.getFileOutputStream(
+          getVolume(), tmpFile)) {
+        IOUtils.copyBytes(in, out, 16 * 1024);
       }
       if (file.length() != tmpFile.length()) {
         throw new IOException("Copy of file " + file + " size " + file.length()+
-                              " into file " + tmpFile +
-                              " resulted in a size of " + tmpFile.length());
+            " into file " + tmpFile +
+            " resulted in a size of " + tmpFile.length());
       }
-      FileUtil.replaceFile(tmpFile, file);
+      fileIoProvider.replaceFile(getVolume(), tmpFile, file);
     } catch (IOException e) {
-      boolean done = tmpFile.delete();
-      if (!done) {
+      if (!fileIoProvider.delete(getVolume(), tmpFile)) {
         DataNode.LOG.info("detachFile failed to delete temporary file " +
-                          tmpFile);
+            tmpFile);
       }
       throw e;
     }
   }
 
   /**
-   * Remove a hard link by copying the block to a temporary place and 
-   * then moving it back
-   * @param numLinks number of hard links
-   * @return true if copy is successful; 
-   *         false if it is already detached or no need to be detached
-   * @throws IOException if there is any copy error
+   * This function "breaks hardlinks" to the current replica file.
+   *
+   * When doing a DataNode upgrade, we create a bunch of hardlinks to each block
+   * file.  This cleverly ensures that both the old and the new storage
+   * directories can contain the same block file, without using additional space
+   * for the data.
+   *
+   * However, when we want to append to the replica file, we need to "break" the
+   * hardlink to ensure that the old snapshot continues to contain the old data
+   * length.  If we failed to do that, we could roll back to the previous/
+   * directory during a downgrade, and find that the block contents were longer
+   * than they were at the time of upgrade.
+   *
+   * @return true only if data was copied.
+   * @throws IOException
    */
-  public boolean unlinkBlock(int numLinks) throws IOException {
-    if (isUnlinked()) {
-      return false;
-    }
+  public boolean breakHardLinksIfNeeded() throws IOException {
     File file = getBlockFile();
     if (file == null || getVolume() == null) {
       throw new IOException("detachBlock:Block not found. " + this);
     }
     File meta = getMetaFile();
 
-    if (HardLink.getLinkCount(file) > numLinks) {
-      DataNode.LOG.info("CopyOnWrite for block " + this);
-      unlinkFile(file, this);
+    int linkCount = getHardLinkCount(file);
+    if (linkCount > 1) {
+      DataNode.LOG.info("Breaking hardlink for " + linkCount + "x-linked " +
+          "block " + this);
+      breakHardlinks(file, this);
     }
-    if (HardLink.getLinkCount(meta) > numLinks) {
-      unlinkFile(meta, this);
+    if (getHardLinkCount(meta) > 1) {
+      breakHardlinks(meta, this);
     }
-    setUnlinked();
     return true;
   }
 
@@ -300,5 +313,19 @@ abstract public class ReplicaInfo extends Block implements Replica {
   @Override
   public boolean isOnTransientStorage() {
     return volume.isTransientStorage();
+  }
+
+  @Override
+  public LightWeightResizableGSet.LinkedElement getNext() {
+    return next;
+  }
+
+  @Override
+  public void setNext(LightWeightResizableGSet.LinkedElement next) {
+    this.next = next;
+  }
+
+  int getHardLinkCount(File fileName) throws IOException {
+    return getFileIoProvider().getHardLinkCount(getVolume(), fileName);
   }
 }
