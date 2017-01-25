@@ -22,6 +22,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.oncrpc.RpcAcceptedReply.AcceptState;
@@ -249,6 +250,7 @@ public abstract class RpcProgram extends SimpleChannelUpstreamHandler {
     return port;
   }
 
+  @VisibleForTesting
   public int getPortmapUdpTimeoutMillis() {
     return portmapUdpTimeoutMillis;
   }
