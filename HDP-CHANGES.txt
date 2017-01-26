@@ -3066,3 +3066,7 @@ ATS V1.5:
 
     BUG-72141. MAPREDUCE-6616. Fail to create jobhistory file if there are some
     multibyte characters in the job name. Contributed by Kousuke Saruta.
+
+    BUG-72141. MAPREDUCE-6693. ArrayIndexOutOfBoundsException occurs when the
+    length of the job name is equal to mapreduce.jobhistory.jobname.limit.
+    Contributed by Ajith S.
