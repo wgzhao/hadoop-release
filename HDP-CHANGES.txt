@@ -3020,3 +3020,6 @@ ATS V1.5:
 
     BUG-68080. HDFS-11054. Suppress verbose log message in
     BlockPlacementPolicyDefault. Contributed by Chen Liang.
+
+    BUG-68959. MAPREDUCE-6684. High contention on scanning of user directory
+    under immediate_done in Job History Server. Contributed by Haibo Chen
