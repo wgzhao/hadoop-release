@@ -3070,3 +3070,7 @@ ATS V1.5:
     BUG-72141. MAPREDUCE-6693. ArrayIndexOutOfBoundsException occurs when the
     length of the job name is equal to mapreduce.jobhistory.jobname.limit.
     Contributed by Ajith S.
+
+    BUG-72036. YARN-5549. AMLauncher#createAMContainerLaunchContext() should not
+    log the command to be launched indiscriminately. (Daniel Templeton via
+    rchiang)
