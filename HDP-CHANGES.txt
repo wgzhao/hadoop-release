@@ -3052,3 +3052,7 @@ ATS V1.5:
     BUG-72155. YARN-5208. Run TestAMRMClient TestNMClient TestYarnClient
     TestClientRMTokens TestAMAuthorization tests with
     hadoop.security.token.service.use_ip enabled. (Rohith Sharma K S via wangda)
+
+    BUG-72039. YARN-5539. TimelineClient failed to retry on
+    java.net.SocketTimeoutException: Read timed out (Junping Du via Varun
+    Saxena)
