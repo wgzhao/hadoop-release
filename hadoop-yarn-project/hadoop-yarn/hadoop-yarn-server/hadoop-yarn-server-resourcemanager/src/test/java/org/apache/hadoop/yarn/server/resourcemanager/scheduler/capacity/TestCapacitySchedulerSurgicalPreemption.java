@@ -730,7 +730,7 @@ public class TestCapacitySchedulerSurgicalPreemption
     editPolicy.editSchedule();
     waitNumberOfLiveContainersFromApp(schedulerApp1, 4);
 
-    // Do allocation for all nms
+    // Make sure the container killed, then do allocation for all nms
     for (int i = 0; i < 4; i++) {
       cs.handle(new NodeUpdateSchedulerEvent(rmNodes[i]));
     }

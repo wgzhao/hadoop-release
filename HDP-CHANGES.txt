@@ -3359,3 +3359,6 @@ ATS V1.5:
 
     BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit should deduct reserved from pending to avoid 
     unnecessary preemption of reserved container. (Wangda Tan)
+
+    BUG-73684/YARN-6123. Add a test to make sure queues of orderingPolicy will be updated when childQueues is added or removed.
+    (Wangda Tan)
