@@ -3198,3 +3198,6 @@ ATS V1.5:
 
     BUG-73093. HDFS-11195. Return error when appending files by webhdfs rest api
     fails. Contributed by Yuanbo Liu.
+
+    BUG-71589. HDFS-10966. Enhance Dispatcher logic on deciding when to give up
+    a source DataNode. Contributed by Mark Wagner and Zhe Zhang.
