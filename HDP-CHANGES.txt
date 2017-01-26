@@ -3077,3 +3077,6 @@ ATS V1.5:
 
     BUG-72157. YARN-4767. Network issues can cause persistent RM UI outage.
     (Daniel Templeton via kasha)
+
+    BUG-72150. YARN-5873. RM crashes with NPE if generic application history is
+    enabled.
