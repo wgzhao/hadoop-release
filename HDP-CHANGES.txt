@@ -3309,3 +3309,17 @@ ATS V1.5:
 
     BUG-68080. HDFS-11054. Suppress verbose log message in
     BlockPlacementPolicyDefault. Contributed by Chen Liang.
+
+    YARN-4329. [YARN-5437] Allow fetching exact reason as to why a submitted app is in ACCEPTED state in
+    Fair Scheduler (Contributed by Yufei Gu)
+
+    YARN-4477. FairScheduler: Handle condition which can result in an infinite loop in attemptScheduling.
+    (Tao Jie via asuresh)
+
+    YARN-4270. Limit application resource reservation on nodes for non-node/rack specific requests (asuresh)
+
+    YARN-3453. Ensure preemption logic in FairScheduler uses DominantResourceCalculator in DRF queues to
+    prevent unnecessary thrashing. (asuresh)
+
+    YARN-3920. FairScheduler container reservation on a node should be configurable to limit it to large 
+    containers (adhoot via asuresh)
