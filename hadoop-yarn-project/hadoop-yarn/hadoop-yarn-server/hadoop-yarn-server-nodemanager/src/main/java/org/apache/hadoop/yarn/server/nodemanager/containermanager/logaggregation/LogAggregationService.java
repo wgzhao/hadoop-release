@@ -107,7 +107,8 @@ public class LogAggregationService extends AbstractService implements
   private final ConcurrentMap<ApplicationId, AppLogAggregator> appLogAggregators;
   private boolean logPermError = true;
 
-  private final ExecutorService threadPool;
+  @VisibleForTesting
+  ExecutorService threadPool;
   
   public LogAggregationService(Dispatcher dispatcher, Context context,
       DeletionService deletionService, LocalDirsHandlerService dirsHandler) {
@@ -118,10 +119,6 @@ public class LogAggregationService extends AbstractService implements
     this.dirsHandler = dirsHandler;
     this.appLogAggregators =
         new ConcurrentHashMap<ApplicationId, AppLogAggregator>();
-    this.threadPool = Executors.newCachedThreadPool(
-        new ThreadFactoryBuilder()
-          .setNameFormat("LogAggregationService #%d")
-          .build());
   }
 
   protected void serviceInit(Configuration conf) throws Exception {
@@ -131,6 +128,11 @@ public class LogAggregationService extends AbstractService implements
     this.remoteRootLogDirSuffix =
         conf.get(YarnConfiguration.NM_REMOTE_APP_LOG_DIR_SUFFIX,
             YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR_SUFFIX);
+    int threadPoolSize = getAggregatorThreadPoolSize(conf);
+    this.threadPool = Executors.newFixedThreadPool(threadPoolSize,
+        new ThreadFactoryBuilder()
+            .setNameFormat("LogAggregationService #%d")
+            .build());
     
     rollingMonitorInterval = conf.getLong(
         YarnConfiguration.NM_LOG_AGGREGATION_ROLL_MONITORING_INTERVAL_SECONDS,
@@ -515,5 +517,27 @@ public class LogAggregationService extends AbstractService implements
   @VisibleForTesting
   public NodeId getNodeId() {
     return this.nodeId;
+  }
+
+
+  private int getAggregatorThreadPoolSize(Configuration conf) {
+    int threadPoolSize;
+    try {
+      threadPoolSize = conf.getInt(YarnConfiguration
+          .NM_LOG_AGGREGATION_THREAD_POOL_SIZE,
+          YarnConfiguration.DEFAULT_NM_LOG_AGGREGATION_THREAD_POOL_SIZE);
+    } catch (NumberFormatException ex) {
+      LOG.warn("Invalid thread pool size. Setting it to the default value " +
+          "in YarnConfiguration");
+      threadPoolSize = YarnConfiguration.
+          DEFAULT_NM_LOG_AGGREGATION_THREAD_POOL_SIZE;
+    }
+    if(threadPoolSize <= 0) {
+      LOG.warn("Invalid thread pool size. Setting it to the default value " +
+          "in YarnConfiguration");
+      threadPoolSize = YarnConfiguration.
+          DEFAULT_NM_LOG_AGGREGATION_THREAD_POOL_SIZE;
+    }
+    return threadPoolSize;
   }
 }
