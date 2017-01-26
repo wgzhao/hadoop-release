@@ -3017,3 +3017,6 @@ ATS V1.5:
     
     BUG-72118. YARN-3148. Allow CORS related headers to passthrough in
     WebAppProxyServlet. Contributed by Varun Saxena.
+
+    BUG-68080. HDFS-11054. Suppress verbose log message in
+    BlockPlacementPolicyDefault. Contributed by Chen Liang.
