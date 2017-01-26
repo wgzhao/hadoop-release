@@ -3036,3 +3036,6 @@ ATS V1.5:
     BUG-72720. MAPREDUCE-6485. Create a new task attempt with failed map task
     priority if in-progress attempts are unassigned. (Xianyin Xin via
     rohithsharmaks)
+
+    BUG-72083. YARN-5353. ResourceManager can leak delegation tokens when they
+    are shared across apps. (Jason Lowe via Varun Saxena).
