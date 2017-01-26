@@ -3042,3 +3042,6 @@ ATS V1.5:
 
     BUG-72122. YARN-4403. (AM/NM/Container)LivelinessMonitor should use
     monotonic time when calculating period. Contributed by Junping Du
+
+    BUG-72138. YARN-857. Localization failures should be available in container
+    diagnostics. Contributed by  Vinod Kumar Vavilapalli.
