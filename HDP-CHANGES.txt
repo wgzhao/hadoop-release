@@ -3060,3 +3060,6 @@ ATS V1.5:
     BUG-72134. YARN-3387. Previous AM's container completed status couldn't pass
     to current AM if AM and RM restarted during the same time. Contributed by
     Sandflee
+
+    BUG-72141. MAPREDUCE-6350. JobHistory doesn't support fully-functional
+    search. Contributed by Siqi Li.
