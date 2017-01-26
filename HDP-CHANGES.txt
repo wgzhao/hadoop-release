@@ -3023,3 +3023,6 @@ ATS V1.5:
 
     BUG-68959. MAPREDUCE-6684. High contention on scanning of user directory
     under immediate_done in Job History Server. Contributed by Haibo Chen
+
+    BUG-68959. MAPREDUCE-6797. Job history server scans can become blocked on a
+    single, slow entry. Contributed by Prabhu Joseph
