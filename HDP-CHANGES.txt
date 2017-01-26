@@ -3086,3 +3086,6 @@ ATS V1.5:
 
     BUG-72831. YARN-5121. fix some container-executor portability issues.
     Contributed by Allen Wittenauer.
+
+    BUG-72833. YARN-5456. container-executor support for FreeBSD, NetBSD, and
+    others if conf path is absolute.
