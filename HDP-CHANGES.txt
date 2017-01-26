@@ -3039,3 +3039,6 @@ ATS V1.5:
 
     BUG-72083. YARN-5353. ResourceManager can leak delegation tokens when they
     are shared across apps. (Jason Lowe via Varun Saxena).
+
+    BUG-72122. YARN-4403. (AM/NM/Container)LivelinessMonitor should use
+    monotonic time when calculating period. Contributed by Junping Du
