@@ -3026,3 +3026,6 @@ ATS V1.5:
 
     BUG-68959. MAPREDUCE-6797. Job history server scans can become blocked on a
     single, slow entry. Contributed by Prabhu Joseph
+
+    BUG-72124. MAPREDUCE-6701. application master log can not be available when
+    clicking jobhistory's am logs link.
