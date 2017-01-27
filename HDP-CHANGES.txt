@@ -3217,3 +3217,6 @@ ATS V1.5:
     HDFS-10710. In BlockManager#rescanPostponedMisreplicatedBlocks(), postponed
     misreplicated block counts should be retrieved within the NN lock
     protection.Contributed by GAO Rui.
+
+    HADOOP-13458. LoadBalancingKMSClientProvider#doOp should log IOException
+    stacktrace. Contributed by Chen Liang.
