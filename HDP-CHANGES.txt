@@ -3264,3 +3264,6 @@ ATS V1.5:
 
     HADOOP-13822. Use GlobalStorageStatistics.INSTANCE.reset() at
     FileSystem#clearStatistics(). Contribute by Brahma Reddy Battula
+
+    HADOOP-13742. Expose NumOpenConnectionsPerUser as a metric. Brahma Reddy
+    Battula.
