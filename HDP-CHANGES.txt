@@ -3224,3 +3224,5 @@ ATS V1.5:
     HADOOP-13443. KMS should check the type of underlying keyprovider of
     KeyProviderExtension before falling back to default. Contributed by Anthony
     Young-Garner.
+
+    HADOOP-13466. Add an AutoCloseableLock class. (Chen Liang)
