@@ -3203,3 +3203,7 @@ ATS V1.5:
     a source DataNode. Contributed by Mark Wagner and Zhe Zhang.
 
     HDFS-10544. Balancer doesn't work with IPFailoverProxyProvider.
+
+    HADOOP-13202. Avoid possible overflow in
+    org.apache.hadoop.util.bloom.BloomFilter#getNBytes. Contributed by Kai
+    Sasaki.
