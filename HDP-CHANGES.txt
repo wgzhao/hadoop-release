@@ -3231,3 +3231,6 @@ ATS V1.5:
     is missing. (Wei-Chiu Chuang via lei)
 
     HADOOP-13299. JMXJsonServlet is vulnerable to TRACE. (Haibo Chen via kasha)
+
+    HDFS-8224. Schedule a block for scanning if its metadata file is corrupt.
+    Contributed by Rushabh S Shah.

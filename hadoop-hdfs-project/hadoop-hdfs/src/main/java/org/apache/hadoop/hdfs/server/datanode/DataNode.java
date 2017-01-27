@@ -202,6 +202,7 @@ import org.apache.hadoop.util.Daemon;
 import org.apache.hadoop.util.DiskChecker;
 import org.apache.hadoop.util.DiskChecker.DiskErrorException;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.InvalidChecksumSizeException;
 import org.apache.hadoop.util.JvmPauseMonitor;
 import org.apache.hadoop.util.ServicePlugin;
 import org.apache.hadoop.util.StringUtils;
@@ -334,7 +335,7 @@ public class DataNode extends ReconfigurableBase
   BlockPoolTokenSecretManager blockPoolTokenSecretManager;
   private boolean hasAnyBlockPoolRegistered = false;
   
-  private final BlockScanner blockScanner;
+  private  BlockScanner blockScanner;
   private DirectoryScanner directoryScanner = null;
   
   /** Activated plug-ins. */
@@ -2015,7 +2016,8 @@ public class DataNode extends ReconfigurableBase
     LOG.warn(msg);
   }
 
-  private void transferBlock(ExtendedBlock block, DatanodeInfo[] xferTargets,
+  @VisibleForTesting
+  void transferBlock(ExtendedBlock block, DatanodeInfo[] xferTargets,
       StorageType[] xferTargetStorageTypes) throws IOException {
     BPOfferService bpos = getBPOSForBlock(block);
     DatanodeRegistration bpReg = getDNRegistrationForBP(block.getBlockPoolId());
@@ -2300,6 +2302,13 @@ public class DataNode extends ReconfigurableBase
           }
         }
       } catch (IOException ie) {
+        if (ie instanceof InvalidChecksumSizeException) {
+          // Add the block to the front of the scanning queue if metadata file
+          // is corrupt. We already add the block to front of scanner if the
+          // peer disconnects.
+          LOG.info("Adding block: " + b + " for scanning");
+          blockScanner.markSuspectBlock(data.getVolume(b).getStorageID(), b);
+        }
         LOG.warn(bpReg + ":Failed to transfer " + b + " to " +
             targets[0] + " got ", ie);
         // check if there are any disk problem
@@ -3406,5 +3415,10 @@ public class DataNode extends ReconfigurableBase
   public void removeSpanReceiver(long id) throws IOException {
     checkSuperuserPrivilege();
     spanReceiverHost.removeSpanReceiver(id);
+  }
+
+  @VisibleForTesting
+  void setBlockScanner(BlockScanner blockScanner) {
+    this.blockScanner = blockScanner;
   }
 }
