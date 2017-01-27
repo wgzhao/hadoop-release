@@ -3275,3 +3275,6 @@ ATS V1.5:
 
     HDFS-10684. WebHDFS DataNode calls fail without parameter createparent.
     Contributed by John Zhuge.
+
+    HDFS-11280. Allow WebHDFS to reuse HTTP connections to NN. Contributed by
+    Zheng Shao.
