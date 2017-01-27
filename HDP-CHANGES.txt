@@ -3255,3 +3255,6 @@ ATS V1.5:
 
     HDFS-11054. Suppress verbose log message in BlockPlacementPolicyDefault.
     Contributed by Chen Liang.
+
+    HADOOP-12453. Support decoding KMS Delegation Token with its own Identifier.
+    Contributed by Xiaoyu Yao.
