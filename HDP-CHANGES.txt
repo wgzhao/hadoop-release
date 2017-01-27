@@ -3229,3 +3229,5 @@ ATS V1.5:
 
     HDFS-10457. DataNode should not auto-format block pool directory if VERSION
     is missing. (Wei-Chiu Chuang via lei)
+
+    HADOOP-13299. JMXJsonServlet is vulnerable to TRACE. (Haibo Chen via kasha)
