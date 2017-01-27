@@ -3261,3 +3261,6 @@ ATS V1.5:
 
     HDFS-11128. CreateEditsLog throws NullPointerException. Contributed by
     Hanisha Koneru.
+
+    HADOOP-13822. Use GlobalStorageStatistics.INSTANCE.reset() at
+    FileSystem#clearStatistics(). Contribute by Brahma Reddy Battula
