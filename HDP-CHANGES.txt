@@ -3207,3 +3207,6 @@ ATS V1.5:
     HADOOP-13202. Avoid possible overflow in
     org.apache.hadoop.util.bloom.BloomFilter#getNBytes. Contributed by Kai
     Sasaki.
+
+    HDFS-10225. DataNode hot swap drives should disallow storage type changes.
+    Contributed by Lei (Eddy) Xu.
