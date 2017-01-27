@@ -3234,3 +3234,6 @@ ATS V1.5:
 
     HDFS-8224. Schedule a block for scanning if its metadata file is corrupt.
     Contributed by Rushabh S Shah.
+
+    HADOOP-13461. NPE in KeyProvider.rollNewVersion. Contributed by Colm O
+    hEigeartaigh.
