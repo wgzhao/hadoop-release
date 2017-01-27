@@ -881,3 +881,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-13988. KMSClientProvider does not work with WebHDFS and
     Apache Knox w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
+
+    BUG-80455. HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case.
+    Contributed by Xiaoyu Yao.
