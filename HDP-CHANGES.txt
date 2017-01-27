@@ -3240,3 +3240,6 @@ ATS V1.5:
 
     HDFS-9696. Garbage snapshot records linger forever. Contributed by Kihwal
     Lee
+
+    HDFS-10793. Fix HdfsAuditLogger binary incompatibility introduced by
+    HDFS-9184. Contributed by Manoj Govindassamy.
