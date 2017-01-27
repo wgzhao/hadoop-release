@@ -3226,3 +3226,6 @@ ATS V1.5:
     Young-Garner.
 
     HADOOP-13466. Add an AutoCloseableLock class. (Chen Liang)
+
+    HDFS-10457. DataNode should not auto-format block pool directory if VERSION
+    is missing. (Wei-Chiu Chuang via lei)
