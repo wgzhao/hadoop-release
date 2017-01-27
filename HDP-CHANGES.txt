@@ -3267,3 +3267,5 @@ ATS V1.5:
 
     HADOOP-13742. Expose NumOpenConnectionsPerUser as a metric. Brahma Reddy
     Battula.
+
+    HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
