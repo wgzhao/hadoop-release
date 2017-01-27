@@ -3272,3 +3272,6 @@ ATS V1.5:
 
     HADOOP-13847. KMSWebApp should close KeyProviderCryptoExtension. Contributed
     by John Zhuge.
+
+    HDFS-10684. WebHDFS DataNode calls fail without parameter createparent.
+    Contributed by John Zhuge.
