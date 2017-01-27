@@ -3210,3 +3210,6 @@ ATS V1.5:
 
     HDFS-10225. DataNode hot swap drives should disallow storage type changes.
     Contributed by Lei (Eddy) Xu.
+
+    HDFS-10703. HA NameNode Web UI should show last checkpoint time. (John Zhuge
+    via Yongjun Zhang)
