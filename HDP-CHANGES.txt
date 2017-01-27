@@ -3237,3 +3237,6 @@ ATS V1.5:
 
     HADOOP-13461. NPE in KeyProvider.rollNewVersion. Contributed by Colm O
     hEigeartaigh.
+
+    HDFS-9696. Garbage snapshot records linger forever. Contributed by Kihwal
+    Lee
