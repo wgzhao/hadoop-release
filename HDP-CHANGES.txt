@@ -3243,3 +3243,6 @@ ATS V1.5:
 
     HDFS-10793. Fix HdfsAuditLogger binary incompatibility introduced by
     HDFS-9184. Contributed by Manoj Govindassamy.
+
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries
+    to renew the Kerberos ticket. Contributed by Xiao Chen.
