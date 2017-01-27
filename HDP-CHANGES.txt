@@ -4272,3 +4272,5 @@ ATS V1.5:
     YARN-6004. Refactor
     TestResourceLocalizationService#testDownloadingResourcesOnContainer so that
     it is less than 150 lines. (Chris Trezzo via mingma)
+
+    YARN-5641. Localizer leaves behind tarballs after container is complete. Contributed by Eric Badger
