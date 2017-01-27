@@ -3269,3 +3269,6 @@ ATS V1.5:
     Battula.
 
     HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
+
+    HADOOP-13847. KMSWebApp should close KeyProviderCryptoExtension. Contributed
+    by John Zhuge.
