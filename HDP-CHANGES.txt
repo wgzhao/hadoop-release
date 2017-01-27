@@ -3213,3 +3213,7 @@ ATS V1.5:
 
     HDFS-10703. HA NameNode Web UI should show last checkpoint time. (John Zhuge
     via Yongjun Zhang)
+
+    HDFS-10710. In BlockManager#rescanPostponedMisreplicatedBlocks(), postponed
+    misreplicated block counts should be retrieved within the NN lock
+    protection.Contributed by GAO Rui.
