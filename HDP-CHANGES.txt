@@ -3220,3 +3220,7 @@ ATS V1.5:
 
     HADOOP-13458. LoadBalancingKMSClientProvider#doOp should log IOException
     stacktrace. Contributed by Chen Liang.
+
+    HADOOP-13443. KMS should check the type of underlying keyprovider of
+    KeyProviderExtension before falling back to default. Contributed by Anthony
+    Young-Garner.
