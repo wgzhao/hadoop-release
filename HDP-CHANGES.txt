@@ -3258,3 +3258,6 @@ ATS V1.5:
 
     HADOOP-12453. Support decoding KMS Delegation Token with its own Identifier.
     Contributed by Xiaoyu Yao.
+
+    HDFS-11128. CreateEditsLog throws NullPointerException. Contributed by
+    Hanisha Koneru.
