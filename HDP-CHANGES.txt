@@ -3246,3 +3246,6 @@ ATS V1.5:
 
     HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries
     to renew the Kerberos ticket. Contributed by Xiao Chen.
+
+    HADOOP-13710. Supress CachingGetSpaceUsed from logging interrupted exception
+    stacktrace. Contributed by Hanisha Koneru.
