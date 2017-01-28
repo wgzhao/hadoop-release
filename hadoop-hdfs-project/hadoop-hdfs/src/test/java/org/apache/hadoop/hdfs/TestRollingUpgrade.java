@@ -53,6 +53,7 @@ import org.apache.hadoop.hdfs.tools.DFSAdmin;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -299,6 +300,7 @@ public class TestRollingUpgrade {
     assertEquals(0l, ruBean.get("finalizeTime"));
   }
 
+  @Ignore("Flaky test, disabling")
   @Test
   public void testRollback() throws Exception {
     // start a cluster
