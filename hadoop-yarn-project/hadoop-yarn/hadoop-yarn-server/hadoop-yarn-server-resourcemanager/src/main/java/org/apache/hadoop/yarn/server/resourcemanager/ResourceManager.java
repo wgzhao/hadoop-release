@@ -576,8 +576,16 @@ public class ResourceManager extends CompositeService implements Recoverable {
       boolean registryEnabled =
           conf.getBoolean(RegistryConstants.KEY_REGISTRY_ENABLED,
               RegistryConstants.DEFAULT_REGISTRY_ENABLED);
+
       if (registryEnabled) {
         RMRegistryService registry = new RMRegistryService(rmContext);
+        if (UserGroupInformation.isSecurityEnabled()) {
+          String principal = UserGroupInformation.getCurrentUser().getUserName();
+          String keytab = conf.get(YarnConfiguration.RM_KEYTAB);
+          registry.setKerberosPrincipalAndKeytab(principal, keytab);
+          LOG.info("Initiating registry service in secure mode. Principal = "
+              + principal + ", keytab = " + keytab);
+        }
         addService(registry);
         rmContext.setRegistry(registry);
       }

@@ -70,6 +70,10 @@ public class RMRegistryService extends CompositeService {
   }
 
 
+  public void setKerberosPrincipalAndKeytab(String principal, String keytab) {
+    registryOperations.setKerberosPrincipalAndKeytab(principal, keytab);
+  }
+
   @Override
   protected void serviceStart() throws Exception {
     super.serviceStart();

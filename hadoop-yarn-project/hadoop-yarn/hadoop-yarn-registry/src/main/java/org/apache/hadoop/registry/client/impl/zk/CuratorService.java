@@ -118,6 +118,7 @@ public class CuratorService extends CompositeService
     } else {
       this.bindingSource = this;
     }
+    registrySecurity = new RegistrySecurity("registry security");
   }
 
   /**
@@ -141,8 +142,7 @@ public class CuratorService extends CompositeService
     registryRoot = conf.getTrimmed(KEY_REGISTRY_ZK_ROOT,
         DEFAULT_ZK_REGISTRY_ROOT);
 
-    // create and add the registy service
-    registrySecurity = new RegistrySecurity("registry security");
+    // add the registy service
     addService(registrySecurity);
 
     if (LOG.isDebugEnabled()) {
@@ -150,6 +150,10 @@ public class CuratorService extends CompositeService
     }
 
     super.serviceInit(conf);
+  }
+
+  public void setKerberosPrincipalAndKeytab(String principal, String keytab) {
+    registrySecurity.setKerberosPrincipalAndKeytab(principal, keytab);
   }
 
   /**
