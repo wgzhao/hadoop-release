@@ -3331,9 +3331,8 @@ ATS V1.5:
     YARN-3920. FairScheduler container reservation on a node should be configurable to limit it to large 
     containers (adhoot via asuresh)
 
-    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket. Contributed by Xiao Chen.
-
-    HADOOP-13749. KMSClientProvider combined with KeyProviderCache can result in wrong UGI being used. Contributed by Xiaoyu Yao.
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket.
+    Contributed by Xiao Chen.
 
     HADOOP-13638. KMS should set UGI's Configuration object properly. Contributed by Wei-Chiu Chuang.
 
