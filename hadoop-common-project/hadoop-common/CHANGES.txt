@@ -1649,6 +1649,9 @@ Release 2.7.3 - UNRELEASED
     HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory.
     (Vijay Singh via wheat9)
 
+    HADOOP-12735. core-default.xml misspells
+    hadoop.workaround.non.threadsafe.getpwuid (Ray Chiang via cmccabe)
+
 Release 2.7.3 - UNRELEASED
 >>>>>>> 64add87... HADOOP-11218. Add TLSv1.1,TLSv1.2 to KMS, HttpFS, SSLFactory. Contributed by Vijay Singh.
 
