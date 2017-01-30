@@ -3346,3 +3346,7 @@ ATS V1.5:
     HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed by Jason Lowe
 
     BUG-73598. YARN-4245. Generalize config file handling in container-executor. Contributed by Sidharta Seethana.
+
+    BUG-72830. YARN-5704. Provide config knobs to control enabling/disabling new/work in progress features in container-executor.
+    Contributed by Sidharta Seethana.
+
