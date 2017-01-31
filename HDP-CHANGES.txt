@@ -3278,3 +3278,6 @@ ATS V1.5:
 
     HDFS-11280. Allow WebHDFS to reuse HTTP connections to NN. Contributed by
     Zheng Shao.
+
+    HDFS-10512. VolumeScanner may terminate due to NPE in
+    DataNode.reportBadBlocks. Contributed by Wei-Chiu Chuang and Yiqun Lin.
