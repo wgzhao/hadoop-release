@@ -3289,3 +3289,5 @@ ATS V1.5:
     (Daryn Sharp via yliu)
 
     HDFS-7964. Add support for async edit logging. Contributed by Daryn Sharp.
+
+    HDFS-4176. EditLogTailer should call rollEdits with a timeout. (lei)
