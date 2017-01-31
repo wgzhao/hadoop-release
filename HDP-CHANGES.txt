@@ -2985,3 +2985,6 @@ ATS V1.5:
     javadoc. Contributed by Akira AJISAKA.
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+
+    BUG-79426. HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses.
+    (Daryn Sharp via yliu)
