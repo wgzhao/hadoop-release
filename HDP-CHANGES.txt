@@ -3281,3 +3281,6 @@ ATS V1.5:
 
     HDFS-10512. VolumeScanner may terminate due to NPE in
     DataNode.reportBadBlocks. Contributed by Wei-Chiu Chuang and Yiqun Lin.
+
+    HDFS-3918. EditLogTailer shouldn't log WARN when other node is in standby
+    mode. Contributed by Todd Lipcon.
