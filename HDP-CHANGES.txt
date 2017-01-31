@@ -3284,3 +3284,6 @@ ATS V1.5:
 
     HDFS-3918. EditLogTailer shouldn't log WARN when other node is in standby
     mode. Contributed by Todd Lipcon.
+
+    HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses.
+    (Daryn Sharp via yliu)
