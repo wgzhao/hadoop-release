@@ -434,5 +434,19 @@ public class CommonConfigurationKeysPublic {
       "hadoop.shell.missing.defaultFs.warning";
   public static final boolean HADOOP_SHELL_MISSING_DEFAULT_FS_WARNING_DEFAULT =
       false;
+
+  /**
+   * @see
+   * <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
+   * core-default.xml</a>
+   */
+  public static final String HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS =
+      "hadoop.security.sensitive-config-keys";
+  public static final String HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS_DEFAULT =
+      "password$" + "," +
+      "fs.s3.*[Ss]ecret.?[Kk]ey" + "," +
+      "fs.azure\\.account.key.*" + "," +
+      "dfs.webhdfs.oauth2.[a-z]+.token" + "," +
+      HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS;
 }
 
