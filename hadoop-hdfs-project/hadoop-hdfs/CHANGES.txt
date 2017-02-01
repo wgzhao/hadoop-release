@@ -158,9 +158,6 @@ Release 2.8.0 - UNRELEASED
 
   OPTIMIZATIONS
 
-    HDFS-6763. Initialize file system-wide quota once on transitioning to active
-    (kihwal)
-
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
 
     HDFS-8696. Make the lower and higher watermark in the DN Netty server

@@ -228,7 +228,10 @@ public class BackupImage extends FSImage {
             numTxnsAdvanced);
       }
       lastAppliedTxId = logLoader.getLastAppliedTxId();
-      getNamesystem().dir.updateCountForQuota();
+
+      FSImage.updateCountForQuota(
+          getNamesystem().dir.getBlockStoragePolicySuite(),
+          getNamesystem().dir.rootDir); // inefficient!
     } finally {
       backupInputStream.clear();
     }

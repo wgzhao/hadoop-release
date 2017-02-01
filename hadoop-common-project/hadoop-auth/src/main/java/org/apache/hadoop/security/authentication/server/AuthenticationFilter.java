@@ -245,11 +245,8 @@ public class AuthenticationFilter implements Filter {
       Class<?> klass = Thread.currentThread().getContextClassLoader().loadClass(authHandlerClassName);
       authHandler = (AuthenticationHandler) klass.newInstance();
       authHandler.init(config);
-    } catch (ClassNotFoundException ex) {
-      throw new ServletException(ex);
-    } catch (InstantiationException ex) {
-      throw new ServletException(ex);
-    } catch (IllegalAccessException ex) {
+    } catch (ClassNotFoundException | InstantiationException |
+        IllegalAccessException ex) {
       throw new ServletException(ex);
     }
   }
