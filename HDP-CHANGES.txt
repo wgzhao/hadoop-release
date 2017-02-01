@@ -880,6 +880,3 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     delegation token operations. Contributed by Xiao Chen.
     
         BUG-73757. HADOOP-13434. Add bash quoting to Shell class. (Owen O'Malley)
-
-    BUG-73757. HADOOP-13467. Shell#getSignalKillCommand should use the bash
-    builtin on Linux. (Arpit Agarwal)
