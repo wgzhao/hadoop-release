@@ -3294,3 +3294,6 @@ ATS V1.5:
 
     HDFS-10763. Open files can leak permanently due to inconsistent lease
     update. Contributed by Kihwal Lee.
+
+    HADOOP-13494. ReconfigurableBase can log sensitive information. Contributed
+    by Sean Mackrory.
