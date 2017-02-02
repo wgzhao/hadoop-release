@@ -3297,3 +3297,6 @@ ATS V1.5:
 
     HADOOP-13494. ReconfigurableBase can log sensitive information. Contributed
     by Sean Mackrory.
+
+    HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed
+    by Jason Lowe
