@@ -841,7 +841,6 @@ ATS V1.5:
     only via addToClusterNodeLabels but not changeable at runtime. (Wangda Tan
     via vinodkv)
 
-<<<<<<< HEAD
     BUG-45264. HADOOP-12437. Allow SecurityUtil to lookup alternate hostnames.
     (Arpit Agarwal)
 
