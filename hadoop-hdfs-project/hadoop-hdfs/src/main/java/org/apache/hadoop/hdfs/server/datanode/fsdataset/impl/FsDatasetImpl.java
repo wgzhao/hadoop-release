@@ -1741,22 +1741,15 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
   }
 
   /**
-   * Gets a list of references to the finalized blocks for the given block pool.
-   * <p>
-   * Callers of this function should avoid blocks' status being changed during
-   * list iteration.
-   * </p>
-   *
-   * @return a list of references to the finalized blocks for the given block
-   *         pool.
+   * Get the list of finalized blocks from in-memory blockmap for a block pool.
    */
   @Override
   public synchronized List<FinalizedReplica> getFinalizedBlocks(String bpid) {
-    final ArrayList<FinalizedReplica> finalized =
+    ArrayList<FinalizedReplica> finalized =
         new ArrayList<FinalizedReplica>(volumeMap.size(bpid));
     for (ReplicaInfo b : volumeMap.replicas(bpid)) {
       if(b.getState() == ReplicaState.FINALIZED) {
-        finalized.add((FinalizedReplica)b);
+        finalized.add(new FinalizedReplica((FinalizedReplica)b));
       }
     }
     return finalized;

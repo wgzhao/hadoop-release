@@ -189,9 +189,6 @@ ATS V1.5:
 
   IMPROVEMENTS
 
-    BUG-68700. HDFS-11047. Remove deep copies of FinalizedReplica to alleviate
-    heap consumption on DataNode (Xiaobing Zhou)
-
     BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that
     contains INodeReference (Xiao Chen)
 

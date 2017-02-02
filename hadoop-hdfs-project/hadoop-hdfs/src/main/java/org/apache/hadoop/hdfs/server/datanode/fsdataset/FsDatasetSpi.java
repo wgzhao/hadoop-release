@@ -235,16 +235,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    */
   VolumeFailureSummary getVolumeFailureSummary();
 
-  /**
-   * Gets a list of references to the finalized blocks for the given block pool.
-   * <p>
-   * Callers of this function should avoid blocks' status being changed during
-   * list iteration.
-   * </p>
-   *
-   * @return a list of references to the finalized blocks for the given block
-   *         pool.
-   */
+  /** @return a list of finalized blocks for the given block pool. */
   public List<FinalizedReplica> getFinalizedBlocks(String bpid);
 
   /** @return a list of finalized blocks for the given block pool. */
