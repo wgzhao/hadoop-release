@@ -60,10 +60,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import com.google.common.base.Supplier;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -533,7 +535,9 @@ public class MiniDFSCluster implements AutoCloseable {
   private boolean federation;
   private boolean checkExitOnShutdown = true;
   protected final int storagesPerDatanode;
-  
+
+  private Set<FileSystem> fileSystems = Sets.newHashSet();
+
   /**
    * A unique instance identifier for the cluster. This
    * is used to disambiguate HA filesystems in the case where
@@ -1777,6 +1781,13 @@ public class MiniDFSCluster implements AutoCloseable {
    * Shutdown all the nodes in the cluster.
    */
   public void shutdown(boolean deleteDfsDir) {
+    shutdown(deleteDfsDir, true);
+  }
+
+  /**
+   * Shutdown all the nodes in the cluster.
+   */
+  public void shutdown(boolean deleteDfsDir, boolean closeFileSystem) {
     LOG.info("Shutting down the Mini HDFS Cluster");
     if (checkExitOnShutdown)  {
       if (ExitUtil.terminateCalled()) {
@@ -1786,15 +1797,20 @@ public class MiniDFSCluster implements AutoCloseable {
         throw new AssertionError("Test resulted in an unexpected exit");
       }
     }
+    if (closeFileSystem) {
+      for (FileSystem fs : fileSystems) {
+        try {
+          fs.close();
+        } catch (IOException ioe) {
+          LOG.warn("Exception while closing file system", ioe);
+        }
+      }
+      fileSystems.clear();
+    }
     shutdownDataNodes();
     for (NameNodeInfo nnInfo : nameNodes) {
       if (nnInfo == null) continue;
-      NameNode nameNode = nnInfo.nameNode;
-      if (nameNode != null) {
-        nameNode.stop();
-        nameNode.join();
-        nameNode = null;
-      }
+      stopAndJoinNameNode(nnInfo.nameNode);
     }
     ShutdownHookManager.get().clearShutdownHooks();
     if (deleteDfsDir) {
@@ -1839,14 +1855,25 @@ public class MiniDFSCluster implements AutoCloseable {
   public synchronized void shutdownNameNode(int nnIndex) {
     NameNode nn = nameNodes[nnIndex].nameNode;
     if (nn != null) {
-      LOG.info("Shutting down the namenode");
-      nn.stop();
-      nn.join();
+      stopAndJoinNameNode(nn);
       Configuration conf = nameNodes[nnIndex].conf;
       nameNodes[nnIndex] = new NameNodeInfo(null, null, null, null, conf);
     }
   }
-  
+
+  /**
+   * Fully stop the NameNode by stop and join.
+   */
+  private void stopAndJoinNameNode(NameNode nn) {
+    if (nn == null) {
+      return;
+    }
+    LOG.info("Shutting down the namenode");
+    nn.stop();
+    nn.join();
+    nn.joinHttpServer();
+  }
+
   /**
    * Restart all namenodes.
    */
@@ -2230,8 +2257,10 @@ public class MiniDFSCluster implements AutoCloseable {
    * Get a client handle to the DFS cluster for the namenode at given index.
    */
   public DistributedFileSystem getFileSystem(int nnIndex) throws IOException {
-    return (DistributedFileSystem)FileSystem.get(getURI(nnIndex),
-        nameNodes[nnIndex].conf);
+    DistributedFileSystem dfs = (DistributedFileSystem) FileSystem.get(
+        getURI(nnIndex), nameNodes[nnIndex].conf);
+    fileSystems.add(dfs);
+    return dfs;
   }
 
   /**
@@ -2239,7 +2268,9 @@ public class MiniDFSCluster implements AutoCloseable {
    * This simulating different threads working on different FileSystem instances.
    */
   public FileSystem getNewFileSystemInstance(int nnIndex) throws IOException {
-    return FileSystem.newInstance(getURI(nnIndex), nameNodes[nnIndex].conf);
+    FileSystem dfs = FileSystem.newInstance(getURI(nnIndex), nameNodes[nnIndex].conf);
+    fileSystems.add(dfs);
+    return dfs;
   }
   
   /**

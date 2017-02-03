@@ -520,7 +520,7 @@ public class TestRenameWithSnapshots {
     
     SnapshotTestHelper.dumpTree2File(fsdir, fsnBefore);
     
-    cluster.shutdown();
+    cluster.shutdown(false, false);
     cluster = new MiniDFSCluster.Builder(conf).format(false)
         .numDataNodes(REPL).build();
     cluster.waitActive();
