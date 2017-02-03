@@ -269,9 +269,10 @@ public class ContainerLaunch implements Callable<Integer> {
           localResources, nmPrivateClasspathJarDir);
         
         // Write out the environment
-        exec.writeLaunchEnv(containerScriptOutStream, environment, localResources,
-            launchContext.getCommands());
-        
+        exec.writeLaunchEnv(containerScriptOutStream, environment,
+          localResources, launchContext.getCommands(),
+            new Path(containerLogDirs.get(0)));
+
         // /////////// End of writing out container-script
 
         // /////////// Write out the container-tokens in the nmPrivate space.
@@ -529,6 +530,28 @@ public class ContainerLaunch implements Callable<Integer> {
       link(src, dst);
     }
 
+    /**
+     * Method to copy files that are useful for debugging container failures.
+     * This method will be called by ContainerExecutor when setting up the
+     * container launch script. The method should take care to make sure files
+     * are read-able by the yarn user if the files are to undergo
+     * log-aggregation.
+     * @param src path to the source file
+     * @param dst path to the destination file - should be absolute
+     * @throws IOException
+     */
+    public abstract void copyDebugInformation(Path src, Path dst)
+        throws IOException;
+
+    /**
+     * Method to dump debug information to the a target file. This method will
+     * be called by ContainerExecutor when setting up the container launch
+     * script.
+     * @param output the file to which debug information is to be written
+     * @throws IOException
+     */
+    public abstract void listDebugInformation(Path output) throws IOException;
+
     @Override
     public String toString() {
       return sb.toString();
@@ -587,6 +610,36 @@ public class ContainerLaunch implements Callable<Integer> {
       line("mkdir -p ", path.toString());
       errorCheck();
     }
+
+    @Override
+    public void copyDebugInformation(Path src, Path dest) throws IOException {
+      line("# Creating copy of launch script");
+      line("cp \"", src.toUri().getPath(), "\" \"", dest.toUri().getPath(),
+          "\"");
+      // set permissions to 640 because we need to be able to run
+      // log aggregation in secure mode as well
+      if(dest.isAbsolute()) {
+        line("chmod 640 \"", dest.toUri().getPath(), "\"");
+      }
+    }
+
+    @Override
+    public void listDebugInformation(Path output) throws  IOException {
+      line("# Determining directory contents");
+      line("echo \"ls -l:\" 1>\"", output.toString(), "\"");
+      line("ls -l 1>>\"", output.toString(), "\"");
+
+      // don't run error check because if there are loops
+      // find will exit with an error causing container launch to fail
+      // find will follow symlinks outside the work dir if such sylimks exist
+      // (like public/app local resources)
+      line("echo \"find -L . -maxdepth 5 -ls:\" 1>>\"", output.toString(),
+          "\"");
+      line("find -L . -maxdepth 5 -ls 1>>\"", output.toString(), "\"");
+      line("echo \"broken symlinks(find -L . -maxdepth 5 -type l -ls):\" 1>>\"",
+          output.toString(), "\"");
+      line("find -L . -maxdepth 5 -type l -ls 1>>\"", output.toString(), "\"");
+    }
   }
 
   private static final class WindowsShellScriptBuilder
@@ -640,6 +693,25 @@ public class ContainerLaunch implements Callable<Integer> {
       lineWithLenCheck(String.format("@if not exist \"%s\" mkdir \"%s\"",
           path.toString(), path.toString()));
       errorCheck();
+    }
+
+    @Override
+    public void copyDebugInformation(Path src, Path dest)
+        throws IOException {
+      // no need to worry about permissions - in secure mode
+      // WindowsSecureContainerExecutor will set permissions
+      // to allow NM to read the file
+      line("rem Creating copy of launch script");
+      lineWithLenCheck(String.format("copy \"%s\" \"%s\"", src.toString(),
+          dest.toString()));
+    }
+
+    @Override
+    public void listDebugInformation(Path output) throws IOException {
+      line("rem Determining directory contents");
+      lineWithLenCheck(
+          String.format("@echo \"dir:\" > \"%s\"", output.toString()));
+      lineWithLenCheck(String.format("dir >> \"%s\"", output.toString()));
     }
   }
 
