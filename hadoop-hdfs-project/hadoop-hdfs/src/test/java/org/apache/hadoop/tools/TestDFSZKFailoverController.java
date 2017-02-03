@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hadoop.hdfs.server.namenode.ha;
+package org.apache.hadoop.tools;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,7 +36,9 @@ import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.MiniDFSNNTopology;
 import org.apache.hadoop.hdfs.server.namenode.EditLogFileOutputStream;
+import org.apache.hadoop.hdfs.server.namenode.ha.HATestUtil;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
+import org.apache.hadoop.hdfs.server.namenode.NameNodeResourceChecker;
 import org.apache.hadoop.hdfs.tools.DFSHAAdmin;
 import org.apache.hadoop.hdfs.tools.DFSZKFailoverController;
 import org.apache.hadoop.test.GenericTestUtils;
@@ -47,6 +49,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Supplier;
+import org.mockito.Mockito;
 
 public class TestDFSZKFailoverController extends ClientBaseWithFixes {
   private Configuration conf;
@@ -59,7 +62,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     // Make tests run faster by avoiding fsync()
     EditLogFileOutputStream.setShouldSkipFsyncForTesting(true);
   }
-  
+
   @Before
   public void setup() throws Exception {
     conf = new Configuration();
@@ -75,7 +78,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     conf.setInt(
         CommonConfigurationKeysPublic.IPC_CLIENT_CONNECTION_MAXIDLETIME_KEY,
         0);
-    
+
     conf.setInt(DFSConfigKeys.DFS_HA_ZKFC_PORT_KEY + ".ns1.nn1", 10023);
     conf.setInt(DFSConfigKeys.DFS_HA_ZKFC_PORT_KEY + ".ns1.nn2", 10024);
 
@@ -95,23 +98,23 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
 
     thr1.start();
     waitForHAState(0, HAServiceState.ACTIVE);
-    
+
     ctx.addThread(thr2 = new ZKFCThread(ctx, 1));
     thr2.start();
-    
+
     // Wait for the ZKFCs to fully start up
     ZKFCTestUtil.waitForHealthState(thr1.zkfc,
         HealthMonitor.State.SERVICE_HEALTHY, ctx);
     ZKFCTestUtil.waitForHealthState(thr2.zkfc,
         HealthMonitor.State.SERVICE_HEALTHY, ctx);
-    
+
     fs = HATestUtil.configureFailoverFs(cluster, conf);
   }
-  
+
   @After
   public void shutdown() throws Exception {
     cluster.shutdown();
-    
+
     if (thr1 != null) {
       thr1.interrupt();
     }
@@ -122,7 +125,23 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
       ctx.stop();
     }
   }
-  
+
+  /**
+   * Test that thread dump is captured after NN state changes.
+   */
+   @Test(timeout=60000)
+   public void testThreadDumpCaptureAfterNNStateChange() throws Exception {
+     NameNodeResourceChecker mockResourceChecker = Mockito.mock(
+         NameNodeResourceChecker.class);
+     Mockito.doReturn(false).when(mockResourceChecker).hasAvailableDiskSpace();
+     cluster.getNameNode(0).getNamesystem()
+               .setNNResourceChecker(mockResourceChecker);
+     waitForHAState(0, HAServiceState.STANDBY);
+     while (!thr1.zkfc.isThreadDumpCaptured()) {
+       Thread.sleep(1000);
+     }
+   }
+
   /**
    * Test that automatic failover is triggered by shutting the
    * active NN down.
@@ -131,7 +150,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
   public void testFailoverAndBackOnNNShutdown() throws Exception {
     Path p1 = new Path("/dir1");
     Path p2 = new Path("/dir2");
-    
+
     // Write some data on the first NN
     fs.mkdirs(p1);
     // Shut it down, causing automatic failover
@@ -141,7 +160,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     fs.mkdirs(p2);
     assertEquals(AlwaysSucceedFencer.getLastFencedService().getAddress(),
         thr1.zkfc.getLocalTarget().getAddress());
-    
+
     // Start the first node back up
     cluster.restartNameNode(0);
     // This should have no effect -- the new node should be STANDBY.
@@ -158,7 +177,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     assertEquals(AlwaysSucceedFencer.getLastFencedService().getAddress(),
         thr2.zkfc.getLocalTarget().getAddress());
   }
-  
+
   @Test(timeout=30000)
   public void testManualFailover() throws Exception {
     thr2.zkfc.getLocalTarget().getZKFCProxy(conf, 15000).gracefulFailover();
@@ -169,12 +188,12 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     waitForHAState(0, HAServiceState.ACTIVE);
     waitForHAState(1, HAServiceState.STANDBY);
   }
-  
+
   @Test(timeout=30000)
   public void testManualFailoverWithDFSHAAdmin() throws Exception {
     DFSHAAdmin tool = new DFSHAAdmin();
     tool.setConf(conf);
-    assertEquals(0, 
+    assertEquals(0,
         tool.run(new String[]{"-failover", "nn1", "nn2"}));
     waitForHAState(0, HAServiceState.STANDBY);
     waitForHAState(1, HAServiceState.ACTIVE);
@@ -183,7 +202,7 @@ public class TestDFSZKFailoverController extends ClientBaseWithFixes {
     waitForHAState(0, HAServiceState.ACTIVE);
     waitForHAState(1, HAServiceState.STANDBY);
   }
-  
+
   private void waitForHAState(int nnidx, final HAServiceState state)
       throws TimeoutException, InterruptedException {
     final NameNode nn = cluster.getNameNode(nnidx);
