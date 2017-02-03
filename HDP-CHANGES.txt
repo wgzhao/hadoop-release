@@ -3300,3 +3300,5 @@ ATS V1.5:
 
     HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed
     by Jason Lowe
+
+    HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
