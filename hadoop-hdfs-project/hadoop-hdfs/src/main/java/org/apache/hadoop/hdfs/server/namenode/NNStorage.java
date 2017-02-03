@@ -160,8 +160,6 @@ public class NNStorage extends Storage implements Closeable,
       throws IOException {
     super(NodeType.NAME_NODE);
 
-    storageDirs = new CopyOnWriteArrayList<StorageDirectory>();
-    
     // this may modify the editsDirs, so copy before passing in
     setStorageDirectories(imageDirs, 
                           Lists.newArrayList(editsDirs),
@@ -197,7 +195,7 @@ public class NNStorage extends Storage implements Closeable,
   @Override // Closeable
   public void close() throws IOException {
     unlockAll();
-    storageDirs.clear();
+    getStorageDirs().clear();
   }
 
   /**
@@ -282,7 +280,7 @@ public class NNStorage extends Storage implements Closeable,
                                           Collection<URI> fsEditsDirs,
                                           Collection<URI> sharedEditsDirs)
       throws IOException {
-    this.storageDirs.clear();
+    getStorageDirs().clear();
     this.removedStorageDirs.clear();
 
    // Add all name dirs with appropriate NameNodeDirType
@@ -854,7 +852,7 @@ public class NNStorage extends Storage implements Closeable,
                +  sd.getRoot().getPath(), e);
     }
 
-    if (this.storageDirs.remove(sd)) {
+    if (getStorageDirs().remove(sd)) {
       this.removedStorageDirs.add(sd);
     }
     
@@ -908,7 +906,7 @@ public class NNStorage extends Storage implements Closeable,
     // getCanonicalPath may need to call stat() or readlink() and it's likely
     // those calls would fail due to the same underlying IO problem.
     String absPath = f.getAbsolutePath();
-    for (StorageDirectory sd : storageDirs) {
+    for (StorageDirectory sd : getStorageDirs()) {
       String dirPath = sd.getRoot().getAbsolutePath();
       if (!dirPath.endsWith(File.separator)) {
         dirPath += File.separator;
