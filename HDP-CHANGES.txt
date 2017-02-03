@@ -3362,16 +3362,9 @@ ATS V1.5:
     HADOOP-12017. Hadoop archives command should use configurable replication
     factor when closing (Bibin A Chundatt via vinayakumarb)
 
-<<<<<<< HEAD
     HDFS-6763. Initialize file system-wide quota once on transitioning to active
     (kihwal)
-||||||| parent of 7b0891c412c... HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed by Jason Lowe (cherry picked from commit 92d8f371553b88e5b3a9d3354e93f75d60d81368)
-    HDFS-10763. Open files can leak permanently due to inconsistent lease
-    update. Contributed by Kihwal Lee.
 
-    HADOOP-13494. ReconfigurableBase can log sensitive information. Contributed
-    by Sean Mackrory.
-=======
     HDFS-10763. Open files can leak permanently due to inconsistent lease
     update. Contributed by Kihwal Lee.
 
@@ -3380,10 +3373,5 @@ ATS V1.5:
 
     HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed
     by Jason Lowe
-<<<<<<< HEAD
->>>>>>> 7b0891c412c... HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed by Jason Lowe (cherry picked from commit 92d8f371553b88e5b3a9d3354e93f75d60d81368)
-||||||| parent of 5f37ad669ab... HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
-=======
 
     HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
->>>>>>> 5f37ad669ab... HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
