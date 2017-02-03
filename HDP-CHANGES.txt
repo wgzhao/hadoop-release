@@ -3302,3 +3302,6 @@ ATS V1.5:
     by Jason Lowe
 
     HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
+
+    YARN-5206. RegistrySecurity includes id:pass in exception text if considered
+    invalid. Contributed by Steve Loughran
