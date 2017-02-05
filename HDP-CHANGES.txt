@@ -3375,3 +3375,6 @@ ATS V1.5:
     by Jason Lowe
 
     HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
+
+    BUG-73036. MAPREDUCE-6789. Fix TestAMWebApp failure. 
+    Contributed by Daniel Templeton.
