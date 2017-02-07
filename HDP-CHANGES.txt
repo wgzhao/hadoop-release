@@ -958,3 +958,5 @@ covered by CHANGES.txt.
     no excess replica can be chosen. (Ming Ma)
 
 
+    BUG-74268. HADOOP-12185. NetworkTopology is not efficient
+    adding/getting/removing nodes. Contributed by Inigo Goiri
