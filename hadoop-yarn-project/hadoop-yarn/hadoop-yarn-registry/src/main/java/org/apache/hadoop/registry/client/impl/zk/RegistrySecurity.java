@@ -960,6 +960,8 @@ public class RegistrySecurity extends AbstractService {
              .append("=")
              .append(jaasClientEntry)
              .append("; ");
+      builder.append("Principal = ").append(principal).append("; ");
+      builder.append("Keytab = ").append(keytab).append("; ");
       builder.append(describeProperty(PROP_ZK_SASL_CLIENT_USERNAME));
       builder.append(describeProperty(PROP_ZK_SASL_CLIENT_CONTEXT));
     }
