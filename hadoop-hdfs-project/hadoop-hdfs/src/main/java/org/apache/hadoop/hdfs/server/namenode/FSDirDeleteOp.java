@@ -55,7 +55,7 @@ class FSDirDeleteOp {
         filesRemoved = -1;
       } else {
         List<INodeDirectory> snapshottableDirs = new ArrayList<>();
-        FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
+        FSDirSnapshotOp.checkSnapshot(fsd, iip, snapshottableDirs);
         filesRemoved = unprotectedDelete(fsd, iip, collectedBlocks,
                                          removedINodes, mtime);
         fsd.getFSNamesystem().removeSnapshottableDirs(snapshottableDirs);
@@ -122,7 +122,7 @@ class FSDirDeleteOp {
       return;
     }
     List<INodeDirectory> snapshottableDirs = new ArrayList<>();
-    FSDirSnapshotOp.checkSnapshot(iip.getLastINode(), snapshottableDirs);
+    FSDirSnapshotOp.checkSnapshot(fsd, iip, snapshottableDirs);
     long filesRemoved = unprotectedDelete(
         fsd, iip, collectedBlocks, removedINodes, mtime);
     fsn.removeSnapshottableDirs(snapshottableDirs);
