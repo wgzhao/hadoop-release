@@ -3378,3 +3378,6 @@ ATS V1.5:
 
     BUG-73036. MAPREDUCE-6789. Fix TestAMWebApp failure. 
     Contributed by Daniel Templeton.
+
+    BUG-54183. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port range.
+    Contributed by Frank Nguyen.
