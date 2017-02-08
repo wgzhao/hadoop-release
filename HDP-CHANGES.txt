@@ -3332,3 +3332,6 @@ ATS V1.5:
 
     HDFS-10798. Make the threshold of reporting FSNamesystem lock contention
     configurable. Contributed by Erik Krogen.
+
+    HDFS-10817. Add Logging for Long-held NN Read Locks. Contributed by Erik
+    Krogen.
