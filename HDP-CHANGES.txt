@@ -3337,3 +3337,6 @@ ATS V1.5:
     Krogen.
 
     HDFS-10713. Throttle FsNameSystem lock warnings.
+
+    BUG-69385. YARN-4109. Exception on RM scheduler page loading with labels.
+    (Mohammad Shahid Khan via rohithsharmaks)
