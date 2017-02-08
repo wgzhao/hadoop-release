@@ -2985,3 +2985,6 @@ ATS V1.5:
     javadoc. Contributed by Akira AJISAKA.
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+
+    BUG-74313. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port range.
+    Contributed by Frank Nguyen.
