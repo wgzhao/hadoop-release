@@ -3326,3 +3326,6 @@ ATS V1.5:
 
     HDFS-9145. Tracking methods that hold FSNamesytemLock for too long.
     Contributed by Mingliang Liu.
+
+    HDFS-9467. Fix data race accessing writeLockHeldTimeStamp in FSNamesystem.
+    Contributed by Mingliang Liu.
