@@ -3340,3 +3340,6 @@ ATS V1.5:
 
     BUG-69385. YARN-4109. Exception on RM scheduler page loading with labels.
     (Mohammad Shahid Khan via rohithsharmaks)
+
+    BUG-67148. YARN-5659. getPathFromYarnURL should use standard methods.
+    Contributed by Sergey Shelukhin.
