@@ -30,6 +30,8 @@ import org.apache.hadoop.security.authentication.server.KerberosAuthenticationHa
 import org.apache.hadoop.security.authentication.server.PseudoAuthenticationHandler;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenSecretManager;
+import org.apache.hadoop.test.GenericTestUtils;
+import org.apache.log4j.Level;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Assert;
@@ -202,6 +204,8 @@ public class TestWebDelegationToken {
     UserGroupInformation.setConfiguration(conf);
 
     jetty = createJettyServer();
+    GenericTestUtils.setLogLevel(KerberosAuthenticationHandler.LOG,
+        Level.TRACE);
   }
 
   @After

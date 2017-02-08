@@ -3309,3 +3309,5 @@ ATS V1.5:
     HADOOP-12185. NetworkTopology is not efficient adding/getting/removing nodes.
     Contributed by Inigo Goiri.
 
+    HADOOP-13890. Maintain HTTP/host as SPNEGO SPN support and fix KerberosName
+    parsing. Contributed by Xiaoyu Yao.
