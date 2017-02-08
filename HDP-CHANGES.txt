@@ -3320,3 +3320,6 @@ ATS V1.5:
 
     BUG-74314. MAPREDUCE-6404. Allow AM to specify a port range for starting its
     webapp. Contributed by Varun Saxena.
+
+    BUG-71827. YARN-5555. Scheduler UI: "% of Queue" is inaccurate if leaf queue
+    is hierarchically nested. Contributed by Eric Payne.
