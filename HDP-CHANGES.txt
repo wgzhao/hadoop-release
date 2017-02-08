@@ -3020,3 +3020,5 @@ ATS V1.5:
 
    BUG-72151. YARN-5711. Propogate exceptions back to client when using hedging
    RM failover provider.
+
+   CUST-221/YARN-6145. Improve log message on fail over. Contributed by Jian He.
