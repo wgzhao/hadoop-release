@@ -3314,3 +3314,6 @@ ATS V1.5:
 
     BUG-74313. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port range.
     Contributed by Frank Nguyen.
+
+    BUG-74314. HADOOP-12097. Allow port range to be specified while starting
+    webapp. Contributed by Varun Saxena.
