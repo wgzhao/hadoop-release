@@ -3311,3 +3311,35 @@ ATS V1.5:
 
     HADOOP-13890. Maintain HTTP/host as SPNEGO SPN support and fix KerberosName
     parsing. Contributed by Xiaoyu Yao.
+
+    BUG-74313. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port range.
+    Contributed by Frank Nguyen.
+
+    BUG-74314. HADOOP-12097. Allow port range to be specified while starting
+    webapp. Contributed by Varun Saxena.
+
+    BUG-74314. MAPREDUCE-6404. Allow AM to specify a port range for starting its
+    webapp. Contributed by Varun Saxena.
+
+    BUG-71827. YARN-5555. Scheduler UI: "% of Queue" is inaccurate if leaf queue
+    is hierarchically nested. Contributed by Eric Payne.
+
+    HDFS-9145. Tracking methods that hold FSNamesytemLock for too long.
+    Contributed by Mingliang Liu.
+
+    HDFS-9467. Fix data race accessing writeLockHeldTimeStamp in FSNamesystem.
+    Contributed by Mingliang Liu.
+
+    HDFS-10798. Make the threshold of reporting FSNamesystem lock contention
+    configurable. Contributed by Erik Krogen.
+
+    HDFS-10817. Add Logging for Long-held NN Read Locks. Contributed by Erik
+    Krogen.
+
+    HDFS-10713. Throttle FsNameSystem lock warnings.
+
+    BUG-69385. YARN-4109. Exception on RM scheduler page loading with labels.
+    (Mohammad Shahid Khan via rohithsharmaks)
+
+    BUG-67148. YARN-5659. getPathFromYarnURL should use standard methods.
+    Contributed by Sergey Shelukhin.
