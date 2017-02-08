@@ -3329,3 +3329,6 @@ ATS V1.5:
 
     HDFS-9467. Fix data race accessing writeLockHeldTimeStamp in FSNamesystem.
     Contributed by Mingliang Liu.
+
+    HDFS-10798. Make the threshold of reporting FSNamesystem lock contention
+    configurable. Contributed by Erik Krogen.
