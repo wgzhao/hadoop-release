@@ -2991,3 +2991,6 @@ ATS V1.5:
 
     BUG-74314. HADOOP-12097. Allow port range to be specified while starting
     webapp. Contributed by Varun Saxena.
+
+    BUG-74314. MAPREDUCE-6404. Allow AM to specify a port range for starting its
+    webapp. Contributed by Varun Saxena.
