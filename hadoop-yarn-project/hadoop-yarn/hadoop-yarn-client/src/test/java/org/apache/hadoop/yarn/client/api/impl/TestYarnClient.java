@@ -147,6 +147,37 @@ public class TestYarnClient {
     rm.stop();
   }
 
+  @Test
+  public void testStartWithTimelineV15Failure() throws Exception{
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
+    conf.setFloat(YarnConfiguration.TIMELINE_SERVICE_VERSION, 1.5f);
+    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_CLIENT_BEST_EFFORT,
+        true);
+    YarnClient client = YarnClient.createYarnClient();
+    if(client instanceof YarnClientImpl) {
+      YarnClientImpl impl = (YarnClientImpl) client;
+      YarnClientImpl spyClient = spy(impl);
+      when(spyClient.createTimelineClient()).thenThrow(
+          new IOException("ATS v1.5 client initialization failed. "));
+      spyClient.init(conf);
+      spyClient.start();
+      spyClient.getTimelineDelegationToken();
+      spyClient.stop();
+    }
+  }
+
+  @Test
+  public void testStartWithTimelineV15() throws Exception {
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
+    conf.setFloat(YarnConfiguration.TIMELINE_SERVICE_VERSION, 1.5f);
+    YarnClientImpl client = (YarnClientImpl) YarnClient.createYarnClient();
+    client.init(conf);
+    client.start();
+    client.stop();
+  }
+
   @SuppressWarnings("deprecation")
   @Test (timeout = 30000)
   public void testSubmitApplication() {

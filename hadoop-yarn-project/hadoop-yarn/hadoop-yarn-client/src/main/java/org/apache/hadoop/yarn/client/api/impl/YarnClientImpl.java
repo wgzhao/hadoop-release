@@ -125,7 +125,7 @@ public class YarnClientImpl extends YarnClient {
   private long asyncApiPollTimeoutMillis;
   protected AHSClient historyClient;
   private boolean historyServiceEnabled;
-  protected TimelineClient timelineClient;
+  protected volatile TimelineClient timelineClient;
   @VisibleForTesting
   Text timelineService;
   @VisibleForTesting
@@ -159,8 +159,6 @@ public class YarnClientImpl extends YarnClient {
     if (conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED,
         YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ENABLED)) {
       timelineServiceEnabled = true;
-      timelineClient = createTimelineClient();
-      timelineClient.init(conf);
       timelineDTRenewer = getTimelineDelegationTokenRenewer(conf);
       timelineService = TimelineUtils.buildTimelineTokenService(conf);
     }
@@ -195,9 +193,6 @@ public class YarnClientImpl extends YarnClient {
       if (historyServiceEnabled) {
         historyClient.start();
       }
-      if (timelineServiceEnabled) {
-        timelineClient.start();
-      }
     } catch (IOException e) {
       throw new YarnRuntimeException(e);
     }
@@ -212,7 +207,7 @@ public class YarnClientImpl extends YarnClient {
     if (historyServiceEnabled) {
       historyClient.stop();
     }
-    if (timelineServiceEnabled) {
+    if (timelineClient != null) {
       timelineClient.stop();
     }
     super.serviceStop();
@@ -350,16 +345,26 @@ public class YarnClientImpl extends YarnClient {
   @VisibleForTesting
   org.apache.hadoop.security.token.Token<TimelineDelegationTokenIdentifier>
       getTimelineDelegationToken() throws IOException, YarnException {
-        try {
-          return timelineClient.getDelegationToken(timelineDTRenewer);
-        } catch (Exception e ) {
-          if (timelineServiceBestEffort) {
-            LOG.warn("Failed to get delegation token from the timeline server: "
-                + e.getMessage());
-            return null;
+    try {
+      // Only reachable when both security and timeline service are enabled.
+      if (timelineClient == null) {
+        synchronized (this) {
+          if (timelineClient == null) {
+            timelineClient = createTimelineClient();
+            timelineClient.init(getConfig());
+            timelineClient.start();
           }
-          throw e;
         }
+      }
+      return timelineClient.getDelegationToken(timelineDTRenewer);
+    } catch (Exception e) {
+      if (timelineServiceBestEffort) {
+        LOG.warn("Failed to get delegation token from the timeline server: "
+            + e.getMessage());
+        return null;
+      }
+      throw e;
+    }
   }
 
   private static String getTimelineDelegationTokenRenewer(Configuration conf)
