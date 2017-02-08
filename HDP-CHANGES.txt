@@ -3323,3 +3323,6 @@ ATS V1.5:
 
     BUG-71827. YARN-5555. Scheduler UI: "% of Queue" is inaccurate if leaf queue
     is hierarchically nested. Contributed by Eric Payne.
+
+    HDFS-9145. Tracking methods that hold FSNamesytemLock for too long.
+    Contributed by Mingliang Liu.
