@@ -3346,3 +3346,7 @@ ATS V1.5:
 
     BUG-68947. MAPREDUCE-6213. NullPointerException caused by job history server
     addr not resolvable. (Peng Zhang via harsh)
+
+    BUG-68738. YARN-5718. TimelineClient (and other places in YARN) shouldn't
+    over-write HDFS client retry settings which could cause unexpected behavior.
+    Contributed by Junping Du.
