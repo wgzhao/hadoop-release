@@ -3387,3 +3387,6 @@ ATS V1.5:
 
     BUG-74303. MAPREDUCE-6404. Allow AM to specify a port range for starting its webapp.
     Contributed by Varun Saxena.
+
+    BUG-72030. YARN-6029. CapacityScheduler deadlock when ParentQueue#getQueueUserAclInfo is called by one thread 
+    and LeafQueue#assignContainers is releasing excessive reserved container by another thread. (wangda)
