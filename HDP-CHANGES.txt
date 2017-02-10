@@ -165,3 +165,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3393. Getting application(s) goes wrong when app finishes before
     starting the attempt. (Zhijie Shen via xgong)
+
+    BUG-74492. HADOOP-12559. KMS connection failures should trigger TGT renewal.
+    Contributed by Zhe Zhang.
