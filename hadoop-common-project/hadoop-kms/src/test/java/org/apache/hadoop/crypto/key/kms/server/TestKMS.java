@@ -23,9 +23,11 @@ import org.apache.hadoop.crypto.key.KeyProvider;
 import org.apache.hadoop.crypto.key.KeyProvider.KeyVersion;
 import org.apache.hadoop.crypto.key.KeyProvider.Options;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension;
+import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.CryptoExtension;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.EncryptedKeyVersion;
 import org.apache.hadoop.crypto.key.KeyProviderDelegationTokenExtension;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
+import org.apache.hadoop.crypto.key.kms.LoadBalancingKMSClientProvider;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.minikdc.MiniKdc;
@@ -100,6 +102,12 @@ public class TestKMS {
     protected URL getKMSUrl() {
       return kmsUrl;
     }
+  }
+
+  protected KeyProvider createProvider(URI uri, Configuration conf)
+      throws IOException {
+    return new LoadBalancingKMSClientProvider(
+        new KMSClientProvider[] { new KMSClientProvider(uri, conf) }, conf);
   }
 
   protected <T> T runServer(String keystore, String password, File confDir,
@@ -308,7 +316,7 @@ public class TestKMS {
         final URI uri = createKMSUri(getKMSUrl());
 
         if (ssl) {
-          KeyProvider testKp = new KMSClientProvider(uri, conf);
+          KeyProvider testKp = createProvider(uri, conf);
           ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
           while (threadGroup.getParent() != null) {
             threadGroup = threadGroup.getParent();
@@ -338,12 +346,14 @@ public class TestKMS {
             doAs(user, new PrivilegedExceptionAction<Void>() {
               @Override
               public Void run() throws Exception {
-                final KeyProvider kp = new KMSClientProvider(uri, conf);
+                final KeyProvider kp = createProvider(uri, conf);
                 // getKeys() empty
                 Assert.assertTrue(kp.getKeys().isEmpty());
 
                 Thread.sleep(4000);
-                Token<?>[] tokens = ((KMSClientProvider)kp).addDelegationTokens("myuser", new Credentials());
+                Token<?>[] tokens =
+                    ((KeyProviderDelegationTokenExtension.DelegationTokenExtension)kp)
+                    .addDelegationTokens("myuser", new Credentials());
                 Assert.assertEquals(1, tokens.length);
                 Assert.assertEquals("kms-dt", tokens[0].getKind().toString());
                 return null;
@@ -351,12 +361,14 @@ public class TestKMS {
             });
           }
         } else {
-          KeyProvider kp = new KMSClientProvider(uri, conf);
+          KeyProvider kp = createProvider(uri, conf);
           // getKeys() empty
           Assert.assertTrue(kp.getKeys().isEmpty());
 
           Thread.sleep(4000);
-          Token<?>[] tokens = ((KMSClientProvider)kp).addDelegationTokens("myuser", new Credentials());
+          Token<?>[] tokens =
+              ((KeyProviderDelegationTokenExtension.DelegationTokenExtension)kp)
+              .addDelegationTokens("myuser", new Credentials());
           Assert.assertEquals(1, tokens.length);
           Assert.assertEquals("kms-dt", tokens[0].getKind().toString());
         }
@@ -407,7 +419,7 @@ public class TestKMS {
         Date started = new Date();
         Configuration conf = new Configuration();
         URI uri = createKMSUri(getKMSUrl());
-        KeyProvider kp = new KMSClientProvider(uri, conf);
+        KeyProvider kp = createProvider(uri, conf);
 
         // getKeys() empty
         Assert.assertTrue(kp.getKeys().isEmpty());
@@ -677,7 +689,7 @@ public class TestKMS {
         doAs("CREATE", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               Options options = new KeyProvider.Options(conf);
               Map<String, String> attributes = options.getAttributes();
@@ -715,7 +727,7 @@ public class TestKMS {
         doAs("ROLLOVER", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               Options options = new KeyProvider.Options(conf);
               Map<String, String> attributes = options.getAttributes();
@@ -759,7 +771,7 @@ public class TestKMS {
         doAs("GET", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               Options options = new KeyProvider.Options(conf);
               Map<String, String> attributes = options.getAttributes();
@@ -791,7 +803,7 @@ public class TestKMS {
         final EncryptedKeyVersion ekv = doAs("GENERATE_EEK", new PrivilegedExceptionAction<EncryptedKeyVersion>() {
           @Override
           public EncryptedKeyVersion run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               Options options = new KeyProvider.Options(conf);
               Map<String, String> attributes = options.getAttributes();
@@ -816,7 +828,7 @@ public class TestKMS {
         doAs("ROLLOVER", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProviderCryptoExtension kpce =
                   KeyProviderCryptoExtension.createKeyProviderCryptoExtension(kp);
@@ -885,7 +897,7 @@ public class TestKMS {
                 new PrivilegedExceptionAction<KeyProvider>() {
                   @Override
                   public KeyProvider run() throws Exception {
-                    KMSClientProvider kp = new KMSClientProvider(uri, conf);
+                    KeyProvider kp = createProvider(uri, conf);
                         kp.createKey("k1", new byte[16],
                             new KeyProvider.Options(conf));
                     return kp;
@@ -962,7 +974,7 @@ public class TestKMS {
                 new PrivilegedExceptionAction<Void>() {
                   @Override
                   public Void run() throws Exception {
-                    KMSClientProvider kp = new KMSClientProvider(uri, conf);
+                    KeyProvider kp = createProvider(uri, conf);
 
                     kp.createKey("k0", new byte[16],
                         new KeyProvider.Options(conf));
@@ -993,7 +1005,7 @@ public class TestKMS {
                 new PrivilegedExceptionAction<Void>() {
                   @Override
                   public Void run() throws Exception {
-                    KMSClientProvider kp = new KMSClientProvider(uri, conf);
+                    KeyProvider kp = createProvider(uri, conf);
                     kp.createKey("k3", new byte[16],
                         new KeyProvider.Options(conf));
                     // Atleast 2 rollovers.. so should induce signer Exception
@@ -1053,7 +1065,7 @@ public class TestKMS {
         doAs("client", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               kp.createKey("k", new KeyProvider.Options(conf));
               Assert.fail();
@@ -1144,7 +1156,7 @@ public class TestKMS {
         doAs("CREATE", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProvider.KeyVersion kv = kp.createKey("k0",
                   new KeyProvider.Options(conf));
@@ -1159,7 +1171,7 @@ public class TestKMS {
         doAs("DELETE", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               kp.deleteKey("k0");
             } catch (Exception ex) {
@@ -1172,7 +1184,7 @@ public class TestKMS {
         doAs("SET_KEY_MATERIAL", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProvider.KeyVersion kv = kp.createKey("k1", new byte[16],
                   new KeyProvider.Options(conf));
@@ -1187,7 +1199,7 @@ public class TestKMS {
         doAs("ROLLOVER", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProvider.KeyVersion kv = kp.rollNewVersion("k1");
               Assert.assertNull(kv.getMaterial());
@@ -1201,7 +1213,7 @@ public class TestKMS {
         doAs("SET_KEY_MATERIAL", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProvider.KeyVersion kv =
                   kp.rollNewVersion("k1", new byte[16]);
@@ -1217,7 +1229,7 @@ public class TestKMS {
             doAs("GET", new PrivilegedExceptionAction<KeyVersion>() {
           @Override
           public KeyVersion run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               kp.getKeyVersion("k1@0");
               KeyVersion kv = kp.getCurrentKey("k1");
@@ -1234,7 +1246,7 @@ public class TestKMS {
                 new PrivilegedExceptionAction<EncryptedKeyVersion>() {
           @Override
           public EncryptedKeyVersion run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProviderCryptoExtension kpCE = KeyProviderCryptoExtension.
                       createKeyProviderCryptoExtension(kp);
@@ -1251,7 +1263,7 @@ public class TestKMS {
         doAs("DECRYPT_EEK", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               KeyProviderCryptoExtension kpCE = KeyProviderCryptoExtension.
                       createKeyProviderCryptoExtension(kp);
@@ -1266,7 +1278,7 @@ public class TestKMS {
         doAs("GET_KEYS", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               kp.getKeys();
             } catch (Exception ex) {
@@ -1279,7 +1291,7 @@ public class TestKMS {
         doAs("GET_METADATA", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             try {
               kp.getMetadata("k1");
               kp.getKeysMetadata("k1");
@@ -1306,7 +1318,7 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KeyProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("k2",
                   new KeyProvider.Options(conf));
               Assert.fail();
@@ -1361,12 +1373,12 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KMSClientProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("ck0",
                   new KeyProvider.Options(conf));
               EncryptedKeyVersion eek =
-                  kp.generateEncryptedKey("ck0");
-              kp.decryptEncryptedKey(eek);
+                  ((CryptoExtension)kp).generateEncryptedKey("ck0");
+              ((CryptoExtension)kp).decryptEncryptedKey(eek);
               Assert.assertNull(kv.getMaterial());
             } catch (Exception ex) {
               Assert.fail(ex.getMessage());
@@ -1379,12 +1391,12 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KMSClientProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("ck1",
                   new KeyProvider.Options(conf));
               EncryptedKeyVersion eek =
-                  kp.generateEncryptedKey("ck1");
-              kp.decryptEncryptedKey(eek);
+                  ((CryptoExtension)kp).generateEncryptedKey("ck1");
+              ((CryptoExtension)kp).decryptEncryptedKey(eek);
               Assert.fail("admin user must not be allowed to decrypt !!");
             } catch (Exception ex) {
             }
@@ -1396,12 +1408,12 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KMSClientProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("ck2",
                   new KeyProvider.Options(conf));
               EncryptedKeyVersion eek =
-                  kp.generateEncryptedKey("ck2");
-              kp.decryptEncryptedKey(eek);
+                  ((CryptoExtension)kp).generateEncryptedKey("ck2");
+              ((CryptoExtension)kp).decryptEncryptedKey(eek);
               Assert.fail("admin user must not be allowed to decrypt !!");
             } catch (Exception ex) {
             }
@@ -1446,7 +1458,7 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KeyProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("ck0",
                   new KeyProvider.Options(conf));
               Assert.assertNull(kv.getMaterial());
@@ -1461,7 +1473,7 @@ public class TestKMS {
           @Override
           public Void run() throws Exception {
             try {
-              KeyProvider kp = new KMSClientProvider(uri, conf);
+              KeyProvider kp = createProvider(uri, conf);
               KeyProvider.KeyVersion kv = kp.createKey("ck1",
                   new KeyProvider.Options(conf));
               Assert.assertNull(kv.getMaterial());
@@ -1504,7 +1516,7 @@ public class TestKMS {
 
     boolean caughtTimeout = false;
     try {
-      KeyProvider kp = new KMSClientProvider(uri, conf);
+      KeyProvider kp = createProvider(uri, conf);
       kp.getKeys();
     } catch (SocketTimeoutException e) {
       caughtTimeout = true;
@@ -1514,7 +1526,7 @@ public class TestKMS {
 
     caughtTimeout = false;
     try {
-      KeyProvider kp = new KMSClientProvider(uri, conf);
+      KeyProvider kp = createProvider(uri, conf);
       KeyProviderCryptoExtension.createKeyProviderCryptoExtension(kp)
           .generateEncryptedKey("a");
     } catch (SocketTimeoutException e) {
@@ -1525,7 +1537,7 @@ public class TestKMS {
 
     caughtTimeout = false;
     try {
-      KeyProvider kp = new KMSClientProvider(uri, conf);
+      KeyProvider kp = createProvider(uri, conf);
       KeyProviderCryptoExtension.createKeyProviderCryptoExtension(kp)
           .decryptEncryptedKey(
               new KMSClientProvider.KMSEncryptedKeyVersion("a",
@@ -1572,7 +1584,7 @@ public class TestKMS {
             UserGroupInformation.getCurrentUser();
 
         try {
-          KeyProvider kp = new KMSClientProvider(uri, conf);
+          KeyProvider kp = createProvider(uri, conf);
           kp.createKey(keyA, new KeyProvider.Options(conf));
         } catch (IOException ex) {
           System.out.println(ex.getMessage());
@@ -1581,7 +1593,7 @@ public class TestKMS {
         doAs("client", new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             KeyProviderDelegationTokenExtension kpdte =
                 KeyProviderDelegationTokenExtension.
                     createKeyProviderDelegationTokenExtension(kp);
@@ -1593,7 +1605,7 @@ public class TestKMS {
         nonKerberosUgi.addCredentials(credentials);
 
         try {
-          KeyProvider kp = new KMSClientProvider(uri, conf);
+          KeyProvider kp = createProvider(uri, conf);
           kp.createKey(keyA, new KeyProvider.Options(conf));
         } catch (IOException ex) {
           System.out.println(ex.getMessage());
@@ -1602,7 +1614,7 @@ public class TestKMS {
         nonKerberosUgi.doAs(new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            KeyProvider kp = new KMSClientProvider(uri, conf);
+            KeyProvider kp = createProvider(uri, conf);
             kp.createKey(keyD, new KeyProvider.Options(conf));
             return null;
           }
@@ -1665,7 +1677,7 @@ public class TestKMS {
         clientUgi.doAs(new PrivilegedExceptionAction<Void>() {
           @Override
           public Void run() throws Exception {
-            final KeyProvider kp = new KMSClientProvider(uri, conf);
+            final KeyProvider kp = createProvider(uri, conf);
             kp.createKey("kaa", new KeyProvider.Options(conf));
 
             // authorized proxyuser
@@ -1777,7 +1789,7 @@ public class TestKMS {
             fooUgi.doAs(new PrivilegedExceptionAction<Void>() {
               @Override
               public Void run() throws Exception {
-                KeyProvider kp = new KMSClientProvider(uri, conf);
+                KeyProvider kp = createProvider(uri, conf);
                 Assert.assertNotNull(kp.createKey("kaa",
                     new KeyProvider.Options(conf)));
                 return null;
@@ -1791,7 +1803,7 @@ public class TestKMS {
               @Override
               public Void run() throws Exception {
                 try {
-                  KeyProvider kp = new KMSClientProvider(uri, conf);
+                  KeyProvider kp = createProvider(uri, conf);
                   kp.createKey("kbb", new KeyProvider.Options(conf));
                   Assert.fail();
                 } catch (Exception ex) {
@@ -1807,7 +1819,7 @@ public class TestKMS {
             barUgi.doAs(new PrivilegedExceptionAction<Void>() {
               @Override
               public Void run() throws Exception {
-                KeyProvider kp = new KMSClientProvider(uri, conf);
+                KeyProvider kp = createProvider(uri, conf);
                 Assert.assertNotNull(kp.createKey("kcc",
                     new KeyProvider.Options(conf)));
                 return null;
