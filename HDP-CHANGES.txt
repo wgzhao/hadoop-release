@@ -3373,3 +3373,6 @@ ATS V1.5:
     BUG-74055. HDFS-10301. BlockReport retransmissions may lead to storages
     falsely being declared zombie if storage report processing happens out of
     order
+
+    BUG-74061. HDFS-11112. Journal Nodes should refuse to format non-empty
+    directories. Contributed by Yiqun Lin.
