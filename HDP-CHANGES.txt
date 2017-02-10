@@ -3356,3 +3356,6 @@ ATS V1.5:
 
     BUG-74539. HDFS-10423. Increase default value of httpfs maxHttpHeaderSize.
     Contributed by Nicolae Popa.
+
+    BUG-74062. HDFS-8492. DN should notify NN when client requests a missing
+    block (Contributed by Walter Su)
