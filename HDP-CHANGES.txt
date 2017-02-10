@@ -3353,3 +3353,6 @@ ATS V1.5:
 
     BUG-65469. HDFS-6763. Initialize file system-wide quota once on
     transitioning to active (kihwal)
+
+    BUG-74539. HDFS-10423. Increase default value of httpfs maxHttpHeaderSize.
+    Contributed by Nicolae Popa.
