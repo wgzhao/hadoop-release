@@ -3369,3 +3369,7 @@ ATS V1.5:
     BUG-70564. HADOOP-13208. S3A listFiles(recursive=true) to do a bulk
     listObjects instead of walking the pseudo-tree of directories. Contributed
     by Steve Loughran.
+
+    BUG-74055. HDFS-10301. BlockReport retransmissions may lead to storages
+    falsely being declared zombie if storage report processing happens out of
+    order
