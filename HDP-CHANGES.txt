@@ -39,3 +39,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-76216. HADOOP-11187. NameNode - KMS communication fails after a long
     period of inactivity. Contributed by Arun Suresh.
+
+    BUG-76216. HADOOP-11620. Add support for load balancing across a group of
+    KMS for HA. Contributed by Arun Suresh.
