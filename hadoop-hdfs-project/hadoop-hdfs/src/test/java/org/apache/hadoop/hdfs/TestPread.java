@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -29,8 +30,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.impl.Log4JLogger;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ChecksumException;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -41,6 +44,7 @@ import org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtocol;
 import org.apache.hadoop.hdfs.server.datanode.SimulatedFSDataset;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.log4j.Level;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -247,7 +251,7 @@ public class TestPread {
   /**
    * Tests positional read in DFS.
    */
-  @Test
+  @Test (timeout=300000)
   public void testPreadDFS() throws IOException {
     Configuration conf = new Configuration();
     dfsPreadTest(conf, false, true); // normal pread
@@ -255,7 +259,7 @@ public class TestPread {
                                     // transferTo.
   }
   
-  @Test
+  @Test (timeout=300000)
   public void testPreadDFSNoChecksum() throws IOException {
     Configuration conf = new Configuration();
     ((Log4JLogger)DataTransferProtocol.LOG).getLogger().setLevel(Level.ALL);
@@ -266,7 +270,7 @@ public class TestPread {
   /**
    * Tests positional read in DFS, with hedged reads enabled.
    */
-  @Test
+  @Test (timeout=300000)
   public void testHedgedPreadDFSBasic() throws IOException {
     isHedgedRead = true;
     Configuration conf = new Configuration();
@@ -277,7 +281,7 @@ public class TestPread {
                                     // transferTo.
   }
 
-  @Test
+  @Test (timeout=300000)
   public void testHedgedReadLoopTooManyTimes() throws IOException {
     Configuration conf = new Configuration();
     int numHedgedReadPoolThreads = 5;
@@ -351,7 +355,7 @@ public class TestPread {
     }
   }
 
-  @Test
+  @Test (timeout=300000)
   public void testMaxOutHedgedReadPool() throws IOException,
       InterruptedException, ExecutionException {
     isHedgedRead = true;
@@ -460,7 +464,7 @@ public class TestPread {
     }
   }
   
-  @Test
+  @Test (timeout=300000)
   public void testPreadDFSSimulated() throws IOException {
     simulatedStorage = true;
     testPreadDFS();
@@ -469,7 +473,7 @@ public class TestPread {
   /**
    * Tests positional read in LocalFS.
    */
-  @Test
+  @Test (timeout=300000)
   public void testPreadLocalFS() throws IOException {
     Configuration conf = new HdfsConfiguration();
     FileSystem fileSys = FileSystem.getLocal(conf);
@@ -480,6 +484,54 @@ public class TestPread {
       cleanupFile(fileSys, file1);
     } finally {
       fileSys.close();
+    }
+  }
+
+  @Test (timeout=300000)
+  public void testTruncateWhileReading() throws Exception {
+    Path path = new Path("/testfile");
+    final int blockSize = 512;
+
+    // prevent initial pre-fetch of multiple block locations
+    Configuration conf = new Configuration();
+    conf.setLong(DFSConfigKeys.DFS_CLIENT_READ_PREFETCH_SIZE_KEY, blockSize);
+
+    MiniDFSCluster cluster =
+        new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+    try {
+      DistributedFileSystem fs = cluster.getFileSystem();
+      // create multi-block file
+      FSDataOutputStream dos =
+          fs.create(path, true, blockSize, (short)1, blockSize);
+      dos.write(new byte[blockSize*3]);
+      dos.close();
+      // truncate a file while it's open
+      final FSDataInputStream dis = fs.open(path);
+      while (!fs.truncate(path, 10)) {
+        Thread.sleep(10);
+      }
+      // verify that reading bytes outside the initial pre-fetch do
+      // not send the client into an infinite loop querying locations.
+      ExecutorService executor = Executors.newFixedThreadPool(1);
+      Future<?> future = executor.submit(new Callable<Void>() {
+        @Override
+        public Void call() throws IOException {
+          // read from 2nd block.
+          dis.readFully(blockSize, new byte[4]);
+          return null;
+        }
+      });
+      try {
+        future.get(4, TimeUnit.SECONDS);
+        Assert.fail();
+      } catch (ExecutionException ee) {
+        assertTrue(ee.toString(), ee.getCause() instanceof EOFException);
+      } finally {
+        future.cancel(true);
+        executor.shutdown();
+      }
+    } finally {
+      cluster.shutdown();
     }
   }
 
