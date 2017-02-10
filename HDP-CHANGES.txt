@@ -3359,3 +3359,6 @@ ATS V1.5:
 
     BUG-74062. HDFS-8492. DN should notify NN when client requests a missing
     block (Contributed by Walter Su)
+
+    BUG-71826. HADOOP-12017. Hadoop archives command should use configurable
+    replication factor when closing (Contributed by Bibin A Chundatt)
