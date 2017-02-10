@@ -1231,3 +1231,7 @@ ATS V1.5:
 
     BUG-74116. HADOOP-12954. Add a way to change
     hadoop.security.token.service.use_ip (rkanter)
+
+    BUG-74117. MAPREDUCE-6565. Configuration to use host name in delegation
+    token service is not read from job.xml during MapReduce job execution.
+    Contributed by Li Lu.
