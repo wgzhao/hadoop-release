@@ -36,3 +36,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     CS and FS. (Zhihai Xu via kasha)
 
     BUG-76216. HADOOP-11312. Fix unit tests to not use uppercase key names.
+
+    BUG-76216. HADOOP-11187. NameNode - KMS communication fails after a long
+    period of inactivity. Contributed by Arun Suresh.
