@@ -186,6 +186,8 @@ by CHANGES.txt.
     BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
     to WASB client. Contributed by Santhosh G Nayak
 
+    BUG-79165. HADOOP-13204. Add support for SSE-KMS and SSE-C in s3a filesystem. (Steve Moist via lei)
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
