@@ -3393,3 +3393,6 @@ ATS V1.5:
 
     BUG-74770. HADOOP-14055. SwiftRestClient includes pass length in exception
     if auth fails. Contributed by Marcell Hegedus.
+
+    BUG-73967. YARN-1993. Cross-site scripting vulnerability in TextView.java.
+    Contributed byKenji Kikushima.
