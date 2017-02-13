@@ -3396,3 +3396,6 @@ ATS V1.5:
 
     BUG-73967. YARN-1993. Cross-site scripting vulnerability in TextView.java.
     Contributed byKenji Kikushima.
+
+    BUG-73038. Increase AM_STATE_WAIT_TIMEOUT_MS in UnmanagedAMLauncher from 10 seconds
+    to 20 seconds for UT failures in TestUnmanagedAMLauncher.testUMALauncher.

@@ -95,7 +95,7 @@ public class UnmanagedAMLauncher {
 
   private volatile boolean amCompleted = false;
 
-  private static final long AM_STATE_WAIT_TIMEOUT_MS = 10000;
+  private static final long AM_STATE_WAIT_TIMEOUT_MS = 20000;
   /**
    * @param args
    *          Command line arguments
