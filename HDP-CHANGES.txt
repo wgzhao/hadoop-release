@@ -3376,3 +3376,6 @@ ATS V1.5:
 
     BUG-74061. HDFS-11112. Journal Nodes should refuse to format non-empty
     directories. Contributed by Yiqun Lin.
+
+    BUG-74770. HADOOP-14055. SwiftRestClient includes pass length in exception
+    if auth fails. Contributed by Marcell Hegedus.
