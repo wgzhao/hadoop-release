@@ -1229,3 +1229,5 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
+    BUG-74706. YARN-5309. Fix SSLFactory truststore reloader thread leak in
+    TimelineClientImpl. Contributed by Weiwei Yang.
