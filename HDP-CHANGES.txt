@@ -3385,3 +3385,6 @@ ATS V1.5:
 
     BUG-74538. HDFS-8674. Improve performance of postponed block scans.
     Contributed by Daryn Sharp.
+
+    BUG-73967. YARN-1993. Cross-site scripting vulnerability in TextView.java.
+    Contributed byKenji Kikushima.
