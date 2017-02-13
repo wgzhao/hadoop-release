@@ -3390,3 +3390,6 @@ ATS V1.5:
 
     BUG-72030. YARN-6029. CapacityScheduler deadlock when ParentQueue#getQueueUserAclInfo is called by one thread 
     and LeafQueue#assignContainers is releasing excessive reserved container by another thread. (wangda)
+
+    BUG-74770. HADOOP-14055. SwiftRestClient includes pass length in exception
+    if auth fails. Contributed by Marcell Hegedus.
