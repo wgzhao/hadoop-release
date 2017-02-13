@@ -3379,3 +3379,6 @@ ATS V1.5:
 
     BUG-74770. HADOOP-14055. SwiftRestClient includes pass length in exception
     if auth fails. Contributed by Marcell Hegedus.
+
+    BUG-74538. HDFS-8792. BlockManager#postponedMisreplicatedBlocks should use a
+    LightWeightHashSet to save memory (Yi Liu via Colin P. McCabe)
