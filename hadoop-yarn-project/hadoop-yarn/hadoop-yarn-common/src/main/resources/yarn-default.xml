@@ -1943,6 +1943,14 @@
   </property>
 
   <property>
+    <description>
+    URL for log aggregation server web service
+    </description>
+    <name>yarn.log.server.web-service.url</name>
+    <value></value>
+  </property>
+
+  <property>
     <description>Defines how often NMs wake up to upload log files.
     The default value is -1. By default, the logs will be uploaded when
     the application is finished. By setting this configure, logs can be uploaded
