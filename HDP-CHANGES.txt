@@ -3399,3 +3399,5 @@ ATS V1.5:
 
     BUG-73038. Increase AM_STATE_WAIT_TIMEOUT_MS in UnmanagedAMLauncher from 10 seconds
     to 20 seconds for UT failures in TestUnmanagedAMLauncher.testUMALauncher.
+
+    BUG-73760. TestStreamingStatus UT fails, ignore the test.
