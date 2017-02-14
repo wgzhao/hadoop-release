@@ -73,6 +73,7 @@ public class RMContextImpl implements RMContext {
   private RMApplicationHistoryWriter rmApplicationHistoryWriter;
   private SystemMetricsPublisher systemMetricsPublisher;
 
+  private ResourceManager resourceManager;
   /**
    * Default constructor. To be used in conjunction with setter methods for
    * individual fields.
@@ -464,5 +465,14 @@ public class RMContextImpl implements RMContext {
   @Override
   public void setQueuePlacementManager(PlacementManager placementMgr) {
     this.activeServiceContext.setQueuePlacementManager(placementMgr);
+  }
+
+  @Override
+  public ResourceManager getResourceManager() {
+    return resourceManager;
+  }
+
+  public void setResourceManager(ResourceManager rm) {
+    this.resourceManager = rm;
   }
 }

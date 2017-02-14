@@ -4265,3 +4265,6 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-94382. YARN-6061. Add an UncaughtExceptionHandler for critical threads
+    in RM. (Yufei Gu via kasha)
