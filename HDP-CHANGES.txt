@@ -854,3 +854,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-65292. HDFS-8845. DiskChecker should not traverse the entire tree (Chang
     Li via Colin P. McCabe)
+
+    BUG-74956. HADOOP-12964. Http server vulnerable to clickjacking (haibochen
+    via rkanter)
