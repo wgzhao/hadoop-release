@@ -1229,3 +1229,5 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
+    BUG-73596. HADOOP-13433 Race in UGI.reloginFromKeytab. Contributed by Duo
+    Zhang.
