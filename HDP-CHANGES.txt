@@ -3401,3 +3401,5 @@ ATS V1.5:
     to 20 seconds for UT failures in TestUnmanagedAMLauncher.testUMALauncher.
 
     BUG-73760. TestStreamingStatus UT fails, ignore the test.
+
+    BUG-73035. Skip TestUberAM#testSleepJobWithMultipleReducers which failed intermitently in slow environment.

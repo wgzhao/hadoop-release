@@ -34,6 +34,7 @@ import org.apache.hadoop.mapreduce.TaskID;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestUberAM extends TestMRJobs {
@@ -56,8 +57,9 @@ public class TestUberAM extends TestMRJobs {
     numSleepReducers = 1;
     super.testSleepJob();
   }
-  
+ 
   @Test
+  @Ignore 
   public void testSleepJobWithMultipleReducers()
   throws Exception {
     numSleepReducers = 3;
