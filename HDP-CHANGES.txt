@@ -3403,3 +3403,5 @@ ATS V1.5:
     BUG-73760. TestStreamingStatus UT fails, ignore the test.
 
     BUG-73035. Skip TestUberAM#testSleepJobWithMultipleReducers which failed intermitently in slow environment.
+
+    HADOOP-13433 Race in UGI.reloginFromKeytab. (Duo Zhang via xiao)
