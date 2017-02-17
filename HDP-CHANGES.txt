@@ -3410,3 +3410,6 @@ ATS V1.5:
 
     HADOOP-12054. RPC client should not retry for InvalidToken exceptions. 
     (Contributed by Varun Saxena)
+
+    BUG-75000. HDFS-11391. Numeric usernames do no work with WebHDFS FS write
+    access. (Pierre Villard via Yongjun Zhang)
