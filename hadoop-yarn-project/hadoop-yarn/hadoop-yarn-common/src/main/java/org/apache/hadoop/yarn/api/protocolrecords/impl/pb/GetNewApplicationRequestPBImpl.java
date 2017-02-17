@@ -42,7 +42,7 @@ public class GetNewApplicationRequestPBImpl extends GetNewApplicationRequest {
     viaProto = true;
   }
   
-  public synchronized GetNewApplicationRequestProto getProto() {
+  public GetNewApplicationRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

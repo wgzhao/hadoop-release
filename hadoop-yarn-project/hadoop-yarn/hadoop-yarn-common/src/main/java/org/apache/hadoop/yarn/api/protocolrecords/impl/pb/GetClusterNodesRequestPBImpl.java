@@ -52,7 +52,7 @@ public class GetClusterNodesRequestPBImpl extends GetClusterNodesRequest {
     viaProto = true;
   }
   
-  public synchronized GetClusterNodesRequestProto getProto() {
+  public GetClusterNodesRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

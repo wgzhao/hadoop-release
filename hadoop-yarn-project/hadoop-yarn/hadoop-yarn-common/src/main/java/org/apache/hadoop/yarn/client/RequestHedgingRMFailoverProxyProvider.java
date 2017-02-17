@@ -86,6 +86,7 @@ public class RequestHedgingRMFailoverProxyProvider<T>
         new RMRequestHedgingInvocationHandler(retriableProxies));
     String combinedInfo = Arrays.toString(rmServiceIds);
     wrappedProxy = new ProxyInfo<T>(proxyInstance, combinedInfo);
+    LOG.info("Created wrapped proxy for " + combinedInfo);
   }
 
   @SuppressWarnings("unchecked")

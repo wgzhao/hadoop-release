@@ -41,7 +41,7 @@ public class GetNodesToLabelsRequestPBImpl extends GetNodesToLabelsRequest {
     viaProto = true;
   }
 
-  public synchronized YarnServiceProtos.GetNodesToLabelsRequestProto getProto() {
+  public YarnServiceProtos.GetNodesToLabelsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

@@ -64,7 +64,7 @@ public class AllocateRequestPBImpl extends AllocateRequest {
     viaProto = true;
   }
   
-  public synchronized AllocateRequestProto getProto() {
+  public AllocateRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

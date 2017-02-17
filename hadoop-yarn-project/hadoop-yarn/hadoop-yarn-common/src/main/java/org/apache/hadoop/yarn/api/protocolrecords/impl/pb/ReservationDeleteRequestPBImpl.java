@@ -45,7 +45,7 @@ public class ReservationDeleteRequestPBImpl extends ReservationDeleteRequest {
     viaProto = true;
   }
 
-  public synchronized ReservationDeleteRequestProto getProto() {
+  public ReservationDeleteRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

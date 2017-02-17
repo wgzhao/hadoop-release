@@ -42,7 +42,7 @@ public class GetClusterMetricsRequestPBImpl extends GetClusterMetricsRequest {
     viaProto = true;
   }
   
-  public synchronized GetClusterMetricsRequestProto getProto() {
+  public GetClusterMetricsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

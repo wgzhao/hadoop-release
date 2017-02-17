@@ -43,7 +43,7 @@ public class GetQueueUserAclsInfoRequestPBImpl extends GetQueueUserAclsInfoReque
     viaProto = true;
   }
   
-  public synchronized GetQueueUserAclsInfoRequestProto getProto() {
+  public GetQueueUserAclsInfoRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

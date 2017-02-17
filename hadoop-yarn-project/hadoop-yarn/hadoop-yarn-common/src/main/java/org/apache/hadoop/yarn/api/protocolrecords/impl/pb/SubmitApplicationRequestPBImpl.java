@@ -49,7 +49,7 @@ public class SubmitApplicationRequestPBImpl extends SubmitApplicationRequest {
     viaProto = true;
   }
   
-  public synchronized SubmitApplicationRequestProto getProto() {
+  public SubmitApplicationRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

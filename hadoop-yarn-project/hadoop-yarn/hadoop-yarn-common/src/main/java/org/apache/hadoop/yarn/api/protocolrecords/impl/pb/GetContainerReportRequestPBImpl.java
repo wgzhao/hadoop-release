@@ -48,7 +48,7 @@ public class GetContainerReportRequestPBImpl extends GetContainerReportRequest {
     viaProto = true;
   }
 
-  public synchronized GetContainerReportRequestProto getProto() {
+  public GetContainerReportRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

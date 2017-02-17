@@ -49,7 +49,7 @@ public class GetApplicationReportRequestPBImpl extends GetApplicationReportReque
     viaProto = true;
   }
   
-  public synchronized GetApplicationReportRequestProto getProto() {
+  public GetApplicationReportRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

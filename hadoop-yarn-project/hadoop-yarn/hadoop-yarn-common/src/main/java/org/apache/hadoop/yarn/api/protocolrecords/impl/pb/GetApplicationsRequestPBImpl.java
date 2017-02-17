@@ -65,7 +65,7 @@ public class GetApplicationsRequestPBImpl extends GetApplicationsRequest {
     viaProto = true;
   }
 
-  public synchronized GetApplicationsRequestProto getProto() {
+  public GetApplicationsRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

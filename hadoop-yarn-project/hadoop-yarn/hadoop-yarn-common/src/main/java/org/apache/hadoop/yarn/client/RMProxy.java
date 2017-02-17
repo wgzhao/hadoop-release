@@ -260,13 +260,9 @@ public class RMProxy<T> {
         }
       }
 
-      RetryPolicy retryPolicy =  RetryPolicies.failoverOnNetworkException(
+      return RetryPolicies.failoverOnNetworkException(
           RetryPolicies.TRY_ONCE_THEN_FAIL, maxFailoverAttempts,
           failoverSleepBaseMs, failoverSleepMaxMs);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Created failover retry policy: " + retryPolicy);
-      }
-      return retryPolicy;
     }
 
     if (rmConnectionRetryIntervalMS < 0) {
@@ -283,9 +279,7 @@ public class RMProxy<T> {
           RetryPolicies.retryUpToMaximumTimeWithFixedSleep(rmConnectWaitMS,
               rmConnectionRetryIntervalMS, TimeUnit.MILLISECONDS);
     }
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Created non-failover retry policy: " + retryPolicy);
-    }
+
     Map<Class<? extends Exception>, RetryPolicy> exceptionToPolicyMap =
         new HashMap<Class<? extends Exception>, RetryPolicy>();
 

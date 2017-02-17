@@ -40,7 +40,7 @@ public class GetClusterNodeLabelsRequestPBImpl extends
     viaProto = true;
   }
 
-  public synchronized GetClusterNodeLabelsRequestProto getProto() {
+  public GetClusterNodeLabelsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

@@ -68,7 +68,7 @@ public class CancelDelegationTokenRequestPBImpl extends
     this.token = token;
   }
 
-  public synchronized CancelDelegationTokenRequestProto getProto() {
+  public CancelDelegationTokenRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
