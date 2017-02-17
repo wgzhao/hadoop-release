@@ -3416,3 +3416,6 @@ ATS V1.5:
 
     BUG-73967. YARN-1993. Cross-site scripting vulnerability in TextView.java.
     Contributed byKenji Kikushima.
+
+    BUG-75000. HDFS-11391. Numeric usernames do no work with WebHDFS FS write
+    access. (Pierre Villard via Yongjun Zhang)
