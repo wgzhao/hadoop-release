@@ -126,7 +126,7 @@ public class ReplaceLabelsOnNodeRequestPBImpl extends
     viaProto = true;
   }
 
-  public ReplaceLabelsOnNodeRequestProto getProto() {
+  public synchronized ReplaceLabelsOnNodeRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

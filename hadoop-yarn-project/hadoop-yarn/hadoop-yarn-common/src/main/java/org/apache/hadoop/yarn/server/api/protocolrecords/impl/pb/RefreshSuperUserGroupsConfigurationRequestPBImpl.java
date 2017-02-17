@@ -43,7 +43,7 @@ extends RefreshSuperUserGroupsConfigurationRequest {
     viaProto = true;
   }
   
-  public RefreshSuperUserGroupsConfigurationRequestProto getProto() {
+  public synchronized RefreshSuperUserGroupsConfigurationRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

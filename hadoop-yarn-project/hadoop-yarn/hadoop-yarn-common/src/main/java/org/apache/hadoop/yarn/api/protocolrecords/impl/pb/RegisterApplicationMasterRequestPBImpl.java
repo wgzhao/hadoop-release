@@ -43,7 +43,7 @@ public class RegisterApplicationMasterRequestPBImpl extends RegisterApplicationM
     viaProto = true;
   }
   
-  public RegisterApplicationMasterRequestProto getProto() {
+  public synchronized RegisterApplicationMasterRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

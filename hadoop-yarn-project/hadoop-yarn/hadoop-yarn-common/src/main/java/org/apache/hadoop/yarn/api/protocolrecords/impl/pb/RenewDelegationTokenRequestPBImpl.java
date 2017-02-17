@@ -67,7 +67,7 @@ public class RenewDelegationTokenRequestPBImpl extends
     this.token = token;
   }
 
-  public RenewDelegationTokenRequestProto getProto() {
+  public synchronized RenewDelegationTokenRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

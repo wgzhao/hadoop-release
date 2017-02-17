@@ -65,7 +65,7 @@ public class RegisterNodeManagerRequestPBImpl extends RegisterNodeManagerRequest
     viaProto = true;
   }
   
-  public RegisterNodeManagerRequestProto getProto() {
+  public synchronized RegisterNodeManagerRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

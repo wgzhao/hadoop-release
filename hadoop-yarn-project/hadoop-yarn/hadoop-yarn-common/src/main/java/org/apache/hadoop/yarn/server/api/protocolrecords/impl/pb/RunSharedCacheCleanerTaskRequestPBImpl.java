@@ -38,7 +38,7 @@ public class RunSharedCacheCleanerTaskRequestPBImpl extends
     viaProto = true;
   }
 
-  public RunSharedCacheCleanerTaskRequestProto getProto() {
+  public synchronized RunSharedCacheCleanerTaskRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

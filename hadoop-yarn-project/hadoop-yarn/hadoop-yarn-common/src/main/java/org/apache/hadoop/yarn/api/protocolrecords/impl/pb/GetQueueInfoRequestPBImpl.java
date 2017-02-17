@@ -103,7 +103,7 @@ public class GetQueueInfoRequestPBImpl extends GetQueueInfoRequest {
     viaProto = false;
   }
 
-  public GetQueueInfoRequestProto getProto() {
+  public synchronized GetQueueInfoRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

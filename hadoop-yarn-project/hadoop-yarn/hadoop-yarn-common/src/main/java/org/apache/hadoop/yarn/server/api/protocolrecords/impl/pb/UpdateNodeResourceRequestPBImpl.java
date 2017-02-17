@@ -67,7 +67,7 @@ public class UpdateNodeResourceRequestPBImpl extends UpdateNodeResourceRequest {
     this.nodeResourceMap.putAll(nodeResourceMap);
   }
 
-  public UpdateNodeResourceRequestProto getProto() {
+  public synchronized UpdateNodeResourceRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

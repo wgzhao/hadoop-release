@@ -65,7 +65,7 @@ public class RemoveFromClusterNodeLabelsRequestPBImpl extends
     viaProto = true;
   }
 
-  public RemoveFromClusterNodeLabelsRequestProto getProto() {
+  public synchronized RemoveFromClusterNodeLabelsRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
