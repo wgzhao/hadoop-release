@@ -43,7 +43,7 @@ extends RefreshUserToGroupsMappingsRequest {
     viaProto = true;
   }
   
-  public RefreshUserToGroupsMappingsRequestProto getProto() {
+  public synchronized RefreshUserToGroupsMappingsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

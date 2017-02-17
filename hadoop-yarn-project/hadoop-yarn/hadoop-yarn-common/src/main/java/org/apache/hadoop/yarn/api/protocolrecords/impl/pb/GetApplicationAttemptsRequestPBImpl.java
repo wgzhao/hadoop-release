@@ -51,7 +51,7 @@ public class GetApplicationAttemptsRequestPBImpl extends
     viaProto = true;
   }
 
-  public GetApplicationAttemptsRequestProto getProto() {
+  public synchronized GetApplicationAttemptsRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

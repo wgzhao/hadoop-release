@@ -46,7 +46,7 @@ public class GetLabelsToNodesRequestPBImpl extends GetLabelsToNodesRequest {
     viaProto = true;
   }
 
-  public GetLabelsToNodesRequestProto getProto() {
+  public synchronized GetLabelsToNodesRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

@@ -61,7 +61,7 @@ public class NodeHeartbeatRequestPBImpl extends NodeHeartbeatRequest {
     viaProto = true;
   }
   
-  public NodeHeartbeatRequestProto getProto() {
+  public synchronized NodeHeartbeatRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

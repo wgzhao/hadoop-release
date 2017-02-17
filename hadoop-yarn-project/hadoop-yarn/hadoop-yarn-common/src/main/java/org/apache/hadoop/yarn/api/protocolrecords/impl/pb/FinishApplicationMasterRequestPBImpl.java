@@ -46,7 +46,7 @@ public class FinishApplicationMasterRequestPBImpl extends FinishApplicationMaste
     viaProto = true;
   }
 
-  public FinishApplicationMasterRequestProto getProto() {
+  public synchronized FinishApplicationMasterRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

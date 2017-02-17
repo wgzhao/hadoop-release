@@ -47,7 +47,7 @@ public class AddToClusterNodeLabelsRequestPBImpl extends
     viaProto = true;
   }
 
-  public AddToClusterNodeLabelsRequestProto getProto() {
+  public synchronized AddToClusterNodeLabelsRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

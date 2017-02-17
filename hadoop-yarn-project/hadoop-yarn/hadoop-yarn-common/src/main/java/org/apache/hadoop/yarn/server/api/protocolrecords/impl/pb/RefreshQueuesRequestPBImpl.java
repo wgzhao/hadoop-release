@@ -42,7 +42,7 @@ public class RefreshQueuesRequestPBImpl extends RefreshQueuesRequest {
     viaProto = true;
   }
   
-  public RefreshQueuesRequestProto getProto() {
+  public synchronized RefreshQueuesRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

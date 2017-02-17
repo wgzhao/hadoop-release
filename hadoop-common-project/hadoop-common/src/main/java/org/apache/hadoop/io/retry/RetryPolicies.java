@@ -609,7 +609,8 @@ public class RetryPolicies {
    * Fall back on underlying retry policy otherwise.
    */
   static class FailoverOnNetworkExceptionRetry implements RetryPolicy {
-    
+
+    private String myString;
     private RetryPolicy fallbackPolicy;
     private int maxFailovers;
     private int maxRetries;
@@ -667,7 +668,7 @@ public class RetryPolicies {
             getFailoverOrRetrySleepTime(failovers));
       } else if (e instanceof RetriableException
           || getWrappedRetriableException(e) != null) {
-        // RetriableException or RetriableException wrapped 
+        // RetriableException or RetriableException wrapped
         return new RetryAction(RetryAction.RetryDecision.RETRY,
               getFailoverOrRetrySleepTime(retries));
       } else if (e instanceof InvalidToken) {
@@ -687,6 +688,18 @@ public class RetryPolicies {
               isIdempotentOrAtMostOnce);
       }
     }
+
+    @Override
+    public String toString() {
+      if (myString == null) {
+        myString = getClass().getSimpleName() + " (maxRetries=" + maxRetries
+            + ", maxFailovers=" + maxFailovers + ", delayMillis=" + delayMillis
+            + ", maxDelayBase=" + maxDelayBase + ")";
+      }
+      return myString;
+
+    }
+
   }
 
   /**

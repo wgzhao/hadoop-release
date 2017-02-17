@@ -103,7 +103,7 @@ public class GetApplicationAttemptReportRequestPBImpl extends
   }
 
   @Override
-  public ApplicationAttemptId getApplicationAttemptId() {
+  public synchronized ApplicationAttemptId getApplicationAttemptId() {
     if (this.applicationAttemptId != null) {
       return this.applicationAttemptId;
     }

@@ -43,7 +43,7 @@ extends RefreshAdminAclsRequest {
     viaProto = true;
   }
   
-  public RefreshAdminAclsRequestProto getProto() {
+  public synchronized RefreshAdminAclsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

@@ -47,7 +47,7 @@ public class ReservationSubmissionRequestPBImpl extends
     viaProto = true;
   }
 
-  public ReservationSubmissionRequestProto getProto() {
+  public synchronized ReservationSubmissionRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
