@@ -3419,3 +3419,6 @@ ATS V1.5:
 
     BUG-75000. HDFS-11391. Numeric usernames do no work with WebHDFS FS write
     access. (Pierre Villard via Yongjun Zhang)
+
+    BUG-74959. HADOOP-13433 Race in UGI.reloginFromKeytab. Contributed by Duo
+    Zhang.
