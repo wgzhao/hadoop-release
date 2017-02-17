@@ -49,7 +49,7 @@ public class KillApplicationRequestPBImpl extends KillApplicationRequest {
     viaProto = true;
   }
   
-  public KillApplicationRequestProto getProto() {
+  public synchronized KillApplicationRequestProto getProto() {
       mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

@@ -53,7 +53,7 @@ public class GetContainerStatusesRequestPBImpl extends
     viaProto = true;
   }
 
-  public GetContainerStatusesRequestProto getProto() {
+  public synchronized GetContainerStatusesRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

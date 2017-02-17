@@ -44,7 +44,7 @@ public class RefreshServiceAclsRequestPBImpl extends RefreshServiceAclsRequest {
     viaProto = true;
   }
   
-  public RefreshServiceAclsRequestProto getProto() {
+  public synchronized RefreshServiceAclsRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

@@ -49,7 +49,7 @@ public class ReservationUpdateRequestPBImpl extends ReservationUpdateRequest {
     viaProto = true;
   }
 
-  public ReservationUpdateRequestProto getProto() {
+  public synchronized ReservationUpdateRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

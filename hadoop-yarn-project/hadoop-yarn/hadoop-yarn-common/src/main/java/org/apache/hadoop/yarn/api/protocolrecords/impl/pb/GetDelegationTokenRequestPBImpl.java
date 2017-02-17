@@ -64,7 +64,7 @@ public class GetDelegationTokenRequestPBImpl extends GetDelegationTokenRequest {
     this.renewer = renewer;
   }
 
-  public GetDelegationTokenRequestProto getProto() {
+  public synchronized GetDelegationTokenRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;

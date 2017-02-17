@@ -44,7 +44,7 @@ public class RefreshNodesResourcesRequestPBImpl extends RefreshNodesResourcesReq
     viaProto = true;
   }
 
-  public RefreshNodesResourcesRequestProto getProto() {
+  public synchronized RefreshNodesResourcesRequestProto getProto() {
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;

@@ -47,7 +47,7 @@ public class MoveApplicationAcrossQueuesRequestPBImpl extends MoveApplicationAcr
     viaProto = true;
   }
   
-  public MoveApplicationAcrossQueuesRequestProto getProto() {
+  public synchronized MoveApplicationAcrossQueuesRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
