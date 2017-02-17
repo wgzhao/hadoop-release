@@ -44,7 +44,7 @@ public class ReleaseSharedCacheResourceRequestPBImpl extends
     viaProto = true;
   }
 
-  public ReleaseSharedCacheResourceRequestProto getProto() {
+  public synchronized ReleaseSharedCacheResourceRequestProto getProto() {
     mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
