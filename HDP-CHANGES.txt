@@ -868,3 +868,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-57322. HADOOP-13103. Group resolution from LDAP may fail on javax.naming.ServiceUnavailableException
 
     HADOOP-13105. Support timeouts in LDAP queries in LdapGroupsMapping. Contributed by Mingliang Liu.
+
+    BUG-75099. HDFS-6763. Initialize file system-wide quota once on
+    transitioning to active.
