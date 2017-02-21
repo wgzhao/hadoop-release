@@ -3422,3 +3422,6 @@ ATS V1.5:
 
     BUG-74959. HADOOP-13433 Race in UGI.reloginFromKeytab. Contributed by Duo
     Zhang.
+
+    BUG-68611. YARN-5923. Unable to access logs for a running application if
+    YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
