@@ -3459,3 +3459,6 @@ ATS V1.5:
     BUG-72913. Make RM registry work with zk in security
 
     BUG-75491. Make RegistrySecurity use short user name for zk sasl
+
+    BUG-75434. HADOOP-14081 S3A: Consider avoiding array copy in
+    S3ABlockOutputStream (ByteArrayBlock). Contributed by Rajesh Balamohan
