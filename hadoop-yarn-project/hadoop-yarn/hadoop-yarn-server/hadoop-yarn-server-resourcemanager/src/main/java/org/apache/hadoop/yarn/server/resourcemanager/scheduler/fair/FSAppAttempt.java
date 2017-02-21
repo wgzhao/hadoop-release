@@ -679,11 +679,6 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
         // Check the AM resource usage for the leaf queue
         if (getLiveContainers().size() == 0 && !getUnmanagedAM()) {
           if (!getQueue().canRunAppAM(getAMResource())) {
-            if (isWaitingForAMContainer()) {
-              List<ResourceRequest> ask = appSchedulingInfo.getAllResourceRequests();
-              updateAMDiagnosticMsg(ask.get(0).getCapability(), " exceeds maximum "
-                  + "AM resource allowed).");
-            }
             return Resources.none();
           }
         }

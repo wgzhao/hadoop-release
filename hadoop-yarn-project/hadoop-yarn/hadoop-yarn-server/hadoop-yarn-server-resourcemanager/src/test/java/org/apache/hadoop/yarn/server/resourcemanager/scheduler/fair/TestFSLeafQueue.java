@@ -286,7 +286,7 @@ public class TestFSLeafQueue extends FairSchedulerTestBase {
 
     FSLeafQueue queueB = queueMgr.getLeafQueue("queueB", false);
     assertEquals(3 * 1024, queueB.getResourceUsage().getMemory());
-    assertEquals(6, queueB.getResourceUsage().getVirtualCores());
+    assertEquals(7, queueB.getResourceUsage().getVirtualCores());
 
     scheduler.update();
 

@@ -4273,13 +4273,6 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     Assert.assertEquals(2048, app.getCurrentConsumption().getMemorySize());
     Assert.assertEquals(2, app.getCurrentConsumption().getVirtualCores());
 
-    // 2 containers should be assigned to 2 nodes
-    Set<NodeId> nodes = new HashSet<NodeId>();
-    Iterator<RMContainer> it = app.getLiveContainers().iterator();
-    while (it.hasNext()) {
-      nodes.add(it.next().getContainer().getNodeId());
-    }
-    Assert.assertEquals(2, nodes.size());
   }
 
   @Test

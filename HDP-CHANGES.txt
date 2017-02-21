@@ -3430,3 +3430,5 @@ ATS V1.5:
 
     BUG-72031. YARN-5773. RM recovery too slow due to
     LeafQueue#activateApplications (Bibin A Chundatt via Varun Saxena)
+
+    BUG-73761. Fix Fair scheduler UT fails.
