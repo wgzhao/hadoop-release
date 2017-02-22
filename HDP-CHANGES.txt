@@ -3331,9 +3331,6 @@ ATS V1.5:
 
     HDFS-4176. EditLogTailer should call rollEdits with a timeout. (lei)
 
-    HDFS-10763. Open files can leak permanently due to inconsistent lease
-    update. Contributed by Kihwal Lee.
-
     HADOOP-13494. ReconfigurableBase can log sensitive information. Contributed
     by Sean Mackrory.
 
