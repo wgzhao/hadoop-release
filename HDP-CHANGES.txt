@@ -187,6 +187,7 @@ by CHANGES.txt.
     to WASB client. Contributed by Santhosh G Nayak
 
     BUG-79165. HADOOP-13204. Add support for SSE-KMS and SSE-C in s3a filesystem. (Steve Moist via lei)
+    BUG-79165. HADOOP-14102. Relax error message assertion in S3A test ITestS3AEncryptionSSEC. Contributed by Mingliang Liu
 
 ATS V1.5:
 
