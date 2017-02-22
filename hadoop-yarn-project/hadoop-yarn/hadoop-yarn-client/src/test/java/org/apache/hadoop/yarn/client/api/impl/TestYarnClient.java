@@ -1218,10 +1218,10 @@ public class TestYarnClient {
       cluster.start();
 
       int attempts;
-      for(attempts = 10; attempts > 0; attempts--) {
+      for(attempts = 30; attempts > 0; attempts--) {
         if (cluster.getResourceManager().getRMContext().getReservationSystem()
             .getPlan(ReservationSystemTestUtil.reservationQ).getTotalCapacity()
-            .getMemorySize() > 0) {
+            .getMemorySize() > 6000) {
           break;
         }
         try {

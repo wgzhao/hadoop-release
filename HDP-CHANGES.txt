@@ -3438,3 +3438,5 @@ ATS V1.5:
     LeafQueue#activateApplications (Bibin A Chundatt via Varun Saxena)
 
     BUG-73761. Fix Fair scheduler UT fails.
+
+    BUG-75453. testReservationAPIs UT fails. (wangda)
