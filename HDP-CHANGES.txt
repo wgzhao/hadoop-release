@@ -3438,3 +3438,9 @@ ATS V1.5:
 
     BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent lease update.
 
+    BUG-74475. YARN-6145. Improve log message on fail over.
+
+    BUG-74594. YARN-4496. Improve HA ResourceManager Failover detection on the client.
+
+    BUG-66650. HDFS-6184. Capture NN's thread dump when it fails over.
+
