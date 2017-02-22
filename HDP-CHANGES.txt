@@ -3492,3 +3492,5 @@ ATS V1.5:
 
     BUG-78855. HDFS-10722. Fix race condition in
     TestEditLog#testBatchedSyncWithClosedLogs. Contributed by Daryn Sharp.
+
+    BUG-75453. testReservationAPIs UT fails. (wangda)
