@@ -136,6 +136,7 @@ public class TestNodeStatusUpdater {
   private Configuration conf;
   private NodeManager nm;
   private AtomicBoolean assertionFailedInThread = new AtomicBoolean(false);
+  private LocalDirsHandlerService dirsHandler;
 
   @Before
   public void setUp() {
@@ -144,6 +145,9 @@ public class TestNodeStatusUpdater {
     logsDir.mkdirs();
     remoteLogsDir.mkdirs();
     conf = createNMConfig();
+    NodeHealthCheckerService healthChecker = new NodeHealthCheckerService();
+    healthChecker.init(conf);
+    dirsHandler = healthChecker.getDiskHandler();
   }
 
   @After
@@ -1660,7 +1664,7 @@ public class TestNodeStatusUpdater {
     public MyNMContext(
         NMContainerTokenSecretManager containerTokenSecretManager,
         NMTokenSecretManagerInNM nmTokenSecretManager) {
-      super(containerTokenSecretManager, nmTokenSecretManager, null, null,
+      super(containerTokenSecretManager, nmTokenSecretManager, dirsHandler, null,
           new NMNullStateStoreService());
     }
 
