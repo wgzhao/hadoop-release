@@ -202,7 +202,8 @@ public class TestTrashWithSecureEncryptionZones {
     miniKMS = miniKMSBuilder.setKmsConfDir(baseDir).build();
     miniKMS.start();
 
-    baseConf.set(KEY_PROVIDER_PATH, getKeyProviderURI());
+    baseConf.set(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI,
+        getKeyProviderURI());
     baseConf.setBoolean(DFSConfigKeys
         .DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);
 

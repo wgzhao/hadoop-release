@@ -3447,4 +3447,6 @@ ATS V1.5:
     Fails Intermittently. Contributed by Yiqun Lin.
 
     BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent lease update
+    
+    BUG-72332. TestTrashWithSecureEncryptionZones diverged from HDFS-10906
 
