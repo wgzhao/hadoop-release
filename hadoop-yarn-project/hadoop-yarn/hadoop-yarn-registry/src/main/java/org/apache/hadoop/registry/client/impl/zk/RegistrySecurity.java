@@ -725,16 +725,20 @@ public class RegistrySecurity extends AbstractService {
           break;
 
         case sasl:
-          JaasConfiguration jconf =
-              new JaasConfiguration(jaasClientEntry, principal, keytab);
-          javax.security.auth.login.Configuration.setConfiguration(jconf);
-          setSystemPropertyIfUnset(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY,
-              "true");
-          setSystemPropertyIfUnset(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,
-              jaasClientEntry);
-          LOG.info(
-              "Enabling ZK sasl client: jaasClientEntry = " + jaasClientEntry
-                  + ", principal = " + principal + ", keytab = " + keytab);
+          if (principal == null && keytab == null) {
+            setZKSaslClientProperties(jaasClientIdentity, jaasClientEntry);
+          } else {
+            JaasConfiguration jconf =
+                new JaasConfiguration(jaasClientEntry, principal, keytab);
+            javax.security.auth.login.Configuration.setConfiguration(jconf);
+            setSystemPropertyIfUnset(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY,
+                "true");
+            setSystemPropertyIfUnset(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,
+                jaasClientEntry);
+            LOG.info(
+                "Enabling ZK sasl client: jaasClientEntry = " + jaasClientEntry
+                    + ", principal = " + principal + ", keytab = " + keytab);
+          }
       }
     }
   }
