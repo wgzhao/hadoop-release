@@ -527,6 +527,9 @@ ATS V1.5:
     BUG-68464. HDFS-11122. TestDFSAdmin#testReportCommand fails due to timed out. Contributed by Yiqun Lin
     BUG-68464. HDFS-10986. DFSAdmin should log detailed error message if any. Contributed by MingLiang Liu
 
+    BUG-76035. HADOOP-14091. AbstractFileSystem implementaion for 'wasbs'
+    scheme. Contributed Varada Hemeswari.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
