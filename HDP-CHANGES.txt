@@ -3218,9 +3218,6 @@ ATS V1.5:
     BUG-71587. HDFS-11087. NamenodeFsck should check if the output writer is
     still writable. Contributed by Erik Krogen.
 
-    BUG-71588. HDFS-11056. Concurrent append and read operations lead to
-    checksum error. Contributed by Wei-Chiu Chuang.
-
     BUG-73096. HDFS-11263. ClassCastException when we use Bzipcodec for Fsimage
     compression. Contributed by Brahma Reddy Battula.
 

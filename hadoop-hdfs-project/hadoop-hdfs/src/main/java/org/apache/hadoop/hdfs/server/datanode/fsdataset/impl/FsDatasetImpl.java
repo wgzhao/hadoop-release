@@ -988,7 +988,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
    * @param blockFile block file for which the checksum will be computed
    * @throws IOException
    */
-  static void computeChecksum(File srcMeta, File dstMeta, File blockFile)
+  private static void computeChecksum(File srcMeta, File dstMeta, File blockFile)
       throws IOException {
     final DataChecksum checksum = BlockMetadataHeader.readDataChecksum(srcMeta);
     final byte[] data = new byte[1 << 16];
@@ -1159,13 +1159,6 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     ReplicaBeingWritten newReplicaInfo = new ReplicaBeingWritten(
         replicaInfo.getBlockId(), replicaInfo.getNumBytes(), newGS,
         v, newBlkFile.getParentFile(), Thread.currentThread(), bytesReserved);
-
-    // load last checksum and datalen
-    byte[] lastChunkChecksum = v.loadLastPartialChunkChecksum(
-        replicaInfo.getBlockFile(), replicaInfo.getMetaFile());
-    newReplicaInfo.setLastChecksumAndDataLen(
-        replicaInfo.getNumBytes(), lastChunkChecksum);
-
     File newmeta = newReplicaInfo.getMetaFile();
 
     // rename meta file to rbw directory
@@ -1488,12 +1481,6 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
         blockId, numBytes, expectedGs,
         v, dest.getParentFile(), Thread.currentThread(), 0);
     rbw.setBytesAcked(visible);
-
-    // load last checksum and datalen
-    final File destMeta = FsDatasetUtil.getMetaFile(dest,
-        b.getGenerationStamp());
-    byte[] lastChunkChecksum = v.loadLastPartialChunkChecksum(dest, destMeta);
-    rbw.setLastChecksumAndDataLen(numBytes, lastChunkChecksum);
     // overwrite the RBW in the volume map
     volumeMap.add(b.getBlockPoolId(), rbw);
     return rbw;
@@ -2535,9 +2522,6 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
             newBlockId, recoveryId, volume, blockFile.getParentFile(),
             newlength);
         newReplicaInfo.setNumBytes(newlength);
-        // In theory, this rbw replica needs to reload last chunk checksum,
-        // but it is immediately converted to finalized state within the same
-        // lock, so no need to update it.
         volumeMap.add(bpid, newReplicaInfo);
         finalizeReplica(bpid, newReplicaInfo);
       }
