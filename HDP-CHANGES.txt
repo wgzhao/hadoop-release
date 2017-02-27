@@ -3455,3 +3455,7 @@ ATS V1.5:
 
     BUG-71848. MAPREDUCE-6724. Single shuffle to memory must not exceed
     Integer#MAX_VALUE. (Haibo Chen via gera)
+
+    BUG-72913. Make RM registry work with zk in security
+
+    BUG-75491. Make RegistrySecurity use short user name for zk sasl
