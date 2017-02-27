@@ -3438,3 +3438,5 @@ ATS V1.5:
 
     BUG-57080. HDFS-10342. BlockManager#createLocatedBlocks should not check corrupt
     replicas if none are corrupt. Contributed by Kuhu Shukla.
+
+    BUG-72157. MAPREDUCE-6789. Fix TestAMWebApp failure. Contributed by Daniel Templeton.
