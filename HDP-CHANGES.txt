@@ -3440,3 +3440,6 @@ ATS V1.5:
     replicas if none are corrupt. Contributed by Kuhu Shukla.
 
     BUG-72157. MAPREDUCE-6789. Fix TestAMWebApp failure. Contributed by Daniel Templeton.
+
+    BUG-71848. MAPREDUCE-6724. Single shuffle to memory must not exceed
+    Integer#MAX_VALUE. (Haibo Chen via gera)
