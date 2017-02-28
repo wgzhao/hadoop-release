@@ -3434,9 +3434,6 @@ ATS V1.5:
     BUG-75289. HADOOP-14019. Fix some typos in the s3a docs. Contributed by
     Steve Loughran.
 
-    BUG-75289. HADOOP-14040. Use shaded aws-sdk uber-JAR 1.11.86. Contributed
-    by Steve Loughran and Sean Mackrory
-
     BUG-72031. YARN-5773. RM recovery too slow due to
     LeafQueue#activateApplications (Bibin A Chundatt via Varun Saxena)
 
