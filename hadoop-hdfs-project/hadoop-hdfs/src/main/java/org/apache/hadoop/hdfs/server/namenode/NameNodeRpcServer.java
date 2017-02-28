@@ -1442,7 +1442,7 @@ public class NameNodeRpcServer implements NamenodeProtocols {
         @Override
         public Boolean call() throws IOException {
           return bm.processReport(nodeReg, reports[index].getStorage(),
-              blocks, context);
+              blocks, context, (index == reports.length - 1));
         }
       });
       metrics.incrStorageBlockReportOps();
