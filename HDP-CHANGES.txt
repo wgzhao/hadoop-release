@@ -3393,9 +3393,6 @@ ATS V1.5:
     BUG-71826. HADOOP-12017. Hadoop archives command should use configurable
     replication factor when closing (Contributed by Bibin A Chundatt)
 
-    BUG-68264. YARN-4545. Allow YARN distributed shell to use ATS v1.5 APIs. Li Lu via
-    junping_du
-
     BUG-70564. HADOOP-13208. S3A listFiles(recursive=true) to do a bulk
     listObjects instead of walking the pseudo-tree of directories. Contributed
     by Steve Loughran.
