@@ -3465,3 +3465,7 @@ ATS V1.5:
 
     HADOOP-13826. S3A Deadlock in multipart copy due to thread pool limits.
     Contributed by  Sean Mackrory.
+
+    BUG-73570. HADOOP-14028. S3A BlockOutputStreams doesn't delete temporary
+    files in multipart uploads or handle part upload failures.
+    Contributed by Steve Loughran.
