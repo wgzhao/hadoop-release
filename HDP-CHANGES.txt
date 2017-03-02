@@ -3469,3 +3469,7 @@ ATS V1.5:
     BUG-73570. HADOOP-14028. S3A BlockOutputStreams doesn't delete temporary
     files in multipart uploads or handle part upload failures.
     Contributed by Steve Loughran.
+
+    BUG-63914. YARN-6189. ApplicationNotFoundException due to RM failed over
+    should throw more user friendly exception.
+    Contributed by Junping Du.
