@@ -3473,3 +3473,6 @@ ATS V1.5:
     BUG-63914. YARN-6189. ApplicationNotFoundException due to RM failed over
     should throw more user friendly exception.
     Contributed by Junping Du.
+
+    BUG-76349. HADOOP-14138 Remove S3A ref from META-INF service discovery,
+    rely on existing core-default entry. Contributed by Steve Loughran.
