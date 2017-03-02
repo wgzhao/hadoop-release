@@ -3440,3 +3440,10 @@ ATS V1.5:
 
     BUG-71848. MAPREDUCE-6724. Single shuffle to memory must not exceed
     Integer#MAX_VALUE. (Haibo Chen via gera)
+
+    BUG-76350. HADOOP-12735. core-default.xml misspells
+    hadoop.workaround.non.threadsafe.getpwuid (Ray Chiang via cmccabe)
+
+    BUG-76350. HADOOP-13943.
+    TestCommonConfigurationFields#testCompareXmlAgainstConfigurationClass fails
+    after HADOOP-13863. Contributed by Brahma Reddy Battula.

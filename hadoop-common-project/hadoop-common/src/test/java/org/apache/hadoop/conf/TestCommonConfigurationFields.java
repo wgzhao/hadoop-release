@@ -108,6 +108,15 @@ public class TestCommonConfigurationFields extends TestConfigurationFieldsBase {
     xmlPropsToSkipCompare.add("fs.adl.impl");
     xmlPropsToSkipCompare.add("fs.AbstractFileSystem.adl.impl");
 
+    // Azure properties are in a different class
+    // - org.apache.hadoop.fs.azure.AzureNativeFileSystemStore
+    // - org.apache.hadoop.fs.azure.SASKeyGeneratorImpl
+    // - org.apache.hadoop.fs.azure.NativeAzureFileSystem
+    xmlPropsToSkipCompare.add("fs.azure.sas.expiry.period");
+    xmlPropsToSkipCompare.add("fs.azure.local.sas.key.mode");
+    xmlPropsToSkipCompare.add("fs.azure.secure.mode");
+    xmlPropsToSkipCompare.add("fs.azure.authorization");
+
     // Deprecated properties.  These should eventually be removed from the
     // class.
     configurationPropsToSkipCompare
@@ -155,7 +164,7 @@ public class TestCommonConfigurationFields extends TestConfigurationFieldsBase {
     // - org.apache.hadoop.fs.FileSystem#getFileSystemClass()
     xmlPropsToSkipCompare.add("fs.swift.impl");
     // - package org.apache.hadoop.tracing.TraceUtils ?
-    xmlPropsToSkipCompare.add("hadoop.htrace.span.receiver.classes");
+    xmlPropsToSkipCompare.add("hadoop.htrace.spanreceiver.classes");
     // Private keys
     // - org.apache.hadoop.ha.ZKFailoverController;
     xmlPropsToSkipCompare.add("ha.zookeeper.parent-znode");
