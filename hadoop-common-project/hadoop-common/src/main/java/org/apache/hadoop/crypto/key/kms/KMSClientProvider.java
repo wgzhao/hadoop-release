@@ -42,6 +42,8 @@ import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthentica
 import org.apache.hadoop.util.HttpExceptionUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -82,6 +84,9 @@ import com.google.common.base.Preconditions;
 @InterfaceAudience.Private
 public class KMSClientProvider extends KeyProvider implements CryptoExtension,
     KeyProviderDelegationTokenExtension.DelegationTokenExtension {
+
+  private static final Logger LOG =
+      LoggerFactory.getLogger(KMSClientProvider.class);
 
   private static final String INVALID_SIGNATURE = "Invalid signature";
 
@@ -483,6 +488,9 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
         }
       });
     } catch (IOException ex) {
+      if (ex instanceof SocketTimeoutException) {
+        LOG.warn("Failed to connect to {}:{}", url.getHost(), url.getPort());
+      }
       throw ex;
     } catch (UndeclaredThrowableException ex) {
       throw new IOException(ex.getUndeclaredThrowable());
