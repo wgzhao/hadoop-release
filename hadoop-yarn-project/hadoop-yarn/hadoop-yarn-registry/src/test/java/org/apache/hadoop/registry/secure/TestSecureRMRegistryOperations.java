@@ -38,6 +38,7 @@ import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ import static org.apache.hadoop.registry.client.api.RegistryConstants.*;
 /**
  * Verify that the {@link RMRegistryOperationsService} works securely
  */
+@Ignore
 public class TestSecureRMRegistryOperations extends AbstractSecureRegistryTest {
   private static final Logger LOG =
       LoggerFactory.getLogger(TestSecureRMRegistryOperations.class);
