@@ -3473,3 +3473,6 @@ ATS V1.5:
 
     BUG-76349. HADOOP-14138 Remove S3A ref from META-INF service discovery,
     rely on existing core-default entry. Contributed by Steve Loughran.
+
+    BUG-76323/YARN-6270. WebUtils.getRMWebAppURLWithScheme() needs to honor RM
+    HA setting. Contributed by Xuan Gong
