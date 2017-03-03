@@ -388,14 +388,14 @@ public class ParentQueue extends AbstractCSQueue {
     
     // Check if this queue need more resource, simply skip allocation if this
     // queue doesn't need more resources.
-    if (!super.hasPendingResourceRequest(node.getPartition(),
-        clusterResource, schedulingMode)) {
+    if (!super.hasPendingResourceRequest(node.getPartition(), clusterResource,
+        schedulingMode)) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Skip this queue=" + getQueuePath()
             + ", because it doesn't need more resource, schedulingMode="
-            + schedulingMode.name() + " node-partition=" + node.getPartition());
+            + schedulingMode.name() + " node-partition=" + node.getPartition()
+            + ", pending resource=" + queueUsage.getAllPending());
       }
-      return NULL_ASSIGNMENT;
     }
     
     CSAssignment assignment = 
