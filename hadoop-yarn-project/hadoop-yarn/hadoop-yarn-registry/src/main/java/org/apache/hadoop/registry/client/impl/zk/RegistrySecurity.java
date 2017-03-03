@@ -725,20 +725,22 @@ public class RegistrySecurity extends AbstractService {
           break;
 
         case sasl:
+          JaasConfiguration jconf;
           if (principal == null && keytab == null) {
-            setZKSaslClientProperties(jaasClientIdentity, jaasClientEntry);
+            jconf = new JaasConfiguration(jaasClientEntry, principal, keytab,
+                "false", "true");
           } else {
-            JaasConfiguration jconf =
-                new JaasConfiguration(jaasClientEntry, principal, keytab);
-            javax.security.auth.login.Configuration.setConfiguration(jconf);
-            setSystemPropertyIfUnset(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY,
-                "true");
-            setSystemPropertyIfUnset(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,
-                jaasClientEntry);
-            LOG.info(
-                "Enabling ZK sasl client: jaasClientEntry = " + jaasClientEntry
-                    + ", principal = " + principal + ", keytab = " + keytab);
+            jconf = new JaasConfiguration(jaasClientEntry, principal, keytab,
+                "true", "false");
           }
+          javax.security.auth.login.Configuration.setConfiguration(jconf);
+          setSystemPropertyIfUnset(ZooKeeperSaslClient.ENABLE_CLIENT_SASL_KEY,
+              "true");
+          setSystemPropertyIfUnset(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,
+              jaasClientEntry);
+          LOG.info(
+              "Enabling ZK sasl client: jaasClientEntry = " + jaasClientEntry
+                  + ", principal = " + principal + ", keytab = " + keytab);
       }
     }
   }
@@ -766,19 +768,21 @@ public class RegistrySecurity extends AbstractService {
     /**
      * Add an entry to the jaas configuration with the passed in name,
      * principal, and keytab. The other necessary options will be set for you.
-     *
-     * @param entryName The name of the entry (e.g. "Client")
+     *  @param entryName The name of the entry (e.g. "Client")
      * @param principal The principal of the user
      * @param keytab The location of the keytab
+     * @param useKeytab use Keytab or not
+     * @param useTicketCache use Ticket Cache or not
      */
-    public JaasConfiguration(String entryName, String principal, String keytab) {
+    public JaasConfiguration(String entryName, String principal, String keytab,
+        String useKeytab, String useTicketCache) {
       this.entryName = entryName;
       Map<String, String> options = new HashMap<String, String>();
       options.put("keyTab", keytab);
       options.put("principal", principal);
-      options.put("useKeyTab", "true");
+      options.put("useKeyTab", useKeytab);
       options.put("storeKey", "true");
-      options.put("useTicketCache", "false");
+      options.put("useTicketCache", useTicketCache);
       options.put("refreshKrb5Config", "true");
       String jaasEnvVar = System.getenv("HADOOP_JAAS_DEBUG");
       if (jaasEnvVar != null && "true".equalsIgnoreCase(jaasEnvVar)) {
