@@ -958,3 +958,6 @@ covered by CHANGES.txt.
 
     BUG-70725. HDFS-9710. DN can be configured to send block receipt IBRs in
     batches.
+
+    BUG-76078. HDFS-9572. Prevent DataNode log spam if a client connects on the
+    data transfer port but sends no data. (cnauroth)
