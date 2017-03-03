@@ -560,6 +560,8 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-76478. HDFS-11476. Fix NPE in FsDatasetImpl#checkAndUpdate (Xiaobing Zhou)
+
     BUG-66654. HADOOP-13546. Override equals and hashCode to avoid connection leakage
     (Xiaobing Zhou)
 
