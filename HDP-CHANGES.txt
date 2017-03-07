@@ -3447,3 +3447,6 @@ ATS V1.5:
     BUG-76350. HADOOP-13943.
     TestCommonConfigurationFields#testCompareXmlAgainstConfigurationClass fails
     after HADOOP-13863. Contributed by Brahma Reddy Battula.
+
+    BUG-76646. HADOOP-14048. REDO operation of WASB#AtomicRename should create
+    placeholder blob for destination folder. Contributed by NITIN VERMA
