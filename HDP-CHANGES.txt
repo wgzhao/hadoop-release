@@ -3478,3 +3478,6 @@ ATS V1.5:
 
     BUG-76323/YARN-6270. WebUtils.getRMWebAppURLWithScheme() needs to honor RM
     HA setting. Contributed by Xuan Gong
+
+    BUG-76643. HADOOP-14048. REDO operation of WASB#AtomicRename should create
+    placeholder blob for destination folder. Contributed by NITIN VERMA
