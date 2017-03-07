@@ -92,6 +92,7 @@ import com.microsoft.azure.storage.StorageException;
 @InterfaceStability.Stable
 public class NativeAzureFileSystem extends FileSystem {
   private static final int USER_WX_PERMISION = 0300;
+  private static final String USER_HOME_DIR_PREFIX_DEFAULT = "/user";
   /**
    * A description of a folder rename operation, including the source and
    * destination keys, and descriptions of the files in the source folder.
@@ -1141,6 +1142,8 @@ public class NativeAzureFileSystem extends FileSystem {
    */
   private WasbAuthorizerInterface authorizer = null;
 
+  private UserGroupInformation ugi;
+
   private String delegationToken = null;
 
   public NativeAzureFileSystem() {
@@ -1258,6 +1261,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     store.initialize(uri, conf, instrumentation);
     setConf(conf);
+    this.ugi = UserGroupInformation.getCurrentUser();
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
     this.workingDir = new Path("/user", UserGroupInformation.getCurrentUser()
         .getShortUserName()).makeQualified(getUri(), getWorkingDirectory());
@@ -1292,6 +1296,12 @@ public class NativeAzureFileSystem extends FileSystem {
               InetAddress.getLocalHost().getCanonicalHostName(),
               Constants.DEFAULT_CRED_SERVICE_PORT));
     }
+  }
+
+  @Override
+  public Path getHomeDirectory() {
+    return makeQualified(new Path(
+        USER_HOME_DIR_PREFIX_DEFAULT + "/" + this.ugi.getShortUserName()));
   }
 
   @VisibleForTesting
