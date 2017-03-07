@@ -19,6 +19,7 @@
 package org.apache.hadoop.fs.azure;
 
 import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME;
+import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_LOCAL_SAS_KEY_MODE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -91,7 +92,7 @@ public final class AzureBlobStorageTestAccount {
   private static final ConcurrentLinkedQueue<MetricsRecord> allMetrics =
       new ConcurrentLinkedQueue<MetricsRecord>();
   private static boolean metricsConfigSaved = false;
-  
+
   private AzureBlobStorageTestAccount(NativeAzureFileSystem fs,
       CloudStorageAccount account,
       CloudBlobContainer container) {
@@ -270,6 +271,7 @@ public final class AzureBlobStorageTestAccount {
     store.setAzureStorageInteractionLayer(mockStorage);
     NativeAzureFileSystem fs = new NativeAzureFileSystem(store);
     setMockAccountKey(conf);
+    configureSecureModeTestSettings(conf);
     // register the fs provider.
 
     fs.initialize(new URI(MOCK_WASB_URI), conf);
@@ -330,6 +332,8 @@ public final class AzureBlobStorageTestAccount {
     // Set account URI and initialize Azure file system.
     URI accountUri = createAccountUri(DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME,
         containerName);
+    configureSecureModeTestSettings(conf);
+
     fs.initialize(accountUri, conf);
 
     // Create test account initializing the appropriate member variables.
@@ -366,6 +370,7 @@ public final class AzureBlobStorageTestAccount {
     // out-of-band appends.
     conf.setBoolean(KEY_DISABLE_THROTTLING, true);
     conf.setBoolean(KEY_READ_TOLERATE_CONCURRENT_APPEND, true);
+    configureSecureModeTestSettings(conf);
 
     // Set account URI and initialize Azure file system.
     URI accountUri = createAccountUri(accountName, containerName);
@@ -404,6 +409,17 @@ public final class AzureBlobStorageTestAccount {
    */
   public static void setMockAccountKey(Configuration conf) {
     setMockAccountKey(conf, MOCK_ACCOUNT_NAME);
+  }
+
+  /**
+   * Configure default values for Secure Mode testing.
+   * These values are relevant only when testing in Secure Mode.
+   *
+   * @param conf
+   *          The configuration.
+   */
+  public static void configureSecureModeTestSettings(Configuration conf) {
+    conf.set(KEY_USE_LOCAL_SAS_KEY_MODE, "true"); // always use local sas-key mode for testing
   }
 
   /**
@@ -554,6 +570,8 @@ public final class AzureBlobStorageTestAccount {
       conf.setBoolean(KEY_DISABLE_THROTTLING, true);
     }
 
+    configureSecureModeTestSettings(conf);
+
     // Set account URI and initialize Azure file system.
     URI accountUri = createAccountUri(accountName, containerName);
     fs.initialize(accountUri, conf);
@@ -691,6 +709,8 @@ public final class AzureBlobStorageTestAccount {
     // Capture the account URL and the account name.
     String accountName = conf.get(TEST_ACCOUNT_NAME_PROPERTY_NAME);
 
+    configureSecureModeTestSettings(conf);
+
     // Generate a container name and create a shared access signature string for
     // it.
     //
@@ -761,6 +781,8 @@ public final class AzureBlobStorageTestAccount {
 
     // Capture the account URL and the account name.
     String accountName = conf.get(TEST_ACCOUNT_NAME_PROPERTY_NAME);
+
+    configureSecureModeTestSettings(conf);
 
     // Set up public container with the specified blob name.
     CloudBlockBlob blobRoot = primeRootContainer(blobClient, accountName,

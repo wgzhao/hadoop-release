@@ -149,6 +149,9 @@ by CHANGES.txt.
     BUG-70505. HADOOP-14017. User friendly name for ADLS user and group.
     Contributed by Vishwajeet Dusane
 
+    BUG-71524. HADOOP-13930. Azure: Add Authorization support to WASB.
+    Contributed by Sivaguru Sankaridurg and Dushyanth
+
 ATS V1.5:
 
     YARN-4233. YARN Timeline Service plugin: ATS v1.5 (Multiple contributors)
