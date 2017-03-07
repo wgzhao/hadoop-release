@@ -84,6 +84,8 @@ public class DatanodeInfo extends DatanodeID implements Node {
   }
 
   protected AdminStates adminState;
+  private long lastBlockReportTime;
+  private long lastBlockReportMonotonic;
 
   public DatanodeInfo(DatanodeInfo from) {
     super(from);
@@ -99,6 +101,8 @@ public class DatanodeInfo extends DatanodeID implements Node {
     this.xceiverCount = from.getXceiverCount();
     this.location = from.getNetworkLocation();
     this.adminState = from.getAdminState();
+    this.lastBlockReportTime = from.getLastBlockReportTime();
+    this.lastBlockReportMonotonic = from.getLastBlockReportMonotonic();
   }
 
   public DatanodeInfo(DatanodeID nodeID) {
@@ -113,7 +117,9 @@ public class DatanodeInfo extends DatanodeID implements Node {
     this.lastUpdate = 0L;
     this.lastUpdateMonotonic = 0L;
     this.xceiverCount = 0;
-    this.adminState = null;    
+    this.adminState = null;
+    this.lastBlockReportTime = 0L;
+    this.lastBlockReportMonotonic = 0L;
   }
   
   public DatanodeInfo(DatanodeID nodeID, String location) {
@@ -133,6 +139,24 @@ public class DatanodeInfo extends DatanodeID implements Node {
         xceiverCount, location, adminState);
   }
 
+  /** Constructor. */
+  public DatanodeInfo(final DatanodeID nodeID, final String location,
+                      final long capacity, final long dfsUsed,
+                      final long nonDfsUsed, final long remaining,
+                      final long blockPoolUsed, final long cacheCapacity,
+                      final long cacheUsed, final long lastUpdate,
+                      final long lastUpdateMonotonic, final int xceiverCount,
+                      final AdminStates adminState,
+                      final long lastBlockReportTime,
+                      final long lastBlockReportMonotonic) {
+    this(nodeID.getIpAddr(), nodeID.getHostName(), nodeID.getDatanodeUuid(),
+        nodeID.getXferPort(), nodeID.getInfoPort(), nodeID.getInfoSecurePort(),
+        nodeID.getIpcPort(), capacity, dfsUsed, nonDfsUsed, remaining,
+        blockPoolUsed, cacheCapacity, cacheUsed, lastUpdate,
+        lastUpdateMonotonic, xceiverCount, location, adminState,
+        lastBlockReportTime, lastBlockReportMonotonic);
+  }
+
   /** Constructor */
   public DatanodeInfo(final String ipAddr, final String hostName,
       final String datanodeUuid, final int xferPort, final int infoPort,
@@ -145,7 +169,7 @@ public class DatanodeInfo extends DatanodeID implements Node {
     this(ipAddr, hostName, datanodeUuid, xferPort, infoPort, infoSecurePort,
         ipcPort, capacity, dfsUsed, 0L, remaining, blockPoolUsed, cacheCapacity,
         cacheUsed, lastUpdate, lastUpdateMonotonic, xceiverCount,
-        networkLocation, adminState);
+        networkLocation, adminState, 0L, 0L);
   }
   /** Constructor. */
   public DatanodeInfo(final String ipAddr, final String hostName,
@@ -155,7 +179,8 @@ public class DatanodeInfo extends DatanodeID implements Node {
      final long blockPoolUsed, final long cacheCapacity, final long cacheUsed,
      final long lastUpdate, final long lastUpdateMonotonic,
      final int xceiverCount, final String networkLocation,
-     final AdminStates adminState) {
+     final AdminStates adminState, final long lastBlockReportTime,
+     final long lastBlockReportMonotonic) {
       super(ipAddr, hostName, datanodeUuid, xferPort, infoPort, infoSecurePort,
                 ipcPort);
     this.capacity = capacity;
@@ -170,8 +195,10 @@ public class DatanodeInfo extends DatanodeID implements Node {
     this.xceiverCount = xceiverCount;
     this.location = networkLocation;
     this.adminState = adminState;
+    this.lastBlockReportTime = lastBlockReportTime;
+    this.lastBlockReportMonotonic = lastBlockReportMonotonic;
   }
-  
+
   /** Network location name */
   @Override
   public String getName() {
@@ -386,6 +413,9 @@ public class DatanodeInfo extends DatanodeID implements Node {
     buffer.append("Cache Remaining%: "+percent2String(cacheRemainingPercent) + "\n");
     buffer.append("Xceivers: "+getXceiverCount()+"\n");
     buffer.append("Last contact: "+new Date(lastUpdate)+"\n");
+    buffer.append("Last Block Report: ")
+        .append(lastBlockReportTime != 0 ? new Date(lastBlockReportTime) : "Never")
+        .append("\n");
     return buffer.toString();
   }
 
@@ -497,6 +527,26 @@ public class DatanodeInfo extends DatanodeID implements Node {
     else {
       adminState = newState;
     }
+  }
+
+  /** Sets the last block report time. */
+  public void setLastBlockReportTime(long lastBlockReportTime) {
+    this.lastBlockReportTime = lastBlockReportTime;
+  }
+
+  /** Sets the last block report monotonic time. */
+  public void setLastBlockReportMonotonic(long lastBlockReportMonotonic) {
+    this.lastBlockReportMonotonic = lastBlockReportMonotonic;
+  }
+
+  /** Last block report time. */
+  public long getLastBlockReportTime() {
+    return lastBlockReportTime;
+  }
+
+  /** Last block report monotonic time. */
+  public long getLastBlockReportMonotonic() {
+    return lastBlockReportMonotonic;
   }
 
   private transient int level; //which level of the tree the node resides

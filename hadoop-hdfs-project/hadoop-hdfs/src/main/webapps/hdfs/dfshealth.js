@@ -259,6 +259,7 @@
               { 'orderDataType': 'ng-value', 'searchable': true },
               { 'orderDataType': 'ng-value', 'type': 'numeric' },
               { 'orderDataType': 'ng-value', 'type': 'numeric' },
+              { 'orderDataType': 'ng-value', 'type': 'numeric' },
               { 'orderData': 3, 'type': 'numeric' },
               { 'orderDataType': 'ng-value', 'type': 'numeric'},
               { 'orderData': 5 }

@@ -125,6 +125,7 @@ public class TestNameNodeMXBean {
         assertTrue(((Long)liveNode.get("capacity")) > 0);
         assertTrue(liveNode.containsKey("numBlocks"));
         assertTrue(((Long)liveNode.get("numBlocks")) == 0);
+        assertTrue(liveNode.containsKey("lastBlockReport"));
       }
       assertEquals(fsn.getLiveNodes(), alivenodeinfo);
       // get attribute deadnodeinfo

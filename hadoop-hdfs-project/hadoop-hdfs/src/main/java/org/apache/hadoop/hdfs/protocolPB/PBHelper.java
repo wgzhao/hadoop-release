@@ -656,20 +656,22 @@ public class PBHelper {
     if (di == null) {
       return null;
     }
-    DatanodeInfo dinfo = new DatanodeInfo(PBHelper.convert(di.getId()),
+
+    // If nonDfsUsed is not provided, then use the legacy way for
+    // older datanodes.
+    long nonDfsUsed = di.hasNonDfsUsed() ?
+        di.getNonDfsUsed() :
+        Math.max(di.getCapacity() - di.getDfsUsed() - di.getRemaining(), 0L);
+
+    return new DatanodeInfo(PBHelper.convert(di.getId()),
         di.hasLocation() ? di.getLocation() : null, di.getCapacity(),
-        di.getDfsUsed(), di.getRemaining(), di.getBlockPoolUsed(),
+        di.getDfsUsed(), nonDfsUsed, di.getRemaining(), di.getBlockPoolUsed(),
         di.getCacheCapacity(), di.getCacheUsed(), di.getLastUpdate(),
         di.getLastUpdateMonotonic(), di.getXceiverCount(),
-        PBHelper.convert(di.getAdminState()));
-    if (di.hasNonDfsUsed()) {
-      dinfo.setNonDfsUsed(di.getNonDfsUsed());
-    } else {
-      // use the legacy way for older datanodes
-      long nonDFSUsed = di.getCapacity() - di.getDfsUsed() - di.getRemaining();
-      dinfo.setNonDfsUsed(nonDFSUsed < 0 ? 0 : nonDFSUsed);
-    }
-    return dinfo;
+        PBHelper.convert(di.getAdminState()),
+        (di.hasLastBlockReportTime() ? di.getLastBlockReportTime() : 0),
+        (di.hasLastBlockReportMonotonic() ?
+            di.getLastBlockReportMonotonic() : 0));
   }
   
   static public DatanodeInfoProto convertDatanodeInfo(DatanodeInfo di) {
@@ -734,6 +736,8 @@ public class PBHelper {
         .setLastUpdateMonotonic(info.getLastUpdateMonotonic())
         .setXceiverCount(info.getXceiverCount())
         .setAdminState(PBHelper.convert(info.getAdminState()))
+        .setLastBlockReportTime(info.getLastBlockReportTime())
+        .setLastBlockReportMonotonic(info.getLastBlockReportMonotonic())
         .build();
     return builder.build();
   }

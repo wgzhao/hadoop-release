@@ -290,6 +290,9 @@ public class JsonUtil {
     m.put("xceiverCount", datanodeinfo.getXceiverCount());
     m.put("networkLocation", datanodeinfo.getNetworkLocation());
     m.put("adminState", datanodeinfo.getAdminState().name());
+    m.put("lastBlockReportTime", datanodeinfo.getLastBlockReportTime());
+    m.put("lastBlockReportMonotonic",
+        datanodeinfo.getLastBlockReportMonotonic());
     return m;
   }
 
@@ -379,6 +382,7 @@ public class JsonUtil {
 
         getLong(m, "capacity", 0l),
         getLong(m, "dfsUsed", 0l),
+        0,
         getLong(m, "remaining", 0l),
         getLong(m, "blockPoolUsed", 0l),
         getLong(m, "cacheCapacity", 0l),
@@ -387,7 +391,9 @@ public class JsonUtil {
         getLong(m, "lastUpdateMonotonic", 0l),
         getInt(m, "xceiverCount", 0),
         getString(m, "networkLocation", ""),
-        AdminStates.valueOf(getString(m, "adminState", "NORMAL")));
+        AdminStates.valueOf(getString(m, "adminState", "NORMAL")),
+        getLong(m, "lastBlockReportTime", 0L),
+        getLong(m, "lastBlockReportMonotonic", 0L));
   }
 
   /** Convert a DatanodeInfo[] to a Json array. */
