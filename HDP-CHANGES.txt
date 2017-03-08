@@ -3450,3 +3450,7 @@ ATS V1.5:
 
     BUG-76646. HADOOP-14048. REDO operation of WASB#AtomicRename should create
     placeholder blob for destination folder. Contributed by NITIN VERMA
+
+    BUG-76674. MAPREDUCE-6698. Increase timeout on TestUnnecessaryBlockingOnHist
+    oryFileInfo.testTwoThreadsQueryingDifferentJobOfSameUser. Contributed by
+    Haibo Chen
