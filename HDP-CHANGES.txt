@@ -3484,3 +3484,6 @@ ATS V1.5:
 
     BUG-76739. HADOOP-14150. Implement getHomeDirectory() method in
     NativeAzureFileSystem. Contributed by Santhosh G Nayak
+
+    BUG-76956. HDFS-11461. DataNode Disk Outlier Detection. Contributed by
+    Hanisha Koneru.

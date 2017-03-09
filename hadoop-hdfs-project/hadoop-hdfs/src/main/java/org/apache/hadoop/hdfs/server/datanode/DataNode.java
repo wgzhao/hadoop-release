@@ -96,6 +96,7 @@ import org.apache.hadoop.hdfs.server.datanode.checker.DatasetVolumeChecker;
 import org.apache.hadoop.hdfs.server.datanode.checker.StorageLocationChecker;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsDatasetSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
+import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodeDiskMetrics;
 import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodeMetrics;
 import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodePeerMetrics;
 import org.apache.hadoop.hdfs.server.datanode.web.DatanodeHttpServer;
@@ -317,6 +318,7 @@ public class DataNode extends ReconfigurableBase
   DataNodeMetrics metrics;
   @Nullable
   private DataNodePeerMetrics peerMetrics;
+  private DataNodeDiskMetrics diskMetrics;
   private InetSocketAddress streamingAddr;
 
   // See the note below in incrDatanodeNetworkErrors re: concurrency.
@@ -1290,6 +1292,11 @@ public class DataNode extends ReconfigurableBase
     saslClient = new SaslDataTransferClient(dnConf.conf,
         dnConf.saslPropsResolver, dnConf.trustedChannelResolver);
     saslServer = new SaslDataTransferServer(dnConf, blockPoolTokenSecretManager);
+
+    if (dnConf.diskStatsEnabled) {
+      diskMetrics = new DataNodeDiskMetrics(this,
+          dnConf.outliersReportIntervalMs);
+    }
   }
 
   /**
@@ -1961,6 +1968,9 @@ public class DataNode extends ReconfigurableBase
     }
     if (metrics != null) {
       metrics.shutdown();
+    }
+    if (diskMetrics != null) {
+      diskMetrics.shutdownAndWait();
     }
     if (dataNodeInfoBeanName != null) {
       MBeans.unregister(dataNodeInfoBeanName);

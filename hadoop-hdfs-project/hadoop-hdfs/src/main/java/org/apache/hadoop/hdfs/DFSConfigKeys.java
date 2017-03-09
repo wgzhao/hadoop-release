@@ -681,9 +681,9 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS = "dfs.client.short.circuit.replica.stale.threshold.ms";
   public static final long DFS_CLIENT_SHORT_CIRCUIT_REPLICA_STALE_THRESHOLD_MS_DEFAULT = 30 * 60 * 1000;
 
-  public static final String DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_KEY =
+  public static final String DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_KEY =
       "dfs.datanode.slow.peers.report.interval";
-  public static final int DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_DEFAULT =
+  public static final int DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_DEFAULT =
       1800 * 1000;
 
   // property for fsimage compression

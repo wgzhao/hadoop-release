@@ -39,8 +39,8 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_MIN_SUPPORTED_NA
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_MIN_SUPPORTED_NAMENODE_VERSION_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_RESTART_REPLICA_EXPIRY_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_RESTART_REPLICA_EXPIRY_KEY;
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_DEFAULT;
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SOCKET_WRITE_TIMEOUT_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SYNCONCLOSE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_DATANODE_SYNCONCLOSE_KEY;
@@ -93,7 +93,8 @@ public class DNConf {
   final long blockReportInterval;
   final long blockReportSplitThreshold;
   final boolean peerStatsEnabled;
-  final long slowPeersReportIntervalMs;
+  final boolean diskStatsEnabled;
+  final long outliersReportIntervalMs;
   final long ibrInterval;
   final long initialBlockReportDelayMs;
   final long cacheReportInterval;
@@ -165,9 +166,12 @@ public class DNConf {
     this.peerStatsEnabled = conf.getBoolean(
         DFSConfigKeys.DFS_DATANODE_PEER_STATS_ENABLED_KEY,
         DFSConfigKeys.DFS_DATANODE_PEER_STATS_ENABLED_DEFAULT);
-    this.slowPeersReportIntervalMs = getConf().getTimeDuration(
-        DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_KEY,
-        DFS_DATANODE_SLOW_PEERS_REPORT_INTERVAL_DEFAULT,
+    this.diskStatsEnabled = getConf().getBoolean(
+        DFSConfigKeys.DFS_DATANODE_ENABLE_FILEIO_PROFILING_KEY,
+        DFSConfigKeys.DFS_DATANODE_ENABLE_FILEIO_PROFILING_DEFAULT);
+    this.outliersReportIntervalMs = getConf().getTimeDuration(
+        DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_KEY,
+        DFS_DATANODE_OUTLIERS_REPORT_INTERVAL_DEFAULT,
         TimeUnit.MILLISECONDS);
     this.ibrInterval = conf.getLong(
         DFSConfigKeys.DFS_BLOCKREPORT_INCREMENTAL_INTERVAL_MSEC_KEY,

@@ -124,7 +124,7 @@ class BPServiceActor implements Runnable {
     prevBlockReportId = ThreadLocalRandom.current().nextLong();
     scheduler = new Scheduler(dnConf.heartBeatInterval,
         dnConf.getLifelineIntervalMs(), dnConf.blockReportInterval,
-        dnConf.slowPeersReportIntervalMs);
+        dnConf.outliersReportIntervalMs);
   }
 
   IncrementalBlockReportManager getIbrManager() {
