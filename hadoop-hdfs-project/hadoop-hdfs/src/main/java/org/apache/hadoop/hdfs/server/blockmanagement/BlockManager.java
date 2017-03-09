@@ -685,7 +685,13 @@ public class BlockManager implements BlockStatsMXBean {
       lastBlock.getUnderConstructionFeature()
           .updateStorageScheduledSize((BlockInfoStriped) lastBlock);
     }
-    if (hasMinStorage(lastBlock)) {
+    // Count replicas on decommissioning nodes, as these will not be
+    // decommissioned unless recovery/completing last block has finished
+    NumberReplicas numReplicas = countNodes(lastBlock);
+    int numUsableReplicas = numReplicas.liveReplicas() +
+        numReplicas.decommissioning();
+
+    if (hasMinStorage(lastBlock, numUsableReplicas)) {
       completeBlock(lastBlock, false);
     }
     return committed;
