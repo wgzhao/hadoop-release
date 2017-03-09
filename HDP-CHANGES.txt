@@ -3487,3 +3487,6 @@ ATS V1.5:
 
     BUG-76956. HDFS-11461. DataNode Disk Outlier Detection. Contributed by
     Hanisha Koneru.
+
+    BUG-76957. HDFS-11477. Simplify file IO profiling configuration.
+    Contributed by Hanisha Koneru.
