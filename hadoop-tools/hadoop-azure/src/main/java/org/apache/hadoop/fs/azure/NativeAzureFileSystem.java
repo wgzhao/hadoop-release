@@ -1115,31 +1115,7 @@ public class NativeAzureFileSystem extends FileSystem {
   private DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
   private String credServiceUrl;
 
-  /**
-   * Configuration key to enable authorization support in WASB.
-   */
-  public static String KEY_AZURE_AUTHORIZATION =
-      "fs.azure.authorization";
-
-  /**
-   * Default value for the authorization support in WASB.
-   */
-  private static boolean DEFAULT_AZURE_AUTHORIZATION = false;
-
-  /**
-   * Flag controlling authorization support in WASB.
-   */
-  private boolean azureAuthorization = false;
-
-  /**
-   * Authorizer to use when authorization support is enabled in
-   * WASB.
-   */
-  private WasbAuthorizerInterface authorizer = null;
-
   private UserGroupInformation ugi;
-
-  private String delegationToken = null;
 
   public NativeAzureFileSystem() {
     // set store in initialize()
@@ -1272,16 +1248,6 @@ public class NativeAzureFileSystem extends FileSystem {
     deleteThreadCount = conf.getInt(AZURE_DELETE_THREADS, DEFAULT_AZURE_DELETE_THREADS);
     renameThreadCount = conf.getInt(AZURE_RENAME_THREADS, DEFAULT_AZURE_RENAME_THREADS);
 
-    this.azureAuthorization = conf.getBoolean(KEY_AZURE_AUTHORIZATION,
-        DEFAULT_AZURE_AUTHORIZATION);
-
-    if (this.azureAuthorization) {
-
-      this.authorizer =
-          new RemoteWasbAuthorizerImpl();
-      authorizer.init(conf);
-    }
-
     if (UserGroupInformation.isSecurityEnabled()) {
       UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
       UserGroupInformation realUser = ugi.getRealUser();
@@ -1301,11 +1267,6 @@ public class NativeAzureFileSystem extends FileSystem {
   public Path getHomeDirectory() {
     return makeQualified(new Path(
         USER_HOME_DIR_PREFIX_DEFAULT + "/" + this.ugi.getShortUserName()));
-  }
-
-  @VisibleForTesting
-  public void updateWasbAuthorizer(WasbAuthorizerInterface authorizer) {
-    this.authorizer = authorizer;
   }
 
   private NativeFileSystemStore createDefaultStore(Configuration conf) {
@@ -1417,16 +1378,6 @@ public class NativeAzureFileSystem extends FileSystem {
     return store;
   }
 
-  private void performAuthCheck(String path, String accessType,
-      String operation) throws WasbAuthorizationException, IOException {
-
-    if (azureAuthorization && !this.authorizer.authorize(path, accessType,
-          delegationToken)) {
-      throw new WasbAuthorizationException(operation
-          + " operation for Path : " + path + " not allowed");
-    }
-  }
-
   /**
    * Gets the metrics source for this file system.
    * This is mainly here for unit testing purposes.
@@ -1449,10 +1400,6 @@ public class NativeAzureFileSystem extends FileSystem {
     LOG.debug("Opening file: {} for append", f);
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.WRITE.toString(), "append");
-
     String key = pathToKey(absolutePath);
     FileMetadata meta = null;
     try {
@@ -1654,10 +1601,6 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.WRITE.toString(), "create");
-
     String key = pathToKey(absolutePath);
 
     FileMetadata existingMetadata = store.retrieveMetadata(key);
@@ -1780,10 +1723,6 @@ public class NativeAzureFileSystem extends FileSystem {
     LOG.debug("Deleting file: {}", f.toString());
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "delete");
-
     String key = pathToKey(absolutePath);
 
     // Capture the metadata for the path.
@@ -2054,10 +1993,6 @@ public class NativeAzureFileSystem extends FileSystem {
 
     // Capture the absolute path and the path to key.
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "getFileStatus");
-
     String key = pathToKey(absolutePath);
     if (key.length() == 0) { // root always exists
       return newDirectory(null, absolutePath);
@@ -2156,10 +2091,6 @@ public class NativeAzureFileSystem extends FileSystem {
     LOG.debug("Listing status for {}", f.toString());
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "list");
-
     String key = pathToKey(absolutePath);
     Set<FileStatus> status = new TreeSet<FileStatus>();
     FileMetadata meta = null;
@@ -2382,10 +2313,6 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "mkdirs");
-
     PermissionStatus permissionStatus = null;
     if(noUmask) {
       // ensure owner still has wx permissions at the minimum
@@ -2439,10 +2366,6 @@ public class NativeAzureFileSystem extends FileSystem {
     LOG.debug("Opening file: {}", f.toString());
 
     Path absolutePath = makeAbsolute(f);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.READ.toString(), "read");
-
     String key = pathToKey(absolutePath);
     FileMetadata meta = null;
     try {
@@ -2499,12 +2422,7 @@ public class NativeAzureFileSystem extends FileSystem {
           + " through WASB that has colons in the name");
     }
 
-    Path absolutePath = makeAbsolute(src);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "rename");
-
-    String srcKey = pathToKey(absolutePath);
+    String srcKey = pathToKey(makeAbsolute(src));
 
     if (srcKey.length() == 0) {
       // Cannot rename root of file system
@@ -2806,10 +2724,6 @@ public class NativeAzureFileSystem extends FileSystem {
   @Override
   public void setPermission(Path p, FsPermission permission) throws FileNotFoundException, IOException {
     Path absolutePath = makeAbsolute(p);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "setPermission");
-
     String key = pathToKey(absolutePath);
     FileMetadata metadata = null;
     try {
@@ -2848,10 +2762,6 @@ public class NativeAzureFileSystem extends FileSystem {
   public void setOwner(Path p, String username, String groupname)
       throws IOException {
     Path absolutePath = makeAbsolute(p);
-
-    performAuthCheck(absolutePath.toString(),
-        WasbAuthorizationOperations.EXECUTE.toString(), "setOwner");
-
     String key = pathToKey(absolutePath);
     FileMetadata metadata = null;
 

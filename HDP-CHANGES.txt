@@ -135,9 +135,6 @@ by CHANGES.txt.
     BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
     to WASB client. Contributed by Santhosh G Nayak
 
-    BUG-71524. HADOOP-13930. Azure: Add Authorization support to WASB.
-    Contributed by Dushyanth
-
     BUG-73682. Backport YARN-2009 (Capacity Scheduler Intra queue preemption) to 
     Fenton as dependency of YARN-5864. (wangda)
 
