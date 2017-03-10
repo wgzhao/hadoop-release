@@ -56,13 +56,6 @@ public class WasbTokenRenewer extends TokenRenewer {
   public long renew(final Token<?> token, Configuration conf)
       throws IOException, InterruptedException {
     LOG.debug("Renewing the delegation token");
-    final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    UserGroupInformation connectUgi = ugi.getRealUser();
-    final UserGroupInformation proxyUser = connectUgi;
-    if (connectUgi == null) {
-      connectUgi = ugi;
-    }
-    connectUgi.checkTGTAndReloginFromKeytab();
     final DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
     authToken
         .setDelegationToken((Token<AbstractDelegationTokenIdentifier>) token);
@@ -74,27 +67,21 @@ public class WasbTokenRenewer extends TokenRenewer {
     final DelegationTokenAuthenticatedURL authURL = new DelegationTokenAuthenticatedURL(
         authenticator);
 
-    return connectUgi.doAs(new PrivilegedExceptionAction<Long>() {
-      @Override
-      public Long run() throws Exception {
-        return authURL.renewDelegationToken(new URL(credServiceUrl
-                + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-            authToken, (proxyUser != null) ? ugi.getShortUserName() : null);
-      }
-    });
+    return UserGroupInformation.getCurrentUser()
+        .doAs(new PrivilegedExceptionAction<Long>() {
+          @Override
+          public Long run() throws Exception {
+            return authURL.renewDelegationToken(new URL(credServiceUrl
+                    + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
+                authToken);
+          }
+        });
   }
 
   @Override
   public void cancel(final Token<?> token, Configuration conf)
       throws IOException, InterruptedException {
     LOG.debug("Cancelling the delegation token");
-    final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    UserGroupInformation connectUgi = ugi.getRealUser();
-    final UserGroupInformation proxyUser = connectUgi;
-    if (connectUgi == null) {
-      connectUgi = ugi;
-    }
-    connectUgi.checkTGTAndReloginFromKeytab();
     final DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
     authToken
         .setDelegationToken((Token<AbstractDelegationTokenIdentifier>) token);
@@ -105,14 +92,15 @@ public class WasbTokenRenewer extends TokenRenewer {
     DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
     final DelegationTokenAuthenticatedURL authURL = new DelegationTokenAuthenticatedURL(
         authenticator);
-    connectUgi.doAs(new PrivilegedExceptionAction<Void>() {
-      @Override
-      public Void run() throws Exception {
-        authURL.cancelDelegationToken(new URL(credServiceUrl
-                + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-            authToken, (proxyUser != null) ? ugi.getShortUserName() : null);
-        return null;
-      }
-    });
+    UserGroupInformation.getCurrentUser()
+        .doAs(new PrivilegedExceptionAction<Void>() {
+          @Override
+          public Void run() throws Exception {
+            authURL.cancelDelegationToken(new URL(credServiceUrl
+                    + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
+                authToken);
+            return null;
+          }
+        });
   }
 }

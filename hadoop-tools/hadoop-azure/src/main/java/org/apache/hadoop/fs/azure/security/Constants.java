@@ -40,15 +40,4 @@ public final class Constants {
    * Default remote delegation token manager endpoint.
    */
   public static final String DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT = "/tokenmanager/v1";
-
-  /**
-   * The configuration property to enable Kerberos support.
-   */
-
-  public static final String AZURE_KERBEROS_SUPPORT_PROPERTY_NAME = "fs.azure.enable.kerberos.support";
-
-  /**
-   * Parameter to be used for impersonation.
-   */
-  public static final String DOAS_PARAM="doas";
 }

@@ -92,7 +92,6 @@ public class RemoteWasbAuthorizerImpl implements WasbAuthorizerInterface {
   private WasbRemoteCallHelper remoteCallHelper = null;
   private String delegationToken;
   private boolean isSecurityEnabled;
-  private boolean isKerberosSupportEnabled;
 
   @Override
   public void init(Configuration conf)
@@ -127,8 +126,6 @@ public class RemoteWasbAuthorizerImpl implements WasbAuthorizerInterface {
 
     this.remoteCallHelper = new WasbRemoteCallHelper();
     this.isSecurityEnabled = UserGroupInformation.isSecurityEnabled();
-    this.isKerberosSupportEnabled = conf.getBoolean(
-        Constants.AZURE_KERBEROS_SUPPORT_PROPERTY_NAME, false);
   }
 
   @Override
@@ -146,22 +143,17 @@ public class RemoteWasbAuthorizerImpl implements WasbAuthorizerInterface {
         uriBuilder
             .addParameter(DELEGATION_TOKEN_QUERY_PARAM_NAME, delegationToken);
       }
+
       String responseBody = null;
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      UserGroupInformation connectUgi = ugi.getRealUser();
-      if (connectUgi == null) {
-        connectUgi = ugi;
-      } else{
-        uriBuilder.addParameter(Constants.DOAS_PARAM, ugi.getShortUserName());
-      }
-      connectUgi.checkTGTAndReloginFromKeytab();
+      UserGroupInformation connectUgi = UserGroupInformation.getCurrentUser();
+      connectUgi.reloginFromKeytab();
       try {
         responseBody = connectUgi.doAs(new PrivilegedExceptionAction<String>(){
           @Override
           public String run() throws Exception {
             AuthenticatedURL.Token token = null;
             HttpGet httpGet = new HttpGet(uriBuilder.build());
-            if (isKerberosSupportEnabled && UserGroupInformation.isSecurityEnabled() && (
+            if (UserGroupInformation.isSecurityEnabled() && (
                 delegationToken == null || delegationToken.isEmpty())) {
               token = new AuthenticatedURL.Token();
               final Authenticator kerberosAuthenticator = new KerberosDelegationTokenAuthenticator();
