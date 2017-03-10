@@ -132,9 +132,6 @@ by CHANGES.txt.
     BUG-70505. HDFS-11240. Remove snapshot version of SDK dependency from Azure
     Data Lake Store File System
 
-    BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
-    to WASB client. Contributed by Santhosh G Nayak
-
     BUG-73682. Backport YARN-2009 (Capacity Scheduler Intra queue preemption) to 
     Fenton as dependency of YARN-5864. (wangda)
 
