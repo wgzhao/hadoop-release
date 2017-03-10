@@ -1420,7 +1420,8 @@ public class NativeAzureFileSystem extends FileSystem {
   private void performAuthCheck(String path, String accessType,
       String operation) throws WasbAuthorizationException, IOException {
 
-    if (azureAuthorization && !this.authorizer.authorize(path, accessType)) {
+    if (azureAuthorization && !this.authorizer.authorize(path, accessType,
+          delegationToken)) {
       throw new WasbAuthorizationException(operation
           + " operation for Path : " + path + " not allowed");
     }
