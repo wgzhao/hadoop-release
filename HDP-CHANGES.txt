@@ -1231,3 +1231,6 @@ ATS V1.5:
 
     BUG-69952. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
+
+    BUG-73567. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
