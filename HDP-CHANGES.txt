@@ -4230,3 +4230,6 @@ ATS V1.5:
     RANGER-136. HADOOP-14416. Path starting with 'wasb:///' not resolved
     correctly while authorizing with WASB-Ranger. Contributed by Sivaguru
     Sankaridurg
+
+    HADOOP-14170. FileSystemContractBaseTest is not cleaning up test directory
+    clearly. Contributed by Mingliang Liu
