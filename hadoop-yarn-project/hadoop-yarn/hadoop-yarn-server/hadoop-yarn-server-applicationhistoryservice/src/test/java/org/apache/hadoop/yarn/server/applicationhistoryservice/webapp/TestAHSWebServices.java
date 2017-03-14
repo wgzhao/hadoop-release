@@ -63,6 +63,7 @@ import org.apache.hadoop.yarn.server.timeline.security.TimelineACLsManager;
 import org.apache.hadoop.yarn.server.webapp.YarnWebServiceParams;
 import org.apache.hadoop.yarn.server.webapp.dao.ContainerLogsInfo;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineAbout;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
 import org.apache.hadoop.yarn.webapp.GenericExceptionHandler;
 import org.apache.hadoop.yarn.webapp.JerseyTestBase;
@@ -771,7 +772,7 @@ public class TestAHSWebServices extends JerseyTestBase {
     // If this is the redirect request, we would not re-direct the request
     // back and get the aggregated logs.
     String content1 = "Hello." + containerId1;
-    NodeId nodeId1 = NodeId.fromString(NM_ID);
+    NodeId nodeId1 = ConverterUtils.toNodeId(NM_ID);
     TestContainerLogsUtils.createContainerLogFileInRemoteFS(conf, fs,
         rootLogDir, containerId1, nodeId1, fileName, user, content1, true);
     response = r.path("ws").path("v1")

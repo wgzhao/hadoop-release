@@ -3495,3 +3495,6 @@ ATS V1.5:
 
     BUG-76108. HDFS-10342. BlockManager#createLocatedBlocks should not check
     corrupt replicas if none are corrupt.
+
+    BUG-76935. [YARN-6314] Potential infinite redirection on YARN log redirection
+    web service. Contributed by Xuan Gong.
