@@ -3490,3 +3490,5 @@ ATS V1.5:
 
     BUG-76957. HDFS-11477. Simplify file IO profiling configuration.
     Contributed by Hanisha Koneru.
+
+    BUG-76108. HDFS-10330. Add Corrupt Blocks Information in Metasave output.
