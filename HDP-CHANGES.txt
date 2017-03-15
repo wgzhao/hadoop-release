@@ -3501,3 +3501,5 @@ ATS V1.5:
 
     BUG-76819. YARN-6313. yarn logs cli should provide logs for a completed 
     container even when application is still running. Contributed by Xuan Gong.
+
+    BUG-77222. Encryption related security hole during localization by Junping Du.
