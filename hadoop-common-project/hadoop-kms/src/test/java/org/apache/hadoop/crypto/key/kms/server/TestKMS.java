@@ -1850,6 +1850,7 @@ public class TestKMS {
               loginUserFromKeytabAndReturnUGI("client", keytab.getAbsolutePath());
         } else {
           proxyUgi = UserGroupInformation.createRemoteUser("client");
+          UserGroupInformation.setLoginUser(proxyUgi);
         }
 
         final UserGroupInformation clientUgi = proxyUgi; 
