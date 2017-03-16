@@ -1814,3 +1814,6 @@ ATS V1.5:
 
     BUG-77218. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
+
+    BUG-77219. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
