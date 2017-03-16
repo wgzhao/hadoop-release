@@ -165,3 +165,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     YARN-3393. Getting application(s) goes wrong when app finishes before
     starting the attempt. (Zhijie Shen via xgong)
+
+    BUG-77174. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
