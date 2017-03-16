@@ -1237,3 +1237,6 @@ ATS V1.5:
 
     BUG-76414. HADOOP-13251. Authenticate with Kerberos credentials when
     renewing KMS delegation token. Contributed by Xiao Chen.
+
+    BUG-76414. HADOOP-13381. KMS clients should use KMS Delegation Tokens from
+    current UGI. Contributed by Xiao Chen.
