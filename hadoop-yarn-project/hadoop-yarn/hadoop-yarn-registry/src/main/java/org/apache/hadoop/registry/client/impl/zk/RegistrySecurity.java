@@ -400,7 +400,7 @@ public class RegistrySecurity extends AbstractService {
    * @return a new ACL
    */
   public ACL createSaslACL(UserGroupInformation ugi, int perms) {
-    String userName = ugi.getShortUserName();
+    String userName = ugi.getUserName();
     return new ACL(perms, new Id(SCHEME_SASL, userName));
   }
 
