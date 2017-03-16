@@ -1811,3 +1811,6 @@ ATS V1.5:
 
     HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
     Contributed by Tibor Kiss.
+
+    BUG-77218. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
+    can result in wrong UGI being used. Contributed by Xiaoyu Yao.
