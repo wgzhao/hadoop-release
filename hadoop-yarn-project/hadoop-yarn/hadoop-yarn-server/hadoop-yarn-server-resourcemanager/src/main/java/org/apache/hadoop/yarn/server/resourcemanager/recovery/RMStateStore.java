@@ -587,6 +587,11 @@ public abstract class RMStateStore extends AbstractService {
     initInternal(conf);
   }
 
+  public void registerHandler(Class<? extends Enum> eventType,
+      EventHandler handler) {
+    dispatcher.register(eventType, handler);
+  }
+
   @Override
   protected void serviceStart() throws Exception {
     dispatcher.start();

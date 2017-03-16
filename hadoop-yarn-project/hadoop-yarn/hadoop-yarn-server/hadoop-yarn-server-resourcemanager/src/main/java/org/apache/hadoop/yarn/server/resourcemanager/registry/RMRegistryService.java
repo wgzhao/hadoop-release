@@ -83,7 +83,8 @@ public class RMRegistryService extends CompositeService {
     // Register self as event handler for RM Events
     register(RMAppAttemptEventType.class, new AppEventHandler());
     register(RMAppManagerEventType.class, new AppManagerEventHandler());
-    register(RMStateStoreEventType.class, new StateStoreEventHandler());
+    rmContext.getStateStore().registerHandler(RMStateStoreEventType.class,
+        new StateStoreEventHandler());
     register(RMContainerEventType.class,  new ContainerEventHandler());
   }
 
