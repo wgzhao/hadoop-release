@@ -3503,3 +3503,5 @@ ATS V1.5:
     container even when application is still running. Contributed by Xuan Gong.
 
     BUG-77222. Encryption related security hole during localization by Junping Du.
+
+    HDFS-11533. reuseAddress option should be used for child channels in Portmap and SimpleTcpServer. Contributed by Mukul Kumar Singh.
