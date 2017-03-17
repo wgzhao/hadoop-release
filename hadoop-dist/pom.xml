@@ -139,6 +139,7 @@
 
                       # Move WASB and dependencies to common.
                       run mv ./share/hadoop/tools/lib/hadoop-azure-*.jar ./share/hadoop/common/
+                      run mv ./share/hadoop/tools/lib/azure-data-lake-store-sdk-*.jar ./share/hadoop/common/
                       run mv ./share/hadoop/tools/lib/azure-storage-*.jar ./share/hadoop/common/lib/
 
                       echo
