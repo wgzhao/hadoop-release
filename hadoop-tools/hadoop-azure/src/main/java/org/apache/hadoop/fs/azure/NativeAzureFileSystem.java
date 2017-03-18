@@ -1131,11 +1131,6 @@ public class NativeAzureFileSystem extends FileSystem {
   private boolean azureAuthorization = false;
 
   /**
-   * Flag controlling Kerberos support in WASB.
-   */
-  private boolean kerberosSupportEnabled = false;
-
-  /**
    * Authorizer to use when authorization support is enabled in
    * WASB.
    */
@@ -1275,16 +1270,20 @@ public class NativeAzureFileSystem extends FileSystem {
 
     this.azureAuthorization = conf.getBoolean(KEY_AZURE_AUTHORIZATION,
         DEFAULT_AZURE_AUTHORIZATION);
-    this.kerberosSupportEnabled = conf.getBoolean(
-        Constants.AZURE_KERBEROS_SUPPORT_PROPERTY_NAME, false);
 
     if (this.azureAuthorization) {
+
       this.authorizer =
           new RemoteWasbAuthorizerImpl();
       authorizer.init(conf);
     }
 
-    if (UserGroupInformation.isSecurityEnabled() && kerberosSupportEnabled) {
+    if (UserGroupInformation.isSecurityEnabled()) {
+      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+      UserGroupInformation realUser = ugi.getRealUser();
+      if (realUser == null) {
+        realUser = UserGroupInformation.getLoginUser();
+      }
       DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
       authURL = new DelegationTokenAuthenticatedURL(authenticator);
       credServiceUrl = conf.get(Constants.KEY_CRED_SERVICE_URL, String
@@ -2906,34 +2905,23 @@ public class NativeAzureFileSystem extends FileSystem {
 
   @Override
   public Token<?> getDelegationToken(final String renewer) throws IOException {
-    if(kerberosSupportEnabled) {
-      try {
-        final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-        UserGroupInformation connectUgi = ugi.getRealUser();
-        final UserGroupInformation proxyUser = connectUgi;
-        if (connectUgi == null) {
-          connectUgi = ugi;
-        }
-        connectUgi.checkTGTAndReloginFromKeytab();
-        return connectUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
-          @Override
-          public Token<?> run() throws Exception {
-            return authURL.getDelegationToken(new URL(credServiceUrl
-                    + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-                authToken, renewer, (proxyUser != null)? ugi.getShortUserName(): null);
-          }
-        });
-      } catch (Exception ex) {
-        LOG.error("Error in fetching the delegation token from remote service",
-            ex);
-        if (ex instanceof IOException) {
-          throw (IOException) ex;
-        } else {
-          throw new IOException(ex);
-        }
+    try {
+      return UserGroupInformation.getCurrentUser()
+          .doAs(new PrivilegedExceptionAction<Token<?>>() {
+            @Override
+            public Token<?> run() throws Exception {
+              return authURL.getDelegationToken(new URL(credServiceUrl +
+                      Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
+                  authToken, renewer);
+            }
+          });
+    } catch (Exception ex) {
+      LOG.error("Error in fetching the delegation token from remote service", ex);
+      if (ex instanceof IOException) {
+        throw (IOException) ex;
+      } else {
+        throw new IOException(ex);
       }
-    } else {
-      return super.getDelegationToken(renewer);
     }
   }
 
