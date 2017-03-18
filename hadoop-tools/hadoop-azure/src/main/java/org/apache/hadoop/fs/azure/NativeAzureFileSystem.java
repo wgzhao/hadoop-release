@@ -25,12 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,15 +57,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
-import org.apache.hadoop.fs.azure.security.Constants;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.token.Token;
-import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticatedURL;
-import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
-import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Time;
 import org.codehaus.jackson.JsonNode;
@@ -1110,9 +1102,6 @@ public class NativeAzureFileSystem extends FileSystem {
   // A counter to create unique (within-process) names for my metrics sources.
   private static AtomicInteger metricsSourceNameCounter = new AtomicInteger();
   private boolean appendSupportEnabled = false;
-  private DelegationTokenAuthenticatedURL authURL;
-  private DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
-  private String credServiceUrl;
   
   public NativeAzureFileSystem() {
     // set store in initialize()
@@ -1243,20 +1232,6 @@ public class NativeAzureFileSystem extends FileSystem {
     // Initialize thread counts from user configuration
     deleteThreadCount = conf.getInt(AZURE_DELETE_THREADS, DEFAULT_AZURE_DELETE_THREADS);
     renameThreadCount = conf.getInt(AZURE_RENAME_THREADS, DEFAULT_AZURE_RENAME_THREADS);
-
-    if (UserGroupInformation.isSecurityEnabled()) {
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      UserGroupInformation realUser = ugi.getRealUser();
-      if (realUser == null) {
-        realUser = UserGroupInformation.getLoginUser();
-      }
-      DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
-      authURL = new DelegationTokenAuthenticatedURL(authenticator);
-      credServiceUrl = conf.get(Constants.KEY_CRED_SERVICE_URL, String
-          .format("http://%s:%s",
-              InetAddress.getLocalHost().getCanonicalHostName(),
-              Constants.DEFAULT_CRED_SERVICE_PORT));
-    }
   }
 
   private NativeFileSystemStore createDefaultStore(Configuration conf) {
@@ -2812,28 +2787,6 @@ public class NativeAzureFileSystem extends FileSystem {
     LOG.debug("Submitting metrics when file system closed took {} ms.",
         (System.currentTimeMillis() - startTime));
     isClosed = true;
-  }
-
-  @Override
-  public Token<?> getDelegationToken(final String renewer) throws IOException {
-    try {
-      return UserGroupInformation.getCurrentUser()
-          .doAs(new PrivilegedExceptionAction<Token<?>>() {
-            @Override
-            public Token<?> run() throws Exception {
-              return authURL.getDelegationToken(new URL(credServiceUrl +
-                      Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-                  authToken, renewer);
-            }
-          });
-    } catch (Exception ex) {
-      LOG.error("Error in fetching the delegation token from remote service", ex);
-      if (ex instanceof IOException) {
-        throw (IOException) ex;
-      } else {
-        throw new IOException(ex);
-      }
-    }
   }
 
   /**
