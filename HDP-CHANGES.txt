@@ -150,8 +150,6 @@ by CHANGES.txt.
 
     BUG-71524. HADOOP-13930. Azure: Add Authorization support to WASB.
     Contributed by Sivaguru Sankaridurg and Dushyanth
-    BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
-    to WASB client. Contributed by Santhosh G Nayak
 
 ATS V1.5:
 
