@@ -1229,3 +1229,6 @@ ATS V1.5:
     BUG-56527. Disable TestDataNodeLifeline, TestDFSUpgradeWithHA.testRollbackWithJournalNodes,
     TestIPC.testSerial and testIpcWithReaderQueuing due to intermittent failures.
 
+    BUG-77480. HADOOP-12404. Disable caching for JarURLConnection to avoid
+    sharing JarFile with other users when loading resource from URL in
+    Configuration class. Contributed by Zhihai Xu
