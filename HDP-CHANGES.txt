@@ -1817,3 +1817,6 @@ ATS V1.5:
 
     BUG-77219. HDFS-9276. Failed to Update HDFS Delegation Token for long
     running application in HA mode. Contributed by Liangliang Gu and John Zhuge
+
+    BUG-75095. YARN-5309. Fix SSLFactory truststore reloader thread leak in
+    TimelineClientImpl. Contributed by Weiwei Yang.
