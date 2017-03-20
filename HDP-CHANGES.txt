@@ -3459,3 +3459,7 @@ ATS V1.5:
     BUG-76674. MAPREDUCE-6698. Increase timeout on TestUnnecessaryBlockingOnHist
     oryFileInfo.testTwoThreadsQueryingDifferentJobOfSameUser. Contributed by
     Haibo Chen
+
+    BUG-77480. HADOOP-12404. Disable caching for JarURLConnection to avoid
+    sharing JarFile with other users when loading resource from URL in
+    Configuration class. Contributed by Zhihai Xu
