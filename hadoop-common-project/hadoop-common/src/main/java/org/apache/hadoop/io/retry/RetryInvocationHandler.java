@@ -103,11 +103,18 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
     private final long delay;
     private final RetryAction failover;
     private final RetryAction fail;
+    private final Exception failException;
 
-    RetryInfo(long delay, RetryAction failover, RetryAction fail) {
+    RetryInfo(long delay, RetryAction failover, RetryAction fail,
+        Exception failException) {
       this.delay = delay;
       this.failover = failover;
       this.fail = fail;
+      this.failException = failException;
+    }
+
+    Exception getFailException() {
+      return failException;
     }
 
     static RetryInfo newRetryInfo(RetryPolicy policy, Exception e,
@@ -116,6 +123,7 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
       RetryAction failover = null;
       RetryAction retry = null;
       RetryAction fail = null;
+      Exception ex = null;
 
       final Iterable<Exception> exceptions = e instanceof MultiException ?
           ((MultiException) e).getExceptions().values()
@@ -125,6 +133,7 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
             counters.retries, counters.failovers, idempotentOrAtMostOnce);
         if (a.action == RetryAction.RetryDecision.FAIL) {
           fail = a;
+          ex = exception;
         } else {
           // must be a retry or failover
           if (a.action == RetryAction.RetryDecision.FAILOVER_AND_RETRY) {
@@ -139,7 +148,7 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
       }
 
       return new RetryInfo(maxRetryDelay, failover,
-          failover == null && retry == null? fail: null);
+          failover == null && retry == null? fail: null, ex);
     }
   }
 
@@ -220,7 +229,7 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
               + ". Not retrying because " + retryInfo.fail.reason, ex);
         }
       }
-      throw ex;
+      throw retryInfo.getFailException();
     }
 
     // retry

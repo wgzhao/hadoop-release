@@ -3463,3 +3463,7 @@ ATS V1.5:
     BUG-77480. HADOOP-12404. Disable caching for JarURLConnection to avoid
     sharing JarFile with other users when loading resource from URL in
     Configuration class. Contributed by Zhihai Xu
+
+    BUG-77323. HDFS-11395.
+    RequestHedgingProxyProvider#RequestHedgingInvocationHandler hides the
+    Exception thrown from NameNode. Contributed by Nandakumar.
