@@ -73,7 +73,7 @@
     <protoc.path>${env.HADOOP_PROTOC_PATH}</protoc.path>
 
     <zookeeper.version>3.4.6.2.6.5.0-SNAPSHOT</zookeeper.version>
-    <curator.version>2.7.1</curator.version>
+    <curator.version>2.12.0</curator.version>
     <findbugs.version>3.0.0</findbugs.version>
 
     <tomcat.version>6.0.53</tomcat.version>
