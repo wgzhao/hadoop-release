@@ -1678,6 +1678,10 @@ public class DataNode extends ReconfigurableBase
     return metrics;
   }
 
+  public DataNodeDiskMetrics getDiskMetrics() {
+    return diskMetrics;
+  }
+  
   public DataNodePeerMetrics getPeerMetrics() {
     return peerMetrics;
   }
@@ -3449,5 +3453,15 @@ public class DataNode extends ReconfigurableBase
   @VisibleForTesting
   void setBlockScanner(BlockScanner blockScanner) {
     this.blockScanner = blockScanner;
+  }
+
+  @Override // DataNodeMXBean
+  public String getSlowDisks() {
+    if (diskMetrics == null) {
+      //Disk Stats not enabled
+      return null;
+    }
+    Set<String> slowDisks = diskMetrics.getDiskOutliersStats().keySet();
+    return JSON.toString(slowDisks);
   }
 }

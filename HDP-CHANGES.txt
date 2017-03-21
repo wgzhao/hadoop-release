@@ -3506,3 +3506,5 @@ ATS V1.5:
     BUG-76734 Attach RMRegistryService handler to correct dispatcher for RMStateStore events
 
     YARN-6332. Make RegistrySecurity use short user names for ZK ACLs. Contributed by Billie Rinaldi
+
+    BUG-77590. HDFS-11517. Expose slow disks via DataNode JMX.
