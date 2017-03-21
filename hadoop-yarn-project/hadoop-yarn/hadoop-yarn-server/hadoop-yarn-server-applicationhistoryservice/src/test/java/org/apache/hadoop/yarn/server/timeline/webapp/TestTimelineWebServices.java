@@ -322,31 +322,6 @@ public class TestTimelineWebServices extends JerseyTestBase {
   }
 
   @Test
-  public void testPrimaryFilterNumericString() {
-    // without quotes, 123abc is interpreted as the number 123,
-    // which finds no entities
-    WebResource r = resource();
-    ClientResponse response = r.path("ws").path("v1").path("timeline")
-        .path("type_1").queryParam("primaryFilter", "other:123abc")
-        .accept(MediaType.APPLICATION_JSON)
-        .get(ClientResponse.class);
-    assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
-    assertEquals(0, response.getEntity(TimelineEntities.class).getEntities()
-        .size());
-  }
-
-  @Test
-  public void testPrimaryFilterNumericStringWithQuotes() {
-    WebResource r = resource();
-    ClientResponse response = r.path("ws").path("v1").path("timeline")
-        .path("type_1").queryParam("primaryFilter", "other:\"123abc\"")
-        .accept(MediaType.APPLICATION_JSON)
-        .get(ClientResponse.class);
-    assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
-    verifyEntities(response.getEntity(TimelineEntities.class));
-  }
-
-  @Test
   public void testSecondaryFilters() {
     WebResource r = resource();
     ClientResponse response = r.path("ws").path("v1").path("timeline")
