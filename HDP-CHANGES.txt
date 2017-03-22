@@ -3470,3 +3470,6 @@ ATS V1.5:
 
     BUG-72507. HADOOP-13823. s3a rename: fail if dest file exists.
     Contributed by Steve Loughran.
+
+    BUG-72507. HADOOP-14059. typo in s3a rename(self, subdir) error message.
+    Contributed by Steve Loughran.
