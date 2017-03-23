@@ -1258,3 +1258,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-10344. DistributedFileSystem#getTrashRoots should skip
     encryption zone that does not have .Trash. Contributed by Xiaoyu Yao.
+
+    BUG-77693. HDFS-10324. Trash directory in an encryption zone should be pre-
+    created with correct permissions. Contributed by Wei-Chiu Chuang.
