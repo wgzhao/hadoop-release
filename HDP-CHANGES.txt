@@ -4189,3 +4189,6 @@ ATS V1.5:
     dfshealth.js. Contributed by Chang Li.
 
     BUG-78773. HADOOP-14274. Azure: Simplify Ranger-WASB policy model. Contributed by Sivaguru Sankaridurg
+
+    BUG-78968. HADOOP-14195. CredentialProviderFactory$getProviders is not
+    thread-safe. Contributed by Vihang Karajgaonkar.
