@@ -1246,3 +1246,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-8831. Trash Support for deletion in HDFS encryption zone.
     Contributed by Xiaoyu Yao.
+
+    BUG-77693. HDFS-9799. Reimplement getCurrentTrashDir to remove
+    incompatibility. (zhz)
