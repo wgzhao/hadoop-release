@@ -1240,3 +1240,6 @@ ATS V1.5:
 
     BUG-76414. HADOOP-13381. KMS clients should use KMS Delegation Tokens from
     current UGI. Contributed by Xiao Chen.
+
+    BUG-77693. HDFS-9470. Encryption zone on root not loaded from fsimage after
+    NN restart. Xiao Chen via wang.
