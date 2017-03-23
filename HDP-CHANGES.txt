@@ -1261,3 +1261,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-10324. Trash directory in an encryption zone should be pre-
     created with correct permissions. Contributed by Wei-Chiu Chuang.
+
+    BUG-77693. HDFS-10481. HTTPFS server should correctly impersonate as end
+    user to open file. Contributed by Xiao Chen.
