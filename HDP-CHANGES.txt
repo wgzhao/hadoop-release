@@ -1243,3 +1243,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-9470. Encryption zone on root not loaded from fsimage after
     NN restart. Xiao Chen via wang.
+
+    BUG-77693. HDFS-8831. Trash Support for deletion in HDFS encryption zone.
+    Contributed by Xiaoyu Yao.
