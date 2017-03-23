@@ -3508,3 +3508,6 @@ ATS V1.5:
     YARN-6332. Make RegistrySecurity use short user names for ZK ACLs. Contributed by Billie Rinaldi
 
     BUG-77590. HDFS-11517. Expose slow disks via DataNode JMX.
+
+    BUG-77623. HADOOP-14214. DomainSocketWatcher::add()/delete() should not
+    self interrupt while looping await(). Contributed by Mingliang Liu
