@@ -1249,3 +1249,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-9799. Reimplement getCurrentTrashDir to remove
     incompatibility. (zhz)
+
+    BUG-77693. HDFS-9844. Correct path creation in getTrashRoot to handle root
+    dir.
