@@ -1264,3 +1264,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-10481. HTTPFS server should correctly impersonate as end
     user to open file. Contributed by Xiao Chen.
+
+    BUG-77693. HADOOP-13700. Remove unthrown IOException from
+    TrashPolicy#initialize and #getInstance signatures.
