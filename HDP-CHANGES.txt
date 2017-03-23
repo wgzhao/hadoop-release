@@ -1255,3 +1255,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-9881. DistributedFileSystem#getTrashRoot returns incorrect
     path for encryption zones.
+
+    BUG-77693. HDFS-10344. DistributedFileSystem#getTrashRoots should skip
+    encryption zone that does not have .Trash. Contributed by Xiaoyu Yao.
