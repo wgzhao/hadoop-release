@@ -1252,3 +1252,6 @@ ATS V1.5:
 
     BUG-77693. HDFS-9844. Correct path creation in getTrashRoot to handle root
     dir.
+
+    BUG-77693. HDFS-9881. DistributedFileSystem#getTrashRoot returns incorrect
+    path for encryption zones.
