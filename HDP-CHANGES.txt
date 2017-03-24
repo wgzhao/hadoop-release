@@ -1236,3 +1236,6 @@ ATS V1.5:
 
     BUG-67976. YARN-4109. Exception on RM scheduler page loading with labels.
     (Mohammad Shahid Khan via rohithsharmaks)
+
+    BUG-77663. HADOOP-13155. Implement TokenRenewer to renew and cancel
+    delegation tokens in KMS.
