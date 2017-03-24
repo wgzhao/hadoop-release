@@ -4380,3 +4380,7 @@ ATS V1.5:
 
     BUG-85012. HDFS-9357. NN UI renders icons of decommissioned DN incorrectly.
     Contributed by Surendra Singh Lilhore.
+
+    BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
+    Contributed by Xiaobing Zhou.
+
