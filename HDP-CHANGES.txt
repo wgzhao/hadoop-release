@@ -1239,3 +1239,6 @@ ATS V1.5:
 
     BUG-77663. HADOOP-13155. Implement TokenRenewer to renew and cancel
     delegation tokens in KMS.
+
+    BUG-77663. HADOOP-12901. Add warning log when KMSClientProvider cannot
+    create a connection to the KMS server. (Xiao Chen via wang)
