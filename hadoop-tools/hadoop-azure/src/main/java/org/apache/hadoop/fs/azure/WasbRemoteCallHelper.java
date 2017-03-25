@@ -96,27 +96,6 @@ class WasbRemoteCallHelper {
         );
       }
 
-      Header contentLengthHeader = response.getFirstHeader("Content-Length");
-      if (contentLengthHeader == null) {
-        throw new WasbRemoteCallException(getRequest.getURI().toString() + ":" +
-            "Content-Length header missing"
-        );
-      }
-
-      try {
-        if (Integer.parseInt(contentLengthHeader.getValue()) > MAX_CONTENT_LENGTH) {
-          throw new WasbRemoteCallException(getRequest.getURI().toString() + ":" +
-              "Content-Length:" + contentLengthHeader.getValue() +
-              "exceeded max:" + MAX_CONTENT_LENGTH
-          );
-        }
-      }
-      catch (NumberFormatException nfe) {
-        throw new WasbRemoteCallException(getRequest.getURI().toString() + ":" +
-            "Invalid Content-Length value :" + contentLengthHeader.getValue()
-        );
-      }
-
       BufferedReader rd = new BufferedReader(
           new InputStreamReader(response.getEntity().getContent(),
               StandardCharsets.UTF_8));
