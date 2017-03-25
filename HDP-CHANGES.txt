@@ -3511,3 +3511,6 @@ ATS V1.5:
 
     BUG-77623. HADOOP-14214. DomainSocketWatcher::add()/delete() should not
     self interrupt while looping await(). Contributed by Mingliang Liu
+
+    BUG-78029. WASB: WasbRemoteCallHelper should use String equals for
+    comparison. Contributed by Santhosh Nayak
