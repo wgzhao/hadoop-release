@@ -4307,3 +4307,6 @@ ATS V1.5:
 
     BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when secure.mode is enabled. Contributed by Thomas
     BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
+
+    BUG-78100. HADOOP-14233. Delay construction of PreCondition.check failure
+    message in Configuration#set (jeagles)
