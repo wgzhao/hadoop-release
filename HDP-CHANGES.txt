@@ -3191,7 +3191,11 @@ ATS V1.5:
 
     YARN-6113. Re-direct NM Web Service to get container logs for finished applications. Contributed by Xuan Gong.
 
+    YARN-6137. Yarn client implicitly invoke ATS client which accesses HDFS. Contributed by Li Lu. 
+
     YARN-6174. Log files pattern should be same for both running and finished container. Contributed by Xuan Gong.
+
+    YARN-6228. EntityGroupFSTimelineStore should allow configurable cache stores. Contributed by Li Lu.
 
     BUG-71400. YARN-4393. TestResourceLocalizationService#testFailedDirsResourceRelease fails intermittently.
     Contributed by Varun Saxena.
