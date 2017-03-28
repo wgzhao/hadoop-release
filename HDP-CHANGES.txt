@@ -3603,3 +3603,6 @@ ATS V1.5:
 
     BUG-73258. YARN-5915. ATS 1.5 FileSystemTimelineWriter causes flush() to be
     called after every event write.
+
+    BUG-74682. MAPREDUCE-6852. Job#updateStatus() failed with NPE due to race
+    condition. Contributed by Junping Du.
