@@ -1623,8 +1623,73 @@ ATS V1.5:
     YARN-4607. Pagination support for AppAttempt page TotalOutstandingResource
     Requests table. Contributed by Bibin A Chundatt
 
+    YARN-4966. Improve yarn logs to fetch container logs without specifying nodeId. Contributed by Xuan Gong.
+
     YARN-4746. yarn web services should convert parse failures of appId,
     appAttemptId and containerId to 400. Contributed by Bibin A Chundatt
+
+    YARN-4920. ATS/NM should support a link to dowload/get the logs in text format. Contributed by Xuan Gong.
+
+    YARN-4905. Improved "yarn logs" command-line to optionally show log metadata also. Contributed by Xuan Gong.
+
+    YARN-4842. Fixed "yarn logs" command to guess (and thus not require) the appOwner argument
+    when viewing another user's logs. Contributed by Ram Venkatesh and Xuan Gong.
+
+    YARN-5080. Cannot obtain logs using YARN CLI -am for either KILLED or
+    RUNNING AM. Contributed by Xuan Gong
+
+    YARN-4913. Yarn logs should take a -out option to write to a directory. Contributed by Xuan Gong.
+
+    YARN-5115. Avoid setting CONTENT-DISPOSITION header in the container-logs web-service.
+    Contributed by Xuan Gong.
+
+    YARN-5089. Improve "yarn log" command-line "logFiles" option to support
+    regex. Contributed by Xuan Gong
+
+    YARN-5141. Get Container logs for the Running application from Yarn Logs CommandLine. Contributed by Xuan Gong.
+
+    YARN-5088. Improve "yarn log" command-line to read the last K bytes for the log files. Contributed by Xuan Gong
+
+    YARN-5199. Close LogReader in in AHSWebServices#getStreamingOutput and
+    FileInputStream in NMWebServices#getLogs. Contributed by Xuan Gong
+
+    YARN-5191. Renamed the newly added “download=true” option for getting logs via NMWebServices
+    and AHSWebServices to be a better "format" option. (Xuan Gong via vinodkv)
+
+    YARN-5122. "yarn logs" for running containers should print an explicit footer saying
+    that the log may be incomplete. Contributed by Jian He.
+
+    YARN-5223. Container line in yarn logs output for a live application should include
+    the hostname for the container. Contributed by Xuan Gong.
+
+    YARN-5083. YARN CLI for AM logs does not give any error message if entered invalid am value. Contributed by Jian He.
+
+    YARN-5251. Yarn CLI to obtain App logs for last 'n' bytes fails. Contributed by Xuan Gong.
+
+    YARN-5266. Wrong exit code while trying to get app logs using regex via CLI. Contributed by Xuan Gong
+
+    YARN-5227. Yarn logs command: no need to specify applicationId when
+    specifying containerId. Contributed by Gergely Novák
+
+    YARN-5224. Added new web-services /containers/{containerid}/logs & /containers/{containerid}/logs/{filename}
+    and using them in "yarn logs" CLI to get logs of finished containers of a running application. Contributed by Xuan Gong.
+
+    YARN-5200. Enhanced "yarn logs" to be able to get a list of containers whose logs are aggregated
+    via a "show_container_log_info" option. Contributed by Xuan Gong.
+
+    YARN-5363. For AM containers, or for containers of running-apps, "yarn logs" incorrectly only
+    (tries to) shows syslog file-type by default. (Contributed by Vinod Kumar Vavilapalli)
+
+    YARN-5339. Passing file to -out for YARN log CLI doesnt give warning or error code. Contributed by Xuan Gong.
+
+    YARN-5226. Remove AHS enable check from LogsCLI#fetchAMContainerLogs. Contributed by Xuan Gong.
+
+    YARN-5213. Fix a bug in LogCLIHelpers which cause TestLogsCLI#testFetchApplictionLogs fails intermittently.
+    Contributed by Xuan Gong.
+
+    YARN-5470. Differentiate exactly match with regex in yarn log CLI. Contributed by Xuan Gong.
+
+    YARN-5523. Yarn running container log fetching causes OutOfMemoryError (Xuan Gong via Varun Saxena)
 
     YARN-4699. Scheduler UI and REST o/p is not in sync when
     -replaceLabelsOnNode is used to change label of a node. (Sunil G via
@@ -3114,6 +3179,20 @@ ATS V1.5:
     YARN-5524. Yarn live log aggregation does not throw if command line arg is wrong.
     Contributed by Xuan Gong.
 
+    YARN-6011. Add a new web service to list the files on a container in AHSWebService. Contributed by Xuan Gong.
+
+    YARN-6099. Improve webservice to list aggregated log files. Contributed by Xuan Gong.
+
+    YARN-6126. Obtaining app logs for Running application fails with json parse error. Contributed by Xuan Gong.
+
+    YARN-6100. Improve YARN webservice to output aggregated container logs. Contributed by Xuan Gong.
+
+    YARN-6108. Improve AHS webservice to accept NM address as a parameter to get container logs. Contributed by Xuan Gong.
+
+    YARN-6113. Re-direct NM Web Service to get container logs for finished applications. Contributed by Xuan Gong.
+
+    YARN-6174. Log files pattern should be same for both running and finished container. Contributed by Xuan Gong.
+
     BUG-71400. YARN-4393. TestResourceLocalizationService#testFailedDirsResourceRelease fails intermittently.
     Contributed by Varun Saxena.
 
@@ -3499,6 +3578,9 @@ ATS V1.5:
     BUG-76819. YARN-6313. yarn logs cli should provide logs for a completed 
     container even when application is still running. Contributed by Xuan Gong.
 
+    YARN-6367. YARN logs CLI needs alway check containerLogsInfo/containerLogInfo before
+    parse the JSON object from NMWebService. Contributed by Xuan Gong.
+
     BUG-77222. Encryption related security hole during localization by Junping Du.
 
     HDFS-11533. reuseAddress option should be used for child channels in Portmap and SimpleTcpServer. Contributed by Mukul Kumar Singh.
@@ -3514,3 +3596,6 @@ ATS V1.5:
 
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for
     comparison. Contributed by Santhosh Nayak
+
+
+
