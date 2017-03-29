@@ -21,6 +21,27 @@ package org.apache.hadoop.io.retry;
 import org.apache.hadoop.io.retry.RetryPolicies.*;
 import org.apache.hadoop.io.retry.RetryPolicy.RetryAction;
 import org.apache.hadoop.io.retry.RetryPolicy.RetryAction.RetryDecision;
+import static org.apache.hadoop.io.retry.RetryPolicies.RETRY_FOREVER;
+import static org.apache.hadoop.io.retry.RetryPolicies.TRY_ONCE_THEN_FAIL;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryByException;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryByRemoteException;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryUpToMaximumCountWithFixedSleep;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryUpToMaximumCountWithProportionalSleep;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryUpToMaximumTimeWithFixedSleep;
+import static org.apache.hadoop.io.retry.RetryPolicies.retryForeverWithFixedSleep;
+import static org.apache.hadoop.io.retry.RetryPolicies.exponentialBackoffRetry;
+import static org.junit.Assert.*;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.hadoop.io.retry.UnreliableInterface.FatalException;
 import org.apache.hadoop.io.retry.UnreliableInterface.UnreliableException;
 import org.apache.hadoop.ipc.ProtocolTranslator;
@@ -137,7 +158,17 @@ public class TestRetryProxy {
     unreliable.failsOnceThenSucceeds();
     unreliable.failsTenTimesThenSucceeds();
   }
-  
+
+  @Test
+  public void testRetryForeverWithFixedSleep() throws UnreliableException {
+    UnreliableInterface unreliable = (UnreliableInterface) RetryProxy.create(
+        UnreliableInterface.class, unreliableImpl,
+        retryForeverWithFixedSleep(1, TimeUnit.MILLISECONDS));
+    unreliable.alwaysSucceeds();
+    unreliable.failsOnceThenSucceeds();
+    unreliable.failsTenTimesThenSucceeds();
+  }
+
   @Test
   public void testRetryUpToMaximumCountWithFixedSleep() throws
       Exception {
