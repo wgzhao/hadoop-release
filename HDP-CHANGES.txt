@@ -3945,3 +3945,17 @@ ATS V1.5:
     BUG-77128. some LLAP logs are lost from aggregation on HCube. Gour Saha.
 
     YARN-5206. RegistrySecurity includes id:pass in exception text if considered invalid. Contributed by Steve Loughran.
+
+    HDFS-10793. Fix HdfsAuditLogger binary incompatibility introduced by HDFS-9184.
+    HDFS-9700. BUG-60868. DFSClient and DFSOutputStream should set TCP_NODELAY on sockets for DataTransferProtocol. (Gary Helmling)
+
+    HADOOP-13381. KMS clients should use KMS Delegation Tokens from current UGI. Contributed by Xiao Chen.
+
+    HADOOP-13212 Provide an option to set the socket buffers in S3AFileSystem (Rajesh Balamohan)
+
+    HADOOP-13139 Branch-2: S3a to use thread pool that blocks clients. Contributed by Pieter Reuse.
+
+    HADOOP-12634. Change Lazy Rename Pending Operation Completion of WASB to address case of potential data loss due to partial copy. Contributed by Gaurav Kanade.
+    HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name inserted in target server principal
+
+    HADOOP-12158. Improve error message in TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not installed.
