@@ -84,7 +84,7 @@ public class RequestHedgingRMFailoverProxyProvider<T>
         RMRequestHedgingInvocationHandler.class.getClassLoader(),
         new Class<?>[] {protocol},
         new RMRequestHedgingInvocationHandler(retriableProxies));
-    String combinedInfo = Arrays.toString(rmServiceIds);
+    String combinedInfo = "Failover proxy for " + Arrays.toString(rmServiceIds);
     wrappedProxy = new ProxyInfo<T>(proxyInstance, combinedInfo);
   }
 
@@ -173,8 +173,8 @@ public class RequestHedgingRMFailoverProxyProvider<T>
           // Throw exception from first responding RM so that clients can handle
           // appropriately
           Throwable rootCause = extraRootException(ex);
-          LOG.warn("Invocation returned exception: " + rootCause.toString()
-              + " on " + "[" + pInfo + "], so propagating back to caller.");
+          LOG.warn("Invocation returned exception on " + "[" + pInfo + "] : "
+                  + rootCause.toString() + ", so propagating back to caller.");
           throw rootCause;
         }
 

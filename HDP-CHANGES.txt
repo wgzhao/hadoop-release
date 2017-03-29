@@ -3476,3 +3476,6 @@ ATS V1.5:
 
     BUG-78226. HADOOP-12386. RetryPolicies.RETRY_FOREVER should be able to
     specify a retry interval. (Sunil G via wangda)
+
+    BUG-78227. Backport part of HADOOP-13226 to fix retry on EOFException and
+    HADOOP-14116. (jianhe)
