@@ -3939,3 +3939,9 @@ ATS V1.5:
     HDFS-10757. KMSClientProvider combined with KeyProviderCache can result in wrong UGI being used. Contributed by Xiaoyu Yao.
     
     BUG-43975. YARN-4113. RM should respect retry-interval when uses RetryPolicies.RETRY_FOREVER. (Sunil G via wangda)
+
+    BUG-68611. YARN-5923. Unable to access logs for a running application if YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
+
+    BUG-77128. some LLAP logs are lost from aggregation on HCube. Gour Saha.
+
+    YARN-5206. RegistrySecurity includes id:pass in exception text if considered invalid. Contributed by Steve Loughran.
