@@ -4312,3 +4312,5 @@ ATS V1.5:
     message in Configuration#set (jeagles)
 
     BUG-78100. HADOOP-14240. Configuration#get return value optimization (jeagles)
+
+    BUG-78100. HADOOP-14216. Improve Configuration XML Parsing Performance (jeagles)
