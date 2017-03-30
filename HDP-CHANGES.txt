@@ -1,9 +1,42 @@
-Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
+Changes only in Hortonworks github and not in hadoop-2.7.3 and hence not covered
 by CHANGES.txt.
 
   INCOMPATIBLE CHANGES
 
   NEW FEATURES
+
+    YARN-5910. Support for multi-cluster delegation tokens. Contributed by Jian
+    He
+
+    YARN-4496. Improve HA ResourceManager Failover detection on the client.
+    Contributed by Jian He
+
+    YARN-5233. Support for specifying a path for ATS plugin jars. Contributed by
+    Li Lu
+
+    YARN-3623. Add a config to indicate the Timeline Service version.
+    Contributed by Xuan Gong.
+
+    YARN-4007. Add support for different network setups when launching the
+    docker container. Contributed by Sidharta Seethana.
+
+    YARN-4595. Add support for configurable read-only mounts when launching
+    Docker containers. Contributed by Billie Rinaldi.
+
+    YARN-4553. Add cgroups support for docker containers. Contributed by
+    Sidharta Seethana.
+
+    YARN-4262. Allow whitelisted users to run privileged docker containers.
+    Contributed by Sidharta Seethana.
+
+    YARN-4258. Add support for controlling capabilities for docker containers.
+    Contributed by Sidharta Seethana.
+
+    YARN-3853. Add docker container runtime support to LinuxContainterExecutor.
+    Contributed by Sidharta Seethana.
+
+    YARN-3852. Add docker container support to container-executor. Contributed
+    by Abin Shahab.
 
     HDFS-8008. Support client-side back off when the datanodes are congested.
     (wheat9)
@@ -198,6 +231,25 @@ ATS V1.5:
     DistributedFileSystem (Xiaobing Zhou)
 
   IMPROVEMENTS
+
+    YARN-4578. Directories that are mounted in docker containers need to be more
+    restrictive/container-specific. Contributed by Sidharta Seethana.
+
+    YARN-4267. Add additional logging to container launch implementations in
+    container-executor. Contributed by Sidharta Seethana.
+
+    YARN-4253. Standardize on using PrivilegedOperationExecutor for all
+    invocations of container-executor in LinuxContainerExecutor. Contributed by
+    Sidharta Seethana.
+
+    YARN-3684. Changed ContainerExecutor's primary lifecycle methods to use a
+    more extensible mechanism of context objects. Contributed by Sidharta Seethana.
+
+    YARN-4851. Metric improvements for ATS v1.5 storage components. Li Lu via
+    junping_du.
+
+    YARN-4906. Capture container start/finish time in container metrics.
+    Contributed by Jian He.
 
     BUG-60735. HDFS-9721. Allow Delimited PB OIV tool to run upon fsimage that
     contains INodeReference (Xiao Chen)
@@ -558,6 +610,176 @@ ATS V1.5:
     parallel.  Contributed by vinayakumarb and szetszwo.
 
   BUG FIXES
+
+    YARN-6294. ATS client should better handle Socket closed case. Contributed
+    by Li Lu.
+
+    BUG-76401. YARN-6271. yarn rmadin -getGroups returns information from
+    standby RM. Contributed by Jian He.
+
+    BUG-63198. YARN-6082. Invalid REST api response for getApps since
+    queueUsagePercentage is coming as INF. Contributed by Sunil G.
+
+    MAPREDUCE-6565. Configuration to use host name in delegation token service
+    is not read from job.xml during MapReduce job execution. Contributed by Li Lu.
+
+    BUG-69387. YARN-4109. Exception on RM scheduler page loading with labels.
+    (Mohammad Shahid Khan via rohithsharmaks)
+
+    YARN-4204. ConcurrentModificationException in FairSchedulerQueueInfo.
+    (adhoot)
+
+    YARN-3762. FairScheduler: CME on FSParentQueue#getQueueUserAclInfo. (kasha)
+
+    YARN-6104. RegistrySecurity overrides zookeeper sasl system properties.
+    Contributed by Billie Rinaldi
+
+    BUG-72180. Running applications information changes such as movequeue is not
+    published to TimeLine server (YARN-4044).
+
+    YARN-5923. Unable to access logs for a running application if
+    YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
+
+    YARN-5440. Use AHSClient in YarnClient when TimelineServer is running. (Xuan
+    Gong via gtcarrera9)
+
+    YARN-5432. Lock already held by another process while LevelDB cache store
+    creation for dag. Contributed by Li Lu.
+
+    YARN-5340. Fixed a race condition in RollingLevelDBTimelineStore that caused
+    loss of Timeline events. Contributed by Li Lu.
+
+    YARN-4909. Fix intermittent failures of TestRMWebServices And
+    TestRMWithCSRFFilter. Contributed by Bibin A Chundatt
+
+    MAPREDUCE-6733. MapReduce JerseyTest tests failing with
+    java.net.BindException: Address already in use. Contributed by Vinod Kumar
+    Vavilapalli.
+
+    YARN-4759. Fix signal handling for docker containers. Contributed by Shane
+    Kumpf.
+
+    YARN-5298. Mount usercache and NM filecache directories into Docker
+    container. Contributed by  Sidharta Seethana.
+
+    YARN-5299. Log Docker run command when container fails. Contributed by Varun
+    Vasudev.
+
+    YARN-5314. Fixed a ConcurrentModificationException in ATS v1.5
+    EntityGroupFSTimelineStore. Contributed by Li Lu.
+
+    YARN-4744. Too many signal to container failure in case of LCE. Contributed
+    by Sidharta Seethana
+
+    YARN-4252. Log container-executor invocation details when exit code is
+    non-zero. Contributed by Sidharta Seethana.
+
+    YARN-4762. Fixed CgroupHandler's creation and usage to avoid NodeManagers
+    crashing when LinuxContainerExecutor is enabled. (Sidharta Seethana via vinodkv)
+
+    YARN-4643. Container recovery is broken with delegating container runtime.
+    Contributed by Sidharta Seethana
+
+    YARN-4017. container-executor overuses PATH_MAX. Contributed by Sidharta
+    Seethana
+
+    YARN-3844. Make hadoop-yarn-project Native code -Wall-clean (Alan Burlison
+    via Colin P. McCabe)
+
+    YARN-4255. container-executor does not clean up docker operation command
+    files. Contributed by Sidharta Seethana.
+
+    YARN-4004. container-executor should print output of docker logs if the
+    docker container exits with non-0 exit status. Contributed by Varun Vasudev
+
+    YARN-4411. RMAppAttemptImpl#createApplicationAttemptReport throws
+    IllegalArgumentException. Contributed by Bibin A Chundatt and yarntime.
+
+    YARN-5246. NMWebAppFilter web redirects drop query parameters. Contributed
+    by Varun Vasudev.
+
+    YARN-3722. Merge multiple TestWebAppUtils into
+    o.a.h.yarn.webapp.util.TestWebAppUtils. Contributed by Masatake Iwasaki.
+
+    YARN-5237. Fix missing log files issue in rolling log aggregation.
+    Contributed by Xuan Gong.
+
+    YARN-5098. Fixed ResourceManager's DelegationTokenRenewer to replace
+    expiring system-tokens if RM stops and only restarts after a long time.
+    Contributed by Jian He. Made one minor edit for branch-2 patch.
+
+    YARN-3768. ArrayIndexOutOfBoundsException with empty environment variables.
+    (Zhihai Xu via gera)
+
+    YARN-4987. Read cache concurrency issue between read and evict in
+    EntityGroupFS timeline store. Contributed by Li Lu.
+
+    YARN-4168. Fixed a failing test
+    TestLogAggregationService.testLocalFileDeletionOnDiskFull. Contributed by
+    Takashi Ohnishi.
+
+    YARN-5103. With NM recovery enabled, restarting NM multiple times results in
+    AM restart. Contributed by Junping Du
+
+    YARN-5100. The YarnApplicationState is always running in ATS even
+    application is finished. Contributed by Xuan Gong.
+
+    YARN-4325. Nodemanager log handlers fail to send finished/failed events in
+    some cases. Contributed by Junping Du
+
+    YARN-4577. Enable aux services to have their own custom classpath/jar file
+    (Xuan Gong via sale)
+
+    YARN-5029. RM needs to send update event with YarnApplicationState as
+    Running to ATS/AHS. Contributed by Xuan Gong.
+
+    YARN-5002. getApplicationReport call may raise NPE for removed queues. (Jian
+    He via wangda)
+
+    YARN-4764. Application submission fails when submitted queue is not
+    available in scheduler xml. Contributed by Bibin A Chundatt
+
+    YARN-3749. We should make a copy of configuration when init MiniYARNCluster
+    with multiple RMs. Contributed by Chun Chen
+
+    YARN-4132. Separate configs for nodemanager to resourcemanager connection
+    timeout and retries. Contributed by Chang Li
+
+    YARN-4928. Some yarn.server.timeline.* tests fail on Windows attempting to
+    use a test root path containing a colon. Contributed by Gergely Novák.
+
+    YARN-4956. findbug issue on LevelDBCacheTimelineStore. (Zhiyuan Yang via
+    gtcarrera9)
+
+    YARN-3623. Addendum: Improve the description for Timeline Service Version
+    configuration in yarn-default.xml
+
+    YARN-4983. JVM and UGI metrics disappear after RM transitioned to standby
+    mode
+
+    YARN-4571. Make app id/name available to the yarn authorizer provider for
+    better auditing. (Jian He via wangda)
+
+    YARN-3963. AddNodeLabel on duplicate label addition shows success. (Bibin A
+    Chundatt via wangda)
+
+    YARN-4748. ApplicationHistoryManagerOnTimelineStore should not swallow
+    exceptions on generateApplicationReport. Contributed by Li Lu
+
+    YARN-4863. AHS Security login should be in serviceInit() instead of
+    serviceStart(). Contributed by Junping Du
+
+    YARN-4820. ResourceManager web redirects in HA mode drops query parameters.
+    Contributed by Varun Vasudev.
+
+    YARN-4596. SystemMetricPublisher should not swallow error messages from
+    TimelineClient#putEntities. Contributed by Li Lu
+
+    MAPREDUCE-6478. Add an option to skip cleanupJob stage or ignore cleanup
+    failure during commitJob. (Junping Du via wangda)
+
+    YARN-4243. Add retry on establishing Zookeeper conenction in
+    EmbeddedElectorService#serviceInit. Contributed by Xuan Gong.
 
     BUG-76478. HDFS-11476. Fix NPE in FsDatasetImpl#checkAndUpdate (Xiaobing Zhou)
 
