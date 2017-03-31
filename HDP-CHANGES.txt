@@ -3479,3 +3479,6 @@ ATS V1.5:
 
     BUG-78227. Backport part of HADOOP-13226 to fix retry on EOFException and
     HADOOP-14116. (jianhe)
+
+    BUG-78406. YARN-4113. RM should respect retry-interval when uses
+    RetryPolicies.RETRY_FOREVER. (Sunil G via wangda)
