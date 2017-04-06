@@ -31,7 +31,7 @@
 
   <property>
     <name>fs.azure.secure.mode</name>
-    <value>false</value>
+    <value>true</value>
   </property>
 
 
