@@ -3489,3 +3489,6 @@ ATS V1.5:
     BUG-78852. YARN-5318. Fix intermittent test failure of TestRMAdminService#te
     stRefreshNodesResourceWithFileSystemBasedConfigurationProvider. (Jun Gong
     via Varun Saxena).
+
+    BUG-78855. HDFS-10722. Fix race condition in
+    TestEditLog#testBatchedSyncWithClosedLogs. Contributed by Daryn Sharp.
