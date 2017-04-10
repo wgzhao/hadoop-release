@@ -3485,3 +3485,7 @@ ATS V1.5:
 
     BUG-77800. YARN-3589. RM and AH web UI display DOCTYPE wrongly. Contbituted
     by Rohith.
+
+    BUG-78852. YARN-5318. Fix intermittent test failure of TestRMAdminService#te
+    stRefreshNodesResourceWithFileSystemBasedConfigurationProvider. (Jun Gong
+    via Varun Saxena).
