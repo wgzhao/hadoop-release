@@ -3494,3 +3494,6 @@ ATS V1.5:
     TestEditLog#testBatchedSyncWithClosedLogs. Contributed by Daryn Sharp.
 
     BUG-75453. testReservationAPIs UT fails. (wangda)
+
+    BUG-78278. HADOOP-13812. Upgrade Tomcat to 6.0.48. Contributed by John
+    Zhuge.
