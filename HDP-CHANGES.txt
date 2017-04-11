@@ -3497,3 +3497,9 @@ ATS V1.5:
 
     BUG-78278. HADOOP-13812. Upgrade Tomcat to 6.0.48. Contributed by John
     Zhuge.
+
+    BUG-75937. HDFS-10301. Remove FBR tracking state to fix false zombie storage
+    detection for interleaving block reports. Contributed by Vinitha Gankidi.
+
+    BUG-75384. HADOOP-14100. Upgrade Jsch jar to latest version to fix
+    vulnerability in old versions. Contributed by Vinayakumar B
