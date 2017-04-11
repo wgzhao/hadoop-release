@@ -1811,3 +1811,6 @@ ATS V1.5:
 
     HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
     Contributed by Tibor Kiss.
+
+    HDFS-11608. HDFS write crashed with block size greater than 2 GB.
+    Contributed by Xiaobing Zhou.
