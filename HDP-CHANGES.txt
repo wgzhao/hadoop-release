@@ -3507,3 +3507,5 @@ ATS V1.5:
     BUG-78017. HDFS-9193. Fix incorrect references the usages of the DN in
     dfshealth.js. Contributed by Chang Li.
 
+    BUG-78966. HDFS-11608. HDFS write crashed with block size greater than 2 GB.
+    Contributed by Xiaobing Zhou.
