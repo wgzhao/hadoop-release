@@ -34,6 +34,8 @@ public enum WasbAuthorizationOperations {
         return "read";
       case WRITE:
         return "write";
+      case EXECUTE:
+        return "execute";
       default:
         throw new IllegalArgumentException(
             "Invalid Authorization Operation");
