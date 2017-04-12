@@ -72,16 +72,16 @@ public class JobHistoryUtils {
    * Permissions for the history done dir and derivatives.
    */
   public static final FsPermission HISTORY_DONE_DIR_PERMISSION =
-    FsPermission.createImmutable((short) 0770); 
+    FsPermission.createImmutable((short) 0755); 
 
   public static final FsPermission HISTORY_DONE_FILE_PERMISSION =
-    FsPermission.createImmutable((short) 0770); // rwx------
+    FsPermission.createImmutable((short) 0755); // rwx------
 
  /**
    * Umask for the done dir and derivatives.
    */
   public static final FsPermission HISTORY_DONE_DIR_UMASK = FsPermission
-      .createImmutable((short) (0770 ^ 0777));
+      .createImmutable((short) (0777 ^ 0777));
 
   
   /**
@@ -94,10 +94,10 @@ public class JobHistoryUtils {
    * Permissions for the user directory under the intermediate done directory.
    */
   public static final FsPermission HISTORY_INTERMEDIATE_USER_DIR_PERMISSIONS = 
-    FsPermission.createImmutable((short) 0770);
+    FsPermission.createImmutable((short) 0755);
   
   public static final FsPermission HISTORY_INTERMEDIATE_FILE_PERMISSIONS = 
-    FsPermission.createImmutable((short) 0770); // rwx------
+    FsPermission.createImmutable((short) 0755); // rwx------
   
   /**
    * Suffix for configuration files.
