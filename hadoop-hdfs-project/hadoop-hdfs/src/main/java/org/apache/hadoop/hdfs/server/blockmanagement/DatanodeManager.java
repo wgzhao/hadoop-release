@@ -1794,5 +1794,14 @@ public class DatanodeManager {
   public SlowDiskTracker getSlowDiskTracker() {
     return slowDiskTracker;
   }
+  /**
+   * Retrieve information about slow disks as a JSON.
+   * Returns null if we are not tracking slow disks.
+   * @return
+   */
+  public String getSlowDisksReport() {
+    return slowDiskTracker != null ?
+        slowDiskTracker.getSlowDiskReportAsJsonString() : null;
+  }
 }
 
