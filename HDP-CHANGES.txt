@@ -2939,3 +2939,6 @@ ATS V1.5:
 
     HADOOP-13208. S3A listFiles(recursive=true) to do a bulk listObjects instead
     of walking the pseudo-tree of directories. Contributed by Steve Loughran.
+
+    BUG-78962. HADOOP-14195. CredentialProviderFactory$getProviders is not
+    thread-safe. Contributed by Vihang Karajgaonkar.
