@@ -611,6 +611,9 @@ ATS V1.5:
 
   BUG FIXES
 
+    BUG-78483. HDFS-11608. HDFS write crashed with block size greater than 2 GB
+    (Xiaobing Zhou)
+
     YARN-6294. ATS client should better handle Socket closed case. Contributed
     by Li Lu.
 
