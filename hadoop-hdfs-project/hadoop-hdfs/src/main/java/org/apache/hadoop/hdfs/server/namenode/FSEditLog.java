@@ -541,7 +541,13 @@ public class FSEditLog implements LogsPurgeable {
       id.txid = txid;
     }
     // Then make sure we're synced up to this point
+    LOG.info("logSyncAll toSyncToTxId=" + myTransactionId.get().txid
+        + " lastSyncedTxid=" + synctxid
+        + " mostRecentTxid=" + txid);
     logSync();
+    LOG.info("Done logSyncAll lastWrittenTxId=" + myTransactionId.get().txid
+        + " lastSyncedTxid=" + synctxid
+        + " mostRecentTxid=" + txid);
   }
   
   /**
@@ -1228,20 +1234,25 @@ public class FSEditLog implements LogsPurgeable {
    * Transitions from IN_SEGMENT state to BETWEEN_LOG_SEGMENTS state.
    */
   public synchronized void endCurrentLogSegment(boolean writeEndTxn) {
-    LOG.info("Ending log segment " + curSegmentTxId);
+    LOG.info("Ending log segment " + curSegmentTxId +
+        ", " + getLastWrittenTxId());
     Preconditions.checkState(isSegmentOpen(),
         "Bad state: %s", state);
     
     if (writeEndTxn) {
       logEdit(LogSegmentOp.getInstance(cache.get(), 
           FSEditLogOpCodes.OP_END_LOG_SEGMENT));
-      logSync();
     }
+    // always sync to ensure all edits are flushed.
+    logSyncAll();
 
     printStatistics(true);
     
     final long lastTxId = getLastWrittenTxId();
-    
+    final long lastSyncedTxId = getSyncTxId();
+    Preconditions.checkArgument(lastTxId == lastSyncedTxId,
+        "LastWrittenTxId %s is expected to be the same as lastSyncedTxId %s",
+        lastTxId, lastSyncedTxId);
     try {
       journalSet.finalizeLogSegment(curSegmentTxId, lastTxId);
       editLogStream = null;
