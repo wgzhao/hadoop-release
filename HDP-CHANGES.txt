@@ -4195,3 +4195,5 @@ ATS V1.5:
 
     BUG-78968. HADOOP-14195. CredentialProviderFactory$getProviders is not
     thread-safe. Contributed by Vihang Karajgaonkar.
+
+    BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from parallel runs. Contributed by Steve Loughran
