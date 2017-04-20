@@ -34,8 +34,18 @@ public class TestConfigRedactor {
   private static final String ORIGINAL_VALUE = "Hello, World!";
 
   @Test
-  public void redact() throws Exception {
+  public void testRedactWithCoreDefault() throws Exception {
     Configuration conf = new Configuration();
+    testRedact(conf);
+  }
+
+  @Test
+  public void testRedactNoCoreDefault() throws Exception {
+    Configuration conf = new Configuration(false);
+    testRedact(conf);
+  }
+
+  private void testRedact(Configuration conf) throws Exception {
     ConfigRedactor redactor = new ConfigRedactor(conf);
     String processedText;
 
@@ -43,6 +53,10 @@ public class TestConfigRedactor {
         "fs.s3a.secret.key",
         "fs.s3n.awsSecretKey",
         "fs.azure.account.key.abcdefg.blob.core.windows.net",
+        "fs.adl.oauth2.refresh.token",
+        "fs.adl.oauth2.credential",
+        "dfs.adls.oauth2.refresh.token",
+        "dfs.adls.oauth2.credential",
         "dfs.webhdfs.oauth2.access.token",
         "dfs.webhdfs.oauth2.refresh.token",
         "ssl.server.keystore.keypassword",
