@@ -4199,3 +4199,17 @@ ATS V1.5:
     BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from parallel runs. Contributed by Steve Loughran
 
     BUG-79477. HADOOP-14324. Refine S3 server-side-encryption key as encryption secret; improve error reporting and diagnostics. Contributed by Steve Loughran
+
+    BUG-77866. HADOOP-14241. Add ADLS sensitive config keys to default list. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14174. Set default ADLS access token provider type to ClientCredential. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14038. Rename ADLS credential properties. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14230. TestAdlFileSystemContractLive fails to clean up. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14197. Fix ADLS doc for credential provider. Contributed by John Zhuge
+    BUG-77866. HADOOP-14196. Azure Data Lake doc is missing required config entry. Contributed by Atul Sikaria
+    BUG-77866. HADOOP-14205. No FileSystem for scheme: adl. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14173. Remove unused AdlConfKeys#ADL_EVENTS_TRACKING_SOURCE. Contributed by John Zhuge.
+    BUG-77866. HADOOP-14153. ADL module has messed doc structure. Contributed by Mingliang Liu
+    BUG-77866. HADOOP-14113. Review ADL Docs. Contributed by Steve Loughran
+    BUG-77866. HADOOP-14123. Remove misplaced ADL service provider config file for FileSystem. Contributed by John Zhuge.
+    BUG-77866. HADOOP-13929. ADLS connector should not check in contract-test-options.xml. (John Zhuge via lei)
+    BUG-77866. HADOOP-13928. TestAdlFileContextMainOperationsLive.testGetFileContext1 runtime error. (John Zhuge via lei)
