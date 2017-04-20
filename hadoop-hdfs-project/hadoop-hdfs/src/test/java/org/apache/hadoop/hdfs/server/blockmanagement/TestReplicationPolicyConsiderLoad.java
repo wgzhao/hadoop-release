@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.server.blockmanagement;
 
+import org.apache.hadoop.hdfs.server.protocol.SlowDiskReports;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -116,17 +117,20 @@ public class TestReplicationPolicyConsiderLoad {
           BlockManagerTestUtil.getStorageReportsForDatanode(dataNodes[3]),
           blockPoolId, dataNodes[3].getCacheCapacity(),
           dataNodes[3].getCacheRemaining(),
-          2, 0, 0, null, SlowPeerReports.EMPTY_REPORT);
+          2, 0, 0, null, SlowPeerReports.EMPTY_REPORT,
+          SlowDiskReports.EMPTY_REPORT);
       dnManager.handleHeartbeat(dnrList.get(4),
           BlockManagerTestUtil.getStorageReportsForDatanode(dataNodes[4]),
           blockPoolId, dataNodes[4].getCacheCapacity(),
           dataNodes[4].getCacheRemaining(),
-          4, 0, 0, null, SlowPeerReports.EMPTY_REPORT);
+          4, 0, 0, null, SlowPeerReports.EMPTY_REPORT,
+          SlowDiskReports.EMPTY_REPORT);
       dnManager.handleHeartbeat(dnrList.get(5),
           BlockManagerTestUtil.getStorageReportsForDatanode(dataNodes[5]),
           blockPoolId, dataNodes[5].getCacheCapacity(),
           dataNodes[5].getCacheRemaining(),
-          4, 0, 0, null, SlowPeerReports.EMPTY_REPORT);
+          4, 0, 0, null, SlowPeerReports.EMPTY_REPORT,
+          SlowDiskReports.EMPTY_REPORT);
       // value in the above heartbeats
       final int load = 2 + 4 + 4;
       

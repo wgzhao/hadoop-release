@@ -120,7 +120,8 @@ public class DatanodeProtocolServerSideTranslatorPB implements
           request.getXmitsInProgress(),
           request.getXceiverCount(), request.getFailedVolumes(),
           volumeFailureSummary, request.getRequestFullBlockReportLease(),
-          PBHelper.convertSlowPeerInfo(request.getSlowPeersList()));
+          PBHelper.convertSlowPeerInfo(request.getSlowPeersList()),
+          PBHelper.convertSlowDiskInfo(request.getSlowDisksList()));
     } catch (IOException e) {
       throw new ServiceException(e);
     }
