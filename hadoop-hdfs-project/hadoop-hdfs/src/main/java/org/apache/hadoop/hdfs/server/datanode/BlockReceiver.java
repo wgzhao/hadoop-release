@@ -48,6 +48,7 @@ import org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver;
 import org.apache.hadoop.hdfs.protocol.datatransfer.PipelineAck;
 import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.BlockOpResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.Status;
+import org.apache.hadoop.hdfs.server.datanode.fsdataset.FsVolumeSpi;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.ReplicaInputStreams;
 import org.apache.hadoop.hdfs.server.datanode.fsdataset.ReplicaOutputStreams;
 import org.apache.hadoop.hdfs.server.datanode.metrics.DataNodePeerMetrics;
@@ -99,6 +100,7 @@ class BlockReceiver implements Closeable {
   private DataTransferThrottler throttler;
   private ReplicaOutputStreams streams;
   private DatanodeInfo srcDataNode = null;
+  private DatanodeInfo[] downstreamDNs = DatanodeInfo.EMPTY_ARRAY;
   private final DataNode datanode;
   volatile private boolean mirrorError;
 
@@ -413,10 +415,10 @@ class BlockReceiver implements Closeable {
       }
     }
     long duration = Time.monotonicNow() - begin;
-    if (duration > datanodeSlowLogThresholdMs) {
+    if (duration > datanodeSlowLogThresholdMs && LOG.isWarnEnabled()) {
       LOG.warn("Slow flushOrSync took " + duration + "ms (threshold="
           + datanodeSlowLogThresholdMs + "ms), isSync:" + isSync + ", flushTotalNanos="
-          + flushTotalNanos + "ns");
+          + flushTotalNanos + "ns, volume=" + getVolumeBasePath());
     }
   }
 
@@ -561,9 +563,10 @@ class BlockReceiver implements Closeable {
             mirrorAddr,
             duration);
         trackSendPacketToLastNodeInPipeline(duration);
-        if (duration > datanodeSlowLogThresholdMs) {
+        if (duration > datanodeSlowLogThresholdMs && LOG.isWarnEnabled()) {
           LOG.warn("Slow BlockReceiver write packet to mirror took " + duration
-              + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms)");
+              + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms), "
+              + "downstream DNs=" + Arrays.toString(downstreamDNs));
         }
       } catch (IOException e) {
         handleMirrorOutError(e);
@@ -694,9 +697,10 @@ class BlockReceiver implements Closeable {
           streams.writeDataToDisk(dataBuf.array(),
               startByteToDisk, numBytesToDisk);
           long duration = Time.monotonicNow() - begin;
-          if (duration > datanodeSlowLogThresholdMs) {
+          if (duration > datanodeSlowLogThresholdMs && LOG.isWarnEnabled()) {
             LOG.warn("Slow BlockReceiver write data to disk cost:" + duration
-                + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms)");
+                + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms), "
+                + "volume=" + getVolumeBasePath());
           }
 
           final byte[] lastCrc;
@@ -881,9 +885,10 @@ class BlockReceiver implements Closeable {
         }
         lastCacheManagementOffset = offsetInBlock;
         long duration = Time.monotonicNow() - begin;
-        if (duration > datanodeSlowLogThresholdMs) {
+        if (duration > datanodeSlowLogThresholdMs && LOG.isWarnEnabled()) {
           LOG.warn("Slow manageWriterOsCache took " + duration
-              + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms)");
+              + "ms (threshold=" + datanodeSlowLogThresholdMs
+              + "ms), volume=" + getVolumeBasePath());
         }
       }
     } catch (Throwable t) {
@@ -908,13 +913,7 @@ class BlockReceiver implements Closeable {
     boolean responderClosed = false;
     mirrorOut = mirrOut;
     mirrorAddr = mirrAddr;
-    isPenultimateNode = ((downstreams != null) && (downstreams.length == 1));
-    if (isPenultimateNode) {
-      mirrorNameForMetrics = (downstreams[0].getInfoSecurePort() != 0 ?
-          downstreams[0].getInfoSecureAddr() : downstreams[0].getInfoAddr());
-      LOG.debug("Will collect peer metrics for downstream node {}",
-          mirrorNameForMetrics);
-    }
+    initPerfMonitoring(downstreams);
     throttler = throttlerArg;
 
     this.replyOut = replyOut;
@@ -1032,6 +1031,39 @@ class BlockReceiver implements Closeable {
         responder = null;
       }
     }
+  }
+
+  /**
+   * If we have downstream DNs and peerMetrics are enabled, then initialize
+   * some state for monitoring the performance of downstream DNs.
+   *
+   * @param downstreams downstream DNs, or null if there are none.
+   */
+  private void initPerfMonitoring(DatanodeInfo[] downstreams) {
+    if (downstreams != null && downstreams.length > 0) {
+      downstreamDNs = downstreams;
+      isPenultimateNode = (downstreams.length == 1);
+      if (isPenultimateNode && datanode.getPeerMetrics() != null) {
+        mirrorNameForMetrics = (downstreams[0].getInfoSecurePort() != 0 ?
+            downstreams[0].getInfoSecureAddr() : downstreams[0].getInfoAddr());
+        LOG.debug("Will collect peer metrics for downstream node {}",
+            mirrorNameForMetrics);
+      }
+    }
+  }
+
+  /**
+   * Fetch the base path of the volume on which this replica resides.
+   *
+   * @returns Volume base path as string if available. Else returns the
+   *          the string "unavailable".
+   */
+  private String getVolumeBasePath() {
+    final FsVolumeSpi volume = replicaHandler.getVolume();
+    if (volume != null) {
+      return volume.getBasePath();
+    }
+    return "unavailable";
   }
 
   /** Cleanup a partial block

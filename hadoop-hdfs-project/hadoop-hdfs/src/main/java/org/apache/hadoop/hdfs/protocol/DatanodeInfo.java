@@ -55,6 +55,7 @@ public class DatanodeInfo extends DatanodeID implements Node {
   private volatile String location = NetworkTopology.DEFAULT_RACK;
   private String softwareVersion;
   private List<String> dependentHostNames = new LinkedList<String>();
+  public static final DatanodeInfo[] EMPTY_ARRAY = {};
   
   
   // Datanode administrative states
