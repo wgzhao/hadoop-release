@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.hdfs.server.protocol;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -36,92 +37,113 @@ import java.util.Map;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public final class SlowDiskReports {
-	/**
-	 * A map from the DataNode Disk's BasePath to its mean metadata op latency,
-	 * mean read io latency and mean write io latency.
-	 *
-	 * The NameNode must not attempt to interpret the mean latencies
-	 * beyond exposing them as a diagnostic. e.g. metrics. Also, comparing
-	 * latencies across reports from different DataNodes may not be not
-	 * meaningful and must be avoided.
-	 */
-	@Nonnull
-	private final Map<String, Map<DiskOp, Double>> slowDisks;
+  /**
+   * A map from the DataNode Disk's BasePath to its mean metadata op latency,
+   * mean read io latency and mean write io latency.
+   *
+   * The NameNode must not attempt to interpret the mean latencies
+   * beyond exposing them as a diagnostic. e.g. metrics. Also, comparing
+   * latencies across reports from different DataNodes may not be not
+   * meaningful and must be avoided.
+   */
+  @Nonnull
+  private final Map<String, Map<DiskOp, Double>> slowDisks;
 
-	/**
-	 * An object representing a SlowPeerReports with no entries. Should
-	 * be used instead of null or creating new objects when there are
-	 * no slow peers to report.
-	 */
-	public static final SlowDiskReports EMPTY_REPORT =
-			new SlowDiskReports(ImmutableMap.<String, Map<DiskOp, Double>>of());
+  /**
+   * An object representing a SlowPeerReports with no entries. Should
+   * be used instead of null or creating new objects when there are
+   * no slow peers to report.
+   */
+  public static final SlowDiskReports EMPTY_REPORT =
+      new SlowDiskReports(ImmutableMap.<String, Map<DiskOp, Double>>of());
 
-	private SlowDiskReports(Map<String, Map<DiskOp, Double>> slowDisks) {
-		this.slowDisks = slowDisks;
-	}
+  private SlowDiskReports(Map<String, Map<DiskOp, Double>> slowDisks) {
+    this.slowDisks = slowDisks;
+  }
 
-	public static SlowDiskReports create(
-			@Nullable Map<String, Map<DiskOp, Double>> slowDisks) {
-		if (slowDisks == null || slowDisks.isEmpty()) {
-			return EMPTY_REPORT;
-		}
-		return new SlowDiskReports(slowDisks);
-	}
+  public static SlowDiskReports create(
+      @Nullable Map<String, Map<DiskOp, Double>> slowDisks) {
+    if (slowDisks == null || slowDisks.isEmpty()) {
+      return EMPTY_REPORT;
+    }
+    return new SlowDiskReports(slowDisks);
+  }
 
-	public Map<String, Map<DiskOp, Double>> getSlowDisks() {
-		return slowDisks;
-	}
+  public Map<String, Map<DiskOp, Double>> getSlowDisks() {
+    return slowDisks;
+  }
 
-	public boolean haveSlowDisks() {
-		return slowDisks.size() > 0;
-	}
+  public boolean haveSlowDisks() {
+    return slowDisks.size() > 0;
+  }
 
-	/**
-	 * Return true if the two objects represent the same set slow disk
-	 * entries. Primarily for unit testing convenience.
-	 */
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
+  /**
+   * Return true if the two objects represent the same set slow disk
+   * entries. Primarily for unit testing convenience.
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
 
-		if (!(o instanceof SlowDiskReports)) {
-			return false;
-		}
+    if (!(o instanceof SlowDiskReports)) {
+      return false;
+    }
 
-		SlowDiskReports that = (SlowDiskReports) o;
+    SlowDiskReports that = (SlowDiskReports) o;
 
-		if (this.slowDisks.size() != that.slowDisks.size()) {
-			return false;
-		}
+    if (this.slowDisks.size() != that.slowDisks.size()) {
+      return false;
+    }
 
-		if (!this.slowDisks.keySet().containsAll(that.slowDisks.keySet()) ||
-				!that.slowDisks.keySet().containsAll(this.slowDisks.keySet())) {
-			return false;
-		}
+    if (!this.slowDisks.keySet().containsAll(that.slowDisks.keySet()) ||
+        !that.slowDisks.keySet().containsAll(this.slowDisks.keySet())) {
+      return false;
+    }
 
-		boolean areEqual;
-		for (String disk : this.slowDisks.keySet()) {
-			if (!this.slowDisks.get(disk).equals(that.slowDisks.get(disk))) {
-				return false;
-			}
-		}
+    boolean areEqual;
+    for (String disk : this.slowDisks.keySet()) {
+      if (!this.slowDisks.get(disk).equals(that.slowDisks.get(disk))) {
+        return false;
+      }
+    }
 
-		return true;
-	}
+    return true;
+  }
 
-	@Override
-	public int hashCode() {
-		return slowDisks.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return slowDisks.hashCode();
+  }
 
-	/**
-	 * Lists the types of operations on which disk latencies are measured.
-	 */
-	public enum DiskOp {
-		METADATA,
-		READ,
-		WRITE
-	}
+  /**
+   * Lists the types of operations on which disk latencies are measured.
+   */
+  public enum DiskOp {
+    METADATA("MetadataOp"),
+    READ("ReadIO"),
+    WRITE("WriteIO");
+
+    private final String value;
+
+    DiskOp(final String v) {
+      this.value = v;
+    }
+
+    @Override
+    public String toString() {
+      return value;
+    }
+
+    @JsonCreator
+    public static DiskOp fromValue(final String value) {
+      for (DiskOp as : DiskOp.values()) {
+        if (as.value.equals(value)) {
+          return as;
+        }
+      }
+      return null;
+    }
+  }
 }
