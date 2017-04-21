@@ -694,6 +694,10 @@ class BlockReceiver implements Closeable {
           streams.writeDataToDisk(dataBuf.array(),
               startByteToDisk, numBytesToDisk);
           long duration = Time.monotonicNow() - begin;
+          if (duration > datanodeSlowLogThresholdMs) {
+            LOG.warn("Slow BlockReceiver write data to disk cost:" + duration
+                + "ms (threshold=" + datanodeSlowLogThresholdMs + "ms)");
+          }
 
           final byte[] lastCrc;
           if (shouldNotWriteChecksum) {
