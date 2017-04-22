@@ -4197,3 +4197,5 @@ ATS V1.5:
     thread-safe. Contributed by Vihang Karajgaonkar.
 
     BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from parallel runs. Contributed by Steve Loughran
+
+    BUG-79477. HADOOP-14324. Refine S3 server-side-encryption key as encryption secret; improve error reporting and diagnostics. Contributed by Steve Loughran

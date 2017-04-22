@@ -445,6 +445,7 @@ public class CommonConfigurationKeysPublic {
   public static final String HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS_DEFAULT =
       "password$" + "," +
       "fs.s3.*[Ss]ecret.?[Kk]ey" + "," +
+      "fs.s3a.*.server-side-encryption.key" +
       "fs.azure\\.account.key.*" + "," +
       "dfs.webhdfs.oauth2.[a-z]+.token" + "," +
       HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS;
