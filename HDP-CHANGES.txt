@@ -2991,3 +2991,6 @@ ATS V1.5:
 
     BUG-79426. HDFS-7964. Add support for async edit logging. Contributed by
     Daryn Sharp.
+
+    BUG-79426. HDFS-11292. log lastWrittenTxId etc info in logSyncAll.
+    Contributed by Yongjun Zhang.
