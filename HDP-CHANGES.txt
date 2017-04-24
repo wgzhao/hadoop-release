@@ -2988,3 +2988,6 @@ ATS V1.5:
 
     BUG-79426. HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses.
     (Daryn Sharp via yliu)
+
+    BUG-79426. HDFS-7964. Add support for async edit logging. Contributed by
+    Daryn Sharp.
