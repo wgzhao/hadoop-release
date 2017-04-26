@@ -860,3 +860,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-57390.  HADOOP-11031. Design Document for Credential Provider API.
     Contributed by Larry McCay.
 
+    BUG-79623. HADOOP-14195. CredentialProviderFactory$getProviders is not
+    thread-safe. Contributed by Vihang Karajgaonkar.
