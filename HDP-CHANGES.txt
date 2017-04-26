@@ -4204,3 +4204,5 @@ ATS V1.5:
     BUG-77866. HADOOP-14123. Remove misplaced ADL service provider config file for FileSystem. Contributed by John Zhuge.
     BUG-77866. HADOOP-13929. ADLS connector should not check in contract-test-options.xml. (John Zhuge via lei)
     BUG-77866. HADOOP-13928. TestAdlFileContextMainOperationsLive.testGetFileContext1 runtime error. (John Zhuge via lei)
+
+    BUG-79813. HADOOP-14351. Azure: RemoteWasbAuthorizerImpl and RemoteSASKeyGeneratorImpl should not use Kerberos interactive user cache. Contributed by Santhosh G Nayak
