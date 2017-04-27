@@ -4265,3 +4265,6 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-109058. HADOOP-14346. CryptoOutputStream throws IOException if stream is
+    closed. Contributed by Pierre Lacave
