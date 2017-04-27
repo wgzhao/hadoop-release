@@ -3509,3 +3509,6 @@ ATS V1.5:
 
     BUG-78966. HDFS-11608. HDFS write crashed with block size greater than 2 GB.
     Contributed by Xiaobing Zhou.
+
+    BUG-71588. Backport HDFS-11056: Concurrent append and read operations lead
+    to checksum error (Also backported HDFS-11228). Contributed by Chen Liang
