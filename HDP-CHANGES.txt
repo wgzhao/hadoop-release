@@ -4216,3 +4216,5 @@ ATS V1.5:
     BUG-77866. HADOOP-14349. Rename ADLS CONTRACT_ENABLE_KEY. Contributed by Mingliang Liu
 
     BUG-79813. HADOOP-14351. Azure: RemoteWasbAuthorizerImpl and RemoteSASKeyGeneratorImpl should not use Kerberos interactive user cache. Contributed by Santhosh G Nayak
+
+    HADOOP-14361 Azure: NativeAzureFileSystem.getDelegationToken() call fails sometimes when invoked concurrently.
