@@ -1820,3 +1820,6 @@ ATS V1.5:
 
     BUG-75095. YARN-5309. Fix SSLFactory truststore reloader thread leak in
     TimelineClientImpl. Contributed by Weiwei Yang.
+
+    BUG-79829. HADOOP-13638. KMS should set UGI's Configuration object properly.
+    Contributed by Wei-Chiu Chuang.
