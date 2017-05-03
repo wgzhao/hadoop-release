@@ -4218,3 +4218,6 @@ ATS V1.5:
     BUG-79813. HADOOP-14351. Azure: RemoteWasbAuthorizerImpl and RemoteSASKeyGeneratorImpl should not use Kerberos interactive user cache. Contributed by Santhosh G Nayak
 
     HADOOP-14361 Azure: NativeAzureFileSystem.getDelegationToken() call fails sometimes when invoked concurrently.
+
+    BUG-80065. YARN-4624. NPE in PartitionQueueCapacitiesInfo while accessing
+    Scheduler UI. Contributed by Brahma Reddy Battula
