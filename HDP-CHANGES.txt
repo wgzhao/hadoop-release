@@ -3515,3 +3515,6 @@ ATS V1.5:
 
     BUG-80066. YARN-4624. NPE in PartitionQueueCapacitiesInfo while accessing
     Schduler UI. Contributed by Brahma Reddy Battula
+
+    BUG-80062. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
+    Varun Saxena)
