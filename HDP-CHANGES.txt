@@ -3512,3 +3512,6 @@ ATS V1.5:
 
     BUG-71588. Backport HDFS-11056: Concurrent append and read operations lead
     to checksum error (Also backported HDFS-11228). Contributed by Chen Liang
+
+    BUG-80066. YARN-4624. NPE in PartitionQueueCapacitiesInfo while accessing
+    Schduler UI. Contributed by Brahma Reddy Battula
