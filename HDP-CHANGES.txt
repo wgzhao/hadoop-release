@@ -2936,3 +2936,6 @@ ATS V1.5:
 
     BUG-80086. HADOOP-13558. UserGroupInformation created from a Subject
     incorrectly tries to renew the Kerberos ticket. Contributed by Xiao Chen.
+
+    BUG-80086. HADOOP-13638. KMS should set UGI's Configuration object properly.
+    Contributed by Wei-Chiu Chuang.
