@@ -2996,3 +2996,6 @@ ATS V1.5:
     webapp. Contributed by Varun Saxena.
 
     HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
+
+    HADOOP-13638. KMS should set UGI's Configuration object properly.
+    Contributed by Wei-Chiu Chuang.
