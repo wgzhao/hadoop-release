@@ -2939,3 +2939,6 @@ ATS V1.5:
 
     BUG-80086. HADOOP-13638. KMS should set UGI's Configuration object properly.
     Contributed by Wei-Chiu Chuang.
+
+    BUG-80086. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
+    can result in wrong UGI being used. Contributed by Xiaoyu Yao.
