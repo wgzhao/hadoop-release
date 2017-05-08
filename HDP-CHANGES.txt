@@ -2933,3 +2933,6 @@ ATS V1.5:
     case of exception. (Contributed by Mingliang Liu)
 
     BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+
+    BUG-80086. HADOOP-13558. UserGroupInformation created from a Subject
+    incorrectly tries to renew the Kerberos ticket. Contributed by Xiao Chen.
