@@ -2947,3 +2947,6 @@ ATS V1.5:
     via rkanter)
 
     BUG-80086. HADOOP-13988.02
+
+    BUG-80086. HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use
+    case. Contributed by Xiaoyu Yao.
