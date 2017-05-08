@@ -2945,3 +2945,5 @@ ATS V1.5:
 
     BUG-80086. HADOOP-13838. KMSTokenRenewer should close providers (xiaochen
     via rkanter)
+
+    BUG-80086. HADOOP-13988.02
