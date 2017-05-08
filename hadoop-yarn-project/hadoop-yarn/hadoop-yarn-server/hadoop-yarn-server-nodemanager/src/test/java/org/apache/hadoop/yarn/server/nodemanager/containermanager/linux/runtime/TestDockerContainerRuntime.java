@@ -200,7 +200,7 @@ public class TestDockerContainerRuntime {
     // warning annotation on the entire method
     verify(mockExecutor, times(1))
         .executePrivilegedOperation(anyList(), opCaptor.capture(), any(
-            File.class), any(Map.class), eq(false));
+            File.class), any(Map.class), eq(false), eq(false));
 
     //verification completed. we need to isolate specific invications.
     // hence, reset mock here

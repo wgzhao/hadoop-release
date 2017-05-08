@@ -3518,3 +3518,6 @@ ATS V1.5:
 
     BUG-80062. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
     Varun Saxena)
+
+    BUG-80177. Remove parent's env vars from child processes
+
