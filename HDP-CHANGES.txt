@@ -2942,3 +2942,6 @@ ATS V1.5:
 
     BUG-80086. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
+
+    BUG-80086. HADOOP-13838. KMSTokenRenewer should close providers (xiaochen
+    via rkanter)
