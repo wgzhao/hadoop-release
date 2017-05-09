@@ -4268,3 +4268,6 @@ ATS V1.5:
 
     BUG-94382. YARN-6061. Add an UncaughtExceptionHandler for critical threads
     in RM. (Yufei Gu via kasha)
+
+    BUG-94382. YARN-3742. YARN RM will shut down if ZKClient creation times out.
+    (Daniel Templeton via kasha)
