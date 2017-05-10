@@ -866,3 +866,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-13251. Authenticate with Kerberos credentials when
     renewing KMS delegation token. Contributed by Xiao Chen.
+
+    BUG-80455. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
+    can result in wrong UGI being used. Contributed by Xiaoyu Yao.

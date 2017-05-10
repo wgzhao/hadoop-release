@@ -1788,6 +1788,7 @@ public class TestKMS {
             } else {
               otherUgi = UserGroupInformation.createUserForTesting("client1",
                   new String[] {"other group"});
+              UserGroupInformation.setLoginUser(otherUgi);
             }
             try {
               // test delegation token renewal via renewer
@@ -2111,6 +2112,7 @@ public class TestKMS {
               loginUserFromKeytabAndReturnUGI("client", keytab.getAbsolutePath());
         } else {
           proxyUgi = UserGroupInformation.createRemoteUser("client");
+          UserGroupInformation.setLoginUser(proxyUgi);
         }
 
         final UserGroupInformation clientUgi = proxyUgi; 
