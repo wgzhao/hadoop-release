@@ -857,3 +857,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-13155. Implement TokenRenewer to renew and cancel
     delegation tokens in KMS.
+
+    BUG-80455. HADOOP-13255. KMSClientProvider should check and renew tgt when
+    doing delegation token operations. Contributed by Xiao Chen.
