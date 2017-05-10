@@ -860,3 +860,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-13255. KMSClientProvider should check and renew tgt when
     doing delegation token operations. Contributed by Xiao Chen.
+
+    BUG-80455. HADOOP-13381. KMS clients should use KMS Delegation Tokens from
+    current UGI. Contributed by Xiao Chen.
