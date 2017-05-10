@@ -1237,3 +1237,6 @@ ATS V1.5:
 
     BUG-80234. HADOOP-12962. KMS key names are incorrectly encoded when creating
     key. Contributed by Xiao Chen.
+
+    BUG-80234. HADOOP-13155. Implement TokenRenewer to renew and cancel
+    delegation tokens in KMS. Contributed by Xiao Chen.
