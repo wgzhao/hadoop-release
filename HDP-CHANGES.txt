@@ -1231,3 +1231,6 @@ ATS V1.5:
 
     BUG-80234. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
+
+    BUG-80234. HADOOP-12901. Add warning log when KMSClientProvider cannot
+    create a connection to the KMS server. (Xiao Chen via wang)
