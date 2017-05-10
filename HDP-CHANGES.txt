@@ -1234,3 +1234,6 @@ ATS V1.5:
 
     BUG-80234. HADOOP-12901. Add warning log when KMSClientProvider cannot
     create a connection to the KMS server. (Xiao Chen via wang)
+
+    BUG-80234. HADOOP-12962. KMS key names are incorrectly encoded when creating
+    key. Contributed by Xiao Chen.
