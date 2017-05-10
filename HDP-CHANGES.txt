@@ -854,3 +854,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-12787. KMS SPNEGO sequence does not work with WEBHDFS.
     Contributed by Xiaoyu Yao.
+
+    BUG-80455. HADOOP-13155. Implement TokenRenewer to renew and cancel
+    delegation tokens in KMS.
