@@ -2933,3 +2933,6 @@ ATS V1.5:
     case of exception. (Contributed by Mingliang Liu)
 
     BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+
+    BUG-80461. HADOOP-12954. Add a way to change
+    hadoop.security.token.service.use_ip (rkanter)
