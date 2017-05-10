@@ -964,3 +964,6 @@ covered by CHANGES.txt.
 
     BUG-77682. HDFS-7916. 'reportBadBlocks' from datanodes to standby Node
     BPServiceActor goes for infinite loop. Contributed by Rushabh Shah.
+
+    BUG-80398. MAPREDUCE-6618 (bug-51462): YarnClientProtocolProvider leaking
+    the YarnClient thread. Contributed by Xuan Gong
