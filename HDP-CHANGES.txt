@@ -4223,3 +4223,6 @@ ATS V1.5:
     Scheduler UI. Contributed by Brahma Reddy Battula
 
     BUG-80177. Remove parent's env vars from child processes
+
+    BUG-80275. YARN-5342. Improve non-exclusive node partition resource
+    allocation in Capacity Scheduler. (Sunil G via wangda)
