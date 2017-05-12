@@ -38,6 +38,7 @@ public class FileHandle {
   private static final int HANDLE_LEN = 32;
   private byte[] handle; // Opaque handle
   private long fileId = -1;
+  private int namenodeId = -1;
 
   public FileHandle() {
     handle = null;
@@ -45,9 +46,11 @@ public class FileHandle {
 
   /**
    * Handle is a 32 bytes number. For HDFS, the last 8 bytes is fileId.
+   * For ViewFs, last 8 byte is fileId while 4 bytes before that is namenodeId
    */
-  public FileHandle(long v) {
+  public FileHandle(long v, int n) {
     fileId = v;
+    namenodeId = n;
     handle = new byte[HANDLE_LEN];
     handle[0] = (byte)(v >>> 56);
     handle[1] = (byte)(v >>> 48);
@@ -57,11 +60,20 @@ public class FileHandle {
     handle[5] = (byte)(v >>> 16);
     handle[6] = (byte)(v >>>  8);
     handle[7] = (byte)(v >>>  0);
-    for (int i = 8; i < HANDLE_LEN; i++) {
+
+    handle[8] = (byte) (n >>> 24);
+    handle[9] = (byte) (n >>> 16);
+    handle[10] = (byte) (n >>> 8);
+    handle[11] = (byte) (n >>> 0);
+    for (int i = 12; i < HANDLE_LEN; i++) {
       handle[i] = (byte) 0;
     }
   }
-  
+
+  public FileHandle(long v) {
+    this(v, 0);
+  }
+
   public FileHandle(String s) {
     MessageDigest digest;
     try {
@@ -92,22 +104,32 @@ public class FileHandle {
     return true;
   }
 
-  private long bytesToLong(byte[] data) {
+  private long bytesToLong(byte[] data, int offset) {
     ByteBuffer buffer = ByteBuffer.allocate(8);
     for (int i = 0; i < 8; i++) {
-      buffer.put(data[i]);
+      buffer.put(data[i + offset]);
     }
     buffer.flip();// need flip
     return buffer.getLong();
   }
-  
+
+  private int bytesToInt(byte[] data, int offset) {
+    ByteBuffer buffer = ByteBuffer.allocate(4);
+    for (int i = 0; i < 4; i++) {
+      buffer.put(data[i + offset]);
+    }
+    buffer.flip(); // need flip
+    return buffer.getInt();
+  }
+
   public boolean deserialize(XDR xdr) {
     if (!XDR.verifyLength(xdr, 32)) {
       return false;
     }
     int size = xdr.readInt();
     handle = xdr.readFixedOpaque(size);
-    fileId = bytesToLong(handle);
+    fileId = bytesToLong(handle, 0);
+    namenodeId = bytesToInt(handle, 8);
     return true;
   }
   
@@ -121,11 +143,15 @@ public class FileHandle {
   public long getFileId() {    
     return fileId;
   }
+
+  public int getNamenodeId() {
+    return namenodeId;
+  }
   
   public byte[] getContent() {
     return handle.clone();
   }
-  
+
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
@@ -152,5 +178,9 @@ public class FileHandle {
   @Override
   public int hashCode() {
     return Arrays.hashCode(handle);
+  }
+
+  public String dumpFileHandle() {
+    return "fileId: " + fileId + " namenodeId: " + namenodeId;
   }
 }

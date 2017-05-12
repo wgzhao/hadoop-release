@@ -491,8 +491,9 @@ public class TestWrites {
       nfs3.startServiceInternal(false);
       nfsd = (RpcProgramNfs3) nfs3.getRpcProgram();
 
+      int namenodeId = NameNode.getNamenodeId(config);
       HdfsFileStatus status = client.getFileInfo("/");
-      FileHandle rootHandle = new FileHandle(status.getFileId());
+      FileHandle rootHandle = new FileHandle(status.getFileId(), namenodeId);
       // Create file1
       CREATE3Request createReq = new CREATE3Request(rootHandle, "file1",
           Nfs3Constant.CREATE_UNCHECKED, new SetAttr3(), 0);
@@ -597,8 +598,9 @@ public class TestWrites {
       nfsd = (RpcProgramNfs3) nfs3.getRpcProgram();
 
       DFSClient dfsClient = new DFSClient(NameNode.getAddress(config), config);
+      int namenodeId = NameNode.getNamenodeId(config);
       HdfsFileStatus status = dfsClient.getFileInfo("/");
-      FileHandle rootHandle = new FileHandle(status.getFileId());
+      FileHandle rootHandle = new FileHandle(status.getFileId(), namenodeId);
 
       CREATE3Request createReq = new CREATE3Request(rootHandle,
           "out-of-order-write" + System.currentTimeMillis(),

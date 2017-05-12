@@ -119,10 +119,11 @@ public class TestReaddir {
     // Get inodeId of /tmp
     HdfsFileStatus status = nn.getRpcServer().getFileInfo(testdir);
     long dirId = status.getFileId();
+    int namenodeId = NameNode.getNamenodeId(config);
 
     // Create related part of the XDR request
     XDR xdr_req = new XDR();
-    FileHandle handle = new FileHandle(dirId);
+    FileHandle handle = new FileHandle(dirId, namenodeId);
     handle.serialize(xdr_req);
     xdr_req.writeLongAsHyper(0); // cookie
     xdr_req.writeLongAsHyper(0); // verifier
@@ -139,7 +140,7 @@ public class TestReaddir {
 
     // Create related part of the XDR request
     xdr_req = new XDR();
-    handle = new FileHandle(dirId);
+    handle = new FileHandle(dirId, namenodeId);
     handle.serialize(xdr_req);
     xdr_req.writeLongAsHyper(f2Id); // cookie
     xdr_req.writeLongAsHyper(0); // verifier
@@ -167,10 +168,11 @@ public class TestReaddir {
     // Get inodeId of /tmp
     HdfsFileStatus status = nn.getRpcServer().getFileInfo(testdir);
     long dirId = status.getFileId();
+    int namenodeId = NameNode.getNamenodeId(config);
     
     // Create related part of the XDR request
     XDR xdr_req = new XDR();
-    FileHandle handle = new FileHandle(dirId);
+    FileHandle handle = new FileHandle(dirId, namenodeId);
     handle.serialize(xdr_req);
     xdr_req.writeLongAsHyper(0); // cookie
     xdr_req.writeLongAsHyper(0); // verifier
@@ -189,7 +191,7 @@ public class TestReaddir {
 
     // Create related part of the XDR request
     xdr_req = new XDR();
-    handle = new FileHandle(dirId);
+    handle = new FileHandle(dirId, namenodeId);
     handle.serialize(xdr_req);
     xdr_req.writeLongAsHyper(f2Id); // cookie
     xdr_req.writeLongAsHyper(0); // verifier

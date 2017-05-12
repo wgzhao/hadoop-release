@@ -241,7 +241,7 @@ class WriteCtx {
   
   @Override
   public String toString() {
-    return "Id:" + handle.getFileId() + " offset:" + offset + " count:" + count
+    return "FileHandle:" + handle.dumpFileHandle() + " offset:" + offset + " " + "count:" + count
         + " originalCount:" + originalCount + " stableHow:" + stableHow
         + " replied:" + replied + " dataState:" + dataState + " xid:" + xid;
   }
