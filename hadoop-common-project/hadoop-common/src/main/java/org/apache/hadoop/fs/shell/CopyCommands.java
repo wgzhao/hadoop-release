@@ -26,6 +26,11 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -44,6 +49,7 @@ class CopyCommands {
     factory.addClass(Merge.class, "-getmerge");
     factory.addClass(Cp.class, "-cp");
     factory.addClass(CopyFromLocal.class, "-copyFromLocal");
+    factory.addClass(MultiCopyFromLocal.class, "-multiCopyFromLocal");
     factory.addClass(CopyToLocal.class, "-copyToLocal");
     factory.addClass(Get.class, "-get");
     factory.addClass(Put.class, "-put");
@@ -272,6 +278,111 @@ class CopyCommands {
     public static final String NAME = "copyFromLocal";
     public static final String USAGE = Put.USAGE;
     public static final String DESCRIPTION = "Identical to the -put command.";
+  }
+
+  public static class MultiCopyFromLocal extends Put {
+    private ThreadPoolExecutor executor = null;
+    private List<Future> futures = null;
+
+    private int numThreads = 1;
+    private static final int MAX_THREADS =
+        Runtime.getRuntime().availableProcessors() * 2;
+
+    public static final String NAME = "multiCopyFromLocal";
+    public static final String USAGE =
+        "[-f] [-p] [-l] [-d] [-nt <thread count>] <localsrc> ... <dst>";
+    public static final String DESCRIPTION =
+        "Copy files from the local file system " +
+            "into fs. Copying fails if the file already " +
+            "exists, unless the -f flag is given.\n" +
+            "Flags:\n" +
+            "  -p : Preserves access and modification times, ownership and the mode.\n" +
+            "  -f : Overwrites the destination if it already exists.\n" +
+            "  -nt <thread count>: Number of threads to be used, default is 1.\n" +
+            "  -l : Allow DataNode to lazily persist the file to disk. Forces\n" +
+            "       replication factor of 1. This flag will result in reduced\n" +
+            "       durability. Use with care.\n" +
+            "  -d : Skip creation of temporary file(<dst>._COPYING_).\n";
+
+    private void setNumberThreads(String numberThreadsString) {
+      if (numberThreadsString == null) {
+        numThreads = 1;
+      } else {
+        int parsedValue = Integer.parseInt(numberThreadsString);
+        if (parsedValue <= 1) {
+          numThreads = 1;
+        } else if (parsedValue > MAX_THREADS) {
+          numThreads = MAX_THREADS;
+        } else {
+          numThreads = parsedValue;
+        }
+      }
+    }
+
+    @Override
+    protected final void processOptions(LinkedList<String> args)
+        throws IOException {
+      CommandFormat cf =
+          new CommandFormat(1, Integer.MAX_VALUE, "f", "p", "l", "d");
+      cf.addOptionWithValue("nt");
+      cf.parse(args);
+      setNumberThreads(cf.getOptValue("nt"));
+      setOverwrite(cf.getOpt("f"));
+      setPreserve(cf.getOpt("p"));
+      setLazyPersist(cf.getOpt("l"));
+      getRemoteDestination(args);
+      // should have a -r option
+      setRecursive(true);
+    }
+
+    private void copyFile(PathData src, PathData target) throws IOException {
+      super.copyFileToTarget(src, target);
+    }
+
+    @Override
+    protected final void copyFileToTarget(final PathData src,
+                                          final PathData target)
+        throws IOException {
+      // if number of thread is 1, mimic put
+      if (numThreads == 1) {
+        copyFile(src, target);
+        return;
+      }
+
+      Runnable task = new Runnable() {
+        @Override
+        public void run() {
+          try {
+            copyFile(src, target);
+          } catch (IOException e) {
+            displayError(e);
+          }
+        }
+      };
+
+      futures.add(executor.submit(task));
+    }
+
+    @Override
+    protected final void processArguments(LinkedList<PathData> args)
+        throws IOException {
+      out.println(getName() + " started with " + numThreads + " threads");
+      executor = new ThreadPoolExecutor(numThreads, numThreads, 1,
+          TimeUnit.SECONDS, new ArrayBlockingQueue(1024));
+      futures = new LinkedList<>();
+      super.processArguments(args);
+
+      // issue the command and then wait for it to finish
+      try {
+        for (Future future : futures) {
+          future.get();
+        }
+      } catch (InterruptedException | ExecutionException e) {
+        displayError(e);
+      }
+
+      executor.shutdown();
+    }
   }
  
   public static class CopyToLocal extends Get {
