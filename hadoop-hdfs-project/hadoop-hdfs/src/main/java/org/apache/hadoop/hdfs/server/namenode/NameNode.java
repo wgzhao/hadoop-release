@@ -482,6 +482,15 @@ public class NameNode extends ReconfigurableBase implements
   public static InetSocketAddress getAddress(String address) {
     return NetUtils.createSocketAddr(address, DEFAULT_PORT);
   }
+
+  public static int getNamenodeId(Configuration conf) {
+    URI filesystemURI = FileSystem.getDefaultUri(conf);
+    return getNamenodeId(conf, filesystemURI);
+  }
+
+  public static int getNamenodeId(Configuration conf, URI filesystemURI) {
+    return getAddress(conf, filesystemURI).hashCode();
+  }
   
   /**
    * Set the configuration property for the service rpc address

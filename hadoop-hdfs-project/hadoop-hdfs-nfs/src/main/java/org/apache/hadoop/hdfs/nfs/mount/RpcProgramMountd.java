@@ -52,6 +52,13 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
+import java.net.URI;
+import java.nio.file.FileSystemException;
+import java.util.HashMap;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.protocol.HdfsConstants;
+
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -64,14 +71,12 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
   public static final int VERSION_2 = 2;
   public static final int VERSION_3 = 3;
 
-  private final DFSClient dfsClient;
-  
   /** Synchronized list */
   private final List<MountEntry> mounts;
   
   /** List that is unmodifiable */
-  private final List<String> exports;
-  
+  private final HashMap<String, URI> exports;
+  private final NfsConfiguration config;
   private final NfsExports hostsMatcher;
 
   public RpcProgramMountd(NfsConfiguration config,
@@ -82,17 +87,34 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
         NfsConfigKeys.DFS_NFS_MOUNTD_PORT_KEY,
         NfsConfigKeys.DFS_NFS_MOUNTD_PORT_DEFAULT), PROGRAM, VERSION_1,
         VERSION_3, registrationSocket, allowInsecurePorts);
-    exports = new ArrayList<String>();
-    exports.add(config.get(NfsConfigKeys.DFS_NFS_EXPORT_POINT_KEY,
-        NfsConfigKeys.DFS_NFS_EXPORT_POINT_DEFAULT));
+    this.config = config;
+    exports = new HashMap<>();
+    addExports();
     this.hostsMatcher = NfsExports.getInstance(config);
     this.mounts = Collections.synchronizedList(new ArrayList<MountEntry>());
     UserGroupInformation.setConfiguration(config);
     SecurityUtil.login(config, NfsConfigKeys.DFS_NFS_KEYTAB_FILE_KEY,
         NfsConfigKeys.DFS_NFS_KERBEROS_PRINCIPAL_KEY);
-    this.dfsClient = new DFSClient(NameNode.getAddress(config), config);
   }
-  
+  private void addExports() throws IOException {
+    FileSystem fs = FileSystem.get(config);
+    String[] exportsPath =
+        config.getStrings(NfsConfigKeys.DFS_NFS_EXPORT_POINT_KEY,
+                          NfsConfigKeys.DFS_NFS_EXPORT_POINT_DEFAULT);
+    for (String exportPath : exportsPath) {
+      URI exportURI = fs.resolvePath(new Path(exportPath)).toUri();
+      if (exportURI.getScheme().
+          equalsIgnoreCase(HdfsConstants.HDFS_URI_SCHEME)) {
+        LOG.info("adding export Path:" + exportPath +
+            " URI: " + exportURI.toString());
+        exports.put(exportPath, exportURI);
+        } else {
+        throw new FileSystemException("Only HDFS is supported as underlying"
+            + "FileSystem, current scheme:" + fs.getScheme());
+        }
+      }
+    }
+
   @Override
   public XDR nullOp(XDR out, int xid, InetAddress client) {
     if (LOG.isDebugEnabled()) {
@@ -123,17 +145,30 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Got host: " + host + " path: " + path);
     }
-    if (!exports.contains(path)) {
+    URI exportURI = exports.get(path);
+    if (exportURI == null) {
       LOG.info("Path " + path + " is not shared.");
+      MountResponse.writeMNTResponse(Nfs3Status.NFS3ERR_NOENT, out, xid, null);
+      return out;
+    }
+
+    InetSocketAddress namenodeAddress =
+        NameNode.getAddress(config, exportURI);
+    DFSClient dfsClient = null;
+    try {
+      dfsClient = new DFSClient(namenodeAddress, config);
+    } catch (Exception e) {
+      LOG.error("Can't get handle for export:" + path, e);
       MountResponse.writeMNTResponse(Nfs3Status.NFS3ERR_NOENT, out, xid, null);
       return out;
     }
 
     FileHandle handle = null;
     try {
-      HdfsFileStatus exFileStatus = dfsClient.getFileInfo(path);
-      
-      handle = new FileHandle(exFileStatus.getFileId());
+      HdfsFileStatus exFileStatus = dfsClient.getFileInfo(exportURI.getPath());
+
+      handle = new FileHandle(exFileStatus.getFileId(),
+          NameNode.getNamenodeId(config, exportURI));
     } catch (IOException e) {
       LOG.error("Can't get handle for export:" + path, e);
       MountResponse.writeMNTResponse(Nfs3Status.NFS3ERR_NOENT, out, xid, null);
@@ -141,7 +176,8 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
     }
 
     assert (handle != null);
-    LOG.info("Giving handle (fileId:" + handle.getFileId()
+    LOG.info("Giving handle (fileHandle:" + handle.dumpFileHandle()
+        + " file URI: " + exportURI
         + ") to client for export " + path);
     mounts.add(new MountEntry(host, path));
 
@@ -212,11 +248,14 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
     } else if (mntproc == MNTPROC.UMNTALL) {
       umntall(out, xid, client);
     } else if (mntproc == MNTPROC.EXPORT) {
-      // Currently only support one NFS export
       List<NfsExports> hostsMatchers = new ArrayList<NfsExports>();
       if (hostsMatcher != null) {
-        hostsMatchers.add(hostsMatcher);
-        out = MountResponse.writeExportList(out, xid, exports, hostsMatchers);
+        List exportsList = getExports();
+        for (int i = 0; i < exportsList.size(); i++) {
+          hostsMatchers.add(hostsMatcher);
+        }
+        out = MountResponse.writeExportList(out, xid,
+                                            exportsList, hostsMatchers);
       } else {
         // This means there are no valid exports provided.
         RpcAcceptedReply.getInstance(xid,
@@ -242,6 +281,6 @@ public class RpcProgramMountd extends RpcProgram implements MountInterface {
 
   @VisibleForTesting
   public List<String> getExports() {
-    return this.exports;
+    return new ArrayList<>(this.exports.keySet());
   }
 }

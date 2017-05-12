@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.hdfs.nfs.conf.NfsConfiguration;
+import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.Test;
 
@@ -43,12 +44,14 @@ public class TestDFSClientCache {
 
     DFSClientCache cache = new DFSClientCache(conf, MAX_CACHE_SIZE);
 
-    DFSClient c1 = cache.getDfsClient("test1");
-    assertTrue(cache.getDfsClient("test1").toString().contains("ugi=test1"));
-    assertEquals(c1, cache.getDfsClient("test1"));
+    int namenodeId = NameNode.getNamenodeId(conf);
+    DFSClient c1 = cache.getDfsClient("test1", namenodeId);
+    assertTrue(cache.getDfsClient("test1",namenodeId)
+        .toString().contains("ugi=test1"));
+    assertEquals(c1, cache.getDfsClient("test1", namenodeId));
     assertFalse(isDfsClientClose(c1));
 
-    cache.getDfsClient("test2");
+    cache.getDfsClient("test2", namenodeId);
     assertTrue(isDfsClientClose(c1));
     assertTrue("cache size should be the max size or less",
         cache.clientCache.size() <= MAX_CACHE_SIZE);
@@ -65,6 +68,7 @@ public class TestDFSClientCache {
             = UserGroupInformation.createRemoteUser(currentUser);
     currentUserUgi.setAuthenticationMethod(KERBEROS);
     UserGroupInformation.setLoginUser(currentUserUgi);
+    conf.set(FileSystem.FS_DEFAULT_NAME_KEY, "hdfs://localhost");
 
     DFSClientCache cache = new DFSClientCache(conf);
     UserGroupInformation ugiResult

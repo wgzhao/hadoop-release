@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.nfs.conf.NfsConfigKeys;
 import org.apache.hadoop.hdfs.nfs.conf.NfsConfiguration;
@@ -44,6 +45,8 @@ public class TestExportsTable {
     try {
       cluster = new MiniDFSCluster.Builder(config).numDataNodes(1).build();
       cluster.waitActive();
+      cluster.getFileSystem().delete(new Path("/myexport1"), true);
+      cluster.getFileSystem().mkdirs(new Path("/myexport1"));
 
       // Start nfs
       final Nfs3 nfsServer = new Nfs3(config);
