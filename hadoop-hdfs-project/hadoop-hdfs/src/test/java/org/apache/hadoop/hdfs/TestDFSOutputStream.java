@@ -17,9 +17,11 @@
  */
 package org.apache.hadoop.hdfs;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,18 +31,23 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.StreamCapabilities.StreamCapability;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.datatransfer.BlockConstructionStage;
 import org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.test.PathUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_DEFAULT;
@@ -263,6 +270,24 @@ public class TestDFSOutputStream {
         dfsCluster.shutdown();
       }
     }
+  }
+
+  @Test
+  public void testStreamFlush() throws Exception {
+    FileSystem fs = cluster.getFileSystem();
+    FSDataOutputStream os = fs.create(new Path("/normal-file"));
+    // Verify output stream supports hsync() and hflush().
+    assertTrue("DFSOutputStream should support hflush()!",
+        os.hasCapability(StreamCapability.HFLUSH.getValue()));
+    assertTrue("DFSOutputStream should support hsync()!",
+        os.hasCapability(StreamCapability.HSYNC.getValue()));
+    byte[] bytes = new byte[1024];
+    InputStream is = new ByteArrayInputStream(bytes);
+    IOUtils.copyBytes(is, os, bytes.length);
+    os.hflush();
+    IOUtils.copyBytes(is, os, bytes.length);
+    os.hsync();
+    os.close();
   }
 
   @AfterClass

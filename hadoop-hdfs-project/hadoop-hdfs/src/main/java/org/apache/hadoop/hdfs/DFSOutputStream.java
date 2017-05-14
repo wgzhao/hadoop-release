@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.hdfs;
 
+import static org.apache.hadoop.fs.StreamCapabilities.StreamCapability.HFLUSH;
+import static org.apache.hadoop.fs.StreamCapabilities.StreamCapability.HSYNC;
 import static org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.Status.SUCCESS;
 
 import java.io.BufferedOutputStream;
@@ -51,6 +53,7 @@ import org.apache.hadoop.fs.FSOutputSummer;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileEncryptionInfo;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
+import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.Syncable;
@@ -139,7 +142,7 @@ import com.google.common.cache.RemovalNotification;
 ****************************************************************/
 @InterfaceAudience.Private
 public class DFSOutputStream extends FSOutputSummer
-    implements Syncable, CanSetDropBehind {
+    implements Syncable, CanSetDropBehind, StreamCapabilities {
   private final long dfsclientSlowLogThresholdMs;
   static final Logger LOG = LoggerFactory.getLogger(DFSOutputStream.class);
 
@@ -2153,6 +2156,16 @@ public class DFSOutputStream extends FSOutputSummer
       scope.close();
     }
   }
+
+  @Override
+  public boolean hasCapability(String capability) {
+    if (capability.equalsIgnoreCase(HSYNC.getValue()) ||
+        capability.equalsIgnoreCase((HFLUSH.getValue()))) {
+      return true;
+    }
+    return false;
+  }
+
 
   /**
    * Flush/Sync buffered data to DataNodes.
