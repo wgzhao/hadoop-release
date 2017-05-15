@@ -2994,3 +2994,6 @@ ATS V1.5:
 
     BUG-79426. HDFS-11292. log lastWrittenTxId etc info in logSyncAll.
     Contributed by Yongjun Zhang.
+
+    BUG-80647. HDFS-9193. Fix incorrect references the usages of the DN in
+    dfshealth.js. Contributed by Chang Li.
