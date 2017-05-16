@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor;
 
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 
 public class ContainerStartMonitoringEvent extends ContainersMonitorEvent {
 
@@ -27,16 +28,21 @@ public class ContainerStartMonitoringEvent extends ContainersMonitorEvent {
   private final int cpuVcores;
   private final long launchDuration;
   private final long localizationDuration;
+  private final String user;
+  private final ContainerLaunchContext launchContext;
 
-  public ContainerStartMonitoringEvent(ContainerId containerId,
-      long vmemLimit, long pmemLimit, int cpuVcores, long launchDuration,
-      long localizationDuration) {
+  public ContainerStartMonitoringEvent(ContainerId containerId, long vmemLimit,
+      long pmemLimit, int cpuVcores, long launchDuration,
+      long localizationDuration, String user,
+      ContainerLaunchContext launchContext) {
     super(containerId, ContainersMonitorEventType.START_MONITORING_CONTAINER);
     this.vmemLimit = vmemLimit;
     this.pmemLimit = pmemLimit;
     this.cpuVcores = cpuVcores;
     this.launchDuration = launchDuration;
     this.localizationDuration = localizationDuration;
+    this.user = user;
+    this.launchContext = launchContext;
   }
 
   public long getVmemLimit() {
@@ -57,5 +63,13 @@ public class ContainerStartMonitoringEvent extends ContainersMonitorEvent {
 
   public long getLocalizationDuration() {
     return this.localizationDuration;
+  }
+
+  public ContainerLaunchContext getLaunchContext() {
+    return launchContext;
+  }
+
+  public String getUser() {
+    return user;
   }
 }

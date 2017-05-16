@@ -527,9 +527,9 @@ public class ContainerImpl implements Container {
     long localizationDuration = containerLaunchStartTime -
         containerLocalizationStartTime;
     dispatcher.getEventHandler().handle(
-        new ContainerStartMonitoringEvent(containerId,
-        vmemBytes, pmemBytes, cpuVcores, launchDuration,
-        localizationDuration));
+        new ContainerStartMonitoringEvent(containerId, vmemBytes, pmemBytes,
+            cpuVcores, launchDuration, localizationDuration, user,
+            launchContext));
   }
 
   private void addDiagnostics(String... diags) {

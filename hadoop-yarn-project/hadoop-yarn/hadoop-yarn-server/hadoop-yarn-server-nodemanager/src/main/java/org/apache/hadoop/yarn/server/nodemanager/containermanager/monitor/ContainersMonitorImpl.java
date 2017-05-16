@@ -29,9 +29,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.AbstractService;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.StringUtils.TraditionalBinaryPrefix;
 import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.event.AsyncDispatcher;
 import org.apache.hadoop.yarn.event.Dispatcher;
@@ -78,6 +80,9 @@ public class ContainersMonitorImpl extends AbstractService implements
 
   private static final long UNKNOWN_MEMORY_LIMIT = -1L;
   private int nodeCpuPercentageForYARN;
+
+  private String escapeKillOfUser = null;
+  private List<String> escapeKillOfLaunchCLIKeywords = null;
 
   public ContainersMonitorImpl(ContainerExecutor exec,
       AsyncDispatcher dispatcher, Context context) {
@@ -178,6 +183,27 @@ public class ContainersMonitorImpl extends AbstractService implements
                 1) + "). Thrashing might happen.");
       }
     }
+
+    // Init escape from user
+    escapeKillOfUser = conf.get("yarn.nodemanager.kill-escape.user", "");
+    String escapeKillOfLaunchCLIKeywordsStr = conf.get(
+        "yarn.nodemanager.kill-escape.launch-command-line", "");
+    if (escapeKillOfLaunchCLIKeywordsStr != null) {
+      escapeKillOfLaunchCLIKeywords = new ArrayList<>();
+      String[] escapeKillOfLaunchCLIKeywordsArr = escapeKillOfLaunchCLIKeywordsStr.split(
+          ",");
+      for (String s : escapeKillOfLaunchCLIKeywordsArr) {
+        if (!s.trim().isEmpty()) {
+          escapeKillOfLaunchCLIKeywords.add(s.trim());
+        }
+      }
+    }
+
+    LOG.info("Set following user=" + escapeKillOfUser
+        + " AND keywords_in_launch_CLI=[" + StringUtils
+        .join(",", escapeKillOfLaunchCLIKeywords)
+        + "] from memory over usage killing");
+
     super.serviceInit(conf);
   }
 
@@ -229,6 +255,7 @@ public class ContainersMonitorImpl extends AbstractService implements
     private long vmemLimit;
     private long pmemLimit;
     private int cpuVcores;
+    private boolean escapeFromKill = false;
 
     public ProcessTreeInfo(ContainerId containerId, String pid,
         ResourceCalculatorProcessTree pTree, long vmemLimit, long pmemLimit,
@@ -278,6 +305,14 @@ public class ContainersMonitorImpl extends AbstractService implements
      */
     public int getCpuVcores() {
       return this.cpuVcores;
+    }
+
+    public void setEscapeFromKill(boolean escapeFromKill) {
+      this.escapeFromKill = escapeFromKill;
+    }
+
+    public boolean escapeFromKill() {
+      return escapeFromKill;
     }
   }
 
@@ -510,21 +545,29 @@ public class ContainersMonitorImpl extends AbstractService implements
             }
 
             if (isMemoryOverLimit) {
-              // Virtual or physical memory over limit. Fail the container and
-              // remove
-              // the corresponding process tree
-              LOG.warn(msg);
-              // warn if not a leader
-              if (!pTree.checkPidPgrpidForMatch()) {
-                LOG.error("Killed container process with PID " + pId
-                    + " but it is not a process group leader.");
+              if (ptInfo.escapeFromKill()) {
+                LOG.warn("Escape following container from Kill, PID=" + pId
+                    + " containerId=" + containerId + " VMemUsage="
+                    + currentVmemUsage + " VMemLimit=" + vmemLimit
+                    + " PMemUsage=" + currentPmemUsage + " PMemLimit="
+                    + pmemLimit);
+              } else{
+                // Virtual or physical memory over limit. Fail the container and
+                // remove
+                // the corresponding process tree
+                LOG.warn(msg);
+                // warn if not a leader
+                if (!pTree.checkPidPgrpidForMatch()) {
+                  LOG.error("Killed container process with PID " + pId
+                      + " but it is not a process group leader.");
+                }
+                // kill the container
+                eventDispatcher.getEventHandler().handle(
+                    new ContainerKillEvent(containerId, containerExitStatus,
+                        msg));
+                it.remove();
+                LOG.info("Removed ProcessTree with root " + pId);
               }
-              // kill the container
-              eventDispatcher.getEventHandler().handle(
-                  new ContainerKillEvent(containerId,
-                      containerExitStatus, msg));
-              it.remove();
-              LOG.info("Removed ProcessTree with root " + pId);
             } else {
               // Accounting the total memory in usage for all containers that
               // are still
@@ -610,6 +653,38 @@ public class ContainersMonitorImpl extends AbstractService implements
     return this.vmemCheckEnabled;
   }
 
+  private boolean escapeFromKill(String user,
+      ContainerLaunchContext launchContext) {
+    if (null == user || null == launchContext) {
+      return false;
+    }
+
+    if (null == escapeKillOfUser || escapeKillOfUser.isEmpty()
+        || escapeKillOfLaunchCLIKeywords == null
+        || escapeKillOfLaunchCLIKeywords.isEmpty()) {
+      // Admin has to set both configs to non-empty to make it take effect.
+      return false;
+    }
+
+    if (!org.apache.commons.lang.StringUtils.equals(user, escapeKillOfUser)) {
+      return false;
+    }
+
+    String launchCLI = null;
+    if (launchContext.getCommands() != null) {
+      launchCLI = StringUtils.join(" ", launchContext.getCommands());
+    }
+    if (null != launchCLI) {
+      for (String keyword : escapeKillOfLaunchCLIKeywords) {
+        if (!launchCLI.contains(keyword)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
   @Override
   public void handle(ContainersMonitorEvent monitoringEvent) {
 
@@ -637,6 +712,8 @@ public class ContainersMonitorImpl extends AbstractService implements
             new ProcessTreeInfo(containerId, null, null,
                 startEvent.getVmemLimit(), startEvent.getPmemLimit(),
                 startEvent.getCpuVcores());
+        processTreeInfo.setEscapeFromKill(escapeFromKill(startEvent.getUser(),
+            startEvent.getLaunchContext()));
         this.containersToBeAdded.put(containerId, processTreeInfo);
       }
       break;
