@@ -1426,13 +1426,19 @@ public class NativeAzureFileSystem extends FileSystem {
    * @param operation - A string describing the operation being performed ("delete", "create" etc.).
    * @param originalPath - The originalPath that was being accessed
    */
-  private void performAuthCheck(String requestingAccessForPath, WasbAuthorizationOperations accessType,
-      String operation, String originalPath) throws WasbAuthorizationException, IOException {
+  private void performAuthCheck(Path requestingAccessForPath, WasbAuthorizationOperations accessType,
+      String operation, Path originalPath) throws WasbAuthorizationException, IOException {
 
-    if (azureAuthorization && this.authorizer != null &&
-        !this.authorizer.authorize(requestingAccessForPath, accessType.toString())) {
-      throw new WasbAuthorizationException(operation
-          + " operation for Path : " + originalPath + " not allowed");
+    if (azureAuthorization && this.authorizer != null) {
+
+      requestingAccessForPath = requestingAccessForPath.makeQualified(getUri(), getWorkingDirectory());
+      originalPath = originalPath.makeQualified(getUri(), getWorkingDirectory());
+
+      if (!this.authorizer.authorize(requestingAccessForPath.toString(), accessType.toString())) {
+        throw new WasbAuthorizationException(operation
+            + " operation for Path : " + originalPath.toString() + " not allowed");
+      }
+
     }
   }
 
@@ -1459,7 +1465,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     Path absolutePath = makeAbsolute(f);
 
-    performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.WRITE, "append", absolutePath.toString());
+    performAuthCheck(absolutePath, WasbAuthorizationOperations.WRITE, "append", absolutePath);
 
     String key = pathToKey(absolutePath);
     FileMetadata meta = null;
@@ -1667,7 +1673,7 @@ public class NativeAzureFileSystem extends FileSystem {
     Path absolutePath = makeAbsolute(f);
     Path ancestor = getAncestor(absolutePath);
 
-    performAuthCheck(ancestor.toString(), WasbAuthorizationOperations.WRITE, "create", absolutePath.toString());
+    performAuthCheck(ancestor, WasbAuthorizationOperations.WRITE, "create", absolutePath);
 
     String key = pathToKey(absolutePath);
 
@@ -1681,7 +1687,7 @@ public class NativeAzureFileSystem extends FileSystem {
         throw new FileAlreadyExistsException("File already exists:" + f);
       }
       else {
-        performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.WRITE, "create", absolutePath.toString());
+        performAuthCheck(absolutePath, WasbAuthorizationOperations.WRITE, "create", absolutePath);
       }
     }
 
@@ -1796,7 +1802,7 @@ public class NativeAzureFileSystem extends FileSystem {
     Path absolutePath = makeAbsolute(f);
     Path parentPath = absolutePath.getParent();
 
-    performAuthCheck(parentPath.toString(), WasbAuthorizationOperations.WRITE, "delete", absolutePath.toString());
+    performAuthCheck(parentPath, WasbAuthorizationOperations.WRITE, "delete", absolutePath);
 
     String key = pathToKey(absolutePath);
 
@@ -1998,14 +2004,12 @@ public class NativeAzureFileSystem extends FileSystem {
           // NOTE: Ideally the subtree needs read-write-execute access check.
           // But we will simplify it to write-access check.
           if (metaFile.isDir()) { // the absolute-path
-            performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.WRITE, "delete",
-                absolutePath.toString());
+            performAuthCheck(absolutePath, WasbAuthorizationOperations.WRITE, "delete", absolutePath);
           }
           for (FileMetadata meta : contents) {
             if (meta.isDir()) {
               Path subTreeDir = keyToPath(meta.getKey());
-              performAuthCheck(subTreeDir.toString(), WasbAuthorizationOperations.WRITE, "delete",
-                  absolutePath.toString());
+              performAuthCheck(subTreeDir, WasbAuthorizationOperations.WRITE, "delete", absolutePath);
             }
           }
         }
@@ -2086,8 +2090,7 @@ public class NativeAzureFileSystem extends FileSystem {
     // Capture the absolute path and the path to key.
     Path absolutePath = makeAbsolute(f);
 
-    performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.READ, "getFileStatus",
-        absolutePath.toString());
+    performAuthCheck(absolutePath, WasbAuthorizationOperations.READ, "getFileStatus", absolutePath);
 
     String key = pathToKey(absolutePath);
     if (key.length() == 0) { // root always exists
@@ -2188,7 +2191,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     Path absolutePath = makeAbsolute(f);
 
-    performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.READ, "liststatus", absolutePath.toString());
+    performAuthCheck(absolutePath, WasbAuthorizationOperations.READ, "liststatus", absolutePath);
 
     String key = pathToKey(absolutePath);
     Set<FileStatus> status = new TreeSet<FileStatus>();
@@ -2432,7 +2435,7 @@ public class NativeAzureFileSystem extends FileSystem {
     Path absolutePath = makeAbsolute(f);
     Path ancestor = getAncestor(absolutePath);
 
-    performAuthCheck(ancestor.toString(), WasbAuthorizationOperations.WRITE, "mkdirs", absolutePath.toString());
+    performAuthCheck(ancestor, WasbAuthorizationOperations.WRITE, "mkdirs", absolutePath);
 
     PermissionStatus permissionStatus = null;
     if(noUmask) {
@@ -2488,7 +2491,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     Path absolutePath = makeAbsolute(f);
 
-    performAuthCheck(absolutePath.toString(), WasbAuthorizationOperations.READ, "read", absolutePath.toString());
+    performAuthCheck(absolutePath, WasbAuthorizationOperations.READ, "read", absolutePath);
 
     String key = pathToKey(absolutePath);
     FileMetadata meta = null;
@@ -2554,8 +2557,7 @@ public class NativeAzureFileSystem extends FileSystem {
       return false;
     }
 
-    performAuthCheck(srcParentFolder.toString(), WasbAuthorizationOperations.WRITE, "rename",
-        absoluteSrcPath.toString());
+    performAuthCheck(srcParentFolder, WasbAuthorizationOperations.WRITE, "rename", absoluteSrcPath);
 
     String srcKey = pathToKey(absoluteSrcPath);
 
@@ -2568,8 +2570,7 @@ public class NativeAzureFileSystem extends FileSystem {
     Path absoluteDstPath = makeAbsolute(dst);
     Path dstParentFolder = absoluteDstPath.getParent();
 
-    performAuthCheck(dstParentFolder.toString(), WasbAuthorizationOperations.WRITE, "rename",
-        absoluteDstPath.toString());
+    performAuthCheck(dstParentFolder, WasbAuthorizationOperations.WRITE, "rename", absoluteDstPath);
 
     String dstKey = pathToKey(absoluteDstPath);
     FileMetadata dstMetadata = null;

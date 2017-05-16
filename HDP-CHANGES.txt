@@ -4226,3 +4226,7 @@ ATS V1.5:
 
     BUG-80275. YARN-5342. Improve non-exclusive node partition resource
     allocation in Capacity Scheduler. (Sunil G via wangda)
+
+    RANGER-136. HADOOP-14416. Path starting with 'wasb:///' not resolved
+    correctly while authorizing with WASB-Ranger. Contributed by Sivaguru
+    Sankaridurg
