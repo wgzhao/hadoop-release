@@ -967,3 +967,6 @@ covered by CHANGES.txt.
 
     BUG-80398. MAPREDUCE-6618 (bug-51462): YarnClientProtocolProvider leaking
     the YarnClient thread. Contributed by Xuan Gong
+
+    BUG-80398. MAPREDUCE-6621(Bug-51462). Memory Link in
+    JobClient#submitJobInternal(). Contributed by Xuan Gong
