@@ -28,8 +28,6 @@ import org.apache.hadoop.fs.adl.common.CustomMockTokenProvider;
 import org.apache.hadoop.fs.adl.oauth2.AzureADTokenProvider;
 import static org.apache.hadoop.fs.adl.AdlConfKeys
     .AZURE_AD_TOKEN_PROVIDER_CLASS_KEY;
-import static org.apache.hadoop.fs.adl.AdlConfKeys
-    .AZURE_AD_TOKEN_PROVIDER_TYPE_KEY;
 
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
@@ -86,7 +84,6 @@ public class AdlMockWebServer {
     // Responses are returned in the same order that they are enqueued.
     fs = new TestableAdlFileSystem();
 
-    conf.setEnum(AZURE_AD_TOKEN_PROVIDER_TYPE_KEY, TokenProviderType.Custom);
     conf.setClass(AZURE_AD_TOKEN_PROVIDER_CLASS_KEY,
         CustomMockTokenProvider.class, AzureADTokenProvider.class);
 
