@@ -846,3 +846,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     YARN-3987. am container complete msg ack to NM once RM receive it. 
     (sandflee via jianhe)
 
+    BUG-81110. HDFS-6763. Initialize file system-wide quota once on
+    transitioning to active.
