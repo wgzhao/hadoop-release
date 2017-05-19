@@ -3796,9 +3796,6 @@ ATS V1.5:
     BUG-76956. HDFS-11461. DataNode Disk Outlier Detection. Contributed by
     Hanisha Koneru.
 
-    BUG-76957. HDFS-11477. Simplify file IO profiling configuration.
-    Contributed by Hanisha Koneru.
-
     BUG-76108. HDFS-10330. Add Corrupt Blocks Information in Metasave output.
 
     BUG-76108. HDFS-10342. BlockManager#createLocatedBlocks should not check
@@ -4198,10 +4195,13 @@ ATS V1.5:
 
     BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from parallel runs. Contributed by Steve Loughran
 
+    BUG-78277. Hadoop - Upgrade Tomcat version.
+ 
+    
+
     BUG-79477. HADOOP-14324. Refine S3 server-side-encryption key as encryption secret; improve error reporting and diagnostics. Contributed by Steve Loughran
 
     BUG-77866. HADOOP-14241. Add ADLS sensitive config keys to default list. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14174. Set default ADLS access token provider type to ClientCredential. Contributed by John Zhuge.
     BUG-77866. HADOOP-14038. Rename ADLS credential properties. Contributed by John Zhuge.
     BUG-77866. HADOOP-14230. TestAdlFileSystemContractLive fails to clean up. Contributed by John Zhuge.
     BUG-77866. HADOOP-14197. Fix ADLS doc for credential provider. Contributed by John Zhuge
@@ -4219,6 +4219,8 @@ ATS V1.5:
 
     HADOOP-14361 Azure: NativeAzureFileSystem.getDelegationToken() call fails sometimes when invoked concurrently.
 
+    HADOOP-12173. NetworkTopology::add calls toString always. Contributed by Inigo Goiri.
+
     BUG-80065. YARN-4624. NPE in PartitionQueueCapacitiesInfo while accessing
     Scheduler UI. Contributed by Brahma Reddy Battula
 
@@ -4233,3 +4235,25 @@ ATS V1.5:
 
     HADOOP-14170. FileSystemContractBaseTest is not cleaning up test directory
     clearly. Contributed by Mingliang Liu
+
+    HDFS-11545. Propagate DataNode's slow disks info to the NameNode via Heartbeat
+
+    HDFS-11547. Add logs for slow BlockReceiver while writing data to disk. Contributed by Xiaobing Zhou.
+
+    HDFS-11551. Handle SlowDiskReport from DataNode at the NameNode. Contributed by Hanisha Koneru.  
+
+    HDFS-11570. Unit test for NameNodeStatusMXBean. Contributed by Hanisha Koneru. 
+
+    HDFS-11560. Expose slow disks via NameNode JMX. Contributed by Hanisha Koneru.
+
+    HDFS-11603. Improve slow mirror/disk warnings in BlockReceiver.
+
+    HDFS-11722. Change Datanode file IO profiling sampling to percentage. Contributed by Hanisha Koneru. 
+
+    BUG-80129. HDFS-11499. Decommissioning stuck because of failing recovery. Contributed by Lukas Majercak and Manoj Govindassamy.
+
+    HDFS-11842. TestDataNodeOutlierDetectionViaMetrics UT fails intermittently. Controbuted by Hanisha Koneru.  
+
+    BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
+
+    hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
