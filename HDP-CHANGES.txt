@@ -3509,3 +3509,6 @@ ATS V1.5:
 
     BUG-78966. HDFS-11608. HDFS write crashed with block size greater than 2 GB.
     Contributed by Xiaobing Zhou.
+
+    BUG-80980. YARN-4749. Generalize config file handling in container-executor.
+    Contributed by Sidharta Seethana.
