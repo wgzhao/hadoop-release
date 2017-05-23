@@ -56,6 +56,8 @@ FILE* ERRORFILE = NULL;
 static uid_t nm_uid = -1;
 static gid_t nm_gid = -1;
 
+struct configuration executor_cfg = {.size=0, .confdetails=NULL};
+
 char *concatenate(char *concat_pattern, char *return_path_name,
    int numArgs, ...);
 
@@ -85,6 +87,21 @@ char* get_executable() {
   return filename;
 }
 
+//function used to load the configurations present in the secure config
+void read_executor_config(const char* file_name) {
+    read_config(file_name, &executor_cfg);
+}
+
+//function used to free executor configuration data
+void free_executor_configurations() {
+    free_configurations(&executor_cfg);
+}
+
+//Lookup nodemanager group from container executor configuration.
+char *get_nodemanager_group() {
+    return get_value(NM_GROUP_KEY, &executor_cfg);
+}
+
 int check_executor_permissions(char *executable_file) {
 
   errno = 0;
@@ -99,7 +116,7 @@ int check_executor_permissions(char *executable_file) {
   struct stat filestat;
   errno = 0;
   if (stat(resolved_path, &filestat) != 0) {
-    fprintf(ERRORFILE, 
+    fprintf(ERRORFILE,
             "Could not stat the executable : %s!.\n", strerror(errno));
     return -1;
   }
@@ -364,7 +381,7 @@ static int wait_and_write_exit_code(pid_t pid, const char* exit_code_file) {
  * priviledges.
  */
 int change_user(uid_t user, gid_t group) {
-  if (user == getuid() && user == geteuid() && 
+  if (user == getuid() && user == geteuid() &&
       group == getgid() && group == getegid()) {
     return 0;
   }
@@ -376,7 +393,7 @@ int change_user(uid_t user, gid_t group) {
     return SETUID_OPER_FAILED;
   }
   if (setgid(group) != 0) {
-    fprintf(LOGFILE, "unable to set group to %d - %s\n", group, 
+    fprintf(LOGFILE, "unable to set group to %d - %s\n", group,
             strerror(errno));
     fprintf(LOGFILE, "Real: %d:%d; Effective: %d:%d\n",
 	    getuid(), getgid(), geteuid(), getegid());
@@ -395,7 +412,7 @@ int change_user(uid_t user, gid_t group) {
 /**
  * Utility function to concatenate argB to argA using the concat_pattern.
  */
-char *concatenate(char *concat_pattern, char *return_path_name, 
+char *concatenate(char *concat_pattern, char *return_path_name,
                   int numArgs, ...) {
   va_list ap;
   va_start(ap, numArgs);
@@ -572,12 +589,12 @@ int check_dir(const char* npath, mode_t st_mode, mode_t desired, int finalCompon
  * Function to prepare the container directories.
  * It creates the container work and log directories.
  */
-static int create_container_directories(const char* user, const char *app_id, 
+static int create_container_directories(const char* user, const char *app_id,
     const char *container_id, char* const* local_dir, char* const* log_dir, const char *work_dir) {
   // create dirs as 0750
   const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
   if (app_id == NULL || container_id == NULL || user == NULL || user_detail == NULL || user_detail->pw_name == NULL) {
-    fprintf(LOGFILE, 
+    fprintf(LOGFILE,
             "Either app_id, container_id or the user passed is null.\n");
     return -1;
   }
@@ -585,7 +602,7 @@ static int create_container_directories(const char* user, const char *app_id,
   int result = -1;
   char* const* local_dir_ptr;
   for(local_dir_ptr = local_dir; *local_dir_ptr != NULL; ++local_dir_ptr) {
-    char *container_dir = get_container_work_directory(*local_dir_ptr, user, app_id, 
+    char *container_dir = get_container_work_directory(*local_dir_ptr, user, app_id,
                                                 container_id);
     if (container_dir == NULL) {
       return -1;
@@ -663,7 +680,7 @@ static struct passwd* get_user_info(const char* user) {
 }
 
 int is_whitelisted(const char *user) {
-  char **whitelist = get_values(ALLOWED_SYSTEM_USERS_KEY);
+  char **whitelist = get_values(ALLOWED_SYSTEM_USERS_KEY, &executor_cfg);
   char **users = whitelist;
   if (whitelist != NULL) {
     for(; *users; ++users) {
@@ -691,13 +708,13 @@ struct passwd* check_user(const char *user) {
     fflush(LOGFILE);
     return NULL;
   }
-  char *min_uid_str = get_value(MIN_USERID_KEY);
+  char *min_uid_str = get_value(MIN_USERID_KEY, &executor_cfg);
   int min_uid = DEFAULT_MIN_USERID;
   if (min_uid_str != NULL) {
     char *end_ptr = NULL;
     min_uid = strtol(min_uid_str, &end_ptr, 10);
     if (min_uid_str == end_ptr || *end_ptr != '\0') {
-      fprintf(LOGFILE, "Illegal value of %s for %s in configuration\n", 
+      fprintf(LOGFILE, "Illegal value of %s for %s in configuration\n",
 	      min_uid_str, MIN_USERID_KEY);
       fflush(LOGFILE);
       free(min_uid_str);
@@ -718,7 +735,7 @@ struct passwd* check_user(const char *user) {
     free(user_info);
     return NULL;
   }
-  char **banned_users = get_values(BANNED_USERS_KEY);
+  char **banned_users = get_values(BANNED_USERS_KEY, &executor_cfg);
   banned_users = banned_users == NULL ?
     (char**) DEFAULT_BANNED_USERS : banned_users;
   char **banned_user = banned_users;
@@ -825,7 +842,7 @@ int create_directory_for_user(const char* path) {
   }
   if (change_effective_user(user, group) != 0) {
     fprintf(LOGFILE, "Failed to change user to %i - %i\n", user, group);
- 
+
     ret = -1;
   }
   return ret;
@@ -858,14 +875,14 @@ static int open_file_as_nm(const char* filename) {
  * The input stream is closed.
  * Return 0 if everything is ok.
  */
-static int copy_file(int input, const char* in_filename, 
+static int copy_file(int input, const char* in_filename,
 		     const char* out_filename, mode_t perm) {
   const int buffer_size = 128*1024;
   char buffer[buffer_size];
 
   int out_fd = open(out_filename, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, perm);
   if (out_fd == -1) {
-    fprintf(LOGFILE, "Can't open %s for output - %s\n", out_filename, 
+    fprintf(LOGFILE, "Can't open %s for output - %s\n", out_filename,
             strerror(errno));
     fflush(LOGFILE);
     return -1;
@@ -887,13 +904,13 @@ static int copy_file(int input, const char* in_filename,
     len = read(input, buffer, buffer_size);
   }
   if (len < 0) {
-    fprintf(LOGFILE, "Failed to read file %s - %s\n", in_filename, 
+    fprintf(LOGFILE, "Failed to read file %s - %s\n", in_filename,
 	    strerror(errno));
     close(out_fd);
     return -1;
   }
   if (close(out_fd) != 0) {
-    fprintf(LOGFILE, "Failed to close file %s - %s\n", out_filename, 
+    fprintf(LOGFILE, "Failed to close file %s - %s\n", out_filename,
 	    strerror(errno));
     return -1;
   }
@@ -1067,7 +1084,7 @@ char* parse_docker_command_file(const char* command_file) {
 
 int run_docker(const char *command_file) {
   char* docker_command = parse_docker_command_file(command_file);
-  char* docker_binary = get_value(DOCKER_BINARY_KEY);
+  char* docker_binary = get_value(DOCKER_BINARY_KEY, &executor_cfg);
   char* docker_command_with_binary = calloc(sizeof(char), EXECUTOR_PATH_MAX);
   snprintf(docker_command_with_binary, EXECUTOR_PATH_MAX, "%s %s", docker_binary, docker_command);
   char **args = extract_values_delim(docker_command_with_binary, " ");
@@ -1232,7 +1249,7 @@ int launch_docker_container_as_user(const char * user, const char *app_id,
   uid_t prev_uid = geteuid();
 
   char *docker_command = parse_docker_command_file(command_file);
-  char *docker_binary = get_value(DOCKER_BINARY_KEY);
+  char *docker_binary = get_value(DOCKER_BINARY_KEY, &executor_cfg);
   if (docker_binary == NULL) {
     docker_binary = "docker";
   }
@@ -1458,7 +1475,7 @@ int launch_container_as_user(const char *user, const char *app_id,
     goto cleanup;
   }
 
-  // setsid 
+  // setsid
   pid_t pid = setsid();
   if (pid == -1) {
     exit_code = SETSID_OPER_FAILED;
@@ -1478,7 +1495,7 @@ int launch_container_as_user(const char *user, const char *app_id,
   if (resources_key != NULL && ! strcmp(resources_key, "cgroups")) {
     // write pid to cgroups
     char* const* cgroup_ptr;
-    for (cgroup_ptr = resources_values; cgroup_ptr != NULL && 
+    for (cgroup_ptr = resources_values; cgroup_ptr != NULL &&
          *cgroup_ptr != NULL; ++cgroup_ptr) {
       if (strcmp(*cgroup_ptr, "none") != 0 &&
             write_pid_to_cgroup_as_root(*cgroup_ptr, pid) != 0) {
@@ -1554,11 +1571,11 @@ int signal_container_as_user(const char *user, int pid, int sig) {
 
   if (kill((has_group ? -1 : 1) * pid, sig) < 0) {
     if(errno != ESRCH) {
-      fprintf(LOGFILE, 
-              "Error signalling process group %d with signal %d - %s\n", 
+      fprintf(LOGFILE,
+              "Error signalling process group %d with signal %d - %s\n",
               -pid, sig, strerror(errno));
-      fprintf(stderr, 
-              "Error signalling process group %d with signal %d - %s\n", 
+      fprintf(stderr,
+              "Error signalling process group %d with signal %d - %s\n",
               -pid, sig, strerror(errno));
       fflush(LOGFILE);
       return UNABLE_TO_SIGNAL_CONTAINER;
@@ -1596,7 +1613,7 @@ static int rmdir_as_nm(const char* path) {
  * full_path : the path to delete
  * needs_tt_user: the top level directory must be deleted by the tt user.
  */
-static int delete_path(const char *full_path, 
+static int delete_path(const char *full_path,
                        int needs_tt_user) {
   int exit_code = 0;
 
@@ -1623,7 +1640,7 @@ static int delete_path(const char *full_path,
 
     if (tree == NULL) {
       fprintf(LOGFILE,
-              "Cannot open file traversal structure for the path %s:%s.\n", 
+              "Cannot open file traversal structure for the path %s:%s.\n",
               full_path, strerror(errno));
       free(paths[0]);
       return -1;
@@ -1635,7 +1652,7 @@ static int delete_path(const char *full_path,
         if (!needs_tt_user ||
             strcmp(entry->fts_path, full_path) != 0) {
           if (rmdir(entry->fts_accpath) != 0) {
-            fprintf(LOGFILE, "Couldn't delete directory %s - %s\n", 
+            fprintf(LOGFILE, "Couldn't delete directory %s - %s\n",
                     entry->fts_path, strerror(errno));
             if (errno == EROFS) {
               exit_code = -1;
@@ -1666,17 +1683,17 @@ static int delete_path(const char *full_path,
         break;
 
       case FTS_DNR:       // Unreadable directory
-        fprintf(LOGFILE, "Unreadable directory %s. Skipping..\n", 
+        fprintf(LOGFILE, "Unreadable directory %s. Skipping..\n",
                 entry->fts_path);
         break;
 
       case FTS_D:         // A directory in pre-order
         // if the directory isn't readable, chmod it
         if ((entry->fts_statp->st_mode & 0200) == 0) {
-          fprintf(LOGFILE, "Unreadable directory %s, chmoding.\n", 
+          fprintf(LOGFILE, "Unreadable directory %s, chmoding.\n",
                   entry->fts_path);
           if (chmod(entry->fts_accpath, 0700) != 0) {
-            fprintf(LOGFILE, "Error chmoding %s - %s, continuing\n", 
+            fprintf(LOGFILE, "Error chmoding %s - %s, continuing\n",
                     entry->fts_path, strerror(errno));
           }
         }
@@ -1693,7 +1710,7 @@ static int delete_path(const char *full_path,
         break;
 
       case FTS_ERR:       // Error return
-        fprintf(LOGFILE, "Error traversing directory %s - %s\n", 
+        fprintf(LOGFILE, "Error traversing directory %s - %s\n",
                 entry->fts_path, strerror(entry->fts_errno));
         exit_code = -1;
         break;
@@ -1789,7 +1806,7 @@ void chown_dir_contents(const char *dir_path, uid_t uid, gid_t gid) {
 
   char *buf = stpncpy(path_tmp, dir_path, strlen(dir_path));
   *buf++ = '/';
-     
+
   dp = opendir(dir_path);
   if (dp != NULL) {
     while (ep = readdir(dp)) {
@@ -1823,7 +1840,7 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
       get_kv_value(pair, mount_path, strlen(pair)) < 0) {
     fprintf(LOGFILE, "Failed to mount cgroup controller; invalid option: %s\n",
               pair);
-    result = -1; 
+    result = -1;
   } else {
     if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
       char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));

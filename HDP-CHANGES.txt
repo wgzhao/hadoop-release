@@ -3005,3 +3005,5 @@ ATS V1.5:
 
     BUG-82870. HDFS-9034. StorageTypeStats Metric should not count failed storage. Contributed by Surendra Singh Lilhore.
 
+    BUG-80980. YARN-4749. Generalize config file handling in container-executor.
+    Contributed by Sidharta Seethana.
