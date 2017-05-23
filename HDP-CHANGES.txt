@@ -3523,3 +3523,6 @@ ATS V1.5:
 
     BUG-81301. HDFS-11292. log lastWrittenTxId etc info in logSyncAll.
     Contributed by Yongjun Zhang.
+
+    BUG-81298. HADOOP-14195. CredentialProviderFactory$getProviders is not
+    thread-safe. Contributed by Vihang Karajgaonkar.
