@@ -3526,3 +3526,6 @@ ATS V1.5:
 
     BUG-81298. HADOOP-14195. CredentialProviderFactory$getProviders is not
     thread-safe. Contributed by Vihang Karajgaonkar.
+
+    BUG-81308. YARN-5342. Improve non-exclusive node partition resource allocation
+    in Capacity Scheduler. (Sunil G via wangda)
