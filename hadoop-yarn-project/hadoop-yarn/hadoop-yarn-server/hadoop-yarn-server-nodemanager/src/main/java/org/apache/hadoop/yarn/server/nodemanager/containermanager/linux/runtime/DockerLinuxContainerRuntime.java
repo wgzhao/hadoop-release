@@ -478,7 +478,7 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     try {
       privilegedOperationExecutor.executePrivilegedOperation(null,
           privOp, null, container.getLaunchContext().getEnvironment(),
-          false, true);
+          false, false);
     } catch (PrivilegedOperationException e) {
       throw new ContainerExecutionException("Signal container failed", e
           .getExitCode(), e.getOutput(), e.getErrorOutput());
