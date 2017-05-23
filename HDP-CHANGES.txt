@@ -3529,3 +3529,6 @@ ATS V1.5:
 
     BUG-81308. YARN-5342. Improve non-exclusive node partition resource allocation
     in Capacity Scheduler. (Sunil G via wangda)
+
+    BUG-80980. YARN-4749. Generalize config file handling in container-executor.
+    Contributed by Sidharta Seethana.
