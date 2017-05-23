@@ -3521,3 +3521,5 @@ ATS V1.5:
 
     BUG-80177. Remove parent's env vars from child processes
 
+    BUG-81301. HDFS-11292. log lastWrittenTxId etc info in logSyncAll.
+    Contributed by Yongjun Zhang.
