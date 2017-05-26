@@ -854,3 +854,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80075. HADOOP-13433 Race in UGI.reloginFromKeytab. Contributed by Duo
     Zhang.
+
+    BUG-81661. HDFS-10643. HDFS namenode should always use service user (hdfs) to
+    generateEncryptedKey. Contributed by Xiaoyu Yao.
