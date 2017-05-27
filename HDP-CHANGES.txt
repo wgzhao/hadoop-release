@@ -584,6 +584,9 @@ ATS V1.5:
     BUG-76035. HADOOP-14091. AbstractFileSystem implementaion for 'wasbs'
     scheme. Contributed Varada Hemeswari.
 
+    BUG-81835. HADOOP-14442. Owner support for ranger-wasb integration.
+    Contributed by Varada Hemeswari
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
@@ -4264,3 +4267,4 @@ ATS V1.5:
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
 
     BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java. (aajisaka)
+
