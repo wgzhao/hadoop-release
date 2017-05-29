@@ -4226,8 +4226,16 @@ ATS V1.5:
 
     BUG-80177. Remove parent's env vars from child processes
 
+    BUG-80930. Fixed several test issues after BUG-80177. (Jian He)
+
     BUG-80275. YARN-5342. Improve non-exclusive node partition resource
     allocation in Capacity Scheduler. (Sunil G via wangda)
+
+    BUG-80920. MAPREDUCE-6702. Fixed failures in TestMiniMRChildTask.testTaskEnv and
+    TestMiniMRChildTask.testTaskOldEnv. (ajisakaa via rkanter)
+
+    BUG-79757. YARN-5368. Fixed a memory leak in Timeline server. (Jonathan Eagles via
+    Varun Saxena)
 
     RANGER-136. HADOOP-14416. Path starting with 'wasb:///' not resolved
     correctly while authorizing with WASB-Ranger. Contributed by Sivaguru
