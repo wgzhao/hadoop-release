@@ -590,6 +590,9 @@ ATS V1.5:
     BUG-82556. HADOOP-14465. LdapGroupsMapping - support user and group search
     base. Contributed by Shwetha G S and Mingliang Liu
 
+    BUG-82123. HADOOP-14478. Optimize NativeAzureFsInputStream for positional
+    reads. Contributed by Rajesh Balamohan
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
