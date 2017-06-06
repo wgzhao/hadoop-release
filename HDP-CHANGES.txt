@@ -1250,3 +1250,6 @@ ATS V1.5:
 
     BUG-70724. HADOOP-13467. Shell#getSignalKillCommand should use the bash
     builtin on Linux. (Arpit Agarwal)
+
+    BUG-82255. YARN-6339. Improve performance for createAndGetApplicationReport.
+    (Yunjiong Zhao via wangda)
