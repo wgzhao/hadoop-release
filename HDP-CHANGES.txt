@@ -862,3 +862,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-79623. HADOOP-14195. CredentialProviderFactory$getProviders is not
     thread-safe. Contributed by Vihang Karajgaonkar.
+
+    BUG-81322. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
