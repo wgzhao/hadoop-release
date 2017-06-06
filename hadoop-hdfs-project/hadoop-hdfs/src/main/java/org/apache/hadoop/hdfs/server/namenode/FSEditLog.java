@@ -556,7 +556,15 @@ public class FSEditLog implements LogsPurgeable {
    */
   void logSyncAll() {
     // Make sure we're synced up to the most recent transaction ID.
-    logSync(getLastWrittenTxId());
+    long lastWrittenTxId = getLastWrittenTxId();
+    LOG.info("logSyncAll toSyncToTxId=" + lastWrittenTxId
+        + " lastSyncedTxid=" + synctxid
+        + " mostRecentTxid=" + txid);
+    logSync(lastWrittenTxId);
+    lastWrittenTxId = getLastWrittenTxId();
+    LOG.info("Done logSyncAll lastWrittenTxId=" + lastWrittenTxId
+        + " lastSyncedTxid=" + synctxid
+        + " mostRecentTxid=" + txid);
   }
 
   /**
@@ -1282,7 +1290,8 @@ public class FSEditLog implements LogsPurgeable {
    * Transitions from IN_SEGMENT state to BETWEEN_LOG_SEGMENTS state.
    */
   public synchronized void endCurrentLogSegment(boolean writeEndTxn) {
-    LOG.info("Ending log segment " + curSegmentTxId);
+    LOG.info("Ending log segment " + curSegmentTxId +
+        ", " + getLastWrittenTxId());
     Preconditions.checkState(isSegmentOpen(),
         "Bad state: %s", state);
     
@@ -1296,7 +1305,10 @@ public class FSEditLog implements LogsPurgeable {
     printStatistics(true);
     
     final long lastTxId = getLastWrittenTxId();
-    
+    final long lastSyncedTxId = getSyncTxId();
+    Preconditions.checkArgument(lastTxId == lastSyncedTxId,
+        "LastWrittenTxId %s is expected to be the same as lastSyncedTxId %s",
+        lastTxId, lastSyncedTxId);
     try {
       journalSet.finalizeLogSegment(curSegmentTxId, lastTxId);
       editLogStream = null;
