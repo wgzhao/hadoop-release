@@ -2988,3 +2988,6 @@ ATS V1.5:
 
     BUG-78573. HDFS-6763. Initialize file system-wide quota once on
     transitioning to active.
+
+    BUG-82141. HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses.
+    (Daryn Sharp via yliu)
