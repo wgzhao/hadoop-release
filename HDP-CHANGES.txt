@@ -2131,9 +2131,6 @@ ATS V1.5:
     YARN-4844. Add getMemorySize/getVirtualCoresSize to
     o.a.h.y.api.records.Resource. (wangda)
 
-    BUG-59397. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira
-    AJISAKA)
-
     BUG-50479. HADOOP-11252. RPC client does not time out by default (Masatake
     Iwasaki)
 
@@ -4265,3 +4262,5 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java. (aajisaka)
