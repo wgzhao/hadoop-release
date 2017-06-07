@@ -4825,3 +4825,6 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+
+    HDFS-11711. DN should not delete the block On "Too many open files"
+    Exception. Contributed by Brahma Reddy Battula.
