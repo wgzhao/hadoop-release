@@ -592,6 +592,8 @@ ATS V1.5:
 
     BUG-82123. HADOOP-14478. Optimize NativeAzureFsInputStream for positional
     reads. Contributed by Rajesh Balamohan
+    BUG-82123. HADOOP-14500. Azure: TestFileSystemOperationExceptionHandling{,MultiThreaded}
+    fails. Contributed by Rajesh Balamohan
 
   OPTIMIZATIONS
 
