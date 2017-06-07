@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -78,4 +79,7 @@ public class DataNodeFaultInjector {
   public void noRegistration() throws IOException { }
 
   public void failMirrorConnection() throws IOException { }
+
+  public void throwTooManyOpenFiles() throws FileNotFoundException {
+  }
 }
