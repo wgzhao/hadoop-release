@@ -4713,3 +4713,6 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    BUG-109691. HDFS-11711. DN should not delete the block On "Too many open
+    files" Exception. Contributed by Brahma Reddy Battula.
