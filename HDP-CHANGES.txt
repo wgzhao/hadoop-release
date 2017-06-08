@@ -4268,3 +4268,5 @@ ATS V1.5:
 
     BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java. (aajisaka)
 
+    BUG-81835. HADOOP-14472. Azure: TestReadAndSeekPageBlobAfterWrite fails
+    intermittently. Contributed by Mingliang Liu
