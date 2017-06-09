@@ -587,6 +587,9 @@ ATS V1.5:
     BUG-81835. HADOOP-14442. Owner support for ranger-wasb integration.
     Contributed by Varada Hemeswari
 
+    BUG-82556. HADOOP-14465. LdapGroupsMapping - support user and group search
+    base. Contributed by Shwetha G S and Mingliang Liu
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
