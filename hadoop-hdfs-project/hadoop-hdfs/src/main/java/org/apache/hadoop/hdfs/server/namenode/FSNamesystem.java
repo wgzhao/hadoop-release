@@ -115,6 +115,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URI;
 import java.security.GeneralSecurityException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -280,6 +281,7 @@ import org.apache.hadoop.net.NetworkTopology;
 import org.apache.hadoop.net.Node;
 import org.apache.hadoop.net.NodeBase;
 import org.apache.hadoop.security.AccessControlException;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
 import org.apache.hadoop.security.token.SecretManager.InvalidToken;
@@ -2300,17 +2302,22 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * @return New EDEK, or null if ezKeyName is null
    * @throws IOException
    */
-  private EncryptedKeyVersion generateEncryptedDataEncryptionKey(String
+  private EncryptedKeyVersion generateEncryptedDataEncryptionKey(final String
       ezKeyName) throws IOException {
     if (ezKeyName == null) {
       return null;
     }
-    EncryptedKeyVersion edek = null;
-    try {
-      edek = provider.generateEncryptedKey(ezKeyName);
-    } catch (GeneralSecurityException e) {
-      throw new IOException(e);
-    }
+    EncryptedKeyVersion edek = SecurityUtil.doAsLoginUser(
+        new PrivilegedExceptionAction<EncryptedKeyVersion>() {
+          @Override
+          public EncryptedKeyVersion run() throws Exception {
+            try {
+              return provider.generateEncryptedKey(ezKeyName);
+            } catch (GeneralSecurityException e) {
+              throw new IOException(e);
+            }
+          }
+        });
     Preconditions.checkNotNull(edek);
     return edek;
   }

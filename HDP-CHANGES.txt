@@ -854,3 +854,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-81664. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
     Daryn Sharp.
+
+    BUG-81661. HDFS-10643. HDFS namenode should always use service user (hdfs)
+    to generateEncryptedKey. Contributed by Xiaoyu Yao.
