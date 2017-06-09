@@ -4306,3 +4306,4 @@ ATS V1.5:
     BUG-83346. YARN-4833. For Queue AccessControlException client retries multiple times on both RM. Contributed by Bibin A Chundatt.
 
     BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when secure.mode is enabled. Contributed by Thomas
+    BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
