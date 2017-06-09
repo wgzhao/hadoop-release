@@ -852,3 +852,5 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-51462(YARN-4680): Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
+    BUG-81664. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
+    Daryn Sharp.
