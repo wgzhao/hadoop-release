@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -1100,6 +1101,8 @@ public class BlockManager implements BlockStatsMXBean {
       invalidateBlocks.remove(node, block);
     }
     namesystem.checkSafeMode();
+    LOG.info("Removed blocks associated with storage {} from DataNode {}",
+        storageInfo, node);
   }
 
   /**
@@ -1858,8 +1861,8 @@ public class BlockManager implements BlockStatsMXBean {
    */
   public boolean processReport(final DatanodeID nodeID,
       final DatanodeStorage storage,
-      final BlockListAsLongs newReport, BlockReportContext context,
-      boolean lastStorageInRpc) throws IOException {
+      final BlockListAsLongs newReport,
+      BlockReportContext context) throws IOException {
     namesystem.writeLock();
     final long startTime = Time.monotonicNow(); //after acquiring write lock
     final long endTime;
@@ -1905,32 +1908,6 @@ public class BlockManager implements BlockStatsMXBean {
       }
       
       storageInfo.receivedBlockReport();
-      if (context != null) {
-        storageInfo.setLastBlockReportId(context.getReportId());
-        if (lastStorageInRpc) {
-          int rpcsSeen = node.updateBlockReportContext(context);
-          if (rpcsSeen >= context.getTotalRpcs()) {
-            long leaseId = blockReportLeaseManager.removeLease(node);
-            BlockManagerFaultInjector.getInstance().
-                removeBlockReportLease(node, leaseId);
-            List<DatanodeStorageInfo> zombies = node.removeZombieStorages();
-            if (zombies.isEmpty()) {
-              LOG.debug("processReport 0x{}: no zombie storages found.",
-                  Long.toHexString(context.getReportId()));
-            } else {
-              for (DatanodeStorageInfo zombie : zombies) {
-                removeZombieReplicas(context, zombie);
-              }
-            }
-            node.clearBlockReportContext();
-          } else {
-            LOG.debug("processReport 0x{}: {} more RPCs remaining in this " +
-                    "report.", Long.toHexString(context.getReportId()),
-                (context.getTotalRpcs() - rpcsSeen)
-            );
-          }
-        }
-      }
     } finally {
       endTime = Time.monotonicNow();
       namesystem.writeUnlock();
@@ -1953,32 +1930,6 @@ public class BlockManager implements BlockStatsMXBean {
         .getStorageID(), nodeID, newReport.getNumberOfBlocks(),
         node.hasStaleStorages(), (endTime - startTime));
     return !node.hasStaleStorages();
-  }
-
-  private void removeZombieReplicas(BlockReportContext context,
-      DatanodeStorageInfo zombie) {
-    LOG.warn("processReport 0x{}: removing zombie storage {}, which no " +
-             "longer exists on the DataNode.",
-              Long.toHexString(context.getReportId()), zombie.getStorageID());
-    assert(namesystem.hasWriteLock());
-    Iterator<BlockInfoContiguous> iter = zombie.getBlockIterator();
-    int prevBlocks = zombie.numBlocks();
-    while (iter.hasNext()) {
-      BlockInfoContiguous block = iter.next();
-      // We assume that a block can be on only one storage in a DataNode.
-      // That's why we pass in the DatanodeDescriptor rather than the
-      // DatanodeStorageInfo.
-      // TODO: remove this assumption in case we want to put a block on
-      // more than one storage on a datanode (and because it's a difficult
-      // assumption to really enforce)
-      removeStoredBlock(block, zombie.getDatanodeDescriptor());
-      invalidateBlocks.remove(zombie.getDatanodeDescriptor(), block);
-    }
-    assert(zombie.numBlocks() == 0);
-    LOG.warn("processReport 0x{}: removed {} replicas from storage {}, " +
-            "which no longer exists on the DataNode.",
-            Long.toHexString(context.getReportId()), prevBlocks,
-            zombie.getStorageID());
   }
 
   /**

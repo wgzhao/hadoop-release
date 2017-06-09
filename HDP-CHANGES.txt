@@ -857,3 +857,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-81661. HDFS-10643. HDFS namenode should always use service user (hdfs)
     to generateEncryptedKey. Contributed by Xiaoyu Yao.
+
+    BUG-81664. HDFS-10301. BlockReport retransmissions may lead to storages
+    falsely being declared zombie if storage report processing happens out of
+    order
