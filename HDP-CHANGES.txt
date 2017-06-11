@@ -861,3 +861,6 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     BUG-81664. HDFS-10301. BlockReport retransmissions may lead to storages
     falsely being declared zombie if storage report processing happens out of
     order
+
+    BUG-82570. HADOOP-13433. Race in UGI.reloginFromKeytab. Contributed by Duo
+    Zhang.
