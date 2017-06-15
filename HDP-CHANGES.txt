@@ -2997,3 +2997,8 @@ ATS V1.5:
 
     BUG-80647. HDFS-9193. Fix incorrect references the usages of the DN in
     dfshealth.js. Contributed by Chang Li.
+
+    BUG-81863. YARN-6029. CapacityScheduler deadlock when
+    ParentQueue#getQueueUserAclInfo is called by one thread and
+    LeafQueue#assignContainers is releasing excessive reserved container is
+    called by another thread. (Tao Yang via wangda)
