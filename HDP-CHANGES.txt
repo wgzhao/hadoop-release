@@ -3002,3 +3002,6 @@ ATS V1.5:
     ParentQueue#getQueueUserAclInfo is called by one thread and
     LeafQueue#assignContainers is releasing excessive reserved container is
     called by another thread. (Tao Yang via wangda)
+
+    BUG-82870. HDFS-9034. StorageTypeStats Metric should not count failed storage. Contributed by Surendra Singh Lilhore.
+
