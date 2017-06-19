@@ -3535,3 +3535,6 @@ ATS V1.5:
 
     BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java (Akira
     AJISAKA)
+
+    BUG-82848. MAPREDUCE-6895. Job end notification not send due to
+    YarnRuntimeException. Contributed by yunjiong zhao.
