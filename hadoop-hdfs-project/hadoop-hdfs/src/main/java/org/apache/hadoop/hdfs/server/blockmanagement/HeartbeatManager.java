@@ -32,6 +32,7 @@ import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.server.namenode.Namesystem;
+import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.StorageReport;
 import org.apache.hadoop.hdfs.server.protocol.VolumeFailureSummary;
 import org.apache.hadoop.util.Daemon;
@@ -210,6 +211,7 @@ class HeartbeatManager implements DatanodeStatistics {
 
       //update its timestamp
       d.updateHeartbeatState(StorageReport.EMPTY_ARRAY, 0L, 0L, 0, 0, null);
+      stats.add(d);
     }
   }
 
@@ -219,7 +221,6 @@ class HeartbeatManager implements DatanodeStatistics {
 
   synchronized void addDatanode(final DatanodeDescriptor d) {
     // update in-service node count
-    stats.add(d);
     datanodes.add(d);
     d.isAlive = true;
   }
@@ -399,6 +400,10 @@ class HeartbeatManager implements DatanodeStatistics {
     }
   }
 
+  public void updateDnStat(DatanodeDescriptor nodeDescr) {
+    stats.add(nodeDescr);
+  }
+
 
   /** Periodically check heartbeat and update block key */
   private class Monitor implements Runnable {
@@ -476,8 +481,10 @@ class HeartbeatManager implements DatanodeStatistics {
       cacheUsed += node.getCacheUsed();
       Set<StorageType> storageTypes = new HashSet<>();
       for (DatanodeStorageInfo storageInfo : node.getStorageInfos()) {
-        statsMap.addStorage(storageInfo, node);
-        storageTypes.add(storageInfo.getStorageType());
+        if (storageInfo.getState() != DatanodeStorage.State.FAILED) {
+          statsMap.addStorage(storageInfo, node);
+          storageTypes.add(storageInfo.getStorageType());
+        }
       }
       for (StorageType storageType : storageTypes) {
         statsMap.addNode(storageType, node);
@@ -500,8 +507,10 @@ class HeartbeatManager implements DatanodeStatistics {
       cacheUsed -= node.getCacheUsed();
       Set<StorageType> storageTypes = new HashSet<>();
       for (DatanodeStorageInfo storageInfo : node.getStorageInfos()) {
-        statsMap.subtractStorage(storageInfo, node);
-        storageTypes.add(storageInfo.getStorageType());
+        if (storageInfo.getState() != DatanodeStorage.State.FAILED) {
+          statsMap.subtractStorage(storageInfo, node);
+          storageTypes.add(storageInfo.getStorageType());
+        }
       }
       for (StorageType storageType : storageTypes) {
         statsMap.subtractNode(storageType, node);
@@ -575,6 +584,10 @@ class HeartbeatManager implements DatanodeStatistics {
           storageTypeStatsMap.get(storageType);
       if (storageTypeStats != null) {
         storageTypeStats.subtractNode(node);
+        if (storageTypeStats.getNodesInService() == 0) {
+          storageTypeStatsMap.remove(storageType);
+        }
+
       }
     }
   }

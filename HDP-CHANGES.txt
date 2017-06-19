@@ -3509,3 +3509,6 @@ ATS V1.5:
 
     BUG-78966. HDFS-11608. HDFS write crashed with block size greater than 2 GB.
     Contributed by Xiaobing Zhou.
+
+    BUG-106674. HDFS-9034. StorageTypeStats Metric should not count failed
+    storage. Contributed by Surendra Singh Lilhore.
