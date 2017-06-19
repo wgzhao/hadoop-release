@@ -3538,3 +3538,6 @@ ATS V1.5:
 
     BUG-82848. MAPREDUCE-6895. Job end notification not send due to
     YarnRuntimeException. Contributed by yunjiong zhao.
+
+    BUG-82848. MAPREDUCE-6897. Add Unit Test to ensure Job end notification gets sent
+    even when appMaster stop gets YarnRuntimeException. Contributed by Gergely Novák
