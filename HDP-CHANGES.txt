@@ -4278,3 +4278,7 @@ ATS V1.5:
 
     BUG-81835. HADOOP-14472. Azure: TestReadAndSeekPageBlobAfterWrite fails
     intermittently. Contributed by Mingliang Liu
+
+    BUG-82743. MAPREDUCE-6897. Add Unit Test to ensure Job end notification gets
+    sent even when appMaster stop gets YarnRuntimeException. Contributed by
+    Gergely Novák
