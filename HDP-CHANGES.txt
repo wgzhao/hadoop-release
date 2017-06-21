@@ -1257,3 +1257,6 @@ ATS V1.5:
 
     BUG-82863. HDFS-10438. When NameNode HA is configured to use the lifeline
     RPC server, it should log the address of that server. (cnauroth)
+
+    BUG-82863. HDFS-11224. Lifeline message should be ignored for dead nodes
+    (Contributed by Vinayakumar B)
