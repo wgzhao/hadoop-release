@@ -1248,6 +1248,3 @@ ATS V1.5:
 
     BUG-82863. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
     Daryn Sharp.
-
-    BUG-82863. HDFS-9549. TestCacheDirectives#testExceedsCapacity is flaky (Xiao
-    Chen via cmccabe)
