@@ -485,6 +485,9 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       }
     }
 
+    // Configure Azure storage session.
+    configureAzureStorageSession();
+
     // Start an Azure storage session.
     //
     createAzureStorageSession();
@@ -799,9 +802,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     // Accessing the storage server unauthenticated using
     // anonymous credentials.
     isAnonymousCredentials = true;
-
-    // Configure Azure storage session.
-    configureAzureStorageSession();
   }
 
   private void connectUsingCredentials(String accountName,
@@ -827,9 +827,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
     // Can only create container if using account key credentials
     canCreateOrModifyContainer = credentials instanceof StorageCredentialsAccountAndKey;
-
-    // Configure Azure storage session.
-    configureAzureStorageSession();
   }
 
   /**
@@ -855,8 +852,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     rootDirectory = container.getDirectoryReference("");
 
     canCreateOrModifyContainer = true;
-
-    configureAzureStorageSession();
   }
 
   /**
