@@ -272,15 +272,6 @@ public class DatanodeDescriptor extends DatanodeInfo {
     updateHeartbeatState(StorageReport.EMPTY_ARRAY, 0L, 0L, 0, 0, null);
   }
 
-  public boolean isAlive() {
-    return isAlive;
-  }
-
-  @VisibleForTesting
-  public boolean isHeartbeatedSinceRegistration() {
-   return heartbeatedSinceRegistration;
-  }
-
   @VisibleForTesting
   public DatanodeStorageInfo getStorageInfo(String storageID) {
     synchronized (storageMap) {
