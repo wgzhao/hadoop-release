@@ -18,7 +18,6 @@
 package org.apache.hadoop.hdfs.server.namenode;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -32,7 +31,6 @@ import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
-import org.apache.hadoop.hdfs.server.blockmanagement.BlockManager;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.apache.hadoop.hdfs.server.protocol.BlockReportContext;
@@ -96,14 +94,14 @@ public class TestDeadDatanode {
         null) };
     StorageReceivedDeletedBlocks[] storageBlocks = { 
         new StorageReceivedDeletedBlocks(reg.getDatanodeUuid(), blocks) };
-
-    // Ensure blockReceived call from dead datanode is not rejected with
-    // IOException, since it's async, but the node remains unregistered.
-    dnp.blockReceivedAndDeleted(reg, poolId, storageBlocks);
-    BlockManager bm = cluster.getNamesystem().getBlockManager();
-    // IBRs are async, make sure the NN processes all of them.
-    bm.flushBlockOps();
-    assertFalse(bm.getDatanodeManager().getDatanode(reg).isRegistered());
+    
+    // Ensure blockReceived call from dead datanode is rejected with IOException
+    try {
+      dnp.blockReceivedAndDeleted(reg, poolId, storageBlocks);
+      fail("Expected IOException is not thrown");
+    } catch (IOException ex) {
+      // Expected
+    }
 
     // Ensure blockReport from dead datanode is rejected with IOException
     StorageBlockReport[] report = { new StorageBlockReport(

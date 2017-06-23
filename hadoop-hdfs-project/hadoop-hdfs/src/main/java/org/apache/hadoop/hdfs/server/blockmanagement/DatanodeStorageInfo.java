@@ -144,7 +144,7 @@ public class DatanodeStorageInfo {
     this.state = s.getState();
   }
 
-  public int getBlockReportCount() {
+  int getBlockReportCount() {
     return blockReportCount;
   }
 

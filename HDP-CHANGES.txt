@@ -1245,6 +1245,3 @@ ATS V1.5:
 
     BUG-79510. HADOOP-12559. KMS connection failures should trigger TGT renewal.
     Contributed by Zhe Zhang.
-
-    BUG-82863. HDFS-9198. Coalesce IBR processing in the NN. Contributed by
-    Daryn Sharp.
