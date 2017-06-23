@@ -162,7 +162,7 @@ public class NNHAServiceTarget extends HAServiceTarget {
   
   @Override
   public String toString() {
-    return "NameNode at " + (lifelineAddr != null ? lifelineAddr : addr);
+    return "NameNode at " + addr;
   }
 
   public String getNameServiceId() {
