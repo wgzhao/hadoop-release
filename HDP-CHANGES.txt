@@ -5005,3 +5005,6 @@ ATS V1.5:
 
     HADOOP-15478. WASB: hflush() and hsync() regression. Contributed by Thomas
     Marquardt.
+
+    HADOOP-14461 Azure: handle failure gracefully in case of missing account
+    access key. Contributed by Mingliang Liu.
