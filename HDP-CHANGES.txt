@@ -3005,3 +3005,6 @@ ATS V1.5:
 
     BUG-80980. YARN-5704. Provide config knobs to control enabling/disabling new/work
     in progress features in container-executor.
+
+    BUG-90496. HDFS-11634. Optimize BlockIterator when interating starts in the
+    middle. Contributed by Konstantin V Shvachko.
