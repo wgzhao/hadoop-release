@@ -4284,3 +4284,6 @@ ATS V1.5:
     Gergely Novák
 
     BUG-83185. HDFS-11634. Optimize BlockIterator when interating starts in the middle. Contributed by Konstantin V Shvachko.
+
+    MAPREDUCE-6279. AM should explicity exit JVM after all services have
+    stopped. Contributed by Eric Payne
