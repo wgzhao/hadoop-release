@@ -4282,3 +4282,5 @@ ATS V1.5:
     BUG-82743. MAPREDUCE-6897. Add Unit Test to ensure Job end notification gets
     sent even when appMaster stop gets YarnRuntimeException. Contributed by
     Gergely Novák
+
+    BUG-83185. HDFS-11634. Optimize BlockIterator when interating starts in the middle. Contributed by Konstantin V Shvachko.

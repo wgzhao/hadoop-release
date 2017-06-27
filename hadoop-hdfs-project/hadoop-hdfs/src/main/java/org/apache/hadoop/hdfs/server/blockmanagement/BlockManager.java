@@ -1135,12 +1135,9 @@ public class BlockManager implements BlockStatsMXBean {
     if(numBlocks == 0) {
       return new BlocksWithLocations(new BlockWithLocations[0]);
     }
-    Iterator<BlockInfoContiguous> iter = node.getBlockIterator();
+    // starting from a random block
     int startBlock = DFSUtil.getRandom().nextInt(numBlocks); // starting from a random block
-    // skip blocks
-    for(int i=0; i<startBlock; i++) {
-      iter.next();
-    }
+    Iterator<BlockInfoContiguous> iter = node.getBlockIterator(startBlock);
     List<BlockWithLocations> results = new ArrayList<BlockWithLocations>();
     long totalSize = 0;
     BlockInfoContiguous curBlock;
