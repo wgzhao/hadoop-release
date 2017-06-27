@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.HashMap;
 
+import org.codehaus.jackson.map.ObjectReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -116,6 +117,9 @@ public class NativeAzureFileSystem extends FileSystem {
     private static final int FORMATTING_BUFFER = 10000;
     private boolean committed;
     public static final String SUFFIX = "-RenamePending.json";
+    private static final ObjectReader READER = new ObjectMapper()
+        .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+        .reader(JsonNode.class);
 
     // Prepare in-memory information needed to do or redo a folder rename.
     public FolderRenamePending(String srcKey, String dstKey, SelfRenewingLease lease,
@@ -167,11 +171,9 @@ public class NativeAzureFileSystem extends FileSystem {
       String contents = new String(bytes, 0, l, Charset.forName("UTF-8"));
 
       // parse the JSON
-      ObjectMapper objMapper = new ObjectMapper();
-      objMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
       JsonNode json = null;
       try {
-        json = objMapper.readValue(contents, JsonNode.class);
+        json = READER.readValue(contents);
         this.committed = true;
       } catch (JsonMappingException e) {
 
