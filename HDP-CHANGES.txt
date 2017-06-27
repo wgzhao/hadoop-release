@@ -4287,3 +4287,6 @@ ATS V1.5:
 
     MAPREDUCE-6279. AM should explicity exit JVM after all services have
     stopped. Contributed by Eric Payne
+
+    BUG-83149. HADOOP-13034. Log message about input options in distcp lacks
+    some items (Takashi Ohnishi via aw)
