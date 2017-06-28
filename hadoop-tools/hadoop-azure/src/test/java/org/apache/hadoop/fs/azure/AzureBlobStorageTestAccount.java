@@ -20,6 +20,7 @@ package org.apache.hadoop.fs.azure;
 
 import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME;
 import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_LOCAL_SAS_KEY_MODE;
+import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_SECURE_MODE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,7 +40,6 @@ import org.apache.hadoop.metrics2.AbstractMetric;
 import org.apache.hadoop.metrics2.MetricsRecord;
 import org.apache.hadoop.metrics2.MetricsSink;
 import org.apache.hadoop.metrics2.MetricsTag;
-import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -346,6 +346,11 @@ public final class AzureBlobStorageTestAccount {
 
   public static AzureBlobStorageTestAccount createOutOfBandStore(
       int uploadBlockSize, int downloadBlockSize) throws Exception {
+    return createOutOfBandStore(uploadBlockSize, downloadBlockSize, false);
+  }
+
+   public static AzureBlobStorageTestAccount createOutOfBandStore(
+      int uploadBlockSize, int downloadBlockSize, boolean enableSecureMode) throws Exception {
 
     saveMetricsConfigFile();
 
@@ -370,6 +375,7 @@ public final class AzureBlobStorageTestAccount {
     // out-of-band appends.
     conf.setBoolean(KEY_DISABLE_THROTTLING, true);
     conf.setBoolean(KEY_READ_TOLERATE_CONCURRENT_APPEND, true);
+    conf.setBoolean(KEY_USE_SECURE_MODE, enableSecureMode);
     configureSecureModeTestSettings(conf);
 
     // Set account URI and initialize Azure file system.
