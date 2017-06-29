@@ -4294,3 +4294,5 @@ ATS V1.5:
     BUG-83149. HDFS-9820. Improve distcp to support efficient restore to an earlier snapshot.
 
     BUG-83332. MAPREDUCE-6165. [JDK8] TestCombineFileInputFormat failed on JDK8.
+
+    BUG-83358. HADOOP-11418. Property "io.compression.codec.lzo.class" does not work with other value besides default
