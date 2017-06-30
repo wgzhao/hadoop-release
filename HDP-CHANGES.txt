@@ -4296,3 +4296,6 @@ ATS V1.5:
     BUG-83332. MAPREDUCE-6165. [JDK8] TestCombineFileInputFormat failed on JDK8.
 
     BUG-83358. HADOOP-11418. Property "io.compression.codec.lzo.class" does not work with other value besides default
+
+    BUG-83352. MAPREDUCE-6304. Specifying node labels when submitting MR jobs.
+    Contributed by Naganarasimha G R. Backport by Inigo Goiri.
