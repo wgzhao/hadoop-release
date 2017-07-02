@@ -88,18 +88,8 @@ Release 2.8.0 - UNRELEASED
     HDFS-9311. Support optional offload of NameNode HA service health checks to
     a separate RPC server. (cnauroth)
 
-<<<<<<< HEAD
     HDFS-7483. Display information per tier on the Namenode UI.
     (Benoy Antony and wheat9 via wheat9)
-||||||| parent of 5e718de5223... HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas. (Wei-Chiu Chuang via Yongjun Zhang)
-  OPTIMIZATIONS
-=======
-    HDFS-7284. Add more debug info to
-    BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas.
-    (Wei-Chiu Chuang via Yongjun Zhang)
-
-  OPTIMIZATIONS
->>>>>>> 5e718de5223... HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas. (Wei-Chiu Chuang via Yongjun Zhang)
 
     HDFS-8327. Simplify quota calculations for snapshots and truncate. (wheat9)
 

@@ -946,3 +946,11 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
     moveBlockAcrossStorage moveBlockAcrossStorage and createRbw. (ade via
     vinayakumarb)
 
+    HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas.
+    (Wei-Chiu Chuang via Yongjun Zhang)
+
+    BUG-83276. HDFS-11445. FSCK shows overall health stauts as corrupt even one replica
+    is corrupt. Contributed by Brahma Reddy Battula.
+
+    BUG-83277. HDFS-11499. Decommissioning stuck because of failing recovery.
+    Contributed by Lukas Majercak and Manoj Govindassamy.
