@@ -4297,3 +4297,6 @@ ATS V1.5:
 
     BUG-83352. MAPREDUCE-6304. Specifying node labels when submitting MR jobs.
     Contributed by Naganarasimha G R. Backport by Inigo Goiri.
+
+    BUG-83276. HDFS-11445. FSCK shows overall health stauts as corrupt even one
+    replica is corrupt. Contributed by Brahma Reddy Battula.

@@ -67,6 +67,7 @@ import org.apache.hadoop.hdfs.security.token.block.BlockTokenSecretManager;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenSecretManager.AccessMode;
 import org.apache.hadoop.hdfs.security.token.block.DataEncryptionKey;
 import org.apache.hadoop.hdfs.security.token.block.ExportedBlockKeys;
+import org.apache.hadoop.hdfs.server.blockmanagement.BlockInfoContiguousUnderConstruction.ReplicaUnderConstruction;
 import org.apache.hadoop.hdfs.server.blockmanagement.CorruptReplicasMap.Reason;
 import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeStorageInfo.AddBlockResult;
 import org.apache.hadoop.hdfs.server.blockmanagement.PendingDataNodeMessages.ReportedBlockInfo;
@@ -684,7 +685,7 @@ public class BlockManager implements BlockStatsMXBean {
    * @throws IOException if the block does not have at least a minimal number
    * of replicas reported from data-nodes.
    */
-  private static boolean commitBlock(
+  private boolean commitBlock(
       final BlockInfoContiguousUnderConstruction block, final Block commitBlock)
       throws IOException {
     if (block.getBlockUCState() == BlockUCState.COMMITTED)
@@ -696,7 +697,9 @@ public class BlockManager implements BlockStatsMXBean {
       throw new IOException("Commit block with mismatching GS. NN has " +
         block + ", client submits " + commitBlock);
     }
-    block.commitBlock(commitBlock);
+    List<ReplicaUnderConstruction> staleReplicas =
+        block.commitBlock(commitBlock);
+    removeStaleReplicas(staleReplicas, block);
     return true;
   }
   
@@ -790,7 +793,8 @@ public class BlockManager implements BlockStatsMXBean {
    */
   public BlockInfoContiguous forceCompleteBlock(final BlockCollection bc,
       final BlockInfoContiguousUnderConstruction block) throws IOException {
-    block.commitBlock(block);
+    List<ReplicaUnderConstruction> staleReplicas = block.commitBlock(block);
+    removeStaleReplicas(staleReplicas, block);
     return completeBlock(bc, block, true);
   }
 
@@ -3169,6 +3173,20 @@ public class BlockManager implements BlockStatsMXBean {
     }
   }
 
+  private void removeStaleReplicas(List<ReplicaUnderConstruction> staleReplicas,
+      BlockInfoContiguousUnderConstruction block) {
+    if (staleReplicas == null) {
+      return;
+    }
+    for (ReplicaUnderConstruction r : staleReplicas) {
+      removeStoredBlock(block,
+          r.getExpectedStorageLocation().getDatanodeDescriptor());
+      NameNode.blockStateChangeLog
+          .info("BLOCK* Removing stale replica " + "from location: {}",
+              r.getExpectedStorageLocation());
+    }
+  }
+
   /**
    * Get all valid locations of the block & add the block to results
    * return the length of the added block; 0 if the block is not added
@@ -3501,6 +3519,14 @@ public class BlockManager implements BlockStatsMXBean {
 
   public BlockInfoContiguous getStoredBlock(Block block) {
     return blocksMap.getStoredBlock(block);
+  }
+
+  public void updateLastBlock(BlockInfoContiguousUnderConstruction lastBlock,
+      ExtendedBlock newBlock) {
+    lastBlock.setNumBytes(newBlock.getNumBytes());
+    List<ReplicaUnderConstruction> staleReplicas = lastBlock
+        .setGenerationStampAndVerifyReplicas(newBlock.getGenerationStamp());
+    removeStaleReplicas(staleReplicas, lastBlock);
   }
 
   /** updates a block in under replication queue */
