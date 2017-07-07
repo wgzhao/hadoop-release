@@ -374,6 +374,8 @@ Release 2.8.0 - UNRELEASED
 
     HDFS-9701. DN may deadlock when hot-swapping under load. (Xiao Chen via lei)
 
+    HDFS-8307. Spurious DNS Queries from hdfs shell. (Andres Perez via aengineer)
+
 Release 2.7.3 - UNRELEASED
     HDFS-10623. Remove unused import of httpclient.HttpConnection from
     TestWebHdfsTokens. (Hanish Koneru via Arpit Agarwal)

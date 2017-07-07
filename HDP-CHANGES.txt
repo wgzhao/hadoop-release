@@ -4324,3 +4324,7 @@ ATS V1.5:
 
     BUG-83458. HADOOP-11180. Change log message "token.Token: Cannot find class
     for token kind kms-dt" to debug. Contributed by Yi Liu.
+
+    BUG-83480. HADOOP-11677: Add cookie flags for logs and static contexts. Contributed by nijel.
+
+    BUG-83459. HDFS-8307: Spurious DNS Queries from hdfs shell. Contributed by Andres Perez.
