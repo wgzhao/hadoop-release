@@ -4319,3 +4319,5 @@ ATS V1.5:
 
     BUG-82262. YARN-6339. Improve performance for createAndGetApplicationReport.
     (Yunjiong Zhao via wangda)
+
+    HADOOP-5732. Add SFTPFileSystem. Contributed by Ramtin Boustani and Inigo Goiri.
