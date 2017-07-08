@@ -1832,3 +1832,6 @@ ATS V1.5:
 
     BUG-83759. HADOOP-13988. KMSClientProvider does not work with WebHDFS and
     Apache Knox w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
+
+    BUG-83759. HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use
+    case. Contributed by Xiaoyu Yao.
