@@ -1826,3 +1826,6 @@ ATS V1.5:
 
     BUG-79829. HADOOP-13838. KMSTokenRenewer should close providers
     (xiaochen via rkanter)
+
+    BUG-83759. HDFS-10643. HDFS namenode should always use service user (hdfs)
+    to generateEncryptedKey. Contributed by Xiaoyu Yao.
