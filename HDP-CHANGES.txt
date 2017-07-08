@@ -1829,3 +1829,6 @@ ATS V1.5:
 
     BUG-83759. HDFS-10643. HDFS namenode should always use service user (hdfs)
     to generateEncryptedKey. Contributed by Xiaoyu Yao.
+
+    BUG-83759. HADOOP-13988. KMSClientProvider does not work with WebHDFS and
+    Apache Knox w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
