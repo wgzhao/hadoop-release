@@ -4328,3 +4328,6 @@ ATS V1.5:
     BUG-83480. HADOOP-11677: Add cookie flags for logs and static contexts. Contributed by nijel.
 
     BUG-83459. HDFS-8307: Spurious DNS Queries from hdfs shell. Contributed by Andres Perez.
+
+    HADOOP-13119. Add ability to secure log servlet using proxy users.
+    Contribute by Yuanbo Liu.
