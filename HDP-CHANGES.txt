@@ -4336,3 +4336,14 @@ ATS V1.5:
     Liu.
 
     HADOOP-10829. Iteration on CredentialProviderFactory.serviceLoader is thread-unsafe. Contributed by Benoy Antony and Rakesh R.
+
+    BUG-83455. HDFS-9601. NNThroughputBenchmark.BlockReportStats should handle NotReplicatedYetException on adding block
+
+    BUG-83455. HADOOP-11819. HttpServerFunctionalTest#prepareTestWebapp should create web app directory if it does not exist.
+
+    BUG-83455. HADOOP-12418. TestRPC.testRPCInterruptedSimple fails intermittently
+
+    BUG-83455. HADOOP-10774: Update KerberosTestUtils for hadoop-auth tests when using IBM Java
+
+    BUG-83455. HDFS-4681: TestBlocksWithNotEnoughRacks#testCorruptBlockRereplicatedAcrossRacks fails using IBM java
+
