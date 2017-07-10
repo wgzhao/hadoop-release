@@ -898,3 +898,6 @@ ATS V1.5:
     BUG-65378. MAPREDUCE-6689. MapReduce job can infinitely increase number of
     reducer resource requests. Contributed by Wangda Tan (cherry picked from
     commit c9bb96fa81fc925e33ccc0b02c98cc2d929df120)
+
+    BUG-83883. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
+    Varun Saxena)
