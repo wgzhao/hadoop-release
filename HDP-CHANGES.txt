@@ -4331,3 +4331,6 @@ ATS V1.5:
 
     HADOOP-13119. Add ability to secure log servlet using proxy users.
     Contribute by Yuanbo Liu.
+
+    HADOOP-14077. Add ability to access jmx via proxy.  Contributed by Yuanbo
+    Liu.
