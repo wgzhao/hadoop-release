@@ -970,3 +970,6 @@ covered by CHANGES.txt.
 
     BUG-80398. MAPREDUCE-6621(Bug-51462). Memory Link in
     JobClient#submitJobInternal(). Contributed by Xuan Gong
+
+    BUG-83939. MAPREDUCE-6121. JobResourceUpdater#compareFs() doesn't handle HA
+    namespaces (rchiang via rkanter)
