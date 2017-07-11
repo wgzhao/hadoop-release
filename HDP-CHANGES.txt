@@ -973,3 +973,7 @@ covered by CHANGES.txt.
 
     BUG-83939. MAPREDUCE-6121. JobResourceUpdater#compareFs() doesn't handle HA
     namespaces (rchiang via rkanter)
+
+    BUG-83939. HADOOP-12159. Move DistCpUtils#compareFs() to
+    org.apache.hadoop.fs.FileUtil and fix for HA namespaces (rchiang via
+    rkanter)
