@@ -4349,3 +4349,6 @@ ATS V1.5:
 
     BUG-83334. MAPREDUCE-6246. DBOutputFormat.java appending extra semicolon to query which is incompatible with DB2.
     Contributed by ramtin and Gergely Novák.
+
+    HADOOP-14443. Failover and Retry handling in WASB client while talking to DTS.
+

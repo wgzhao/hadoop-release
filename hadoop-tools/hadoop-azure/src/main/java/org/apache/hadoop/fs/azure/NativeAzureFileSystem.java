@@ -60,15 +60,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
 import org.apache.hadoop.fs.azure.security.Constants;
-import org.apache.hadoop.fs.azure.security.SecurityUtils;
+import org.apache.hadoop.fs.azure.security.RemoteWasbDelegationTokenManager;
+import org.apache.hadoop.fs.azure.security.WasbDelegationTokenManager;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
-import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticatedURL;
-import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
-import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Time;
 import org.codehaus.jackson.JsonNode;
@@ -185,7 +183,7 @@ public class NativeAzureFileSystem extends FileSystem {
       } catch (IOException e) {
         this.committed = false;
       }
-      
+
       if (!this.committed) {
         LOG.error("Deleting corruped rename pending file {} \n {}",
             redoFile, contents);
@@ -348,9 +346,9 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     /**
-     * This is an exact copy of org.codehaus.jettison.json.JSONObject.quote 
+     * This is an exact copy of org.codehaus.jettison.json.JSONObject.quote
      * method.
-     * 
+     *
      * Produce a string in double quotes with backslash sequences in all the
      * right places. A backslash will be inserted within </, allowing JSON
      * text to be delivered in HTML. In JSON text, a string cannot contain a
@@ -504,7 +502,7 @@ public class NativeAzureFileSystem extends FileSystem {
     /**
      * Recover from a folder rename failure by redoing the intended work,
      * as recorded in the -RenamePending.json file.
-     * 
+     *
      * @throws IOException
      */
     public void redo() throws IOException {
@@ -659,7 +657,7 @@ public class NativeAzureFileSystem extends FileSystem {
   /**
    * The time span in seconds before which we consider a temp blob to be
    * dangling (not being actively uploaded to) and up for reclamation.
-   * 
+   *
    * So e.g. if this is 60, then any temporary blobs more than a minute old
    * would be considered dangling.
    */
@@ -1003,7 +1001,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * write is that one byte is written to the output stream. The byte to be
      * written is the eight low-order bits of the argument b. The 24 high-order
      * bits of b are ignored.
-     * 
+     *
      * @param b
      *          32-bit integer of block of 4 bytes
      */
@@ -1026,7 +1024,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * Writes b.length bytes from the specified byte array to this output
      * stream. The general contract for write(b) is that it should have exactly
      * the same effect as the call write(b, 0, b.length).
-     * 
+     *
      * @param b
      *          Block of bytes to be written to the output stream.
      */
@@ -1052,7 +1050,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * b</code b> are written to the output stream in order; element
      * <code>b[off]</code> is the first byte written and
      * <code>b[off+len-1]</code> is the last byte written by this operation.
-     * 
+     *
      * @param b
      *          Byte array to be written.
      * @param off
@@ -1077,7 +1075,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Get the blob name.
-     * 
+     *
      * @return String Blob name.
      */
     public String getKey() {
@@ -1086,7 +1084,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Set the blob name.
-     * 
+     *
      * @param key
      *          Blob name.
      */
@@ -1096,7 +1094,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Get the blob name.
-     * 
+     *
      * @return String Blob name.
      */
     public String getEncodedKey() {
@@ -1105,7 +1103,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Set the blob name.
-     * 
+     *
      * @param anEncodedKey
      *          Blob name.
      */
@@ -1138,11 +1136,6 @@ public class NativeAzureFileSystem extends FileSystem {
   // A counter to create unique (within-process) names for my metrics sources.
   private static AtomicInteger metricsSourceNameCounter = new AtomicInteger();
   private boolean appendSupportEnabled = false;
-  private DelegationTokenAuthenticatedURL authURL;
-  private DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
-  private String credServiceUrl;
-
-  private UserGroupInformation ugi;
 
   /**
    * Configuration key to enable authorization support in WASB.
@@ -1171,7 +1164,9 @@ public class NativeAzureFileSystem extends FileSystem {
    */
   private WasbAuthorizerInterface authorizer = null;
 
-  private String delegationToken = null;
+  private UserGroupInformation ugi;
+
+  private WasbDelegationTokenManager wasbDelegationTokenManager;
 
   public NativeAzureFileSystem() {
     // set store in initialize()
@@ -1320,9 +1315,7 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     if (UserGroupInformation.isSecurityEnabled() && kerberosSupportEnabled) {
-      DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
-      authURL = new DelegationTokenAuthenticatedURL(authenticator);
-      credServiceUrl = SecurityUtils.getCredServiceUrls(conf);
+      this.wasbDelegationTokenManager = new RemoteWasbDelegationTokenManager(conf);
     }
   }
 
@@ -3006,31 +2999,7 @@ public class NativeAzureFileSystem extends FileSystem {
   @Override
   public synchronized Token<?> getDelegationToken(final String renewer) throws IOException {
     if (kerberosSupportEnabled) {
-      try {
-        final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-        UserGroupInformation connectUgi = ugi.getRealUser();
-        final UserGroupInformation proxyUser = connectUgi;
-        if (connectUgi == null) {
-          connectUgi = ugi;
-        }
-        connectUgi.checkTGTAndReloginFromKeytab();
-        return connectUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
-          @Override
-          public Token<?> run() throws Exception {
-            return authURL.getDelegationToken(new URL(credServiceUrl
-                    + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-                authToken, renewer, (proxyUser != null)? ugi.getShortUserName(): null);
-          }
-        });
-      } catch (Exception ex) {
-        LOG.error("Error in fetching the delegation token from remote service",
-            ex);
-        if (ex instanceof IOException) {
-          throw (IOException) ex;
-        } else {
-          throw new IOException(ex);
-        }
-      }
+      return wasbDelegationTokenManager.getDelegationToken(renewer);
     } else {
       return super.getDelegationToken(renewer);
     }
@@ -3099,7 +3068,7 @@ public class NativeAzureFileSystem extends FileSystem {
   /**
    * Implements recover and delete (-move and -delete) behaviors for handling
    * dangling files (blobs whose upload was interrupted).
-   * 
+   *
    * @param root
    *          The root path to check from.
    * @param handler
@@ -3145,7 +3114,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * the data to a temporary blob, but for some reason we crashed in the middle
    * of the upload and left them there. If any are found, we move them to the
    * destination given.
-   * 
+   *
    * @param root
    *          The root path to consider.
    * @param destination
@@ -3165,7 +3134,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * meaning that they are place-holder blobs that we created while we upload
    * the data to a temporary blob, but for some reason we crashed in the middle
    * of the upload and left them there. If any are found, we delete them.
-   * 
+   *
    * @param root
    *          The root path to consider.
    * @throws IOException
@@ -3187,7 +3156,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * Encode the key with a random prefix for load balancing in Azure storage.
    * Upload data to a random temporary file then do storage side renaming to
    * recover the original key.
-   * 
+   *
    * @param aKey
    * @return Encoded version of the original key.
    */
