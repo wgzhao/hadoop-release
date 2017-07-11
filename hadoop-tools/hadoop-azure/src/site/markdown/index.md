@@ -307,14 +307,15 @@ To enable SAS key generation locally following property needs to be set to true.
       <value>true</value>
     </property>
 ```
-To use the remote SAS key generation mode, an external REST service is expected to provided required SAS keys.
+
+To use the remote SAS key generation mode, comma separated external REST services are expected to provided required SAS keys.
 Following property can used to provide the end point to use for remote SAS Key generation:
 
-```
-    <property>
-      <name>fs.azure.cred.service.url</name>
-      <value>{URL}</value>
-    </property>
+```xml
+<property>
+  <name>fs.azure.cred.service.urls</name>
+  <value>{URL}</value>
+</property>
 ```
 The remote service is expected to provide support for two REST calls ```{URL}/GET_CONTAINER_SAS``` and ```{URL}/GET_RELATIVE_BLOB_SAS```, for generating
 container and relative blob sas keys. An example requests
@@ -341,14 +342,15 @@ Authorization support can be enabled in WASB using the following configuration:
       <value>true</value>
     </property>
 ```
-  The current implementation of authorization relies on the presence of an external service that can enforce
-  the authorization. The service is expected to be running on a URL provided by the following config.
 
-```
-    <property>
-      <name>fs.azure.authorization.remote.service.url</name>
-      <value>{URL}</value>
-    </property>
+The current implementation of authorization relies on the presence of an external service that can enforce
+the authorization. The service is expected to be running on comma separated URLs provided by the following config.
+
+```xml
+<property>
+  <name>fs.azure.authorization.remote.service.urls</name>
+  <value>{URL}</value>
+</property>
 ```
 
   The remote service is expected to provide support for the following REST call: ```{URL}/CHECK_AUTHORIZATION```
@@ -364,6 +366,41 @@ Authorization support can be enabled in WASB using the following configuration:
   }
   ```
 
+### Delegation token support in WASB
+
+Delegation token support support can be enabled in WASB using the following configuration:
+
+```xml
+<property>
+  <name>fs.azure.enable.kerberos.support</name>
+  <value>true</value>
+</property>
+```
+
+The current implementation of delegation token implementation relies on the presence of an external service instances that can generate and manage delegation tokens. The service is expected to be running on comma separated URLs provided by the following config.
+
+```xml
+<property>
+  <name>fs.azure.delegation.token.service.urls</name>
+  <value>{URL}</value>
+</property>
+```
+
+The remote service is expected to provide support for the following REST call: ```{URL}?op=GETDELEGATIONTOKEN```, ```{URL}?op=RENEWDELEGATIONTOKEN``` and ```{URL}?op=CANCELDELEGATIONTOKEN```
+An example request:
+  ```{URL}?op=GETDELEGATIONTOKEN&renewer=<renewer>```
+  ```{URL}?op=RENEWDELEGATIONTOKEN&token=<delegation token>```
+  ```{URL}?op=CANCELDELEGATIONTOKEN&token=<delegation token>```
+
+The service is expected to return a response in JSON format for GETDELEGATIONTOKEN request:
+
+```json
+{
+    "Token" : {
+        "urlString": URL string of delegation token.
+    }
+}
+```
 ## <a name="Testing_the_hadoop-azure_Module" />Testing the hadoop-azure Module
 
 The hadoop-azure module includes a full suite of unit tests.  Most of the tests

@@ -26,9 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,15 +58,14 @@ import org.apache.hadoop.fs.Seekable;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
 import org.apache.hadoop.fs.azure.security.Constants;
-import org.apache.hadoop.fs.azure.security.SecurityUtils;
+import org.apache.hadoop.fs.azure.security.RemoteWasbDelegationTokenManager;
+import org.apache.hadoop.fs.azure.security.WasbDelegationTokenManager;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticatedURL;
-import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
-import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Time;
 import org.codehaus.jackson.JsonNode;
@@ -1155,7 +1152,8 @@ public class NativeAzureFileSystem extends FileSystem {
    */
   private WasbAuthorizerInterface authorizer = null;
 
-  private String delegationToken = null;
+  private WasbDelegationTokenManager wasbDelegationTokenManager;
+
 
   public NativeAzureFileSystem() {
     // set store in initialize()
@@ -1304,9 +1302,7 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
     if (UserGroupInformation.isSecurityEnabled() && kerberosSupportEnabled) {
-      DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
-      authURL = new DelegationTokenAuthenticatedURL(authenticator);
-      credServiceUrl = SecurityUtils.getCredServiceUrls(conf);
+      this.wasbDelegationTokenManager = new RemoteWasbDelegationTokenManager(conf);
     }
   }
 
@@ -2990,31 +2986,7 @@ public class NativeAzureFileSystem extends FileSystem {
   @Override
   public synchronized Token<?> getDelegationToken(final String renewer) throws IOException {
     if (kerberosSupportEnabled) {
-      try {
-        final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-        UserGroupInformation connectUgi = ugi.getRealUser();
-        final UserGroupInformation proxyUser = connectUgi;
-        if (connectUgi == null) {
-          connectUgi = ugi;
-        }
-        connectUgi.checkTGTAndReloginFromKeytab();
-        return connectUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
-          @Override
-          public Token<?> run() throws Exception {
-            return authURL.getDelegationToken(new URL(credServiceUrl
-                    + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
-                authToken, renewer, (proxyUser != null)? ugi.getShortUserName(): null);
-          }
-        });
-      } catch (Exception ex) {
-        LOG.error("Error in fetching the delegation token from remote service",
-            ex);
-        if (ex instanceof IOException) {
-          throw (IOException) ex;
-        } else {
-          throw new IOException(ex);
-        }
-      }
+      return wasbDelegationTokenManager.getDelegationToken(renewer);
     } else {
       return super.getDelegationToken(renewer);
     }
