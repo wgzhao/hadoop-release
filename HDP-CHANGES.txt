@@ -4347,3 +4347,5 @@ ATS V1.5:
 
     BUG-83455. HDFS-4681: TestBlocksWithNotEnoughRacks#testCorruptBlockRereplicatedAcrossRacks fails using IBM java
 
+    BUG-83334. MAPREDUCE-6246. DBOutputFormat.java appending extra semicolon to query which is incompatible with DB2.
+    Contributed by ramtin and Gergely Novák.
