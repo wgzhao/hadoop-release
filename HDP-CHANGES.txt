@@ -4349,3 +4349,6 @@ ATS V1.5:
 
     BUG-83334. MAPREDUCE-6246. DBOutputFormat.java appending extra semicolon to query which is incompatible with DB2.
     Contributed by ramtin and Gergely Novák.
+
+    BUG-83800. MAPREDUCE-5621. mr-jobhistory-daemon.sh doesn't have to execute mkdir and chown all the time.
+    Contributed by Shinichi Yamashita.
