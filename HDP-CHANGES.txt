@@ -612,6 +612,9 @@ ATS V1.5:
     HDFS-8578 . On upgrade, Datanode should process all storage/data dirs in
     parallel.  Contributed by vinayakumarb and szetszwo.
 
+    BUG-84072. HADOOP-14535 wasb: implement high-performance random access and
+    seek of block blobs. Contributed by Thomas Marquardt.
+
   BUG FIXES
 
     BUG-78483. HDFS-11608. HDFS write crashed with block size greater than 2 GB
