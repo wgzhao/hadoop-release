@@ -4346,3 +4346,7 @@ ATS V1.5:
 
     BUG-83800. MAPREDUCE-5621. mr-jobhistory-daemon.sh doesn't have to execute mkdir and chown all the time.
     Contributed by Shinichi Yamashita.
+
+    BUG-83858. HDFS-11502. Datanode UI should display hostname based on JMX bean instead of window.location.hostname. Contributed by Jeffrey E Rodriguez and Yuanbo Liu.
+
+
