@@ -20,27 +20,35 @@ package org.apache.hadoop.fs.azure.security;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenRenewer;
+import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenIdentifier;
+import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticatedURL;
+import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticator;
+import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * Token Renewer for renewing WASB delegation tokens with remote service.
  */
 public class WasbTokenRenewer extends TokenRenewer {
-  public static final Logger LOG =
-      LoggerFactory.getLogger(WasbTokenRenewer.class);
-  private WasbDelegationTokenManager wasbDelegationTokenManager;
+  public static final Logger LOG = LoggerFactory
+      .getLogger(WasbTokenRenewer.class);
 
   /**
    * Checks if this particular object handles the Kind of token passed.
    * @param kind the kind of the token
    * @return true if it handles passed token kind false otherwise.
    */
-  @Override public boolean handleKind(Text kind) {
+  @Override
+  public boolean handleKind(Text kind) {
     return WasbDelegationTokenIdentifier.TOKEN_KIND.equals(kind);
   }
 
@@ -50,7 +58,8 @@ public class WasbTokenRenewer extends TokenRenewer {
    * @return true if it is managed.
    * @throws IOException thrown when evaluating if token is managed.
    */
-  @Override public boolean isManaged(Token<?> token) throws IOException {
+  @Override
+  public boolean isManaged(Token<?> token) throws IOException {
     return true;
   }
 
@@ -62,10 +71,36 @@ public class WasbTokenRenewer extends TokenRenewer {
    * @throws IOException thrown when trying get current user.
    * @throws InterruptedException thrown when thread is interrupted
    */
-  @Override public long renew(final Token<?> token, Configuration conf)
+  @Override
+  public long renew(final Token<?> token, Configuration conf)
       throws IOException, InterruptedException {
     LOG.debug("Renewing the delegation token");
-    return getInstance(conf).renewDelegationToken(token);
+    final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+    UserGroupInformation connectUgi = ugi.getRealUser();
+    final UserGroupInformation proxyUser = connectUgi;
+    if (connectUgi == null) {
+      connectUgi = ugi;
+    }
+    connectUgi.checkTGTAndReloginFromKeytab();
+    final DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
+    authToken
+        .setDelegationToken((Token<AbstractDelegationTokenIdentifier>) token);
+    final String credServiceUrl = conf.get(Constants.KEY_CRED_SERVICE_URL,
+        String.format("http://%s:%s",
+            InetAddress.getLocalHost().getCanonicalHostName(),
+            Constants.DEFAULT_CRED_SERVICE_PORT));
+    DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
+    final DelegationTokenAuthenticatedURL authURL = new DelegationTokenAuthenticatedURL(
+        authenticator);
+
+    return connectUgi.doAs(new PrivilegedExceptionAction<Long>() {
+      @Override
+      public Long run() throws Exception {
+        return authURL.renewDelegationToken(new URL(credServiceUrl
+                + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
+            authToken, (proxyUser != null) ? ugi.getShortUserName() : null);
+      }
+    });
   }
 
   /**
@@ -75,15 +110,35 @@ public class WasbTokenRenewer extends TokenRenewer {
    * @throws IOException thrown when trying get current user.
    * @throws InterruptedException thrown when thread is interrupted.
    */
-  @Override public void cancel(final Token<?> token, Configuration conf)
+  @Override
+  public void cancel(final Token<?> token, Configuration conf)
       throws IOException, InterruptedException {
     LOG.debug("Cancelling the delegation token");
-    getInstance(conf).cancelDelegationToken(token);
-  }
-
-  private WasbDelegationTokenManager getInstance(Configuration conf)
-      throws IOException {
-    wasbDelegationTokenManager = new RemoteWasbDelegationTokenManager(conf);
-    return wasbDelegationTokenManager;
+    final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+    UserGroupInformation connectUgi = ugi.getRealUser();
+    final UserGroupInformation proxyUser = connectUgi;
+    if (connectUgi == null) {
+      connectUgi = ugi;
+    }
+    connectUgi.checkTGTAndReloginFromKeytab();
+    final DelegationTokenAuthenticatedURL.Token authToken = new DelegationTokenAuthenticatedURL.Token();
+    authToken
+        .setDelegationToken((Token<AbstractDelegationTokenIdentifier>) token);
+    final String credServiceUrl = conf.get(Constants.KEY_CRED_SERVICE_URL,
+        String.format("http://%s:%s",
+            InetAddress.getLocalHost().getCanonicalHostName(),
+            Constants.DEFAULT_CRED_SERVICE_PORT));
+    DelegationTokenAuthenticator authenticator = new KerberosDelegationTokenAuthenticator();
+    final DelegationTokenAuthenticatedURL authURL = new DelegationTokenAuthenticatedURL(
+        authenticator);
+    connectUgi.doAs(new PrivilegedExceptionAction<Void>() {
+      @Override
+      public Void run() throws Exception {
+        authURL.cancelDelegationToken(new URL(credServiceUrl
+                + Constants.DEFAULT_DELEGATION_TOKEN_MANAGER_ENDPOINT),
+            authToken, (proxyUser != null) ? ugi.getShortUserName() : null);
+        return null;
+      }
+    });
   }
 }
