@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.conf;
 
-import com.fasterxml.aalto.stax.InputFactoryImpl;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.BufferedInputStream;
@@ -64,11 +63,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -95,10 +92,13 @@ import org.apache.hadoop.util.StringInterner;
 import org.apache.hadoop.util.StringUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.stax2.XMLInputFactory2;
-import org.codehaus.stax2.XMLStreamReader2;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
 import com.google.common.base.Preconditions;
 
@@ -269,13 +269,7 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
    * the key most recently
    */
   private Map<String, String[]> updatingResource;
-
-  /**
-   * Specify exact input factory to avoid time finding correct one.
-   * Factory is reusable across un-synchronized threads once initialized
-   */
-  private static final XMLInputFactory2 factory = new InputFactoryImpl();
-
+ 
   /**
    * Class to keep the information about the keys which replace the deprecated
    * ones.
@@ -682,7 +676,7 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
     addDefaultResource("core-default.xml");
     addDefaultResource("core-site.xml");
   }
-
+  
   private Properties properties;
   private Properties overlay;
   private ClassLoader classLoader;
@@ -2536,8 +2530,8 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
     return configMap;
   }
 
-  private XMLStreamReader parse(URL url)
-      throws IOException, XMLStreamException {
+  private Document parse(DocumentBuilder builder, URL url)
+      throws IOException, SAXException {
     if (!quietmode) {
       LOG.debug("parsing URL " + url);
     }
@@ -2551,18 +2545,23 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
       // with other users.
       connection.setUseCaches(false);
     }
-    return parse(connection.getInputStream(), url.toString());
+    return parse(builder, connection.getInputStream(), url.toString());
   }
 
-  private XMLStreamReader parse(InputStream is,
-      String systemId) throws IOException, XMLStreamException {
+  private Document parse(DocumentBuilder builder, InputStream is,
+      String systemId) throws IOException, SAXException {
     if (!quietmode) {
       LOG.debug("parsing input stream " + is);
     }
     if (is == null) {
       return null;
     }
-    return factory.createXMLStreamReader(systemId, is);
+    try {
+      return (systemId == null) ? builder.parse(is) : builder.parse(is,
+          systemId);
+    } finally {
+      is.close();
+    }
   }
 
   private void loadResources(Properties properties,
@@ -2587,20 +2586,37 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
     }
   }
   
-  private Resource loadResource(Properties properties,
-                                Resource wrapper, boolean quiet) {
+  private Resource loadResource(Properties properties, Resource wrapper, boolean quiet) {
     String name = UNKNOWN_RESOURCE;
     try {
       Object resource = wrapper.getResource();
       name = wrapper.getName();
-      XMLStreamReader2 reader = null;
-      boolean returnCachedProperties = false;
+      
+      DocumentBuilderFactory docBuilderFactory 
+        = DocumentBuilderFactory.newInstance();
+      //ignore all comments inside the xml file
+      docBuilderFactory.setIgnoringComments(true);
 
+      //allow includes in the xml file
+      docBuilderFactory.setNamespaceAware(true);
+      try {
+          docBuilderFactory.setXIncludeAware(true);
+      } catch (UnsupportedOperationException e) {
+        LOG.error("Failed to set setXIncludeAware(true) for parser "
+                + docBuilderFactory
+                + ":" + e,
+                e);
+      }
+      DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+      Document doc = null;
+      Element root = null;
+      boolean returnCachedProperties = false;
+      
       if (resource instanceof URL) {                  // an URL resource
-        reader = (XMLStreamReader2)parse((URL)resource);
+        doc = parse(builder, (URL)resource);
       } else if (resource instanceof String) {        // a CLASSPATH resource
         URL url = getResource((String)resource);
-        reader = (XMLStreamReader2)parse(url);
+        doc = parse(builder, url);
       } else if (resource instanceof Path) {          // a file resource
         // Can't use FileSystem API or we get an infinite loop
         // since FileSystem uses Configuration API.  Use java.io.File instead.
@@ -2610,188 +2626,89 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
           if (!quiet) {
             LOG.debug("parsing File " + file);
           }
-          reader = (XMLStreamReader2)parse(new BufferedInputStream(
+          doc = parse(builder, new BufferedInputStream(
               new FileInputStream(file)), ((Path)resource).toString());
         }
       } else if (resource instanceof InputStream) {
-        reader = (XMLStreamReader2)parse((InputStream)resource, null);
+        doc = parse(builder, (InputStream) resource, null);
         returnCachedProperties = true;
       } else if (resource instanceof Properties) {
         overlay(properties, (Properties)resource);
+      } else if (resource instanceof Element) {
+        root = (Element)resource;
       }
 
-      if (reader == null) {
-        if (quiet) {
-          return null;
+      if (root == null) {
+        if (doc == null) {
+          if (quiet) {
+            return null;
+          }
+          throw new RuntimeException(resource + " not found");
         }
-        throw new RuntimeException(resource + " not found");
+        root = doc.getDocumentElement();
       }
       Properties toAddTo = properties;
       if(returnCachedProperties) {
         toAddTo = new Properties();
       }
+      if (!"configuration".equals(root.getTagName()))
+        LOG.fatal("bad conf file: top-level element not <configuration>");
+      NodeList props = root.getChildNodes();
       DeprecationContext deprecations = deprecationContext.get();
-
-      StringBuilder token = new StringBuilder();
-      String confName = null;
-      String confValue = null;
-      boolean confFinal = false;
-      boolean fallbackAllowed = false;
-      boolean fallbackEntered = false;
-      boolean parseToken = false;
-      LinkedList<String> confSource = new LinkedList<String>();
-
-      while (reader.hasNext()) {
-        switch (reader.next()) {
-        case XMLStreamConstants.START_ELEMENT:
-          switch (reader.getLocalName()) {
-          case "property":
-            confName = null;
-            confValue = null;
-            confFinal = false;
-            confSource.clear();
-
-            // First test for short format configuration
-            int attrCount = reader.getAttributeCount();
-            for (int i = 0; i < attrCount; i++) {
-              String propertyAttr = reader.getAttributeLocalName(i);
-              if ("name".equals(propertyAttr)) {
-                confName = StringInterner.weakIntern(
-                    reader.getAttributeValue(i));
-              } else if ("value".equals(propertyAttr)) {
-                confValue = StringInterner.weakIntern(
-                    reader.getAttributeValue(i));
-              } else if ("final".equals(propertyAttr)) {
-                confFinal = "true".equals(reader.getAttributeValue(i));
-              } else if ("source".equals(propertyAttr)) {
-                confSource.add(StringInterner.weakIntern(
-                    reader.getAttributeValue(i)));
-              }
-            }
-            break;
-          case "name":
-          case "value":
-          case "final":
-          case "source":
-            parseToken = true;
-            token.setLength(0);
-            break;
-          case "include":
-            if (!"xi".equals(reader.getPrefix())) {
-              break;
-            }
-            // Determine href for xi:include
-            String confInclude = null;
-            attrCount = reader.getAttributeCount();
-            for (int i = 0; i < attrCount; i++) {
-              String attrName = reader.getAttributeLocalName(i);
-              if ("href".equals(attrName)) {
-                confInclude = reader.getAttributeValue(i);
-              }
-            }
-            if (confInclude == null) {
-              break;
-            }
-            // Determine if the included resource is a classpath resource
-            // otherwise fallback to a file resource
-            // xi:include are treated as inline and retain current source
-            URL include = getResource(confInclude);
-            if (include != null) {
-              Resource classpathResource = new Resource(include, name);
-              loadResource(properties, classpathResource, quiet);
-            } else {
-              File href = new File(confInclude);
-              if (!href.isAbsolute()) {
-                // Included resources are relative to the current resource
-                File baseFile = new File(name).getParentFile();
-                href = new File(baseFile, href.getPath());
-              }
-              if (!href.exists()) {
-                // Resource errors are non-fatal iff there is 1 xi:fallback
-                fallbackAllowed = true;
-                break;
-              }
-              Resource uriResource = new Resource(href.toURI().toURL(), name);
-              loadResource(properties, uriResource, quiet);
-            }
-            break;
-          case "fallback":
-            if (!"xi".equals(reader.getPrefix())) {
-              break;
-            }
-            fallbackEntered = true;
-            break;
-          case "configuration":
-            break;
-          default:
-            break;
-          }
-          break;
-
-        case XMLStreamConstants.CHARACTERS:
-          if (parseToken) {
-            char[] text = reader.getTextCharacters();
-            token.append(text, reader.getTextStart(), reader.getTextLength());
-          }
-          break;
-
-        case XMLStreamConstants.END_ELEMENT:
-          switch (reader.getLocalName()) {
-          case "name":
-            if (token.length() > 0) {
-              confName = StringInterner.weakIntern(token.toString().trim());
-            }
-            break;
-          case "value":
-            if (token.length() > 0) {
-              confValue = StringInterner.weakIntern(token.toString());
-            }
-            break;
-          case "final":
-            confFinal = "true".equals(token.toString());
-            break;
-          case "source":
-            confSource.add(StringInterner.weakIntern(token.toString()));
-            break;
-          case "include":
-            if (!"xi".equals(reader.getPrefix())) {
-              break;
-            }
-            if (fallbackAllowed && !fallbackEntered) {
-              throw new IOException("Fetch fail on include with no "
-                  + "fallback while loading '" + name + "'");
-            }
-            fallbackAllowed = false;
-            fallbackEntered = false;
-            break;
-          case "property":
-            if (confName == null || (!fallbackAllowed && fallbackEntered)) {
-              break;
-            }
-            confSource.add(name);
+      for (int i = 0; i < props.getLength(); i++) {
+        Node propNode = props.item(i);
+        if (!(propNode instanceof Element))
+          continue;
+        Element prop = (Element)propNode;
+        if ("configuration".equals(prop.getTagName())) {
+          loadResource(toAddTo, new Resource(prop, name), quiet);
+          continue;
+        }
+        if (!"property".equals(prop.getTagName()))
+          LOG.warn("bad conf file: element not <property>");
+        NodeList fields = prop.getChildNodes();
+        String attr = null;
+        String value = null;
+        boolean finalParameter = false;
+        LinkedList<String> source = new LinkedList<String>();
+        for (int j = 0; j < fields.getLength(); j++) {
+          Node fieldNode = fields.item(j);
+          if (!(fieldNode instanceof Element))
+            continue;
+          Element field = (Element)fieldNode;
+          if ("name".equals(field.getTagName()) && field.hasChildNodes())
+            attr = StringInterner.weakIntern(
+                ((Text)field.getFirstChild()).getData().trim());
+          if ("value".equals(field.getTagName()) && field.hasChildNodes())
+            value = StringInterner.weakIntern(
+                ((Text)field.getFirstChild()).getData());
+          if ("final".equals(field.getTagName()) && field.hasChildNodes())
+            finalParameter = "true".equals(((Text)field.getFirstChild()).getData());
+          if ("source".equals(field.getTagName()) && field.hasChildNodes())
+            source.add(StringInterner.weakIntern(
+                ((Text)field.getFirstChild()).getData()));
+        }
+        source.add(name);
+        
+        // Ignore this parameter if it has already been marked as 'final'
+        if (attr != null) {
+          if (deprecations.getDeprecatedKeyMap().containsKey(attr)) {
             DeprecatedKeyInfo keyInfo =
-                deprecations.getDeprecatedKeyMap().get(confName);
-            if (keyInfo != null) {
-              keyInfo.clearAccessed();
-              for (String key : keyInfo.newKeys) {
-                // update new keys with deprecated key's value
-                loadProperty(toAddTo, name, key, confValue, confFinal,
-                    confSource.toArray(new String[confSource.size()]));
-              }
-            } else {
-              loadProperty(toAddTo, name, confName, confValue, confFinal,
-                  confSource.toArray(new String[confSource.size()]));
+                deprecations.getDeprecatedKeyMap().get(attr);
+            keyInfo.clearAccessed();
+            for (String key:keyInfo.newKeys) {
+              // update new keys with deprecated key's value 
+              loadProperty(toAddTo, name, key, value, finalParameter, 
+                  source.toArray(new String[source.size()]));
             }
-            break;
-          default:
-            break;
           }
-        default:
-          break;
+          else {
+            loadProperty(toAddTo, name, attr, value, finalParameter, 
+                source.toArray(new String[source.size()]));
+          }
         }
       }
-      reader.close();
-
+      
       if (returnCachedProperties) {
         overlay(properties, toAddTo);
         return new Resource(toAddTo, name);
@@ -2800,8 +2717,14 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
     } catch (IOException e) {
       LOG.fatal("error parsing conf " + name, e);
       throw new RuntimeException(e);
-    } catch (XMLStreamException e) {
+    } catch (DOMException e) {
       LOG.fatal("error parsing conf " + name, e);
+      throw new RuntimeException(e);
+    } catch (SAXException e) {
+      LOG.fatal("error parsing conf " + name, e);
+      throw new RuntimeException(e);
+    } catch (ParserConfigurationException e) {
+      LOG.fatal("error parsing conf " + name , e);
       throw new RuntimeException(e);
     }
   }
