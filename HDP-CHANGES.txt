@@ -4311,8 +4311,6 @@ ATS V1.5:
     BUG-78100. HADOOP-14233. Delay construction of PreCondition.check failure
     message in Configuration#set (jeagles)
 
-    BUG-78100. HADOOP-14240. Configuration#get return value optimization (jeagles)
-
     BUG-82262. YARN-6339. Improve performance for createAndGetApplicationReport.
     (Yunjiong Zhao via wangda)
 
