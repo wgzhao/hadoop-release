@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.web;
 
+import com.google.common.base.Preconditions;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.AclEntry;
 import org.apache.hadoop.fs.permission.AclStatus;
@@ -403,6 +404,22 @@ public class JsonUtil {
       return a;
     }
   }
+
+  /** Convert a StorageType[] to a Json array. */
+  private static Object[] toJsonArray(final StorageType[] array) {
+    if (array == null) {
+      return null;
+    } else if (array.length == 0) {
+      return EMPTY_OBJECT_ARRAY;
+    } else {
+      final Object[] a = new Object[array.length];
+      for(int i = 0; i < array.length; i++) {
+        a[i] = array[i];
+      }
+      return a;
+    }
+  }
+
 
   /** Convert an Object[] to a DatanodeInfo[]. */
   private static DatanodeInfo[] toDatanodeInfoArray(final List<?> objects)
@@ -811,4 +828,105 @@ public class JsonUtil {
     return MAPPER.writeValueAsString(obj);
   }
 
+  public static Map<String, Object> toJsonMap(BlockLocation[] locations)
+      throws IOException {
+    if(locations == null) {
+      return null;
+    }
+    final Map<String, Object> m = new TreeMap<String, Object>();
+    Object[] blockLocations = new Object[locations.length];
+    for(int i=0; i<locations.length; i++) {
+      blockLocations[i] = toJsonMap(locations[i]);
+    }
+    m.put(BlockLocation.class.getSimpleName(), blockLocations);
+    return m;
+  }
+
+  public static Map<String, Object> toJsonMap(
+      final BlockLocation blockLocation) throws IOException {
+    if (blockLocation == null) {
+      return null;
+    }
+
+    final Map<String, Object> m = new TreeMap<String, Object>();
+    m.put("length", blockLocation.getLength());
+    m.put("offset", blockLocation.getOffset());
+    m.put("corrupt", blockLocation.isCorrupt());
+    m.put("storageTypes", toJsonArray(blockLocation.getStorageTypes()));
+    m.put("storageIds", blockLocation.getStorageIds());
+    m.put("cachedHosts", blockLocation.getCachedHosts());
+    m.put("hosts", blockLocation.getHosts());
+    m.put("names", blockLocation.getNames());
+    m.put("topologyPaths", blockLocation.getTopologyPaths());
+    return m;
+  }
+
+  static StorageType[] toStorageTypeArray(final List<?> objects)
+      throws IOException {
+    if (objects == null) {
+      return null;
+    } else if (objects.isEmpty()) {
+      return StorageType.EMPTY_ARRAY;
+    } else {
+      final StorageType[] array = new StorageType[objects.size()];
+      int i = 0;
+      for (Object object : objects) {
+        array[i++] = StorageType.parseStorageType(object.toString());
+      }
+      return array;
+    }
+  }
+
+  static BlockLocation[] toBlockLocationArray(Map<?, ?> json)
+      throws IOException{
+    final Map<?, ?> rootmap =
+        (Map<?, ?>)json.get(BlockLocation.class.getSimpleName() + "s");
+    final List<?> array = getList(rootmap,
+        BlockLocation.class.getSimpleName());
+
+    Preconditions.checkNotNull(array);
+    final BlockLocation[] locations = new BlockLocation[array.size()];
+    int i = 0;
+    for (Object object : array) {
+      final Map<?, ?> m = (Map<?, ?>) object;
+      locations[i++] = JsonUtil.toBlockLocation(m);
+    }
+    return locations;
+  }
+
+  /** Convert a Json map to BlockLocation. **/
+  static BlockLocation toBlockLocation(Map<?, ?> m)
+      throws IOException{
+    if(m == null) {
+      return null;
+    }
+
+    long length = ((Number) m.get("length")).longValue();
+    long offset = ((Number) m.get("offset")).longValue();
+    boolean corrupt = Boolean.
+        getBoolean(m.get("corrupt").toString());
+    String[] storageIds = toStringArray(getList(m, "storageIds"));
+    String[] cachedHosts = toStringArray(getList(m, "cachedHosts"));
+    String[] hosts = toStringArray(getList(m, "hosts"));
+    String[] names = toStringArray(getList(m, "names"));
+    String[] topologyPaths = toStringArray(getList(m, "topologyPaths"));
+    StorageType[] storageTypes = toStorageTypeArray(
+        getList(m, "storageTypes"));
+    return new BlockLocation(names, hosts, cachedHosts,
+        topologyPaths, storageIds, storageTypes,
+        offset, length, corrupt);
+  }
+
+  static String[] toStringArray(List<?> list) {
+    if (list == null) {
+      return null;
+    } else {
+      final String[] array = new String[list.size()];
+      int i = 0;
+      for (Object object : list) {
+        array[i++] = object.toString();
+      }
+      return array;
+    }
+  }
 }

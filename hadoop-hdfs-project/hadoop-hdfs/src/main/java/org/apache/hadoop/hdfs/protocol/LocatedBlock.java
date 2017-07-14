@@ -170,11 +170,11 @@ public class LocatedBlock {
     return b.getNumBytes();
   }
 
-  void setStartOffset(long value) {
+  public void setStartOffset(long value) {
     this.offset = value;
   }
 
-  void setCorrupt(boolean corrupt) {
+  public void setCorrupt(boolean corrupt) {
     this.corrupt = corrupt;
   }
   

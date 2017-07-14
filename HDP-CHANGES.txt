@@ -4349,4 +4349,5 @@ ATS V1.5:
 
     BUG-83858. HDFS-11502. Datanode UI should display hostname based on JMX bean instead of window.location.hostname. Contributed by Jeffrey E Rodriguez and Yuanbo Liu.
 
+    BUG-84387. HDFS-11156. Add new op GETFILEBLOCKLOCATIONS to WebHDFS REST API
 
