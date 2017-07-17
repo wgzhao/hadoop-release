@@ -75,7 +75,7 @@ import org.apache.hadoop.yarn.api.records.ReservationId;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class Job extends JobContextImpl implements JobContext {  
+public class Job extends JobContextImpl implements JobContext, AutoCloseable {
   private static final Log LOG = LogFactory.getLog(Job.class);
 
   @InterfaceStability.Evolving
@@ -1499,4 +1499,15 @@ public class Job extends JobContextImpl implements JobContext {
     this.reservationId = reservationId;
   }
   
+  /**
+   * Close the <code>Job</code>.
+   * @throws IOException if fail to close.
+   */
+  @Override
+  public void close() throws IOException {
+    if (cluster != null) {
+      cluster.close();
+      cluster = null;
+    }
+  }
 }
