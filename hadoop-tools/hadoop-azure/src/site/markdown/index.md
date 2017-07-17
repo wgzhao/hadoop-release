@@ -401,6 +401,20 @@ The service is expected to return a response in JSON format for GETDELEGATIONTOK
     }
 }
 ```
+
+### <a name="Chown_behaviour_when_authorization_is_enabled" />chown behaviour when authorization is enabled in WASB
+
+When authorization is enabled, only the users listed in the following configuration
+are allowed to change the owning user of files/folders in WASB. The configuration
+value takes a comma seperated list of user names who are allowed to perform chown.
+
+```
+    <property>
+      <name>fs.azure.chown.allowed.userlist</name>
+      <value>user1,user2</value>
+    </property>
+```
+
 ## <a name="Testing_the_hadoop-azure_Module" />Testing the hadoop-azure Module
 
 The hadoop-azure module includes a full suite of unit tests.  Most of the tests
