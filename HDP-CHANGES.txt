@@ -4353,3 +4353,19 @@ ATS V1.5:
 
     BUG-83487. HDFS-6874. Add GETFILEBLOCKLOCATIONS operation to HttpFS
 
+    HADOOP-14443. Azure: Support retry and client side failover for authorization, SASKey and delegation token generation. Contributed by Santhosh G Nayak.3
+
+    HADOOP-14658. branch-2 compilation is broken in hadoop-azure Contributed by Sunil G.
+
+    HADOOP-14174. Set default ADLS access token provider type to ClientCredential. Contributed by John Zhuge.
+
+    HADOOP-14640. Azure: Support affinity for service running on localhost and reuse SPNEGO hadoop.auth cookie for authorization, SASKey and delegation token generation.
+
+    PROD-1545. HADOOP-14581. Restrict setOwner to list of user when security is enabled in wasb
+
+    BUG-84072 HADOOP-14535 wasb: implement high-performance random access and seek of block blobs. Contributed by Thomas Marquardt
+
+    BUG-83479. HDFS-8312. Added permission check for moving file to Trash. (Weiwei Yang via Eric Yang)
+
+
+
