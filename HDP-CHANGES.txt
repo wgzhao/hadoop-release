@@ -3544,3 +3544,7 @@ ATS V1.5:
 
     BUG-84373. HADOOP-14091. AbstractFileSystem implementaion for 'wasbs'
     scheme. Contributed Varada Hemeswari.
+
+    BUG-84147. HADOOP-14512. WASB atomic rename should not throw exception if
+    the file is neither in src nor in dst when doing the rename. Contributed by
+    Duo Xu
