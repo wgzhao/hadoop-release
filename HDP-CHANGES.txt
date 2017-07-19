@@ -4367,5 +4367,5 @@ ATS V1.5:
 
     BUG-83479. HDFS-8312. Added permission check for moving file to Trash. (Weiwei Yang via Eric Yang)
 
-
+    HADOOP-14642. wasb: add support for caching Authorization and SASKeys. Contributed by Sivaguru Sankaridurg.
 
