@@ -2994,3 +2994,5 @@ ATS V1.5:
 
     BUG-74314. MAPREDUCE-6404. Allow AM to specify a port range for starting its
     webapp. Contributed by Varun Saxena.
+
+    HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
