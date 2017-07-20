@@ -305,13 +305,15 @@ public class TestAppManager{
             ResourceRequest.ANY, Resource.newInstance(1024, 1), 1);
     sub.setAMContainerResourceRequest(resReg);
     req.setApplicationSubmissionContext(sub);
+    sub.setAMContainerSpec(mock(ContainerLaunchContext.class));
     try {
       rmService.submitApplication(req);
     } catch (Exception e) {
+      e.printStackTrace();
       if (e instanceof YarnException) {
         Assert.assertTrue(e.getCause() instanceof AccessControlException);
       } else {
-        Assert.fail("Yarn exception is expected");
+        Assert.fail("Yarn exception is expected : " + e.getMessage());
       }
     } finally {
       mockRM.close();
