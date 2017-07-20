@@ -890,3 +890,7 @@ Changes only in Hortonworks github and not in hadoop-2.7.1 and hence not covered
 
     BUG-80455. HADOOP-13638. KMS should set UGI's Configuration object properly.
     Contributed by Wei-Chiu Chuang.
+
+    BUG-84594. HADOOP-12404. Disable caching for JarURLConnection to avoid
+    sharing JarFile with other users when loading resource from URL in
+    Configuration class. Contributed by Zhihai Xu
