@@ -3555,3 +3555,6 @@ ATS V1.5:
 
     BUG-84620. HADOOP-14535 wasb: implement high-performance random access and
     seek of block blobs. Contributed by Thomas Marquardt
+
+    BUG-84621. HADOOP-14547. [WASB] the configured retry policy is not used for
+    all storage operations. Contributed by Thomas.
