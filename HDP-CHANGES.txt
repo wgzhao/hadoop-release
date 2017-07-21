@@ -4369,3 +4369,5 @@ ATS V1.5:
 
     HADOOP-14642. wasb: add support for caching Authorization and SASKeys. Contributed by Sivaguru Sankaridurg.
 
+    BUG-84646. YARN-3940. Application moveToQueue should check NodeLabel
+    permission. Contributed by Bibin A Chundatt

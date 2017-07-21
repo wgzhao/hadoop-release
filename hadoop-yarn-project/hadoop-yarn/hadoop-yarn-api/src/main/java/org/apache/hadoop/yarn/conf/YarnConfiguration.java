@@ -1965,6 +1965,13 @@ public class YarnConfiguration extends Configuration {
   public static final String SHARED_CACHE_NESTED_LEVEL =
       SHARED_CACHE_PREFIX + "nested-level";
   public static final int DEFAULT_SHARED_CACHE_NESTED_LEVEL = 3;
+
+  // Node Labels
+  @Private
+  public static boolean areNodeLabelsEnabled(
+    Configuration conf) {
+    return conf.getBoolean(NODE_LABELS_ENABLED, DEFAULT_NODE_LABELS_ENABLED);
+  }
   
   // Shared Cache Manager Configs
 
