@@ -4374,3 +4374,6 @@ ATS V1.5:
 
     BUG-84647. YARN-4582. Label-related invalid resource request exception
     should be able to properly handled by application. (Bibin A Chundatt via wangda)
+
+    BUG-84645. YARN-6031. Application recovery has failed when node label
+    feature is turned off during RM recovery. Contributed by Ying Zhang.
