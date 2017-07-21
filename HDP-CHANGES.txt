@@ -3552,3 +3552,6 @@ ATS V1.5:
 
     BUG-84620. HADOOP-13716. Add LambdaTestUtils class for tests; fix eventual consistency 
     problem in contract test setup. Contributed by Steve Loughran.
+
+    BUG-84620. HADOOP-14535 wasb: implement high-performance random access and
+    seek of block blobs. Contributed by Thomas Marquardt

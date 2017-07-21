@@ -1311,6 +1311,22 @@ public class ContractTestUtils extends Assert {
       return endTime - startTime;
     }
 
+    /**
+     * Intermediate duration of the operation.
+     * @return how much time has passed since the start (in nanos).
+     */
+    public long elapsedTime() {
+      return now() - startTime;
+    }
+
+    /**
+     * Elapsed time in milliseconds; no rounding.
+     * @return elapsed time
+     */
+    public long elapsedTimeMs() {
+      return elapsedTime() / 1000000;
+    }
+
     public double bandwidth(long bytes) {
       return bandwidthMBs(bytes, duration());
     }
