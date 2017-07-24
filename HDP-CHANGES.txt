@@ -4268,3 +4268,9 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-84072 HADOOP-14535 wasb: implement high-performance random access and seek of block blobs.  Contributed by Thomas Marquardt
+    
+    BUG-82123. HADOOP-14478. Optimize NativeAzureFsInputStream for positional reads. Contributed by Rajesh Balamohan
+    
+    BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
