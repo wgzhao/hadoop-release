@@ -586,7 +586,7 @@ public class TestRMHA {
     rm = new MockRM(configuration) {
       @Override
       protected AdminService createAdminService() {
-        return new AdminService(this, getRMContext()) {
+        return new AdminService(this) {
           int counter = 0;
           @Override
           protected void setConfig(Configuration conf) {
