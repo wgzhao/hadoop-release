@@ -2985,3 +2985,8 @@ ATS V1.5:
     javadoc. Contributed by Akira AJISAKA.
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+
+    BUG-84856. YARN-6029. CapacityScheduler deadlock when
+    ParentQueue#getQueueUserAclInfo is called by one thread and
+    LeafQueue#assignContainers is releasing excessive reserved container is
+    called by another thread. (Tao Yang via wangda)
