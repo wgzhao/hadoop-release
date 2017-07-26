@@ -95,6 +95,7 @@ public class AdminService extends CompositeService implements
 
   private static final Log LOG = LogFactory.getLog(AdminService.class);
 
+  private final RMContext rmContext;
   private final ResourceManager rm;
   private String rmId;
 
@@ -116,14 +117,15 @@ public class AdminService extends CompositeService implements
   @VisibleForTesting
   boolean isDistributedNodeLabelConfiguration = false;
 
-  public AdminService(ResourceManager rm) {
+  public AdminService(ResourceManager rm, RMContext rmContext) {
     super(AdminService.class.getName());
     this.rm = rm;
+    this.rmContext = rmContext;
   }
 
   @Override
   public void serviceInit(Configuration conf) throws Exception {
-    if (rm.getRMContext().isHAEnabled()) {
+    if (rmContext.isHAEnabled()) {
       autoFailoverEnabled = HAUtil.isAutomaticFailoverEnabled(conf);
       if (autoFailoverEnabled) {
         if (HAUtil.isAutomaticFailoverEmbedded(conf)) {
@@ -189,7 +191,7 @@ public class AdminService extends CompositeService implements
           RMPolicyProvider.getInstance());
     }
 
-    if (rm.getRMContext().isHAEnabled()) {
+    if (rmContext.isHAEnabled()) {
       RPC.setProtocolEngine(conf, HAServiceProtocolPB.class,
           ProtobufRpcEngine.class);
 
@@ -216,7 +218,7 @@ public class AdminService extends CompositeService implements
   }
 
   protected EmbeddedElectorService createEmbeddedElectorService() {
-    return new EmbeddedElectorService(this.rm);
+    return new EmbeddedElectorService(rmContext);
   }
 
   @InterfaceAudience.Private
@@ -276,7 +278,7 @@ public class AdminService extends CompositeService implements
   }
 
   private synchronized boolean isRMActive() {
-    return HAServiceState.ACTIVE == rm.getRMContext().getHAServiceState();
+    return HAServiceState.ACTIVE == rmContext.getHAServiceState();
   }
 
   private void throwStandbyException() throws StandbyException {
@@ -316,7 +318,7 @@ public class AdminService extends CompositeService implements
       refreshAll();
     } catch (Exception e) {
       LOG.error("RefreshAll failed so firing fatal event", e);
-      rm.getRMContext()
+      rmContext
           .getDispatcher()
           .getEventHandler()
           .handle(
@@ -368,7 +370,7 @@ public class AdminService extends CompositeService implements
   @Override
   public synchronized HAServiceStatus getServiceStatus() throws IOException {
     checkAccess("getServiceState");
-    HAServiceState haState = rm.getRMContext().getHAServiceState();
+    HAServiceState haState = rmContext.getHAServiceState();
     HAServiceStatus ret = new HAServiceStatus(haState);
     if (isRMActive() || haState == HAServiceProtocol.HAServiceState.STANDBY) {
       ret.setReadyToBecomeActive();
@@ -400,12 +402,11 @@ public class AdminService extends CompositeService implements
   }
 
   private void refreshQueues() throws IOException, YarnException {
-    rm.getRMContext().getScheduler().reinitialize(getConfig(),
-        this.rm.getRMContext());
+    rmContext.getScheduler().reinitialize(getConfig(), this.rmContext);
     // refresh the reservation system
-    ReservationSystem rSystem = rm.getRMContext().getReservationSystem();
+    ReservationSystem rSystem = rmContext.getReservationSystem();
     if (rSystem != null) {
-      rSystem.reinitialize(getConfig(), rm.getRMContext());
+      rSystem.reinitialize(getConfig(), rmContext);
     }
   }
 
@@ -422,7 +423,7 @@ public class AdminService extends CompositeService implements
       Configuration conf =
           getConfiguration(new Configuration(false),
               YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
-      rm.getRMContext().getNodesListManager().refreshNodes(conf);
+      rmContext.getNodesListManager().refreshNodes(conf);
       RMAuditLogger.logSuccess(user.getShortUserName(), argName,
           "AdminService");
       return recordFactory.newRecordInstance(RefreshNodesResponse.class);
@@ -435,7 +436,7 @@ public class AdminService extends CompositeService implements
     Configuration conf =
         getConfiguration(new Configuration(false),
             YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
-    rm.getRMContext().getNodesListManager().refreshNodes(conf);
+    rmContext.getNodesListManager().refreshNodes(conf);
   }
 
   @Override
@@ -554,11 +555,10 @@ public class AdminService extends CompositeService implements
     Configuration conf =
         getConfiguration(new Configuration(false),
             YarnConfiguration.HADOOP_POLICY_CONFIGURATION_FILE);
-    rm.getRMContext().getClientRMService().refreshServiceAcls(conf,
-        policyProvider);
-    rm.getRMContext().getApplicationMasterService().refreshServiceAcls(
+    rmContext.getClientRMService().refreshServiceAcls(conf, policyProvider);
+    rmContext.getApplicationMasterService().refreshServiceAcls(
         conf, policyProvider);
-    rm.getRMContext().getResourceTrackerService().refreshServiceAcls(
+    rmContext.getResourceTrackerService().refreshServiceAcls(
         conf, policyProvider);
   }
 
@@ -597,7 +597,7 @@ public class AdminService extends CompositeService implements
     // if any invalid nodes, throw exception instead of partially updating
     // valid nodes.
     for (NodeId nodeId : nodeIds) {
-      RMNode node = this.rm.getRMContext().getRMNodes().get(nodeId);
+      RMNode node = this.rmContext.getRMNodes().get(nodeId);
       if (node == null) {
         LOG.error("Resource update get failed on all nodes due to change "
             + "resource on an unrecognized node: " + nodeId);
@@ -615,14 +615,14 @@ public class AdminService extends CompositeService implements
     for (Map.Entry<NodeId, ResourceOption> entry : nodeResourceMap.entrySet()) {
       ResourceOption newResourceOption = entry.getValue();
       NodeId nodeId = entry.getKey();
-      RMNode node = this.rm.getRMContext().getRMNodes().get(nodeId);
+      RMNode node = this.rmContext.getRMNodes().get(nodeId);
       
       if (node == null) {
         LOG.warn("Resource update get failed on an unrecognized node: " + nodeId);
         allSuccess = false;
       } else {
         // update resource to RMNode
-        this.rm.getRMContext().getDispatcher().getEventHandler()
+        this.rmContext.getDispatcher().getEventHandler()
           .handle(new RMNodeResourceUpdateEvent(nodeId, newResourceOption));
         LOG.info("Update resource on node(" + node.getNodeID()
             + ") with resource(" + newResourceOption.toString() + ")");
@@ -657,8 +657,7 @@ public class AdminService extends CompositeService implements
       DynamicResourceConfiguration newConf;
 
       InputStream drInputStream =
-          this.rm.getRMContext().getConfigurationProvider()
-              .getConfigurationInputStream(
+          this.rmContext.getConfigurationProvider().getConfigurationInputStream(
               configuration, YarnConfiguration.DR_CONFIGURATION_FILE);
 
       if (drInputStream != null) {
@@ -676,7 +675,7 @@ public class AdminService extends CompositeService implements
         updateNodeResource(updateRequest);
       }
       // refresh dynamic resource in ResourceTrackerService
-      this.rm.getRMContext().getResourceTrackerService().
+      this.rmContext.getResourceTrackerService().
           updateDynamicResourceConfiguration(newConf);
       RMAuditLogger.logSuccess(user.getShortUserName(), argName,
               "AdminService");
@@ -689,8 +688,7 @@ public class AdminService extends CompositeService implements
   private synchronized Configuration getConfiguration(Configuration conf,
       String... confFileNames) throws YarnException, IOException {
     for (String confFileName : confFileNames) {
-      InputStream confFileInputStream =
-          this.rm.getRMContext().getConfigurationProvider()
+      InputStream confFileInputStream = this.rmContext.getConfigurationProvider()
           .getConfigurationInputStream(conf, confFileName);
       if (confFileInputStream != null) {
         conf.addResource(confFileInputStream);
@@ -743,8 +741,7 @@ public class AdminService extends CompositeService implements
     AddToClusterNodeLabelsResponse response =
         recordFactory.newRecordInstance(AddToClusterNodeLabelsResponse.class);
     try {
-      rm.getRMContext().getNodeLabelManager()
-          .addToCluserNodeLabels(request.getNodeLabels());
+      rmContext.getNodeLabelManager().addToCluserNodeLabels(request.getNodeLabels());
       RMAuditLogger
           .logSuccess(user.getShortUserName(), argName, "AdminService");
       return response;
@@ -766,8 +763,7 @@ public class AdminService extends CompositeService implements
     RemoveFromClusterNodeLabelsResponse response =
         recordFactory.newRecordInstance(RemoveFromClusterNodeLabelsResponse.class);
     try {
-      rm.getRMContext().getNodeLabelManager()
-          .removeFromClusterNodeLabels(request.getNodeLabels());
+      rmContext.getNodeLabelManager().removeFromClusterNodeLabels(request.getNodeLabels());
       RMAuditLogger
           .logSuccess(user.getShortUserName(), operation, "AdminService");
       return response;
@@ -790,7 +786,7 @@ public class AdminService extends CompositeService implements
     ReplaceLabelsOnNodeResponse response =
         recordFactory.newRecordInstance(ReplaceLabelsOnNodeResponse.class);
     try {
-      rm.getRMContext().getNodeLabelManager().replaceLabelsOnNode(
+      rmContext.getNodeLabelManager().replaceLabelsOnNode(
           request.getNodeToLabels());
       RMAuditLogger
           .logSuccess(user.getShortUserName(), operation, "AdminService");
@@ -829,7 +825,7 @@ public class AdminService extends CompositeService implements
   }
 
   public String getHAZookeeperConnectionState() {
-    if (!rm.getRMContext().isHAEnabled()) {
+    if (!rmContext.isHAEnabled()) {
       return "ResourceManager HA is not enabled.";
     } else if (!autoFailoverEnabled) {
       return "Auto Failover is not enabled.";

@@ -53,7 +53,7 @@ public class EmbeddedElectorService extends AbstractService
       new HAServiceProtocol.StateChangeRequestInfo(
           HAServiceProtocol.RequestSource.REQUEST_BY_ZKFC);
 
-  private final ResourceManager rm;
+  private RMContext rmContext;
 
   private byte[] localActiveNodeInfo;
   private ActiveStandbyElector elector;
@@ -62,9 +62,9 @@ public class EmbeddedElectorService extends AbstractService
   @VisibleForTesting
   final Object zkDisconnectLock = new Object();
 
-  EmbeddedElectorService(ResourceManager rManager) {
+  EmbeddedElectorService(RMContext rmContext) {
     super(EmbeddedElectorService.class.getName());
-    this.rm = rManager;
+    this.rmContext = rmContext;
   }
 
   @Override
@@ -133,7 +133,7 @@ public class EmbeddedElectorService extends AbstractService
     cancelDisconnectTimer();
 
     try {
-      rm.getRMContext().getRMAdminService().transitionToActive(req);
+      rmContext.getRMAdminService().transitionToActive(req);
     } catch (Exception e) {
       throw new ServiceFailedException("RM could not transition to Active", e);
     }
@@ -144,7 +144,7 @@ public class EmbeddedElectorService extends AbstractService
     cancelDisconnectTimer();
 
     try {
-      rm.getRMContext().getRMAdminService().transitionToStandby(req);
+      rmContext.getRMAdminService().transitionToStandby(req);
     } catch (Exception e) {
       LOG.error("RM could not transition to Standby", e);
     }
@@ -198,7 +198,7 @@ public class EmbeddedElectorService extends AbstractService
   @SuppressWarnings(value = "unchecked")
   @Override
   public void notifyFatalError(String errorMessage) {
-    rm.getRMContext().getDispatcher().getEventHandler().handle(
+    rmContext.getDispatcher().getEventHandler().handle(
         new RMFatalEvent(RMFatalEventType.EMBEDDED_ELECTOR_FAILED, errorMessage));
   }
 

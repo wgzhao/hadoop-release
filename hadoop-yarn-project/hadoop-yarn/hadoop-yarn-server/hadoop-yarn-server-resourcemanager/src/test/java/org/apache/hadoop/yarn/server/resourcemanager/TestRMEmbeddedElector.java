@@ -123,14 +123,12 @@ public class TestRMEmbeddedElector extends ClientBaseWithFixes {
       throws IOException, InterruptedException {
     AdminService as = mock(AdminService.class);
     RMContext rc = mock(RMContext.class);
-    ResourceManager rm = mock(ResourceManager.class);
     Configuration myConf = new Configuration(conf);
 
     myConf.setInt(YarnConfiguration.RM_ZK_TIMEOUT_MS, 50);
-    when(rm.getRMContext()).thenReturn(rc);
     when(rc.getRMAdminService()).thenReturn(as);
 
-    EmbeddedElectorService ees = new EmbeddedElectorService(rm);
+    EmbeddedElectorService ees = new EmbeddedElectorService(rc);
     ees.init(myConf);
 
     ees.enterNeutralMode();
@@ -287,10 +285,10 @@ public class TestRMEmbeddedElector extends ClientBaseWithFixes {
 
     @Override
     protected AdminService createAdminService() {
-      return new AdminService(MockRMWithElector.this) {
+      return new AdminService(MockRMWithElector.this, getRMContext()) {
         @Override
         protected EmbeddedElectorService createEmbeddedElectorService() {
-          return new EmbeddedElectorService(MockRMWithElector.this) {
+          return new EmbeddedElectorService(getRMContext()) {
             @Override
             public void becomeActive() throws
                 ServiceFailedException {
