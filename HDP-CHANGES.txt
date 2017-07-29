@@ -4265,3 +4265,6 @@ ATS V1.5:
     BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
 
     hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+
+    BUG-85138. HDFS-12158. Secondary Namenode's web interface lack configs for X
+    -FRAME-OPTIONS protection. Contributed by Mukul Kumar Singh.
