@@ -4380,3 +4380,6 @@ ATS V1.5:
 
     BUG-84871. YARN-6890. Not display killApp button on UI if UI is unsecured but cluster is secured.
     Contributed by Junping Du
+
+    BUG-83703. YARN-5731. Preemption calculation is not accurate when reserved
+    containers are present in queue. (wangda)
