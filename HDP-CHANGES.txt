@@ -4784,3 +4784,6 @@ ATS V1.5:
 
     HADOOP-14722. Azure: BlockBlobInputStream position incorrect after seek.
     Contributed by Thomas Marquardt'
+
+    BUG-83703. YARN-5731. Preemption calculation is not accurate when reserved
+    containers are present in queue. (wangda)
