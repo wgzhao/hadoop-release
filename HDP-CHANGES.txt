@@ -2985,3 +2985,6 @@ ATS V1.5:
     javadoc. Contributed by Akira AJISAKA.
 
     HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+
+    BUG-83703. YARN-5731. Preemption calculation is not accurate when reserved
+    containers are present in queue. (wangda)
