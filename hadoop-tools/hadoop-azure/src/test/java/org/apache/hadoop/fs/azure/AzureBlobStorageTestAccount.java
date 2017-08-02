@@ -92,22 +92,13 @@ public final class AzureBlobStorageTestAccount {
   private static final ConcurrentLinkedQueue<MetricsRecord> allMetrics =
       new ConcurrentLinkedQueue<MetricsRecord>();
   private static boolean metricsConfigSaved = false;
-  private boolean skipContainerDelete = false;
 
   private AzureBlobStorageTestAccount(NativeAzureFileSystem fs,
       CloudStorageAccount account,
       CloudBlobContainer container) {
-    this(fs, account, container, false);
-  }
-
-  private AzureBlobStorageTestAccount(NativeAzureFileSystem fs,
-      CloudStorageAccount account,
-      CloudBlobContainer container,
-      boolean skipContainerDelete) {
     this.account = account;
     this.container = container;
     this.fs = fs;
-    this.skipContainerDelete = skipContainerDelete;
   }
 
   /**
@@ -534,19 +525,8 @@ public final class AzureBlobStorageTestAccount {
     return create(containerNameSuffix, createOptions, null);
   }
 
-  public static AzureBlobStorageTestAccount create(
-      String containerNameSuffix,
-      EnumSet<CreateOptions> createOptions,
-      Configuration initialConfiguration)
-      throws Exception {
-    return create(containerNameSuffix, createOptions, initialConfiguration, false);
-  }
-
-  public static AzureBlobStorageTestAccount create(
-      String containerNameSuffix,
-      EnumSet<CreateOptions> createOptions,
-      Configuration initialConfiguration,
-      boolean useContainerSuffixAsContainerName)
+  public static AzureBlobStorageTestAccount create(String containerNameSuffix,
+      EnumSet<CreateOptions> createOptions, Configuration initialConfiguration)
       throws Exception {
     saveMetricsConfigFile();
     NativeAzureFileSystem fs = null;
@@ -559,17 +539,12 @@ public final class AzureBlobStorageTestAccount {
       return null;
     }
     fs = new NativeAzureFileSystem();
-    String containerName = useContainerSuffixAsContainerName
-        ? containerNameSuffix
-        : String.format(
-            "wasbtests-%s-%tQ%s",
-            System.getProperty("user.name"),
-            new Date(),
-            containerNameSuffix);
+    String containerName = String.format("wasbtests-%s-%tQ%s",
+        System.getProperty("user.name"), new Date(), containerNameSuffix);
     container = account.createCloudBlobClient().getContainerReference(
         containerName);
     if (createOptions.contains(CreateOptions.CreateContainer)) {
-      container.createIfNotExists();
+      container.create();
     }
     String accountName = conf.get(TEST_ACCOUNT_NAME_PROPERTY_NAME);
     if (createOptions.contains(CreateOptions.UseSas)) {
@@ -604,8 +579,7 @@ public final class AzureBlobStorageTestAccount {
     // Create test account initializing the appropriate member variables.
     //
     AzureBlobStorageTestAccount testAcct =
-        new AzureBlobStorageTestAccount(fs, account, container,
-            useContainerSuffixAsContainerName);
+        new AzureBlobStorageTestAccount(fs, account, container);
 
     return testAcct;
   }
@@ -851,7 +825,7 @@ public final class AzureBlobStorageTestAccount {
       fs.close();
       fs = null;
     }
-    if (!skipContainerDelete && container != null) {
+    if (container != null) {
       container.deleteIfExists();
       container = null;
     }

@@ -19,6 +19,8 @@
 package org.apache.hadoop.fs.azure;
 import static org.apache.hadoop.fs.azure.NativeAzureFileSystem.PATH_DELIMITER;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,8 +122,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private static final String KEY_STREAM_MIN_READ_SIZE = "fs.azure.read.request.size";
   private static final String KEY_STORAGE_CONNECTION_TIMEOUT = "fs.azure.storage.timeout";
   private static final String KEY_WRITE_BLOCK_SIZE = "fs.azure.write.request.size";
-  @VisibleForTesting
-  static final String KEY_INPUT_STREAM_VERSION = "fs.azure.input.stream.version.for.internal.use.only";
 
   // Property controlling whether to allow reads on blob which are concurrently
   // appended out-of-band.
@@ -223,8 +223,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   public static final int DEFAULT_DOWNLOAD_BLOCK_SIZE = 4 * 1024 * 1024;
   public static final int DEFAULT_UPLOAD_BLOCK_SIZE = 4 * 1024 * 1024;
 
-  private static final int DEFAULT_INPUT_STREAM_VERSION = 2;
-
   // Retry parameter defaults.
   //
 
@@ -283,7 +281,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
   private int downloadBlockSizeBytes = DEFAULT_DOWNLOAD_BLOCK_SIZE;
   private int uploadBlockSizeBytes = DEFAULT_UPLOAD_BLOCK_SIZE;
-  private int inputStreamVersion = DEFAULT_INPUT_STREAM_VERSION;
 
   // Bandwidth throttling exponential back-off parameters
   //
@@ -686,9 +683,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         KEY_STREAM_MIN_READ_SIZE, DEFAULT_DOWNLOAD_BLOCK_SIZE);
     this.uploadBlockSizeBytes = sessionConfiguration.getInt(
         KEY_WRITE_BLOCK_SIZE, DEFAULT_UPLOAD_BLOCK_SIZE);
-
-    this.inputStreamVersion = sessionConfiguration.getInt(
-        KEY_INPUT_STREAM_VERSION, DEFAULT_INPUT_STREAM_VERSION);
 
     // The job may want to specify a timeout to use when engaging the
     // storage service. The default is currently 90 seconds. It may
@@ -1423,18 +1417,8 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private InputStream openInputStream(CloudBlobWrapper blob)
       throws StorageException, IOException {
     if (blob instanceof CloudBlockBlobWrapper) {
-      LOG.debug("Using stream seek algorithm {}", inputStreamVersion);
-      switch(inputStreamVersion) {
-      case 1:
-        return blob.openInputStream(getDownloadOptions(),
-            getInstrumentedContext(isConcurrentOOBAppendAllowed()));
-      case 2:
-        return new BlockBlobInputStream((CloudBlockBlobWrapper) blob,
-            getDownloadOptions(),
-            getInstrumentedContext(isConcurrentOOBAppendAllowed()));
-      default:
-        throw new IOException("Unknown seek algorithm: " + inputStreamVersion);
-      }
+      return blob.openInputStream(getDownloadOptions(),
+          getInstrumentedContext(isConcurrentOOBAppendAllowed()));
     } else {
       return new PageBlobInputStream(
           (CloudPageBlobWrapper) blob, getInstrumentedContext(
@@ -2040,12 +2024,34 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   }
 
   @Override
-  public InputStream retrieve(String key) throws AzureException, IOException {
-    return retrieve(key, 0);
+  public DataInputStream retrieve(String key) throws AzureException, IOException {
+      try {
+        // Check if a session exists, if not create a session with the
+        // Azure storage server.
+        if (null == storageInteractionLayer) {
+          final String errMsg = String.format(
+              "Storage session expected for URI '%s' but does not exist.",
+              sessionUri);
+          throw new AssertionError(errMsg);
+        }
+        checkContainer(ContainerAccessType.PureRead);
+
+        // Get blob reference and open the input buffer stream.
+        CloudBlobWrapper blob = getBlobReference(key);
+      BufferedInputStream inBufStream = new BufferedInputStream(
+          openInputStream(blob));
+
+        // Return a data input stream.
+        DataInputStream inDataStream = new DataInputStream(inBufStream);
+        return inDataStream;
+    } catch (Exception e) {
+      // Re-throw as an Azure storage exception.
+      throw new AzureException(e);
+    }
   }
 
   @Override
-  public InputStream retrieve(String key, long startByteOffset)
+  public DataInputStream retrieve(String key, long startByteOffset)
       throws AzureException, IOException {
       try {
         // Check if a session exists, if not create a session with the
@@ -2058,19 +2064,24 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         }
         checkContainer(ContainerAccessType.PureRead);
 
-        InputStream inputStream = openInputStream(getBlobReference(key));
-        if (startByteOffset > 0) {
-          // Skip bytes and ignore return value. This is okay
-          // because if you try to skip too far you will be positioned
-          // at the end and reads will not return data.
-          inputStream.skip(startByteOffset);
-        }
-        return inputStream;
-    } catch (IOException e) {
-        throw e;
+        // Get blob reference and open the input buffer stream.
+        CloudBlobWrapper blob = getBlobReference(key);
+
+        // Open input stream and seek to the start offset.
+        InputStream in = blob.openInputStream(
+          getDownloadOptions(), getInstrumentedContext(isConcurrentOOBAppendAllowed()));
+
+        // Create a data input stream.
+	    DataInputStream inDataStream = new DataInputStream(in);
+	    
+	    // Skip bytes and ignore return value. This is okay
+	    // because if you try to skip too far you will be positioned
+	    // at the end and reads will not return data.
+	    inDataStream.skip(startByteOffset);
+        return inDataStream;
     } catch (Exception e) {
-        // Re-throw as an Azure storage exception.
-        throw new AzureException(e);
+      // Re-throw as an Azure storage exception.
+      throw new AzureException(e);
     }
   }
 

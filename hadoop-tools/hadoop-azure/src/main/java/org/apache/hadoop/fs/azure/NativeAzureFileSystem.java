@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azure;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -56,7 +57,6 @@ import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.Seekable;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
 import org.apache.hadoop.fs.azure.security.Constants;
@@ -739,7 +739,7 @@ public class NativeAzureFileSystem extends FileSystem {
     // File length, valid only for streams over block blobs.
     private long fileLength;
 
-    NativeAzureFsInputStream(InputStream in, String key, long fileLength) {
+    public NativeAzureFsInputStream(DataInputStream in, String key, long fileLength) {
       this.in = in;
       this.key = key;
       this.isPageBlob = store.isPageBlobKey(key);
@@ -883,18 +883,9 @@ public class NativeAzureFileSystem extends FileSystem {
         if (pos < 0) {
           throw new EOFException(FSExceptionMessages.NEGATIVE_SEEK);
         }
-        if (this.pos > pos) {
-          if (in instanceof Seekable) {
-            ((Seekable) in).seek(pos);
-            this.pos = pos;
-          } else {
-            IOUtils.closeStream(in);
-            in = store.retrieve(key);
-            this.pos = in.skip(pos);
-          }
-        } else {
-          this.pos += in.skip(pos - this.pos);
-        }
+        IOUtils.closeStream(in);
+        in = store.retrieve(key);
+        this.pos = in.skip(pos);
         LOG.debug("Seek to position {}. Bytes skipped {}", pos,
           this.pos);
       } catch(IOException e) {
@@ -1516,9 +1507,15 @@ public class NativeAzureFileSystem extends FileSystem {
 
   /**
    * Get a self-renewing lease on the specified file.
+<<<<<<< HEAD
+||||||| parent of 686823529be... HADOOP-13930. Azure: Add Authorization support to WASB. Contributed by Sivaguru Sankaridurg and Dushyanth
+   * @param path path whose lease to be renewed.
+   * @return Lease
+=======
    * @param path path whose lease to be renewed.
    * @return Lease
    * @throws AzureException when not being able to acquire a lease on the path
+>>>>>>> 686823529be... HADOOP-13930. Azure: Add Authorization support to WASB. Contributed by Sivaguru Sankaridurg and Dushyanth
    */
   public SelfRenewingLease acquireLease(Path path) throws AzureException {
     String fullKey = pathToKey(makeAbsolute(path));
@@ -2474,7 +2471,7 @@ public class NativeAzureFileSystem extends FileSystem {
           + " is a directory not a file.");
     }
 
-    InputStream inputStream;
+    DataInputStream inputStream = null;
     try {
       inputStream = store.retrieve(key);
     } catch(Exception ex) {
