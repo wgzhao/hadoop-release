@@ -89,7 +89,9 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
   @Override
   public synchronized long getPos() throws IOException {
     checkState();
-    return streamPosition;
+    return (streamBuffer != null)
+        ? streamPosition - streamBufferLength + streamBufferPosition
+        : streamPosition;
   }
 
   /**
@@ -107,21 +109,31 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
       throw new EOFException(
           FSExceptionMessages.CANNOT_SEEK_PAST_EOF + " " + pos);
     }
-    if (pos == getPos()) {
+
+    long offset = getPos() - pos;
+
+    if (offset == 0) {
       // no=op, no state change
       return;
     }
 
-    if (streamBuffer != null) {
-      long offset = streamPosition - pos;
-      if (offset > 0 && offset < streamBufferLength) {
-        streamBufferPosition = streamBufferLength - (int) offset;
-      } else {
-        streamBufferPosition = streamBufferLength;
-      }
+    if (offset < 0) {
+      skip(-offset);
+      return;
     }
 
-    streamPosition = pos;
+    if (streamBuffer != null) {
+      if (offset <= streamBufferPosition) {
+        streamBufferPosition = streamBufferPosition - (int) offset;
+      } else {
+        streamBufferPosition = 0;
+        streamBufferLength = 0;
+        streamPosition = pos;
+      }
+    } else {
+      streamPosition = pos;
+    }
+
     // close BlobInputStream after seek is invoked because BlobInputStream
     // does not support seek
     closeBlobInputStream();
@@ -299,23 +311,29 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
   @Override
   public synchronized long skip(long n) throws IOException {
     checkState();
-
+    long skipped;
     if (blobInputStream != null) {
-      return blobInputStream.skip(n);
+      skipped = blobInputStream.skip(n);
+      streamPosition += skipped;
     } else {
-      if (n < 0 || streamPosition + n > streamLength) {
+      if (n < 0 || n > streamLength - streamPosition) {
         throw new IndexOutOfBoundsException("skip range");
       }
 
       if (streamBuffer != null) {
-        streamBufferPosition = (n < streamBufferLength - streamBufferPosition)
-            ? streamBufferPosition + (int) n
-            : streamBufferLength;
+        if (n < streamBufferLength - streamBufferPosition) {
+          streamBufferPosition += (int) n;
+        } else {
+          streamBufferPosition = 0;
+          streamBufferLength = 0;
+          streamPosition = getPos() + n;
+        }
+      } else {
+        streamPosition += n;
       }
-
-      streamPosition += n;
-      return n;
+      skipped = n;
     }
+    return skipped;
   }
 
   /**

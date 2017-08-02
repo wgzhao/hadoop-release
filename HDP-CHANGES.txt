@@ -4276,3 +4276,5 @@ ATS V1.5:
     BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
  
     HADOOP-14680. Azure: IndexOutOfBoundsException in BlockBlobInputStream. Contributed by Thomas Marquardt.
+
+    HBASE-505. HADOOP-14722. Azure: BlockBlobInputStream position incorrect after seek
