@@ -240,6 +240,67 @@ public class TestBlockBlobInputStream extends AbstractWasbTestBase {
     }
   }
 
+  @Test
+  public void test_0201_RandomReadTest() throws Exception {
+    assumeHugeFileExists();
+
+    try (
+        FSDataInputStream inputStreamV1
+            = accountUsingInputStreamV1.getFileSystem().open(TEST_FILE_PATH);
+
+        FSDataInputStream inputStreamV2
+            = accountUsingInputStreamV2.getFileSystem().open(TEST_FILE_PATH);
+    ) {
+      final int bufferSize = 4 * KILOBYTE; //4813;
+      byte[] bufferV1 = new byte[bufferSize];
+      byte[] bufferV2 = new byte[bufferV1.length];
+
+      int numBytesToRead = bufferSize;
+      int numBytesReadV1 = inputStreamV1.read(bufferV1, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV1);
+
+      int numBytesReadV2 = inputStreamV2.read(bufferV2, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV2);
+
+      assertArrayEquals(bufferV1, bufferV2);
+
+      inputStreamV1.seek(0);
+      inputStreamV2.seek(0);
+
+      numBytesReadV1 = inputStreamV1.read(bufferV1, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV1);
+
+      numBytesReadV2 = inputStreamV2.read(bufferV2, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV2);
+
+      assertArrayEquals(bufferV1, bufferV2);
+
+      numBytesReadV1 = inputStreamV1.read(bufferV1, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV1);
+
+      numBytesReadV2 = inputStreamV2.read(bufferV2, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV2);
+
+      assertArrayEquals(bufferV1, bufferV2);
+
+      final int seekPosition = 2048;
+      inputStreamV1.seek(seekPosition);
+      inputStreamV2.seek(seekPosition);
+
+      inputStreamV1.seek(0);
+      inputStreamV2.seek(0);
+
+      //numBytesToRead = 33;
+      numBytesReadV1 = inputStreamV1.read(bufferV1, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV1);
+
+      numBytesReadV2 = inputStreamV2.read(bufferV2, 0, numBytesToRead);
+      assertEquals(numBytesToRead, numBytesReadV2);
+
+      assertArrayEquals(bufferV1, bufferV2);
+    }
+  }
+
   /**
    * Validates the implementation of InputStream.markSupported.
    * @throws IOException
