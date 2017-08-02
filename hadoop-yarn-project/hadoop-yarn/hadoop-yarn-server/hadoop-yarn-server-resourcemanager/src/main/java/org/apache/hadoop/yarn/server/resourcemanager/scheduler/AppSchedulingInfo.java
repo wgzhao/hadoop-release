@@ -547,7 +547,8 @@ public class AppSchedulingInfo {
     this.blacklist = appInfo.getBlackList();
   }
 
-  public synchronized void recoverContainer(RMContainer rmContainer) {
+  public synchronized void recoverContainer(RMContainer rmContainer,
+      String partition) {
     QueueMetrics metrics = queue.getMetrics();
     if (pending) {
       // If there was any container to recover, the application was
