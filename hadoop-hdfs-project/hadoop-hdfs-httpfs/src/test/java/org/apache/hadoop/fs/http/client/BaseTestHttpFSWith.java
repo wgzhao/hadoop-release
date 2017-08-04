@@ -19,6 +19,7 @@
 package org.apache.hadoop.fs.http.client;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.ContentSummary;
@@ -44,6 +45,7 @@ import org.apache.hadoop.test.TestHdfs;
 import org.apache.hadoop.test.TestJetty;
 import org.apache.hadoop.test.TestJettyHelper;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -345,8 +347,15 @@ public abstract class BaseTestHttpFSWith extends HFSTestCase {
     Assert.assertEquals(status2.getLen(), status1.getLen());
 
     FileStatus[] stati = fs.listStatus(path.getParent());
-    Assert.assertEquals(stati.length, 1);
+    Assert.assertEquals(1, stati.length);
     Assert.assertEquals(stati[0].getPath().getName(), path.getName());
+
+    // The full path should be the path to the file. See HDFS-12139
+    FileStatus[] statl = fs.listStatus(path);
+    Assert.assertEquals(1, statl.length);
+    Assert.assertEquals(status2.getPath(), statl[0].getPath());
+    Assert.assertEquals(statl[0].getPath().getName(), path.getName());
+    Assert.assertEquals(stati[0].getPath(), statl[0].getPath());
   }
 
   private void testWorkingdirectory() throws Exception {
@@ -776,6 +785,28 @@ public abstract class BaseTestHttpFSWith extends HFSTestCase {
     httpfsAclStat = httpfs.getAclStatus(path);
     assertSameAcls(httpfsAclStat, proxyAclStat);
   }
+  private void testListStatusBatch() throws Exception {
+
+    Assume.assumeFalse(isLocalFS());
+    FileSystem proxyFs = FileSystem.get(getProxiedFSConf());
+
+    // Test for HDFS-12139
+    Path dir1 = new Path(getProxiedFSTestDir(), "dir1");
+    proxyFs.mkdirs(dir1);
+    Path file1 = new Path(dir1, "file1");
+    proxyFs.create(file1).close();
+
+    RemoteIterator<FileStatus> si = proxyFs.listStatusIterator(dir1);
+    FileStatus statusl = si.next();
+    FileStatus status = proxyFs.getFileStatus(file1);
+    Assert.assertEquals(file1.getName(), statusl.getPath().getName());
+    Assert.assertEquals(status.getPath(), statusl.getPath());
+
+    si = proxyFs.listStatusIterator(file1);
+    statusl = si.next();
+    Assert.assertEquals(file1.getName(), statusl.getPath().getName());
+    Assert.assertEquals(status.getPath(), statusl.getPath());
+  }
 
   /**
    * Simple acl tests on a directory: set a default acl, remove default acls.
@@ -815,7 +846,7 @@ public abstract class BaseTestHttpFSWith extends HFSTestCase {
     GET, OPEN, CREATE, APPEND, TRUNCATE, CONCAT, RENAME, DELETE, LIST_STATUS, 
     WORKING_DIRECTORY, MKDIRS, SET_TIMES, SET_PERMISSION, SET_OWNER,
     SET_REPLICATION, CHECKSUM, CONTENT_SUMMARY, FILEACLS, DIRACLS, SET_XATTR,
-    GET_XATTRS, REMOVE_XATTR, LIST_XATTRS, GETFILEBLOCKLOCATIONS
+    GET_XATTRS, REMOVE_XATTR, LIST_XATTRS, GETFILEBLOCKLOCATIONS, LIST_STATUS_BATCH
   }
 
   private void operation(Operation op) throws Exception {
@@ -876,6 +907,9 @@ public abstract class BaseTestHttpFSWith extends HFSTestCase {
         break;
       case DIRACLS:
         testDirAcls();
+        break;
+      case LIST_STATUS_BATCH:
+        testListStatusBatch();
         break;
       case SET_XATTR:
         testSetXAttr();
