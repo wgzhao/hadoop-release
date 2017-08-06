@@ -181,15 +181,16 @@ public class FSOperations {
 
     /**
      * Return a Map suitable for conversion into JSON.
+     * @param isFile is the fileStatuses from a file path
      * @return A JSONish Map
      */
     @SuppressWarnings({"unchecked"})
-    public Map<String,Object> toJson() {
+    public Map<String,Object> toJson(boolean isFile) {
       Map<String,Object> json = new LinkedHashMap<String,Object>();
       Map<String,Object> inner = new LinkedHashMap<String,Object>();
       JSONArray statuses = new JSONArray();
       for (StatusPair s : statusPairs) {
-        statuses.add(s.toJsonInner(false));
+        statuses.add(s.toJsonInner(isFile));
       }
       inner.put(HttpFSFileSystem.FILE_STATUS_JSON, statuses);
       json.put(HttpFSFileSystem.FILE_STATUSES_JSON, inner);
@@ -660,7 +661,7 @@ public class FSOperations {
     @Override
     public Map execute(FileSystem fs) throws IOException {
       StatusPairs sp = new StatusPairs(fs, path, filter);
-      return sp.toJson();
+      return sp.toJson(fs.getFileStatus(path).isFile());
     }
 
     @Override
