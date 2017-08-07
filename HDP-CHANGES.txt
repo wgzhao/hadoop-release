@@ -4384,6 +4384,3 @@ ATS V1.5:
     BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
     Contributed by Xiaobing Zhou.
 
-    HBASE-505. HADOOP-14722. Azure: BlockBlobInputStream position incorrect
-    after seek
-
