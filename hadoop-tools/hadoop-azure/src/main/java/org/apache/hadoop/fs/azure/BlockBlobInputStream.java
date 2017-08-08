@@ -89,9 +89,7 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
   @Override
   public synchronized long getPos() throws IOException {
     checkState();
-    return (streamBuffer != null)
-        ? streamPosition - streamBufferLength + streamBufferPosition
-        : streamPosition;
+    return streamPosition;
   }
 
   /**
@@ -109,31 +107,21 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
       throw new EOFException(
           FSExceptionMessages.CANNOT_SEEK_PAST_EOF + " " + pos);
     }
-
-    long offset = getPos() - pos;
-
-    if (offset == 0) {
+    if (pos == getPos()) {
       // no=op, no state change
       return;
     }
 
-    if (offset < 0) {
-      skip(-offset);
-      return;
-    }
-
     if (streamBuffer != null) {
-      if (offset <= streamBufferPosition) {
-        streamBufferPosition = streamBufferPosition - (int) offset;
+      long offset = streamPosition - pos;
+      if (offset > 0 && offset < streamBufferLength) {
+        streamBufferPosition = streamBufferLength - (int) offset;
       } else {
-        streamBufferPosition = 0;
-        streamBufferLength = 0;
-        streamPosition = pos;
+        streamBufferPosition = streamBufferLength;
       }
-    } else {
-      streamPosition = pos;
     }
 
+    streamPosition = pos;
     // close BlobInputStream after seek is invoked because BlobInputStream
     // does not support seek
     closeBlobInputStream();
@@ -311,29 +299,23 @@ final class BlockBlobInputStream extends InputStream implements Seekable {
   @Override
   public synchronized long skip(long n) throws IOException {
     checkState();
-    long skipped;
+
     if (blobInputStream != null) {
-      skipped = blobInputStream.skip(n);
-      streamPosition += skipped;
+      return blobInputStream.skip(n);
     } else {
-      if (n < 0 || n > streamLength - streamPosition) {
+      if (n < 0 || streamPosition + n > streamLength) {
         throw new IndexOutOfBoundsException("skip range");
       }
 
       if (streamBuffer != null) {
-        if (n < streamBufferLength - streamBufferPosition) {
-          streamBufferPosition += (int) n;
-        } else {
-          streamBufferPosition = 0;
-          streamBufferLength = 0;
-          streamPosition = getPos() + n;
-        }
-      } else {
-        streamPosition += n;
+        streamBufferPosition = (n < streamBufferLength - streamBufferPosition)
+            ? streamBufferPosition + (int) n
+            : streamBufferLength;
       }
-      skipped = n;
+
+      streamPosition += n;
+      return n;
     }
-    return skipped;
   }
 
   /**
