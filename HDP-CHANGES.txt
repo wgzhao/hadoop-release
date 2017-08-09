@@ -977,3 +977,6 @@ covered by CHANGES.txt.
     BUG-83939. HADOOP-12159. Move DistCpUtils#compareFs() to
     org.apache.hadoop.fs.FileUtil and fix for HA namespaces (rchiang via
     rkanter)
+
+    BUG-83599. HDFS-8581. ContentSummary on / skips further counts on yielding
+    lock (contributed by J.Andreina)
