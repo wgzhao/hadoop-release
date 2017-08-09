@@ -4384,3 +4384,5 @@ ATS V1.5:
     BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
     Contributed by Xiaobing Zhou.
 
+    BUG-84871. YARN-6890. Not display killApp button on UI if UI is unsecured but cluster is secured.
+    Contributed by Junping Du
