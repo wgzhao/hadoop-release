@@ -54,7 +54,7 @@ public class FifoCandidatesSelector
     super(preemptionContext);
 
     preemptableAmountCalculator = new PreemptableResourceCalculator(
-        preemptionContext, true);
+        preemptionContext, false);
   }
 
   @Override
