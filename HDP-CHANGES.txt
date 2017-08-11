@@ -5077,3 +5077,6 @@ ATS V1.5:
 
     BUG-111568. HADOOP-15677. WASB: Add support for StreamCapabilities.
     Contributed by Thomas Marquardt.
+
+    HADOOP-14754. TestCommonConfigurationFields failed: core-default.xml has 2
+    wasb properties missing in classes. Contributed by John Zhuge.
