@@ -2029,7 +2029,6 @@ public class NativeAzureFileSystem extends FileSystem {
   boolean deleteFile(String key, boolean isDir) throws IOException {
     try {
       if (store.delete(key)) {
-        LOG.info("[HBASE-511]: DeleteSuccess {}", key);
         if (isDir) {
           instrumentation.directoryDeleted();
         } else {
@@ -2037,7 +2036,6 @@ public class NativeAzureFileSystem extends FileSystem {
         }
         return true;
       } else {
-        LOG.info("[HBASE-511]: DeleteError", key);
         return false;
       }
     } catch(IOException e) {
@@ -2045,7 +2043,6 @@ public class NativeAzureFileSystem extends FileSystem {
 
       if (innerException instanceof StorageException
           && NativeAzureFileSystemHelper.isFileNotFoundException((StorageException) innerException)) {
-        LOG.info("[HBASE-511]: DeleteErrorNotFound {}", key);
         return false;
       }
 

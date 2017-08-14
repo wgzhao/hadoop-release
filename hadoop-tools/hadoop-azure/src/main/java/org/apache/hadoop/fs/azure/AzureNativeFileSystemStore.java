@@ -2465,7 +2465,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         return false;
       }
     } catch (Exception e) {
-      LOG.error("[HBASE-511]:", e);
       // Re-throw as an Azure storage exception.
       throw new AzureException(e);
     }
