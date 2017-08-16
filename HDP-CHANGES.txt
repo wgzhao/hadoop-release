@@ -4323,9 +4323,6 @@ ATS V1.5:
 
     BUG-83459. HDFS-8307: Spurious DNS Queries from hdfs shell. Contributed by Andres Perez.
 
-    HADOOP-13119. Add ability to secure log servlet using proxy users.
-    Contribute by Yuanbo Liu.
-
     HADOOP-10829. Iteration on CredentialProviderFactory.serviceLoader is thread-unsafe. Contributed by Benoy Antony and Rakesh R.
 
     BUG-83455. HDFS-9601. NNThroughputBenchmark.BlockReportStats should handle NotReplicatedYetException on adding block
