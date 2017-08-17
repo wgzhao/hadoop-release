@@ -592,8 +592,15 @@ ATS V1.5:
 
     BUG-82123. HADOOP-14478. Optimize NativeAzureFsInputStream for positional
     reads. Contributed by Rajesh Balamohan
+
     BUG-82123. HADOOP-14500. Azure: TestFileSystemOperationExceptionHandling{,MultiThreaded}
     fails. Contributed by Rajesh Balamohan
+
+    BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
+    Contributed by Xiaobing Zhou.
+
+    HADOOP-14536. Update azure-storage sdk to version 5.3.0. Contributed by Georgi Chalakov'
+
 
   OPTIMIZATIONS
 
@@ -4308,7 +4315,8 @@ ATS V1.5:
 
     BUG-83346. YARN-4833. For Queue AccessControlException client retries multiple times on both RM. Contributed by Bibin A Chundatt.
 
-    BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when secure.mode is enabled. Contributed by Thomas
+    BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when secure.mode is enabled.
+
     BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
 
     BUG-82262. YARN-6339. Improve performance for createAndGetApplicationReport.
@@ -4375,8 +4383,21 @@ ATS V1.5:
     BUG-85012. HDFS-9357. NN UI renders icons of decommissioned DN incorrectly.
     Contributed by Surendra Singh Lilhore.
 
-    BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
-    Contributed by Xiaobing Zhou.
-
     BUG-84871. YARN-6890. Not display killApp button on UI if UI is unsecured but cluster is secured.
     Contributed by Junping Du
+
+    HADOOP-12087. [JDK8] Fix javadoc errors caused by incorrect or illegal tags. (Akira AJISAKA via stevel).'
+
+    HDFS-9034. StorageTypeStats Metric should not count failed storage. Contributed by Surendra Singh Lilhore.'
+
+    HADOOP-14547. [WASB] the configured retry policy is not used for all storage operations. Contributed by Thomas.'
+
+    HDFS-12158. Secondary Namenode's web interface lack configs for X-FRAME-OPTIONS protection. Contributed by Mukul Kumar Singh.'
+
+    HADOOP-14680. Azure: IndexOutOfBoundsException in BlockBlobInputStream. Contributed by Thomas Marquardt.'
+
+    HDFS-14676. Wrong default value for fs.df.interval. Contributed by xiangguang zheng.'
+
+    HDFS-12139: HTTPFS liststatus returns incorrect pathSuffix for path of file'
+
+    HADOOP-14722. Azure: BlockBlobInputStream position incorrect after seek. Contributed by Thomas Marquardt'
