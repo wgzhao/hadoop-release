@@ -1,5 +1,5 @@
-Changes only in Hortonworks github and not in hadoop-2.7.3 and hence not covered
-by CHANGES.txt.
+Changes only in Hortonworks github and not in hadoop-2.7.3 and hence not
+covered by CHANGES.txt.
 
   INCOMPATIBLE CHANGES
 
@@ -11,8 +11,8 @@ by CHANGES.txt.
     YARN-4496. Improve HA ResourceManager Failover detection on the client.
     Contributed by Jian He
 
-    YARN-5233. Support for specifying a path for ATS plugin jars. Contributed by
-    Li Lu
+    YARN-5233. Support for specifying a path for ATS plugin jars. Contributed
+    by Li Lu
 
     YARN-3623. Add a config to indicate the Timeline Service version.
     Contributed by Xuan Gong.
@@ -74,8 +74,8 @@ by CHANGES.txt.
     YARN-3318. Create Initial OrderingPolicy Framework and FifoOrderingPolicy.
     (Craig Welch via wangda)
 
-    YARN-3326. Support RESTful API for getLabelsToNodes. (Naganarasimha G R
-    via ozawa)
+    YARN-3326. Support RESTful API for getLabelsToNodes. (Naganarasimha G R via
+    ozawa)
 
     YARN-3354. Add node label expression in ContainerTokenIdentifier to support
     RM recovery. (Wangda Tan via jianhe)
@@ -93,8 +93,8 @@ by CHANGES.txt.
     RMAdmin CLI. (Devaraj K via junping_du)
 
     YARN-3366. Enhanced NodeManager to support classifying/shaping outgoing
-    network bandwidth traffic originating from YARN containers (Sidharta Seethana
-    via vinodkv)
+    network bandwidth traffic originating from YARN containers (Sidharta
+    Seethana via vinodkv)
 
     YARN-3319. Implement a FairOrderingPolicy. (Craig Welch via wangda)
 
@@ -104,8 +104,8 @@ by CHANGES.txt.
     YARN-2619. Added NodeManager support for disk io isolation through cgroups.
     (Varun Vasudev and Wei Yan via vinodkv)
 
-    YARN-3448. Added a rolling time-to-live LevelDB timeline store implementation.
-    (Jonathan Eagles via zjshen)
+    YARN-3448. Added a rolling time-to-live LevelDB timeline store
+    implementation. (Jonathan Eagles via zjshen)
 
     YARN-3541. Add version info on timeline service / generic history web UI
     and REST API. (Zhijie Shen via xgong)
@@ -165,8 +165,8 @@ by CHANGES.txt.
     BUG-70505. HDFS-11240. Remove snapshot version of SDK dependency from Azure
     Data Lake Store File System
 
-    BUG-73682. Backport YARN-2009 (Capacity Scheduler Intra queue preemption) to 
-    Fenton as dependency of YARN-5864. (wangda)
+    BUG-73682. Backport YARN-2009 (Capacity Scheduler Intra queue preemption)
+    to  Fenton as dependency of YARN-5864. (wangda)
 
     BUG-73681/YARN-5864. Capacity Scheduler queue priority. (Wangda Tan)
 
@@ -183,11 +183,15 @@ by CHANGES.txt.
 
     BUG-71524. HADOOP-13930. Azure: Add Authorization support to WASB.
     Contributed by Sivaguru Sankaridurg and Dushyanth
+    
     BUG-71524. HADOOP-13945. Azure: Add Kerberos and Delegation token support
     to WASB client. Contributed by Santhosh G Nayak
 
-    BUG-79165. HADOOP-13204. Add support for SSE-KMS and SSE-C in s3a filesystem. (Steve Moist via lei)
-    BUG-79165. HADOOP-14102. Relax error message assertion in S3A test ITestS3AEncryptionSSEC. Contributed by Mingliang Liu
+    BUG-79165. HADOOP-13204. Add support for SSE-KMS and SSE-C in s3a
+    filesystem. (Steve Moist via lei)
+    
+    BUG-79165. HADOOP-14102. Relax error message assertion in S3A test
+    ITestS3AEncryptionSSEC. Contributed by Mingliang Liu
 
 ATS V1.5:
 
@@ -235,8 +239,8 @@ ATS V1.5:
 
   IMPROVEMENTS
 
-    YARN-4578. Directories that are mounted in docker containers need to be more
-    restrictive/container-specific. Contributed by Sidharta Seethana.
+    YARN-4578. Directories that are mounted in docker containers need to be
+    more restrictive/container-specific. Contributed by Sidharta Seethana.
 
     YARN-4267. Add additional logging to container launch implementations in
     container-executor. Contributed by Sidharta Seethana.
@@ -246,7 +250,8 @@ ATS V1.5:
     Sidharta Seethana.
 
     YARN-3684. Changed ContainerExecutor's primary lifecycle methods to use a
-    more extensible mechanism of context objects. Contributed by Sidharta Seethana.
+    more extensible mechanism of context objects. Contributed by Sidharta
+    Seethana.
 
     YARN-4851. Metric improvements for ATS v1.5 storage components. Li Lu via
     junping_du.
@@ -420,11 +425,7 @@ ATS V1.5:
     YARN-2513 Host framework UIs in YARN for use with the ATS Note: Patch is in
     progress
 
-    YARN-2513 Host framework UIs in YARN for use with the ATS Note: Patch is in
-    progress (Committing this patch to keep the 2.3-maint branch consistent
-    with 2.2-maint. This commit uses the YARN-2513.v3.patch from Apache JIRA.
-    The original issues is not yet closed, therefore future
-    backporting/rebasing may be necessary.)
+    YARN-2513 Host framework UIs in YARN for use with the ATS.
 
     YARN-4101. RM should print alert messages if Zookeeper and Resourcemanager
     gets connection issue. Contributed by Xuan Gong
@@ -471,8 +472,8 @@ ATS V1.5:
     YARN-4584. RM startup failure when AM attempts greater than max-attempts.
     (Bibin A Chundatt via rohithsharmaks)
 
-    YARN-4497. RM might fail to restart when recovering apps whose attempts
-    are missing. (Jun Gong via rohithsharmaks)
+    YARN-4497. RM might fail to restart when recovering apps whose attempts are
+    missing. (Jun Gong via rohithsharmaks)
 
     BUG-52450. HDFS-9790. HDFS Balancer should exit with a proper message if
     upgrade is not finalized (Xiaobing Zhou via Arpit Agarwal)
@@ -487,34 +488,34 @@ ATS V1.5:
     HDFS-9710. DN can be configured to send block receipt IBRs in batches.
     (szetszwo)
 
-    BUG-54690. HADOOP-12161. Add getStoragePolicy API to the FileSystem interface
-    (Brahma Reddy Battula via Arpit Agarwal)
+    BUG-54690. HADOOP-12161. Add getStoragePolicy API to the FileSystem
+    interface (Brahma Reddy Battula via Arpit Agarwal)
 
-    BUG-54691. HDFS-8815. DFS getStoragePolicy implementation using single RPC call
-    (Surendra Singh Lilhore via Vinayakumar B)
+    BUG-54691. HDFS-8815. DFS getStoragePolicy implementation using single RPC
+    call (Surendra Singh Lilhore via Vinayakumar B)
 
     BUG-51798. HDFS-9534. Add CLI command to clear storage policy from a path.
     (Xiaobing Zhou via Arpit Agarwal)
 
-    HADOOP-12825. Log slow name resolutions.
-    (Sidharta Seethana via stevel)
+    HADOOP-12825. Log slow name resolutions. (Sidharta Seethana via stevel)
 
-    RMP-6306. HDFS-8582. Support getting a list of reconfigurable config properties
-    and do not generate spurious reconfig warnings (Lei (Eddy) Xu)
+    RMP-6306. HDFS-8582. Support getting a list of reconfigurable config
+    properties and do not generate spurious reconfig warnings (Lei (Eddy) Xu)
 
     HDFS-10312. Large block reports may fail to decode at NameNode due to 64 MB
     protobuf maximum length restriction. Contributed by Chris Nauroth.
 
-    BUG-56634. HADOOP-13011. Clearly Document the Password Details for Keystore-based
-    Credential Providers (Larry McCay)
+    BUG-56634. HADOOP-13011. Clearly Document the Password Details for
+    Keystore-based Credential Providers (Larry McCay)
 
-    BUG-56634. HADOOP-11717. Add Redirecting WebSSO behavior with JWT Token in Hadoop Auth
-    (Larry McCay)
+    BUG-56634. HADOOP-11717. Add Redirecting WebSSO behavior with JWT Token in
+    Hadoop Auth (Larry McCay)
 
     BUG-57081. HDFS-10341. Add a metric to expose the timeout number of pending
     replication blocks (Akira AJISAKA)
 
-    YARN-5294. Pass remote ip address down to YarnAuthorizationProvider. (jianhe)
+    YARN-5294. Pass remote ip address down to YarnAuthorizationProvider.
+    (jianhe)
 
     HADOOP-13305. Define common statistics names across schemes. Contributed by
     Mingliang Liu.
@@ -522,8 +523,8 @@ ATS V1.5:
     HADOOP-13280. FileSystemStorageStatistics#getLong(“readOps“) should return
     readOps + largeReadOps (Mingliang Liu via cmccabe)
 
-    HADOOP-13283. Support reset operation for new global storage statistics
-    and per FS storage stats. Contributed by Mingliang Liu.
+    HADOOP-13283. Support reset operation for new global storage statistics and
+    per FS storage stats. Contributed by Mingliang Liu.
 
     HDFS-10440. Improve DataNode web UI (Contributed by Weiwei Yang)
 
@@ -551,35 +552,88 @@ ATS V1.5:
     HDFS-9941. Do not log StandbyException on NN, other minor logging fixes.
     (Arpit Agarwal)
 
-    HADOOP-13470. GenericTestUtils$LogCapturer is flaky. (Contributed by Mingliang Liu)
+    HADOOP-13470. GenericTestUtils$LogCapturer is flaky. (Contributed by
+    Mingliang Liu)
 
-    BUG-70331. HADOOP-13863. Azure: Add a new SAS key mode for WASB. Contributed by Dushyanth
+    BUG-70331. HADOOP-13863. Azure: Add a new SAS key mode for WASB.
+    Contributed by Dushyanth
 
-    BUG-68464. HADOOP-13686. Adding additional unit test for Trash (I). Contributed by Weiwei Yang.
-    BUG-68464. HDFS-10287. MiniDFSCluster should implement AutoCloseable. Contributed by Andras Bokor.
-    BUG-68464. HDFS-10892. Add unit tests for HDFS command 'dfs -tail' and 'dfs -stat'. Contributed by Mingliang Liu
-    BUG-68464. HDFS-10934. TestDFSShell#testStat fails intermittently. Contributed by Eric Badger
-    BUG-68464. HDFS-10893. Refactor TestDFSShell by setting up MiniDFSCluser once for all commands test. Contributed by Mingliang Liu
-    BUG-68464. HDFS-10643. [Unit Test] Namenode should use loginUser(hdfs) to generateEncryptedKey. Contributed by Xiaoyu Yao.
-    BUG-68464. HDFS-10906. Add unit tests for Trash with HDFS encryption zones. Contributed by Hanisha Koneru.
-    BUG-68464. HDFS-10922. Adding additional unit tests for Trash (II). Contributed by Weiwei Yang.
-    BUG-68464. HDFS-10972. Add unit test for HDFS command 'dfsadmin -getDatanodeInfo'. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-10965. Add unit test for HDFS command 'dfsadmin -printTopology'. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-10998. Add unit tests for HDFS command 'dfsadmin -fetchImage' in HA. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-11008. Change unit test for testing parsing "-source" parameter in Balancer CLI. Contributed by Mingliang Liu
-    BUG-68464. HDFS-8711. setSpaceQuota command should print the available storage type when input storage type is wrong. Contributed by Brahma Reddy Battula.
-    BUG-68464. HDFS-8898. Create API and command-line argument to get quota and quota usage without detailed content summary. Contributed by Ming Ma.
-    BUG-68464. HDFS-10242. Cannot create space quota of zero. Contributed by Takashi Ohnishi.
-    BUG-68464. HDFS-11011. Add unit tests for HDFS command 'dfsadmin -set/clrSpaceQuota'. Contributed by Xiaobing Zhou.
-    BUG-68464. HDFS-11030. TestDataNodeVolumeFailure#testVolumeFailure is flaky (though passing). Contributed by Mingliang Liu
-    BUG-68464. HDFS-11031. Add additional unit test for DataNode startup behavior when volumes fail. Contributed by Mingliang Liu.
-    BUG-68464. HDFS-11065. Add space quota tests for heterogenous storages. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-11076. Add unit test for extended Acls. Contributed by Chen Liang
-    BUG-68464. HDFS-9188. Make block corruption related tests FsDataset-agnostic. (lei)
-    BUG-68464. HDFS-11083. Add unit test for DFSAdmin -report command. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-11085. Add unit test for NameNode failing to start when name dir is unwritable. Contributed by Xiaobing Zhou
-    BUG-68464. HDFS-11122. TestDFSAdmin#testReportCommand fails due to timed out. Contributed by Yiqun Lin
-    BUG-68464. HDFS-10986. DFSAdmin should log detailed error message if any. Contributed by MingLiang Liu
+
+    BUG-68464. HADOOP-13686. Adding additional unit test for Trash (I).
+    Contributed by Weiwei Yang.
+
+    BUG-68464. HDFS-10287. MiniDFSCluster should implement AutoCloseable.
+    Contributed by Andras Bokor.
+
+    BUG-68464. HDFS-10892. Add unit tests for HDFS command 'dfs -tail' and 'dfs
+    -stat'. Contributed by Mingliang Liu
+
+    BUG-68464. HDFS-10934. TestDFSShell#testStat fails intermittently.
+    Contributed by Eric Badger
+
+    BUG-68464. HDFS-10893. Refactor TestDFSShell by setting up MiniDFSCluser
+    once for all commands test. Contributed by Mingliang Liu
+
+    BUG-68464. HDFS-10643. [Unit Test] Namenode should use loginUser(hdfs) to
+    generateEncryptedKey. Contributed by Xiaoyu Yao.
+
+    BUG-68464. HDFS-10906. Add unit tests for Trash with HDFS encryption zones.
+    Contributed by Hanisha Koneru.
+
+    BUG-68464. HDFS-10922. Adding additional unit tests for Trash (II).
+    Contributed by Weiwei Yang.
+
+    BUG-68464. HDFS-10972. Add unit test for HDFS command 'dfsadmin
+    -getDatanodeInfo'. Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-10965. Add unit test for HDFS command 'dfsadmin
+    -printTopology'. Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-10998. Add unit tests for HDFS command 'dfsadmin
+    -fetchImage' in HA. Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-11008. Change unit test for testing parsing "-source"
+    parameter in Balancer CLI. Contributed by Mingliang Liu
+
+    BUG-68464. HDFS-8711. setSpaceQuota command should print the available
+    storage type when input storage type is wrong. Contributed by Brahma Reddy
+    Battula.
+
+    BUG-68464. HDFS-8898. Create API and command-line argument to get quota and
+    quota usage without detailed content summary. Contributed by Ming Ma.
+
+    BUG-68464. HDFS-10242. Cannot create space quota of zero. Contributed by
+    Takashi Ohnishi.
+
+    BUG-68464. HDFS-11011. Add unit tests for HDFS command 'dfsadmin
+    -set/clrSpaceQuota'. Contributed by Xiaobing Zhou.
+
+    BUG-68464. HDFS-11030. TestDataNodeVolumeFailure#testVolumeFailure is flaky
+    (though passing). Contributed by Mingliang Liu
+
+    BUG-68464. HDFS-11031. Add additional unit test for DataNode startup
+    behavior when volumes fail. Contributed by Mingliang Liu.
+
+    BUG-68464. HDFS-11065. Add space quota tests for heterogenous storages.
+    Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-11076. Add unit test for extended Acls. Contributed by Chen
+    Liang
+
+    BUG-68464. HDFS-9188. Make block corruption related tests FsDataset-
+    agnostic. (lei)
+
+    BUG-68464. HDFS-11083. Add unit test for DFSAdmin -report command.
+    Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-11085. Add unit test for NameNode failing to start when
+    name dir is unwritable. Contributed by Xiaobing Zhou
+
+    BUG-68464. HDFS-11122. TestDFSAdmin#testReportCommand fails due to timed
+    out. Contributed by Yiqun Lin
+
+    BUG-68464. HDFS-10986. DFSAdmin should log detailed error message if any.
+    Contributed by MingLiang Liu
 
     BUG-76035. HADOOP-14091. AbstractFileSystem implementaion for 'wasbs'
     scheme. Contributed Varada Hemeswari.
@@ -593,13 +647,15 @@ ATS V1.5:
     BUG-82123. HADOOP-14478. Optimize NativeAzureFsInputStream for positional
     reads. Contributed by Rajesh Balamohan
 
-    BUG-82123. HADOOP-14500. Azure: TestFileSystemOperationExceptionHandling{,MultiThreaded}
-    fails. Contributed by Rajesh Balamohan
+    BUG-82123. HADOOP-14500. Azure:
+    TestFileSystemOperationExceptionHandling{,MultiThreaded} fails. Contributed
+    by Rajesh Balamohan
 
     BUG-76622. HDFS-11534. Add counters for number of blocks in pending IBR.
     Contributed by Xiaobing Zhou.
 
-    HADOOP-14536. Update azure-storage sdk to version 5.3.0. Contributed by Georgi Chalakov'
+    HADOOP-14536. Update azure-storage sdk to version 5.3.0. Contributed by
+    Georgi Chalakov'
 
 
   OPTIMIZATIONS
@@ -608,11 +664,11 @@ ATS V1.5:
 
     HDFS-8856. Make LeaseManager#countPath O(1). (Arpit Agarwal)
 
-    HADOOP-12317. Applications fail on NM restart on some linux distro
-    because NM container recovery declares AM container as LOST (adhoot via rkanter)
+    HADOOP-12317. Applications fail on NM restart on some linux distro because
+    NM container recovery declares AM container as LOST (adhoot via rkanter)
 
-    HADOOP-7713. dfs -count -q should label output column (Jonathan Allen
-    via aw)
+    HADOOP-7713. dfs -count -q should label output column (Jonathan Allen via
+    aw)
 
     HADOOP-11772. RPC Invoker relies on static ClientCache which has
     synchronized(this) blocks. (wheat9)
@@ -625,7 +681,8 @@ ATS V1.5:
 
     HADOOP-10035. Cleanup TestFilterFileSystem. Contributed by Suresh Srinivas.
 
-    BUG-58017. HDFS-10431. Refactor and speedup TestAsyncDFSRename (Xiaobing Zhou)
+    BUG-58017. HDFS-10431. Refactor and speedup TestAsyncDFSRename (Xiaobing
+    Zhou)
 
     HDFS-8578 . On upgrade, Datanode should process all storage/data dirs in
     parallel.  Contributed by vinayakumarb and szetszwo.
@@ -648,7 +705,8 @@ ATS V1.5:
     queueUsagePercentage is coming as INF. Contributed by Sunil G.
 
     MAPREDUCE-6565. Configuration to use host name in delegation token service
-    is not read from job.xml during MapReduce job execution. Contributed by Li Lu.
+    is not read from job.xml during MapReduce job execution. Contributed by Li
+    Lu.
 
     BUG-69387. YARN-4109. Exception on RM scheduler page loading with labels.
     (Mohammad Shahid Khan via rohithsharmaks)
@@ -661,20 +719,20 @@ ATS V1.5:
     YARN-6104. RegistrySecurity overrides zookeeper sasl system properties.
     Contributed by Billie Rinaldi
 
-    BUG-72180. Running applications information changes such as movequeue is not
-    published to TimeLine server (YARN-4044).
+    BUG-72180. Running applications information changes such as movequeue is
+    not published to TimeLine server (YARN-4044).
 
     YARN-5923. Unable to access logs for a running application if
     YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
 
-    YARN-5440. Use AHSClient in YarnClient when TimelineServer is running. (Xuan
-    Gong via gtcarrera9)
+    YARN-5440. Use AHSClient in YarnClient when TimelineServer is running.
+    (Xuan Gong via gtcarrera9)
 
     YARN-5432. Lock already held by another process while LevelDB cache store
     creation for dag. Contributed by Li Lu.
 
-    YARN-5340. Fixed a race condition in RollingLevelDBTimelineStore that caused
-    loss of Timeline events. Contributed by Li Lu.
+    YARN-5340. Fixed a race condition in RollingLevelDBTimelineStore that
+    caused loss of Timeline events. Contributed by Li Lu.
 
     YARN-4909. Fix intermittent failures of TestRMWebServices And
     TestRMWithCSRFFilter. Contributed by Bibin A Chundatt
@@ -689,8 +747,8 @@ ATS V1.5:
     YARN-5298. Mount usercache and NM filecache directories into Docker
     container. Contributed by  Sidharta Seethana.
 
-    YARN-5299. Log Docker run command when container fails. Contributed by Varun
-    Vasudev.
+    YARN-5299. Log Docker run command when container fails. Contributed by
+    Varun Vasudev.
 
     YARN-5314. Fixed a ConcurrentModificationException in ATS v1.5
     EntityGroupFSTimelineStore. Contributed by Li Lu.
@@ -698,11 +756,12 @@ ATS V1.5:
     YARN-4744. Too many signal to container failure in case of LCE. Contributed
     by Sidharta Seethana
 
-    YARN-4252. Log container-executor invocation details when exit code is
-    non-zero. Contributed by Sidharta Seethana.
+    YARN-4252. Log container-executor invocation details when exit code is non-
+    zero. Contributed by Sidharta Seethana.
 
     YARN-4762. Fixed CgroupHandler's creation and usage to avoid NodeManagers
-    crashing when LinuxContainerExecutor is enabled. (Sidharta Seethana via vinodkv)
+    crashing when LinuxContainerExecutor is enabled. (Sidharta Seethana via
+    vinodkv)
 
     YARN-4643. Container recovery is broken with delegating container runtime.
     Contributed by Sidharta Seethana
@@ -745,8 +804,8 @@ ATS V1.5:
     TestLogAggregationService.testLocalFileDeletionOnDiskFull. Contributed by
     Takashi Ohnishi.
 
-    YARN-5103. With NM recovery enabled, restarting NM multiple times results in
-    AM restart. Contributed by Junping Du
+    YARN-5103. With NM recovery enabled, restarting NM multiple times results
+    in AM restart. Contributed by Junping Du
 
     YARN-5100. The YarnApplicationState is always running in ATS even
     application is finished. Contributed by Xuan Gong.
@@ -760,8 +819,8 @@ ATS V1.5:
     YARN-5029. RM needs to send update event with YarnApplicationState as
     Running to ATS/AHS. Contributed by Xuan Gong.
 
-    YARN-5002. getApplicationReport call may raise NPE for removed queues. (Jian
-    He via wangda)
+    YARN-5002. getApplicationReport call may raise NPE for removed queues.
+    (Jian He via wangda)
 
     YARN-4764. Application submission fails when submitted queue is not
     available in scheduler xml. Contributed by Bibin A Chundatt
@@ -808,19 +867,19 @@ ATS V1.5:
     YARN-4243. Add retry on establishing Zookeeper conenction in
     EmbeddedElectorService#serviceInit. Contributed by Xuan Gong.
 
-    BUG-76478. HDFS-11476. Fix NPE in FsDatasetImpl#checkAndUpdate (Xiaobing Zhou)
+    BUG-76478. HDFS-11476. Fix NPE in FsDatasetImpl#checkAndUpdate (Xiaobing
+    Zhou)
 
-    BUG-66654. HADOOP-13546. Override equals and hashCode to avoid connection leakage
-    (Xiaobing Zhou)
+    BUG-66654. HADOOP-13546. Override equals and hashCode to avoid connection
+    leakage (Xiaobing Zhou)
 
-    BUG-62442. HADOOP-13351. TestDFSClientSocketSize buffer size tests are flaky
-    (Aaron Fabbri)
+    BUG-62442. HADOOP-13351. TestDFSClientSocketSize buffer size tests are
+    flaky (Aaron Fabbri)
 
     BUG-60497. HDFS-10437. ReconfigurationProtocol not covered by
     HDFSPolicyProvider. (Arpit Agarwal)
 
-    BUG-60277. HDFS-10291. TestShortCircuitLocalRead failing
-    (Steve Loughran)
+    BUG-60277. HDFS-10291. TestShortCircuitLocalRead failing (Steve Loughran)
 
     BUG-60391. HADOOP-12605. Fix intermittent failure of
     TestIPC.testIpcWithReaderQueuingi (Masatake Iwasaki)
@@ -1001,11 +1060,11 @@ ATS V1.5:
     BUG-43657. HDFS-8995. Flaw in registration bookeeping can make DN die on
     reconnect. (Kihwal Lee via yliu)
 
-    BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default.
-    (Arpit Agarwal)
+    BUG-43802. HDFS-9009. Send metrics logs to NullAppender by default. (Arpit
+    Agarwal)
 
-    YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when
-    state-store error occurs. (Jian He via xgong)
+    YARN-4087. Followup fixes after YARN-2019 regarding RM behavior when state-
+    store error occurs. (Jian He via xgong)
 
     HDFS-8767. RawLocalFileSystem.listStatus() returns null for UNIX pipefile.
 
@@ -1021,14 +1080,14 @@ ATS V1.5:
     HADOOP-12073. Azure FileSystem PageBlobInputStream does not return -1 on
     EOF. (Ivan Mitic via cnauroth)
 
-    HADOOP-12095. org.apache.hadoop.fs.shell.TestCount fails.
-    (Brahma Reddy Battula via aajisaka)
+    HADOOP-12095. org.apache.hadoop.fs.shell.TestCount fails. (Brahma Reddy
+    Battula via aajisaka)
 
     HADOOP-8151. Error handling in snappy decompressor throws invalid
     exceptions. (Matt Foley via harsh)
 
-    HDFS-8384. Allow NN to startup if there are files having a lease but are not
-    under construction. (jing9)
+    HDFS-8384. Allow NN to startup if there are files having a lease but are
+    not under construction. (jing9)
 
     HDFS-8309. Skip unit test using DataNodeTestUtils#injectDataDirFailure() on
     Windows. (xyao)
@@ -1036,26 +1095,26 @@ ATS V1.5:
     HDFS-7609. Avoid retry cache collision when Standby NameNode loading edits.
     (Ming Ma via jing9)
 
-    HDFS-8431. hdfs crypto class not found in Windows.
-    (Anu Engineer via cnauroth)
+    HDFS-8431. hdfs crypto class not found in Windows. (Anu Engineer via
+    cnauroth)
 
-    HDFS-8539. Hdfs doesnt have class 'debug' in windows.
-    (Anu Engineer via cnauroth)
+    HDFS-8539. Hdfs doesnt have class 'debug' in windows. (Anu Engineer via
+    cnauroth)
 
     HDFS-8593. Calculation of effective layout version mishandles comparison to
     current layout version in storage. (cnauroth)
 
-    HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows.
-    (Kiran Kumar M R via Xiaoyu Yao)
+    HDFS-8310. Fix TestCLI.testAll "help: help for find" on Windows. (Kiran
+    Kumar M R via Xiaoyu Yao)
 
-    HDFS-7608: hdfs dfsclient newConnectedPeer has no
-    write timeout (Xiaoyu Yao via Colin P. McCabe)
+    HDFS-7608: hdfs dfsclient newConnectedPeer has no write timeout (Xiaoyu Yao
+    via Colin P. McCabe)
 
     HDFS-6945. BlockManager should remove a block from excessReplicateMap and
     decrement ExcessBlocks metric when the block is removed. (aajisaka)
 
-    HDFS-8879. Quota by storage type usage incorrectly initialized upon namenode
-    restart. (xyao)
+    HDFS-8879. Quota by storage type usage incorrectly initialized upon
+    namenode restart. (xyao)
 
     HDFS-8932. NPE thrown in NameNode when try to get TotalSyncCount metric
     before editLogStream initialization. (Surendra Singh Lilhore via xyao)
@@ -1111,12 +1170,12 @@ ATS V1.5:
     BUG-45953/HADOOP-12463. Fix TestShell.testGetSignalKillCommand failure on
     windows. (Steve Loughran/Wangda Tan)
 
-    BUG-46171. HDFS-9178. Slow datanode I/O can cause a wrong node to
-    be marked bad. (Kihwal Lee)
+    BUG-46171. HDFS-9178. Slow datanode I/O can cause a wrong node to be marked
+    bad. (Kihwal Lee)
 
-    BUG-45762. HDFS-4366. Block Replication Policy Implementation May
-    Skip Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit
-    via Kihwal Lee)
+    BUG-45762. HDFS-4366. Block Replication Policy Implementation May Skip
+    Higher-Priority Blocks for Lower-Priority Blocks. (Derek Dagit via Kihwal
+    Lee)
 
     BUG-46757. HDFS-9305. Delayed heartbeat processing causes storm of
     subsequent heartbeats. (Arpit Agarwal)
@@ -1127,8 +1186,8 @@ ATS V1.5:
     BUG-46754. HDFS-9106. Transfer failure during pipeline recovery causes
     permanent write failures. (Kihwal Lee)
 
-    BUG-47096. HDFS-9343. Empty caller context considered invalid.
-    (Mingliang Liu via Arpit Agarwal)
+    BUG-47096. HDFS-9343. Empty caller context considered invalid. (Mingliang
+    Liu via Arpit Agarwal)
 
     HADOOP-12186. ActiveStandbyElector shouldn't call monitorLockNodeAsync
     multiple times (zhihai xu via vinayakumarb)
@@ -1157,15 +1216,15 @@ ATS V1.5:
     BUG-46839. HDFS-7725. Incorrect "nodes in service" metrics caused all
     writes to fail. (Ming Ma via wang)
 
-    BUG-46838. HDFS-8950. NameNode refresh doesn't remove DataNodes that are
-    no longer in the allowed list. (Daniel Templeton via cmccabe)
+    BUG-46838. HDFS-8950. NameNode refresh doesn't remove DataNodes that are no
+    longer in the allowed list. (Daniel Templeton via cmccabe)
 
     BUG-47823. HADOOP-12049. Control http authentication cookie persistence via
     configuration. (hzlu via benoy)
 
     BUG-48014. HDFS-8829. Make SO_RCVBUF and SO_SNDBUF size configurable for
-    DataTransferProtocol sockets and allow configuring auto-tuning.
-    (He Tianye via cmccabe)
+    DataTransferProtocol sockets and allow configuring auto-tuning. (He Tianye
+    via cmccabe)
 
     BUG-47731. HDFS-8099. Change "DFSInputStream has been closed already"
     message to debug log level. (Charles Lamb via Colin P. McCabe)
@@ -1196,14 +1255,14 @@ ATS V1.5:
     BUG-47045. HDFS-7483. Display information per tier on the Namenode UI.
     (benoy and wheat9 via wheat9)
 
-    BUG-49006. HDFS-8209. Support different number of datanode directories
-    in MiniDFSCluster. (Surendra Singh Lilhore via Vinayakumar B)
+    BUG-49006. HDFS-8209. Support different number of datanode directories in
+    MiniDFSCluster. (Surendra Singh Lilhore via Vinayakumar B)
 
     BUG-49324. HDFS-9397. Fix typo for readChecksum() LOG.warn in
     BlockSender.java. (Enrique Flores via Arpit Agarwal)
 
-    BUG-49337. Support node label store in non-appendable file system.
-    (Wangda Tan via jianhe)
+    BUG-49337. Support node label store in non-appendable file system. (Wangda
+    Tan via jianhe)
 
     BUG-47469. [2.3] Fix TestBalancer#testBalancerWithPinnedBlocks failure on
     2.3-maint. (xyao)
@@ -1333,8 +1392,9 @@ ATS V1.5:
     TCP conversation mismatch between client and server. Contributed by Chris
     Nauroth.
 
-    HADOOP-12334. Change Mode Of Copy Operation of HBase WAL Archiving to bypass
-    Azure Storage Throttling after retries. Contributed by Gaurav Kanade.
+    HADOOP-12334. Change Mode Of Copy Operation of HBase WAL Archiving to
+    bypass Azure Storage Throttling after retries. Contributed by Gaurav
+    Kanade.
 
     HDFS-9413. getContentSummary() on standby should throw StandbyException.
     (Brahma Reddy Battula via mingma)
@@ -1351,11 +1411,11 @@ ATS V1.5:
     BUG-47469. [2.3] Fix TestBalancer#testBalancerWithPinnedBlocks failure on
     2.3-maint. Contributed by Xiaoyu Yao.
 
-    BUG-49321. HDFS-9364. Unnecessary DNS resolution attempts when
-    creating NameNodeProxies. (Xiao Chen via zhz)
+    BUG-49321. HDFS-9364. Unnecessary DNS resolution attempts when creating
+    NameNodeProxies. (Xiao Chen via zhz)
 
-    YARN-4288. Fixed RMProxy to retry on IOException from local host.
-    (Junping Du via jianhe)
+    YARN-4288. Fixed RMProxy to retry on IOException from local host. (Junping
+    Du via jianhe)
 
     YARN-4345. yarn rmadmin -updateNodeResource doesn't work (Junping Du via
     jlowe)
@@ -1363,27 +1423,27 @@ ATS V1.5:
     YARN-4347. Resource manager fails with Null pointer exception. (Jian He via
     wangda)
 
-    YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7.
-    (Wei Yan via vvasudev)
+    YARN-2194. Fix bug causing CGroups functionality to fail on RHEL7. (Wei Yan
+    via vvasudev)
 
-    YARN-4384. updateNodeResource CLI should not accept negative values for resource.
-    (Junping Du via wangda)
+    YARN-4384. updateNodeResource CLI should not accept negative values for
+    resource. (Junping Du via wangda)
 
     YARN-3766. Fixed the apps table column error of generic history web UI.
     (Xuan Gong via zjshen)
 
-    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists to
-    avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED state.
-    (zhihai xu via devaraj)
+    MAPREDUCE-6273. HistoryFileManager should check whether summaryFile exists
+    to avoid FileNotFoundException causing HistoryFileInfo into MOVE_FAILED
+    state. (zhihai xu via devaraj)
 
-    MAPREDUCE-6549. multibyte delimiters with LineRecordReader cause
-    duplicate records (wilfreds via rkanter)
+    MAPREDUCE-6549. multibyte delimiters with LineRecordReader cause duplicate
+    records (wilfreds via rkanter)
 
     MAPREDUCE-5485. Allow repeating job commit by extending OutputCommitter API
     (Junping Du via jianhe)
 
-    YARN-4405/BUG-49337. Support node label store in non-appendable file system.
-    (Wangda Tan via jianhe)
+    YARN-4405/BUG-49337. Support node label store in non-appendable file
+    system. (Wangda Tan via jianhe)
 
     YARN-3604. removeApplication in ZKRMStateStore should also disable watch.
     (Zhihai Xu via jianhe)
@@ -1391,8 +1451,8 @@ ATS V1.5:
     YARN-3987. am container complete msg ack to NM once RM receive it.
     (sandflee via jianhe)
 
-    MAPREDUCE-6566. Add retry support to mapreduce CLI tool.
-    (Varun Vasudev via xgong)
+    MAPREDUCE-6566. Add retry support to mapreduce CLI tool. (Varun Vasudev via
+    xgong)
 
     YARN-4309. Add container launch related debug information to container logs
     when a container fails. (Varun Vasudev via wangda)
@@ -1412,18 +1472,18 @@ ATS V1.5:
     HADOOP-12608. Fix exception message in WASB when connecting with anonymous
     credential. (Dushyanth via xyao)
 
-    HADOOP-12678. Handle empty rename pending metadata file during atomic rename
-    in redo path. (Madhumita Chakraborty via cnauroth)
+    HADOOP-12678. Handle empty rename pending metadata file during atomic
+    rename in redo path. (Madhumita Chakraborty via cnauroth)
 
     BUG-49702(YARN-4392). ApplicationCreatedEvent event time resets after RM
     restart/failover. Contributed by Naganarasimha G R and Xuan Gong
 
-    YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy
-    is enabled, under stress appears that cluster is virtually in deadlock.
+    YARN-4565. (BUG-50408) Sometimes when sizeBasedWeight FairOrderingPolicy is
+    enabled, under stress appears that cluster is virtually in deadlock.
     (Wangda Tan via jianhe)
 
-    HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang Liu
-    via jitendra)
+    HDFS-9672. o.a.h.hdfs.TestLeaseRecovery2 fails intermittently (Mingliang
+    Liu via jitendra)
 
     BUG-51889. HDFS-9406. FSImage may get corrupted after deleting snapshot.
     (yzhang)
@@ -1438,20 +1498,20 @@ ATS V1.5:
 
     BUG-52418(YARN-4680) Fix TimerTasks leak in ATS V1.5 Writer. (xgong)
 
-    BUG-51879. HDFS-8113. Add check for null BlockCollection pointers
-    in BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
+    BUG-51879. HDFS-8113. Add check for null BlockCollection pointers in
+    BlockInfoContiguous structures. (Chengbing Liu via Colin P. McCabe)
 
     BUG-51426. HDFS-9574. Reduce client failures during datanode restart.
     (kihwal)
 
-    BUG-51442. HDFS-9655. NN should start JVM pause monitor before
-    loading fsimage. (John Zhuge via lei)
+    BUG-51442. HDFS-9655. NN should start JVM pause monitor before loading
+    fsimage. (John Zhuge via lei)
 
-    BUG-51436. HDFS-9557. Reduce object allocation in PB conversion.
-    (Daryn Sharp via cnauroth).
+    BUG-51436. HDFS-9557. Reduce object allocation in PB conversion. (Daryn
+    Sharp via cnauroth).
 
-    BUG-51439. HDFS-9445. Datanode may deadlock while handling a bad
-    volume. (Walter Su via kihwal)
+    BUG-51439. HDFS-9445. Datanode may deadlock while handling a bad volume.
+    (Walter Su via kihwal)
 
     BUG-51423. HDFS-8647. Abstract BlockManager's rack policy into
     BlockPlacementPolicy. (Brahma Reddy Battula via Zhe Zhang)
@@ -1459,8 +1519,8 @@ ATS V1.5:
     BUG-51423. HDFS-9313. Possible NullPointerException in BlockManager if no
     excess replica can be chosen. (Ming Ma)
 
-    HDFS-9600. Do not check replication if the block is under
-    construction. (Phil Yang via vinayakumarb)
+    HDFS-9600. Do not check replication if the block is under construction.
+    (Phil Yang via vinayakumarb)
 
     BUG-52495. HDFS-9347. Invariant assumption in
     TestQuorumJournalManager.shutdown() is wrong (Wei-Chiu Chuang)
@@ -1472,8 +1532,8 @@ ATS V1.5:
     moveBlockAcrossStorage moveBlockAcrossStorage and createRbw. (ade via
     vinayakumarb)
 
-    BUG-52294. HDFS-9625. set replication for empty file  failed when
-    set storage policy (DENG FEI via Vinayakumar B)
+    BUG-52294. HDFS-9625. set replication for empty file  failed when set
+    storage policy (DENG FEI via Vinayakumar B)
 
     HADOOP-12103. Small refactoring of DelegationTokenAuthenticationFilter to
     allow code sharing. (Yongjun Zhang)
@@ -1481,8 +1541,8 @@ ATS V1.5:
     HDFS-8337. Accessing httpfs via webhdfs doesn't work from a jar with
     kerberos. (Yongjun Zhang)
 
-    BUG-52769. HADOOP-1023. Add more logging in WASB page blob read
-    function. (Duo Xu via Arpit Agarwal)
+    BUG-52769. HADOOP-1023. Add more logging in WASB page blob read function.
+    (Duo Xu via Arpit Agarwal)
 
     BUG-53573. HADOOP-12107. long running apps may have a huge number of
     StatisticsData instances under FileSystem (Sangjin Lee via Ming Ma)
@@ -1574,7 +1634,8 @@ ATS V1.5:
     BUG-55507. YARN-4769. Add support for CSRF header in the dump capacity
     scheduler logs and kill app buttons in RM web UI.
 
-    HADOOP-12903. IPC Server should allow suppressing exception logging by type,
+    HADOOP-12903. IPC Server should allow suppressing exception logging by
+    type,
 
     BUG-53803. HADOOP-12903. IPC Server should allow suppressing exception
     logging by type, not log 'server too busy' messages. (Arpit Agarwal)
@@ -1585,14 +1646,14 @@ ATS V1.5:
     HDFS-9290. DFSClient#callAppend() is not backward compatible for slightly
     older NameNodes. (Tony Wu via kihwal)
 
-    BUG-53156. HDFS-8659. Block scanner INFO message is spamming logs.
-    (Yongjun Zhang)
+    BUG-53156. HDFS-8659. Block scanner INFO message is spamming logs. (Yongjun
+    Zhang)
 
     BUG-53156. HDFS-9402. Switch DataNode.LOG to use slf4j. (Walter Su)
 
     BUG-53162. HADOOP-10365. BufferedOutputStream in FileUtil#unpackEntries()
-    should be closed in finally block. (Kiran Kumar M R and Sanghyun Yun
-    via ozawa)
+    should be closed in finally block. (Kiran Kumar M R and Sanghyun Yun via
+    ozawa)
 
     BUG-53174. HADOOP-12374. Description of hdfs expunge command is confusing.
     (Weiwei Yang)
@@ -1618,8 +1679,8 @@ ATS V1.5:
     Contributed by Tsz Wo Nicholas Sze. (cherry picked from commit
     ef926b2e3824475581454c1e17a0d7c94529efde)
 
-    HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
-    (Walter Su via wang).
+    HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally
+    fails. (Walter Su via wang).
 
     BUG-53159. HDFS-8806. Inconsistent metrics: number of missing blocks with
     replication factor 1 not properly cleared (Zhe Zhang via Akira AJISAKA)
@@ -1630,32 +1691,33 @@ ATS V1.5:
     BUG-51433. HDFS-10199. Unit tests TestCopyFiles, TestDistCh, TestLogalyzer
     under org.apache.hadoop.tools are failing. Contributed by Tibor Kiss.
 
-    BUG-53169. HDFS-9221. HdfsServerConstants#ReplicaState#getState should avoid
-    calling values() since it creates a temporary array. (Staffan Friberg via
-    yliu) (cherry picked from commit 0ff1216100d16cfa862854a89cd1be8969b0bd7e)
+    BUG-53169. HDFS-9221. HdfsServerConstants#ReplicaState#getState should
+    avoid calling values() since it creates a temporary array. (Staffan Friberg
+    via yliu) (cherry picked from commit
+    0ff1216100d16cfa862854a89cd1be8969b0bd7e)
 
     BUG-51424. HDFS-9314. Improve BlockPlacementPolicyDefault's picking of
     excess replicas. Contributed by Xiao Chen.
 
-    BUG-53176. HADOOP-12348. MetricsSystemImpl creates MetricsSourceAdapter with
-    wrong time unit parameter. (zxu via rkanter)
+    BUG-53176. HADOOP-12348. MetricsSystemImpl creates MetricsSourceAdapter
+    with wrong time unit parameter. (zxu via rkanter)
 
-    BUG-52156. HDFS-9724. Degraded performance in WebHDFS listing as it does not reuse
-    ObjectMapper. Contributed by Akira Ajisaka.
+    BUG-52156. HDFS-9724. Degraded performance in WebHDFS listing as it does
+    not reuse ObjectMapper. Contributed by Akira Ajisaka.
 
     BUG-53157. HADOOP-12191. Bzip2Factory is not thread safe. Contributed by
     Brahma Reddy Battula.
 
-    BUG-54932. HDFS-6101. TestReplaceDatanodeOnFailure fails occasionally. Contributed by
-    Wei-Chiu Chuang.
+    BUG-54932. HDFS-6101. TestReplaceDatanodeOnFailure fails occasionally.
+    Contributed by Wei-Chiu Chuang.
 
-    BUG-52620. HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the performance.
-    Contributed by Lin Yiqun.
+    BUG-52620. HDFS-9768. Reuse ObjectMapper instance in HDFS to improve the
+    performance. Contributed by Lin Yiqun.
 
-    HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM. 
+    HADOOP-12958. PhantomReference for filesystem statistics can trigger OOM.
 
-    HDFS-9478. Reason for failing ipc.FairCallQueue contruction should
-    be thrown. (Ajith S via Arpit Agarwal)
+    HDFS-9478. Reason for failing ipc.FairCallQueue contruction should be
+    thrown. (Ajith S via Arpit Agarwal)
 
     BUG-55060. ARN-3102. Decommisioned Nodes not listed in Web UI. (Kuhu Shukla
     via jlowe)
@@ -1746,18 +1808,20 @@ ATS V1.5:
     YARN-3873. PendingApplications in LeafQueue should also use OrderingPolicy.
     (Sunil G via wangda)
 
-    YARN-1462. AHS API and other AHS changes to handle tags for completed MR jobs. 
-    Contributed by Xuan Gong
+    YARN-1462. AHS API and other AHS changes to handle tags for completed MR
+    jobs.  Contributed by Xuan Gong
 
-    YARN-3543. ApplicationReport should be able to tell whether the
-    Application is AM managed or not. Contributed by Rohith Sharma K S
+    YARN-3543. ApplicationReport should be able to tell whether the Application
+    is AM managed or not. Contributed by Rohith Sharma K S
 
-    YARN-3948. Display Application Priority in RM Web UI.(Sunil G via rohithsharmaks)
+    YARN-3948. Display Application Priority in RM Web UI.(Sunil G via
+    rohithsharmaks)
 
-    YARN-4023. Publish Application Priority to TimelineServer. (Sunil G via rohithsharmaks)
+    YARN-4023. Publish Application Priority to TimelineServer. (Sunil G via
+    rohithsharmaks)
 
-    YARN-3717. Expose app/am/queue's node-label-expression to RM web UI / CLI / REST-API. 
-    (Naganarasimha G R via wangda)
+    YARN-3717. Expose app/am/queue's node-label-expression to RM web UI / CLI /
+    REST-API.  (Naganarasimha G R via wangda)
 
     YARN-3635. Refactored current queue mapping implementation in
     CapacityScheduler to use a generic PlacementManager framework. Contributed
@@ -1825,10 +1889,10 @@ ATS V1.5:
     YARN-3986. getTransferredContainers in AbstractYarnScheduler should be
     present in YarnScheduler interface. (Rohith)
 
-    YARN-4502. Fix two AM containers get allocated when AM restart. 
-    (Vinod Kumar Vavilapalli via wangda)
+    YARN-4502. Fix two AM containers get allocated when AM restart.  (Vinod
+    Kumar Vavilapalli via wangda)
 
-    YARN-4557. Fix improper Queues sorting in PartitionedQueueComparator when 
+    YARN-4557. Fix improper Queues sorting in PartitionedQueueComparator when
     accessible-node-labels=*. (Naganarasimha G R via wangda)
 
     YARN-4418. AM Resource Limit per partition can be updated to ResourceUsage
@@ -1851,8 +1915,8 @@ ATS V1.5:
     HADOOP-12716. KerberosAuthenticator#doSpnegoSequence use incorrect class to
     determine isKeyTab in JDK8. (Xiaoyu Yao via cnauroth)
 
-    HADOOP-13026. Should not wrap IOExceptions into a AuthenticationException in 
-    KerberosAuthenticator. Contributed by Xuan Gong.
+    HADOOP-13026. Should not wrap IOExceptions into a AuthenticationException
+    in  KerberosAuthenticator. Contributed by Xuan Gong.
 
     YARN-4955. Add retry for SocketTimeoutException in TimelineClient.
     Contributed by Xuan Gong.
@@ -1860,8 +1924,8 @@ ATS V1.5:
     BUG-56474. HADOOP-12609. Fix intermittent failure of TestDecayRpcScheduler.
     (Contributed by Masatake Iwasaki)
 
-    BUG-56476. HADOOP-12699. TestKMS#testKMSProvider intermittently fails during
-    'test rollover draining'. Contributed by Xiao Chen.
+    BUG-56476. HADOOP-12699. TestKMS#testKMSProvider intermittently fails
+    during 'test rollover draining'. Contributed by Xiao Chen.
 
     BUG-55494. HADOOP-11901. BytesWritable fails to support 2G chunks due to
     integer overflow. (Reynold Xin via wheat9)
@@ -1872,73 +1936,93 @@ ATS V1.5:
     YARN-4607. Pagination support for AppAttempt page TotalOutstandingResource
     Requests table. Contributed by Bibin A Chundatt
 
-    YARN-4966. Improve yarn logs to fetch container logs without specifying nodeId. Contributed by Xuan Gong.
+    YARN-4966. Improve yarn logs to fetch container logs without specifying
+    nodeId. Contributed by Xuan Gong.
 
     YARN-4746. yarn web services should convert parse failures of appId,
     appAttemptId and containerId to 400. Contributed by Bibin A Chundatt
 
-    YARN-4920. ATS/NM should support a link to dowload/get the logs in text format. Contributed by Xuan Gong.
+    YARN-4920. ATS/NM should support a link to dowload/get the logs in text
+    format. Contributed by Xuan Gong.
 
-    YARN-4905. Improved "yarn logs" command-line to optionally show log metadata also. Contributed by Xuan Gong.
+    YARN-4905. Improved "yarn logs" command-line to optionally show log
+    metadata also. Contributed by Xuan Gong.
 
-    YARN-4842. Fixed "yarn logs" command to guess (and thus not require) the appOwner argument
-    when viewing another user's logs. Contributed by Ram Venkatesh and Xuan Gong.
+    YARN-4842. Fixed "yarn logs" command to guess (and thus not require) the
+    appOwner argument when viewing another user's logs. Contributed by Ram
+    Venkatesh and Xuan Gong.
 
     YARN-5080. Cannot obtain logs using YARN CLI -am for either KILLED or
     RUNNING AM. Contributed by Xuan Gong
 
-    YARN-4913. Yarn logs should take a -out option to write to a directory. Contributed by Xuan Gong.
-
-    YARN-5115. Avoid setting CONTENT-DISPOSITION header in the container-logs web-service.
+    YARN-4913. Yarn logs should take a -out option to write to a directory.
     Contributed by Xuan Gong.
+
+    YARN-5115. Avoid setting CONTENT-DISPOSITION header in the container-logs
+    web-service. Contributed by Xuan Gong.
 
     YARN-5089. Improve "yarn log" command-line "logFiles" option to support
     regex. Contributed by Xuan Gong
 
-    YARN-5141. Get Container logs for the Running application from Yarn Logs CommandLine. Contributed by Xuan Gong.
+    YARN-5141. Get Container logs for the Running application from Yarn Logs
+    CommandLine. Contributed by Xuan Gong.
 
-    YARN-5088. Improve "yarn log" command-line to read the last K bytes for the log files. Contributed by Xuan Gong
+    YARN-5088. Improve "yarn log" command-line to read the last K bytes for the
+    log files. Contributed by Xuan Gong
 
     YARN-5199. Close LogReader in in AHSWebServices#getStreamingOutput and
     FileInputStream in NMWebServices#getLogs. Contributed by Xuan Gong
 
-    YARN-5191. Renamed the newly added “download=true” option for getting logs via NMWebServices
-    and AHSWebServices to be a better "format" option. (Xuan Gong via vinodkv)
+    YARN-5191. Renamed the newly added “download=true” option for getting logs
+    via NMWebServices and AHSWebServices to be a better "format" option. (Xuan
+    Gong via vinodkv)
 
-    YARN-5122. "yarn logs" for running containers should print an explicit footer saying
-    that the log may be incomplete. Contributed by Jian He.
+    YARN-5122. "yarn logs" for running containers should print an explicit
+    footer saying that the log may be incomplete. Contributed by Jian He.
 
-    YARN-5223. Container line in yarn logs output for a live application should include
-    the hostname for the container. Contributed by Xuan Gong.
+    YARN-5223. Container line in yarn logs output for a live application should
+    include the hostname for the container. Contributed by Xuan Gong.
 
-    YARN-5083. YARN CLI for AM logs does not give any error message if entered invalid am value. Contributed by Jian He.
+    YARN-5083. YARN CLI for AM logs does not give any error message if entered
+    invalid am value. Contributed by Jian He.
 
-    YARN-5251. Yarn CLI to obtain App logs for last 'n' bytes fails. Contributed by Xuan Gong.
+    YARN-5251. Yarn CLI to obtain App logs for last 'n' bytes fails.
+    Contributed by Xuan Gong.
 
-    YARN-5266. Wrong exit code while trying to get app logs using regex via CLI. Contributed by Xuan Gong
+    YARN-5266. Wrong exit code while trying to get app logs using regex via
+    CLI. Contributed by Xuan Gong
 
     YARN-5227. Yarn logs command: no need to specify applicationId when
     specifying containerId. Contributed by Gergely Novák
 
-    YARN-5224. Added new web-services /containers/{containerid}/logs & /containers/{containerid}/logs/{filename}
-    and using them in "yarn logs" CLI to get logs of finished containers of a running application. Contributed by Xuan Gong.
+    YARN-5224. Added new web-services /containers/{containerid}/logs &
+    /containers/{containerid}/logs/{filename} and using them in "yarn logs" CLI
+    to get logs of finished containers of a running application. Contributed by
+    Xuan Gong.
 
-    YARN-5200. Enhanced "yarn logs" to be able to get a list of containers whose logs are aggregated
-    via a "show_container_log_info" option. Contributed by Xuan Gong.
-
-    YARN-5363. For AM containers, or for containers of running-apps, "yarn logs" incorrectly only
-    (tries to) shows syslog file-type by default. (Contributed by Vinod Kumar Vavilapalli)
-
-    YARN-5339. Passing file to -out for YARN log CLI doesnt give warning or error code. Contributed by Xuan Gong.
-
-    YARN-5226. Remove AHS enable check from LogsCLI#fetchAMContainerLogs. Contributed by Xuan Gong.
-
-    YARN-5213. Fix a bug in LogCLIHelpers which cause TestLogsCLI#testFetchApplictionLogs fails intermittently.
+    YARN-5200. Enhanced "yarn logs" to be able to get a list of containers
+    whose logs are aggregated via a "show_container_log_info" option.
     Contributed by Xuan Gong.
 
-    YARN-5470. Differentiate exactly match with regex in yarn log CLI. Contributed by Xuan Gong.
+    YARN-5363. For AM containers, or for containers of running-apps, "yarn
+    logs" incorrectly only (tries to) shows syslog file-type by default.
+    (Contributed by Vinod Kumar Vavilapalli)
 
-    YARN-5523. Yarn running container log fetching causes OutOfMemoryError (Xuan Gong via Varun Saxena)
+    YARN-5339. Passing file to -out for YARN log CLI doesnt give warning or
+    error code. Contributed by Xuan Gong.
+
+    YARN-5226. Remove AHS enable check from LogsCLI#fetchAMContainerLogs.
+    Contributed by Xuan Gong.
+
+    YARN-5213. Fix a bug in LogCLIHelpers which cause
+    TestLogsCLI#testFetchApplictionLogs fails intermittently. Contributed by
+    Xuan Gong.
+
+    YARN-5470. Differentiate exactly match with regex in yarn log CLI.
+    Contributed by Xuan Gong.
+
+    YARN-5523. Yarn running container log fetching causes OutOfMemoryError
+    (Xuan Gong via Varun Saxena)
 
     YARN-4699. Scheduler UI and REST o/p is not in sync when
     -replaceLabelsOnNode is used to change label of a node. (Sunil G via
@@ -2032,14 +2116,14 @@ ATS V1.5:
     HADOOP-12074. in Shell.java#runCommand() rethrow InterruptedException as
     InterruptedIOException (Lavkesh Lahngir via vinayakumarb)
 
-    HADOOP-12269. Update aws-sdk dependency to 1.10.6
-    (Thomas Demoor via Lei (Eddy) Xu)
+    HADOOP-12269. Update aws-sdk dependency to 1.10.6 (Thomas Demoor via Lei
+    (Eddy) Xu)
 
     HADOOP-12346. Increase some default timeouts / retries for S3a connector.
     (Sean Mackrory via Lei (Eddy) Xu)
 
-    HADOOP-12292. Make use of DeleteObjects optional.
-    (Thomas Demoor via stevel)
+    HADOOP-12292. Make use of DeleteObjects optional. (Thomas Demoor via
+    stevel)
 
     HADOOP-11687. Ignore x-* and response headers when copying an Amazon S3
     object. Contributed by Aaron Peterson and harsh.
@@ -2050,16 +2134,16 @@ ATS V1.5:
     HADOOP-12891. S3AFileSystem should configure Multipart Copy threshold and
     chunk size. (Andrew Olson via stevel)
 
-    HADOOP-12982 Document missing S3A and S3 properties.
-    (Wei-Chiu Chuang via stevel)
+    HADOOP-12982 Document missing S3A and S3 properties. (Wei-Chiu Chuang via
+    stevel)
 
     HADOOP-13122 Customize User-Agent header sent in HTTP requests by S3A.
     Chris Nauroth via stevel.
 
     HADOOP-13116 Jets3tNativeS3FileSystemContractTest does not run.
 
-    HADOOP-12045. Enable LocalFileSystem#setTimes to change atime.
-    Contributed by Kazuho Fujii.
+    HADOOP-12045. Enable LocalFileSystem#setTimes to change atime. Contributed
+    by Kazuho Fujii.
 
     HADOOP-12258. Need translate java.nio.file.NoSuchFileException to
     FileNotFoundException to avoid regression. Contributed by Zhihai Xu.
@@ -2068,20 +2152,20 @@ ATS V1.5:
     returning an empty list. author: Pieter Reuse.
 
     HADOOP-13028 add low level counter metrics for S3A; use in read performance
-    tests. contributed by: stevel
-    patch includes
+    tests. contributed by: stevel patch includes
 
     HADOOP-12844 Recover when S3A fails on IOException in read()
 
-    HADOOP-13058 S3A FS fails during init against a read-only FS if multipart purge
+    HADOOP-13058 S3A FS fails during init against a read-only FS if multipart
+    purge
 
     HADOOP-13047 S3a Forward seek in stream length to be configurable
 
-    HADOOP-13113 Enable parallel test execution for hadoop-aws.
-    Chris Nauroth via stevel
+    HADOOP-13113 Enable parallel test execution for hadoop-aws. Chris Nauroth
+    via stevel
 
-    HADOOP-13163 Reuse pre-computed filestatus in Distcp-CopyMapper
-    (Rajesh Balamohan via stevel)
+    HADOOP-13163 Reuse pre-computed filestatus in Distcp-CopyMapper (Rajesh
+    Balamohan via stevel)
 
     HADOOP-13158 S3AFileSystem#toString might throw NullPointerException due to
     null cannedACL. (Chris Nauroth via stevel)
@@ -2971,8 +3055,8 @@ ATS V1.5:
     HDFS-9584. NPE in distcp when ssl configuration file does not exist in
     class path. Contributed by Surendra Singh Lilhore.
 
-    HADOOP-12590. TestCompressorDecompressor failing without stack traces
-    (John Zhuge via stevel)
+    HADOOP-12590. TestCompressorDecompressor failing without stack traces (John
+    Zhuge via stevel)
 
     HDFS-9493. Test o.a.h.hdfs.server.namenode.TestMetaSave fails in trunk.
     (Tony Wu via lei)
@@ -3171,8 +3255,9 @@ ATS V1.5:
     HDFS-10270. TestJMXGet:testNameNode() fails. Contributed by Gergely Novák
 
 
-    BUG-62487. HDFS-9466. TestShortCircuitCache#testDataXceiverCleansUpSlotsOnFailure
-    is flaky (Wei-Chiu Chuang via cmccabe)
+    BUG-62487. HDFS-9466.
+    TestShortCircuitCache#testDataXceiverCleansUpSlotsOnFailure is flaky (Wei-
+    Chiu Chuang via cmccabe)
 
     BUG-62488. HDFS-6533. TestBPOfferService#testBasicFunctionalitytest fails
     intermittently. (Contributed by Wei-Chiu Chuang)
@@ -3311,8 +3396,8 @@ ATS V1.5:
     is still needed, hadoop-openstack.  Ported to Hortonworks HDP-2.5 by Matt
     Foley.
 
-    HDFS-8844. TestHDFSCLI does not cleanup the test directory
-    (Masatake Iwasaki via Colin P. McCabe)
+    HDFS-8844. TestHDFSCLI does not cleanup the test directory (Masatake
+    Iwasaki via Colin P. McCabe)
 
     HDFS-10228. TestHDFSCLI fails. (Contributed by Akira AJISAKA)
 
@@ -3326,12 +3411,14 @@ ATS V1.5:
     HADOOP-10823. TestReloadingX509TrustManager is flaky. Contributed by
     Mingliang Liu.
 
-    BUG-64186. Disable UT org.apache.hadoop.security.TestGroupsCaching.testBackgroundRefreshCounters
+    BUG-64186. Disable UT
+    org.apache.hadoop.security.TestGroupsCaching.testBackgroundRefreshCounters
 
     BUG-64662. HADOOP-13512. ReloadingX509TrustManager should keep reloading in
     case of exception. (Contributed by Mingliang Liu)
 
-    BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+    BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network.
+    (stevel)
 
     HADOOP-13354. Update WASB driver to use the latest version (4.2.0) of SDK
     for Microsoft Azure Storage Clients. Contributed by Sivaguru Sankaridurg.
@@ -3345,33 +3432,37 @@ ATS V1.5:
     HADOOP-13403. AzureNativeFileSystem rename/delete performance improvements.
     Contributed by Subramanyam Pattipaka.
 
-    MAPREDUCE-6762. ControlledJob#toString failed with NPE when job status is not successfully updated.
-    Contributed by Weiwei Yang.
+    MAPREDUCE-6762. ControlledJob#toString failed with NPE when job status is
+    not successfully updated. Contributed by Weiwei Yang.
 
     BUG-64511. HDFS-9618. Fix mismatch between log level and guard in
     BlockManager#computeRecoveryWorkForBlocks (iwasakims)
 
-    BUG-64765. HDFS-10764. Fix INodeFile#getBlocks to not return null. 
+    BUG-64765. HDFS-10764. Fix INodeFile#getBlocks to not return null.
     Contributed by Arpit Agarwal.
 
-    HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty block reports. Contributed by Mingliang Liu.
+    HDFS-9484. NNThroughputBenchmark$BlockReportStats should not send empty
+    block reports. Contributed by Mingliang Liu.
 
-    HDFS-10569. A bug causes OutOfIndex error in BlockListAsLongs. Contributed by Weiwei Yang.
+    HDFS-10569. A bug causes OutOfIndex error in BlockListAsLongs. Contributed
+    by Weiwei Yang.
 
     BUG-66193. YARN-4591. YARN Web UIs should provide a robots.txt. Junping Du.
 
-    BUG-65466. HDFS-9276. Failed to Update HDFS Delegation Token for long running application in HA mode.
-    Contributed by Liangliang Gu and John Zhuge
+    BUG-65466. HDFS-9276. Failed to Update HDFS Delegation Token for long
+    running application in HA mode. Contributed by Liangliang Gu and John Zhuge
 
-    BUG-65466. HADOOP-8751. NPE in Token.toString() when Token is constructed using null identifier. Contributed by kanaka kumar avvaru.
+    BUG-65466. HADOOP-8751. NPE in Token.toString() when Token is constructed
+    using null identifier. Contributed by kanaka kumar avvaru.
 
     BUG-65704. YARN-3982. container-executor parsing of container-executor.cfg
     broken in trunk and branch-2. Contributed by Varun Vasudev
 
-    BUG-57079. HDFS-10343. BlockManager#createLocatedBlocks may return blocks on
-    failed storages. Contributed by Kuhu Shukla.
+    BUG-57079. HDFS-10343. BlockManager#createLocatedBlocks may return blocks
+    on failed storages. Contributed by Kuhu Shukla.
 
-    BUG-67343. HDFS-9008 was not backported correctly. Contributed by Mingliang Liu.
+    BUG-67343. HDFS-9008 was not backported correctly. Contributed by Mingliang
+    Liu.
 
     BUG-67140. HADOOP-13024. Distcp with -delete feature on raw data not
     implemented. Contributed by Mavin Martin.
@@ -3385,9 +3476,11 @@ ATS V1.5:
     BUG-67889. HADOOP-13749. KMSClientProvider combined with KeyProviderCache
     can result in wrong UGI being used. Contributed by Xiaoyu Yao.
 
-    YARN-5476. Not existed application reported as ACCEPTED state by YarnClientImpl. Contributed by Junping Du.
+    YARN-5476. Not existed application reported as ACCEPTED state by
+    YarnClientImpl. Contributed by Junping Du.
 
-    BUG-70317. HADOOP-13675. Bug in return value for delete() calls in WASB. Contributed by Dushyanth
+    BUG-70317. HADOOP-13675. Bug in return value for delete() calls in WASB.
+    Contributed by Dushyanth
 
     BUG-67226. HADOOP-13565. KerberosAuthenticationHandler#authenticate should
     not rebuild SPN based on client request. Contributed by Xiaoyu Yao.
@@ -3395,88 +3488,108 @@ ATS V1.5:
     BUG-70518. HADOOP-13890. Maintain HTTP/host as SPNEGO SPN support and fix
     KerberosName parsing. Contributed by Xiaoyu Yao.
 
-    YARN-5659. getPathFromYarnURL should use standard methods. Contributed by Sergey Shelukhin.
+    YARN-5659. getPathFromYarnURL should use standard methods. Contributed by
+    Sergey Shelukhin.
 
-    BUG-68737. YARN-5718. TimelineClient (and other places in YARN) shouldn't over-write HDFS client retry settings which 
-    could cause unexpected behavior. Contributed by Junping Du.
+    BUG-68737. YARN-5718. TimelineClient (and other places in YARN) shouldn't
+    over-write HDFS client retry settings which  could cause unexpected
+    behavior. Contributed by Junping Du.
 
-    BUG-68020. YARN-5551 : Ignore file backed pages from memory computation when smaps is enabled. Contributed
-    by Rajesh Balamohan.
+    BUG-68020. YARN-5551 : Ignore file backed pages from memory computation
+    when smaps is enabled. Contributed by Rajesh Balamohan.
 
-    BUG-70723. MAPREDUCE-6625. TestCLI#testGetJob fails occasionally (haibochen via rkanter).
+    BUG-70723. MAPREDUCE-6625. TestCLI#testGetJob fails occasionally (haibochen
+    via rkanter).
 
     BUG-70718. HADOOP-13831. Correct check for error code to detect Azure
     Storage Throttling and provide retries. Contributed by Gaurav Kanade.
 
-    HADOOP-12252. LocalDirAllocator should not throw NPE with empty string configuration. Contributed by Zhihai Xu
+    HADOOP-12252. LocalDirAllocator should not throw NPE with empty string
+    configuration. Contributed by Zhihai Xu
 
-    HADOOP-8436. NPE In getLocalPathForWrite ( path, conf ) when the required context item is not configured. 
-    Contributed by Brahma Reddy Battula. (harsh)
+    HADOOP-8436. NPE In getLocalPathForWrite ( path, conf ) when the required
+    context item is not configured.  Contributed by Brahma Reddy Battula.
+    (harsh)
 
-    HADOOP-8437. getLocalPathForWrite should throw IOException for invalid paths. Contributed by 
-    Brahma Reddy Battula.
+    HADOOP-8437. getLocalPathForWrite should throw IOException for invalid
+    paths. Contributed by  Brahma Reddy Battula.
 
-    HADOOP-10048. LocalDirAllocator should avoid holding locks while accessing the filesystem.
-    Contributed by Jason Lowe.
+    HADOOP-10048. LocalDirAllocator should avoid holding locks while accessing
+    the filesystem. Contributed by Jason Lowe.
 
-    YARN-4990. Re-direction of a particular log file within in a container in NM UI does not redirect properly.
+    YARN-4990. Re-direction of a particular log file within in a container in
+    NM UI does not redirect properly. Contributed by Xuan Gong.
+
+    YARN-5524. Yarn live log aggregation does not throw if command line arg is
+    wrong. Contributed by Xuan Gong.
+
+    YARN-6011. Add a new web service to list the files on a container in
+    AHSWebService. Contributed by Xuan Gong.
+
+    YARN-6099. Improve webservice to list aggregated log files. Contributed by
+    Xuan Gong.
+
+    YARN-6126. Obtaining app logs for Running application fails with json parse
+    error. Contributed by Xuan Gong.
+
+    YARN-6100. Improve YARN webservice to output aggregated container logs.
     Contributed by Xuan Gong.
 
-    YARN-5524. Yarn live log aggregation does not throw if command line arg is wrong.
-    Contributed by Xuan Gong.
+    YARN-6108. Improve AHS webservice to accept NM address as a parameter to
+    get container logs. Contributed by Xuan Gong.
 
-    YARN-6011. Add a new web service to list the files on a container in AHSWebService. Contributed by Xuan Gong.
+    YARN-6113. Re-direct NM Web Service to get container logs for finished
+    applications. Contributed by Xuan Gong.
 
-    YARN-6099. Improve webservice to list aggregated log files. Contributed by Xuan Gong.
+    YARN-6137. Yarn client implicitly invoke ATS client which accesses HDFS.
+    Contributed by Li Lu.
 
-    YARN-6126. Obtaining app logs for Running application fails with json parse error. Contributed by Xuan Gong.
+    YARN-6174. Log files pattern should be same for both running and finished
+    container. Contributed by Xuan Gong.
 
-    YARN-6100. Improve YARN webservice to output aggregated container logs. Contributed by Xuan Gong.
+    YARN-6228. EntityGroupFSTimelineStore should allow configurable cache
+    stores. Contributed by Li Lu.
 
-    YARN-6108. Improve AHS webservice to accept NM address as a parameter to get container logs. Contributed by Xuan Gong.
+    BUG-71400. YARN-4393.
+    TestResourceLocalizationService#testFailedDirsResourceRelease fails
+    intermittently. Contributed by Varun Saxena.
 
-    YARN-6113. Re-direct NM Web Service to get container logs for finished applications. Contributed by Xuan Gong.
+    BUG-71401. YARN-4556. TestFifoScheduler.testResourceOverCommit fails.
+    Contributed by Akihiro Suda.
 
-    YARN-6137. Yarn client implicitly invoke ATS client which accesses HDFS. Contributed by Li Lu. 
-
-    YARN-6174. Log files pattern should be same for both running and finished container. Contributed by Xuan Gong.
-
-    YARN-6228. EntityGroupFSTimelineStore should allow configurable cache stores. Contributed by Li Lu.
-
-    BUG-71400. YARN-4393. TestResourceLocalizationService#testFailedDirsResourceRelease fails intermittently.
-    Contributed by Varun Saxena.
-
-    BUG-71401. YARN-4556. TestFifoScheduler.testResourceOverCommit fails. Contributed by Akihiro Suda.
-
-    BUG-71401. YARN-5069. TestFifoScheduler.testResourceOverCommit race condition. Contributed by Eric Payne.
+    BUG-71401. YARN-5069. TestFifoScheduler.testResourceOverCommit race
+    condition. Contributed by Eric Payne.
 
     BUG-65978. YARN-3591. Resource localization on a bad disk causes subsequent
     containers failure. Contributed by Lavkesh Lahngir.
 
-    BUG-70511. YARN-5999. AMRMClientAsync will stop if any exceptions thrown on allocate call. Contributed by Jian He.
+    BUG-70511. YARN-5999. AMRMClientAsync will stop if any exceptions thrown on
+    allocate call. Contributed by Jian He.
 
-    BUG-60231. MAPREDUCE-6711. After enabling preemption on cluster, jobs failed without making
-    any attempts made after being preempted. Contributed by Prabu Joseph.
+    BUG-60231. MAPREDUCE-6711. After enabling preemption on cluster, jobs
+    failed without making any attempts made after being preempted. Contributed
+    by Prabu Joseph.
 
-    BUG-71745. YARN-6068. Log aggregation get failed when NM restart even with recovery. 
-    Contributed by Junping Du.
+    BUG-71745. YARN-6068. Log aggregation get failed when NM restart even with
+    recovery.  Contributed by Junping Du.
 
-    HADOOP-12056. Use DirectoryStream in DiskChecker#checkDirs to detect errors when listing a
-    directory. Contributed by Zhihai Xu.
+    HADOOP-12056. Use DirectoryStream in DiskChecker#checkDirs to detect errors
+    when listing a directory. Contributed by Zhihai Xu.
 
-    HDFS-11307. The rpc to portmap service for NFS has hardcoded timeout. Contributed by
-    Mukul Kumar Singh.
+    HDFS-11307. The rpc to portmap service for NFS has hardcoded timeout.
+    Contributed by Mukul Kumar Singh.
 
     BUG-72118. YARN-3148. Allow CORS related headers to passthrough in
     WebAppProxyServlet. Contributed by Varun Saxena.
 
-    HDFS-11209. SNN can't checkpoint when rolling upgrade is not finalized. Contributed by Xiaoyu Yao.
+    HDFS-11209. SNN can't checkpoint when rolling upgrade is not finalized.
+    Contributed by Xiaoyu Yao.
 
-    BUG-72124. MAPREDUCE-6701. application master log can not be available when clicking jobhistory's am logs
-    link. Contributed by Haibo Chen.
+    BUG-72124. MAPREDUCE-6701. application master log can not be available when
+    clicking jobhistory's am logs link. Contributed by Haibo Chen.
 
-    BUG-72151. YARN-5711. Propogate exceptions back to client when using hedging RM failover provider.
-    Contributed by Subru Krishnan.
+    BUG-72151. YARN-5711. Propogate exceptions back to client when using
+    hedging RM failover provider. Contributed by Subru Krishnan.
  
     BUG-72720. MAPREDUCE-6485. Create a new task attempt with failed map task
     priority if in-progress attempts are unassigned. (Xianyin Xin via
@@ -3502,15 +3615,16 @@ ATS V1.5:
 
     BUG-72155. YARN-5208. Run TestAMRMClient TestNMClient TestYarnClient
     TestClientRMTokens TestAMAuthorization tests with
-    hadoop.security.token.service.use_ip enabled. (Rohith Sharma K S via wangda)
+    hadoop.security.token.service.use_ip enabled. (Rohith Sharma K S via
+    wangda)
 
     BUG-72039. YARN-5539. TimelineClient failed to retry on
     java.net.SocketTimeoutException: Read timed out (Junping Du via Varun
     Saxena)
 
-    BUG-72134. YARN-3387. Previous AM's container completed status couldn't pass
-    to current AM if AM and RM restarted during the same time. Contributed by
-    Sandflee
+    BUG-72134. YARN-3387. Previous AM's container completed status couldn't
+    pass to current AM if AM and RM restarted during the same time. Contributed
+    by Sandflee
 
     BUG-72141. MAPREDUCE-6350. JobHistory doesn't support fully-functional
     search. Contributed by Siqi Li.
@@ -3522,8 +3636,8 @@ ATS V1.5:
     length of the job name is equal to mapreduce.jobhistory.jobname.limit.
     Contributed by Ajith S.
 
-    BUG-72036. YARN-5549. AMLauncher#createAMContainerLaunchContext() should not
-    log the command to be launched indiscriminately. (Daniel Templeton via
+    BUG-72036. YARN-5549. AMLauncher#createAMContainerLaunchContext() should
+    not log the command to be launched indiscriminately. (Daniel Templeton via
     rchiang)
 
     BUG-72157. YARN-4767. Network issues can cause persistent RM UI outage.
@@ -3538,17 +3652,18 @@ ATS V1.5:
     HADOOP-13188 S3A file-create should throw error rather than overwrite
     directories. Contributed by Steve Loughran.
 
-    HADOOP-13208. S3A listFiles(recursive=true) to do a bulk listObjects instead
-    of walking the pseudo-tree of directories. Contributed by Steve Loughran.
+    HADOOP-13208. S3A listFiles(recursive=true) to do a bulk listObjects
+    instead of walking the pseudo-tree of directories. Contributed by Steve
+    Loughran.
 
     HADOOP-13389 TestS3ATemporaryCredentials.testSTS error when using IAM
     credentials. Contributed by Steven K. Wong.
 
-    HADOOP-13252. Tune S3A provider plugin mechanism.
-    Contributed by Steve Loughran.
+    HADOOP-13252. Tune S3A provider plugin mechanism. Contributed by Steve
+    Loughran.
 
-    HADOOP-13169. Randomize file list in SimpleCopyListing.
-    Contributed by Rajesh Balamohan.
+    HADOOP-13169. Randomize file list in SimpleCopyListing. Contributed by
+    Rajesh Balamohan.
 
     HADOOP-13599. s3a close() to be non-synchronized, so avoid risk of deadlock
     on shutdown. Contributed by Steve Loughran.
@@ -3556,8 +3671,8 @@ ATS V1.5:
     HADOOP-13164 Optimize S3AFileSystem::deleteUnnecessaryFakeDirectories.
     Contributed by Rajesh Balamohan.
 
-    HADOOP-13674. S3A can provide a more detailed error message when accessing a
-    bucket through an incorrect S3 endpoint. Contributed by Chris Nauroth.
+    HADOOP-13674. S3A can provide a more detailed error message when accessing
+    a bucket through an incorrect S3 endpoint. Contributed by Chris Nauroth.
 
     HADOOP-13323. Downgrade stack trace on FS load from Warn to debug.
     Contributed by Steve Loughran.
@@ -3570,13 +3685,14 @@ ATS V1.5:
     HADOOP-12229 Fix inconsistent subsection titles in filesystem.md.
     Contributed by Masatake Iwasaki
 
-    HADOOP-12242. Add in-page TOC to filesystem specification pages. (iwasakims)
+    HADOOP-12242. Add in-page TOC to filesystem specification pages.
+    (iwasakims)
 
     HADOOP-12009. Clarify FileSystem.listStatus() sorting order & fix
     FileSystemContractBaseTest:testListStatus. backport to 2.8
 
-    HADOOP-12977 s3a to handle delete("/", true) robustly.
-    Contributed by Steve Loughran.
+    HADOOP-12977 s3a to handle delete("/", true) robustly. Contributed by Steve
+    Loughran.
 
     HADOOP-13541 explicitly declare the Joda time version S3A depends on.
     Contributed by Stevel Loughran
@@ -3593,8 +3709,8 @@ ATS V1.5:
     HADOOP-13560. S3ABlockOutputStream to support huge (many GB) file writes.
     Contributed by Steve Loughran.
 
-    HADOOP-13387 users always get told off for using S3 —even when not using it.
-    Contributed by stevel.
+    HADOOP-13387 users always get told off for using S3 —even when not using
+    it. Contributed by stevel.
 
     HADOOP-13716. Add LambdaTestUtils class for tests; fix eventual consistency
     problem in contract test setup. Contributed by Steve Loughran.
@@ -3602,112 +3718,132 @@ ATS V1.5:
     HADOOP-13614. Purge some superfluous/obsolete S3 FS tests that are slowing
     test runs down. Contributed by Steve Loughran.
 
-    HADOOP-12774. s3a should use UGI.getCurrentUser.getShortname() for username.
-    Contributed by Steve Loughran.
+    HADOOP-12774. s3a should use UGI.getCurrentUser.getShortname() for
+    username. Contributed by Steve Loughran.
 
-    HADOOP-13309. Document S3A known limitations in file ownership and permission
-    model. Contributed by Chris Nauroth.
+    HADOOP-13309. Document S3A known limitations in file ownership and
+    permission model. Contributed by Chris Nauroth.
 
-    HADOOP-13502. Split fs.contract.is-blobstore flag into more descriptive flags
-    for use by contract tests. Contributed by Chris Nauroth.
+    HADOOP-13502. Split fs.contract.is-blobstore flag into more descriptive
+    flags for use by contract tests. Contributed by Chris Nauroth.
 
-    HADOOP-13801 regression: ITestS3AMiniYarnCluster failing.
-    Contributed by Steve Loughran.
+    HADOOP-13801 regression: ITestS3AMiniYarnCluster failing. Contributed by
+    Steve Loughran.
 
-    HADOOP-13830 Intermittent failure of ITestS3NContractRootDir.testRecursiveRootListing
-    "Can not create a Path from an empty string".  Contributed by Steve Loughran.
+    HADOOP-13830 Intermittent failure of
+    ITestS3NContractRootDir.testRecursiveRootListing "Can not create a Path
+    from an empty string".  Contributed by Steve Loughran.
 
-    HADOOP-13680. fs.s3a.readahead.range to use getLongBytes. Contributed by Abhishek Modi.
+    HADOOP-13680. fs.s3a.readahead.range to use getLongBytes. Contributed by
+    Abhishek Modi.
 
-    HADOOP-12804. Read Proxy Password from Credential Providers in S3 FileSystem.
-    Contributed by Larry McCay.
+    HADOOP-12804. Read Proxy Password from Credential Providers in S3
+    FileSystem. Contributed by Larry McCay.
 
-    HADOOP-13823. s3a rename: fail if dest file exists. Contributed by Steve Loughran.
+    HADOOP-13823. s3a rename: fail if dest file exists. Contributed by Steve
+    Loughran.
 
-    HADOOP-13857. S3AUtils.translateException to map (wrapped) InterruptedExceptions to
-    InterruptedIOEs. Contributed by Steve Loughran
+    HADOOP-13857. S3AUtils.translateException to map (wrapped)
+    InterruptedExceptions to InterruptedIOEs. Contributed by Steve Loughran
 
-    HADOOP-13855. Fix a couple of the s3a statistic names to be consistent with the rest.
-    Contributed by Steve Loughran
+    HADOOP-13855. Fix a couple of the s3a statistic names to be consistent with
+    the rest. Contributed by Steve Loughran
 
-    HADOOP-13871. ITestS3AInputStreamPerformance.testTimeToOpenAndReadWholeFileBlocks
+    HADOOP-13871.
+    ITestS3AInputStreamPerformance.testTimeToOpenAndReadWholeFileBlocks
     performance awful. Contributed by Steve Loughran
 
-    HADOOP-13336 S3A to support per-bucket configuration. Contributed by Steve Loughran.
+    HADOOP-13336 S3A to support per-bucket configuration. Contributed by Steve
+    Loughran.
 
-    HADOOP-13406 S3AFileSystem: Consider reusing filestatus in delete() and mkdirs().
-    Contributed by Rajesh Balamohan
+    HADOOP-13406 S3AFileSystem: Consider reusing filestatus in delete() and
+    mkdirs(). Contributed by Rajesh Balamohan
 
-    HADOOP-13540 improve section on troubleshooting s3a auth problems. Contributed by Steve Loughran
+    HADOOP-13540 improve section on troubleshooting s3a auth problems.
+    Contributed by Steve Loughran
 
-    HADOOP-12667 s3a to support createNonRecursive API. Contributed by Sean Mackrory
+    HADOOP-12667 s3a to support createNonRecursive API. Contributed by Sean
+    Mackrory
 
     BUG-72150. YARN-5873. RM crashes with NPE if generic application history is
     enabled. Contributed by Varun Saxena.
 
-    BUG-72153. YARN-4697. NM aggregation thread pool is not bound by limits (haibochen via rkanter)
+    BUG-72153. YARN-4697. NM aggregation thread pool is not bound by limits
+    (haibochen via rkanter)
 
-    BUG-72831. YARN-5121. fix some container-executor portability issues. Contributed by Allen Wittenauer.
-
-    BUG-72833. YARN-5456. container-executor support for FreeBSD, NetBSD, and others if conf path is absolute. 
+    BUG-72831. YARN-5121. fix some container-executor portability issues.
     Contributed by Allen Wittenauer.
 
-    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history server addr not resolvable.
+    BUG-72833. YARN-5456. container-executor support for FreeBSD, NetBSD, and
+    others if conf path is absolute.  Contributed by Allen Wittenauer.
 
-    BUG-73260. MAPREDUCE-6792. Allow user's full principal name as owner of MapReduce staging directory
-    in JobSubmissionFiles#JobStagingDir().
+    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history
+    server addr not resolvable.
 
-    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history server addr not resolvable.
+    BUG-73260. MAPREDUCE-6792. Allow user's full principal name as owner of
+    MapReduce staging directory in JobSubmissionFiles#JobStagingDir().
 
-    HADOOP-7256. Resource leak during failure scenario of closing of
-    resources. Contributed by Ramkrishna S. Vasudevan. (harsh)
+    BUG-73261. MAPREDUCE-6213. NullPointerException caused by job history
+    server addr not resolvable.
+
+    HADOOP-7256. Resource leak during failure scenario of closing of resources.
+    Contributed by Ramkrishna S. Vasudevan. (harsh)
 
     BUG-68080. HDFS-11054. Suppress verbose log message in
     BlockPlacementPolicyDefault. Contributed by Chen Liang.
 
-    YARN-4329. [YARN-5437] Allow fetching exact reason as to why a submitted app is in ACCEPTED state in
-    Fair Scheduler (Contributed by Yufei Gu)
+    YARN-4329. [YARN-5437] Allow fetching exact reason as to why a submitted
+    app is in ACCEPTED state in Fair Scheduler (Contributed by Yufei Gu)
 
-    YARN-4477. FairScheduler: Handle condition which can result in an infinite loop in attemptScheduling.
-    (Tao Jie via asuresh)
+    YARN-4477. FairScheduler: Handle condition which can result in an infinite
+    loop in attemptScheduling. (Tao Jie via asuresh)
 
-    YARN-4270. Limit application resource reservation on nodes for non-node/rack specific requests (asuresh)
+    YARN-4270. Limit application resource reservation on nodes for non-
+    node/rack specific requests (asuresh)
 
-    YARN-3453. Ensure preemption logic in FairScheduler uses DominantResourceCalculator in DRF queues to
-    prevent unnecessary thrashing. (asuresh)
+    YARN-3453. Ensure preemption logic in FairScheduler uses
+    DominantResourceCalculator in DRF queues to prevent unnecessary thrashing.
+    (asuresh)
 
-    YARN-3920. FairScheduler container reservation on a node should be configurable to limit it to large 
-    containers (adhoot via asuresh)
+    YARN-3920. FairScheduler container reservation on a node should be
+    configurable to limit it to large  containers (adhoot via asuresh)
 
-    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries to renew the Kerberos ticket.
-    Contributed by Xiao Chen.
+    HADOOP-13558. UserGroupInformation created from a Subject incorrectly tries
+    to renew the Kerberos ticket. Contributed by Xiao Chen.
 
-    HADOOP-13638. KMS should set UGI's Configuration object properly. Contributed by Wei-Chiu Chuang.
+    HADOOP-13638. KMS should set UGI's Configuration object properly.
+    Contributed by Wei-Chiu Chuang.
 
     HADOOP-13838. KMSTokenRenewer should close providers (xiaochen via rkanter)
 
-    HADOOP-13988. KMSClientProvider does not work with WebHDFS and Apache Knox w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
+    HADOOP-13988. KMSClientProvider does not work with WebHDFS and Apache Knox
+    w/ProxyUser. Contributed by Greg Senia and Xiaoyu Yao.
 
-    HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case. Contributed by Xiaoyu Yao.
+    HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use case.
+    Contributed by Xiaoyu Yao.
 
-    HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed by Jason Lowe
+    HADOOP-13552. RetryInvocationHandler logs all remote exceptions.
+    Contributed by Jason Lowe
 
-    BUG-73598. YARN-4245. Generalize config file handling in container-executor. Contributed by Sidharta Seethana.
+    BUG-73598. YARN-4245. Generalize config file handling in container-
+    executor. Contributed by Sidharta Seethana.
 
-    BUG-72830. YARN-5704. Provide config knobs to control enabling/disabling new/work in progress features in container-executor.
-    Contributed by Sidharta Seethana.
+    BUG-72830. YARN-5704. Provide config knobs to control enabling/disabling
+    new/work in progress features in container-executor. Contributed by
+    Sidharta Seethana.
 
-    BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit should deduct reserved from pending to avoid
-    unnecessary preemption of reserved container. (Wangda Tan)
+    BUG-73683/YARN-6081 LeafQueue#getTotalPendingResourcesConsideringUserLimit
+    should deduct reserved from pending to avoid unnecessary preemption of
+    reserved container. (Wangda Tan)
 
-    BUG-73684/YARN-6123. Add a test to make sure queues of orderingPolicy will be updated when childQueues is added or removed.
-    (Wangda Tan)
+    BUG-73684/YARN-6123. Add a test to make sure queues of orderingPolicy will
+    be updated when childQueues is added or removed. (Wangda Tan)
 
     HADOOP-12017. Hadoop archives command should use configurable replication
     factor when closing (Bibin A Chundatt via vinayakumarb)
 
-    HDFS-6763. Initialize file system-wide quota once on transitioning to active
-    (kihwal)
+    HDFS-6763. Initialize file system-wide quota once on transitioning to
+    active (kihwal)
 
     HDFS-10763. Open files can leak permanently due to inconsistent lease
     update. Contributed by Kihwal Lee.
@@ -3715,25 +3851,27 @@ ATS V1.5:
     HADOOP-13494. ReconfigurableBase can log sensitive information. Contributed
     by Sean Mackrory.
 
-    HADOOP-13552. RetryInvocationHandler logs all remote exceptions. Contributed
-    by Jason Lowe
+    HADOOP-13552. RetryInvocationHandler logs all remote exceptions.
+    Contributed by Jason Lowe
 
     HDFS-10822. Log DataNodes in the write pipeline. John Zhuge via Lei Xu
 
-    BUG-73036. MAPREDUCE-6789. Fix TestAMWebApp failure. 
-    Contributed by Daniel Templeton.
+    BUG-73036. MAPREDUCE-6789. Fix TestAMWebApp failure.  Contributed by Daniel
+    Templeton.
 
-    BUG-54183. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port range.
-    Contributed by Frank Nguyen.
+    BUG-54183. MAPREDUCE-6338. MR AppMaster does not honor ephemeral port
+    range. Contributed by Frank Nguyen.
 
-    BUG-74303. HADOOP-12097. Allow port range to be specified while starting webapp.
-    Contributed by Varun Saxena.
+    BUG-74303. HADOOP-12097. Allow port range to be specified while starting
+    webapp. Contributed by Varun Saxena.
 
-    BUG-74303. MAPREDUCE-6404. Allow AM to specify a port range for starting its webapp.
-    Contributed by Varun Saxena.
+    BUG-74303. MAPREDUCE-6404. Allow AM to specify a port range for starting
+    its webapp. Contributed by Varun Saxena.
 
-    BUG-72030. YARN-6029. CapacityScheduler deadlock when ParentQueue#getQueueUserAclInfo is called by one thread 
-    and LeafQueue#assignContainers is releasing excessive reserved container by another thread. (wangda)
+    BUG-72030. YARN-6029. CapacityScheduler deadlock when
+    ParentQueue#getQueueUserAclInfo is called by one thread  and
+    LeafQueue#assignContainers is releasing excessive reserved container by
+    another thread. (wangda)
 
     BUG-74770. HADOOP-14055. SwiftRestClient includes pass length in exception
     if auth fails. Contributed by Marcell Hegedus.
@@ -3741,18 +3879,21 @@ ATS V1.5:
     BUG-73967. YARN-1993. Cross-site scripting vulnerability in TextView.java.
     Contributed byKenji Kikushima.
 
-    BUG-73038. Increase AM_STATE_WAIT_TIMEOUT_MS in UnmanagedAMLauncher from 10 seconds
-    to 20 seconds for UT failures in TestUnmanagedAMLauncher.testUMALauncher.
+    BUG-73038. Increase AM_STATE_WAIT_TIMEOUT_MS in UnmanagedAMLauncher from 10
+    seconds to 20 seconds for UT failures in
+    TestUnmanagedAMLauncher.testUMALauncher.
 
     BUG-73760. TestStreamingStatus UT fails, ignore the test.
 
-    BUG-73035. Skip TestUberAM#testSleepJobWithMultipleReducers which failed intermitently in slow environment.
+    BUG-73035. Skip TestUberAM#testSleepJobWithMultipleReducers which failed
+    intermitently in slow environment.
 
     HADOOP-13433 Race in UGI.reloginFromKeytab. (Duo Zhang via xiao)
 
-    CUST-221/YARN-6145. Improve log message on fail over. Contributed by Jian He.
+    CUST-221/YARN-6145. Improve log message on fail over. Contributed by Jian
+    He.
 
-    HADOOP-12054. RPC client should not retry for InvalidToken exceptions. 
+    HADOOP-12054. RPC client should not retry for InvalidToken exceptions.
     (Contributed by Varun Saxena)
 
     BUG-75000. HDFS-11391. Numeric usernames do no work with WebHDFS FS write
@@ -3773,10 +3914,12 @@ ATS V1.5:
 
     BUG-75457. NM web server related UT fails with "NMWebapps failed to start."
 
-    BUG-75455. HDFS-10499. TestNameNodeMetadataConsistency#testGenerationStampInFuture
-    Fails Intermittently. Contributed by Yiqun Lin.
+    BUG-75455. HDFS-10499.
+    TestNameNodeMetadataConsistency#testGenerationStampInFuture Fails
+    Intermittently. Contributed by Yiqun Lin.
 
-    BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent lease update
+    BUG-74601. HDFS-10763. Open files can leak permanently due to inconsistent
+    lease update
     
     BUG-72332. TestTrashWithSecureEncryptionZones diverged from HDFS-10906
 
@@ -3792,12 +3935,11 @@ ATS V1.5:
     Contributed by  Sean Mackrory.
 
     BUG-73570. HADOOP-14028. S3A BlockOutputStreams doesn't delete temporary
-    files in multipart uploads or handle part upload failures.
-    Contributed by Steve Loughran.
+    files in multipart uploads or handle part upload failures. Contributed by
+    Steve Loughran.
 
     BUG-63914. YARN-6189. ApplicationNotFoundException due to RM failed over
-    should throw more user friendly exception.
-    Contributed by Junping Du.
+    should throw more user friendly exception. Contributed by Junping Du.
 
     BUG-76349. HADOOP-14138 Remove S3A ref from META-INF service discovery,
     rely on existing core-default entry. Contributed by Steve Loughran.
@@ -3819,22 +3961,27 @@ ATS V1.5:
     BUG-76108. HDFS-10342. BlockManager#createLocatedBlocks should not check
     corrupt replicas if none are corrupt.
 
-    BUG-76935. YARN-6314. Potential infinite redirection on YARN log redirection
-    web service. Contributed by Xuan Gong.
+    BUG-76935. YARN-6314. Potential infinite redirection on YARN log
+    redirection web service. Contributed by Xuan Gong.
 
-    BUG-76819. YARN-6313. yarn logs cli should provide logs for a completed 
+    BUG-76819. YARN-6313. yarn logs cli should provide logs for a completed
     container even when application is still running. Contributed by Xuan Gong.
 
-    YARN-6367. YARN logs CLI needs alway check containerLogsInfo/containerLogInfo before
-    parse the JSON object from NMWebService. Contributed by Xuan Gong.
+    YARN-6367. YARN logs CLI needs alway check
+    containerLogsInfo/containerLogInfo before parse the JSON object from
+    NMWebService. Contributed by Xuan Gong.
 
-    BUG-77222. Encryption related security hole during localization by Junping Du.
+    BUG-77222. Encryption related security hole during localization by Junping
+    Du.
 
-    HDFS-11533. reuseAddress option should be used for child channels in Portmap and SimpleTcpServer. Contributed by Mukul Kumar Singh.
+    HDFS-11533. reuseAddress option should be used for child channels in
+    Portmap and SimpleTcpServer. Contributed by Mukul Kumar Singh.
 
-    BUG-76734 Attach RMRegistryService handler to correct dispatcher for RMStateStore events
+    BUG-76734 Attach RMRegistryService handler to correct dispatcher for
+    RMStateStore events
 
-    YARN-6332. Make RegistrySecurity use short user names for ZK ACLs. Contributed by Billie Rinaldi
+    YARN-6332. Make RegistrySecurity use short user names for ZK ACLs.
+    Contributed by Billie Rinaldi
 
     BUG-77590. HDFS-11517. Expose slow disks via DataNode JMX.
 
@@ -3848,40 +3995,54 @@ ATS V1.5:
     called after every event write.
 
     BUG-74682. MAPREDUCE-6852. Job#updateStatus() failed with NPE due to race
-    condition. Contributed by Junping Du.
-    BUG-78180: Add fenton log enhancement work related jira into HDP-CHANGES.txt
+    condition. Contributed by Junping Du. BUG-78180: Add fenton log enhancement
+    work related jira into HDP-CHANGES.txt
     
-    BUG-77461. HDFS-11292. log lastWrittenTxId etc info in logSyncAll. Contributed by Yongjun Zhang.
+    BUG-77461. HDFS-11292. log lastWrittenTxId etc info in logSyncAll.
+    Contributed by Yongjun Zhang.
     
-    hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations.
+    hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and
+    azure-data-lake-store-sdk to all the wasb locations.
     
-    BUG-74308. HDFS-11395. RequestHedgingProxyProvider#RequestHedgingInvocationHandler hides the Exception thrown from NameNode. Contributed by Nandakumar.
+    BUG-74308. HDFS-11395.
+    RequestHedgingProxyProvider#RequestHedgingInvocationHandler hides the
+    Exception thrown from NameNode. Contributed by Nandakumar.
     
     HDFS-10962. TestRequestHedgingProxyProvider is flaky.
     
-    HDFS-11508. Fix bind failure in SimpleTCPServer & Portmap where bind fails because socket is in TIME_WAIT state. Contributed by Mukul Kumar Singh.
+    HDFS-11508. Fix bind failure in SimpleTCPServer & Portmap where bind fails
+    because socket is in TIME_WAIT state. Contributed by Mukul Kumar Singh.
     
     BUG-76301. Make SliderClient work with zk registry in secure mode
     
-    HDFS-11479. Socket re-use address option should be used in SimpleUdpServer. Contributed by Mukul Kumar Singh.
+    HDFS-11479. Socket re-use address option should be used in SimpleUdpServer.
+    Contributed by Mukul Kumar Singh.
     
     BUG-75491. Make RegistrySecurity use short user name for zk sasl
     
-    BUG-75506. HDFS-10301. Remove FBR tracking state to fix false zombie storage detection for interleaving block reports. Contributed by Vinitha Gankidi.
+    BUG-75506. HDFS-10301. Remove FBR tracking state to fix false zombie
+    storage detection for interleaving block reports. Contributed by Vinitha
+    Gankidi.
     
     HDFS-11462. Fix occasional BindException in TestNameNodeMetricsLogger.
     
-    HADOOP-12404. Disable caching for JarURLConnection to avoid sharing JarFile with other users when loading resource from URL in Configuration class. Contributed by Zhihai Xu
+    HADOOP-12404. Disable caching for JarURLConnection to avoid sharing JarFile
+    with other users when loading resource from URL in Configuration class.
+    Contributed by Zhihai Xu
     
-    HDFS-9038. DFS reserved space is erroneously counted towards non-DFS used. (Brahma Reddy Battula)
+    HDFS-9038. DFS reserved space is erroneously counted towards non-DFS used.
+    (Brahma Reddy Battula)
     
-    HADOOP-12386. RetryPolicies.RETRY_FOREVER should be able to specify a retry interval. (Sunil G via wangda)
+    HADOOP-12386. RetryPolicies.RETRY_FOREVER should be able to specify a retry
+    interval. (Sunil G via wangda)
     
-    BUG-75788. Backport part of HADOOP-13226 to fix retry on EOFException and HADOOP-14116. (jianhe)
+    BUG-75788. Backport part of HADOOP-13226 to fix retry on EOFException and
+    HADOOP-14116. (jianhe)
     
     BUG-75456: Few TestSecureRMRegistryOperations UT fails
     
-    HADOOP-14100. Upgrade Jsch jar to latest version to fix vulnerability in old versions. Contributed by Vinayakumar B
+    HADOOP-14100. Upgrade Jsch jar to latest version to fix vulnerability in
+    old versions. Contributed by Vinayakumar B
     
     backport HDFS-11409, change DatanodeInfo#location to volatile
     
@@ -3889,195 +4050,284 @@ ATS V1.5:
     
     backport HDFS-11409, change DatanodeInfo#location to volatile
     
-    BUG-70172: reuse socket address option wasnt honoured because option was set after socket bind
+    BUG-70172: reuse socket address option wasnt honoured because option was
+    set after socket bind
     
     BUG-72239: Fix config fields in TestCommonConfigurationFields
     
-    HDFS-11403. Zookeper ACLs on NN HA enabled clusters should be handled consistently. Contributed by Hanisha Koneru.
+    HDFS-11403. Zookeper ACLs on NN HA enabled clusters should be handled
+    consistently. Contributed by Hanisha Koneru.
     
-    HDFS-11379. DFSInputStream may infinite loop requesting block locations. Contributed by Daryn Sharp.
+    HDFS-11379. DFSInputStream may infinite loop requesting block locations.
+    Contributed by Daryn Sharp.
     
-    HADOOP-12185. NetworkTopology is not efficient adding/getting/removing nodes. Contributed by Inigo Goiri (cherry picked from commit 47a69ec7a5417cb56b75d07184dd6888ff068302)
+    HADOOP-12185. NetworkTopology is not efficient adding/getting/removing
+    nodes. Contributed by Inigo Goiri (cherry picked from commit
+    47a69ec7a5417cb56b75d07184dd6888ff068302)
     
-    HDFS-10423. Increase default value of httpfs maxHttpHeaderSize. Contributed by Nicolae Popa.
+    HDFS-10423. Increase default value of httpfs maxHttpHeaderSize. Contributed
+    by Nicolae Popa.
     
-    HADOOP-13353. LdapGroupsMapping getPassward shouldn't return null when IOException throws. Contributed by Zhaohao Liang and Wei-Chiu Chuang.
+    HADOOP-13353. LdapGroupsMapping getPassward shouldn't return null when
+    IOException throws. Contributed by Zhaohao Liang and Wei-Chiu Chuang.
     
-    HDFS-11197. Listing encryption zones fails when deleting a EZ that is on a snapshotted directory. Contributed by Wellington Chevreuil.
+    HDFS-11197. Listing encryption zones fails when deleting a EZ that is on a
+    snapshotted directory. Contributed by Wellington Chevreuil.
     
-    HDFS-11224. Lifeline message should be ignored for dead nodes (Contributed by Vinayakumar B)
+    HDFS-11224. Lifeline message should be ignored for dead nodes (Contributed
+    by Vinayakumar B)
     
     HDFS-10655. Fix path related byte array conversion bugs. (daryn)
     
-    HDFS-10653. Optimize conversion from path string to components. Contributed by Daryn Sharp.
+    HDFS-10653. Optimize conversion from path string to components. Contributed
+    by Daryn Sharp.
     
-    HDFS-10716. In Balancer, the target task should be removed when its size < 0.  Contributed by Yiqun Lin
+    HDFS-10716. In Balancer, the target task should be removed when its size <
+    0.  Contributed by Yiqun Lin
     
-    HDFS-10963. Reduce log level when network topology cannot find enough datanodes. Contributed by Xiao chen
+    HDFS-10963. Reduce log level when network topology cannot find enough
+    datanodes. Contributed by Xiao chen
     
-    HDFS-10956. Remove rename/delete performance penalty when not using snapshots.
+    HDFS-10956. Remove rename/delete performance penalty when not using
+    snapshots.
     
     HDFS-10713. Throttle FsNameSystem lock warnings.
     
-    HDFS-10817. Add Logging for Long-held NN Read Locks. Contributed by Erik Krogen.
+    HDFS-10817. Add Logging for Long-held NN Read Locks. Contributed by Erik
+    Krogen.
     
-    HDFS-10798. Make the threshold of reporting FSNamesystem lock contention configurable. Contributed by Erik Krogen.
+    HDFS-10798. Make the threshold of reporting FSNamesystem lock contention
+    configurable. Contributed by Erik Krogen.
     
-    HDFS-9467. Fix data race accessing writeLockHeldTimeStamp in FSNamesystem. Contributed by Mingliang Liu.
+    HDFS-9467. Fix data race accessing writeLockHeldTimeStamp in FSNamesystem.
+    Contributed by Mingliang Liu.
     
-    HDFS-9145. Tracking methods that hold FSNamesytemLock for too long. Contributed by Mingliang Liu.
+    HDFS-9145. Tracking methods that hold FSNamesytemLock for too long.
+    Contributed by Mingliang Liu.
     
-    HADOOP-13535. Add jetty6 acceptor startup issue workaround to branch-2. Contributed by Min Shen.
+    HADOOP-13535. Add jetty6 acceptor startup issue workaround to branch-2.
+    Contributed by Min Shen.
     
-    HADOOP-12765. HttpServer2 should switch to using the non-blocking SslSelectChannelConnector to prevent performance degradation when handling SSL connections. Contributed by Min Shen. Branch-2 patch contributed by Wei-Chiu Chuang.
+    HADOOP-12765. HttpServer2 should switch to using the non-blocking
+    SslSelectChannelConnector to prevent performance degradation when handling
+    SSL connections. Contributed by Min Shen. Branch-2 patch contributed by
+    Wei-Chiu Chuang.
     
-    HDFS-9781. FsDatasetImpl#getBlockReports can occasionally throw NullPointerException. Contributed by Manoj Govindassamy.
+    HDFS-9781. FsDatasetImpl#getBlockReports can occasionally throw
+    NullPointerException. Contributed by Manoj Govindassamy.
     
     HDFS-10715. NPE when applying AvailableSpaceBlockPlacementPolicy.
     
-    HDFS-10320. Rack failures may result in NN terminate. (Xiao Chen via mingma)
+    HDFS-10320. Rack failures may result in NN terminate. (Xiao Chen via
+    mingma)
     
     HDFS-8946. Improve choosing datanode storage for block placement. (yliu)
     
     HDFS-8884. Fail-fast check in BlockPlacementPolicyDefault#chooseTarget.
     
-    HDFS-11267. Avoid redefinition of storageDirs in NNStorage and cleanup its accessors in Storage. (Manoj Govindassamy via lei)
+    HDFS-11267. Avoid redefinition of storageDirs in NNStorage and cleanup its
+    accessors in Storage. (Manoj Govindassamy via lei)
     
     HDFS-11251. ConcurrentModificationException during DataNode#refreshVolumes
     
-    HDFS-8674. Improve performance of postponed block scans. Contributed by Daryn Sharp.
+    HDFS-8674. Improve performance of postponed block scans. Contributed by
+    Daryn Sharp.
     
-    HDFS-8792. BlockManager#postponedMisreplicatedBlocks should use a LightWeightHashSet to save memory (Yi Liu via Colin P. McCabe)
+    HDFS-8792. BlockManager#postponedMisreplicatedBlocks should use a
+    LightWeightHashSet to save memory (Yi Liu via Colin P. McCabe)
     
     BUG-72239. Common configuration UT fails. Contributed by Mukul Kumar Singh.
     
-    HDFS-6184. Capture NN's thread dump when it fails over. Contributed by Ming Ma
+    HDFS-6184. Capture NN's thread dump when it fails over. Contributed by Ming
+    Ma
     
-    HDFS-11387. Socket reuse address option is not honored in PrivilegedNfsGatewayStarter. Contributed by Mukul Kumar Singh.
+    HDFS-11387. Socket reuse address option is not honored in
+    PrivilegedNfsGatewayStarter. Contributed by Mukul Kumar Singh.
     
     fixing BUG-66651 by backporting HDFS-4176
     
     fixing BUG-66652 by backporting HDFS-5356 and HDFS-7553
     
-    BUG-68533. HDFS-11112. Journal Nodes should refuse to format non-empty directories. Contributed by Yiqun Lin.
+    BUG-68533. HDFS-11112. Journal Nodes should refuse to format non-empty
+    directories. Contributed by Yiqun Lin.
     
-    BUG-71582. HDFS-8492. DN should notify NN when client requests a missing block (Contributed by Walter Su)
+    BUG-71582. HDFS-8492. DN should notify NN when client requests a missing
+    block (Contributed by Walter Su)
     
-    BUG-68077. HDFS-10301. BlockReport retransmissions may lead to storages falsely being declared zombie if storage report processing happens out of order
+    BUG-68077. HDFS-10301. BlockReport retransmissions may lead to storages
+    falsely being declared zombie if storage report processing happens out of
+    order
     
     HDFS-4176. EditLogTailer should call rollEdits with a timeout. (lei)
     
     HDFS-7964. Add support for async edit logging. Contributed by Daryn Sharp.
     
-    HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses. (Daryn Sharp via yliu)
+    HADOOP-12483. Maintain wrapped SASL ordering for postponed IPC responses.
+    (Daryn Sharp via yliu)
     
-    HDFS-3918. EditLogTailer shouldn't log WARN when other node is in standby mode. Contributed by Todd Lipcon.
+    HDFS-3918. EditLogTailer shouldn't log WARN when other node is in standby
+    mode. Contributed by Todd Lipcon.
     
-    HDFS-10512. VolumeScanner may terminate due to NPE in DataNode.reportBadBlocks.
+    HDFS-10512. VolumeScanner may terminate due to NPE in
+    DataNode.reportBadBlocks.
     
-    HDFS-11280. Allow WebHDFS to reuse HTTP connections to NN. Contributed by Zheng Shao.
+    HDFS-11280. Allow WebHDFS to reuse HTTP connections to NN. Contributed by
+    Zheng Shao.
     
-    HDFS-10684. WebHDFS DataNode calls fail without parameter createparent. Contributed by John Zhuge.
+    HDFS-10684. WebHDFS DataNode calls fail without parameter createparent.
+    Contributed by John Zhuge.
     
-    HADOOP-13847. KMSWebApp should close KeyProviderCryptoExtension. Contributed by John Zhuge.
+    HADOOP-13847. KMSWebApp should close KeyProviderCryptoExtension.
+    Contributed by John Zhuge.
     
-    HADOOP-13742. Expose NumOpenConnectionsPerUser as a metric. Brahma Reddy Battula.
+    HADOOP-13742. Expose NumOpenConnectionsPerUser as a metric. Brahma Reddy
+    Battula.
     
-    HADOOP-13822. Use GlobalStorageStatistics.INSTANCE.reset() at FileSystem#clearStatistics(). Contribute by Brahma Reddy Battula
+    HADOOP-13822. Use GlobalStorageStatistics.INSTANCE.reset() at
+    FileSystem#clearStatistics(). Contribute by Brahma Reddy Battula
     
-    HDFS-11128. CreateEditsLog throws NullPointerException. Contributed by Hanisha Koneru.
+    HDFS-11128. CreateEditsLog throws NullPointerException. Contributed by
+    Hanisha Koneru.
     
-    HADOOP-12453. Support decoding KMS Delegation Token with its own Identifier. Contributed by Xiaoyu Yao.
+    HADOOP-12453. Support decoding KMS Delegation Token with its own
+    Identifier. Contributed by Xiaoyu Yao.
     
-    HDFS-10752. Several log refactoring/improvement suggestion in HDFS. Contributed by Hanisha Koneru.
+    HDFS-10752. Several log refactoring/improvement suggestion in HDFS.
+    Contributed by Hanisha Koneru.
     
-    HADOOP-13710. Supress CachingGetSpaceUsed from logging interrupted exception stacktrace. Contributed by Hanisha Koneru.
+    HADOOP-13710. Supress CachingGetSpaceUsed from logging interrupted
+    exception stacktrace. Contributed by Hanisha Koneru.
     
-    HDFS-9696. Garbage snapshot records linger forever. Contributed by Kihwal Lee
+    HDFS-9696. Garbage snapshot records linger forever. Contributed by Kihwal
+    Lee
     
-    HADOOP-13461. NPE in KeyProvider.rollNewVersion. Contributed by Colm O hEigeartaigh.
+    HADOOP-13461. NPE in KeyProvider.rollNewVersion. Contributed by Colm O
+    hEigeartaigh.
     
-    HDFS-8224. Schedule a block for scanning if its metadata file is corrupt. Contributed by Rushabh S Shah.
+    HDFS-8224. Schedule a block for scanning if its metadata file is corrupt.
+    Contributed by Rushabh S Shah.
     
     HADOOP-13299. JMXJsonServlet is vulnerable to TRACE. (Haibo Chen via kasha)
     
-    HDFS-10457. DataNode should not auto-format block pool directory if VERSION is missing. (Wei-Chiu Chuang via lei)
+    HDFS-10457. DataNode should not auto-format block pool directory if VERSION
+    is missing. (Wei-Chiu Chuang via lei)
     
     HADOOP-13466. Add an AutoCloseableLock class. (Chen Liang)
     
-    HADOOP-13443. KMS should check the type of underlying keyprovider of KeyProviderExtension before falling back to default. Contributed by Anthony Young-Garner.
+    HADOOP-13443. KMS should check the type of underlying keyprovider of
+    KeyProviderExtension before falling back to default. Contributed by Anthony
+    Young-Garner.
     
-    HADOOP-13458. LoadBalancingKMSClientProvider#doOp should log IOException stacktrace. Contributed by Chen Liang.
+    HADOOP-13458. LoadBalancingKMSClientProvider#doOp should log IOException
+    stacktrace. Contributed by Chen Liang.
     
-    HDFS-10710. In BlockManager#rescanPostponedMisreplicatedBlocks(), postponed misreplicated block counts should be retrieved within the NN lock protection.Contributed by GAO Rui.
+    HDFS-10710. In BlockManager#rescanPostponedMisreplicatedBlocks(), postponed
+    misreplicated block counts should be retrieved within the NN lock
+    protection.Contributed by GAO Rui.
     
-    HDFS-10703. HA NameNode Web UI should show last checkpoint time. (John Zhuge via Yongjun Zhang)
+    HDFS-10703. HA NameNode Web UI should show last checkpoint time. (John
+    Zhuge via Yongjun Zhang)
     
-    HDFS-10225. DataNode hot swap drives should disallow storage type changes. Contributed by Lei (Eddy) Xu.
+    HDFS-10225. DataNode hot swap drives should disallow storage type changes.
+    Contributed by Lei (Eddy) Xu.
     
-    HADOOP-13202. Avoid possible overflow in org.apache.hadoop.util.bloom.BloomFilter#getNBytes. Contributed by Kai Sasaki.
+    HADOOP-13202. Avoid possible overflow in
+    org.apache.hadoop.util.bloom.BloomFilter#getNBytes. Contributed by Kai
+    Sasaki.
     
     HDFS-10544. Balancer doesn't work with IPFailoverProxyProvider.
     
-    BUG-71589. HDFS-10966. Enhance Dispatcher logic on deciding when to give up a source DataNode. Contributed by Mark Wagner and Zhe Zhang.
+    BUG-71589. HDFS-10966. Enhance Dispatcher logic on deciding when to give up
+    a source DataNode. Contributed by Mark Wagner and Zhe Zhang.
     
-    BUG-73093. HDFS-11195. Return error when appending files by webhdfs rest api fails.
+    BUG-73093. HDFS-11195. Return error when appending files by webhdfs rest
+    api fails.
     
-    BUG-73092. HDFS-11258. File mtime change could not save to editlog. Contributed by Jimmy Xiang.
+    BUG-73092. HDFS-11258. File mtime change could not save to editlog.
+    Contributed by Jimmy Xiang.
     
-    BUG-73096. HDFS-11263. ClassCastException when we use Bzipcodec for Fsimage compression. Contributed by Brahma Reddy Battula.
+    BUG-73096. HDFS-11263. ClassCastException when we use Bzipcodec for Fsimage
+    compression. Contributed by Brahma Reddy Battula.
     
-    BUG-71587. HDFS-11087. NamenodeFsck should check if the output writer is still writable. Contributed by Erik Krogen.
+    BUG-71587. HDFS-11087. NamenodeFsck should check if the output writer is
+    still writable. Contributed by Erik Krogen.
     
-    BUG-73091. HADOOP-13824. FsShell can suppress the real error if no error message is present. Contributed by  John Zhuge.
+    BUG-73091. HADOOP-13824. FsShell can suppress the real error if no error
+    message is present. Contributed by  John Zhuge.
     
-    BUG-73091. HADOOP-12442. Display help if the command option to 'hdfs dfs' is not valid (Contributed by nijel)
+    BUG-73091. HADOOP-12442. Display help if the command option to 'hdfs dfs'
+    is not valid (Contributed by nijel)
     
-    BUG-71586. HADOOP-13590. Retry until TGT expires even if the UGI renewal thread encountered exception.
+    BUG-71586. HADOOP-13590. Retry until TGT expires even if the UGI renewal
+    thread encountered exception.
     
-    BUG-71586. HADOOP-7930. Kerberos relogin interval in UserGroupInformation should be configurable (xiaochen via rkanter)
+    BUG-71586. HADOOP-7930. Kerberos relogin interval in UserGroupInformation
+    should be configurable (xiaochen via rkanter)
     
-    BUG-71585. HDFS-10455. Logging the username when deny the setOwner operation. Contributed by Tianyin Xiu
+    BUG-71585. HDFS-10455. Logging the username when deny the setOwner
+    operation. Contributed by Tianyin Xiu
     
-    BUG-73084. HDFS-11003. Expose XmitsInProgress through DataNodeMXBean. Contributed By Brahma Reddy Battula
+    BUG-73084. HDFS-11003. Expose XmitsInProgress through DataNodeMXBean.
+    Contributed By Brahma Reddy Battula
     
-    BUG-73085. HDFS-10735 Distcp using webhdfs on secure HA clusters fails with StandbyException
+    BUG-73085. HDFS-10735 Distcp using webhdfs on secure HA clusters fails with
+    StandbyException
     
-    BUG-71583. HDFS-11069. Tighten the authorization of datanode RPC. Contributed by Kihwal Lee
+    BUG-71583. HDFS-11069. Tighten the authorization of datanode RPC.
+    Contributed by Kihwal Lee
     
-    BUG-73088. HADOOP-13792. Stackoverflow for schemeless defaultFS with trailing slash. Contributed by John Zhuge
+    BUG-73088. HADOOP-13792. Stackoverflow for schemeless defaultFS with
+    trailing slash. Contributed by John Zhuge
     
-    BUG-71591. HDFS-11180. Intermittent deadlock in NameNode when failover happens.
+    BUG-71591. HDFS-11180. Intermittent deadlock in NameNode when failover
+    happens.
     
-    BUG-68047. HDFS-10609. Uncaught InvalidEncryptionKeyException during pipeline recovery may abort downstream applications. Contributed by Wei-Chiu Chuang.
+    BUG-68047. HDFS-10609. Uncaught InvalidEncryptionKeyException during
+    pipeline recovery may abort downstream applications. Contributed by Wei-
+    Chiu Chuang.
     
-    BUG-71577. HDFS-10987. Make Decommission less expensive when lot of blocks present. Contributed by Brahma Reddy Battula.
+    BUG-71577. HDFS-10987. Make Decommission less expensive when lot of blocks
+    present. Contributed by Brahma Reddy Battula.
     
-    BUG-73083. HADOOP-13707. If kerberos is enabled while HTTP SPNEGO is not configured, some links cannot be accessed. Contributed by Yuanbo Liu.
+    BUG-73083. HADOOP-13707. If kerberos is enabled while HTTP SPNEGO is not
+    configured, some links cannot be accessed. Contributed by Yuanbo Liu.
     
-    BUG-71580. HDFS-11015. Enforce timeout in balancer. Contributed by Kihwal Lee.
+    BUG-71580. HDFS-11015. Enforce timeout in balancer. Contributed by Kihwal
+    Lee.
     
-    BUG-71590. HADOOP-13018. Make Kdiag check whether hadoop.token.files points to existent and valid files. Contributed by Ravi Prakash
+    BUG-71590. HADOOP-13018. Make Kdiag check whether hadoop.token.files points
+    to existent and valid files. Contributed by Ravi Prakash
     
-    BUG-71590. HDFS-9525. hadoop utilities need to support provided delegation tokens. Contributed by HeeSoo Kim
+    BUG-71590. HDFS-9525. hadoop utilities need to support provided delegation
+    tokens. Contributed by HeeSoo Kim
     
-    BUG-68699. HDFS-11047. Remove deep copies of FinalizedReplica to alleviate heap consumption on DataNode. Contributed by Xiaobing Zhou
+    BUG-68699. HDFS-11047. Remove deep copies of FinalizedReplica to alleviate
+    heap consumption on DataNode. Contributed by Xiaobing Zhou
     
-    BUG-71579. HDFS-11018. Incorrect check and message in FsDatasetImpl#invalidate. Contributed by Yiqun Lin.
+    BUG-71579. HDFS-11018. Incorrect check and message in
+    FsDatasetImpl#invalidate. Contributed by Yiqun Lin.
     
-    BUG-71579. HDFS-9947. Block#toString should not output information from derived classes (cmccabe)
+    BUG-71579. HDFS-9947. Block#toString should not output information from
+    derived classes (cmccabe)
     
-    BUG-71579. HDFS-9350. Avoid creating temprorary strings in Block.toString() and getBlockName() (Staffan Friberg via cmccabe)
+    BUG-71579. HDFS-9350. Avoid creating temprorary strings in Block.toString()
+    and getBlockName() (Staffan Friberg via cmccabe)
     
-    BUG-71579. HDFS-7284. Add more debug info to BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas. (Wei-Chiu Chuang via Yongjun Zhang)
+    BUG-71579. HDFS-7284. Add more debug info to
+    BlockInfoUnderConstruction#setGenerationStampAndVerifyReplicas. (Wei-Chiu
+    Chuang via Yongjun Zhang)
     
-    BUG-71584. HDFS-9500. Fix software version counts for DataNodes during rolling upgrade. Contributed by Erik Krogen.
+    BUG-71584. HDFS-9500. Fix software version counts for DataNodes during
+    rolling upgrade. Contributed by Erik Krogen.
     
-    BUG-68046. HADOOP-11780. Prevent IPC reader thread death. Contributed by Daryn Sharp.
+    BUG-68046. HADOOP-11780. Prevent IPC reader thread death. Contributed by
+    Daryn Sharp.
     
-    BUG-68700. Remove deep copies of FinalizedReplica to alleviate heap consumption on DataNode
+    BUG-68700. Remove deep copies of FinalizedReplica to alleviate heap
+    consumption on DataNode
     
-    HDFS-8247. TestDiskspaceQuotaUpdate#testAppendOverTypeQuota is failing. Contributed by Xiaoyu Yao.
+    HDFS-8247. TestDiskspaceQuotaUpdate#testAppendOverTypeQuota is failing.
+    Contributed by Xiaoyu Yao.
     
     Disable TestRollingUpgrade#testRollback for BUG-71399.
     
@@ -4093,73 +4343,103 @@ ATS V1.5:
     
     HDFS-11056. Addendum fix for self-healing branch.
     
-    HDFS-9251. Refactor TestWriteToReplica and TestFsDatasetImpl to avoid explicitly creating Files in the tests code. (lei)
+    HDFS-9251. Refactor TestWriteToReplica and TestFsDatasetImpl to avoid
+    explicitly creating Files in the tests code. (lei)
     
-    HDFS-9148. Incorrect assert message in TestWriteToReplica#testWriteToTemporary (Tony Wu via Lei (Eddy) Xu)
+    HDFS-9148. Incorrect assert message in
+    TestWriteToReplica#testWriteToTemporary (Tony Wu via Lei (Eddy) Xu)
     
-    HDFS-10279. Improve validation of the configured number of tolerated failed volumes. Contributed by Lin Yiqun.
+    HDFS-10279. Improve validation of the configured number of tolerated failed
+    volumes. Contributed by Lin Yiqun.
     
-    HDFS-11339. Support File IO sampling for Datanode IO profiling hooks. Contributed by Hanisha Koneru.
+    HDFS-11339. Support File IO sampling for Datanode IO profiling hooks.
+    Contributed by Hanisha Koneru.
     
-    HDFS-11299. Support multiple Datanode File IO hooks. Contributed by Hanisha Koneru.
+    HDFS-11299. Support multiple Datanode File IO hooks. Contributed by Hanisha
+    Koneru.
     
-    HDFS-11282. Document the missing metrics of DataNode Volume IO operations. Contributed by Yiqun Lin.
+    HDFS-11282. Document the missing metrics of DataNode Volume IO operations.
+    Contributed by Yiqun Lin.
     
-    HDFS-10917. Collect peer performance statistics on DataNode. Contributed by Xiaobing Zhou.
+    HDFS-10917. Collect peer performance statistics on DataNode. Contributed by
+    Xiaobing Zhou.
     
-    HADOOP-13804. MutableStat mean loses accuracy if add(long, long) is used. Contributed by Erik Krogen.
+    HADOOP-13804. MutableStat mean loses accuracy if add(long, long) is used.
+    Contributed by Erik Krogen.
     
-    HADOOP-13782. Make MutableRates metrics thread-local write, aggregate-on-read. Contributed by Erik Krogen.
+    HADOOP-13782. Make MutableRates metrics thread-local write, aggregate-on-
+    read. Contributed by Erik Krogen.
     
-    HDFS-10913. Introduce fault injectors to simulate slow mirrors. Contributed by Xiaobing Zhou.
+    HDFS-10913. Introduce fault injectors to simulate slow mirrors. Contributed
+    by Xiaobing Zhou.
     
-    HDFS-11279. Cleanup unused DataNode#checkDiskErrorAsync(). Contributed by Hanisha Koneru.
+    HDFS-11279. Cleanup unused DataNode#checkDiskErrorAsync(). Contributed by
+    Hanisha Koneru.
     
-    HDFS-11274. Datanode should only check the failed volume upon IO errors. Contributed by Xiaoyu Yao.
+    HDFS-11274. Datanode should only check the failed volume upon IO errors.
+    Contributed by Xiaoyu Yao.
     
     HDFS-11182. Update DataNode to use DatasetVolumeChecker.
     
-    HDFS-10959. Update DataNode to use DatasetVolumeChecker. Contributed by Xiaoyu Yao.
+    HDFS-10959. Update DataNode to use DatasetVolumeChecker. Contributed by
+    Xiaoyu Yao.
     
-    HDFS-11337. (HDFS-10958 backport). Add instrumentation hooks around Datanode disk IO.
+    HDFS-11337. (HDFS-10958 backport). Add instrumentation hooks around
+    Datanode disk IO.
     
-    HDFS-11253. FileInputStream leak on failure path in BlockSender. Contributed by Arpit Agarwal
+    HDFS-11253. FileInputStream leak on failure path in BlockSender.
+    Contributed by Arpit Agarwal
     
-    HDFS-10930. Refactor: Wrap Datanode IO related operations. Contributed by Xiaoyu Yao.
+    HDFS-10930. Refactor: Wrap Datanode IO related operations. Contributed by
+    Xiaoyu Yao.
     
-    HDFS-10627. Volume Scanner marks a block as "suspect" even if the exception is network-related. Contributed by Rushabh S Shah.
+    HDFS-10627. Volume Scanner marks a block as "suspect" even if the exception
+    is network-related. Contributed by Rushabh S Shah.
     
-    HDFS-8859. Improve DataNode ReplicaMap memory footprint to save about 45%. (yliu)
+    HDFS-8859. Improve DataNode ReplicaMap memory footprint to save about 45%.
+    (yliu)
     
-    HDFS-8573. Move creation of restartMeta file logic from BlockReceiver to ReplicaInPipeline. Contributed by Eddy Xu.
+    HDFS-8573. Move creation of restartMeta file logic from BlockReceiver to
+    ReplicaInPipeline. Contributed by Eddy Xu.
     
-    HDFS-9701. DN may deadlock when hot-swapping under load. (Xiao Chen via lei)
+    HDFS-9701. DN may deadlock when hot-swapping under load. (Xiao Chen via
+    lei)
     
-    HDFS-9264. Minor cleanup of operations on FsVolumeList#volumes.  (Walter Su via lei)
+    HDFS-9264. Minor cleanup of operations on FsVolumeList#volumes.  (Walter Su
+    via lei)
     
-    HDFS-9589. Block files which have been hardlinked should be duplicated before the DataNode appends to the them (cmccabe)
+    HDFS-9589. Block files which have been hardlinked should be duplicated
+    before the DataNode appends to the them (cmccabe)
     
-    HDFS-8860. Remove unused Replica copyOnWrite code (Lei (Eddy) Xu via Colin P. McCabe)
+    HDFS-8860. Remove unused Replica copyOnWrite code (Lei (Eddy) Xu via Colin
+    P. McCabe)
     
     HDFS-11149. Fix build break.
     
     HDFS-11149. Support for parallel checking of FsVolumes.
     
-    HDFS-11160. VolumeScanner reports write-in-progress replicas as corrupt incorrectly. Contributed by Wei-Chiu Chuang and Yongjun Zhang.
+    HDFS-11160. VolumeScanner reports write-in-progress replicas as corrupt
+    incorrectly. Contributed by Wei-Chiu Chuang and Yongjun Zhang.
     
-    HDFS-11229. HDFS-11056 failed to close meta file. Contributed by Wei-Chiu Chuang.
+    HDFS-11229. HDFS-11056 failed to close meta file. Contributed by Wei-Chiu
+    Chuang.
     
-    HDFS-11056. Concurrent append and read operations lead to checksum error. Contributed by Wei-Chiu Chuang.
+    HDFS-11056. Concurrent append and read operations lead to checksum error.
+    Contributed by Wei-Chiu Chuang.
     
-    HDFS-10625. VolumeScanner to report why a block is found bad. Contributed by Rushabh S Shah and Yiqun Lin.
+    HDFS-10625. VolumeScanner to report why a block is found bad. Contributed
+    by Rushabh S Shah and Yiqun Lin.
     
-    HADOOP-13254. Create framework for configurable disk checkers (yufeigu via rkanter)
+    HADOOP-13254. Create framework for configurable disk checkers (yufeigu via
+    rkanter)
     
-    HDFS-7758. Retire FsDatasetSpi#getVolumes() and use FsDatasetSpi#getVolumeRefs() instead (Lei (Eddy) Xu via Colin P. McCabe)
+    HDFS-7758. Retire FsDatasetSpi#getVolumes() and use
+    FsDatasetSpi#getVolumeRefs() instead (Lei (Eddy) Xu via Colin P. McCabe)
     
     HDFS-11148. Update DataNode to use StorageLocationChecker at startup.
     
-    HDFS-11119. Support for parallel checking of StorageLocations on DataNode startup.
+    HDFS-11119. Support for parallel checking of StorageLocations on DataNode
+    startup.
     
     HADOOP-13738. DiskChecker should perform some disk IO.
     
@@ -4167,77 +4447,129 @@ ATS V1.5:
     
     BUG-70172: Log portnumber in PrivilegedNfsGatewayStarter
     
-    BUG-67229. HADOOP-13727. S3A: Reduce high number of connections to EC2 Instance Metadata Service caused by InstanceProfileCredentialsProvider. Contributed by Chris Nauroth.
+    BUG-67229. HADOOP-13727. S3A: Reduce high number of connections to EC2
+    Instance Metadata Service caused by InstanceProfileCredentialsProvider.
+    Contributed by Chris Nauroth.
     
-    HADOOP-13735 ITestS3AFileContextStatistics.testStatistics() failing. Contributed by Pieter Reuse
+    HADOOP-13735 ITestS3AFileContextStatistics.testStatistics() failing.
+    Contributed by Pieter Reuse
     
     BUG-71814. Reduce verbosity of "READ not supported in standby"
     
     BUG-72244. HDFS-11114. Support for running async disk checks in DataNode.
     
-    BUG-70517. Disable testDnRestartWithSavedReplicas and listStatusReturnsAsExpected.
+    BUG-70517. Disable testDnRestartWithSavedReplicas and
+    listStatusReturnsAsExpected.
     
-    HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip (rkanter)
+    HADOOP-12954. Add a way to change hadoop.security.token.service.use_ip
+    (rkanter)
     
-    HDFS-10757. KMSClientProvider combined with KeyProviderCache can result in wrong UGI being used. Contributed by Xiaoyu Yao.
+    HDFS-10757. KMSClientProvider combined with KeyProviderCache can result in
+    wrong UGI being used. Contributed by Xiaoyu Yao.
     
-    BUG-43975. YARN-4113. RM should respect retry-interval when uses RetryPolicies.RETRY_FOREVER. (Sunil G via wangda)
+    BUG-43975. YARN-4113. RM should respect retry-interval when uses
+    RetryPolicies.RETRY_FOREVER. (Sunil G via wangda)
 
-    BUG-68611. YARN-5923. Unable to access logs for a running application if YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
+    BUG-68611. YARN-5923. Unable to access logs for a running application if
+    YARN_ACL_ENABLE is enabled. Contributed by Xuan Gong.
 
     BUG-77128. some LLAP logs are lost from aggregation on HCube. Gour Saha.
 
-    YARN-5206. RegistrySecurity includes id:pass in exception text if considered invalid. Contributed by Steve Loughran.
+    YARN-5206. RegistrySecurity includes id:pass in exception text if
+    considered invalid. Contributed by Steve Loughran.
 
-    HDFS-10793. Fix HdfsAuditLogger binary incompatibility introduced by HDFS-9184.
-    HDFS-9700. BUG-60868. DFSClient and DFSOutputStream should set TCP_NODELAY on sockets for DataTransferProtocol. (Gary Helmling)
+    HDFS-10793. Fix HdfsAuditLogger binary incompatibility introduced by
+    HDFS-9184.
+    
+    HDFS-9700. BUG-60868. DFSClient and DFSOutputStream should set TCP_NODELAY
+    on sockets for DataTransferProtocol. (Gary Helmling)
 
-    HADOOP-13381. KMS clients should use KMS Delegation Tokens from current UGI. Contributed by Xiao Chen.
+    HADOOP-13381. KMS clients should use KMS Delegation Tokens from current
+    UGI. Contributed by Xiao Chen.
 
-    HADOOP-13212 Provide an option to set the socket buffers in S3AFileSystem (Rajesh Balamohan)
+    HADOOP-13212 Provide an option to set the socket buffers in S3AFileSystem
+    (Rajesh Balamohan)
 
-    HADOOP-13139 Branch-2: S3a to use thread pool that blocks clients. Contributed by Pieter Reuse.
+    HADOOP-13139 Branch-2: S3a to use thread pool that blocks clients.
+    Contributed by Pieter Reuse.
 
-    HADOOP-12634. Change Lazy Rename Pending Operation Completion of WASB to address case of potential data loss due to partial copy. Contributed by Gaurav Kanade.
-    HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name inserted in target server principal
+    HADOOP-12634. Change Lazy Rename Pending Operation Completion of WASB to
+    address case of potential data loss due to partial copy. Contributed by
+    Gaurav Kanade.
+    
+    HADOOP-12617. SPNEGO authentication request to non-default realm gets
+    default realm name inserted in target server principal
 
-    HADOOP-12158. Improve error message in TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not installed.
+    HADOOP-12158. Improve error message in
+    TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not
+    installed.
 
     BUG-78017. HDFS-9193. Fix incorrect references the usages of the DN in
     dfshealth.js. Contributed by Chang Li.
 
-    BUG-78773. HADOOP-14274. Azure: Simplify Ranger-WASB policy model. Contributed by Sivaguru Sankaridurg
+    BUG-78773. HADOOP-14274. Azure: Simplify Ranger-WASB policy model.
+    Contributed by Sivaguru Sankaridurg
 
     BUG-78968. HADOOP-14195. CredentialProviderFactory$getProviders is not
     thread-safe. Contributed by Vihang Karajgaonkar.
 
-    BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from parallel runs. Contributed by Steve Loughran
+    BUG-79442. HADOOP-14321. explicitly exclude s3a root dir ITests from
+    parallel runs. Contributed by Steve Loughran
 
     BUG-78277. Hadoop - Upgrade Tomcat version.
  
-    
+    BUG-79477. HADOOP-14324. Refine S3 server-side-encryption key as encryption
+    secret; improve error reporting and diagnostics. Contributed by Steve
+    Loughran
 
-    BUG-79477. HADOOP-14324. Refine S3 server-side-encryption key as encryption secret; improve error reporting and diagnostics. Contributed by Steve Loughran
+    BUG-77866. HADOOP-14241. Add ADLS sensitive config keys to default list.
+    Contributed by John Zhuge.
 
-    BUG-77866. HADOOP-14241. Add ADLS sensitive config keys to default list. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14038. Rename ADLS credential properties. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14230. TestAdlFileSystemContractLive fails to clean up. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14197. Fix ADLS doc for credential provider. Contributed by John Zhuge
-    BUG-77866. HADOOP-14196. Azure Data Lake doc is missing required config entry. Contributed by Atul Sikaria
-    BUG-77866. HADOOP-14205. No FileSystem for scheme: adl. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14173. Remove unused AdlConfKeys#ADL_EVENTS_TRACKING_SOURCE. Contributed by John Zhuge.
-    BUG-77866. HADOOP-14153. ADL module has messed doc structure. Contributed by Mingliang Liu
+    BUG-77866. HADOOP-14038. Rename ADLS credential properties. Contributed by
+    John Zhuge.
+
+    BUG-77866. HADOOP-14230. TestAdlFileSystemContractLive fails to clean up.
+    Contributed by John Zhuge.
+
+    BUG-77866. HADOOP-14197. Fix ADLS doc for credential provider. Contributed
+    by John Zhuge
+
+    BUG-77866. HADOOP-14196. Azure Data Lake doc is missing required config
+    entry. Contributed by Atul Sikaria
+
+    BUG-77866. HADOOP-14205. No FileSystem for scheme: adl. Contributed by John
+    Zhuge.
+
+    BUG-77866. HADOOP-14173. Remove unused
+    AdlConfKeys#ADL_EVENTS_TRACKING_SOURCE. Contributed by John Zhuge.
+
+    BUG-77866. HADOOP-14153. ADL module has messed doc structure. Contributed
+    by Mingliang Liu
+
     BUG-77866. HADOOP-14113. Review ADL Docs. Contributed by Steve Loughran
-    BUG-77866. HADOOP-14123. Remove misplaced ADL service provider config file for FileSystem. Contributed by John Zhuge.
-    BUG-77866. HADOOP-13929. ADLS connector should not check in contract-test-options.xml. (John Zhuge via lei)
-    BUG-77866. HADOOP-13928. TestAdlFileContextMainOperationsLive.testGetFileContext1 runtime error. (John Zhuge via lei)
-    BUG-77866. HADOOP-14349. Rename ADLS CONTRACT_ENABLE_KEY. Contributed by Mingliang Liu
 
-    BUG-79813. HADOOP-14351. Azure: RemoteWasbAuthorizerImpl and RemoteSASKeyGeneratorImpl should not use Kerberos interactive user cache. Contributed by Santhosh G Nayak
+    BUG-77866. HADOOP-14123. Remove misplaced ADL service provider config file
+    for FileSystem. Contributed by John Zhuge.
 
-    HADOOP-14361 Azure: NativeAzureFileSystem.getDelegationToken() call fails sometimes when invoked concurrently.
+    BUG-77866. HADOOP-13929. ADLS connector should not check in contract-test-
+    options.xml. (John Zhuge via lei)
 
-    HADOOP-12173. NetworkTopology::add calls toString always. Contributed by Inigo Goiri.
+    BUG-77866. HADOOP-13928.
+    TestAdlFileContextMainOperationsLive.testGetFileContext1 runtime error.
+    (John Zhuge via lei)
+
+    BUG-77866. HADOOP-14349. Rename ADLS CONTRACT_ENABLE_KEY. Contributed by
+    Mingliang Liu
+
+    BUG-79813. HADOOP-14351. Azure: RemoteWasbAuthorizerImpl and
+    RemoteSASKeyGeneratorImpl should not use Kerberos interactive user cache.
+    Contributed by Santhosh G Nayak
+
+    HADOOP-14361 Azure: NativeAzureFileSystem.getDelegationToken() call fails
+    sometimes when invoked concurrently.
+
+    HADOOP-12173. NetworkTopology::add calls toString always. Contributed by
+    Inigo Goiri.
 
     BUG-80065. YARN-4624. NPE in PartitionQueueCapacitiesInfo while accessing
     Scheduler UI. Contributed by Brahma Reddy Battula
@@ -4249,11 +4581,12 @@ ATS V1.5:
     BUG-80275. YARN-5342. Improve non-exclusive node partition resource
     allocation in Capacity Scheduler. (Sunil G via wangda)
 
-    BUG-80920. MAPREDUCE-6702. Fixed failures in TestMiniMRChildTask.testTaskEnv and
-    TestMiniMRChildTask.testTaskOldEnv. (ajisakaa via rkanter)
+    BUG-80920. MAPREDUCE-6702. Fixed failures in
+    TestMiniMRChildTask.testTaskEnv and TestMiniMRChildTask.testTaskOldEnv.
+    (ajisakaa via rkanter)
 
-    BUG-79757. YARN-5368. Fixed a memory leak in Timeline server. (Jonathan Eagles via
-    Varun Saxena)
+    BUG-79757. YARN-5368. Fixed a memory leak in Timeline server. (Jonathan
+    Eagles via Varun Saxena)
 
     RANGER-136. HADOOP-14416. Path starting with 'wasb:///' not resolved
     correctly while authorizing with WASB-Ranger. Contributed by Sivaguru
@@ -4262,38 +4595,49 @@ ATS V1.5:
     HADOOP-14170. FileSystemContractBaseTest is not cleaning up test directory
     clearly. Contributed by Mingliang Liu
 
-    HDFS-11545. Propagate DataNode's slow disks info to the NameNode via Heartbeat
+    HDFS-11545. Propagate DataNode's slow disks info to the NameNode via
+    Heartbeat
 
-    HDFS-11547. Add logs for slow BlockReceiver while writing data to disk. Contributed by Xiaobing Zhou.
+    HDFS-11547. Add logs for slow BlockReceiver while writing data to disk.
+    Contributed by Xiaobing Zhou.
 
-    HDFS-11551. Handle SlowDiskReport from DataNode at the NameNode. Contributed by Hanisha Koneru.  
+    HDFS-11551. Handle SlowDiskReport from DataNode at the NameNode.
+    Contributed by Hanisha Koneru.
 
-    HDFS-11570. Unit test for NameNodeStatusMXBean. Contributed by Hanisha Koneru. 
+    HDFS-11570. Unit test for NameNodeStatusMXBean. Contributed by Hanisha
+    Koneru.
 
-    HDFS-11560. Expose slow disks via NameNode JMX. Contributed by Hanisha Koneru.
+    HDFS-11560. Expose slow disks via NameNode JMX. Contributed by Hanisha
+    Koneru.
 
     HDFS-11603. Improve slow mirror/disk warnings in BlockReceiver.
 
-    HDFS-11722. Change Datanode file IO profiling sampling to percentage. Contributed by Hanisha Koneru. 
+    HDFS-11722. Change Datanode file IO profiling sampling to percentage.
+    Contributed by Hanisha Koneru.
 
-    BUG-80129. HDFS-11499. Decommissioning stuck because of failing recovery. Contributed by Lukas Majercak and Manoj Govindassamy.
+    BUG-80129. HDFS-11499. Decommissioning stuck because of failing recovery.
+    Contributed by Lukas Majercak and Manoj Govindassamy.
 
-    HDFS-11842. TestDataNodeOutlierDetectionViaMetrics UT fails intermittently. Controbuted by Hanisha Koneru.  
+    HDFS-11842. TestDataNodeOutlierDetectionViaMetrics UT fails intermittently.
+    Controbuted by Hanisha Koneru.
 
-    BUG-78029. WASB: WasbRemoteCallHelper should use String equals for comparison. Contributed by Santhosh Nayak.
+    BUG-78029. WASB: WasbRemoteCallHelper should use String equals for
+    comparison. Contributed by Santhosh Nayak.
 
-    hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and azure-data-lake-store-sdk to all the wasb locations. 
+    hwxmonarch.atlassian.net/browse/HADOOP-1062 added hadoop-azure-datalake and
+    azure-data-lake-store-sdk to all the wasb locations.
 
     BUG-82356. HDFS-10485. Fix findbugs warning in FSEditLog.java. (aajisaka)
 
     BUG-81835. HADOOP-14472. Azure: TestReadAndSeekPageBlobAfterWrite fails
     intermittently. Contributed by Mingliang Liu
 
-    BUG-82743. MAPREDUCE-6897. Add Unit Test to ensure Job end notification gets
-    sent even when appMaster stop gets YarnRuntimeException. Contributed by
-    Gergely Novák
+    BUG-82743. MAPREDUCE-6897. Add Unit Test to ensure Job end notification
+    gets sent even when appMaster stop gets YarnRuntimeException. Contributed
+    by Gergely Novák
 
-    BUG-83185. HDFS-11634. Optimize BlockIterator when interating starts in the middle. Contributed by Konstantin V Shvachko.
+    BUG-83185. HDFS-11634. Optimize BlockIterator when interating starts in the
+    middle. Contributed by Konstantin V Shvachko.
 
     MAPREDUCE-6279. AM should explicity exit JVM after all services have
     stopped. Contributed by Eric Payne
@@ -4301,9 +4645,11 @@ ATS V1.5:
     BUG-83149. HADOOP-13034. Log message about input options in distcp lacks
     some items (Takashi Ohnishi via aw)
 
-    BUG-83332. MAPREDUCE-6165. [JDK8] TestCombineFileInputFormat failed on JDK8.
+    BUG-83332. MAPREDUCE-6165. [JDK8] TestCombineFileInputFormat failed on
+    JDK8.
 
-    BUG-83358. HADOOP-11418. Property "io.compression.codec.lzo.class" does not work with other value besides default
+    BUG-83358. HADOOP-11418. Property "io.compression.codec.lzo.class" does not
+    work with other value besides default
 
     BUG-83352. MAPREDUCE-6304. Specifying node labels when submitting MR jobs.
     Contributed by Naganarasimha G R. Backport by Inigo Goiri.
@@ -4311,71 +4657,100 @@ ATS V1.5:
     BUG-83276. HDFS-11445. FSCK shows overall health stauts as corrupt even one
     replica is corrupt. Contributed by Brahma Reddy Battula.
 
-    YARN-4465. SchedulerUtils#validateRequest for Label check should happen only when nodelabel enabled. (Bibin via wangda)
+    YARN-4465. SchedulerUtils#validateRequest for Label check should happen
+    only when nodelabel enabled. (Bibin via wangda)
 
-    BUG-83346. YARN-4833. For Queue AccessControlException client retries multiple times on both RM. Contributed by Bibin A Chundatt.
+    BUG-83346. YARN-4833. For Queue AccessControlException client retries
+    multiple times on both RM. Contributed by Bibin A Chundatt.
 
-    BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when secure.mode is enabled.
+    BUG-82647. HADOOP-14546. Azure: Concurrent I/O does not work when
+    secure.mode is enabled.
 
-    BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
+    BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if
+    the file is neither in src nor in dst when doing the rename. Contributed by
+    Duo Xu
 
-    BUG-82262. YARN-6339. Improve performance for createAndGetApplicationReport.
-    (Yunjiong Zhao via wangda)
+    BUG-82262. YARN-6339. Improve performance for
+    createAndGetApplicationReport. (Yunjiong Zhao via wangda)
 
-    HADOOP-5732. Add SFTPFileSystem. Contributed by Ramtin Boustani and Inigo Goiri.
+    HADOOP-5732. Add SFTPFileSystem. Contributed by Ramtin Boustani and Inigo
+    Goiri.
 
     BUG-83458. HADOOP-11180. Change log message "token.Token: Cannot find class
     for token kind kms-dt" to debug. Contributed by Yi Liu.
 
-    BUG-83480. HADOOP-11677: Add cookie flags for logs and static contexts. Contributed by nijel.
+    BUG-83480. HADOOP-11677: Add cookie flags for logs and static contexts.
+    Contributed by nijel.
 
-    BUG-83459. HDFS-8307: Spurious DNS Queries from hdfs shell. Contributed by Andres Perez.
+    BUG-83459. HDFS-8307: Spurious DNS Queries from hdfs shell. Contributed by
+    Andres Perez.
 
-    HADOOP-10829. Iteration on CredentialProviderFactory.serviceLoader is thread-unsafe. Contributed by Benoy Antony and Rakesh R.
+    HADOOP-10829. Iteration on CredentialProviderFactory.serviceLoader is
+    thread-unsafe. Contributed by Benoy Antony and Rakesh R.
 
-    BUG-83455. HDFS-9601. NNThroughputBenchmark.BlockReportStats should handle NotReplicatedYetException on adding block
+    BUG-83455. HDFS-9601. NNThroughputBenchmark.BlockReportStats should handle
+    NotReplicatedYetException on adding block
 
-    BUG-83455. HADOOP-11819. HttpServerFunctionalTest#prepareTestWebapp should create web app directory if it does not exist.
+    BUG-83455. HADOOP-11819. HttpServerFunctionalTest#prepareTestWebapp should
+    create web app directory if it does not exist.
 
-    BUG-83455. HADOOP-12418. TestRPC.testRPCInterruptedSimple fails intermittently
+    BUG-83455. HADOOP-12418. TestRPC.testRPCInterruptedSimple fails
+    intermittently
 
-    BUG-83455. HADOOP-10774: Update KerberosTestUtils for hadoop-auth tests when using IBM Java
+    BUG-83455. HADOOP-10774: Update KerberosTestUtils for hadoop-auth tests
+    when using IBM Java
 
-    BUG-83455. HDFS-4681: TestBlocksWithNotEnoughRacks#testCorruptBlockRereplicatedAcrossRacks fails using IBM java
+    BUG-83455. HDFS-4681:
+    TestBlocksWithNotEnoughRacks#testCorruptBlockRereplicatedAcrossRacks fails
+    using IBM java
 
-    BUG-83334. MAPREDUCE-6246. DBOutputFormat.java appending extra semicolon to query which is incompatible with DB2.
-    Contributed by ramtin and Gergely Novák.
+    BUG-83334. MAPREDUCE-6246. DBOutputFormat.java appending extra semicolon to
+    query which is incompatible with DB2. Contributed by ramtin and Gergely
+    Novák.
 
-    BUG-83800. MAPREDUCE-5621. mr-jobhistory-daemon.sh doesn't have to execute mkdir and chown all the time.
-    Contributed by Shinichi Yamashita.
+    BUG-83800. MAPREDUCE-5621. mr-jobhistory-daemon.sh doesn't have to execute
+    mkdir and chown all the time. Contributed by Shinichi Yamashita.
 
-    BUG-83858. HDFS-11502. Datanode UI should display hostname based on JMX bean instead of window.location.hostname. Contributed by Jeffrey E Rodriguez and Yuanbo Liu.
+    BUG-83858. HDFS-11502. Datanode UI should display hostname based on JMX
+    bean instead of window.location.hostname. Contributed by Jeffrey E
+    Rodriguez and Yuanbo Liu.
 
     BUG-84387. HDFS-11156. Add new op GETFILEBLOCKLOCATIONS to WebHDFS REST API
 
     BUG-83487. HDFS-6874. Add GETFILEBLOCKLOCATIONS operation to HttpFS
 
-    HADOOP-14443. Azure: Support retry and client side failover for authorization, SASKey and delegation token generation. Contributed by Santhosh G Nayak.3
+    HADOOP-14443. Azure: Support retry and client side failover for
+    authorization, SASKey and delegation token generation. Contributed by
+    Santhosh G Nayak.3
 
-    HADOOP-14658. branch-2 compilation is broken in hadoop-azure Contributed by Sunil G.
+    HADOOP-14658. branch-2 compilation is broken in hadoop-azure Contributed by
+    Sunil G.
 
-    HADOOP-14174. Set default ADLS access token provider type to ClientCredential. Contributed by John Zhuge.
+    HADOOP-14174. Set default ADLS access token provider type to
+    ClientCredential. Contributed by John Zhuge.
 
-    HADOOP-14640. Azure: Support affinity for service running on localhost and reuse SPNEGO hadoop.auth cookie for authorization, SASKey and delegation token generation.
+    HADOOP-14640. Azure: Support affinity for service running on localhost and
+    reuse SPNEGO hadoop.auth cookie for authorization, SASKey and delegation
+    token generation.
 
-    PROD-1545. HADOOP-14581. Restrict setOwner to list of user when security is enabled in wasb
+    PROD-1545. HADOOP-14581. Restrict setOwner to list of user when security is
+    enabled in wasb
 
-    BUG-84072 HADOOP-14535 wasb: implement high-performance random access and seek of block blobs. Contributed by Thomas Marquardt
+    BUG-84072 HADOOP-14535 wasb: implement high-performance random access and
+    seek of block blobs. Contributed by Thomas Marquardt
 
-    BUG-83479. HDFS-8312. Added permission check for moving file to Trash. (Weiwei Yang via Eric Yang)
+    BUG-83479. HDFS-8312. Added permission check for moving file to Trash.
+    (Weiwei Yang via Eric Yang)
 
-    HADOOP-14642. wasb: add support for caching Authorization and SASKeys. Contributed by Sivaguru Sankaridurg.
+    HADOOP-14642. wasb: add support for caching Authorization and SASKeys.
+    Contributed by Sivaguru Sankaridurg.
 
     BUG-84646. YARN-3940. Application moveToQueue should check NodeLabel
     permission. Contributed by Bibin A Chundatt
 
     BUG-84647. YARN-4582. Label-related invalid resource request exception
-    should be able to properly handled by application. (Bibin A Chundatt via wangda)
+    should be able to properly handled by application. (Bibin A Chundatt via
+    wangda)
 
     BUG-84645. YARN-6031. Application recovery has failed when node label
     feature is turned off during RM recovery. Contributed by Ying Zhang.
@@ -4383,21 +4758,29 @@ ATS V1.5:
     BUG-85012. HDFS-9357. NN UI renders icons of decommissioned DN incorrectly.
     Contributed by Surendra Singh Lilhore.
 
-    BUG-84871. YARN-6890. Not display killApp button on UI if UI is unsecured but cluster is secured.
-    Contributed by Junping Du
+    BUG-84871. YARN-6890. Not display killApp button on UI if UI is unsecured
+    but cluster is secured. Contributed by Junping Du
 
-    HADOOP-12087. [JDK8] Fix javadoc errors caused by incorrect or illegal tags. (Akira AJISAKA via stevel).'
+    HADOOP-12087. [JDK8] Fix javadoc errors caused by incorrect or illegal
+    tags. (Akira AJISAKA via stevel).'
 
-    HDFS-9034. StorageTypeStats Metric should not count failed storage. Contributed by Surendra Singh Lilhore.'
+    HDFS-9034. StorageTypeStats Metric should not count failed storage.
+    Contributed by Surendra Singh Lilhore.'
 
-    HADOOP-14547. [WASB] the configured retry policy is not used for all storage operations. Contributed by Thomas.'
+    HADOOP-14547. [WASB] the configured retry policy is not used for all
+    storage operations. Contributed by Thomas.'
 
-    HDFS-12158. Secondary Namenode's web interface lack configs for X-FRAME-OPTIONS protection. Contributed by Mukul Kumar Singh.'
+    HDFS-12158. Secondary Namenode's web interface lack configs for X-FRAME-
+    OPTIONS protection. Contributed by Mukul Kumar Singh.'
 
-    HADOOP-14680. Azure: IndexOutOfBoundsException in BlockBlobInputStream. Contributed by Thomas Marquardt.'
+    HADOOP-14680. Azure: IndexOutOfBoundsException in BlockBlobInputStream.
+    Contributed by Thomas Marquardt.'
 
-    HDFS-14676. Wrong default value for fs.df.interval. Contributed by xiangguang zheng.'
+    HDFS-14676. Wrong default value for fs.df.interval. Contributed by
+    xiangguang zheng.'
 
-    HDFS-12139: HTTPFS liststatus returns incorrect pathSuffix for path of file'
+    HDFS-12139: HTTPFS liststatus returns incorrect pathSuffix for path of
+    file'
 
-    HADOOP-14722. Azure: BlockBlobInputStream position incorrect after seek. Contributed by Thomas Marquardt'
+    HADOOP-14722. Azure: BlockBlobInputStream position incorrect after seek.
+    Contributed by Thomas Marquardt'
