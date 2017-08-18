@@ -4276,3 +4276,7 @@ ATS V1.5:
     BUG-82647. HADOOP-14512. WASB atomic rename should not throw exception if the file is neither in src nor in dst when doing the rename. Contributed by Duo Xu
  
     HADOOP-14680. Azure: IndexOutOfBoundsException in BlockBlobInputStream. Contributed by Thomas Marquardt.
+
+    HADOOP-14769. WASB: delete recursive should not fail if a file is deleted. Contributed by Thomas Marquardt
+
+    HADOOP-14573. regression: Azure tests which capture logs failing with move to SLF4J. Contributed by Steve Loughran
