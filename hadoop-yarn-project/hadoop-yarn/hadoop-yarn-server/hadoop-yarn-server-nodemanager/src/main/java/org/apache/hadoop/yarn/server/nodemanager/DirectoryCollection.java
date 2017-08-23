@@ -38,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
@@ -81,6 +82,7 @@ class DirectoryCollection {
   private List<String> localDirs;
   private List<String> errorDirs;
   private List<String> fullDirs;
+  private Map<String, DiskErrorInformation> directoryErrorInfo;
 
   // read/write lock for accessing above directories.
   private final ReadLock readLock;
@@ -156,6 +158,7 @@ class DirectoryCollection {
     localDirs = new CopyOnWriteArrayList<>(dirs);
     errorDirs = new CopyOnWriteArrayList<>();
     fullDirs = new CopyOnWriteArrayList<>();
+    directoryErrorInfo = new ConcurrentHashMap<>();
 
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     this.readLock = lock.readLock();
@@ -197,11 +200,25 @@ class DirectoryCollection {
   /**
    * @return the directories that have used all disk space
    */
-
   List<String> getFullDirs() {
     this.readLock.lock();
     try {
-      return fullDirs;
+      return Collections.unmodifiableList(fullDirs);
+    } finally {
+      this.readLock.unlock();
+    }
+  }
+
+  /**
+   * @return the directories that have errors - many not have appropriate permissions
+   * or other disk validation checks might have failed in {@link DiskValidator}
+   *
+   */
+  @InterfaceStability.Evolving
+  List<String> getErroredDirs() {
+    this.readLock.lock();
+    try {
+      return Collections.unmodifiableList(errorDirs);
     } finally {
       this.readLock.unlock();
     }
@@ -215,6 +232,39 @@ class DirectoryCollection {
     try {
       return numFailures;
     }finally {
+      this.readLock.unlock();
+    }
+  }
+
+  /**
+   *
+   * @param dirName Absolute path of Directory for which error diagnostics are needed
+   * @return DiskErrorInformation - disk error diagnostics for the specified directory
+   *         null - the disk associated with the directory has passed disk utilization checks
+   *         /error validations in {@link DiskValidator}
+   *
+   */
+  @InterfaceStability.Evolving
+  DiskErrorInformation getDirectoryErrorInfo(String dirName) {
+    this.readLock.lock();
+    try {
+      return directoryErrorInfo.get(dirName);
+    } finally {
+      this.readLock.unlock();
+    }
+  }
+
+  /**
+   *
+   * @param dirName Absolute path of Directory for which the disk has been marked as unhealthy
+   * @return Check if disk associated with the directory is unhealthy
+   */
+  @InterfaceStability.Evolving
+  boolean isDiskUnHealthy(String dirName) {
+    this.readLock.lock();
+    try {
+      return directoryErrorInfo.containsKey(dirName);
+    } finally {
       this.readLock.unlock();
     }
   }
@@ -246,6 +296,9 @@ class DirectoryCollection {
         try {
           localDirs.remove(dir);
           errorDirs.add(dir);
+          directoryErrorInfo.put(dir,
+              new DiskErrorInformation(DiskErrorCause.OTHER,
+                  "Cannot create directory : " + dir + ", error " + e.getMessage()));
           numFailures++;
         } finally {
           this.writeLock.unlock();
@@ -291,11 +344,13 @@ class DirectoryCollection {
       localDirs.clear();
       errorDirs.clear();
       fullDirs.clear();
+      directoryErrorInfo.clear();
 
       for (Map.Entry<String, DiskErrorInformation> entry : dirsFailedCheck
           .entrySet()) {
         String dir = entry.getKey();
         DiskErrorInformation errorInformation = entry.getValue();
+
         switch (entry.getValue().cause) {
         case DISK_FULL:
           fullDirs.add(entry.getKey());
@@ -307,6 +362,8 @@ class DirectoryCollection {
           LOG.warn(entry.getValue().cause + " is unknown for disk error.");
           break;
         }
+        directoryErrorInfo.put(entry.getKey(), errorInformation);
+
         if (preCheckGoodDirs.contains(dir)) {
           LOG.warn("Directory " + dir + " error, " + errorInformation.message
               + ", removing from list of valid directories");
