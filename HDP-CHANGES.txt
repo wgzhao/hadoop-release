@@ -4383,3 +4383,6 @@ ATS V1.5:
 
     BUG-83703. YARN-5731. Preemption calculation is not accurate when reserved
     containers are present in queue. (wangda)
+
+    BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
+    Contributed by Wangda Tan.
