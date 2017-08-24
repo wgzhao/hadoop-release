@@ -3555,3 +3555,6 @@ ATS V1.5:
 
     BUG-84621. HADOOP-14547. [WASB] the configured retry policy is not used for
     all storage operations. Contributed by Thomas.
+
+    BUG-86762. HADOOP-14478. Optimize NativeAzureFsInputStream for positional
+    reads. Contributed by Rajesh Balamohan
