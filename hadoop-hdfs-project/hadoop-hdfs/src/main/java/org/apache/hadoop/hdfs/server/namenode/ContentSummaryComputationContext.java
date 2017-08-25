@@ -20,7 +20,9 @@ package org.apache.hadoop.hdfs.server.namenode;
 import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite;
+import org.apache.hadoop.security.AccessControlException;
 
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
@@ -35,6 +37,8 @@ public class ContentSummaryComputationContext {
   private long sleepMilliSec = 0;
   private int sleepNanoSec = 0;
 
+  private FSPermissionChecker pc;
+
   /**
    * Constructor
    *
@@ -46,6 +50,12 @@ public class ContentSummaryComputationContext {
    */
   public ContentSummaryComputationContext(FSDirectory dir,
       FSNamesystem fsn, long limitPerRun, long sleepMicroSec) {
+    this(dir, fsn, limitPerRun, sleepMicroSec, null);
+  }
+
+  public ContentSummaryComputationContext(FSDirectory dir,
+      FSNamesystem fsn, long limitPerRun, long sleepMicroSec,
+      FSPermissionChecker pc) {
     this.dir = dir;
     this.fsn = fsn;
     this.limitPerRun = limitPerRun;
@@ -53,6 +63,7 @@ public class ContentSummaryComputationContext {
     this.counts = new ContentCounts.Builder().build();
     this.sleepMilliSec = sleepMicroSec/1000;
     this.sleepNanoSec = (int)((sleepMicroSec%1000)*1000);
+    this.pc = pc;
   }
 
   /** Constructor for blocking computation. */
@@ -131,5 +142,13 @@ public class ContentSummaryComputationContext {
             " FSNameSystem");
     return (bsps != null) ? bsps:
         fsn.getBlockManager().getStoragePolicySuite();
+  }
+
+  void checkPermission(INodeDirectory inode, int snapshotId, FsAction access)
+      throws AccessControlException {
+    if (dir != null && dir.isPermissionEnabled()
+        && pc != null && !pc.isSuperUser()) {
+      pc.checkPermission(inode, snapshotId, access);
+    }
   }
 }
