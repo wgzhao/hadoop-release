@@ -38,7 +38,6 @@ import org.apache.hadoop.hdfs.server.namenode.INodeReference.DstReference;
 import org.apache.hadoop.hdfs.server.namenode.INodeReference.WithName;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.Snapshot;
 import org.apache.hadoop.hdfs.util.Diff;
-import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.util.ChunkedArrayList;
 import org.apache.hadoop.util.StringUtils;
 
@@ -433,8 +432,7 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
       BlocksMapUpdateInfo collectedBlocks, List<INode> removedINodes);
 
   /** Compute {@link ContentSummary}. Blocking call */
-  public final ContentSummary computeContentSummary(
-      BlockStoragePolicySuite bsps) throws AccessControlException {
+  public final ContentSummary computeContentSummary(BlockStoragePolicySuite bsps) {
     return computeAndConvertContentSummary(Snapshot.CURRENT_STATE_ID,
         new ContentSummaryComputationContext(bsps));
   }
@@ -443,7 +441,7 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
    * Compute {@link ContentSummary}. 
    */
   public final ContentSummary computeAndConvertContentSummary(int snapshotId,
-      ContentSummaryComputationContext summary) throws AccessControlException {
+      ContentSummaryComputationContext summary) {
     ContentCounts counts = computeContentSummary(snapshotId, summary)
         .getCounts();
     final QuotaCounts q = getQuotaCounts();
@@ -471,8 +469,7 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
    * @return The same objects as summary.
    */
   public abstract ContentSummaryComputationContext computeContentSummary(
-      int snapshotId, ContentSummaryComputationContext summary)
-      throws AccessControlException;
+      int snapshotId, ContentSummaryComputationContext summary);
 
 
   /**

@@ -4386,6 +4386,3 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
-
-    BUG-83852. getContentSummary does permission check for the whole subtree with Namesystem lock held. HDFS-12130. Optimizing permission check for getContentSummary.
-    Contribuetd by Chen Liang

@@ -48,7 +48,6 @@ import org.apache.hadoop.hdfs.util.Diff.UndoInfo;
 import org.apache.hadoop.hdfs.util.ReadOnlyList;
 
 import com.google.common.base.Preconditions;
-import org.apache.hadoop.security.AccessControlException;
 
 /**
  * Feature used to store and process the snapshot diff information for a
@@ -663,7 +662,7 @@ public class DirectoryWithSnapshotFeature implements INode.Feature {
   }
 
   public void computeContentSummary4Snapshot(final BlockStoragePolicySuite bsps,
-      final ContentCounts counts) throws AccessControlException {
+      final ContentCounts counts) {
     // Create a new blank summary context for blocking processing of subtree.
     ContentSummaryComputationContext summary = 
         new ContentSummaryComputationContext(bsps);

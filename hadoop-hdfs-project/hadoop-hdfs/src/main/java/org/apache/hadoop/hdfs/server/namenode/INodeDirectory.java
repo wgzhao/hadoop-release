@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.fs.PathIsNotDirectoryException;
-import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.XAttr;
@@ -45,7 +44,6 @@ import org.apache.hadoop.hdfs.util.ReadOnlyList;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.apache.hadoop.security.AccessControlException;
 
 import static org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite.ID_UNSPECIFIED;
 
@@ -631,7 +629,7 @@ public class INodeDirectory extends INodeWithAdditionalFields
 
   @Override
   public ContentSummaryComputationContext computeContentSummary(int snapshotId,
-      ContentSummaryComputationContext summary) throws AccessControlException {
+      ContentSummaryComputationContext summary) {
     final DirectoryWithSnapshotFeature sf = getDirectoryWithSnapshotFeature();
     if (sf != null && snapshotId == Snapshot.CURRENT_STATE_ID) {
       // if the getContentSummary call is against a non-snapshot path, the
@@ -648,10 +646,7 @@ public class INodeDirectory extends INodeWithAdditionalFields
   }
 
   protected ContentSummaryComputationContext computeDirectoryContentSummary(
-      ContentSummaryComputationContext summary, int snapshotId)
-      throws AccessControlException{
-    // throws exception if failing the permission check
-    summary.checkPermission(this, snapshotId, FsAction.READ_EXECUTE);
+      ContentSummaryComputationContext summary, int snapshotId) {
     ReadOnlyList<INode> childrenList = getChildrenList(snapshotId);
     // Explicit traversing is done to enable repositioning after relinquishing
     // and reacquiring locks.
