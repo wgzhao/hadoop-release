@@ -1497,6 +1497,8 @@ public class BlockManager implements BlockStatsMXBean {
                 priority);
             if(srcNode == null) { // block can not be replicated from any node
               LOG.debug("Block {} cannot be repl from any node", block);
+              NameNode.getNameNodeMetrics()
+                  .incNumTimesReReplicationNotScheduled();
               ++blocksWithoutSource;
               continue;
             }
@@ -1515,6 +1517,8 @@ public class BlockManager implements BlockStatsMXBean {
                 neededReplications.remove(block, priority); // remove from neededReplications
                 blockLog.debug("BLOCK* Removing {} from neededReplications as" +
                         " it has enough replicas", block);
+                NameNode.getNameNodeMetrics()
+                    .incNumTimesReReplicationNotScheduled();
                 ++blocksWithEnoughReplicas;
                 continue;
               }
@@ -3228,8 +3232,8 @@ public class BlockManager implements BlockStatsMXBean {
    * The given node is reporting that it received a certain block.
    */
   @VisibleForTesting
-  void addBlock(DatanodeStorageInfo storageInfo, Block block, String delHint)
-      throws IOException {
+  public void addBlock(DatanodeStorageInfo storageInfo, Block block,
+      String delHint) throws IOException {
     DatanodeDescriptor node = storageInfo.getDatanodeDescriptor();
     // Decrement number of blocks scheduled to this datanode.
     // for a retry request (of DatanodeProtocol#blockReceivedAndDeleted with 
@@ -3249,7 +3253,9 @@ public class BlockManager implements BlockStatsMXBean {
     //
     // Modify the blocks->datanode map and node's map.
     //
-    pendingReplications.decrement(block, node);
+    if (pendingReplications.decrement(block, node)) {
+      NameNode.getNameNodeMetrics().incSuccessfulReReplications();
+    }
     processAndHandleReportedBlock(storageInfo, block, ReplicaState.FINALIZED,
         delHintNode);
   }
