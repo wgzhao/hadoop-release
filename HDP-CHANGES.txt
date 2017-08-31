@@ -4391,3 +4391,6 @@ ATS V1.5:
     Contribuetd by Chen Liang
 
     BUG-87109. HDFS-8429. Avoid stuck threads if there is an error in DomainSocketWatcher that stops the thread. (zhouyingchao via Chen Liang)
+
+    BUG-78934. HDFS-11641. Reduce cost of audit logging by using FileStatus
+    instead of HdfsFileStatus. Contributed by Daryn Sharp.

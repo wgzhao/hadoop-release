@@ -21,9 +21,9 @@ import com.google.common.base.Preconditions;
 
 import org.apache.hadoop.HadoopIllegalArgumentException;
 import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
-import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.QuotaExceededException;
 import org.apache.hadoop.hdfs.protocol.SnapshotException;
 
@@ -47,7 +47,7 @@ import static org.apache.hadoop.util.Time.now;
  */
 class FSDirConcatOp {
 
-  static HdfsFileStatus concat(FSDirectory fsd, String target, String[] srcs,
+  static FileStatus concat(FSDirectory fsd, String target, String[] srcs,
     boolean logRetryCache) throws IOException {
     Preconditions.checkArgument(!target.isEmpty(), "Target file name is empty");
     Preconditions.checkArgument(srcs != null && srcs.length > 0,
