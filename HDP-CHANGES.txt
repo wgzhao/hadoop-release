@@ -49,3 +49,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
 
     BUG-86228. HDFS-7587. Edit log corruption can happen if append fails with a
     quota violation. Contributed by Jing Zhao.
+
+    BUG-86228. HDFS-8072. Reserved RBW space is not released if client
+    terminates while writing block. (Arpit Agarwal)
