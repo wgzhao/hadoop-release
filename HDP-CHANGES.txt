@@ -46,3 +46,6 @@ Changes only in Hortonworks github and not in hadoop-2.6.0 and hence not covered
     never-again-accessed users
 
     BUG-62322. HADOOP-13263. Reload cached groups in background after expiry
+
+    BUG-86228. HDFS-7587. Edit log corruption can happen if append fails with a
+    quota violation. Contributed by Jing Zhao.
