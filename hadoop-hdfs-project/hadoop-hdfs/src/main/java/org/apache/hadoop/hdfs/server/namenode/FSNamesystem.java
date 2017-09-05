@@ -359,25 +359,33 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   }
   
   private void logAuditEvent(boolean succeeded, String cmd, String src,
-      String dst, HdfsFileStatus stat) throws IOException {
+      String dst, FileStatus stat) throws IOException {
     if (isAuditEnabled() && isExternalInvocation()) {
       logAuditEvent(succeeded, getRemoteUser(), getRemoteIp(),
                     cmd, src, dst, stat);
     }
   }
 
-  private void logAuditEvent(boolean succeeded,
-      UserGroupInformation ugi, InetAddress addr, String cmd, String src,
-      String dst, HdfsFileStatus stat) {
+  private void logAuditEvent(boolean succeeded, String cmd, String src,
+      HdfsFileStatus stat) throws IOException {
+    if (!isAuditEnabled() || !isExternalInvocation()) {
+      return;
+    }
     FileStatus status = null;
     if (stat != null) {
       Path symlink = stat.isSymlink() ? new Path(stat.getSymlink()) : null;
-      Path path = dst != null ? new Path(dst) : new Path(src);
+      Path path = new Path(src);
       status = new FileStatus(stat.getLen(), stat.isDir(),
           stat.getReplication(), stat.getBlockSize(), stat.getModificationTime(),
           stat.getAccessTime(), stat.getPermission(), stat.getOwner(),
           stat.getGroup(), symlink, path);
     }
+    logAuditEvent(succeeded, cmd, src, null, status);
+  }
+
+  private void logAuditEvent(boolean succeeded,
+      UserGroupInformation ugi, InetAddress addr, String cmd, String src,
+      String dst, FileStatus status) {
     for (AuditLogger logger : auditLoggers) {
       if (logger instanceof HdfsAuditLogger) {
         HdfsAuditLogger hdfsLogger = (HdfsAuditLogger) logger;
@@ -1815,7 +1823,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * @throws IOException
    */
   void setPermission(String src, FsPermission permission) throws IOException {
-    HdfsFileStatus auditStat;
+    FileStatus auditStat;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -1838,7 +1846,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   void setOwner(String src, String username, String group)
       throws IOException {
-    HdfsFileStatus auditStat;
+    FileStatus auditStat;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -2046,7 +2054,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void concat(String target, String [] srcs, boolean logRetryCache)
       throws IOException {
     waitForLoadingFSImage();
-    HdfsFileStatus stat = null;
+    FileStatus stat = null;
     boolean success = false;
     writeLock();
     try {
@@ -2072,7 +2080,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * written to the edits log but is not flushed.
    */
   void setTimes(String src, long mtime, long atime) throws IOException {
-    HdfsFileStatus auditStat;
+    FileStatus auditStat;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -2099,7 +2107,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     if (!FileSystem.areSymlinksEnabled()) {
       throw new UnsupportedOperationException("Symlinks not supported");
     }
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -2188,7 +2196,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       throw new HadoopIllegalArgumentException(
           "Cannot truncate to a negative file size: " + newLength + ".");
     }
-    HdfsFileStatus stat = null;
+    FileStatus stat = null;
     FSPermissionChecker pc = getPermissionChecker();
     checkOperation(OperationCategory.WRITE);
     boolean res;
@@ -2382,7 +2390,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * @param policyName storage policy name
    */
   void setStoragePolicy(String src, String policyName) throws IOException {
-    HdfsFileStatus auditStat;
+    FileStatus auditStat;
     waitForLoadingFSImage();
     checkOperation(OperationCategory.WRITE);
     writeLock();
@@ -2426,7 +2434,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    * @param src file/directory path
    */
   void unsetStoragePolicy(String src) throws IOException {
-    HdfsFileStatus auditStat;
+    FileStatus auditStat;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -2696,7 +2704,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       }
     }
 
-    logAuditEvent(true, "create", srcArg, null, stat);
+    logAuditEvent(true, "create", srcArg, stat);
     return stat;
   }
 
@@ -3923,7 +3931,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
                 boolean logRetryCache, Options.Rename... options)
       throws IOException {
     waitForLoadingFSImage();
-    Map.Entry<BlocksMapUpdateInfo, HdfsFileStatus> res = null;
+    Map.Entry<BlocksMapUpdateInfo, FileStatus> res = null;
     writeLock();
     try {
       checkOperation(OperationCategory.WRITE);
@@ -3940,7 +3948,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     getEditLog().logSync();
 
     BlocksMapUpdateInfo collectedBlocks = res.getKey();
-    HdfsFileStatus auditStat = res.getValue();
+    FileStatus auditStat = res.getValue();
     if (!collectedBlocks.getToDeleteList().isEmpty()) {
       removeBlocks(collectedBlocks);
       collectedBlocks.clear();
@@ -4141,7 +4149,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   boolean mkdirs(String src, PermissionStatus permissions,
       boolean createParent) throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -8416,7 +8424,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void modifyAclEntries(final String src, List<AclEntry> aclSpec)
       throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -8436,7 +8444,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void removeAclEntries(final String src, List<AclEntry> aclSpec)
       throws IOException {
     checkOperation(OperationCategory.WRITE);
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     writeLock();
     try {
       checkOperation(OperationCategory.WRITE);
@@ -8453,7 +8461,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   }
 
   void removeDefaultAcl(final String src) throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -8471,7 +8479,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   }
 
   void removeAcl(final String src) throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -8489,7 +8497,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   }
 
   void setAcl(final String src, List<AclEntry> aclSpec) throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     checkOperation(OperationCategory.WRITE);
     writeLock();
     try {
@@ -8573,7 +8581,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   private void createEncryptionZoneInt(final String srcArg, String cipher,
       String keyName, final boolean logRetryCache) throws IOException {
     String src = srcArg;
-    HdfsFileStatus resultingStat = null;
+    FileStatus resultingStat = null;
     checkSuperuserPrivilege();
     final byte[][] pathComponents =
       FSDirectory.getPathComponentsForReservedPath(src);
@@ -8614,7 +8622,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   EncryptionZone getEZForPath(final String srcArg)
     throws AccessControlException, UnresolvedLinkException, IOException {
     String src = srcArg;
-    HdfsFileStatus resultingStat = null;
+    FileStatus resultingStat = null;
     final byte[][] pathComponents =
         FSDirectory.getPathComponentsForReservedPath(src);
     boolean success = false;
@@ -8664,7 +8672,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void setXAttr(String src, XAttr xAttr, EnumSet<XAttrSetFlag> flag,
                 boolean logRetryCache)
       throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     writeLock();
     try {
       checkOperation(OperationCategory.WRITE);
@@ -8717,7 +8725,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
   void removeXAttr(String src, XAttr xAttr, boolean logRetryCache)
       throws IOException {
-    HdfsFileStatus auditStat = null;
+    FileStatus auditStat = null;
     writeLock();
     try {
       checkOperation(OperationCategory.WRITE);

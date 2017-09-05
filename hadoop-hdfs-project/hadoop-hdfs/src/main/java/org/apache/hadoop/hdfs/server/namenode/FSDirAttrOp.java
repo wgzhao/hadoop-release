@@ -18,6 +18,7 @@
 package org.apache.hadoop.hdfs.server.namenode;
 
 import org.apache.hadoop.HadoopIllegalArgumentException;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.PathIsNotDirectoryException;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.UnresolvedLinkException;
@@ -28,7 +29,6 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
-import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.QuotaExceededException;
 import org.apache.hadoop.hdfs.protocol.SnapshotAccessControlException;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockManager;
@@ -49,7 +49,7 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_QUOTA_BY_STORAGETYPE_ENAB
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_STORAGE_POLICY_ENABLED_KEY;
 
 public class FSDirAttrOp {
-  static HdfsFileStatus setPermission(
+  static FileStatus setPermission(
       FSDirectory fsd, final String srcArg, FsPermission permission)
       throws IOException {
     String src = srcArg;
@@ -69,7 +69,7 @@ public class FSDirAttrOp {
     return fsd.getAuditFileInfo(iip);
   }
 
-  static HdfsFileStatus setOwner(
+  static FileStatus setOwner(
       FSDirectory fsd, String src, String username, String group)
       throws IOException {
     FSPermissionChecker pc = fsd.getPermissionChecker();
@@ -98,7 +98,7 @@ public class FSDirAttrOp {
     return fsd.getAuditFileInfo(iip);
   }
 
-  static HdfsFileStatus setTimes(
+  static FileStatus setTimes(
       FSDirectory fsd, String src, long mtime, long atime)
       throws IOException {
     if (!fsd.isAccessTimeSupported() && atime != -1) {
@@ -165,13 +165,13 @@ public class FSDirAttrOp {
     return isFile;
   }
 
-  static HdfsFileStatus unsetStoragePolicy(FSDirectory fsd, BlockManager bm,
+  static FileStatus unsetStoragePolicy(FSDirectory fsd, BlockManager bm,
       String src) throws IOException {
     return setStoragePolicy(fsd, bm, src,
         HdfsConstants.BLOCK_STORAGE_POLICY_ID_UNSPECIFIED, "unset");
   }
 
-  static HdfsFileStatus setStoragePolicy(FSDirectory fsd, BlockManager bm,
+  static FileStatus setStoragePolicy(FSDirectory fsd, BlockManager bm,
       String src, final String policyName) throws IOException {
     // get the corresponding policy and make sure the policy name is valid
     BlockStoragePolicy policy = bm.getStoragePolicy(policyName);
@@ -183,7 +183,7 @@ public class FSDirAttrOp {
     return setStoragePolicy(fsd, bm, src, policy.getId(), "set");
   }
 
-  static HdfsFileStatus setStoragePolicy(FSDirectory fsd, BlockManager bm,
+  static FileStatus setStoragePolicy(FSDirectory fsd, BlockManager bm,
       String src, final byte policyId, final String operation)
       throws IOException {
     if (!fsd.isStoragePolicyEnabled()) {

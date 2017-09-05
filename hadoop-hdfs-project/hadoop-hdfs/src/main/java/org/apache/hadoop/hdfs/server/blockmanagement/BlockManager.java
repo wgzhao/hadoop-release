@@ -1497,6 +1497,8 @@ public class BlockManager implements BlockStatsMXBean {
                 priority);
             if(srcNode == null) { // block can not be replicated from any node
               LOG.debug("Block {} cannot be repl from any node", block);
+              NameNode.getNameNodeMetrics()
+                  .incNumTimesReReplicationNotScheduled();
               ++blocksWithoutSource;
               continue;
             }
@@ -1515,6 +1517,8 @@ public class BlockManager implements BlockStatsMXBean {
                 neededReplications.remove(block, priority); // remove from neededReplications
                 blockLog.debug("BLOCK* Removing {} from neededReplications as" +
                         " it has enough replicas", block);
+                NameNode.getNameNodeMetrics()
+                    .incNumTimesReReplicationNotScheduled();
                 ++blocksWithEnoughReplicas;
                 continue;
               }
@@ -1741,7 +1745,8 @@ public class BlockManager implements BlockStatsMXBean {
    *
    * We prefer nodes that are in DECOMMISSION_INPROGRESS state to other nodes
    * since the former do not have write traffic and hence are less busy.
-   * We do not use already decommissioned nodes as a source.
+   * We do not use already decommissioned nodes as a source, unless there no
+   * other choice.
    * Otherwise we choose a random node among those that did not reach their
    * replication limits.  However, if the replication is of the highest priority
    * and all nodes have reached their replication limits, we will choose a
@@ -1773,6 +1778,7 @@ public class BlockManager implements BlockStatsMXBean {
     containingNodes.clear();
     nodesContainingLiveReplicas.clear();
     DatanodeDescriptor srcNode = null;
+    DatanodeDescriptor decommissionedSrc = null;
     int live = 0;
     int readonly = 0;
     int decommissioned = 0;
@@ -1819,9 +1825,16 @@ public class BlockManager implements BlockStatsMXBean {
       // the block must not be scheduled for removal on srcNode
       if(excessBlocks != null && excessBlocks.contains(block))
         continue;
-      // never use already decommissioned nodes
-      if(node.isDecommissioned())
+      // Save the live decommissioned replica in case we need it. Such replicas
+      // are normally not used for replication, but if nothing else is
+      // available, one can be selected as a source.
+      if (node.isDecommissioned()) {
+        if (decommissionedSrc == null ||
+            DFSUtil.getRandom().nextBoolean()) {
+          decommissionedSrc = node;
+        }
         continue;
+      }
 
       // We got this far, current node is a reasonable choice
       if (srcNode == null) {
@@ -1837,6 +1850,10 @@ public class BlockManager implements BlockStatsMXBean {
     if(numReplicas != null)
       numReplicas.set(live, readonly, decommissioned, decommissioning, corrupt,
           excess, 0);
+    // Pick a live decommissioned replica, if nothing else is available.
+    if (live == 0 && srcNode == null && decommissionedSrc != null) {
+      return decommissionedSrc;
+    }
     return srcNode;
   }
 
@@ -2684,7 +2701,7 @@ public class BlockManager implements BlockStatsMXBean {
 
     int curReplicaDelta;
     if (result == AddBlockResult.ADDED) {
-      curReplicaDelta = 1;
+      curReplicaDelta = (node.isDecommissioned()) ? 0 : 1;
       if (logEveryBlock) {
         logAddStoredBlock(storedBlock, node);
       }
@@ -3215,8 +3232,8 @@ public class BlockManager implements BlockStatsMXBean {
    * The given node is reporting that it received a certain block.
    */
   @VisibleForTesting
-  void addBlock(DatanodeStorageInfo storageInfo, Block block, String delHint)
-      throws IOException {
+  public void addBlock(DatanodeStorageInfo storageInfo, Block block,
+      String delHint) throws IOException {
     DatanodeDescriptor node = storageInfo.getDatanodeDescriptor();
     // Decrement number of blocks scheduled to this datanode.
     // for a retry request (of DatanodeProtocol#blockReceivedAndDeleted with 
@@ -3236,7 +3253,9 @@ public class BlockManager implements BlockStatsMXBean {
     //
     // Modify the blocks->datanode map and node's map.
     //
-    pendingReplications.decrement(block, node);
+    if (pendingReplications.decrement(block, node)) {
+      NameNode.getNameNodeMetrics().incSuccessfulReReplications();
+    }
     processAndHandleReportedBlock(storageInfo, block, ReplicaState.FINALIZED,
         delHintNode);
   }

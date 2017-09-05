@@ -281,4 +281,16 @@
         <Field name="cachingStrategy" />
         <Bug pattern="IS2_INCONSISTENT_SYNC" />
     </Match>
+    <Match>
+        <Class name="org.apache.hadoop.hdfs.server.datanode.checker.AbstractFuture" />
+        <Bug pattern="DLS_DEAD_STORE_OF_CLASS_LITERAL" />
+    </Match>
+    <Match>
+        <Class name="org.apache.hadoop.hdfs.server.datanode.checker.AbstractFuture" />
+        <Bug pattern="DLS_DEAD_LOCAL_STORE" />
+    </Match>
+    <Match>
+        <Class name="org.apache.hadoop.hdfs.server.datanode.checker.AbstractFuture" />
+        <Bug pattern="NS_DANGEROUS_NON_SHORT_CIRCUIT" />
+    </Match>
  </FindBugsFilter>

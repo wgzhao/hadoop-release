@@ -32,6 +32,7 @@ import org.apache.hadoop.crypto.CipherSuite;
 import org.apache.hadoop.crypto.CryptoProtocolVersion;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileEncryptionInfo;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.StorageType;
@@ -1960,11 +1961,44 @@ public class FSDirectory implements Closeable {
     }
   }
 
-  HdfsFileStatus getAuditFileInfo(INodesInPath iip)
-      throws IOException {
-    return (namesystem.isAuditEnabled() && namesystem.isExternalInvocation())
-        ? FSDirStatAndListingOp.getFileInfo(this, iip.getPath(), iip, false,
-            false) : null;
+  FileStatus getAuditFileInfo(INodesInPath iip) throws IOException {
+    if (!namesystem.isAuditEnabled() || !namesystem.isExternalInvocation()) {
+      return null;
+    }
+
+    final INode inode = iip.getLastINode();
+    if (inode == null) {
+      return null;
+    }
+    final int snapshot = iip.getPathSnapshotId();
+
+    Path symlink = null;
+    long size = 0;     // length is zero for directories
+    short replication = 0;
+    long blocksize = 0;
+
+    if (inode.isFile()) {
+      final INodeFile fileNode = inode.asFile();
+      size = fileNode.computeFileSize(snapshot);
+      replication = fileNode.getFileReplication(snapshot);
+      blocksize = fileNode.getPreferredBlockSize();
+    } else if (inode.isSymlink()) {
+      symlink = new Path(
+          DFSUtil.bytes2String(inode.asSymlink().getSymlink()));
+    }
+
+    return new FileStatus(
+        size,
+        inode.isDirectory(),
+        replication,
+        blocksize,
+        inode.getModificationTime(snapshot),
+        inode.getAccessTime(snapshot),
+        inode.getFsPermission(snapshot),
+        inode.getUserName(snapshot),
+        inode.getGroupName(snapshot),
+        symlink,
+        new Path(iip.getPath()));
   }
 
   /**

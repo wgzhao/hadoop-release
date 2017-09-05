@@ -31,6 +31,7 @@ import org.apache.hadoop.hdfs.server.namenode.snapshot.DirectoryWithSnapshotFeat
 import org.apache.hadoop.hdfs.server.namenode.snapshot.Snapshot;
 
 import com.google.common.base.Preconditions;
+import org.apache.hadoop.security.AccessControlException;
 import org.mortbay.log.Log;
 
 /**
@@ -320,7 +321,7 @@ public abstract class INodeReference extends INode {
 
   @Override
   public ContentSummaryComputationContext computeContentSummary(int snapshotId,
-      ContentSummaryComputationContext summary) {
+      ContentSummaryComputationContext summary) throws AccessControlException {
     return referred.computeContentSummary(snapshotId, summary);
   }
 

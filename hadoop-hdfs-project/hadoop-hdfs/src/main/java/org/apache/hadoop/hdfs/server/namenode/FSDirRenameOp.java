@@ -19,6 +19,7 @@ package org.apache.hadoop.hdfs.server.namenode;
 
 import com.google.common.base.Preconditions;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.InvalidPathException;
 import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
@@ -26,7 +27,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.QuotaExceededException;
 import org.apache.hadoop.hdfs.protocol.SnapshotException;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockStoragePolicySuite;
@@ -66,7 +66,7 @@ class FSDirRenameOp {
 
     byte[][] srcComponents = FSDirectory.getPathComponentsForReservedPath(src);
     byte[][] dstComponents = FSDirectory.getPathComponentsForReservedPath(dst);
-    HdfsFileStatus resultingStat = null;
+    FileStatus resultingStat = null;
     src = fsd.resolvePath(pc, src, srcComponents);
     dst = fsd.resolvePath(pc, dst, dstComponents);
     @SuppressWarnings("deprecation")
@@ -224,7 +224,7 @@ class FSDirRenameOp {
   /**
    * The new rename which has the POSIX semantic.
    */
-  static Map.Entry<BlocksMapUpdateInfo, HdfsFileStatus> renameToInt(
+  static Map.Entry<BlocksMapUpdateInfo, FileStatus> renameToInt(
       FSDirectory fsd, final String srcArg, final String dstArg,
       boolean logRetryCache, Options.Rename... options)
       throws IOException {
@@ -246,7 +246,7 @@ class FSDirRenameOp {
     dst = fsd.resolvePath(pc, dst, dstComponents);
     renameTo(fsd, pc, src, dst, collectedBlocks, logRetryCache, options);
     INodesInPath dstIIP = fsd.getINodesInPath(dst, false);
-    HdfsFileStatus resultingStat = fsd.getAuditFileInfo(dstIIP);
+    FileStatus resultingStat = fsd.getAuditFileInfo(dstIIP);
 
     return new AbstractMap.SimpleImmutableEntry<>(
         collectedBlocks, resultingStat);
@@ -776,9 +776,9 @@ class FSDirRenameOp {
 
   static class RenameOldResult {
     final boolean success;
-    final HdfsFileStatus auditStat;
+    final FileStatus auditStat;
 
-    RenameOldResult(boolean success, HdfsFileStatus auditStat) {
+    RenameOldResult(boolean success, FileStatus auditStat) {
       this.success = success;
       this.auditStat = auditStat;
     }

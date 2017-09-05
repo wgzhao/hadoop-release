@@ -1778,6 +1778,9 @@ Release 2.7.1 - UNRELEASED
     HADOOP-11581. Multithreaded correctness Warnings
     #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
 
+    HDFS-8429. Avoid stuck threads if there is an error in DomainSocketWatcher
+    that stops the thread.  (zhouyingchao via cmccabe)
+
 Release 2.7.1 - UNRELEASED
 >>>>>>> 6c4aa89... HADOOP-11581. Multithreaded correctness Warnings #org.apache.hadoop.fs.shell.Ls (Brahma Reddy Battula via aw)
 
