@@ -4397,3 +4397,6 @@ ATS V1.5:
     instead of HdfsFileStatus. Contributed by Daryn Sharp.
 
     BUG-87495. Allow selectively audit logging ops (Contributed by Chen He)
+
+    BUG-87376. HADOOP-14820. Wasb mkdirs security checks inconsistent with HDFS.
+    Contributed by Sivaguru Sankaridurg
