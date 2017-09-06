@@ -4825,3 +4825,6 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+
+    BUG-87376. HADOOP-14820. Wasb mkdirs security checks inconsistent with HDFS.
+    Contributed by Sivaguru Sankaridurg
