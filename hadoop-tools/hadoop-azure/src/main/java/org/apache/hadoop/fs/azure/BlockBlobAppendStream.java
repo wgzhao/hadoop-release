@@ -47,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudBlockBlobWrapper;
 import org.apache.hadoop.io.ElasticByteBufferPool;
@@ -61,6 +62,9 @@ import com.microsoft.azure.storage.blob.BlobRequestOptions;
 import com.microsoft.azure.storage.blob.BlockEntry;
 import com.microsoft.azure.storage.blob.BlockListingFilter;
 import com.microsoft.azure.storage.blob.BlockSearchMode;
+
+import static org.apache.hadoop.fs.StreamCapabilities.StreamCapability.HFLUSH;
+import static org.apache.hadoop.fs.StreamCapabilities.StreamCapability.HSYNC;
 
 /**
  * Stream object that implements append for Block Blobs in WASB.
@@ -81,7 +85,8 @@ import com.microsoft.azure.storage.blob.BlockSearchMode;
  * list upload is managed by uploadingSemaphore.
  */
 
-public class BlockBlobAppendStream extends OutputStream implements Syncable {
+public class BlockBlobAppendStream extends OutputStream implements Syncable,
+    StreamCapabilities {
 
   /**
    * The name of the blob/file.
@@ -547,6 +552,19 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable {
     if (compactionEnabled) {
       flush();
     }
+  }
+
+  /**
+   * The Synchronization capabilities of this stream depend upon the compaction
+   * policy.
+   * @param capability string to query the stream support for.
+   * @return true for hsync and hflush when compaction is enabled.
+   */
+  @Override
+  public boolean hasCapability(String capability) {
+    return compactionEnabled
+        && (capability.equalsIgnoreCase(HSYNC.getValue())
+        || capability.equalsIgnoreCase((HFLUSH.getValue())));
   }
 
   /**
