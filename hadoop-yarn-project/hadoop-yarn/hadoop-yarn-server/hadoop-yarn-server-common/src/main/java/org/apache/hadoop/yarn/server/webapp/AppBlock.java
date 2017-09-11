@@ -22,8 +22,10 @@ import static org.apache.hadoop.yarn.util.StringHelper.join;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.APPLICATION_ID;
 import static org.apache.hadoop.yarn.webapp.YarnWebParams.WEB_UI_TYPE;
 
+import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -47,6 +49,7 @@ import org.apache.hadoop.yarn.api.records.LogAggregationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.ContainerNotFoundException;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.webapp.dao.AppAttemptInfo;
 import org.apache.hadoop.yarn.server.webapp.dao.AppInfo;
 import org.apache.hadoop.yarn.server.webapp.dao.ContainerInfo;
@@ -105,17 +108,15 @@ public class AppBlock extends HtmlBlock {
       final GetApplicationReportRequest request =
           GetApplicationReportRequest.newInstance(appID);
       if (callerUGI == null) {
-        appReport =
-            appBaseProt.getApplicationReport(request).getApplicationReport();
+        appReport = getApplicationReport(request);
       } else {
-        appReport = callerUGI.doAs(
-            new PrivilegedExceptionAction<ApplicationReport> () {
-          @Override
-          public ApplicationReport run() throws Exception {
-            return appBaseProt.getApplicationReport(request)
-                .getApplicationReport();
-          }
-        });
+        appReport =
+            callerUGI.doAs(new PrivilegedExceptionAction<ApplicationReport>() {
+              @Override
+              public ApplicationReport run() throws Exception {
+                return getApplicationReport(request);
+              }
+            });
       }
     } catch (Exception e) {
       String message = "Failed to read the application " + appID + ".";
@@ -235,17 +236,16 @@ public class AppBlock extends HtmlBlock {
       final GetApplicationAttemptsRequest request =
           GetApplicationAttemptsRequest.newInstance(appID);
       if (callerUGI == null) {
-        attempts = appBaseProt.getApplicationAttempts(request)
-            .getApplicationAttemptList();
+        attempts = getApplicationAttemptsReport(request);
       } else {
         attempts = callerUGI.doAs(
-            new PrivilegedExceptionAction<Collection<ApplicationAttemptReport>> () {
-          @Override
-          public Collection<ApplicationAttemptReport> run() throws Exception {
-            return appBaseProt.getApplicationAttempts(request)
-                .getApplicationAttemptList();
-          }
-        });
+            new PrivilegedExceptionAction<Collection<ApplicationAttemptReport>>() {
+              @Override
+              public Collection<ApplicationAttemptReport> run()
+                  throws Exception {
+                return getApplicationAttemptsReport(request);
+              }
+            });
       }
     } catch (Exception e) {
       String message =
@@ -282,24 +282,23 @@ public class AppBlock extends HtmlBlock {
                       appAttemptReport.getAMContainerId());
         if (callerUGI == null) {
           containerReport =
-              appBaseProt.getContainerReport(request).getContainerReport();
+              getContainerReport(request);
         } else {
-          containerReport = callerUGI.doAs(
-              new PrivilegedExceptionAction<ContainerReport>() {
-            @Override
-            public ContainerReport run() throws Exception {
-              ContainerReport report = null;
-              if (request.getContainerId() != null) {
-                  try {
-                    report = appBaseProt.getContainerReport(request)
-                        .getContainerReport();
-                  } catch (ContainerNotFoundException ex) {
-                    LOG.warn(ex.getMessage());
+          containerReport =
+              callerUGI.doAs(new PrivilegedExceptionAction<ContainerReport>() {
+                @Override
+                public ContainerReport run() throws Exception {
+                  ContainerReport report = null;
+                  if (request.getContainerId() != null) {
+                    try {
+                      report = getContainerReport(request);
+                    } catch (ContainerNotFoundException ex) {
+                      LOG.warn(ex.getMessage());
+                    }
                   }
-              }
-              return report;
-            }
-          });
+                  return report;
+                }
+              });
         }
       } catch (Exception e) {
         String message =
@@ -344,6 +343,26 @@ public class AppBlock extends HtmlBlock {
 
     tbody._()._();
   }
+
+  protected ContainerReport getContainerReport(
+      final GetContainerReportRequest request)
+      throws YarnException, IOException {
+    return appBaseProt.getContainerReport(request).getContainerReport();
+  }
+
+  protected List<ApplicationAttemptReport> getApplicationAttemptsReport(
+      final GetApplicationAttemptsRequest request)
+      throws YarnException, IOException {
+    return appBaseProt.getApplicationAttempts(request)
+        .getApplicationAttemptList();
+  }
+
+  protected ApplicationReport getApplicationReport(
+      final GetApplicationReportRequest request)
+      throws YarnException, IOException {
+    return appBaseProt.getApplicationReport(request).getApplicationReport();
+  }
+
 
   private String clarifyAppState(YarnApplicationState state) {
     String ret = state.toString();
