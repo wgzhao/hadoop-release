@@ -4831,3 +4831,6 @@ ATS V1.5:
 
     BUG-87204. HADOOP-14802. Add support for using container saskeys for all
     accesses. Contributed by Sivaguru Sankaridurg
+
+    BUG-97636. YARN-7163. RMContext need not to be injected to webapp and other
+    Always Running services. Contributed by Rohith Sharma K S.

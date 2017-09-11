@@ -132,4 +132,6 @@ public interface RMContext {
   PlacementManager getQueuePlacementManager();
   
   void setQueuePlacementManager(PlacementManager placementMgr);
+
+  ResourceManager getResourceManager();
 }
