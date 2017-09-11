@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -79,18 +80,22 @@ public class AppsBlock extends HtmlBlock {
       request.setLimit(appsNum);
     }
     if (callerUGI == null) {
-      appReports = appBaseProt.getApplications(request).getApplicationList();
+      appReports = getApplicationReport(request);
     } else {
       appReports =
           callerUGI
             .doAs(new PrivilegedExceptionAction<Collection<ApplicationReport>>() {
               @Override
               public Collection<ApplicationReport> run() throws Exception {
-                return appBaseProt.getApplications(request)
-                  .getApplicationList();
+                return getApplicationReport(request);
               }
             });
     }
+  }
+
+  protected List<ApplicationReport> getApplicationReport(
+      final GetApplicationsRequest request) throws YarnException, IOException {
+    return appBaseProt.getApplications(request).getApplicationList();
   }
 
   @Override
