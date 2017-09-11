@@ -4825,3 +4825,4 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+BUG-122975. YARN-7163. RMContext need not to be injected to webapp and other Always Running services. Contributed by Rohith Sharma K S.

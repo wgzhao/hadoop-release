@@ -170,6 +170,10 @@ public class RMContextImpl implements RMContext {
     serviceContext.setResourceManager(rm);
   }
 
+  public ResourceManager getResourceManager() {
+    return serviceContext.getResourceManager();
+  }
+
   @Override
   public Dispatcher getDispatcher() {
     return serviceContext.getDispatcher();

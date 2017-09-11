@@ -20,13 +20,17 @@ package org.apache.hadoop.yarn.server.resourcemanager.webapp;
 
 import com.google.inject.Inject;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptsRequest;
+import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportRequest;
+import org.apache.hadoop.yarn.api.protocolrecords.GetContainerReportRequest;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptReport;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.ContainerReport;
 import org.apache.hadoop.yarn.api.records.LogAggregationStatus;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.resourcemanager.ResourceManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppMetrics;
@@ -40,21 +44,22 @@ import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.DIV;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import org.apache.hadoop.yarn.webapp.view.InfoBlock;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static org.apache.hadoop.yarn.webapp.view.JQueryUI._INFO_WRAP;
 
 public class RMAppBlock extends AppBlock{
 
-  private static final Log LOG = LogFactory.getLog(RMAppBlock.class);
   private final ResourceManager rm;
   private final Configuration conf;
 
 
   @Inject
   RMAppBlock(ViewContext ctx, Configuration conf, ResourceManager rm) {
-    super(rm.getClientRMService(), ctx, conf);
+    super(null, ctx, conf);
     this.conf = conf;
     this.rm = rm;
   }
@@ -181,5 +186,29 @@ public class RMAppBlock extends AppBlock{
       return null;
     }
     return rmApp.getLogAggregationStatusForAppReport();
+  }
+
+  @Override
+  protected ContainerReport
+      getContainerReport(final GetContainerReportRequest request)
+          throws YarnException, IOException {
+    return rm.getClientRMService().getContainerReport(request)
+      .getContainerReport();
+  }
+
+  @Override
+  protected List<ApplicationAttemptReport>
+      getApplicationAttemptsReport(final GetApplicationAttemptsRequest request)
+          throws YarnException, IOException {
+    return rm.getClientRMService().getApplicationAttempts(request)
+      .getApplicationAttemptList();
+  }
+
+  @Override
+  protected ApplicationReport
+      getApplicationReport(final GetApplicationReportRequest request)
+          throws YarnException, IOException {
+    return rm.getClientRMService().getApplicationReport(request)
+      .getApplicationReport();
   }
 }
