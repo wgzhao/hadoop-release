@@ -224,9 +224,11 @@ class CapacitySchedulerPage extends RmView {
           resourcesUsed = userInfo.getResourceUsageInfo()
               .getPartitionResourceUsageInfo(nodeLabel).getUsed();
         }
-        ResourceInfo amUsed = (resourceUsages.getAmUsed() == null)
-            ? new ResourceInfo(Resources.none())
-            : resourceUsages.getAmUsed();
+
+        ResourceInfo amUsed = userInfo.getAMResourcesUsed();
+        if (amUsed == null) {
+          amUsed = new ResourceInfo(Resources.none());
+        }
         tbody.tr().td(userInfo.getUsername())
             .td(userInfo.getUserResourceLimit().toString())
             .td(resourcesUsed.toString())

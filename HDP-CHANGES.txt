@@ -4406,3 +4406,6 @@ ATS V1.5:
 
     BUG-85043 YARN-6992. Kill application button is visible even if the application is FINISHED in RM UI.
     Contributed by Suma Shivaprasad.
+
+    BUG-84376/YARN-7116. CapacityScheduler Web UI: Queue's AM usage is always show on per-user's AM usage. 
+    (wangda)
