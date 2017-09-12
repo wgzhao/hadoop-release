@@ -95,6 +95,7 @@ public class JsonSerDeser<T> {
    * @param json input
    * @return the parsed JSON
    * @throws IOException IO
+   * @throws JsonParseException failure to map from the JSON to this class
    * @throws JsonMappingException failure to map from the JSON to this class
    */
   @SuppressWarnings("unchecked")
@@ -113,6 +114,7 @@ public class JsonSerDeser<T> {
    * @param jsonFile input file
    * @return the parsed JSON
    * @throws IOException IO problems
+   * @throws JsonParseException failure to map from the JSON to this class
    * @throws JsonMappingException failure to map from the JSON to this class
    */
   @SuppressWarnings("unchecked")
@@ -131,6 +133,7 @@ public class JsonSerDeser<T> {
    * @param resource input file
    * @return the parsed JSON
    * @throws IOException IO problems
+   * @throws JsonParseException failure to map from the JSON to this class
    * @throws JsonMappingException failure to map from the JSON to this class
    */
   @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
@@ -189,6 +192,7 @@ public class JsonSerDeser<T> {
    * Save a cluster description to a hadoop filesystem
    * @param fs filesystem
    * @param path path
+   * @param instance T
    * @param overwrite should any existing file be overwritten
    * @throws IOException IO exception
    */
@@ -218,7 +222,7 @@ public class JsonSerDeser<T> {
    * Convert JSON To bytes
    * @param instance instance to convert
    * @return a byte array
-   * @throws IOException
+   * @throws IOException IO exception
    */
   public byte[] toBytes(T instance) throws IOException {
     String json = toJson(instance);
@@ -229,6 +233,7 @@ public class JsonSerDeser<T> {
    * Deserialize from a byte array
    * @param path path the data came from
    * @param bytes byte array
+   * @return T instance
    * @throws IOException all problems
    * @throws EOFException not enough data
    * @throws InvalidRecordException if the parsing failed -the record is invalid
@@ -281,7 +286,8 @@ public class JsonSerDeser<T> {
    * Convert an instance to a JSON string
    * @param instance instance to convert
    * @return a JSON string description
-   * @throws JsonParseException parse problems
+   * @throws IOException all problems
+   * @throws JsonGenerationException parse problems
    * @throws JsonMappingException O/J mapping problems
    */
   public synchronized String toJson(T instance) throws IOException,

@@ -134,7 +134,7 @@ public class CuratorService extends CompositeService
    * Init the service.
    * This is where the security bindings are set up
    * @param conf configuration of the service
-   * @throws Exception
+   * @throws Exception for any exceptions
    */
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
@@ -159,7 +159,7 @@ public class CuratorService extends CompositeService
   /**
    * Start the service.
    * This is where the curator instance is started.
-   * @throws Exception
+   * @throws Exception for any exceptions
    */
   @Override
   protected void serviceStart() throws Exception {
@@ -294,7 +294,7 @@ public class CuratorService extends CompositeService
    * Create a full path from the registry root and the supplied subdir
    * @param path path of operation
    * @return an absolute path
-   * @throws IllegalArgumentException if the path is invalide
+   * @throws IOException if the path is invalide
    */
   protected String createFullPath(String path) throws IOException {
     return RegistryPathUtils.createFullPath(registryRoot, path);
@@ -369,6 +369,7 @@ public class CuratorService extends CompositeService
    * @param path path of operation
    * @param operation operation attempted
    * @param exception caught the exception caught
+   * @param acls acls
    * @return an IOE to throw that contains the path and operation details.
    */
   protected IOException operationFailure(String path,
@@ -422,10 +423,11 @@ public class CuratorService extends CompositeService
    * propagated to the ZK node polled.
    *
    * @param path path to create
+   * @param mode mode
    * @param acl ACL for path -used when creating a new entry
    * @param createParents flag to trigger parent creation
    * @return true iff the path was created
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   @VisibleForTesting
   public boolean maybeCreate(String path,
@@ -464,7 +466,7 @@ public class CuratorService extends CompositeService
    * Get the ACLs of a path
    * @param path path of operation
    * @return a possibly empty list of ACLs
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   public List<ACL> zkGetACLS(String path) throws IOException {
     checkServiceLive();
@@ -509,8 +511,8 @@ public class CuratorService extends CompositeService
   /**
    * Verify a path exists
    * @param path path of operation
-   * @throws PathNotFoundException if the path is absent
-   * @throws IOException
+   * @return zkPath if exists
+   * @throws IOException for IO errors
    */
   public String zkPathMustExist(String path) throws IOException {
     zkStat(path);
@@ -523,6 +525,7 @@ public class CuratorService extends CompositeService
    * @param mode mode for path
    * @param createParents flag to trigger parent creation
    * @param acls ACL for path
+   * @return true if creation success
    * @throws IOException any problem
    */
   public boolean zkMkPath(String path,
@@ -580,9 +583,10 @@ public class CuratorService extends CompositeService
    * Create a path with given data. byte[0] is used for a path
    * without data
    * @param path path of operation
+   * @param mode mode
    * @param data initial data
-   * @param acls
-   * @throws IOException
+   * @param acls acls
+   * @throws IOException for IO errors
    */
   public void zkCreate(String path,
       CreateMode mode,
@@ -607,7 +611,7 @@ public class CuratorService extends CompositeService
    * Update the data for a path
    * @param path path of operation
    * @param data new data
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   public void zkUpdate(String path, byte[] data) throws IOException {
     Preconditions.checkArgument(data != null, "null data");
@@ -627,9 +631,10 @@ public class CuratorService extends CompositeService
    * Create or update an entry
    * @param path path
    * @param data data
+   * @param mode mode
    * @param acl ACL for path -used when creating a new entry
    * @param overwrite enable overwrite
-   * @throws IOException
+   * @throws IOException IO errors
    * @return true if the entry was created, false if it was simply updated.
    */
   public boolean zkSet(String path,
@@ -689,7 +694,7 @@ public class CuratorService extends CompositeService
    * List all children of a path
    * @param path path of operation
    * @return a possibly empty list of children
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   public List<String> zkList(String path) throws IOException {
     checkServiceLive();
@@ -740,6 +745,7 @@ public class CuratorService extends CompositeService
    * Add a new write access entry for all future write operations.
    * @param id ID to use
    * @param pass password
+   * @return true or false based on success
    * @throws IOException on any failure to build the digest
    */
   public boolean addWriteAccessor(String id, String pass) throws IOException {

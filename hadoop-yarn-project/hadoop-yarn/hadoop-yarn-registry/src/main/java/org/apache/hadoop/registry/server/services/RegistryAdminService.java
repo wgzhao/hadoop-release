@@ -184,7 +184,7 @@ public class RegistryAdminService extends RegistryOperationsService {
    * as needed
    * @return the future which will indicate whether or not the operation
    * succeeded —and propagate any exceptions
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   public Future<Boolean> createDirAsync(final String path,
       final List<ACL> acls,
@@ -223,7 +223,7 @@ public class RegistryAdminService extends RegistryOperationsService {
 
   /**
    * Start the service, including creating base directories with permissions
-   * @throws Exceptionn on a failure to start.
+   * @throws Exception on a failure to start.
    */
   @Override
   protected void serviceStart() throws Exception {

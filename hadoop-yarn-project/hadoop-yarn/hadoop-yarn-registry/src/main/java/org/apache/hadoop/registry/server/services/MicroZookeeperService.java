@@ -127,7 +127,7 @@ public class MicroZookeeperService
   /**
    * Initialize the service, including choosing a path for the data
    * @param conf configuration
-   * @throws Exception
+   * @throws Exception if any exceptions
    */
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
@@ -190,7 +190,7 @@ public class MicroZookeeperService
   /**
    * set up security. this must be done prior to creating
    * the ZK instance, as it sets up JAAS if that has not been done already.
-   *
+   * @throws IOException if any exceptions
    * @return true if the cluster has security enabled.
    */
   public boolean setupSecurity() throws IOException {
@@ -220,7 +220,7 @@ public class MicroZookeeperService
   /**
    * Startup: start ZK. It is only after this that
    * the binding information is valid.
-   * @throws Exception
+   * @throws Exception if any exceptions
    */
   @Override
   protected void serviceStart() throws Exception {
@@ -260,7 +260,7 @@ public class MicroZookeeperService
   /**
    * When the service is stopped, it deletes the data directory
    * and its contents
-   * @throws Exception
+   * @throws Exception if any exceptions
    */
   @Override
   protected void serviceStop() throws Exception {

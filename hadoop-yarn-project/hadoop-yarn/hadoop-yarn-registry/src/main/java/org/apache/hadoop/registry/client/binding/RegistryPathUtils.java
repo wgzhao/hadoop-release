@@ -84,6 +84,7 @@ public class RegistryPathUtils {
 
   /**
    * Create a full path from the registry root and the supplied subdir
+   * @param base path
    * @param path path of operation
    * @return an absolute path
    * @throws InvalidPathnameException if the path is invalid

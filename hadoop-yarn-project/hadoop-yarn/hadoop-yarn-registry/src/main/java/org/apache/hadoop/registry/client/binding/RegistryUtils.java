@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -167,7 +166,7 @@ public class RegistryUtils {
    * @param path path to list
    * @return a mapping of the service records that were resolved, indexed
    * by their full path
-   * @throws IOException
+   * @throws IOException for IO failures
    */
   public static Map<String, ServiceRecord> listServiceRecords(
       RegistryOperations registryOperations,
@@ -188,6 +187,7 @@ public class RegistryUtils {
    * the <code>PathNotFoundException</code> is caught and that child
    * entry ommitted.
    *
+   * @param registryOperations for registry
    * @param path path
    * @return a possibly empty map of child entries listed by
    * their short name.
@@ -344,6 +344,7 @@ public class RegistryUtils {
    * <p>
    * @param operations operation support for fetches
    * @param parentpath path of the parent of all the entries
+   * @param stats registry stats
    * @return a possibly empty map of fullpath:record.
    * @throws IOException for any IO Operation that wasn't ignored.
    */

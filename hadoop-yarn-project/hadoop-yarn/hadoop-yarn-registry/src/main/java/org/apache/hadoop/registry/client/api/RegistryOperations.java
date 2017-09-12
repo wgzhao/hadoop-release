@@ -115,7 +115,7 @@ public interface RegistryOperations extends Service {
    * any failure downgraded to a
    * @param path path to query
    * @return true if the path was found
-   * @throws IOException
+   * @throws IOException Any other IO Exception
    */
   boolean exists(String path) throws IOException;
 
@@ -125,9 +125,9 @@ public interface RegistryOperations extends Service {
    * @param path path to query
    * @return a possibly empty list of the short path names of
    * child entries.
-   * @throws PathNotFoundException
-   * @throws InvalidPathnameException
-   * @throws IOException
+   * @throws PathNotFoundException path is not in the registry.
+   * @throws InvalidPathnameException the path is invalid.
+   * @throws IOException Any other IO Exception
    */
    List<String> list(String path) throws
       PathNotFoundException,

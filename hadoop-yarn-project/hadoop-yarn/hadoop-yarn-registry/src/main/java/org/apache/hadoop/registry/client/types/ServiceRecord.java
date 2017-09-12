@@ -21,7 +21,6 @@ package org.apache.hadoop.registry.client.types;
 import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.registry.client.exceptions.InvalidRecordException;
 import org.codehaus.jackson.annotate.JsonAnyGetter;
 import org.codehaus.jackson.annotate.JsonAnySetter;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -238,7 +237,7 @@ public class ServiceRecord implements Cloneable {
   /**
    * Shallow clone: all endpoints will be shared across instances
    * @return a clone of the instance
-   * @throws CloneNotSupportedException
+   * @throws CloneNotSupportedException if clone fails
    */
   @Override
   protected Object clone() throws CloneNotSupportedException {

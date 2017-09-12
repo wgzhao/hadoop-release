@@ -70,9 +70,7 @@ abstract class StorageInterface {
    * The default timeout interval for a request made via the service client is
    * 90 seconds. You can change this value on the service client by setting this
    * property, so that all subsequent requests made via the service client will
-   * use the new timeout interval. You can also change this value for an
-   * individual request, by setting the
-   * {@link RequestOptions#timeoutIntervalInMs} property.
+   * use the new timeout interval.
    * 
    * If you are downloading a large blob, you should increase the value of the
    * timeout beyond the default value.
@@ -149,8 +147,8 @@ abstract class StorageInterface {
       throws URISyntaxException, StorageException;
 
   /**
-   * A thin wrapper over the {@link CloudBlobDirectory} class that simply
-   * redirects calls to the real object except in unit tests.
+   * A thin wrapper class that simply redirects calls to the real object except
+   * in unit tests.
    */
   @InterfaceAudience.Private
   public abstract static class CloudBlobDirectoryWrapper implements
@@ -207,8 +205,8 @@ abstract class StorageInterface {
   }
 
   /**
-   * A thin wrapper over the {@link CloudBlobContainer} class that simply
-   * redirects calls to the real object except in unit tests.
+   * A thin wrapper class that simply redirects calls to the real object except
+   * in unit tests.
    */
   @InterfaceAudience.Private
   public abstract static class CloudBlobContainerWrapper {
@@ -615,8 +613,8 @@ abstract class StorageInterface {
   }
 
   /**
-   * A thin wrapper over the {@link CloudBlockBlob} class that simply redirects calls
-   * to the real object except in unit tests.
+   * A thin wrapper class that simply redirects calls to the real object except
+   * in unit tests.
    */
   public abstract interface CloudBlockBlobWrapper
       extends CloudBlobWrapper {
@@ -697,8 +695,8 @@ abstract class StorageInterface {
   }
 
   /**
-   * A thin wrapper over the {@link CloudPageBlob} class that simply redirects calls
-   * to the real object except in unit tests.
+   * A thin wrapper class that simply redirects calls to the real object except
+   * in unit tests.
    */
   public abstract interface CloudPageBlobWrapper
       extends CloudBlobWrapper {

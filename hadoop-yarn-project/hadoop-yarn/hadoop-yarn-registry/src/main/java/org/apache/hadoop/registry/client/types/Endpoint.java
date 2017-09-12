@@ -226,7 +226,7 @@ public final class Endpoint implements Cloneable {
   /**
    * Shallow clone: the lists of addresses are shared
    * @return a cloned instance
-   * @throws CloneNotSupportedException
+   * @throws CloneNotSupportedException if clone fails
    */
   @Override
   public Object clone() throws CloneNotSupportedException {

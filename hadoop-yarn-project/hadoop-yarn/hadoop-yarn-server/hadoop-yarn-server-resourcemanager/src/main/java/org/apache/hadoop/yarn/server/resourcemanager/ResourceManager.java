@@ -991,7 +991,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
    *
    * @param fromActive Indicates if the call is from the active state transition
    *                   or the RM initialization.
-   * @throws Exception
    */
   protected void createAndInitActiveServices(boolean fromActive) {
     activeServices = new RMActiveServices(this);

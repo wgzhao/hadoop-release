@@ -194,7 +194,7 @@ public class RegistrySecurity extends AbstractService {
   /**
    * Init the service: this sets up security based on the configuration
    * @param conf configuration
-   * @throws Exception
+   * @throws Exception  for IO errors
    */
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
@@ -326,6 +326,7 @@ public class RegistrySecurity extends AbstractService {
   /**
    * Add a digest ACL
    * @param acl add ACL
+   * @return true if success
    */
   public boolean addDigestACL(ACL acl) {
     if (secureRegistry) {
@@ -385,7 +386,7 @@ public class RegistrySecurity extends AbstractService {
    * Create a SASL ACL for the user
    * @param perms permissions
    * @return an ACL for the current user or null if they aren't a kerberos user
-   * @throws IOException
+   * @throws IOException  for IO errors
    */
   public ACL createSaslACLFromCurrentUser(int perms) throws IOException {
     UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
@@ -455,6 +456,7 @@ public class RegistrySecurity extends AbstractService {
    * Generate a base-64 encoded digest of the idPasswordPair pair
    * @param idPasswordPair id:password
    * @return a string that can be used for authentication
+   * @throws IOException  for IO errors
    */
   public String digest(String idPasswordPair) throws IOException {
     if (StringUtils.isEmpty(idPasswordPair) || !isValid(idPasswordPair)) {
@@ -474,7 +476,7 @@ public class RegistrySecurity extends AbstractService {
    * @param id ID
    * @param password pass
    * @return a string that can be used for authentication
-   * @throws IOException
+   * @throws IOException  for IO errors
    */
   public String digest(String id, String password) throws IOException {
     return digest(id + ":" + password);
@@ -494,7 +496,7 @@ public class RegistrySecurity extends AbstractService {
    * @param id ID
    * @param password password
    * @return an ID
-   * @throws IOException
+   * @throws IOException  for IO errors
    */
   public Id toDigestId(String id, String password) throws IOException {
     return toDigestId(digest(id, password));
@@ -562,7 +564,7 @@ public class RegistrySecurity extends AbstractService {
    * @param realm realm to add
    * @param perms permissions
    * @return the relevant ACLs
-   * @throws IOException
+   * @throws IOException for IO errors
    */
   public List<ACL> buildACLs(String principalList, String realm, int perms)
       throws IOException {
@@ -1021,6 +1023,7 @@ public class RegistrySecurity extends AbstractService {
   /**
    * Create an ACL For a user.
    * @param ugi User identity
+   * @param perms perms
    * @return the ACL For the specified user. Ifthe username doesn't end
    * in "@" then the realm is added
    */
