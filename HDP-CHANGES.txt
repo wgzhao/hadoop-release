@@ -4828,3 +4828,6 @@ ATS V1.5:
 
     BUG-87376. HADOOP-14820. Wasb mkdirs security checks inconsistent with HDFS.
     Contributed by Sivaguru Sankaridurg
+
+    BUG-87204. HADOOP-14802. Add support for using container saskeys for all
+    accesses. Contributed by Sivaguru Sankaridurg
