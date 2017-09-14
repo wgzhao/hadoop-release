@@ -78,6 +78,7 @@
 
     <tomcat.version>6.0.53</tomcat.version>
     <joda-time.version>2.9.4</joda-time.version>
+    <okhttp.version>2.7.5</okhttp.version>
 
     <!-- define the Java language version used by the compiler -->
     <javac.version>1.7</javac.version>
