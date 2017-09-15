@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.logging.Log;
@@ -61,7 +61,6 @@ import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.SecureIOUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.file.tfile.TFile;
@@ -235,7 +234,7 @@ public class AggregatedLogFormat {
           in = secureOpenFile(logFile);
         } catch (IOException e) {
           logErrorMessage(logFile, e);
-          IOUtils.cleanup(LOG, in);
+          IOUtils.closeQuietly(in);
           continue;
         }
 
@@ -273,7 +272,7 @@ public class AggregatedLogFormat {
           String message = logErrorMessage(logFile, e);
           out.write(message.getBytes(Charset.forName("UTF-8")));
         } finally {
-          IOUtils.cleanup(LOG, in);
+          IOUtils.closeQuietly(in);
         }
       }
     }
@@ -473,7 +472,7 @@ public class AggregatedLogFormat {
       } catch (IOException e) {
         LOG.warn("Exception closing writer", e);
       }
-      IOUtils.closeStream(fsDataOStream);
+      IOUtils.closeQuietly(fsDataOStream);
     }
   }
 
@@ -681,8 +680,8 @@ public class AggregatedLogFormat {
           }
         }
       } finally {
-        IOUtils.cleanup(LOG, ps);
-        IOUtils.cleanup(LOG, os);
+        IOUtils.closeQuietly(ps);
+        IOUtils.closeQuietly(os);
       }
     }
 
@@ -907,7 +906,9 @@ public class AggregatedLogFormat {
     }
 
     public void close() {
-      IOUtils.cleanup(LOG, scanner, reader, fsDataIStream);
+      IOUtils.closeQuietly(scanner);
+      IOUtils.closeQuietly(reader);
+      IOUtils.closeQuietly(fsDataIStream);
     }
   }
 

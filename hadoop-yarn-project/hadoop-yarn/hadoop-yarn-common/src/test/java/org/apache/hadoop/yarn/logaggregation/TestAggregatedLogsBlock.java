@@ -38,10 +38,14 @@ import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationAttemptIdPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationIdPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.ContainerIdPBImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileController;
+import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileControllerContext;
+import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileControllerFactory;
 import org.apache.hadoop.yarn.webapp.YarnWebParams;
 import org.apache.hadoop.yarn.webapp.log.AggregatedLogsBlockForTest;
 import org.apache.hadoop.yarn.webapp.view.BlockForTest;
@@ -178,7 +182,7 @@ public class TestAggregatedLogsBlock {
   
   
   private Configuration getConfiguration() {
-    Configuration configuration = new Configuration();
+    Configuration configuration = new YarnConfiguration();
     configuration.setBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED, true);
     configuration.set(YarnConfiguration.NM_REMOTE_APP_LOG_DIR, "target/logs");
     configuration.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
@@ -218,17 +222,27 @@ public class TestAggregatedLogsBlock {
     List<String> rootLogDirs = Arrays.asList("target/logs/logs");
     UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
 
-    AggregatedLogFormat.LogWriter writer = new AggregatedLogFormat.LogWriter(
-        configuration, new Path(path), ugi);
-    writer.writeApplicationOwner(ugi.getUserName());
+    LogAggregationFileControllerFactory factory
+        = new LogAggregationFileControllerFactory(configuration);
+    LogAggregationFileController fileController = factory
+        .getFileControllerForWrite();
 
-    Map<ApplicationAccessType, String> appAcls = new HashMap<ApplicationAccessType, String>();
-    appAcls.put(ApplicationAccessType.VIEW_APP, ugi.getUserName());
-    writer.writeApplicationACLs(appAcls);
-
-    writer.append(new AggregatedLogFormat.LogKey("container_0_0001_01_000001"),
-        new AggregatedLogFormat.LogValue(rootLogDirs, containerId,UserGroupInformation.getCurrentUser().getShortUserName()));
-    writer.close();
+    try {
+      Map<ApplicationAccessType, String> appAcls = new HashMap<ApplicationAccessType, String>();
+      appAcls.put(ApplicationAccessType.VIEW_APP, ugi.getUserName());
+      NodeId nodeId = NodeId.newInstance("localhost", 1234);
+      LogAggregationFileControllerContext context
+          = new LogAggregationFileControllerContext(
+              new Path(path), new Path(path), false, 3600,
+              appId, appAcls, nodeId, ugi);
+      fileController.initializeWriter(context);
+      fileController.write(
+          new AggregatedLogFormat.LogKey("container_0_0001_01_000001"),
+          new AggregatedLogFormat.LogValue(rootLogDirs, containerId,
+              UserGroupInformation.getCurrentUser().getShortUserName()));
+    } finally {
+      fileController.closeWriter();
+    }
   }
 
   private void writeLogs(String dirName) throws Exception {
