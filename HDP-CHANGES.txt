@@ -4417,3 +4417,5 @@ ATS V1.5:
     YARN-7148. TestLogsCLI fails in trunk and branch-2 and javadoc error. (xgong)
 
     YARN-7144. Log Aggregation controller should not swallow the exceptions when it calls closeWriter and closeReader. (xgong)
+
+    YARN-7072. Add a new log aggregation file format controller. (xgong)

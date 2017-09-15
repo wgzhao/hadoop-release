@@ -39,7 +39,7 @@ import org.apache.hadoop.util.ReflectionUtils;
 /**
  * Compression related stuff.
  */
-final class Compression {
+public final class Compression {
   static final Log LOG = LogFactory.getLog(Compression.class);
 
   /**
@@ -71,7 +71,7 @@ final class Compression {
   /**
    * Compression algorithms.
    */
-  static enum Algorithm {
+  public static enum Algorithm {
     LZO(TFile.COMPRESSION_LZO) {
       private transient boolean checked = false;
       private static final String defaultClazz =
@@ -342,7 +342,7 @@ final class Compression {
     }
   }
 
-  static Algorithm getCompressionAlgorithmByName(String compressName) {
+  public static Algorithm getCompressionAlgorithmByName(String compressName) {
     Algorithm[] algos = Algorithm.class.getEnumConstants();
 
     for (Algorithm a : algos) {

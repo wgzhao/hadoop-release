@@ -194,7 +194,7 @@ public class AggregatedLogFormat {
       this.containerFinished = containerFinished;
     }
 
-    private Set<File> getPendingLogFilesToUploadForThisContainer() {
+    public Set<File> getPendingLogFilesToUploadForThisContainer() {
       Set<File> pendingUploadFiles = new HashSet<File>();
       for (String rootLogDir : this.rootLogDirs) {
         File appLogDir =

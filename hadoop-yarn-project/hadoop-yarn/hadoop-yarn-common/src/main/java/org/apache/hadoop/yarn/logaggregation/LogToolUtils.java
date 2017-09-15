@@ -20,8 +20,12 @@ package org.apache.hadoop.yarn.logaggregation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.Path;
 
 /**
  * This class contains several utility function which could be used in different
@@ -106,4 +110,26 @@ public final class LogToolUtils {
     os.flush();
   }
 
+
+  /**
+   * Create the container log file under given (local directory/nodeId) and
+   * return the PrintStream object.
+   * @param localDir the Local Dir
+   * @param nodeId the NodeId
+   * @param containerId the ContainerId
+   * @return the printStream object
+   * @throws IOException if an I/O error occurs
+   */
+  public static PrintStream createPrintStream(String localDir, String nodeId,
+      String containerId) throws IOException {
+    PrintStream out = System.out;
+    if(localDir != null && !localDir.isEmpty()) {
+      Path nodePath = new Path(localDir, LogAggregationUtils
+          .getNodeString(nodeId));
+      Files.createDirectories(Paths.get(nodePath.toString()));
+      Path containerLogPath = new Path(nodePath, containerId);
+      out = new PrintStream(containerLogPath.toString(), "UTF-8");
+    }
+    return out;
+  }
 }
