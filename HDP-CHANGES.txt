@@ -4413,3 +4413,5 @@ ATS V1.5:
     YARN-6876. Create an abstract log writer for extendability. (xgong)
 
     YARN-6877. Create an abstract log reader for extendability. (xgong)
+
+    YARN-7148. TestLogsCLI fails in trunk and branch-2 and javadoc error. (xgong)
