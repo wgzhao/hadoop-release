@@ -46,7 +46,9 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileController;
 import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileControllerContext;
 import org.apache.hadoop.yarn.logaggregation.filecontroller.LogAggregationFileControllerFactory;
+import org.apache.hadoop.yarn.logaggregation.filecontroller.tfile.TFileAggregatedLogsBlock;
 import org.apache.hadoop.yarn.webapp.YarnWebParams;
+import org.apache.hadoop.yarn.webapp.View.ViewContext;
 import org.apache.hadoop.yarn.webapp.log.AggregatedLogsBlockForTest;
 import org.apache.hadoop.yarn.webapp.view.BlockForTest;
 import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
@@ -54,6 +56,9 @@ import org.apache.hadoop.yarn.webapp.view.HtmlBlockForTest;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
+
+import com.google.inject.Inject;
+
 import static org.junit.Assert.*;
 
 /**
@@ -75,12 +80,14 @@ public class TestAggregatedLogsBlock {
 
     writeLog(configuration, "owner");
 
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "owner", "container_0_0001_01_000001");
+
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     PrintWriter printWriter = new PrintWriter(data);
     HtmlBlock html = new HtmlBlockForTest();
     HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+    TFileAggregatedLogsBlockForTest aggregatedBlock
+        = getTFileAggregatedLogsBlockForTest(configuration, "owner",
+            "container_0_0001_01_000001", "localhost:1234");
     aggregatedBlock.render(block);
 
     block.getWriter().flush();
@@ -135,12 +142,13 @@ public class TestAggregatedLogsBlock {
 
     writeLog(configuration, "admin");
 
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "admin", "container_0_0001_01_000001");
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     PrintWriter printWriter = new PrintWriter(data);
     HtmlBlock html = new HtmlBlockForTest();
     HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+    TFileAggregatedLogsBlockForTest aggregatedBlock
+        = getTFileAggregatedLogsBlockForTest(configuration, "admin",
+            "container_0_0001_01_000001", "localhost:1234");
     aggregatedBlock.render(block);
 
     block.getWriter().flush();
@@ -166,12 +174,13 @@ public class TestAggregatedLogsBlock {
     }
     writeLog(configuration, "admin");
 
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "admin", "container_0_0001_01_000001");
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     PrintWriter printWriter = new PrintWriter(data);
     HtmlBlock html = new HtmlBlockForTest();
     HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+    TFileAggregatedLogsBlockForTest aggregatedBlock
+        = getTFileAggregatedLogsBlockForTest(configuration, "admin",
+            "container_0_0001_01_000001", "localhost:1234");
     aggregatedBlock.render(block);
 
     block.getWriter().flush();
@@ -179,8 +188,7 @@ public class TestAggregatedLogsBlock {
     assertTrue(out.contains("No logs available for container container_0_0001_01_000001"));
 
   }
-  
-  
+
   private Configuration getConfiguration() {
     Configuration configuration = new YarnConfiguration();
     configuration.setBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED, true);
@@ -189,6 +197,28 @@ public class TestAggregatedLogsBlock {
     configuration.set(YarnConfiguration.YARN_ADMIN_ACL, "admin");
     return configuration;
   }
+
+  private TFileAggregatedLogsBlockForTest getTFileAggregatedLogsBlockForTest(
+      Configuration configuration, String user, String containerId,
+      String nodeName) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRemoteUser()).thenReturn(user);
+    ViewContext mockContext = mock(ViewContext.class);
+    TFileAggregatedLogsBlockForTest aggregatedBlock
+        = new TFileAggregatedLogsBlockForTest(mockContext,
+            configuration);
+    aggregatedBlock.setRequest(request);
+    aggregatedBlock.moreParams().put(YarnWebParams.CONTAINER_ID,
+        containerId);
+    aggregatedBlock.moreParams().put(YarnWebParams.NM_NODENAME,
+        nodeName);
+    aggregatedBlock.moreParams().put(YarnWebParams.APP_OWNER, user);
+    aggregatedBlock.moreParams().put("start", "");
+    aggregatedBlock.moreParams().put("end", "");
+    aggregatedBlock.moreParams().put(YarnWebParams.ENTITY_STRING, "entity");
+    return aggregatedBlock;
+  }
+
 
   private AggregatedLogsBlockForTest getAggregatedLogsBlockForTest(
       Configuration configuration, String user, String containerId) {
@@ -264,4 +294,32 @@ public class TestAggregatedLogsBlock {
     writer.close();
   }
 
+  private static class TFileAggregatedLogsBlockForTest
+      extends TFileAggregatedLogsBlock {
+
+    private Map<String, String> params = new HashMap<String, String>();
+    private HttpServletRequest request;
+
+    @Inject
+    TFileAggregatedLogsBlockForTest(ViewContext ctx, Configuration conf) {
+      super(ctx, conf);
+    }
+
+    public void render(Block html) {
+      super.render(html);
+    }
+
+    @Override
+    public Map<String, String> moreParams() {
+      return params;
+    }
+
+    public HttpServletRequest request() {
+      return request;
+    }
+
+    public  void setRequest(HttpServletRequest request) {
+      this.request = request;
+    }
+  }
 }

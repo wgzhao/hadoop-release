@@ -4411,3 +4411,5 @@ ATS V1.5:
     (wangda)
 
     YARN-6876. Create an abstract log writer for extendability. (xgong)
+
+    YARN-6877. Create an abstract log reader for extendability. (xgong)
