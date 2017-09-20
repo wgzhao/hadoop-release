@@ -44,6 +44,9 @@ public class DistCpOptions {
   private boolean blocking = true;
   private boolean useDiff = false;
 
+  /** Whether to log additional info (path, size) in the SKIP/COPY log. */
+  private boolean verboseLog = false;
+
   public static final int maxNumListstatusThreads = 40;
   private int numListstatusThreads = 0;  // Indicates that flag is not set.
   private int maxMaps = DistCpConstants.DEFAULT_MAPS;
@@ -145,6 +148,7 @@ public class DistCpOptions {
       this.targetPath = that.getTargetPath();
       this.targetPathExists = that.getTargetPathExists();
       this.filtersFile = that.getFiltersFile();
+      this.verboseLog = that.shouldVerboseLog();
     }
   }
 
@@ -587,6 +591,15 @@ public class DistCpOptions {
     this.filtersFile = filtersFilename;
   }
 
+  public void setVerboseLog(boolean newVerboseLog) {
+    validate(DistCpOptionSwitch.VERBOSE_LOG, newVerboseLog);
+    this.verboseLog = newVerboseLog;
+  }
+
+  public boolean shouldVerboseLog() {
+    return verboseLog;
+  }
+
   public void validate(DistCpOptionSwitch option, boolean value) {
 
     boolean syncFolder = (option == DistCpOptionSwitch.SYNC_FOLDERS ?
@@ -602,6 +615,8 @@ public class DistCpOptions {
     boolean append = (option == DistCpOptionSwitch.APPEND ? value : this.append);
     boolean useDiff = (option == DistCpOptionSwitch.DIFF ? value : this.useDiff);
 
+    boolean shouldVerboseLog = (option == DistCpOptionSwitch.VERBOSE_LOG ?
+        value : this.verboseLog);
     if (syncFolder && atomicCommit) {
       throw new IllegalArgumentException("Atomic commit can't be used with " +
           "sync folder or overwrite options");
@@ -632,6 +647,10 @@ public class DistCpOptions {
     if (!syncFolder && useDiff) {
       throw new IllegalArgumentException(
           "Diff is valid only with update options");
+    }
+
+    if (shouldVerboseLog && logPath == null) {
+      throw new IllegalArgumentException("-v is valid only with -log option");
     }
   }
 
@@ -665,6 +684,8 @@ public class DistCpOptions {
       DistCpOptionSwitch.addToConf(conf, DistCpOptionSwitch.FILTERS,
           filtersFile);
     }
+    DistCpOptionSwitch.addToConf(conf, DistCpOptionSwitch.VERBOSE_LOG,
+        String.valueOf(verboseLog));
   }
 
   /**
@@ -700,6 +721,7 @@ public class DistCpOptions {
         ", targetPath=" + targetPath +
         ", targetPathExists=" + targetPathExists +
         ", filtersFile='" + filtersFile + '\'' +
+        ", verboseLog=" + verboseLog +
         '}';
   }
 

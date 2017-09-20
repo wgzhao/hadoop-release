@@ -596,6 +596,8 @@ ATS V1.5:
     BUG-82123. HADOOP-14500. Azure: TestFileSystemOperationExceptionHandling{,MultiThreaded}
     fails. Contributed by Rajesh Balamohan
 
+    BUG-86844: HADOOP-14839. DistCp log output should contain copied and deleted files and directories. Contributed by Yiqun Lin.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
