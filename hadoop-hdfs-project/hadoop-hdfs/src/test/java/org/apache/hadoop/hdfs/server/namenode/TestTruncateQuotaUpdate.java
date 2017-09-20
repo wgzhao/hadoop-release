@@ -212,7 +212,7 @@ public class TestTruncateQuotaUpdate {
       testTruncate(newLength, diff, usage);
 
       // case 7: truncate to 1.5 block
-      newLength = BLOCKSIZE + BLOCKSIZE / 2;
+      newLength = BLOCKSIZE  + BLOCKSIZE / 2;
       // the block for truncation is not in snapshot, diff should be
       // -0.5 block + (block - 0.5block) = 0
       diff = 0;
