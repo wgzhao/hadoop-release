@@ -4423,3 +4423,6 @@ ATS V1.5:
     YARN-7194. Log aggregation status is always Failed with the newly added log aggregation IndexedFileFormat. (xgong)
 
     YARN-7174. Add retry logic in LogsCLI when fetch running application logs. (xgong)
+
+    BUG-88416. HADOOP-11846 TestCertificateUtil.testCorruptPEM failing on
+    Jenkins JDK8. (Larry McCay via stevel)
