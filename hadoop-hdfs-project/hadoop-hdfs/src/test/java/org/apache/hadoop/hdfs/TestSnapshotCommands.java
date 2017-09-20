@@ -23,9 +23,6 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.protocol.SnapshotDiffReport;
-import org.apache.hadoop.hdfs.tools.snapshot.SnapshotDiff;
-import org.apache.hadoop.util.ChunkedArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,7 +60,6 @@ public class TestSnapshotCommands {
   @Before
   public void setUp() throws IOException {
     fs.mkdirs(new Path("/sub1"));
-    fs.mkdirs(new Path("/Fully/QPath"));
     fs.allowSnapshot(new Path("/sub1"));
     fs.mkdirs(new Path("/sub1/sub1sub1"));
     fs.mkdirs(new Path("/sub1/sub1sub2"));
@@ -164,53 +160,5 @@ public class TestSnapshotCommands {
     DFSTestUtil.DFSAdminRun("-disallowSnapshot /sub1", 0, "Disallowing snaphot on /sub1 succeeded", conf);
     // now it can be deleted
     DFSTestUtil.FsShellRun("-rmr /sub1", conf);
-  }
-
-  @Test (timeout=60000)
-  public void testSnapshotDiff()throws Exception {
-    Path snapDirPath = new Path(fs.getUri().toString() + "/snap_dir");
-    String snapDir = snapDirPath.toString();
-    fs.mkdirs(snapDirPath);
-
-    DFSTestUtil.DFSAdminRun("-allowSnapshot " + snapDirPath, 0,
-        "Allowing snaphot on " + snapDirPath + " succeeded", conf);
-    DFSTestUtil.createFile(fs, new Path(snapDirPath, "file1"),
-        1024, (short) 1, 100);
-    DFSTestUtil.FsShellRun("-createSnapshot " + snapDirPath + " sn1", conf);
-    DFSTestUtil.createFile(fs, new Path(snapDirPath, "file2"),
-        1024, (short) 1, 100);
-    DFSTestUtil.createFile(fs, new Path(snapDirPath, "file3"),
-        1024, (short) 1, 100);
-    DFSTestUtil.FsShellRun("-createSnapshot " + snapDirPath + " sn2", conf);
-
-    // verify the snapshot diff using api and command line
-    SnapshotDiffReport report_s1_s2 =
-        fs.getSnapshotDiffReport(snapDirPath, "sn1", "sn2");
-    DFSTestUtil.toolRun(new SnapshotDiff(conf), snapDir +
-        " sn1 sn2", 0, report_s1_s2.toString());
-    DFSTestUtil.FsShellRun("-renameSnapshot " + snapDirPath + " sn2 sn3",
-        conf);
-
-    SnapshotDiffReport report_s1_s3 =
-        fs.getSnapshotDiffReport(snapDirPath, "sn1", "sn3");
-    DFSTestUtil.toolRun(new SnapshotDiff(conf), snapDir +
-        " sn1 sn3", 0, report_s1_s3.toString());
-
-    // Creating 100 more files so as to force DiffReport generation
-    // backend ChunkedArrayList to create multiple chunks.
-    for (int i = 0; i < 100; i++) {
-      DFSTestUtil.createFile(fs, new Path(snapDirPath, "file_" + i),
-          1, (short) 1, 100);
-    }
-    DFSTestUtil.FsShellRun("-createSnapshot " + snapDirPath + " sn4", conf);
-    DFSTestUtil.toolRun(new SnapshotDiff(conf), snapDir +
-        " sn1 sn4", 0, null);
-
-    DFSTestUtil.FsShellRun("-deleteSnapshot " + snapDir + " sn1", conf);
-    DFSTestUtil.FsShellRun("-deleteSnapshot " + snapDir + " sn3", conf);
-    DFSTestUtil.FsShellRun("-deleteSnapshot " + snapDir + " sn4", conf);
-    DFSTestUtil.DFSAdminRun("-disallowSnapshot " + snapDir, 0,
-        "Disallowing snaphot on " + snapDirPath + " succeeded", conf);
-    fs.delete(new Path("/Fully/QPath"), true);
   }
 }

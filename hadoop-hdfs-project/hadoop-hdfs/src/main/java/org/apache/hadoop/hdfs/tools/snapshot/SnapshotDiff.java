@@ -20,12 +20,10 @@ package org.apache.hadoop.hdfs.tools.snapshot;
 import java.io.IOException;
 
 import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.SnapshotDiffReport;
 import org.apache.hadoop.util.Tool;
@@ -43,19 +41,6 @@ import org.apache.hadoop.util.ToolRunner;
  */
 @InterfaceAudience.Private
 public class SnapshotDiff extends Configured implements Tool {
-  /**
-   * Construct a SnapshotDiff object.
-   */
-  public SnapshotDiff() {
-    this(new HdfsConfiguration());
-  }
-
-  /**
-   * Construct a SnapshotDiff object.
-   */
-  public SnapshotDiff(Configuration conf) {
-    super(conf);
-  }
   private static String getSnapshotName(String name) {
     if (Path.CUR_DIR.equals(name)) { // current directory
       return "";
