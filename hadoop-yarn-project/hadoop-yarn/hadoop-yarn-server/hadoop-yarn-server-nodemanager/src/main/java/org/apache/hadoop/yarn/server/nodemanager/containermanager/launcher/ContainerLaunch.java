@@ -709,6 +709,10 @@ public class ContainerLaunch implements Callable<Integer> {
       sb.append(LINE_SEPARATOR);
     }
 
+    public void setExitOnFailure() {
+      // Dummy implementation
+    }
+
     protected abstract void link(Path src, Path dst) throws IOException;
 
     protected abstract void mkdir(Path path) throws IOException;
@@ -785,6 +789,11 @@ public class ContainerLaunch implements Callable<Integer> {
       line("echo \"broken symlinks(find -L . -maxdepth 5 -type l -ls):\" 1>>\"",
           output.toString(), "\"");
       line("find -L . -maxdepth 5 -type l -ls 1>>\"", output.toString(), "\"");
+    }
+
+    @Override
+    public void setExitOnFailure() {
+      line("set -o pipefail -e");
     }
   }
 

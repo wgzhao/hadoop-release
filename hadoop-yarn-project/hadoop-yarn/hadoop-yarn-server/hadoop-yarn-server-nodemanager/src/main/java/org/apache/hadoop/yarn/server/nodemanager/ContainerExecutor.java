@@ -261,6 +261,10 @@ public abstract class ContainerExecutor implements Configurable {
       throws IOException {
     ContainerLaunch.ShellScriptBuilder sb =
       ContainerLaunch.ShellScriptBuilder.create();
+
+    // Add "set -o pipefail -e" to validate launch_container script.
+    sb.setExitOnFailure();
+
     Set<String> whitelist = new HashSet<String>();
     whitelist.add(YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME);
     whitelist.add(ApplicationConstants.Environment.HADOOP_YARN_HOME.name());
