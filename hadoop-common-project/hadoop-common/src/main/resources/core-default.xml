@@ -1231,6 +1231,16 @@
   </description>
 </property>
 <property>
+  <name>fs.adfs.impl</name>
+  <value>org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem</value>
+  <description>The implementation class of the Azure Distributed Filesystem</description>
+</property>
+<property>
+  <name>fs.adfss.impl</name>
+  <value>org.apache.hadoop.fs.azuredfs.SecureAzureDistributedFileSystem</value>
+  <description>The implementation class of the Secure Azure Distributed Filesystem</description>
+</property>
+<property>
   <name>fs.azure.local.sas.key.mode</name>
   <value>false</value>
   <description>
