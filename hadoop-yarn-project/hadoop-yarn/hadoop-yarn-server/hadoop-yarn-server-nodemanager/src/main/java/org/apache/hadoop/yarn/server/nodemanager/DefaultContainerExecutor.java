@@ -262,8 +262,6 @@ public class DefaultContainerExecutor extends ContainerExecutor {
         if (!Optional.fromNullable(e.getMessage()).or("").isEmpty()) {
           builder.append("Exception message: " + e.getMessage() + "\n");
         }
-        builder.append("Stack trace: "
-            + StringUtils.stringifyException(e) + "\n");
         if (!shExec.getOutput().isEmpty()) {
           builder.append("Shell output: " + shExec.getOutput() + "\n");
         }

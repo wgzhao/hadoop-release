@@ -58,6 +58,8 @@ import org.apache.hadoop.yarn.server.nodemanager.executor.LocalizerStartContext;
 import org.apache.hadoop.yarn.server.nodemanager.util.ProcessIdFileReader;
 import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
+import static org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.CONTAINER_PRE_LAUNCH_STDERR;
+import static org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.CONTAINER_PRE_LAUNCH_STDOUT;
 
 public abstract class ContainerExecutor implements Configurable {
 
@@ -265,6 +267,10 @@ public abstract class ContainerExecutor implements Configurable {
     // Add "set -o pipefail -e" to validate launch_container script.
     sb.setExitOnFailure();
 
+    //Redirect stdout and stderr for launch_container script
+    sb.stdout(logDir, CONTAINER_PRE_LAUNCH_STDOUT);
+    sb.stderr(logDir, CONTAINER_PRE_LAUNCH_STDERR);
+
     Set<String> whitelist = new HashSet<String>();
     whitelist.add(YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME);
     whitelist.add(ApplicationConstants.Environment.HADOOP_YARN_HOME.name());
@@ -273,6 +279,7 @@ public abstract class ContainerExecutor implements Configurable {
     whitelist.add(ApplicationConstants.Environment.HADOOP_CONF_DIR.name());
     whitelist.add(ApplicationConstants.Environment.JAVA_HOME.name());
     if (environment != null) {
+      sb.echo("Setting up env variables");
       for (Map.Entry<String,String> env : environment.entrySet()) {
         if (!whitelist.contains(env.getKey())) {
           sb.env(env.getKey().toString(), env.getValue().toString());
@@ -282,6 +289,7 @@ public abstract class ContainerExecutor implements Configurable {
       }
     }
     if (resources != null) {
+      sb.echo("Setting up job resources");
       for (Map.Entry<Path,List<String>> entry : resources.entrySet()) {
         for (String linkName : entry.getValue()) {
           sb.symlink(entry.getKey(), new Path(linkName));
@@ -293,10 +301,12 @@ public abstract class ContainerExecutor implements Configurable {
     if (getConf() != null && getConf().getBoolean(
         YarnConfiguration.NM_LOG_CONTAINER_DEBUG_INFO,
         YarnConfiguration.DEFAULT_NM_LOG_CONTAINER_DEBUG_INFO)) {
+      sb.echo("Copying debugging information");
       sb.copyDebugInformation(new Path(outFilename), new Path(logDir, outFilename));
       sb.listDebugInformation(new Path(logDir, DIRECTORY_CONTENTS));
     }
 
+    sb.echo("Launching container");
     sb.command(command);
 
     PrintStream pout = null;
