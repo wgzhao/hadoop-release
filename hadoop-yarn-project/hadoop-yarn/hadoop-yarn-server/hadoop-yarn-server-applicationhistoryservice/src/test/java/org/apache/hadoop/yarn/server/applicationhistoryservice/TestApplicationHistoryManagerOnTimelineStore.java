@@ -139,6 +139,9 @@ public class TestApplicationHistoryManagerOnTimelineStore {
       if (i == 2) {
         entities.addEntity(createApplicationTimelineEntity(
             appId, true, false, false));
+      } else if (i == SCALE + 1) {
+        entities.addEntity(createApplicationTimelineEntity(
+            appId, false, false, false, true));
       } else {
         entities.addEntity(createApplicationTimelineEntity(
             appId, false, false, false));
@@ -447,6 +450,13 @@ public class TestApplicationHistoryManagerOnTimelineStore {
   private static TimelineEntity createApplicationTimelineEntity(
       ApplicationId appId, boolean emptyACLs, boolean noAttemptId,
       boolean wrongAppId) {
+    return createApplicationTimelineEntity(appId, emptyACLs, noAttemptId,
+        wrongAppId, false);
+  }
+
+  private static TimelineEntity createApplicationTimelineEntity(
+      ApplicationId appId, boolean emptyACLs, boolean noAttemptId,
+      boolean wrongAppId, boolean missingQueue) {
     TimelineEntity entity = new TimelineEntity();
     entity.setEntityType(ApplicationMetricsConstants.ENTITY_TYPE);
     if (wrongAppId) {
@@ -462,7 +472,10 @@ public class TestApplicationHistoryManagerOnTimelineStore {
     entityInfo.put(ApplicationMetricsConstants.TYPE_ENTITY_INFO,
         "test app type");
     entityInfo.put(ApplicationMetricsConstants.USER_ENTITY_INFO, "user1");
-    entityInfo.put(ApplicationMetricsConstants.QUEUE_ENTITY_INFO, "test queue");
+    if (!missingQueue) {
+      entityInfo.put(ApplicationMetricsConstants.QUEUE_ENTITY_INFO,
+          "test queue");
+    }
     entityInfo.put(ApplicationMetricsConstants.SUBMITTED_TIME_ENTITY_INFO,
         Integer.MAX_VALUE + 1L);
     entityInfo.put(ApplicationMetricsConstants.APP_MEM_METRICS,123);
