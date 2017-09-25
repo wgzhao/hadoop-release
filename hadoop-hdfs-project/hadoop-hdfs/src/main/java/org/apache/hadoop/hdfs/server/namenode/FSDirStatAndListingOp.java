@@ -132,7 +132,13 @@ class FSDirStatAndListingOp {
     src = fsd.resolvePath(pc, src, pathComponents);
     final INodesInPath iip = fsd.getINodesInPath(src, false);
     // getContentSummaryInt() call will check access (if enabled) when
-    // traversing all sub directories.
+    // traversing all sub directories. But if this is file already, then there is
+    // no subdirectories to concern. Check permission right here
+    INode last = iip.getLastINode();
+    if (last != null && !last.isDirectory() && fsd.isPermissionEnabled()) {
+      fsd.checkPermission(pc, iip, false, null, null, null,
+          FsAction.READ_EXECUTE);
+    }
     return getContentSummaryInt(fsd, iip);
   }
 
