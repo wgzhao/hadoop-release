@@ -216,9 +216,12 @@ public class INodeFile extends INodeWithAdditionalFields
   /** Assert all blocks are complete. */
   private void assertAllBlocksComplete() {
     for (int i = 0; i < blocks.length; i++) {
-      Preconditions.checkState(blocks[i].isComplete(), "Failed to finalize"
-          + " %s %s since blocks[%s] is non-complete, where blocks=%s.",
-          getClass().getSimpleName(), this, i, Arrays.asList(blocks));
+      if (!blocks[i].isComplete()) {
+        throw new IllegalStateException(
+            String.format("Failed to finalize %s %s since blocks[%s] is " +
+                "non-complete, where blocks=%s.",
+                getClass().getSimpleName(), this, i, Arrays.asList(blocks)));
+      }
     }
   }
 
