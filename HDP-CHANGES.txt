@@ -4428,3 +4428,5 @@ ATS V1.5:
 
     BUG-88416. HADOOP-11846 TestCertificateUtil.testCorruptPEM failing on
     Jenkins JDK8. (Larry McCay via stevel)
+
+    BUG-88577/YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
