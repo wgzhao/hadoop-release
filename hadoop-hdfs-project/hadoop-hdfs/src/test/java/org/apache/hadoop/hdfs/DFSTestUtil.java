@@ -1374,6 +1374,11 @@ public class DFSTestUtil {
     out.abort();
   }
 
+  public static void setPipeline(DFSOutputStream out, LocatedBlock lastBlock)
+      throws IOException {
+    out.getStreamer().setPipeline(lastBlock);
+  }
+
   public static byte[] asArray(ByteBuffer buf) {
     byte arr[] = new byte[buf.remaining()];
     buf.duplicate().get(arr);

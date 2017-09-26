@@ -437,9 +437,15 @@ public class DFSOutputStream extends FSOutputSummer
       }
     }
 
-    private void setPipeline(LocatedBlock lb) {
+    /**
+     * Do not use this method outside of unit tests.
+     * @param lb
+     */
+    @VisibleForTesting
+    void setPipeline(LocatedBlock lb) {
       setPipeline(lb.getLocations(), lb.getStorageTypes(), lb.getStorageIDs());
     }
+    
     private void setPipeline(DatanodeInfo[] nodes, StorageType[] storageTypes,
         String[] storageIDs) {
       this.nodes = nodes;
@@ -2588,4 +2594,9 @@ public class DFSOutputStream extends FSOutputSummer
   synchronized int getPipelineRecoveryCount() {
     return streamer.pipelineRecoveryCount;
   }
+
+  @VisibleForTesting
+  DataStreamer getStreamer() {
+    return streamer;
+  }  
 }
