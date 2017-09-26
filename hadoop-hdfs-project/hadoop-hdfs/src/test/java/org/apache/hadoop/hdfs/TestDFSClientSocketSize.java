@@ -18,20 +18,16 @@
 package org.apache.hadoop.hdfs;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DFSOutputStream;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.log4j.Level;
-
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
 
-import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_KEY;
 import static org.junit.Assert.assertTrue;
 
@@ -43,15 +39,16 @@ public class TestDFSClientSocketSize {
   }
 
   /**
-  * The setting of socket send buffer size in
-  * {@link java.net.Socket#setSendBufferSize(int)} is only a hint.  Actual
-  * value may differ.  We just sanity check that it is somewhere close.
-  */
+   * Test that the send buffer size default value is 0, in which case the socket
+   * will use a TCP auto-tuned value.
+   */
   @Test
   public void testDefaultSendBufferSize() throws IOException {
-    assertTrue("Send buffer size should be somewhere near default.",
-        getSendBufferSize(new Configuration()) >=
-        DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_DEFAULT / 2);
+    final int sendBufferSize = getSendBufferSize(new Configuration());
+    LOG.info("If not specified, the auto tuned send buffer size is: {}",
+        sendBufferSize);
+    assertTrue("Send buffer size should be non-negative value which is " +
+        "determined by system (kernel).", sendBufferSize > 0);
   }
 
   /**
@@ -74,6 +71,10 @@ public class TestDFSClientSocketSize {
         sendBufferSize1 > sendBufferSize2);
   }
 
+  /**
+   * Test that if the send buffer size is 0, the socket will use a TCP
+   * auto-tuned value.
+   */
   @Test
   public void testAutoTuningSendBufferSize() throws IOException {
     final Configuration conf = new Configuration();
