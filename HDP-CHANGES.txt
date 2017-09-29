@@ -4434,3 +4434,6 @@ ATS V1.5:
     BUG-88923/YARN-7257 AggregatedLogsBlock reports a bad 'end' value as a bad 'start' value. (xgong)
 
     BUG-89094. testCompareXmlAgainstConfigurationClass fails due to 1 missing property from yarn-default.(xgong)
+
+    BUG-89176. HADOOP-14092. [DOC] Typo in hadoop-aws index.md.
+    Contributed by John Zhuge
