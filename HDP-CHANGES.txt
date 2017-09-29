@@ -4451,3 +4451,6 @@ ATS V1.5:
 
     BUG-89214 HADOOP-14204. S3A multipart commit failing, "UnsupportedOperationException at
     java.util.Collections$UnmodifiableList.sort". Contributed by Steve Loughran.
+
+    BUG-89218. HADOOP-11572. s3a delete() operation fails during a concurrent
+    delete of child entries. Contributed by Steve Loughran.
