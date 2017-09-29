@@ -101,6 +101,9 @@ public class TestYarnConfigurationFields extends TestConfigurationFieldsBase {
 
     // Currently defined in RegistryConstants
     xmlPrefixToSkipCompare.add("hadoop.registry");
+
+    xmlPrefixToSkipCompare.add(
+        "yarn.log-aggregation.file-controller.TFile.class");
   }
 
 }

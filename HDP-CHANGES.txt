@@ -4432,3 +4432,5 @@ ATS V1.5:
     BUG-88577/YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
 
     BUG-88923/YARN-7257 AggregatedLogsBlock reports a bad 'end' value as a bad 'start' value. (xgong)
+
+    BUG-89094. testCompareXmlAgainstConfigurationClass fails due to 1 missing property from yarn-default.(xgong)
