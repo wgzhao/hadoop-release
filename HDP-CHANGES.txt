@@ -4454,3 +4454,6 @@ ATS V1.5:
 
     BUG-89218. HADOOP-11572. s3a delete() operation fails during a concurrent
     delete of child entries. Contributed by Steve Loughran.
+
+    BUG-89219. HADOOP-14596. AWS SDK 1.11+ aborts() on close() if > 0 bytes in stream; logs error.
+    Contributed by Steve Loughran
