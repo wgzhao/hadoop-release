@@ -16,31 +16,28 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+package org.apache.hadoop.fs.azuredfs.services.Mocks;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MockServiceProviderImpl {
-  private final MockServiceInjectorImpl serviceInjector;
-  private Injector injector;
+import com.google.inject.Singleton;
 
-  public MockServiceProviderImpl() {
-    this.serviceInjector = new MockServiceInjectorImpl();
+import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+
+@Singleton
+public final class MockLoggingServiceImpl implements LoggingService {
+  public final List<String> messages = new ArrayList<>();
+
+  @Override
+  public void log(LogLevel logLevel, String message, String... arguments) {
+    messages.add(message);
   }
 
-  public void initialize() {
-    this.injector = Guice.createInjector(serviceInjector);
-    ServiceProviderImpl.create(this.injector);
-  }
-
-  public <T extends InjectableService> void bind(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.serviceInjector.bind(tInterface, tClazz);
-  }
-
-  public <T extends InjectableService> T get(Class<T> clazz) {
-    return this.injector.getInstance(clazz);
+  @Override
+  public boolean logLevelEnabled(LogLevel logLevel) {
+    return true;
   }
 }

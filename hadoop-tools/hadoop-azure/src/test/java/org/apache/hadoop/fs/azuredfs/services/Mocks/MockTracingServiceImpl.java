@@ -16,31 +16,32 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
+package org.apache.hadoop.fs.azuredfs.services.Mocks;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.htrace.core.SpanId;
+import org.apache.htrace.core.TraceScope;
 
-public class MockServiceProviderImpl {
-  private final MockServiceInjectorImpl serviceInjector;
-  private Injector injector;
-
-  public MockServiceProviderImpl() {
-    this.serviceInjector = new MockServiceInjectorImpl();
+@Singleton
+public final class MockTracingServiceImpl implements TracingService {
+  @Override
+  public TraceScope traceBegin(String description) {
+    return null;
   }
 
-  public void initialize() {
-    this.injector = Guice.createInjector(serviceInjector);
-    ServiceProviderImpl.create(this.injector);
+  @Override
+  public TraceScope traceBegin(String description, SpanId parentSpanId) {
+    return null;
   }
 
-  public <T extends InjectableService> void bind(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.serviceInjector.bind(tInterface, tClazz);
+  @Override
+  public void traceException(TraceScope traceScope, AzureDistributedFileSystemException azureDistributedFileSystemException) {
   }
 
-  public <T extends InjectableService> T get(Class<T> clazz) {
-    return this.injector.getInstance(clazz);
+  @Override
+  public void traceEnd(TraceScope traceScope) {
   }
 }

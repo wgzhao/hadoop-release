@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,6 +39,17 @@ public final class ServiceProviderImpl implements ServiceProvider {
   private static ServiceProviderImpl serviceProvider;
   private Injector serviceInjector;
 
+  ServiceProviderImpl(final Configuration configuration) {
+    Preconditions.checkNotNull("configuration", configuration);
+    this.serviceInjector = Guice.createInjector(new ServiceInjectorImpl(configuration));
+  }
+
+  @VisibleForTesting
+  ServiceProviderImpl(final Injector serviceInjector) {
+    Preconditions.checkNotNull("serviceInjector", serviceInjector);
+    this.serviceInjector = serviceInjector;
+  }
+
   /**
    * Create an instance or returns existing instance of service provider.
    * This method must be marked as synchronized to ensure thread-safety.
@@ -67,17 +78,6 @@ public final class ServiceProviderImpl implements ServiceProvider {
     return serviceProvider;
   }
 
-  ServiceProviderImpl(final Configuration configuration) {
-    Preconditions.checkNotNull("configuration", configuration);
-    this.serviceInjector = Guice.createInjector(new ServiceInjectorImpl(configuration));
-  }
-
-  @VisibleForTesting
-  ServiceProviderImpl(final Injector serviceInjector) {
-    Preconditions.checkNotNull("serviceInjector", serviceInjector);
-    this.serviceInjector = serviceInjector;
-  }
-
   /**
    * Returns an instance of resolved injectable service by class name.
    * The injectable service must be configured first to be resolvable.
@@ -90,8 +90,7 @@ public final class ServiceProviderImpl implements ServiceProvider {
   public <T extends InjectableService> T get(Class<T> clazz) throws ServiceResolutionException {
     try {
       return this.serviceInjector.getInstance(clazz);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new ServiceResolutionException(clazz.getSimpleName(), ex);
     }
   }

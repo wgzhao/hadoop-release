@@ -16,33 +16,30 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
-
-import com.google.inject.AbstractModule;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 
 /**
- * This class is responsible to configure all the services used by Azure Distributed Filesystem.
+ * Azure Distributed File System logging service.
  */
-@InterfaceAudience.Private
+@InterfaceAudience.Public
 @InterfaceStability.Evolving
-final class ServiceInjectorImpl extends AbstractModule {
-  private final Configuration configuration;
+public interface LoggingService extends InjectableService {
+  /**
+   * Logs the provided message which the provided logLevel to Hadoop logging system.
+   * @param logLevel the log level {@link LogLevel}
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void log(LogLevel logLevel, String message, String... arguments);
 
-  ServiceInjectorImpl(Configuration configuration) {
-    this.configuration = configuration;
-  }
-
-  @Override
-  protected void configure() {
-    bind(Configuration.class).toInstance(this.configuration);
-
-    bind(LoggingService.class).to(LoggingServiceImpl.class).asEagerSingleton();
-    bind(TracingService.class).to(TracingServiceImpl.class).asEagerSingleton();
-  }
+  /**
+   * Returns true whether a certain logLevel is enabled.
+   * @param logLevel
+   * @return true if provided log level is enabled.
+   */
+  boolean logLevelEnabled(LogLevel logLevel);
 }

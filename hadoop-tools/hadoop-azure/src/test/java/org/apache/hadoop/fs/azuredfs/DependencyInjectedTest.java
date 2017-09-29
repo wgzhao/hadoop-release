@@ -21,13 +21,20 @@ package org.apache.hadoop.fs.azuredfs;
 import org.junit.Before;
 
 import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.services.MockServiceProviderImpl;
+import org.apache.hadoop.fs.azuredfs.services.Mocks.MockLoggingServiceImpl;
+import org.apache.hadoop.fs.azuredfs.services.Mocks.MockTracingServiceImpl;
 
 public abstract class DependencyInjectedTest {
   private final MockServiceProviderImpl serviceProvider;
 
-  DependencyInjectedTest() {
+  protected DependencyInjectedTest() {
     this.serviceProvider = new MockServiceProviderImpl();
+
+    this.serviceProvider.bind(TracingService.class, MockTracingServiceImpl.class);
+    this.serviceProvider.bind(LoggingService.class, MockLoggingServiceImpl.class);
   }
 
   @Before

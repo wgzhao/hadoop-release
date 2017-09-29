@@ -16,31 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
+package org.apache.hadoop.fs.azuredfs.services.Mocks;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.LoggingEvent;
 
-public class MockServiceProviderImpl {
-  private final MockServiceInjectorImpl serviceInjector;
-  private Injector injector;
+public class MockAppender extends AppenderSkeleton {
+  public final List<String> messages = new ArrayList<>();
 
-  public MockServiceProviderImpl() {
-    this.serviceInjector = new MockServiceInjectorImpl();
+  @Override
+  protected void append(LoggingEvent event) {
+    messages.add(event.getRenderedMessage());
   }
 
-  public void initialize() {
-    this.injector = Guice.createInjector(serviceInjector);
-    ServiceProviderImpl.create(this.injector);
-  }
+  @Override
+  public void close() { }
 
-  public <T extends InjectableService> void bind(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.serviceInjector.bind(tInterface, tClazz);
-  }
-
-  public <T extends InjectableService> T get(Class<T> clazz) {
-    return this.injector.getInstance(clazz);
-  }
+  @Override
+  public boolean requiresLayout() { return false; }
 }

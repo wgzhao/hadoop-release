@@ -146,14 +146,18 @@
       <artifactId>azure-storage</artifactId>
       <scope>compile</scope>
     </dependency>
-    
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <scope>compile</scope>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.apache.htrace</groupId>
+      <artifactId>htrace-core4</artifactId>
+      <version>4.1.0-incubating</version>
+    </dependency>
     
     <!-- dependencies use for test only -->
     <dependency>

@@ -4815,3 +4815,5 @@ ATS V1.5:
     BUG-100352. Remove RM registry purge for app attempt and container events.
 
     WASB-11. Adding initial skeleton for Azure Distributed Filesystem driver.
+
+    WASB-12. Adding logging and tracing services to Azure Distributed Filesystem driver.

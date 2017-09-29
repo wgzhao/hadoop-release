@@ -16,33 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
-
-import com.google.inject.AbstractModule;
+package org.apache.hadoop.fs.azuredfs.contracts.exceptions;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 
 /**
- * This class is responsible to configure all the services used by Azure Distributed Filesystem.
+ * Thrown when an unhandled exception is occurred during a file system operation.
  */
-@InterfaceAudience.Private
+@InterfaceAudience.Public
 @InterfaceStability.Evolving
-final class ServiceInjectorImpl extends AbstractModule {
-  private final Configuration configuration;
-
-  ServiceInjectorImpl(Configuration configuration) {
-    this.configuration = configuration;
-  }
-
-  @Override
-  protected void configure() {
-    bind(Configuration.class).toInstance(this.configuration);
-
-    bind(LoggingService.class).to(LoggingServiceImpl.class).asEagerSingleton();
-    bind(TracingService.class).to(TracingServiceImpl.class).asEagerSingleton();
+public final class FileSystemOperationUnhandledException extends AzureDistributedFileSystemException {
+  public FileSystemOperationUnhandledException(Exception innerException) {
+    super("An unhandled file operation exception", innerException);
   }
 }
