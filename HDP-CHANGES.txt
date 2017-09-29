@@ -4437,3 +4437,6 @@ ATS V1.5:
 
     BUG-89176. HADOOP-14092. [DOC] Typo in hadoop-aws index.md.
     Contributed by John Zhuge
+
+    BUG-89214 HADOOP-14204. S3A multipart commit failing, "UnsupportedOperationException at
+    java.util.Collections$UnmodifiableList.sort". Contributed by Steve Loughran.
