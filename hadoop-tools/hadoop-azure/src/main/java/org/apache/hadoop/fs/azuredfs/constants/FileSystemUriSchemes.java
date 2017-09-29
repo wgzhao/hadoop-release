@@ -31,5 +31,8 @@ public final class FileSystemUriSchemes {
   public static final String ADFS_SECURE_SCHEME = "adfss";
   public static final String[] ADFS_SCHEMES = {ADFS_SCHEME, ADFS_SECURE_SCHEME};
 
+  public static final String HTTP_SCHEME = "http";
+  public static final String HTTPS_SCHEME = "https";
+
   private FileSystemUriSchemes() {}
 }

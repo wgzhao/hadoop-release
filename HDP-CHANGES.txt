@@ -4817,3 +4817,6 @@ ATS V1.5:
     WASB-11. Adding initial skeleton for Azure Distributed Filesystem driver.
 
     WASB-12. Adding logging and tracing services to Azure Distributed Filesystem driver.
+
+    WASB-13. Adding Azure Distributed file system auto-generated code and implementing related services.
+

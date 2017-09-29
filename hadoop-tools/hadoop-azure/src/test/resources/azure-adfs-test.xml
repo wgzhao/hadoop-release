@@ -15,6 +15,21 @@
 
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!--<property>-->
+    <!--<name>fs.azure.account.name</name>-->
+    <!--<value>{ACCOUNTNAME}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.azure.account.key</name>-->
+    <!--<value>{ACCOUNTKEY}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.azure.account.filesystem</name>-->
+    <!--<value>{FILESYSTEM}</value>-->
+  <!--</property>-->
+
   <property>
     <name>fs.AbstractFileSystem.adfs.impl</name>
     <value>org.apache.hadoop.fs.azuredfs.Adfs</value>

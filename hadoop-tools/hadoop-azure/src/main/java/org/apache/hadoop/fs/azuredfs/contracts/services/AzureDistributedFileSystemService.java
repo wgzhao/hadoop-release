@@ -16,20 +16,19 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * File System service to provide network calls for file system operations.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  
-  private FileSystemConfigurations() {}
+public interface AzureDistributedFileSystemService extends InjectableService {
+  /**
+   * Creates file system.
+   */
+  void createFilesystem(String filesystem, String resource);
 }

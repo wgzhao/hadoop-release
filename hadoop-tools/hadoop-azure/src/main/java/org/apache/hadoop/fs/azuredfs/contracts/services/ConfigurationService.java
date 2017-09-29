@@ -16,20 +16,45 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.conf.Configuration;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * Configuration service collects required Azure Hadoop configurations and provides it to the consumers.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  
-  private FileSystemConfigurations() {}
+public interface ConfigurationService extends InjectableService {
+  /**
+   * Retrieves storage account name from Hadoop configuration.
+   * @return storage account name;
+   */
+  String getStorageAccountName();
+
+  /**
+   * Retrieves storage account key from Hadoop configuration.
+   * @return storage account key.
+   */
+  String getStorageAccountKey();
+
+  /**
+   * Retrieves storage filesystem from Hadoop configuration.
+   * @return storage filesystem.
+   */
+  String getFileSystem();
+
+  /**
+   * Retrieves storage secure mode from Hadoop configuration;
+   * @return storage secure mode;
+   */
+  boolean isSecureMode();
+
+  /**
+   * Returns Hadoop configuration.
+   * @return Hadoop configuration.
+   */
+  Configuration getConfiguration();
 }

@@ -31,14 +31,14 @@ import org.apache.htrace.core.TraceScope;
 @InterfaceStability.Evolving
 public interface TracingService extends InjectableService {
   /**
-   * Creates a {@TraceScope} object with the provided description.
+   * Creates a {@link TraceScope} object with the provided description.
    * @param description the trace description.
    * @return created traceScope.
    */
   TraceScope traceBegin(final String description);
 
   /**
-   * Creates a {@TraceScope} object with the provided description.
+   * Creates a {@link TraceScope} object with the provided description.
    * @param description the trace description.
    * @param parentSpanId the span id of the parent trace scope.
    * @return create traceScope

@@ -20,19 +20,28 @@ package org.apache.hadoop.fs.azuredfs;
 
 import org.junit.Before;
 
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureDistributedFileSystemService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.services.MockServiceProviderImpl;
 import org.apache.hadoop.fs.azuredfs.services.Mocks.MockLoggingServiceImpl;
 import org.apache.hadoop.fs.azuredfs.services.Mocks.MockTracingServiceImpl;
+import org.apache.hadoop.fs.azuredfs.services.mocks.MockAzureAuthorizationServiceImpl;
+import org.apache.hadoop.fs.azuredfs.services.mocks.MockAzureDistributedFileSystemImpl;
+import org.apache.hadoop.fs.azuredfs.services.mocks.MockConfigurationServiceImpl;
 
 public abstract class DependencyInjectedTest {
-  private final MockServiceProviderImpl serviceProvider;
+  protected final MockServiceProviderImpl serviceProvider;
 
   protected DependencyInjectedTest() {
     this.serviceProvider = new MockServiceProviderImpl();
 
+    this.serviceProvider.bind(ConfigurationService.class, MockConfigurationServiceImpl.class);
+    this.serviceProvider.bind(AzureAuthorizationService.class, MockAzureAuthorizationServiceImpl.class);
+    this.serviceProvider.bind(AzureDistributedFileSystemService.class, MockAzureDistributedFileSystemImpl.class);
     this.serviceProvider.bind(TracingService.class, MockTracingServiceImpl.class);
     this.serviceProvider.bind(LoggingService.class, MockLoggingServiceImpl.class);
   }

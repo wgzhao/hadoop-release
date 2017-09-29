@@ -16,20 +16,29 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+
+import com.microsoft.azure.storage.StorageException;
+import okhttp3.Request;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * Azure authorization service is used to update the requests with proper authorization artifacts.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  
-  private FileSystemConfigurations() {}
+public interface AzureAuthorizationService extends InjectableService {
+  /**
+   * Updates the provided request object with proper authorization headers.
+   * @param request the request to be updated.
+   * @throws InvalidKeyException if there is an invalid header key.
+   * @throws StorageException if provided storage account info is invalid.
+   * @throws IOException if the request cannot be modified or updated.
+   */
+  Request updateRequestWithAuthorizationHeader(Request request) throws IOException, InvalidKeyException, StorageException;
 }

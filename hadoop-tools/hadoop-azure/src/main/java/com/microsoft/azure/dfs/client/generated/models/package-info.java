@@ -16,20 +16,4 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
-
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
-
-/**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
- */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  
-  private FileSystemConfigurations() {}
-}
+package com.microsoft.azure.dfs.client.generated.models;

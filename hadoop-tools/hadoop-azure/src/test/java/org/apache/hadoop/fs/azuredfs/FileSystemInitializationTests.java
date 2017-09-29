@@ -27,12 +27,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 public class FileSystemInitializationTests extends DependencyInjectedTest {
-
   @Test
   public void ensureAzureDistributedFileSystemIsInitialize() throws Exception {
-    final Configuration configuration = new Configuration();
+    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
     final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, "test@test.com", null, null, null);
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
@@ -43,7 +43,7 @@ public class FileSystemInitializationTests extends DependencyInjectedTest {
 
   @Test
   public void ensureSecureAzureDistributedFileSystemIsInitialize() throws Exception {
-    final Configuration configuration = new Configuration();
+    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
     final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, "test@test.com", null, null, null);
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 

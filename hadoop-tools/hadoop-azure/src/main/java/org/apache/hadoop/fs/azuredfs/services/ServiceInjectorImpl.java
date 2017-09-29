@@ -25,6 +25,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureDistributedFileSystemClientFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureDistributedFileSystemService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 /**
  * This class is responsible to configure all the services used by Azure Distributed Filesystem.
@@ -41,6 +45,10 @@ final class ServiceInjectorImpl extends AbstractModule {
   @Override
   protected void configure() {
     bind(Configuration.class).toInstance(this.configuration);
+    bind(ConfigurationService.class).to(ConfigurationServiceImpl.class);
+    bind(AzureAuthorizationService.class).to(AzureAuthorizationServiceImpl.class);
+    bind(AzureDistributedFileSystemService.class).to(AzureDistributedFileSystemServiceImpl.class);
+    bind(AzureDistributedFileSystemClientFactory.class).to(AzureDistributedFileSystemClientFactoryImpl.class);
 
     bind(LoggingService.class).to(LoggingServiceImpl.class).asEagerSingleton();
     bind(TracingService.class).to(TracingServiceImpl.class).asEagerSingleton();

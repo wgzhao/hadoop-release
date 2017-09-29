@@ -22,14 +22,15 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * Responsible to keep all the Azure Distributed Filesystem configurations keys in Hadoop configuration file.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  
-  private FileSystemConfigurations() {}
+public final class ConfigurationKeys {
+  public static final String FS_AZURE_ACCOUNT_NAME = "fs.azure.account.name";
+  public static final String FS_AZURE_ACCOUNT_KEY = "fs.azure.account.key";
+  public static final String FS_AZURE_ACCOUNT_FILESYSTEM = "fs.azure.account.filesystem";
+  public static final String FS_AZURE_SECURE_MODE = "fs.azure.secure.mode";
+
+  private ConfigurationKeys() {}
 }

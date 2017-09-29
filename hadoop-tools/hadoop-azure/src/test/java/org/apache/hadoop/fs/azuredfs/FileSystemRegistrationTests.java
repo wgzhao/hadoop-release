@@ -25,37 +25,37 @@ import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.AbstractFileSystem;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 public class FileSystemRegistrationTests extends DependencyInjectedTest {
 
   @Test
   public void ensureAzureDistributedFileSystemIsDefaultFileSystem() throws Exception {
-    Configuration conf = new Configuration();
-    URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, "test@test.com", null, null, null);
-    conf.set(FileSystem.FS_DEFAULT_NAME_KEY, defaultUri.toString());
-    conf.addResource("azure-adfs-test.xml");
+    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, "test@test.com", null, null, null);
+    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.get(configuration);
     Assert.assertTrue(fs instanceof AzureDistributedFileSystem);
 
-    AbstractFileSystem afs = FileContext.getFileContext(conf).getDefaultFileSystem();
+    AbstractFileSystem afs = FileContext.getFileContext(configuration).getDefaultFileSystem();
     Assert.assertTrue(afs instanceof Adfs);
   }
 
   @Test
   public void ensureSecureAzureDistributedIsDefaultFileSystem() throws Exception {
-    Configuration conf = new Configuration();
-    URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, "test@test.com", null, null, null);
-    conf.set(FileSystem.FS_DEFAULT_NAME_KEY, defaultUri.toString());
-    conf.addResource("azure-adfs-test.xml");
+    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, "test@test.com", null, null, null);
+    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.get(configuration);
     Assert.assertTrue(fs instanceof SecureAzureDistributedFileSystem);
 
-    AbstractFileSystem afs = FileContext.getFileContext(conf).getDefaultFileSystem();
+    AbstractFileSystem afs = FileContext.getFileContext(configuration).getDefaultFileSystem();
     Assert.assertTrue(afs instanceof Adfss);
   }
 }
