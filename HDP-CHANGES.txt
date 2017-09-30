@@ -635,6 +635,11 @@ ATS V1.5:
     BUG-84072. HADOOP-14535 wasb: implement high-performance random access and
     seek of block blobs. Contributed by Thomas Marquardt.
 
+    BUG-89236. HADOOP-14255. S3A to delete unnecessary fake directory objects in
+    mkdirs(). Contributed by Mingliang Liu
+    BUG-89236. HADOOP-14428. s3a: mkdir appears to be broken.
+    Contributed by Mingliang Liu
+
   BUG FIXES
 
     BUG-78483. HDFS-11608. HDFS write crashed with block size greater than 2 GB

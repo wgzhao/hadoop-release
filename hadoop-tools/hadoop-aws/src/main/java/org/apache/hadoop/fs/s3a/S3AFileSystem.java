@@ -1530,8 +1530,6 @@ public class S3AFileSystem extends FileSystem {
    * @throws IOException other IO problems
    * @throws AmazonClientException on failures inside the AWS SDK
    */
-  // TODO: If we have created an empty file at /foo/bar and we then call
-  // mkdirs for /foo/bar/baz/roo what happens to the empty file /foo/bar/?
   private boolean innerMkdirs(Path f, FsPermission permission)
       throws IOException, FileAlreadyExistsException, AmazonClientException {
     LOG.debug("Making directory: {}", f);
@@ -1566,6 +1564,9 @@ public class S3AFileSystem extends FileSystem {
 
       String key = pathToKey(f);
       createFakeDirectory(key);
+      // this is complicated because getParent(a/b/c/) returns a/b/c, but
+      // we want a/b. See HADOOP-14428 for more details.
+      deleteUnnecessaryFakeDirectories(new Path(f.toString()).getParent());
       return true;
     }
   }
@@ -1934,6 +1935,7 @@ public class S3AFileSystem extends FileSystem {
     while (!path.isRoot()) {
       String key = pathToKey(path);
       key = (key.endsWith("/")) ? key : (key + "/");
+      LOG.trace("To delete unnecessary fake directory {} for {}", key, path);
       keysToRemove.add(new DeleteObjectsRequest.KeyVersion(key));
       path = path.getParent();
     }
