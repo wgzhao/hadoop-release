@@ -598,6 +598,12 @@ ATS V1.5:
 
     BUG-86844: HADOOP-14839. DistCp log output should contain copied and deleted files and directories. Contributed by Yiqun Lin.
 
+    BUG-89177. HADOOP-14099. Split S3 testing documentation out into its own file. Contributed by Steve Loughran.
+    BUG-89177. HADOOP-14256. Correct the format for "Seoul" example. Contributed by Brahma Reddy Battula.
+    BUG-89177. HADOOP-14268. Fix markdown itemization in hadoop-aws documents. Contributed by Akira Ajisaka
+    BUG-89177. HADOOP-14464. hadoop-aws doc header warning #5 line wrapped. Contributed by John Zhuge.
+    BUG-89177. HADOOP-14190. Add more on S3 regions to the s3a documentation. Contributed by Steve Loughran
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
