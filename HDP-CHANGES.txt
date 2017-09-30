@@ -604,6 +604,9 @@ ATS V1.5:
     BUG-89177. HADOOP-14464. hadoop-aws doc header warning #5 line wrapped. Contributed by John Zhuge.
     BUG-89177. HADOOP-14190. Add more on S3 regions to the s3a documentation. Contributed by Steve Loughran
 
+    BUG-89240. HADOOP-14135. Remove URI parameter in AWSCredentialProvider
+    constructors. Contributed by Mingliang Liu
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
