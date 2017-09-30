@@ -4460,3 +4460,8 @@ ATS V1.5:
 
     BUG-89219. HADOOP-14596. AWS SDK 1.11+ aborts() on close() if > 0 bytes in stream; logs error.
     Contributed by Steve Loughran
+
+    BUG-89241. HADOOP-14087. S3A typo in pom.xml test exclusions.
+    Contributed by Aaron Fabbri.
+    BUG-89241. HADOOP-14305 S3A SSE tests won't run in parallel: Bad request in
+    directory GetFileStatus. Contributed by Steve Moist.
