@@ -607,6 +607,9 @@ ATS V1.5:
     BUG-89240. HADOOP-14135. Remove URI parameter in AWSCredentialProvider
     constructors. Contributed by Mingliang Liu
 
+    BUG-89266. HADOOP-14768. Honoring sticky bit during Deletion when authorization
+    is enabled in WASB. Contributed by Varada Hemeswari
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
