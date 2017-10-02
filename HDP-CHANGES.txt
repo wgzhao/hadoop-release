@@ -610,6 +610,9 @@ ATS V1.5:
     BUG-89266. HADOOP-14768. Honoring sticky bit during Deletion when authorization
     is enabled in WASB. Contributed by Varada Hemeswari
 
+    BUG-89262. HADOOP-14845. Azure wasb: getFileStatus not making any auth checks.
+    Contributed by Sivaguru Sankaridurg.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
