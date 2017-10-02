@@ -40,6 +40,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -94,6 +95,7 @@ public class TestBootstrapStandbyWithBKJM {
    * Bootstrap usage for BKJM : "-force", "-nonInteractive", "-skipSharedEditsCheck"
    */
   @Test
+  @Ignore("Test is flaky and BKJM is unsupported")
   public void testBootstrapStandbyWithActiveNN() throws Exception {
     // make nn0 active
     cluster.transitionToActive(0);
