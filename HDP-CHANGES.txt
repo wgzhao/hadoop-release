@@ -4465,3 +4465,5 @@ ATS V1.5:
     Contributed by Aaron Fabbri.
     BUG-89241. HADOOP-14305 S3A SSE tests won't run in parallel: Bad request in
     directory GetFileStatus. Contributed by Steve Moist.
+
+    BUG-72747/YARN-6509. Maybe add a size threshold beyond which yarn logs will require a force option. (xgong)
