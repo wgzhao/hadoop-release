@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package org.apache.hadoop.fs.azuredfs;
 
@@ -36,13 +19,18 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ServiceProvider;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Progressable;
+import org.apache.htrace.core.TraceScope;
 
 /**
  * A {@link org.apache.hadoop.fs.FileSystem} for reading and writing files stored on <a
@@ -55,6 +43,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   private Path workingDir;
   private UserGroupInformation userGroupInformation;
   private ServiceProvider serviceProvider;
+  private TracingService tracingService;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -73,6 +62,12 @@ public class AzureDistributedFileSystem extends FileSystem {
         makeQualified(getUri(), getWorkingDirectory());
 
     this.serviceProvider = ServiceProviderImpl.create(configuration);
+
+    try {
+      this.tracingService = serviceProvider.get(TracingService.class);
+    } catch (ServiceResolutionException serviceResolutionException) {
+      throw new IOException(serviceResolutionException);
+    }
   }
 
   @Override
@@ -118,7 +113,7 @@ public class AzureDistributedFileSystem extends FileSystem {
 
   @Override
   public void setWorkingDirectory(Path newDir) {
-    workingDir = makeAbsolute(newDir);
+    workingDir = newDir.makeQualified(this.uri, this.workingDir);
   }
 
   @Override
@@ -144,17 +139,9 @@ public class AzureDistributedFileSystem extends FileSystem {
             this.userGroupInformation.getShortUserName()).toString()));
   }
 
-  @VisibleForTesting
-  Path makeAbsolute(Path path) {
-    if (path.isAbsolute()) {
-      return path;
-    }
-    return new Path(this.workingDir, path);
-  }
-
   private URI ensureAuthority(URI uri, Configuration conf) {
 
-    Preconditions.checkNotNull("uri", uri);
+    Preconditions.checkNotNull(uri, "uri");
 
     if (uri.getAuthority() == null) {
       final URI defaultUri = FileSystem.getDefaultUri(conf);
@@ -194,5 +181,31 @@ public class AzureDistributedFileSystem extends FileSystem {
     }
 
     return false;
+  }
+
+  @VisibleForTesting
+  void execute(
+      String scopeDescription,
+      AzureDistributedFileSystemFileOperation fileOperation) throws IOException {
+
+      TraceScope traceScope = tracingService.traceBegin(scopeDescription);
+
+    try {
+      fileOperation.execute();
+    } catch (AzureDistributedFileSystemException azureDistributedFileSystemException) {
+      tracingService.traceException(traceScope, azureDistributedFileSystemException);
+      throw new IOException(azureDistributedFileSystemException);
+    } catch (Exception exception) {
+      FileSystemOperationUnhandledException fileSystemOperationUnhandledException = new FileSystemOperationUnhandledException(exception);
+      tracingService.traceException(traceScope, fileSystemOperationUnhandledException);
+      throw new IOException(fileSystemOperationUnhandledException);
+    } finally {
+      tracingService.traceEnd(traceScope);
+    }
+  }
+
+  @VisibleForTesting
+  interface AzureDistributedFileSystemFileOperation {
+    void execute() throws AzureDistributedFileSystemException;
   }
 }

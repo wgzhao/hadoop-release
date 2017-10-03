@@ -26,51 +26,6 @@ import org.apache.hadoop.fs.azuredfs.services.Mocks.MockLogger;
 
 public class LoggingServiceImplTests {
   @Test
-  public void logInfoTest() throws Exception {
-    MockLogger logger = new MockLogger(true);
-    LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
-    azureLoggingService.log(LogLevel.Info, "Test String");
-    Assert.assertTrue(logger.lastMessage.contains("Test String"));
-    Assert.assertEquals(logger.lastLogLevel, LogLevel.Info);
-  }
-
-  @Test
-  public void logDebugTest() throws Exception {
-    MockLogger logger = new MockLogger(true);
-    LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
-    azureLoggingService.log(LogLevel.Debug, "Test String");
-    Assert.assertTrue(logger.lastMessage.contains("Test String"));
-    Assert.assertEquals(logger.lastLogLevel, LogLevel.Debug);
-  }
-
-  @Test
-  public void logTraceTest() throws Exception {
-    MockLogger logger = new MockLogger(true);
-    LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
-    azureLoggingService.log(LogLevel.Trace, "Test String");
-    Assert.assertTrue(logger.lastMessage.contains("Test String"));
-    Assert.assertEquals(logger.lastLogLevel, LogLevel.Trace);
-  }
-
-  @Test
-  public void logWarningTest() throws Exception {
-    MockLogger logger = new MockLogger(true);
-    LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
-    azureLoggingService.log(LogLevel.Warning, "Test String");
-    Assert.assertTrue(logger.lastMessage.contains("Test String"));
-    Assert.assertEquals(logger.lastLogLevel, LogLevel.Warning);
-  }
-
-  @Test
-  public void logErrorTest() throws Exception {
-    MockLogger logger = new MockLogger(true);
-    LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
-    azureLoggingService.log(LogLevel.Error, "Test String");
-    Assert.assertTrue(logger.lastMessage.contains("Test String"));
-    Assert.assertEquals(logger.lastLogLevel, LogLevel.Error);
-  }
-
-  @Test
   public void ensureLogsAreNotLoggedWhenDisabled() throws Exception {
     MockLogger logger = new MockLogger(false);
     LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);

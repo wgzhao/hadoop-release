@@ -53,6 +53,26 @@ public class MockLogger implements Logger {
     this.errorEnabled = errorEnabled;
   }
 
+  public MockLogger(LogLevel logLevel) {
+    switch (logLevel) {
+      case Trace:
+        this.tracingEnabled = true;
+        break;
+      case Debug:
+        this.debugEnabled = true;
+        break;
+      case Warning:
+        this.warningEnabled = true;
+        break;
+      case Error:
+        this.errorEnabled = true;
+        break;
+      case Info:
+        this.infoEnabled = true;
+        break;
+    }
+  }
+
   @Override
   public String getName() {
     return null;

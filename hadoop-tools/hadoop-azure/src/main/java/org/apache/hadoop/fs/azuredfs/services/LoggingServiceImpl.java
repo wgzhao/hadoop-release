@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 
 package org.apache.hadoop.fs.azuredfs.services;
@@ -44,40 +27,49 @@ final class LoggingServiceImpl implements LoggingService {
 
   @VisibleForTesting
   LoggingServiceImpl(final Logger logger) {
-    Preconditions.checkNotNull("logger", logger);
+    Preconditions.checkNotNull(logger, "logger");
     this.logger = logger;
   }
 
   @Override
   public void log(final LogLevel logLevel, final String message, final String... arguments) {
-    if (logLevel == LogLevel.Debug) {
-      this.logDebug(message, arguments);
-    } else if (logLevel == LogLevel.Info) {
-      this.logInfo(message, arguments);
-    } else if (logLevel == LogLevel.Trace) {
-      this.logTrace(message, arguments);
-    } else if (logLevel == LogLevel.Warning) {
-      this.logWarning(message, arguments);
-    } else if (logLevel == LogLevel.Error) {
-      this.logError(message, arguments);
+    switch (logLevel) {
+      case Trace:
+        this.logTrace(message, arguments);
+        break;
+      case Debug:
+        this.logDebug(message, arguments);
+        break;
+      case Warning:
+        this.logWarning(message, arguments);
+        break;
+      case Error:
+        this.logError(message, arguments);
+        break;
+      case Info:
+        this.logInfo(message, arguments);
+        break;
+      default:
+        throw new AssertionError("Can't get here.");
     }
   }
 
   @Override
   public boolean logLevelEnabled(LogLevel logLevel) {
-    if (logLevel == LogLevel.Debug) {
-      return this.logger.isDebugEnabled();
-    } else if (logLevel == LogLevel.Info) {
-      return this.logger.isInfoEnabled();
-    } else if (logLevel == LogLevel.Trace) {
-      return this.logger.isTraceEnabled();
-    } else if (logLevel == LogLevel.Warning) {
-      return this.logger.isWarnEnabled();
-    } else if (logLevel == LogLevel.Error) {
-      return this.logger.isErrorEnabled();
+    switch (logLevel) {
+      case Trace:
+        return this.logger.isTraceEnabled();
+      case Debug:
+        return this.logger.isDebugEnabled();
+      case Warning:
+        return this.logger.isWarnEnabled();
+      case Error:
+        return this.logger.isErrorEnabled();
+      case Info:
+        return this.logger.isInfoEnabled();
+      default:
+        throw new AssertionError("Can't get here.");
     }
-
-    return false;
   }
 
   private void logDebug(final String message, final String... arguments) {

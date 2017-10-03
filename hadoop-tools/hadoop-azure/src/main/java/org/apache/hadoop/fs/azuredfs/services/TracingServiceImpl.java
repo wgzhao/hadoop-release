@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 
 package org.apache.hadoop.fs.azuredfs.services;
@@ -50,8 +33,8 @@ final class TracingServiceImpl implements TracingService {
   TracingServiceImpl(
       final Configuration configuration,
       final LoggingService loggingService) {
-    Preconditions.checkNotNull("configuration", configuration);
-    Preconditions.checkNotNull("loggingService", loggingService);
+    Preconditions.checkNotNull(configuration, "configuration");
+    Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.loggingService = loggingService;
 
@@ -103,6 +86,9 @@ final class TracingServiceImpl implements TracingService {
 
   @Override
   public void traceException(TraceScope traceScope, AzureDistributedFileSystemException azureDistributedFileSystemException) {
+    Preconditions.checkNotNull(traceScope, "traceScope");
+    Preconditions.checkNotNull(azureDistributedFileSystemException, "azureDistributedFileSystemException");
+
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
       StringWriter stringWriter = new StringWriter();
       PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -115,6 +101,8 @@ final class TracingServiceImpl implements TracingService {
 
   @Override
   public void traceEnd(TraceScope traceScope) {
+    Preconditions.checkNotNull(traceScope, "traceScope");
+
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
       traceScope.close();
     }
