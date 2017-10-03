@@ -39,6 +39,7 @@ import static org.mockito.Mockito.*;
 public class TestLeaseManager {
   @Rule
   public Timeout timeout = new Timeout(300000);
+  public static long maxLockHoldToReleaseLeaseMs = 100;
 
   @Test
   public void testRemoveLeaseWithPrefixPath() throws Exception {
@@ -66,22 +67,20 @@ public class TestLeaseManager {
     assertNull(lm.getLeaseByPath("/a/c"));
   }
 
-  /** Check that even if LeaseManager.checkLease is not able to relinquish
-   * leases, the Namenode does't enter an infinite loop while holding the FSN
-   * write lock and thus become unresponsive
-   */
+  /** Check that LeaseManager.checkLease release some leases */
   @Test
-  public void testCheckLeaseNotInfiniteLoop() {
+  public void testCheckLease() {
     LeaseManager lm = new LeaseManager(makeMockFsNameSystem());
+    long numLease = 100;
 
     //Make sure the leases we are going to add exceed the hard limit
     lm.setLeasePeriod(0,0);
 
-    //Add some leases to the LeaseManager
-    lm.addLease("holder1", "src1");
-    lm.addLease("holder2", "src2");
-    lm.addLease("holder3", "src3");
-    assertEquals(lm.getNumSortedLeases(), 3);
+    for (long i = 0; i <= numLease - 1; i++) {
+      // Add some leases to the LeaseManager
+      lm.addLease("holder" + i, "" + (INodeId.ROOT_INODE_ID + i));
+    }
+    assertEquals(numLease, lm.countLease());
 
     //Initiate a call to checkLease. This should exit within the test timeout
     lm.checkLeases();
@@ -158,6 +157,7 @@ public class TestLeaseManager {
     when(fsn.isRunning()).thenReturn(true);
     when(fsn.hasWriteLock()).thenReturn(true);
     when(fsn.getFSDirectory()).thenReturn(dir);
+    when(fsn.getMaxLockHoldToReleaseLeaseMs()).thenReturn(maxLockHoldToReleaseLeaseMs);
     return fsn;
   }
 }
