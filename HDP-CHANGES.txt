@@ -4467,3 +4467,7 @@ ATS V1.5:
     directory GetFileStatus. Contributed by Steve Moist.
 
     BUG-72747/YARN-6509. Maybe add a size threshold beyond which yarn logs will require a force option. (xgong)
+
+    BUG-89352/YARN-6625. yarn application -list returns a tracking URL for AM that doesn't work in secured and HA environment. (Yufei Gu)
+
+    BUG-85450/YARN-7269. Tracking URL in the app state does not get redirected to ApplicationMaster for Running applications. (wangda)
