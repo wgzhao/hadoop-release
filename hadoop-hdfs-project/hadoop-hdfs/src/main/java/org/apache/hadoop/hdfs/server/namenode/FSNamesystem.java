@@ -3151,8 +3151,10 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       if (force) {
         // close now: no need to wait for soft lease expiration and 
         // close only the file src
-        LOG.debug("recoverLease: " + lease + ", src=" + src +
-          " from client " + clientName);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("recoverLease: " + lease + ", src=" + src +
+              " from client " + clientName);
+        }
         return internalReleaseLease(lease, src, iip, holder);
       } else {
         assert lease.getHolder().equals(clientName) :
@@ -3163,8 +3165,11 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
         // period, then start lease recovery.
         //
         if (lease.expiredSoftLimit()) {
-          LOG.debug("startFile: recover " + lease + ", src=" + src + " client "
-              + clientName);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(
+                "startFile: recover " + lease + ", src=" + src + " client "
+                    + clientName);
+          }
           if (internalReleaseLease(lease, src, iip, null)) {
             return true;
           } else {
@@ -4340,7 +4345,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   boolean internalReleaseLease(Lease lease, String src, INodesInPath iip,
       String recoveryLeaseHolder) throws IOException {
-    if(LOG.isDebugEnabled()) {
+    if (LOG.isDebugEnabled()) {
       LOG.debug("Recovering " + lease + ", src=" + src);
     }
 
