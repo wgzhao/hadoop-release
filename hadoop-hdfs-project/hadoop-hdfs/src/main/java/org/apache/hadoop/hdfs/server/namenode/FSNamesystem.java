@@ -69,6 +69,10 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_ENABLE_RETRY_CAC
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LAZY_PERSIST_FILE_SCRUB_INTERVAL_SEC_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_INODE_ATTRIBUTES_PROVIDER_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LEASE_RECHECK_INTERVAL_MS_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_LEASE_RECHECK_INTERVAL_MS_KEY;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_LOCK_HOLD_TO_RELEASE_LEASE_MS_DEFAULT;
+import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_LOCK_HOLD_TO_RELEASE_LEASE_MS_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_OBJECTS_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_MAX_OBJECTS_KEY;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY;
@@ -412,7 +416,14 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   private final UserGroupInformation fsOwner;
   private final String supergroup;
   private final boolean standbyShouldCheckpoint;
-  
+
+
+  /** Interval between each check of lease to release. */
+  private final long leaseRecheckIntervalMs;
+  /** Maximum time the lock is hold to release lease. */
+  private final long maxLockHoldToReleaseLeaseMs;
+
+
   // Scan interval is not configurable.
   private static final long DELEGATION_TOKEN_REMOVER_SCAN_INTERVAL =
     TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
@@ -855,6 +866,13 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       this.lockSuppressWarningInterval = conf.getTimeDuration(
           DFS_LOCK_SUPPRESS_WARNING_INTERVAL_KEY,
           DFS_LOCK_SUPPRESS_WARNING_INTERVAL_DEFAULT, TimeUnit.MILLISECONDS);
+
+      this.leaseRecheckIntervalMs = conf.getLong(
+          DFS_NAMENODE_LEASE_RECHECK_INTERVAL_MS_KEY,
+          DFS_NAMENODE_LEASE_RECHECK_INTERVAL_MS_DEFAULT);
+      this.maxLockHoldToReleaseLeaseMs = conf.getLong(
+          DFS_NAMENODE_MAX_LOCK_HOLD_TO_RELEASE_LEASE_MS_KEY,
+          DFS_NAMENODE_MAX_LOCK_HOLD_TO_RELEASE_LEASE_MS_DEFAULT);
 
       // For testing purposes, allow the DT secret manager to be started regardless
       // of whether security is enabled.
@@ -3125,8 +3143,10 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       if (force) {
         // close now: no need to wait for soft lease expiration and 
         // close only the file src
-        LOG.info("recoverLease: " + lease + ", src=" + src +
-          " from client " + clientName);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("recoverLease: " + lease + ", src=" + src +
+              " from client " + clientName);
+        }
         return internalReleaseLease(lease, src, iip, holder);
       } else {
         assert lease.getHolder().equals(clientName) :
@@ -3137,8 +3157,11 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
         // period, then start lease recovery.
         //
         if (lease.expiredSoftLimit()) {
-          LOG.info("startFile: recover " + lease + ", src=" + src + " client "
-              + clientName);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(
+                "startFile: recover " + lease + ", src=" + src + " client "
+                    + clientName);
+          }
           if (internalReleaseLease(lease, src, iip, null)) {
             return true;
           } else {
@@ -4314,7 +4337,10 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
    */
   boolean internalReleaseLease(Lease lease, String src, INodesInPath iip,
       String recoveryLeaseHolder) throws IOException {
-    LOG.info("Recovering " + lease + ", src=" + src);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Recovering " + lease + ", src=" + src);
+    }
+
     assert !isInSafeMode();
     assert hasWriteLock();
 
@@ -4337,9 +4363,11 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     if(nrCompleteBlocks == nrBlocks) {
       finalizeINodeFileUnderConstruction(src, pendingFile,
           iip.getLatestSnapshotId());
-      NameNode.stateChangeLog.warn("BLOCK*"
-        + " internalReleaseLease: All existing blocks are COMPLETE,"
-        + " lease removed, file closed.");
+      if(LOG.isDebugEnabled()){
+        NameNode.stateChangeLog.debug("BLOCK*"
+            + " internalReleaseLease: All existing blocks are COMPLETE,"
+            + " lease removed, file closed.");
+      }
       return true;  // closed!
     }
 
@@ -4418,7 +4446,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
         pendingFile.removeLastBlock(lastBlock);
         finalizeINodeFileUnderConstruction(src, pendingFile,
             iip.getLatestSnapshotId());
-        NameNode.stateChangeLog.warn("BLOCK* internalReleaseLease: "
+        NameNode.stateChangeLog.debug("BLOCK* internalReleaseLease: "
             + "Removed empty last block and closed file.");
         return true;
       }
@@ -8942,6 +8970,16 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     SafeModeInfo newSafemode = new SafeModeInfo(conf);
     newSafemode.enter();
     this.safeMode = newSafemode;
+  }
+
+  @VisibleForTesting
+  public long getMaxLockHoldToReleaseLeaseMs() {
+    return maxLockHoldToReleaseLeaseMs;
+  }
+
+  @VisibleForTesting
+  public long getLeaseRecheckIntervalMs() {
+    return leaseRecheckIntervalMs;
   }
 
   @VisibleForTesting

@@ -45,6 +45,7 @@ import org.apache.hadoop.util.Daemon;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.apache.hadoop.util.Time;
 
 /**
  * LeaseManager does the lease housekeeping for writing on files.   
@@ -425,8 +426,8 @@ public class LeaseManager {
               fsnamesystem.getEditLog().logSync();
             }
           }
-  
-          Thread.sleep(HdfsServerConstants.NAMENODE_LEASE_RECHECK_INTERVAL);
+
+          Thread.sleep(fsnamesystem.getLeaseRecheckIntervalMs());
         } catch(InterruptedException ie) {
           if (LOG.isDebugEnabled()) {
             LOG.debug(name + " is interrupted", ie);
@@ -458,7 +459,13 @@ public class LeaseManager {
     }
     return inodes;
   }
-  
+
+  /** @return true if max lock hold is reached */
+  private boolean isMaxLockHoldToReleaseLease(long start) {
+    return monotonicNow() - start >
+        fsnamesystem.getMaxLockHoldToReleaseLeaseMs();
+  }
+
   /** Check the leases beginning from the oldest.
    *  @return true is sync is needed.
    */
@@ -466,17 +473,21 @@ public class LeaseManager {
   synchronized boolean checkLeases() {
     boolean needSync = false;
     assert fsnamesystem.hasWriteLock();
+    final long start = monotonicNow();
+
     Lease leaseToCheck = null;
     try {
       leaseToCheck = sortedLeases.first();
     } catch(NoSuchElementException e) {}
 
-    while(leaseToCheck != null) {
+    int numLeaseClosed = 0;
+    int clientsWithExpiredLease = 0;
+
+    while(leaseToCheck != null &&
+          !isMaxLockHoldToReleaseLease(start)) {
       if (!leaseToCheck.expiredHardLimit()) {
         break;
       }
-
-      LOG.info(leaseToCheck + " has expired hard limit");
 
       final List<String> removing = new ArrayList<String>();
       // need to create a copy of the oldest lease paths, because 
@@ -485,12 +496,17 @@ public class LeaseManager {
       // causing ConcurrentModificationException
       String[] leasePaths = new String[leaseToCheck.getPaths().size()];
       leaseToCheck.getPaths().toArray(leasePaths);
+      clientsWithExpiredLease++;
       for(String p : leasePaths) {
         try {
           INodesInPath iip = fsnamesystem.getFSDirectory().getINodesInPath(p,
               true);
           boolean completed = fsnamesystem.internalReleaseLease(leaseToCheck, p,
               iip, HdfsServerConstants.NAMENODE_LEASE_HOLDER);
+          if (completed) {
+            numLeaseClosed++;
+          }
+
           if (LOG.isDebugEnabled()) {
             if (completed) {
               LOG.debug("Lease recovery for " + p + " is complete. File closed.");
@@ -514,6 +530,13 @@ public class LeaseManager {
       }
       leaseToCheck = sortedLeases.higher(leaseToCheck);
     }
+
+    if (numLeaseClosed > 0) {
+      LOG.info(numLeaseClosed + " file leases recovered for "
+              + clientsWithExpiredLease
+              + " clients in " + (monotonicNow() - start) + " milliseconds.");
+    }
+
 
     try {
       if(leaseToCheck != sortedLeases.first()) {
