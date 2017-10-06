@@ -4813,3 +4813,4 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+BUG-122760. HADOOP-14521. KMS client needs retry logic. Contributed by Rushabh S Shah.
