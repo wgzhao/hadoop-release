@@ -4821,3 +4821,6 @@ ATS V1.5:
 
     HDFS-11187. Optimize disk access for last partial chunk checksum of
     Finalized replica. Contributed by Gabor Bota, Wei-Chiu Chuang.
+
+    BUG-119138. HADOOP-14521. KMS client needs retry logic. Contributed by
+    Rushabh S Shah.
