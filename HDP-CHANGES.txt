@@ -4477,3 +4477,5 @@ ATS V1.5:
     BUG-89352/YARN-6625. yarn application -list returns a tracking URL for AM that doesn't work in secured and HA environment. (Yufei Gu)
 
     BUG-85450/YARN-7269. Tracking URL in the app state does not get redirected to ApplicationMaster for Running applications. (wangda)
+
+    BUG-75578/HADOOP-14920. KMSClientProvider won't work with KMS delegation token retrieved from non-Java client. Contributed by Xiaoyu Yao.
