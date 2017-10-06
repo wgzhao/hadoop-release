@@ -4816,3 +4816,4 @@ ATS V1.5:
 
     BUG-116950. HADOOP-15395. DefaultImpersonationProvider fails to parse proxy
     user config if username has . in it. Contributed by Ajay Kumar.
+BUG-122736. HADOOP-14521. KMS client needs retry logic. Contributed by Rushabh S Shah.

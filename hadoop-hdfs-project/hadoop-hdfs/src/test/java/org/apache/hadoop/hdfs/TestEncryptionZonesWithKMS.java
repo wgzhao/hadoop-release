@@ -20,6 +20,7 @@ package org.apache.hadoop.hdfs;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
+import org.apache.hadoop.crypto.key.kms.LoadBalancingKMSClientProvider;
 import org.apache.hadoop.crypto.key.kms.server.MiniKMS;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -71,8 +72,8 @@ public class TestEncryptionZonesWithKMS extends TestEncryptionZones {
     final Path zonePath = new Path("/TestEncryptionZone");
     fsWrapper.mkdir(zonePath, FsPermission.getDirDefault(), false);
     dfsAdmin.createEncryptionZone(zonePath, TEST_KEY, NO_TRASH);
-    assertTrue(((KMSClientProvider)fs.getClient().getKeyProvider()).
-        getEncKeyQueueSize(TEST_KEY) > 0);
+    assertTrue(((LoadBalancingKMSClientProvider)fs.getClient().getKeyProvider()).
+        getProviders()[0].getEncKeyQueueSize(TEST_KEY) > 0);
   }
 
   @Test(timeout = 120000)
