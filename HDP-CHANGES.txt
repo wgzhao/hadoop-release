@@ -4816,3 +4816,6 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+
+    BUG-109833. HADOOP-14521. KMS client needs retry logic. Contributed by
+    Rushabh S Shah.
