@@ -613,6 +613,9 @@ ATS V1.5:
     BUG-89262. HADOOP-14845. Azure wasb: getFileStatus not making any auth checks.
     Contributed by Sivaguru Sankaridurg.
 
+    BUG-89711 HADOOP-14899 Restrict Access to setPermission operation when authorization is enabled in WASB.
+    Contributed by Kannapiran Srinivasan.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
