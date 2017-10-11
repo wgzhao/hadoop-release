@@ -616,6 +616,9 @@ ATS V1.5:
     BUG-89711 HADOOP-14899 Restrict Access to setPermission operation when authorization is enabled in WASB.
     Contributed by Kannapiran Srinivasan.
 
+    BUG-89960 HADOOP-14913. Sticky bit implementation for rename() operation in Azure WASB.
+    Contributed by Varada Hemeswari.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
