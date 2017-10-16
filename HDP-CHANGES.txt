@@ -619,6 +619,9 @@ ATS V1.5:
     BUG-89960 HADOOP-14913. Sticky bit implementation for rename() operation in Azure WASB.
     Contributed by Varada Hemeswari.
 
+    BUG-90227. HADOOP-14935. Azure: POSIX permissions are taking effect in access() method even when authorization
+    is enabled. Contributed by Santhosh G Nayak.
+
   OPTIMIZATIONS
 
     HDFS-8867. Enable optimized block reports. (Daryn Sharp via jing9)
