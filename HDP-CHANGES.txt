@@ -602,31 +602,45 @@ ATS V1.5:
 
     HADOOP-14536. Update azure-storage sdk to version 5.3.0. Contributed by Georgi Chalakov'    
 
-    HADOOP-14839. DistCp log output should contain copied and deleted files and directories. Contributed by Yiqun Lin.
+    HADOOP-14099. Split S3 testing documentation out into its own file. Contributed by Steve Loughran.
 
-    BUG-89177. HADOOP-14099. Split S3 testing documentation out into its own file. Contributed by Steve Loughran.
-    BUG-89177. HADOOP-14256. Correct the format for "Seoul" example. Contributed by Brahma Reddy Battula.
-    BUG-89177. HADOOP-14268. Fix markdown itemization in hadoop-aws documents. Contributed by Akira Ajisaka
-    BUG-89177. HADOOP-14464. hadoop-aws doc header warning #5 line wrapped. Contributed by John Zhuge.
-    BUG-89177. HADOOP-14190. Add more on S3 regions to the s3a documentation. Contributed by Steve Loughran
+    HADOOP-14256. Correct the format for "Seoul" example. Contributed by Brahma Reddy Battula.
 
-    BUG-89240. HADOOP-14135. Remove URI parameter in AWSCredentialProvider
-    constructors. Contributed by Mingliang Liu
+    HADOOP-14268. Fix markdown itemization in hadoop-aws documents. Contributed by Akira Ajisaka
 
-    BUG-89266. HADOOP-14768. Honoring sticky bit during Deletion when authorization
-    is enabled in WASB. Contributed by Varada Hemeswari
+    HADOOP-14464. hadoop-aws doc header warning #5 line wrapped. Contributed by John Zhuge.
 
-    BUG-89262. HADOOP-14845. Azure wasb: getFileStatus not making any auth checks.
-    Contributed by Sivaguru Sankaridurg.
-
-    BUG-89711 HADOOP-14899 Restrict Access to setPermission operation when authorization is enabled in WASB.
-    Contributed by Kannapiran Srinivasan.
+    HADOOP-14190. Add more on S3 regions to the s3a documentation. Contributed by Steve Loughran
 
     BUG-89960 HADOOP-14913. Sticky bit implementation for rename() operation in Azure WASB.
     Contributed by Varada Hemeswari.
 
-    BUG-90227. HADOOP-14935. Azure: POSIX permissions are taking effect in access() method even when authorization
-    is enabled. Contributed by Santhosh G Nayak.
+    HDFS-11511. Support Timeout when checking single disk. Contributed by
+    Hanisha Koneru.
+
+    HDFS-12043. Add counters for block re-replication. Contributed by Chen
+    Liang.
+
+    HADOOP-14662. Update azure-storage sdk to version 5.4.0. Contributed by
+    Thomas Marquard
+
+    HDFS-6888. Allow selectively audit logging ops (Contributed by Chen He)
+
+    HDFS-10838. Last full block report received time for each DN should be
+    easily discoverable. Contributed by Surendra Singh Lilhore.
+
+    HADOOP-14839. DistCp log output should contain copied and deleted files and
+    directories. Contributed by Yiqun Lin.
+
+    HDFS-11914. Add more diagnosis info for fsimage transfer failure.
+    Contributed by Yongjun Zhang.
+
+    HDFS-11592. Closing a file has a wasteful preconditions in NameNode.
+    Contributed by Eric Badger
+
+    HDFS-12293. DataNode should log file name on disk error. Contributed by
+    Ajay Kumar.
+
 
   OPTIMIZATIONS
 
@@ -661,8 +675,21 @@ ATS V1.5:
 
     BUG-89236. HADOOP-14255. S3A to delete unnecessary fake directory objects in
     mkdirs(). Contributed by Mingliang Liu
+    
     BUG-89236. HADOOP-14428. s3a: mkdir appears to be broken.
     Contributed by Mingliang Liu
+
+    HDFS-12130. Optimizing permission check for getContentSummary Contributed
+    by Chen Liang.
+
+    HDFS-11641. Reduce cost of audit logging by using FileStatus instead of
+    HdfsFileStatus. Contributed by Daryn Sharp.
+
+    HADOOP-14369. NetworkTopology calls expensive toString() when logging.
+    Contributed by Inigo Goiri.
+
+    HDFS-10326. Disable setting tcp socket send/receive buffers for write
+    pipelines. Contributed by Daryn Sharp.
 
   BUG FIXES
 
@@ -4439,18 +4466,9 @@ ATS V1.5:
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
 
-    BUG-83852. getContentSummary does permission check for the whole subtree with Namesystem lock held. HDFS-12130. Optimizing permission check for getContentSummary.
-    Contribuetd by Chen Liang
-
-    BUG-87109. HDFS-8429. Avoid stuck threads if there is an error in DomainSocketWatcher that stops the thread. (zhouyingchao via Chen Liang)
-
-    BUG-78934. HDFS-11641. Reduce cost of audit logging by using FileStatus
-    instead of HdfsFileStatus. Contributed by Daryn Sharp.
+    BUG-83852. getContentSummary does permission check for the whole subtree with Namesystem lock held.
 
     BUG-87495. Allow selectively audit logging ops (Contributed by Chen He)
-
-    BUG-87376. HADOOP-14820. Wasb mkdirs security checks inconsistent with HDFS.
-    Contributed by Sivaguru Sankaridurg
 
     BUG-87206. YARN-7163. RMContext need not to be injected to webapp and other Always Running services. 
     Contributed by Rohith Sharma K S.
@@ -4475,9 +4493,6 @@ ATS V1.5:
 
     YARN-7174. Add retry logic in LogsCLI when fetch running application logs. (xgong)
 
-    BUG-88416. HADOOP-11846 TestCertificateUtil.testCorruptPEM failing on
-    Jenkins JDK8. (Larry McCay via stevel)
-
     BUG-88577/YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
 
     BUG-88923/YARN-7257 AggregatedLogsBlock reports a bad 'end' value as a bad 'start' value. (xgong)
@@ -4498,8 +4513,6 @@ ATS V1.5:
 
     BUG-89241. HADOOP-14087. S3A typo in pom.xml test exclusions.
     Contributed by Aaron Fabbri.
-    BUG-89241. HADOOP-14305 S3A SSE tests won't run in parallel: Bad request in
-    directory GetFileStatus. Contributed by Steve Moist.
 
     BUG-72747/YARN-6509. Maybe add a size threshold beyond which yarn logs will require a force option. (xgong)
 
@@ -4507,11 +4520,100 @@ ATS V1.5:
 
     BUG-85450/YARN-7269. Tracking URL in the app state does not get redirected to ApplicationMaster for Running applications. (wangda)
 
-    BUG-75578/HADOOP-14920. KMSClientProvider won't work with KMS delegation token retrieved from non-Java client. Contributed by Xiaoyu Yao.
-
     HDFS-12325. SFTPFileSystem operations should restore cwd. Contributed by Chen Liang.
 
-    HADOOP-14769. WASB: delete recursive should not fail if a file is deleted. Contributed by Thomas Marquardt
+    HADOOP-14769. WASB: delete recursive should not fail if a file is deleted.
+    Contributed by Thomas Marquardt
 
-    HADOOP-14573. regression: Azure tests which capture logs failing with move to SLF4J. Contributed by Steve Loughran
+    HADOOP-14573. regression: Azure tests which capture logs failing with move
+    to SLF4J. Contributed by Steve Loughran
 
+    HDFS-11609. Some blocks can be permanently lost if nodes are decommissioned
+    while dead. Contributed by Kihwal Lee.
+
+    HDFS-11630. TestThrottledAsyncCheckerTimeout fails intermittently in
+    Jenkins builds. Contributed by Hanisha Koneru.
+
+    HDFS-8429. Avoid stuck threads if there is an error in DomainSocketWatcher
+    that stops the thread. Contributed by zhouyingchao.
+
+    HADOOP-14609. NPE in AzureNativeFileSystemStore.checkContainer() if
+    StorageException lacks an error code. Contributed by Steve Loughran
+
+    HADOOP-14660. wasb: improve throughput by 34% when account limit exceeded.
+    Contributed by Thomas Marquardt.
+
+    HADOOP-14820. Wasb mkdirs security checks inconsistent with HDFS.
+    Contributed by Sivaguru Sankaridurg
+
+    HADOOP-14802. Add support for using container saskeys for all accesses.
+    Contributed by Sivaguru Sankaridurg
+
+    HDFS-12407. Journal nodes fails to shutdown cleanly if
+    JournalNodeHttpServer or JournalNodeRpcServer fails to start
+
+    HDFS-8805. Archival Storage: getStoragePolicy should not need superuser
+    privilege. Contributed by Brahma Reddy Battula.
+
+    HADOOP-11846 TestCertificateUtil.testCorruptPEM failing on Jenkins JDK8.
+    (Larry McCay via stevel)
+
+    HADOOP-14583. wasb throws an exception if you try to create a file and
+    there's no parent directory. Contributed by Esfandiar Manii.
+
+    HADOOP-14520. WASB: Block compaction for Azure Block Blobs. Contributed by
+    Georgi Chalakov.
+
+    HDFS-11674. reserveSpaceForReplicas is not released if append request
+    failed due to mirror down and replica recovered (Contributed by Vinayakumar
+    B)
+
+    HDFS-11131. TestThrottledAsyncChecker#testCancellation is flaky.
+
+    HADOOP-14543. ZKFC should use getAversion() while setting the zkacl.
+    Contributed by Brahma Reddy Battula.
+
+    HDFS-11377. Balancer hung due to no available mover threads. Contributed by
+    yunjiong zhao.
+
+    HADOOP-14092. Typo in hadoop-aws index.md. Contributed by John Zhuge
+
+    HADOOP-14204 S3A multipart commit failing, "UnsupportedOperationException
+    at java.util.Collections$UnmodifiableList.sort".
+
+    HADOOP-14255. HADOOP-14428. S3A to delete unnecessary fake directory
+    objects in mkdirs().
+
+    HADOOP-11572. s3a delete() operation fails during a concurrent delete of
+    child entries. Contributed by Steve Loughran.
+
+    HADOOP-14596. AWS SDK 1.11+ aborts() on close() if > 0 bytes in stream;
+    logs error. Contributed by Steve Loughran
+
+    HADOOP-14135. Remove URI parameter in AWSCredentialProvider constructors.
+    Contributed by Mingliang Liu
+
+    HADOOP-14305. S3A SSE tests won't run in parallel: Bad request in directory
+    GetFileStatus. Contributed by Steve Moist.
+
+    HDFS-10220.  A large number of expired leases can make namenode
+    unresponsive and cause failover
+
+    HADOOP-14768. Honoring sticky bit during Deletion when authorization is
+    enabled in WASB. Contributed by Varada Hemeswari
+
+    HADOOP-14910 Upgrade netty-all jar to latest 4.0.x.Final. Contributed by
+    Vinayakumar B.
+
+    HADOOP-14845  Azure wasb: getFileStatus not making any auth checks.
+    Contributed by Sivaguru Sankaridurg.
+
+    HADOOP-14920. KMSClientProvider won't work with KMS delegation token
+    retrieved from non-Java client. Contributed by Xiaoyu Yao.
+
+    HADOOP-14899 Restrict Access to setPermission operation when authorization
+    is enabled in WASB. Contributed by Kannapiran Srinivasan.
+
+    HADOOP-14935. Azure: POSIX permissions are taking effect in access() method
+    even when authorization is enabled. Contributed by Santhosh G Nayak.
+    
