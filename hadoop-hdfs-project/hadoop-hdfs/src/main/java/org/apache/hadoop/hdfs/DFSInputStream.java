@@ -1256,8 +1256,9 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
         Future<ByteBuffer> firstRequest = hedgedService
             .submit(getFromDataNodeCallable);
         futures.add(firstRequest);
+        Future<ByteBuffer> future = null;
         try {
-          Future<ByteBuffer> future = hedgedService.poll(
+          future = hedgedService.poll(
               dfsClient.getHedgedReadTimeout(), TimeUnit.MILLISECONDS);
           if (future != null) {
             future.get();
@@ -1268,15 +1269,17 @@ implements ByteBufferReadable, CanSetDropBehind, CanSetReadahead,
                 + "ms to read from " + chosenNode.info
                 + "; spawning hedged read");
           }
-          // Ignore this node on next go around.
-          ignored.add(chosenNode.info);
           dfsClient.getHedgedReadMetrics().incHedgedReadOps();
           continue; // no need to refresh block locations
         } catch (InterruptedException e) {
           // Ignore
         } catch (ExecutionException e) {
-          // Ignore already logged in the call.
+          futures.remove(future);
         }
+        // Ignore this node on next go around.
+        // If poll timeout and the request still ongoing, don't consider it
+        // again. If read data failed, don't consider it either.
+        ignored.add(chosenNode.info);
       } else {
         // We are starting up a 'hedged' read. We have a read already
         // ongoing. Call getBestNodeDNAddrPair instead of chooseDataNode.
