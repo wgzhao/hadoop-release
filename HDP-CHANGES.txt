@@ -1253,3 +1253,6 @@ ATS V1.5:
 
     BUG-82255. YARN-6339. Improve performance for createAndGetApplicationReport.
     (Yunjiong Zhao via wangda)
+
+    BUG-90173. HDFS-6763. Initialize file system-wide quota once on
+    transitioning to active.
