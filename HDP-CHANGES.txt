@@ -3008,6 +3008,3 @@ ATS V1.5:
 
     BUG-90496. HDFS-11634. Optimize BlockIterator when interating starts in the
     middle. Contributed by Konstantin V Shvachko.
-
-    BUG-90496. HDFS-11384. Balancer disperses getBlocks calls to avoid
-    NameNode's rpc queue saturation. Contributed by Konstantin V Shvachko.
