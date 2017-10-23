@@ -4616,4 +4616,6 @@ ATS V1.5:
 
     HADOOP-14935. Azure: POSIX permissions are taking effect in access() method
     even when authorization is enabled. Contributed by Santhosh G Nayak.
-    
+
+    HDFS-12683. DFSZKFailOverController re-order logic for logging Exception
+    Contributed by Bharat Viswanadham.
