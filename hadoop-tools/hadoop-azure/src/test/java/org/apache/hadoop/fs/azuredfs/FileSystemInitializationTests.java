@@ -23,32 +23,34 @@ import java.net.URI;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
-import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpImpl;
 
 public class FileSystemInitializationTests extends DependencyInjectedTest {
-  @Test
-  public void ensureAzureDistributedFileSystemIsInitialize() throws Exception {
-    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, "test@test.com", null, null, null);
-    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
+  public FileSystemInitializationTests() throws Exception {
+    super();
 
-    final FileSystem fs = FileSystem.get(configuration);
-    Assert.assertEquals(fs.getUri(), URI.create(defaultUri.getScheme() + "://" + defaultUri.getAuthority()));
+    this.mockServiceInjector.replaceProvider(AdfsHttpService.class, MockAdfsHttpImpl.class);
+  }
+
+  @Test
+  public void ensureAzureDistributedFileSystemIsInitialized() throws Exception {
+    final FileSystem fs = FileSystem.get(this.getConfiguration());
+
+    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SCHEME, this.getTestUrl(), null, null, null));
     Assert.assertNotNull(fs.getWorkingDirectory());
   }
 
   @Test
-  public void ensureSecureAzureDistributedFileSystemIsInitialize() throws Exception {
-    Configuration configuration = this.serviceProvider.get(ConfigurationService.class).getConfiguration();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, "test@test.com", null, null, null);
-    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
+  public void ensureSecureAzureDistributedFileSystemIsInitialized() throws Exception {
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, this.getTestUrl(), null, null, null);
+    this.getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
-    final FileSystem fs = FileSystem.get(configuration);
-    Assert.assertEquals(fs.getUri(), URI.create(defaultUri.getScheme() + "://" + defaultUri.getAuthority()));
+    final FileSystem fs = FileSystem.get(this.getConfiguration());
+    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, this.getTestUrl(), null, null, null));
     Assert.assertNotNull(fs.getWorkingDirectory());
   }
 }

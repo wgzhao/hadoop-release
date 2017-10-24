@@ -18,27 +18,18 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
 
-import com.google.inject.AbstractModule;
-
-public final class MockServiceInjectorImpl extends AbstractModule {
-  private final Map<Class, Class> bindings;
-
-  public MockServiceInjectorImpl() {
-    this.bindings = new HashMap<>();
+public class MockServiceInjectorImpl extends ServiceInjectorImpl {
+  public MockServiceInjectorImpl(Configuration configuration) {
+    super(configuration);
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  protected final void configure() {
-    for (Map.Entry<Class, Class> entrySet : this.bindings.entrySet()) {
-      bind(entrySet.getKey()).to(entrySet.getValue());
-    }
+  public <T> void replaceInstance(Class<T> tInterface, Object object) {
+    this.getInstances().put(tInterface, object);
   }
 
-  public <T> void bind(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.bindings.put(tInterface, tClazz);
+  public <T> void replaceProvider(Class<T> tInterface, Class<? extends T> tClazz) {
+    this.getProviders().put(tInterface, tClazz);
   }
 }

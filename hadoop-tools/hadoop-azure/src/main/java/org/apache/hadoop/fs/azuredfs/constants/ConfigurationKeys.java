@@ -27,10 +27,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public final class ConfigurationKeys {
-  public static final String FS_AZURE_ACCOUNT_NAME = "fs.azure.account.name";
-  public static final String FS_AZURE_ACCOUNT_KEY = "fs.azure.account.key";
-  public static final String FS_AZURE_ACCOUNT_FILESYSTEM = "fs.azure.account.filesystem";
+  public static final String FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME = "fs.azure.account.key.";
+  public static final String FS_AZURE_ACCOUNT_KEY_SUFFIX = ".data.core.windows.net";
   public static final String FS_AZURE_SECURE_MODE = "fs.azure.secure.mode";
+
+  // Supporting WASB
+  public static final String FS_AZURE_WASB_ACCOUNT_KEY_SUFFIX = ".blob.core.windows.net";
 
   private ConfigurationKeys() {}
 }

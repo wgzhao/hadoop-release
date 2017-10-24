@@ -15,19 +15,21 @@
 
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!--TODO: Remove host once we go live-->
   <!--<property>-->
-    <!--<name>fs.azure.account.name</name>-->
-    <!--<value>{ACCOUNTNAME}</value>-->
+    <!--<name>fs.azure.host.name</name>-->
+    <!--<value>{HOSTNAME}</value>-->
   <!--</property>-->
 
   <!--<property>-->
-    <!--<name>fs.azure.account.key</name>-->
+    <!--<name>fs.azure.test.account.name</name>-->
+    <!--<value>{YOURACCOUNT}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.azure.account.key.{YOURACCOUNT}.data.core.windows.net</name>-->
     <!--<value>{ACCOUNTKEY}</value>-->
-  <!--</property>-->
-
-  <!--<property>-->
-    <!--<name>fs.azure.account.filesystem</name>-->
-    <!--<value>{FILESYSTEM}</value>-->
   <!--</property>-->
 
   <property>

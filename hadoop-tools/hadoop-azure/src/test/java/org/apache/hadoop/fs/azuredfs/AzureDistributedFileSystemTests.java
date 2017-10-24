@@ -18,32 +18,79 @@
 
 package org.apache.hadoop.fs.azuredfs;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.concurrent.Callable;
 
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriAuthorityException;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
+
+import static org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
+import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 
 public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
-  @Test(expected = IOException.class)
-  public void fileOperationExecutorExceptionHandler() throws IOException, URISyntaxException {
-    final Configuration configuration = new Configuration();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, "test@test.com", null, null, null);
-    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
+  public AzureDistributedFileSystemTests() throws Exception {
+    super();
+  }
 
-    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem)FileSystem.get(configuration);
-    fs.execute("testScope", new AzureDistributedFileSystem.AzureDistributedFileSystemFileOperation() {
-      @Override
-      public void execute() throws AzureDistributedFileSystemException {
-        throw new InvalidUriAuthorityException("url");
-      }
-    });
+  @Test
+  public void ensureFileCreated() throws Exception {
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
+    fs.create(new Path("testfile"));
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(1, fileStatuses.length);
+  }
+
+  @Test
+  public void ensureFileIsRenamed() throws Exception {
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
+    fs.create(new Path("testfile"));
+    fs.rename(new Path("testfile"), new Path("testfile2"));
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile2"));
+    Assert.assertEquals(1, fileStatuses.length);
+  }
+
+  @Test
+  public void ensureFileIsDeleted() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    fs.delete(new Path("testfile"), false);
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(0, fileStatuses.length);
+  }
+
+  @After
+  public void TestCleanup() throws Exception {
+    FileSystem.closeAll();
+
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+
+    final AdfsHttpService adfsHttpService = ServiceProviderImpl.instance().get(AdfsHttpService.class);
+    adfsHttpService.deleteFilesystem(fs);
+
+    AzureServiceErrorResponseException ex = intercept(
+        AzureServiceErrorResponseException.class,
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            adfsHttpService.getFilesystemProperties(fs);
+            return null;
+          }
+        });
+
+    Assert.assertEquals(FILE_SYSTEM_NOT_FOUND.getStatusCode(), ex.getStatusCode());
   }
 }

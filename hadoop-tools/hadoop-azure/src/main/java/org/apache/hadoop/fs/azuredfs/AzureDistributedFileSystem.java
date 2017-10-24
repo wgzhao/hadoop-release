@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 package org.apache.hadoop.fs.azuredfs;
 
@@ -5,10 +23,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.concurrent.Callable;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -20,10 +40,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ServiceProvider;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
@@ -44,6 +66,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   private UserGroupInformation userGroupInformation;
   private ServiceProvider serviceProvider;
   private TracingService tracingService;
+  private AdfsHttpService adfsHttpService;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -54,20 +77,19 @@ public class AzureDistributedFileSystem extends FileSystem {
     setConf(configuration);
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
     this.userGroupInformation = UserGroupInformation.getCurrentUser();
-    this.workingDir = new Path(
-        FileSystemConfigurations.USER_HOME_DIRECTORY_PREFIX,
-        UserGroupInformation.
-            getCurrentUser().
-            getShortUserName()).
-        makeQualified(getUri(), getWorkingDirectory());
+    this.setWorkingDirectory(this.getHomeDirectory());
 
     this.serviceProvider = ServiceProviderImpl.create(configuration);
 
     try {
       this.tracingService = serviceProvider.get(TracingService.class);
-    } catch (ServiceResolutionException serviceResolutionException) {
-      throw new IOException(serviceResolutionException);
+      this.adfsHttpService = serviceProvider.get(AdfsHttpService.class);
+    } catch (AzureDistributedFileSystemException exception) {
+      throw new IOException(exception);
     }
+
+    this.createFileSystem();
+    this.mkdirs(this.workingDir);
   }
 
   @Override
@@ -76,54 +98,139 @@ public class AzureDistributedFileSystem extends FileSystem {
   }
 
   @Override
-  public FSDataInputStream open(Path path, int bufferSize) throws IOException {
-    throw new UnsupportedOperationException();
+  public FSDataInputStream open(final Path path, final int bufferSize) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<FSDataInputStream> open = this.execute("AzureDistributedFileSystem.open",
+        new Callable<FSDataInputStream>() {
+          @Override
+          public FSDataInputStream call() throws Exception {
+            return new FSDataInputStream(adfsHttpService.readPath(
+                azureDistributedFileSystem,
+                makeQualified(path)));
+          }
+        });
+
+    evaluateFileSystemOperation(open);
+    return open.result;
   }
 
   @Override
-  public FSDataOutputStream create(Path f, FsPermission permission, boolean overwrite, int bufferSize,
-      short replication, long blockSize, Progressable progress) throws IOException {
-    throw new UnsupportedOperationException();
+  public FSDataOutputStream create(final Path f, final FsPermission permission, boolean overwrite, final int bufferSize,
+      final short replication, final long blockSize, final Progressable progress) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<FSDataOutputStream> create = this.execute("AzureDistributedFileSystem.create",
+        new Callable<FSDataOutputStream>() {
+          @Override
+          public FSDataOutputStream call() throws Exception {
+            adfsHttpService.createPath(azureDistributedFileSystem, makeQualified(f), false);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(create);
+    return create.result;
   }
 
   @Override
-  public FSDataOutputStream append(Path f, int bufferSize, Progressable progress) throws IOException {
+  public FSDataOutputStream append(final Path f, final int bufferSize, final Progressable progress) throws IOException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public boolean rename(Path src, Path dst) throws IOException {
-    throw new UnsupportedOperationException();
+  public boolean rename(final Path src, final Path dst) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<Void> rename = this.execute(
+        "AzureDistributedFileSystem.rename",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            // handle directory rename later.
+            adfsHttpService.renamePath(azureDistributedFileSystem, makeQualified(src), makeQualified(dst), false);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(rename);
+    return !rename.failed();
   }
 
   @Override
-  public boolean delete(Path f, boolean recursive) throws IOException {
-    throw new UnsupportedOperationException();
+  public boolean delete(final Path f, final boolean recursive) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<Void> delete = this.execute("AzureDistributedFileSystem.delete",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            // handle directory rename later.
+            adfsHttpService.deletePath(azureDistributedFileSystem, makeQualified(f), false);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(delete);
+    return !delete.failed();
   }
 
   @Override
-  public FileStatus[] listStatus(Path f) throws IOException {
+  public FileStatus[] listStatus(final Path f) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<FileStatus[]> listStatus = this.execute(
+        "AzureDistributedFileSystem.listStatus",
+        new Callable<FileStatus[]>() {
+          @Override
+          public FileStatus[] call() throws Exception {
+            return adfsHttpService.listStatus(azureDistributedFileSystem, makeQualified(f));
+          }
+        });
+
+    evaluateFileSystemOperation(listStatus);
+    return listStatus.result;
+  }
+
+  @Override
+  public boolean mkdirs(final Path f, final FsPermission permission) throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<Void> mkdirs = this.execute(
+        "AzureDistributedFileSystem.create",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            adfsHttpService.createPath(azureDistributedFileSystem, makeQualified(f), true);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(mkdirs, AzureServiceErrorCode.PATH_CONFLICT);
+    return !mkdirs.failed();
+  }
+
+  @Override
+  public void close() throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<Void> close = this.execute("AzureDistributedFileSystem.create",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            adfsHttpService.closeFileSystem(azureDistributedFileSystem);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(close);
+  }
+
+  @Override
+  public FileStatus getFileStatus(final Path f) throws IOException {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Path getWorkingDirectory() {
-    return workingDir;
+    return this.workingDir;
   }
 
   @Override
-  public void setWorkingDirectory(Path newDir) {
-    workingDir = newDir.makeQualified(this.uri, this.workingDir);
-  }
-
-  @Override
-  public boolean mkdirs(Path f, FsPermission permission) throws IOException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public FileStatus getFileStatus(Path f) throws IOException {
-    throw new UnsupportedOperationException();
+  public void setWorkingDirectory(final Path newDir) {
+    this.workingDir = newDir;
   }
 
   @Override
@@ -139,7 +246,21 @@ public class AzureDistributedFileSystem extends FileSystem {
             this.userGroupInformation.getShortUserName()).toString()));
   }
 
-  private URI ensureAuthority(URI uri, Configuration conf) {
+  private void createFileSystem() throws IOException {
+    final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    FileSystemOperation<Void> createFileSystem = this.execute("AzureDistributedFileSystem.listStatus",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            adfsHttpService.createFilesystem(azureDistributedFileSystem);
+            return null;
+          }
+        });
+
+    evaluateFileSystemOperation(createFileSystem, AzureServiceErrorCode.FILE_SYSTEM_ALREADY_EXISTS);
+  }
+
+  private URI ensureAuthority(URI uri, final Configuration conf) {
 
     Preconditions.checkNotNull(uri, "uri");
 
@@ -169,7 +290,7 @@ public class AzureDistributedFileSystem extends FileSystem {
     return uri;
   }
 
-  private boolean isAdfsScheme(String scheme) {
+  private boolean isAdfsScheme(final String scheme) {
     if (scheme == null) {
       return false;
     }
@@ -184,19 +305,21 @@ public class AzureDistributedFileSystem extends FileSystem {
   }
 
   @VisibleForTesting
-  void execute(
-      String scopeDescription,
-      AzureDistributedFileSystemFileOperation fileOperation) throws IOException {
+  <T> FileSystemOperation execute(
+      final String scopeDescription,
+      final Callable<T> callableFileOperation) throws IOException {
 
-      TraceScope traceScope = tracingService.traceBegin(scopeDescription);
-
+    final TraceScope traceScope = tracingService.traceBegin(scopeDescription);
     try {
-      fileOperation.execute();
+      final T executionResult = callableFileOperation.call();
+      return new FileSystemOperation(executionResult, null);
+    } catch (AzureServiceErrorResponseException azureServiceErrorResponseException) {
+      return new FileSystemOperation(null, azureServiceErrorResponseException);
     } catch (AzureDistributedFileSystemException azureDistributedFileSystemException) {
       tracingService.traceException(traceScope, azureDistributedFileSystemException);
       throw new IOException(azureDistributedFileSystemException);
     } catch (Exception exception) {
-      FileSystemOperationUnhandledException fileSystemOperationUnhandledException = new FileSystemOperationUnhandledException(exception);
+      final FileSystemOperationUnhandledException fileSystemOperationUnhandledException = new FileSystemOperationUnhandledException(exception);
       tracingService.traceException(traceScope, fileSystemOperationUnhandledException);
       throw new IOException(fileSystemOperationUnhandledException);
     } finally {
@@ -204,8 +327,28 @@ public class AzureDistributedFileSystem extends FileSystem {
     }
   }
 
+  private <T> void evaluateFileSystemOperation(
+      final FileSystemOperation<T> fileSystemOperation,
+      final AzureServiceErrorCode... whitelistedErrorCodes) throws IOException {
+    if (fileSystemOperation.failed()) {
+      if (!ArrayUtils.contains(whitelistedErrorCodes, fileSystemOperation.exception.getErrorCode())) {
+        throw new IOException(fileSystemOperation.exception);
+      }
+    }
+  }
+
   @VisibleForTesting
-  interface AzureDistributedFileSystemFileOperation {
-    void execute() throws AzureDistributedFileSystemException;
+  class FileSystemOperation<T> {
+    private final T result;
+    private final AzureServiceErrorResponseException exception;
+
+    public FileSystemOperation(final T result, final AzureServiceErrorResponseException exception) {
+      this.result = result;
+      this.exception = exception;
+    }
+
+    public boolean failed() {
+      return this.exception != null;
+    }
   }
 }

@@ -21,26 +21,9 @@ package org.apache.hadoop.fs.azuredfs.services;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.InjectableService;
-
 public class MockServiceProviderImpl {
-  private final MockServiceInjectorImpl serviceInjector;
-  private Injector injector;
-
-  public MockServiceProviderImpl() {
-    this.serviceInjector = new MockServiceInjectorImpl();
-  }
-
-  public void initialize() {
-    this.injector = Guice.createInjector(serviceInjector);
-    ServiceProviderImpl.create(this.injector);
-  }
-
-  public <T extends InjectableService> void bind(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.serviceInjector.bind(tInterface, tClazz);
-  }
-
-  public <T extends InjectableService> T get(Class<T> clazz) {
-    return this.injector.getInstance(clazz);
+  public static void Create(MockServiceInjectorImpl serviceInjector) {
+    Injector injector = Guice.createInjector(serviceInjector);
+    ServiceProviderImpl.create(injector);
   }
 }

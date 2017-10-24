@@ -18,18 +18,19 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+
 import com.google.common.base.Preconditions;
+import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AzureAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 
 /**
  * This class is responsible to configure all the services used by Azure Distributed Filesystem.
@@ -37,12 +38,17 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AzureAuthorizationServic
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class NetworkInterceptorImpl implements Interceptor {
-  private final AzureAuthorizationService azureAuthorizationService;
+  private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
+  private final StorageCredentialsAccountAndKey storageCredentialsAccountAndKey;
 
   NetworkInterceptorImpl(
-      final AzureAuthorizationService azureAuthorizationService) {
-    Preconditions.checkNotNull("azureAuthorizationService", azureAuthorizationService);
-    this.azureAuthorizationService = azureAuthorizationService;
+      final StorageCredentialsAccountAndKey storageCredentialsAccountAndKey,
+      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
+    Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
+    Preconditions.checkNotNull(storageCredentialsAccountAndKey, "storageCredentialsAccountAndKey");
+
+    this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
+    this.storageCredentialsAccountAndKey = storageCredentialsAccountAndKey;
   }
 
   @Override
@@ -52,7 +58,9 @@ final class NetworkInterceptorImpl implements Interceptor {
     Request request = chain.request();
 
     try {
-      request = this.azureAuthorizationService.updateRequestWithAuthorizationHeader(request);
+      request = this.adfsHttpAuthorizationService.updateRequestWithAuthorizationHeader(
+          request,
+          this.storageCredentialsAccountAndKey);
     } catch (StorageException | InvalidKeyException exception) {
       throw new IOException(exception);
     }

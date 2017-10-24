@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azuredfs.services;
 
 import java.io.IOException;
@@ -40,22 +39,27 @@ import org.apache.htrace.fasterxml.jackson.databind.ObjectWriter;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class LoggerSpanReceiver extends SpanReceiver {
+public class LoggerSpanReceiver extends SpanReceiver {
   private static final ObjectWriter JSON_WRITER = new ObjectMapper().writer();
-  private final LoggingService loggingService;
 
-  public LoggerSpanReceiver(HTraceConfiguration hTraceConfiguration) throws ServiceResolutionException {
+  public LoggerSpanReceiver(HTraceConfiguration hTraceConfiguration) {
     Preconditions.checkNotNull(hTraceConfiguration, "hTraceConfiguration");
-    this.loggingService = ServiceProviderImpl.instance().get(LoggingService.class);
   }
 
   @Override
-  public void receiveSpan(Span span) {
-    String jsonValue = null;
+  public void receiveSpan(final Span span) {
+    String jsonValue;
+    LoggingService loggingService = null;
+
     try {
+      loggingService = ServiceProviderImpl.instance().get(LoggingService.class);
       jsonValue = JSON_WRITER.writeValueAsString(span);
       loggingService.log(LogLevel.Trace, jsonValue);
-    } catch (JsonProcessingException e) {
+    }
+    catch (ServiceResolutionException e) {
+      // Can't log, logging service is invalid.
+    }
+    catch (JsonProcessingException e) {
       loggingService.log(LogLevel.Error, "Json processing error: " + e.getMessage());
     }
   }

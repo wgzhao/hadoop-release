@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -33,47 +32,38 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 @InterfaceStability.Evolving
 final class ConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
-  private final String storageAccountName;
-  private final String storageAccountKey;
-  private final String fileSystem;
   private final boolean isSecure;
 
   @Inject
   ConfigurationServiceImpl(final Configuration configuration) {
     this.configuration = configuration;
-
-    final String accountName = this.configuration.get(ConfigurationKeys.FS_AZURE_ACCOUNT_NAME);
-    final String accountKey = this.configuration.get(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY);
-    final String fileSystem = this.configuration.get(ConfigurationKeys.FS_AZURE_ACCOUNT_FILESYSTEM);
-    final boolean isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
-
-    Preconditions.checkNotNull("accountName", accountName);
-    Preconditions.checkArgument(!accountName.isEmpty(), "accountName");
-    Preconditions.checkNotNull("accountKey", accountKey);
-    Preconditions.checkArgument(!accountKey.isEmpty(), "accountKey");
-    Preconditions.checkNotNull("fileSystem", fileSystem);
-    Preconditions.checkArgument(!fileSystem.isEmpty(), "fileSystem");
-
-    this.storageAccountName = accountName;
-    this.storageAccountKey = accountKey;
-    this.fileSystem = fileSystem;
-    this.isSecure = isSecure;
+    this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
   }
 
   @Override
-  public String getStorageAccountName() {return this.storageAccountName; }
-
-  @Override
-  public String getStorageAccountKey() {
-    return this.storageAccountKey;
+  public boolean isSecureMode() {
+    return this.isSecure;
   }
 
   @Override
-  public String getFileSystem() { return this.fileSystem; }
+  public String getStorageAccountKey(final String accountName) {
+    String accountKey = this.configuration.get(
+        ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME
+            + accountName
+            + ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_SUFFIX);
+
+    if (accountKey == null) {
+      accountKey = this.configuration.get(
+          ConfigurationKeys.FS_AZURE_WASB_ACCOUNT_KEY_SUFFIX
+              + accountName
+              + ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_SUFFIX);
+    }
+
+    return accountKey;
+  }
 
   @Override
-  public boolean isSecureMode() { return this.isSecure; }
-
-  @Override
-  public Configuration getConfiguration() { return this.configuration; }
+  public Configuration getConfiguration() {
+    return this.configuration;
+  }
 }

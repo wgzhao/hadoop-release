@@ -23,32 +23,26 @@ import org.junit.Test;
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
-import org.apache.hadoop.fs.azuredfs.services.Mocks.MockAppender;
-import org.apache.hadoop.fs.azuredfs.services.Mocks.MockLoggingServiceImpl;
 import org.apache.htrace.core.MilliSpan;
 import org.apache.htrace.core.TraceScope;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 public class TracingServiceImplTests extends DependencyInjectedTest {
-  public TracingServiceImplTests() {
-    replaceDependency(LoggingService.class, MockLoggingServiceImpl.class);
-    replaceDependency(TracingService.class, TracingServiceImpl.class);
+  public TracingServiceImplTests() throws Exception {
+    super();
+
+    this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
+    this.mockServiceInjector.replaceProvider(TracingService.class, TracingServiceImpl.class);
   }
 
   @Test
   public void traceSerializationTest() throws Exception {
-    MockAppender mockAppender = new MockAppender();
-    Logger.getRootLogger().setLevel(Level.ALL);
-    Logger.getRootLogger().addAppender(mockAppender);
+    MockLoggingServiceImpl mockLoggingService = (MockLoggingServiceImpl) ServiceProviderImpl.instance().get(LoggingService.class);
 
     TracingService tracingService = ServiceProviderImpl.instance().get(TracingService.class);
     TraceScope traceScope = tracingService.traceBegin("Test Scope");
     traceScope.addTimelineAnnotation("Timeline Annotations");
     traceScope.addKVAnnotation("key", "value");
     traceScope.close();
-
-    MockLoggingServiceImpl mockLoggingService = (MockLoggingServiceImpl) ServiceProviderImpl.instance().get(LoggingService.class);
 
     // Should not throw exception.
     MilliSpan.fromJson(mockLoggingService.messages.get(0));

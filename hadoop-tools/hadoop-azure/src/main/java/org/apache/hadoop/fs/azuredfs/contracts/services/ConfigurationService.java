@@ -29,28 +29,17 @@ import org.apache.hadoop.conf.Configuration;
 @InterfaceStability.Evolving
 public interface ConfigurationService extends InjectableService {
   /**
-   * Retrieves storage account name from Hadoop configuration.
-   * @return storage account name;
-   */
-  String getStorageAccountName();
-
-  /**
-   * Retrieves storage account key from Hadoop configuration.
-   * @return storage account key.
-   */
-  String getStorageAccountKey();
-
-  /**
-   * Retrieves storage filesystem from Hadoop configuration.
-   * @return storage filesystem.
-   */
-  String getFileSystem();
-
-  /**
    * Retrieves storage secure mode from Hadoop configuration;
    * @return storage secure mode;
    */
   boolean isSecureMode();
+
+  /**
+   * Retrieves storage account key for provided account name from Hadoop configuration.
+   * @param accountName the account name to retrieve the key.
+   * @return storage account key;
+   */
+  String getStorageAccountKey(String accountName);
 
   /**
    * Returns Hadoop configuration.

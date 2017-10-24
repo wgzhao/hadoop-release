@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
-import org.apache.hadoop.fs.azuredfs.services.Mocks.MockLogger;
 
 public class LoggingServiceImplTests {
   @Test

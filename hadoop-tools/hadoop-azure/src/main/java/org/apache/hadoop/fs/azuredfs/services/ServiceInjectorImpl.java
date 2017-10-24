@@ -18,39 +18,70 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.inject.AbstractModule;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AzureAuthorizationService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AzureDistributedFileSystemClientFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AzureDistributedFileSystemService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 /**
  * This class is responsible to configure all the services used by Azure Distributed Filesystem.
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class ServiceInjectorImpl extends AbstractModule {
+class ServiceInjectorImpl extends AbstractModule {
   private final Configuration configuration;
+  private final Map<Class, Class> providers;
+  private final Map<Class, Object> instances;
 
   ServiceInjectorImpl(Configuration configuration) {
+    this.providers = new HashMap<>();
+    this.instances = new HashMap<>();
     this.configuration = configuration;
+
+    this.instances.put(Configuration.class, this.configuration);
+
+    this.providers.put(ConfigurationService.class, ConfigurationServiceImpl.class);
+    this.providers.put(AdfsHttpAuthorizationService.class, AdfsHttpAuthorizationServiceImpl.class);
+    this.providers.put(AdfsHttpService.class, AdfsHttpServiceImpl.class);
+
+    this.providers.put(AdfsHttpClientFactory.class, AdfsHttpClientFactoryImpl.class);
+    this.providers.put(AdfsHttpClientSessionFactory.class, AdfsHttpClientSessionFactoryImpl.class);
+
+    this.providers.put(LoggingService.class, LoggingServiceImpl.class);
+    this.providers.put(TracingService.class, TracingServiceImpl.class);
   }
 
   @Override
   protected void configure() {
-    bind(Configuration.class).toInstance(this.configuration);
-    bind(ConfigurationService.class).to(ConfigurationServiceImpl.class);
-    bind(AzureAuthorizationService.class).to(AzureAuthorizationServiceImpl.class);
-    bind(AzureDistributedFileSystemService.class).to(AzureDistributedFileSystemServiceImpl.class);
-    bind(AzureDistributedFileSystemClientFactory.class).to(AzureDistributedFileSystemClientFactoryImpl.class);
+    for (Map.Entry<Class, Object> entrySet : this.instances.entrySet()) {
+      bind(entrySet.getKey()).toInstance(entrySet.getValue());
+    }
 
-    bind(LoggingService.class).to(LoggingServiceImpl.class).asEagerSingleton();
-    bind(TracingService.class).to(TracingServiceImpl.class).asEagerSingleton();
+    for (Map.Entry<Class, Class> entrySet : this.providers.entrySet()) {
+      bind(entrySet.getKey()).to(entrySet.getValue());
+    }
+  }
+
+  protected Configuration getConfiguration() {
+    return this.configuration;
+  }
+
+  protected Map<Class, Class> getProviders() {
+    return this.providers;
+  }
+
+  protected Map<Class, Object> getInstances() {
+    return this.instances;
   }
 }

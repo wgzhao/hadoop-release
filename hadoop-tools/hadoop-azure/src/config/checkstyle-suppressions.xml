@@ -42,15 +42,9 @@
 -->
 
 <suppressions>
-    <suppress checks="ParameterNumber"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]client[\\/]generated[\\/]implementation[\\/]AzureDistributedFileSystemClientImpl.java"/>
+    <suppress checks="FileLengthCheck|UnusedImportsCheck|ParameterNumber|RedundantThrows|MagicNumber"
+              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]rest[\\/]client[\\/]generated[\\/]implementation[\\/]AzureDistributedFileSystemRestClientImpl.java"/>
 
-    <suppress checks="ParameterNumber"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]client[\\/]generated[\\/]AzureDistributedFileSystemClient.java"/>
-
-    <suppress checks="RedundantThrows"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]client[\\/]generated[\\/]implementation[\\/]AzureDistributedFileSystemClientImpl.java"/>
-
-    <suppress checks="MagicNumber"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]client[\\/]generated[\\/]implementation[\\/]AzureDistributedFileSystemClientImpl.java"/>
+    <suppress checks="ParameterNumber|UnusedImportsCheck"
+              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]rest[\\/]client[\\/]generated[\\/]AzureDistributedFileSystemRestClient.java"/>
 </suppressions>
