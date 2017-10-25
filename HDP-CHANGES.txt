@@ -4649,3 +4649,5 @@ ATS V1.5:
 
     BUG-85950. YARN-6811. [ATS1.5] All history logs should be kept under its
     own User Directory. Contributed by Rohith Sharma K S.
+
+    BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
