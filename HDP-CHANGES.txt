@@ -4473,10 +4473,10 @@ ATS V1.5:
     BUG-87206. YARN-7163. RMContext need not to be injected to webapp and other Always Running services. 
     Contributed by Rohith Sharma K S.
 
-    BUG-85043 YARN-6992. Kill application button is visible even if the application is FINISHED in RM UI.
+    BUG-85043. YARN-6992. Kill application button is visible even if the application is FINISHED in RM UI.
     Contributed by Suma Shivaprasad.
 
-    BUG-84376/YARN-7116. CapacityScheduler Web UI: Queue's AM usage is always show on per-user's AM usage. 
+    BUG-84376. YARN-7116. CapacityScheduler Web UI: Queue's AM usage is always show on per-user's AM usage.
     (wangda)
 
     YARN-6876. Create an abstract log writer for extendability. (xgong)
@@ -4493,16 +4493,16 @@ ATS V1.5:
 
     YARN-7174. Add retry logic in LogsCLI when fetch running application logs. (xgong)
 
-    BUG-88577/YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
+    BUG-88577. YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
 
-    BUG-88923/YARN-7257 AggregatedLogsBlock reports a bad 'end' value as a bad 'start' value. (xgong)
+    BUG-88923. YARN-7257 AggregatedLogsBlock reports a bad 'end' value as a bad 'start' value. (xgong)
 
     BUG-89094. testCompareXmlAgainstConfigurationClass fails due to 1 missing property from yarn-default.(xgong)
 
     BUG-89176. HADOOP-14092. [DOC] Typo in hadoop-aws index.md.
     Contributed by John Zhuge
 
-    BUG-89214 HADOOP-14204. S3A multipart commit failing, "UnsupportedOperationException at
+    BUG-89214. HADOOP-14204. S3A multipart commit failing, "UnsupportedOperationException at
     java.util.Collections$UnmodifiableList.sort". Contributed by Steve Loughran.
 
     BUG-89218. HADOOP-11572. s3a delete() operation fails during a concurrent
@@ -4514,11 +4514,11 @@ ATS V1.5:
     BUG-89241. HADOOP-14087. S3A typo in pom.xml test exclusions.
     Contributed by Aaron Fabbri.
 
-    BUG-72747/YARN-6509. Maybe add a size threshold beyond which yarn logs will require a force option. (xgong)
+    BUG-72747. YARN-6509. Maybe add a size threshold beyond which yarn logs will require a force option. (xgong)
 
-    BUG-89352/YARN-6625. yarn application -list returns a tracking URL for AM that doesn't work in secured and HA environment. (Yufei Gu)
+    BUG-89352. YARN-6625. yarn application -list returns a tracking URL for AM that doesn't work in secured and HA environment. (Yufei Gu)
 
-    BUG-85450/YARN-7269. Tracking URL in the app state does not get redirected to ApplicationMaster for Running applications. (wangda)
+    BUG-85450. YARN-7269. Tracking URL in the app state does not get redirected to ApplicationMaster for Running applications. (wangda)
 
     HDFS-12325. SFTPFileSystem operations should restore cwd. Contributed by Chen Liang.
 
@@ -4555,7 +4555,7 @@ ATS V1.5:
     HDFS-8805. Archival Storage: getStoragePolicy should not need superuser
     privilege. Contributed by Brahma Reddy Battula.
 
-    HADOOP-11846 TestCertificateUtil.testCorruptPEM failing on Jenkins JDK8.
+    HADOOP-11846. TestCertificateUtil.testCorruptPEM failing on Jenkins JDK8.
     (Larry McCay via stevel)
 
     HADOOP-14583. wasb throws an exception if you try to create a file and
@@ -4578,7 +4578,7 @@ ATS V1.5:
 
     HADOOP-14092. Typo in hadoop-aws index.md. Contributed by John Zhuge
 
-    HADOOP-14204 S3A multipart commit failing, "UnsupportedOperationException
+    HADOOP-14204. S3A multipart commit failing, "UnsupportedOperationException
     at java.util.Collections$UnmodifiableList.sort".
 
     HADOOP-14255. HADOOP-14428. S3A to delete unnecessary fake directory
@@ -4602,16 +4602,16 @@ ATS V1.5:
     HADOOP-14768. Honoring sticky bit during Deletion when authorization is
     enabled in WASB. Contributed by Varada Hemeswari
 
-    HADOOP-14910 Upgrade netty-all jar to latest 4.0.x.Final. Contributed by
+    HADOOP-14910. Upgrade netty-all jar to latest 4.0.x.Final. Contributed by
     Vinayakumar B.
 
-    HADOOP-14845  Azure wasb: getFileStatus not making any auth checks.
+    HADOOP-14845.  Azure wasb: getFileStatus not making any auth checks.
     Contributed by Sivaguru Sankaridurg.
 
     HADOOP-14920. KMSClientProvider won't work with KMS delegation token
     retrieved from non-Java client. Contributed by Xiaoyu Yao.
 
-    HADOOP-14899 Restrict Access to setPermission operation when authorization
+    HADOOP-14899. Restrict Access to setPermission operation when authorization
     is enabled in WASB. Contributed by Kannapiran Srinivasan.
 
     HADOOP-14935. Azure: POSIX permissions are taking effect in access() method
