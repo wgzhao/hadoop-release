@@ -4491,7 +4491,7 @@ ATS V1.5:
 
     YARN-7194. Log aggregation status is always Failed with the newly added log aggregation IndexedFileFormat. (xgong)
 
-    YARN-7174. Add retry logic in LogsCLI when fetch running application logs. (xgong)
+    BUG-86819. YARN-7174. Add retry logic in LogsCLI when fetch running application logs. (xgong)
 
     BUG-88577. YARN-7249. Fix CapacityScheduler NPE issue when a container preempted while the node is being removed. (wangda)
 
@@ -4619,3 +4619,24 @@ ATS V1.5:
 
     HDFS-12683. DFSZKFailOverController re-order logic for logging Exception
     Contributed by Bharat Viswanadham.
+
+    BUG-88574. YARN-6550. Capture launch_container.sh logs to a separate log
+    file. Contributed by Suma Shivaprasad.
+
+    BUG-88995. YARN-7259. Add size-based rolling policy to LogAggregationIndexedFileController.
+    Contributed by Xuan Gong.
+
+    BUG-87520. YARN-7118. AHS REST API can return NullPointerException.
+    Contributed by Billie Rinaldi.
+
+    BUG-85044. YARN-6991. "Kill application" button does not show error if other
+    user tries to kill the application for secure cluster.
+    Contributed by Suma Shivaprasad.
+
+    BUG-88117. YARN-7157. Add admin configuration to filter per-user's apps in
+    secure cluster. Contributed by Sunil G.
+
+    BUG-86326. Fix java doc errors. Contributed by Rohith Sharma K S.
+
+    BUG-85950. YARN-6811. [ATS1.5] All history logs should be kept under its
+    own User Directory. Contributed by Rohith Sharma K S.
