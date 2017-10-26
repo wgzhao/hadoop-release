@@ -3008,3 +3008,6 @@ ATS V1.5:
 
     BUG-90496. HDFS-11634. Optimize BlockIterator when interating starts in the
     middle. Contributed by Konstantin V Shvachko.
+
+    BUG-90835. YARN-7249. Fix CapacityScheduler NPE issue when a container
+    preempted while the node is being removed. (wangda)
