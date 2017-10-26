@@ -4181,3 +4181,6 @@ ATS V1.5:
     HADOOP-12617. SPNEGO authentication request to non-default realm gets default realm name inserted in target server principal
 
     HADOOP-12158. Improve error message in TestCryptoStreamsWithOpensslAesCtrCryptoCodec when OpenSSL is not installed.
+
+    BUG-89820. HDFS-11445. FSCK shows overall health stauts as corrupt even one
+    replica is corrupt. Contributed by Brahma Reddy Battula.
