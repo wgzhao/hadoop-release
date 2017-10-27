@@ -23,7 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -34,7 +33,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.web.oauth2.OAuth2ConnectionConfigurator;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
@@ -82,22 +80,49 @@ public class URLConnectionFactory {
    * try to load SSL certificates when it is specified.
    */
   public static URLConnectionFactory newDefaultURLConnectionFactory(Configuration conf) {
-    ConnectionConfigurator conn = getSSLConnectionConfiguration(conf);
+    ConnectionConfigurator conn = getSSLConnectionConfiguration(
+        DEFAULT_SOCKET_TIMEOUT, DEFAULT_SOCKET_TIMEOUT, conf);
 
     return new URLConnectionFactory(conn);
   }
 
-  private static ConnectionConfigurator
-      getSSLConnectionConfiguration(Configuration conf) {
+  /**
+   * Construct a new URLConnectionFactory based on the configuration. It will
+   * hornor connecTimeout and readTimeout when they are specified.
+   */
+  public static URLConnectionFactory newDefaultURLConnectionFactory(
+      int connectTimeout, int readTimeout, Configuration conf) {
+    ConnectionConfigurator conn = getSSLConnectionConfiguration(
+        connectTimeout, readTimeout, conf);
+
+    return new URLConnectionFactory(conn);
+  }
+
+  private static ConnectionConfigurator getSSLConnectionConfiguration(
+      final int connectTimeout, final int readTimeout, Configuration conf) {
     ConnectionConfigurator conn = null;
     try {
-      conn = newSslConnConfigurator(DEFAULT_SOCKET_TIMEOUT, conf);
+      conn = newSslConnConfigurator(connectTimeout, readTimeout, conf);
     } catch (Exception e) {
       LOG.debug(
           "Cannot load customized ssl related configuration. Fallback to" +
               " system-generic settings.",
           e);
-      conn = DEFAULT_TIMEOUT_CONN_CONFIGURATOR;
+      if (connectTimeout == DEFAULT_SOCKET_TIMEOUT &&
+          readTimeout == DEFAULT_SOCKET_TIMEOUT) {
+        conn = DEFAULT_TIMEOUT_CONN_CONFIGURATOR;
+      } else {
+        conn = new ConnectionConfigurator() {
+          @Override
+          public HttpURLConnection configure(HttpURLConnection connection)
+              throws IOException {
+            URLConnectionFactory.setTimeouts(connection,
+                connectTimeout,
+                readTimeout);
+            return connection;
+          }
+        };
+      }
     }
 
     return conn;
@@ -107,12 +132,12 @@ public class URLConnectionFactory {
    * Construct a new URLConnectionFactory that supports OAut-based connections.
    * It will also try to load the SSL configuration when they are specified.
    */
-  public static URLConnectionFactory
-      newOAuth2URLConnectionFactory(Configuration conf) throws IOException {
+  public static URLConnectionFactory newOAuth2URLConnectionFactory(
+      int connectTimeout, int readTimeout, Configuration conf) throws IOException {
     ConnectionConfigurator conn = null;
     try {
       ConnectionConfigurator sslConnConfigurator
-          = newSslConnConfigurator(DEFAULT_SOCKET_TIMEOUT, conf);
+          = newSslConnConfigurator(connectTimeout, readTimeout, conf);
 
       conn = new OAuth2ConnectionConfigurator(conf, sslConnConfigurator);
     } catch (Exception e) {
@@ -132,26 +157,20 @@ public class URLConnectionFactory {
   private static ConnectionConfigurator newSslConnConfigurator(
       final int defaultTimeout, Configuration conf)
       throws IOException, GeneralSecurityException {
+    return newSslConnConfigurator(defaultTimeout, defaultTimeout, conf);
+  }
+
+  private static ConnectionConfigurator newSslConnConfigurator(
+      final int connectTimeout, final int readTimeout, Configuration conf)
+      throws IOException, GeneralSecurityException {
     final SSLFactory factory;
     final SSLSocketFactory sf;
     final HostnameVerifier hv;
-    final int connectTimeout;
-    final int readTimeout;
 
     factory = new SSLFactory(SSLFactory.Mode.CLIENT, conf);
     factory.init();
     sf = factory.createSSLSocketFactory();
     hv = factory.getHostnameVerifier();
-
-    connectTimeout = (int) conf.getTimeDuration(
-        DFSConfigKeys.DFS_WEBHDFS_SOCKET_CONNECT_TIMEOUT_KEY,
-        defaultTimeout,
-        TimeUnit.MILLISECONDS);
-
-    readTimeout = (int) conf.getTimeDuration(
-        DFSConfigKeys.DFS_WEBHDFS_SOCKET_READ_TIMEOUT_KEY,
-        defaultTimeout,
-        TimeUnit.MILLISECONDS);
 
     return new ConnectionConfigurator() {
       @Override
@@ -223,7 +242,8 @@ public class URLConnectionFactory {
    * 
    * @param connection
    *          URLConnection to set
-   * @param socketTimeout
+   * @param connectTimeout
+   * @param readTimeout
    *          the connection and read timeout of the connection.
    */
   private static void setTimeouts(URLConnection connection,
