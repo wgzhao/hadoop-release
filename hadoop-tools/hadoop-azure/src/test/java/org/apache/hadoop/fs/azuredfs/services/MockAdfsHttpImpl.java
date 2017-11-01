@@ -21,9 +21,9 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
+import java.util.concurrent.Future;
 
 import com.google.inject.Singleton;
-import rx.Observable;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -33,13 +33,14 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 
 @Singleton
 public class MockAdfsHttpImpl implements AdfsHttpService {
+
   @Override
   public Hashtable<String, String> getFilesystemProperties(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Observable<Hashtable<String, String>> getFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
+  public Future<Hashtable<String, String>> getFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -49,7 +50,17 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Observable<Void> setFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Hashtable<String, String> properties) throws AzureDistributedFileSystemException {
+  public Future<Void> setFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Hashtable<String, String> properties) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Hashtable<String, String> getPathProperties(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Future<Hashtable<String, String>> getPathPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -59,7 +70,7 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Observable<Void> createFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
+  public Future<Void> createFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -69,60 +80,109 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Observable<Void> deleteFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
+  public Future<Void> deleteFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public OutputStream createPath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException {
+  public OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Observable<OutputStream> createPathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws
-      AzureDistributedFileSystemException {
+  public Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public InputStream readPath(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public Void createDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Observable<InputStream> readPathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public Future<Void> createDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public void updatePath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException {
-
-  }
-
-  @Override
-  public Observable<Void> updatePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws
-      AzureDistributedFileSystemException {
+  public InputStream openFileForRead(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public void renamePath(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination, boolean isDirectory) throws AzureDistributedFileSystemException {
-
-  }
-
-  @Override
-  public Observable<Void> renamePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination, boolean isDirectory) throws
-      AzureDistributedFileSystemException {
+  public Future<InputStream> openFileForReadAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public void deletePath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException {
+  public OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset)
+      throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int
+      readBufferOffset) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public void appendFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
 
   }
 
   @Override
-  public Observable<Void> deletePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException {
+  public Future<Void> appendFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public void renameFile(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> renameFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public void deleteFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> deleteFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public FileStatus getFileStatus(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public Future<FileStatus> getFileStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -132,7 +192,7 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Observable<FileStatus[]> listStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public Future<FileStatus[]> listStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
     return null;
   }
 

@@ -16,7 +16,6 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <!--TODO: Remove host once we go live-->
   <!--<property>-->
     <!--<name>fs.azure.host.name</name>-->
     <!--<value>{HOSTNAME}</value>-->
@@ -30,6 +29,16 @@
   <!--<property>-->
     <!--<name>fs.azure.account.key.{YOURACCOUNT}.data.core.windows.net</name>-->
     <!--<value>{ACCOUNTKEY}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.azure.test.account.key.{YOURACCOUNT}.data.core.windows.net</name>-->
+    <!--<value>{ACCOUNTKEY}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.azure.adfs.emulator.enabled</name>-->
+    <!--<value>true</value>-->
   <!--</property>-->
 
   <property>

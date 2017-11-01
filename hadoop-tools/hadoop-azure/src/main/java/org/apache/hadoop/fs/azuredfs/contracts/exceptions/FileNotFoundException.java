@@ -16,23 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.exceptions;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * Thrown when a file is not existing on the service.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  public static final String FS_WASB_DEFAULT_HOST = ".blob.core.windows.net";
-  public static final String HDI_IS_FOLDER = "hdi_isfolder";
-
-  private FileSystemConfigurations() {}
+public final class FileNotFoundException extends AzureDistributedFileSystemException {
+  public FileNotFoundException(String path) {
+    super(String.format("%s is not found.", path));
+  }
 }

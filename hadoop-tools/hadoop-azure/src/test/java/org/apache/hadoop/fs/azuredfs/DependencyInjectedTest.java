@@ -31,11 +31,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.services.MockAdfsBlobHandlerImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientFactoryImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientSessionFactoryImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockConfigurationServiceImpl;
@@ -64,6 +66,7 @@ public abstract class DependencyInjectedTest {
     this.mockServiceInjector.replaceProvider(ConfigurationService.class, MockConfigurationServiceImpl.class);
     this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
     this.mockServiceInjector.replaceProvider(AdfsHttpClientFactory.class, MockAdfsHttpClientFactoryImpl.class);
+    this.mockServiceInjector.replaceProvider(AdfsBlobHandler.class, MockAdfsBlobHandlerImpl.class);
   }
 
   @Before

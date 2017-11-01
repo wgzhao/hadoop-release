@@ -18,7 +18,10 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -26,29 +29,24 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.http.client.utils.URIBuilder;
 
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
+public class MockAdfsBlobHandlerImpl extends AdfsBlobHandlerImpl {
   private final ConfigurationService configurationService;
 
   @Inject
-  MockAdfsHttpClientFactoryImpl(
-      final ConfigurationService configurationService,
-      final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
-    super(configurationService, adfsHttpClientSessionFactory, adfsHttpAuthorizationService);
-
+  MockAdfsBlobHandlerImpl(
+      final ConfigurationService configurationService) {
+    Preconditions.checkNotNull(configurationService, "configurationService");
     this.configurationService = configurationService;
   }
 
-  @VisibleForTesting
-  URIBuilder getURIBuilder(final String accountName) {
+  @Override
+  public URI getBlobEndpointUriFromBlobUriAndAccountName(URI blobUri, String accountName) throws URISyntaxException {
     final URIBuilder uriBuilder = new URIBuilder();
     final String host = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
 
@@ -56,10 +54,9 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
 
     uriBuilder.setScheme(scheme);
     uriBuilder.setHost(host);
-    uriBuilder.setPort(8889);
+    uriBuilder.setPort(8885);
 
     uriBuilder.setPath("/" + this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME) + "/");
-
-    return uriBuilder;
+    return uriBuilder.build();
   }
 }

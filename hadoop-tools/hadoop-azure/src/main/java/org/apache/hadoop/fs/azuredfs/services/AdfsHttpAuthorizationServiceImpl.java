@@ -53,6 +53,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationSer
 final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationService {
   private static final int EXPECTED_BLOB_QUEUE_CANONICALIZED_STRING_LENGTH = 300;
   private static final Pattern CRLF = Pattern.compile("\r\n", Pattern.LITERAL);
+  private static final String TARGET_STORAGE_VERSION = "2017-11-09";
 
   @Inject
   AdfsHttpAuthorizationServiceImpl() {
@@ -75,7 +76,7 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
     }
 
     headerBuilder.set(Constants.HeaderConstants.DATE, Utility.getGMTTime());
-    headerBuilder.set(Constants.HeaderConstants.STORAGE_VERSION_HEADER, Constants.HeaderConstants.TARGET_STORAGE_VERSION);
+    headerBuilder.set(Constants.HeaderConstants.STORAGE_VERSION_HEADER, TARGET_STORAGE_VERSION);
 
     final Request modifiedRequest = request.newBuilder().headers(headerBuilder.build()).build();
 
@@ -191,8 +192,8 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
       throws StorageException {
     // Resource path
     String resourcePath = "/"
-            + accountName
-            + address.getPath();
+        + accountName
+        + address.getPath();
 
     // Note that AbsolutePath starts with a '/'.
     final StringBuilder canonicalizedResource = new StringBuilder(resourcePath);

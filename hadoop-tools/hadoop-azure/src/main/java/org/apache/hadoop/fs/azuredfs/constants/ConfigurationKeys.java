@@ -34,5 +34,8 @@ public final class ConfigurationKeys {
   // Supporting WASB
   public static final String FS_AZURE_WASB_ACCOUNT_KEY_SUFFIX = ".blob.core.windows.net";
 
+  // Remove this and use common azure storage emulator property for public release.
+  public static final String FS_AZURE_EMULATOR_ENABLED = "fs.azure.adfs.emulator.enabled";
+
   private ConfigurationKeys() {}
 }

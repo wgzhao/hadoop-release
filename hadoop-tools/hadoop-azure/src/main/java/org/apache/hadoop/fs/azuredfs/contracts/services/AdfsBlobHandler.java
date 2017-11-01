@@ -16,23 +16,30 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * AdfsBlobHandler. This class is temporarily used for making the NativeAzureFileSystem injectable.
+ * Currently for rename/delete directory we redirect the requests to WASB.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  public static final String FS_WASB_DEFAULT_HOST = ".blob.core.windows.net";
-  public static final String HDI_IS_FOLDER = "hdi_isfolder";
+public interface AdfsBlobHandler extends InjectableService {
+  /**
+   * Converts Adfs Uri to Blob Uri.
+   * @return URI blob URI.
+   */
+  URI convertAdfsUriToBlobUri(URI adfsUri) throws URISyntaxException;
 
-  private FileSystemConfigurations() {}
+  /**
+   * Creates blob endpoint uri from blob uri and account name.
+   * @return blob endpoint URI.
+   */
+  URI getBlobEndpointUriFromBlobUriAndAccountName(URI blobUri, String accountName) throws URISyntaxException;
 }

@@ -16,23 +16,36 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.services;
+
+import com.google.inject.Singleton;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * File System service to provider AzureDistributedFilesystem client.
  */
-@InterfaceAudience.Public
+@Singleton
+@InterfaceAudience.Private
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  public static final String FS_WASB_DEFAULT_HOST = ".blob.core.windows.net";
-  public static final String HDI_IS_FOLDER = "hdi_isfolder";
+final class AdfsBufferPoolImpl implements AdfsBufferPool {
+  private final PooledByteBufAllocator pooledByteBufAllocator;
 
-  private FileSystemConfigurations() {}
+  public AdfsBufferPoolImpl() {
+    this.pooledByteBufAllocator = PooledByteBufAllocator.DEFAULT;
+  }
+
+  @Override
+  public ByteBuf getByteBuffer(final int bufferSize) {
+    return this.pooledByteBufAllocator.heapBuffer(bufferSize);
+  }
+
+  @Override
+  public boolean releaseByteBuffer(final ByteBuf byteBuf) {
+    return byteBuf.release();
+  }
 }

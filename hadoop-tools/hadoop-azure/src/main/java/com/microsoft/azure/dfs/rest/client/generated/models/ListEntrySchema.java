@@ -42,6 +42,12 @@ public class ListEntrySchema {
   private String name;
 
   /**
+   * The isDirectory property.
+   */
+  @JsonProperty(value = "isDirectory")
+  private Boolean isDirectory;
+
+  /**
    * The lastModified property.
    */
   @JsonProperty(value = "lastModified")
@@ -100,6 +106,26 @@ public class ListEntrySchema {
    */
   public ListEntrySchema withName(String name) {
     this.name = name;
+    return this;
+  }
+
+  /**
+   * Get the isDirectory value.
+   *
+   * @return the isDirectory value
+   */
+  public Boolean isDirectory() {
+    return this.isDirectory;
+  }
+
+  /**
+   * Set the isDirectory value.
+   *
+   * @param isDirectory the isDirectory value to set
+   * @return the ListEntrySchema object itself.
+   */
+  public ListEntrySchema withIsDirectory(Boolean isDirectory) {
+    this.isDirectory = isDirectory;
     return this;
   }
 

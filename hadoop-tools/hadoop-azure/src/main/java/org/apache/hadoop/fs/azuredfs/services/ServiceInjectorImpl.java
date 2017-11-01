@@ -26,10 +26,13 @@ import com.google.inject.AbstractModule;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
@@ -58,8 +61,13 @@ class ServiceInjectorImpl extends AbstractModule {
     this.providers.put(AdfsHttpClientFactory.class, AdfsHttpClientFactoryImpl.class);
     this.providers.put(AdfsHttpClientSessionFactory.class, AdfsHttpClientSessionFactoryImpl.class);
 
+    this.providers.put(AdfsStreamFactory.class, AdfsStreamFactoryImpl.class);
+    this.providers.put(AdfsBufferPool.class, AdfsBufferPoolImpl.class);
+
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
     this.providers.put(TracingService.class, TracingServiceImpl.class);
+
+    this.providers.put(AdfsBlobHandler.class, AdfsBlobHandlerImpl.class);
   }
 
   @Override

@@ -18,13 +18,21 @@
 
 package org.apache.hadoop.fs.azuredfs;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -68,6 +76,114 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     fs.delete(new Path("testfile"), false);
 
     FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(0, fileStatuses.length);
+  }
+
+  @Test
+  public void writeOneByteToFile() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    FSDataOutputStream stream = fs.create(new Path("testfile"));
+
+    stream.write(100);
+    stream.close();
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(1, fileStatuses.length);
+    Assert.assertEquals(1, fileStatuses[0].getLen());
+  }
+
+  @Test
+  public void readWriteBytesToFile() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    writeOneByteToFile();
+
+    FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
+    int i = inputStream.read();
+
+    Assert.assertEquals(100, i);
+  }
+
+  @Test
+  public void readWriteHeavyBytesToFile() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+
+    final byte[] b = new byte[5 * 10240000];
+    new Random().nextBytes(b);
+    stream.write(b);
+    stream.close();
+
+    final byte[] r = new byte[5 * 10240000];
+    FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
+    int result = inputStream.read(r);
+
+    Assert.assertNotEquals(-1, result);
+    Assert.assertArrayEquals(r, b);
+  }
+
+  @Test
+  public void writeHeavyBytesToFile() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+    ExecutorService es = Executors.newCachedThreadPool();
+
+    List<Future<Void>> tasks = new ArrayList<>();
+    for (int i = 0; i < 100; i++) {
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          final byte[] b = new byte[5 * 1024000];
+          new Random().nextBytes(b);
+          stream.write(b);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    for (Future<Void> task : tasks) {
+      task.get();
+    }
+
+    stream.close();
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(1, fileStatuses.length);
+    Assert.assertEquals(512000000, fileStatuses[0].getLen());
+  }
+
+  @Test
+  public void deleteDirectory() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.mkdirs(new Path("testfile"));
+    fs.mkdirs(new Path("testfile/test1"));
+    fs.mkdirs(new Path("testfile/test1/test2"));
+
+    fs.delete(new Path("testfile"), true);
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile"));
+    Assert.assertEquals(0, fileStatuses.length);
+  }
+
+  @Test
+  public void renameDirectory() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.mkdirs(new Path("testfile"));
+    fs.mkdirs(new Path("testfile/test1"));
+    fs.mkdirs(new Path("testfile/test1/test2"));
+    fs.mkdirs(new Path("testfile/test1/test2/test3"));
+
+    fs.rename(new Path("testfile/test1"), new Path("testfile/test10"));
+    FileStatus[] fileStatuses = fs.listStatus(new Path("testfile1/"));
     Assert.assertEquals(0, fileStatuses.length);
   }
 

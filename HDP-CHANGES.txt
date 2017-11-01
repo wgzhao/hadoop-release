@@ -4822,3 +4822,5 @@ ATS V1.5:
 
     WASB-15. Implementing open, create, list path, rename file, delete file to Azure Distributed File System
 
+    WASB-17. Implementing read/append/write/flush/rename/delete for Azure Distributed File System.
+

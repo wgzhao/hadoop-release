@@ -16,14 +16,12 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
-
-import rx.Observable;
+import java.util.concurrent.Future;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -48,9 +46,9 @@ public interface AdfsHttpService extends InjectableService {
   /**
    * Gets filesystem properties on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to get the properties.
-   * @return Observable<Hashtable<String, String>> an observable hash table containing the properties.
+   * @return Future<Hashtable<String, String>> Future of a hash table containing the properties.
    */
-  Observable<Hashtable<String, String>> getFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws
+  Future<Hashtable<String, String>> getFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws
       AzureDistributedFileSystemException;
 
   /**
@@ -65,9 +63,26 @@ public interface AdfsHttpService extends InjectableService {
    * Sets filesystem properties on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to get the properties.
    * @param properties file system properties to set.
-   * @return Observable<void> an observable Void object.
+   * @return Future<void> Future of a Void object.
    */
-  Observable<Void> setFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Hashtable<String, String> properties) throws
+  Future<Void> setFilesystemPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Hashtable<String, String> properties) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Gets path properties on the Azure service.
+   * @param azureDistributedFileSystem filesystem to get the properties of the path.
+   * @param path path to get properties.
+   * @return Hashtable<String, String> hash table containing all the path properties.
+   */
+  Hashtable<String, String> getPathProperties(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Gets path properties on the Azure service asynchronously.
+   * @param azureDistributedFileSystem filesystem to get the properties of the path.
+   * @param path path to get properties.
+   * @return Future<Hashtable<String, String>> Future of a hash table containing all the path properties.
+   */
+  Future<Hashtable<String, String>> getPathPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws
       AzureDistributedFileSystemException;
 
   /**
@@ -79,9 +94,9 @@ public interface AdfsHttpService extends InjectableService {
   /**
    * Creates filesystem on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to be created.
-   * @return Observable<void> an observable Void object.
+   * @return Future<void> Future of a Void object.
    */
-  Observable<Void> createFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException;
+  Future<Void> createFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException;
 
   /**
    * Deletes filesystem on the Azure service.
@@ -92,101 +107,189 @@ public interface AdfsHttpService extends InjectableService {
   /**
    * Deletes filesystem on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to be deleted.
-   * @return Observable<void> an observable Void object.
+   * @return Future<void> Future of a Void object.
    */
-  Observable<Void> deleteFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException;
+  Future<Void> deleteFilesystemAsync(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException;
 
   /**
-   * Creates file or directory on the Azure service.
+   * Creates a file on the Azure service.
    * @param azureDistributedFileSystem filesystem to create file or directory.
-   * @param path path to be created.
-   * @param isDirectory if path represents directory.
-   * @return OutputStream stream to the path.
+   * @param path path of the file to be created.
+   * @return OutputStream stream to the file.
    */
-  OutputStream createPath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException;
+  OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
 
   /**
-   * Creates file or directory on the Azure service asynchronously.
+   * Creates a file on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to create file or directory.
-   * @param path path to be created.
-   * @param isDirectory if path represents directory.
-   * @return Observable<OutputStream> an observable stream to the path.
+   * @param path path of the file to be created.
+   * @return Future<OutputStream> Future of a stream to the file.
    */
-  Observable<OutputStream> createPathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws
+  Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws
       AzureDistributedFileSystemException;
 
   /**
-   * Reads path and returns the stream if it is file.
-   * @param azureDistributedFileSystem filesystem to read a file from.
-   * @param path path to be created.
-   * @return InputStream the stream to the file.
+   * Creates a directory on the Azure service.
+   * @param azureDistributedFileSystem filesystem to create file or directory.
+   * @param path path of the directory to be created.
+   * @return OutputStream stream to the file.
    */
-  InputStream readPath(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+  Void createDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
 
   /**
-   * Reads path and returns the stream if it is file asynchronously.
-   * @param azureDistributedFileSystem filesystem to read a file from.
-   * @param path path to be created.
-   * @return Observable<InputStream> an observable stream to the file.
+   * Creates a directory on the Azure service asynchronously.
+   * @param azureDistributedFileSystem filesystem to create file or directory.
+   * @param path path of the file to be created.
+   * @return Future<Void> Future of a Void object.
    */
-  Observable<InputStream> readPathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
-
-  /**
-   * Updates a path with provided arguments.
-   * @param azureDistributedFileSystem filesystem to read a file from.
-   * @param isDirectory flag to determine the path type.
-   * @param path path to be updated.
-   */
-  void updatePath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException;
-
-  /**
-   * Updates a path with provided arguments asynchronously.
-   * @param azureDistributedFileSystem filesystem to read a file from.
-   * @param path path to be updated.
-   * @param isDirectory flag to determine the path type.
-   * @return Observable<void> an observable Void object.
-   */
-  Observable<Void> updatePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory)
-      throws AzureDistributedFileSystemException;
-
-  /**
-   * Renames path from source to destination.
-   * @param azureDistributedFileSystem filesystem to rename a file.
-   * @param source source path.
-   * @param destination destination path.
-   * @param isDirectory flag to determine the path type.
-   */
-  void renamePath(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination, boolean isDirectory)
-      throws AzureDistributedFileSystemException;
-
-  /**
-   * Renames path from source to destination asynchronously.
-   * @param azureDistributedFileSystem filesystem to rename a file.
-   * @param source source path.
-   * @param destination destination path.
-   * @param isDirectory flag to determine the path type.
-   * @return Observable<void> an observable Void object.
-   */
-  Observable<Void> renamePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination, boolean isDirectory) throws
+  Future<Void> createDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws
       AzureDistributedFileSystemException;
 
   /**
-   * Deletes a path.
-   * @param azureDistributedFileSystem filesystem to delete the path.
-   * @param path path to be deleted.
-   * @param isDirectory flag to determine the path type.
+   * Opens a file to read and returns the stream.
+   * @param azureDistributedFileSystem filesystem to read a file from.
+   * @param path file path to read.
+   * @return InputStream a stream to the file to read.
    */
-  void deletePath(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory) throws AzureDistributedFileSystemException;
+  InputStream openFileForRead(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
 
   /**
-   * Deletes a path asynchronously.
-   * @param azureDistributedFileSystem filesystem to delete the path.
-   * @param path path to be deleted.
-   * @param isDirectory flag to determine the path type.
-   * @return Observable<void> an observable Void object.
+   * Opens a file to read and returns the stream asynchronously.
+   * @param azureDistributedFileSystem filesystem to read a file from.
+   * @param path file path to read.
+   * @return Future<InputStream> Future of a stream to the file to read.
    */
-  Observable<Void> deletePathAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean isDirectory)
+  Future<InputStream> openFileForReadAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Opens a file to write and returns the stream.
+   * @param azureDistributedFileSystem filesystem to write a file to.
+   * @param path file path to write.
+   * @return OutputStream a stream to the file to write.
+   */
+  OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Opens a file to write and returns the stream asynchronously.
+   * @param azureDistributedFileSystem filesystem to write a file to.
+   * @param path file path to write.
+   * @return Future<OutputStream> Future of a stream to the file to write.
+   */
+  Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Reads a file and returns the stream.
+   * @param azureDistributedFileSystem filesystem to read a file from.
+   * @param path file path to be read.
+   * @param offset offset of the file to read
+   * @param length the length of read operation
+   * @param readBuffer buffer to read the file content.
+   * @param readBufferOffset offset of the read buffer.
+   */
+  Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Reads a file and returns the stream.
+   * @param azureDistributedFileSystem filesystem to read a file from asynchronously.
+   * @param path file path to be read.
+   * @param offset offset of the file to read
+   * @param length the length of read operation
+   * @param readBuffer buffer to read the file content.
+   * @param readBufferOffset offset of the read buffer.
+   * @return Future<void> Future of a Void object.
+   */
+  Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int
+      readBufferOffset) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Appends a byte array to a file.
+   * @param azureDistributedFileSystem filesystem to append data to file.
+   * @param path path to append.
+   * @param body the content to append to file.
+   * @param offset offset to append.
+   */
+  void appendFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException;
+
+  /**
+   * Appends a byte array to a file asynchronously.
+   * @param azureDistributedFileSystem filesystem to append data to file.
+   * @param path path to append.
+   * @param body the content to append to file.
+   * @param offset offset to append.
+   * @return Future<void> Future of a Void object.
+   */
+  Future<Void> appendFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Flushes the current pending appends to a file on the service.
+   * @param azureDistributedFileSystem filesystem to flush.
+   * @param path path of the file to be flushed.
+   * @param offset offset to apply flush.
+   */
+  void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset) throws AzureDistributedFileSystemException;
+
+  /**
+   * Flushes the current pending appends to a file on the service asynchronously.
+   * @param azureDistributedFileSystem filesystem to flush.
+   * @param path path of the file to be flushed.
+   * @param offset offset to apply flush.
+   * @return Future<Void> Future of a Void object.
+   */
+  Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset) throws AzureDistributedFileSystemException;
+
+  /**
+   * Renames a file from source to destination.
+   * @param azureDistributedFileSystem filesystem to rename a file.
+   * @param source source path.
+   * @param destination destination path.
+   */
+  void renameFile(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination)
       throws AzureDistributedFileSystemException;
+
+  /**
+   * Renames a file from source to destination asynchronously.
+   * @param azureDistributedFileSystem filesystem to rename a file.
+   * @param source source path.
+   * @param destination destination path.
+   * @return Future<Void> Future of a Void object.
+   */
+  Future<Void> renameFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Deletes a file.
+   * @param azureDistributedFileSystem filesystem to delete the path.
+   * @param path file path to be deleted.
+   */
+  void deleteFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Deletes a file asynchronously.
+   * @param azureDistributedFileSystem filesystem to delete the path.
+   * @param path file path to be deleted.
+   * @return Future<Void> Future of a Void object.
+   */
+  Future<Void> deleteFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path)
+      throws AzureDistributedFileSystemException;
+
+  /**
+   * Gets path's status under the provided path on the Azure service.
+   * @param azureDistributedFileSystem filesystem to perform the get file status operation.
+   * @param path path delimiter.
+   * @return FileStatus FileStatus of the path in the file system.
+   */
+  FileStatus getFileStatus(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+
+  /**
+   * Gets path's status under the provided path on the Azure service asynchronously.
+   * @param azureDistributedFileSystem filesystem to perform the get file status operation.
+   * @param path path delimiter.
+   * @return Future<FileStatus> Future of FileStatus of the path in the file system.
+   */
+  Future<FileStatus> getFileStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
 
   /**
    * Lists all the paths under the provided path on the Azure service.
@@ -200,9 +303,9 @@ public interface AdfsHttpService extends InjectableService {
    * Lists all the paths under the provided path on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to perform the list operation.
    * @param path path delimiter.
-   * @return Observable<FileStatus[]> an observable list of all paths in the file system.
+   * @return Future<FileStatus[]> Future of a list of all paths in the file system.
    */
-  Observable<FileStatus[]> listStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+  Future<FileStatus[]> listStatusAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
 
   /**
    * Closes the client to filesystem to Azure service.

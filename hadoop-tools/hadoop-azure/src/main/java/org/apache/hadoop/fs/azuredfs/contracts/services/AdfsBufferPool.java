@@ -16,23 +16,20 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.constants;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
+
+import io.netty.buffer.ByteBuf;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all the Azure Distributed Filesystem related configurations.
+ * AdfsBufferPool to create and release buffers.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public final class FileSystemConfigurations {
-  public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
-  public static final String FS_AZURE_DEFAULT_HOST = ".data.core.windows.net";
-  public static final String FS_WASB_DEFAULT_HOST = ".blob.core.windows.net";
-  public static final String HDI_IS_FOLDER = "hdi_isfolder";
+public interface AdfsBufferPool extends InjectableService {
+  ByteBuf getByteBuffer(int bufferSize);
 
-  private FileSystemConfigurations() {}
+  boolean releaseByteBuffer(ByteBuf byteBuf);
 }

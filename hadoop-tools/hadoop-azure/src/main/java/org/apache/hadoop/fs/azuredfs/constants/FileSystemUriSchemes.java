@@ -34,5 +34,7 @@ public final class FileSystemUriSchemes {
   public static final String HTTP_SCHEME = "http";
   public static final String HTTPS_SCHEME = "https";
 
+  public static final String WASB_SCHEME = "wasb";
+
   private FileSystemUriSchemes() {}
 }

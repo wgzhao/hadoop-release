@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.util.concurrent.TimeUnit;
+
 import com.microsoft.azure.dfs.rest.client.generated.implementation.AzureDistributedFileSystemRestClientImpl;
 import com.microsoft.rest.RestClient;
 import com.microsoft.rest.ServiceResponseBuilder;
@@ -25,6 +27,7 @@ import com.microsoft.rest.serializer.JacksonAdapter;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 
@@ -45,6 +48,7 @@ final class AdfsHttpClientImpl extends AzureDistributedFileSystemRestClientImpl 
         .withNetworkInterceptor(networkInterceptor)
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
         .withSerializerAdapter(new JacksonAdapter())
+        .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
         .build());
 
     this.adfsHttpClientSession = adfsHttpClientSession;
