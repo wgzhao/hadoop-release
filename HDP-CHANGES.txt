@@ -4825,3 +4825,6 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+
+    BUG-90942. HADOOP-14542. Add IOUtils.cleanupWithLogger that accepts slf4j
+    logger API. Contributed by Chen Liang.
