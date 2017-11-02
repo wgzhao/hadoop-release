@@ -4825,3 +4825,7 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+
+    BUG-91034. HADOOP-13132. Handle ClassCastException on
+    AuthenticationException in LoadBalancingKMSClientProvider. Contributed by
+    Wei-Chiu Chuang.
