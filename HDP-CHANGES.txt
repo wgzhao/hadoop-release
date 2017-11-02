@@ -1262,3 +1262,6 @@ ATS V1.5:
 
     BUG-90173. HDFS-11303. Hedged read might hang infinitely if read data from
     all DN failed . Contributed by Chen Zhang, Wei-chiu Chuang, and John Zhuge.
+
+    BUG-91089. HDFS-10223. peerFromSocketAndKey performs SASL exchange before
+    setting connection timeouts
