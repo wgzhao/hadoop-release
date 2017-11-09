@@ -4692,3 +4692,5 @@ ATS V1.5:
 
     BUG-91876. HDFS-9914. Fix configurable WebhDFS connect/read timeout.
     Contributed by Xiaoyu Yao.
+
+    BUG-91431. Whenever Spark2 Thriftserver restart, a random node manager will go down cause by patch from BUG-78576. (wangda)

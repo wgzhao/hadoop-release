@@ -672,7 +672,7 @@ public class ContainersMonitorImpl extends AbstractService implements
 
     String launchCLI = null;
     if (launchContext.getCommands() != null) {
-      launchCLI = StringUtils.join(" ", launchContext.getCommands());
+      launchCLI = StringUtils.join(" ", launchContext.getAndCopyCommands());
     }
     if (null != launchCLI) {
       for (String keyword : escapeKillOfLaunchCLIKeywords) {
