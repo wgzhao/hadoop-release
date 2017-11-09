@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.api.records;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -187,6 +188,14 @@ public abstract class ContainerLaunchContext {
   @Public
   @Stable
   public abstract List<String> getCommands();
+
+  public synchronized List<String> getAndCopyCommands() {
+    if (getCommands() != null) {
+      return new ArrayList<String>(getCommands());
+    }
+
+    return null;
+  }
   
   /**
    * Add the list of <em>commands</em> for launching the container. All
