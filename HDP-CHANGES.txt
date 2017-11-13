@@ -4655,3 +4655,6 @@ ATS V1.5:
     BUG-91252. HADOOP-13132. Handle ClassCastException on
     AuthenticationException in LoadBalancingKMSClientProvider. Contributed by
     Wei-Chiu Chuang.
+
+    BUG-90788. HADOOP-14542. Add IOUtils.cleanupWithLogger that accepts slf4j
+    logger API. Contributed by Chen Liang.
