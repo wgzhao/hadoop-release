@@ -4662,3 +4662,6 @@ ATS V1.5:
     BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
 
     BUG-102684. HADOOP-15446. WASB: PageBlobInputStream.skip breaks HBASE replication
+
+    HADOOP-14542. Add IOUtils.cleanupWithLogger that accepts slf4j logger API.
+    Contributed by Chen Liang.
