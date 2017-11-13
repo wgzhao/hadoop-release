@@ -112,7 +112,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Initializes an instance of AzureDistributedFileSystemRestClient client.
    */
   public AzureDistributedFileSystemRestClientImpl() {
-    this("http://account.data.core.windows.net");
+    this("http://account.dfs.core.windows.net");
   }
 
   /**
@@ -132,7 +132,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param restBuilder   the builder for building an Retrofit client, bundled with user configurations
    */
   public AzureDistributedFileSystemRestClientImpl(OkHttpClient.Builder clientBuilder, Retrofit.Builder restBuilder) {
-    this("http://account.data.core.windows.net", clientBuilder, restBuilder);
+    this("http://account.dfs.core.windows.net", clientBuilder, restBuilder);
     initialize();
   }
 

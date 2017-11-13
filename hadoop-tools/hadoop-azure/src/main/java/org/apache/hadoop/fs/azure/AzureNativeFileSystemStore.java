@@ -881,7 +881,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       storageInteractionLayer.createBlobClient(account);
     }
     else {
-      // data.core.windows.net must be replaced with blob.core.windows.net
+      // dfs.core.windows.net must be replaced with blob.core.windows.net
       if (sessionUri.toString().endsWith(FileSystemConfigurations.FS_AZURE_DEFAULT_HOST)) {
         try {
           AdfsBlobHandler adfsBlobHandler = ServiceProviderImpl.instance().get(AdfsBlobHandler.class);

@@ -29,7 +29,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import rx.Observable;
 import rx.functions.Action0;
-import rx.schedulers.Schedulers;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -52,21 +51,21 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private final Path path;
 
   private ByteBuf buffer;
-  private long writtenBytesToService;
   private boolean closed;
   private List<Future<Void>> tasks;
-  private final boolean flushable;
+  private long offset;
 
   AdfsOutputStream(
       final AdfsHttpService adfsHttpService,
       final AdfsBufferPool adfsBufferPool,
       final AzureDistributedFileSystem azureDistributedFileSystem,
       final Path path,
-      final boolean flushable) {
+      final long offset) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(path, "path");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
+    Preconditions.checkArgument(offset >= 0);
 
     this.adfsBufferPool = adfsBufferPool;
     this.azureDistributedFileSystem = azureDistributedFileSystem;
@@ -75,7 +74,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.closed = false;
     this.buffer = this.adfsBufferPool.getByteBuffer(DEFAULT_UPLOAD_BLOCK_SIZE);
     this.tasks = new ArrayList<>();
-    this.flushable = flushable;
+    this.offset = offset;
   }
 
   /**
@@ -94,29 +93,29 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   }
 
   /**
-   * Writes length bytes from the specified byte array starting at offset to
+   * Writes length bytes from the specified byte array starting at off to
    * this output stream.
    *
    * @param data   the byte array to write.
-   * @param offset the start offset in the data.
+   * @param off the start off in the data.
    * @param length the number of bytes to write.
    * @throws IOException if an I/O error occurs. In particular, an IOException may be
    *                     thrown if the output stream has been closed.
    */
   @Override
-  public synchronized void write(final byte[] data, final int offset, final int length)
+  public synchronized void write(final byte[] data, final int off, final int length)
       throws IOException {
-    Preconditions.checkArgument(data != null, "null data");
-
-    if (offset < 0 || length < 0 || length > data.length - offset) {
-      throw new IndexOutOfBoundsException();
-    }
-
     if (closed) {
       throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
 
-    int currentOffset = offset;
+    Preconditions.checkArgument(data != null, "null data");
+
+    if (off < 0 || length < 0 || length > data.length - off) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    int currentOffset = off;
     int writableBytes = this.buffer.writableBytes();
     int numberOfBytesToWrite = length - currentOffset;
 
@@ -125,7 +124,6 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
         this.buffer.writeBytes(data, currentOffset, writableBytes);
         writeCurrentBufferToService();
 
-        this.buffer = this.adfsBufferPool.getByteBuffer(DEFAULT_UPLOAD_BLOCK_SIZE);
         currentOffset = currentOffset + writableBytes;
         numberOfBytesToWrite = numberOfBytesToWrite - writableBytes;
       } else {
@@ -146,11 +144,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   @Override
   public void flush() throws IOException {
     if (closed) {
-      return;
-    }
-
-    if (!flushable) {
-      return;
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
 
     this.flushInternal();
@@ -162,6 +156,11 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void sync() throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
+    this.flushInternal();
   }
 
   /**
@@ -170,6 +169,11 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hsync() throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
+    this.flushInternal();
   }
 
   /**
@@ -178,6 +182,11 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hflush() throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
+    this.flushInternal();
   }
 
   /**
@@ -195,6 +204,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     this.flushInternal();
+    this.closed = true;
   }
 
   private synchronized void flushInternal() throws IOException {
@@ -211,15 +221,12 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     final int length = this.buffer.readableBytes();
     bytes = new byte[length];
     this.buffer.getBytes(this.buffer.readerIndex(), bytes);
-    adfsBufferPool.releaseByteBuffer(this.buffer);
 
     try {
-      final Future<Void> append = adfsHttpService.appendFileAsync(azureDistributedFileSystem,
+      final Future<Void> append = adfsHttpService.writeFileAsync(azureDistributedFileSystem,
           path,
           bytes,
-          writtenBytesToService);
-
-      writtenBytesToService += length;
+          this.offset);
 
       final AdfsOutputStream adfsOutputStream = this;
       Observable.from(append).doOnCompleted(new Action0() {
@@ -229,16 +236,20 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
             adfsOutputStream.tasks.remove(adfsOutputStream.tasks.indexOf(append));
           }
         }
-      }).subscribeOn(Schedulers.newThread());
+      });
 
+      this.offset += bytes.length;
       this.tasks.add(append);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
+    finally {
+      adfsBufferPool.releaseByteBuffer(this.buffer);
+      this.buffer = this.adfsBufferPool.getByteBuffer(DEFAULT_UPLOAD_BLOCK_SIZE);
+    }
   }
 
   private synchronized void flushWrittenBytesToService() throws IOException {
-    final long currentWrittenBytes = writtenBytesToService;
     for (Future<Void> task : this.tasks) {
       try {
         task.get();
@@ -248,7 +259,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     try {
-      adfsHttpService.flushFile(azureDistributedFileSystem, path, currentWrittenBytes);
+      adfsHttpService.flushFile(azureDistributedFileSystem, path, this.offset);
     } catch (AzureDistributedFileSystemException exception) {
       for (Future task : tasks) {
         if (!task.isDone()) {

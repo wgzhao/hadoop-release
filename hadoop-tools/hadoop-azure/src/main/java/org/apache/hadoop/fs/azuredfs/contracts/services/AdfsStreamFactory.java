@@ -42,18 +42,11 @@ public interface AdfsStreamFactory extends InjectableService {
   InputStream createReadStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long fileSize);
 
   /**
-   * Creates a non flush-able write stream to the provided path on the service.
-   * @param azureDistributedFileSystem filesystem to create a write stream to a file path.
-   * @param path file path to be written.
-   * @return OutputStream a non flush-able stream to the provided path.
-   */
-  OutputStream createNonFlushableWriteStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path);
-
-  /**
    * Creates a write stream to the provided path on the service.
    * @param azureDistributedFileSystem filesystem to create a write stream to a file path.
    * @param path file path to be written.
+   * @param offset offset to start writing.
    * @return OutputStream a stream to the provided path.
    */
-  OutputStream createFlushableWriteStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path);
+  OutputStream createWriteStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset);
 }

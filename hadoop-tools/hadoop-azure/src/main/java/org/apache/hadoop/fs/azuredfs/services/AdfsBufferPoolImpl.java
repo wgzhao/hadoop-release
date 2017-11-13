@@ -41,11 +41,17 @@ final class AdfsBufferPoolImpl implements AdfsBufferPool {
 
   @Override
   public ByteBuf getByteBuffer(final int bufferSize) {
-    return this.pooledByteBufAllocator.heapBuffer(bufferSize);
+    ByteBuf buffer = this.pooledByteBufAllocator.heapBuffer(bufferSize);
+    buffer.retain();
+    return buffer;
   }
 
   @Override
-  public boolean releaseByteBuffer(final ByteBuf byteBuf) {
-    return byteBuf.release();
+  public synchronized boolean releaseByteBuffer(final ByteBuf byteBuf) {
+    while (byteBuf.refCnt() != 0) {
+      byteBuf.release();
+    }
+
+    return true;
   }
 }

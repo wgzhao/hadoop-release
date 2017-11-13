@@ -58,16 +58,6 @@ final class AdfsInputStream extends FSInputStream {
       final AzureDistributedFileSystem azureDistributedFileSystem,
       final Path path,
       final long fileLength) {
-    this(adfsHttpService, adfsBufferPool, azureDistributedFileSystem, path, fileLength, 0);
-  }
-
-  AdfsInputStream(
-      final AdfsHttpService adfsHttpService,
-      final AdfsBufferPool adfsBufferPool,
-      final AzureDistributedFileSystem azureDistributedFileSystem,
-      final Path path,
-      final long fileLength,
-      final long offset) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(path, "path");
@@ -77,7 +67,7 @@ final class AdfsInputStream extends FSInputStream {
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.path = path;
-    this.offset = offset;
+    this.offset = 0;
     this.fileLength = fileLength;
     this.closed = false;
     this.tasks = new ArrayList<>();
@@ -94,11 +84,11 @@ final class AdfsInputStream extends FSInputStream {
    */
   @Override
   public synchronized int available() throws IOException {
-    if (this.closed) {
-      throw new IOException("Stream is closed");
+    if (closed) {
+      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
 
-    final long remaining = this.fileLength - offset;
+    final long remaining = this.fileLength - this.offset;
     return remaining <= Integer.MAX_VALUE
         ? (int) remaining : Integer.MAX_VALUE;
   }
@@ -119,7 +109,8 @@ final class AdfsInputStream extends FSInputStream {
       return -1;
     }
 
-    return tmpBuf[0];
+    // byte values are in range of -128 to 128, with this we convert it to 0-256
+    return tmpBuf[0] & 0xFF;
   }
 
   /*
@@ -144,40 +135,51 @@ final class AdfsInputStream extends FSInputStream {
    */
   @Override
   public synchronized int read(final byte[] b, final int off, final int len) throws IOException {
-    if (offset < 0 || len < 0 || len > b.length - offset) {
+    if (closed) {
+      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
+    if (len == 0) {
+      return 0;
+    }
+
+    if (this.available() == 0) {
+      return -1;
+    }
+
+    if (off < 0 || len < 0 || len > b.length - off) {
       throw new IndexOutOfBoundsException();
     }
 
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
+    int readLength = available() > len ? len : available();
 
     try {
-      int remainingBytesToRead = len;
+      int remainingBytesToRead = readLength;
       int bufferOffset = off;
-      long currentOffset = offset;
 
       while (remainingBytesToRead != 0) {
         if (remainingBytesToRead < DEFAULT_DOWNLOAD_BLOCK_SIZE) {
           readFromService(
-              currentOffset,
+              this.offset,
               remainingBytesToRead,
               b,
               bufferOffset);
 
-          remainingBytesToRead = 0;
-          currentOffset += remainingBytesToRead;
+          this.offset += remainingBytesToRead;
           bufferOffset += remainingBytesToRead;
+
+          remainingBytesToRead = 0;
         } else {
           readFromService(
-              currentOffset,
+              this.offset,
               DEFAULT_DOWNLOAD_BLOCK_SIZE,
               b,
               bufferOffset);
 
-          remainingBytesToRead -= DEFAULT_DOWNLOAD_BLOCK_SIZE;
-          currentOffset += DEFAULT_DOWNLOAD_BLOCK_SIZE;
+          this.offset += DEFAULT_DOWNLOAD_BLOCK_SIZE;
           bufferOffset += DEFAULT_DOWNLOAD_BLOCK_SIZE;
+
+          remainingBytesToRead -= DEFAULT_DOWNLOAD_BLOCK_SIZE;
         }
       }
 
@@ -185,7 +187,7 @@ final class AdfsInputStream extends FSInputStream {
         task.get();
       }
 
-      return len;
+      return readLength;
     } catch (InterruptedException | ExecutionException ex) {
       for (Future task : tasks) {
         if (!task.isDone()) {
@@ -208,7 +210,11 @@ final class AdfsInputStream extends FSInputStream {
 
   @Override
   public synchronized void seek(final long pos) throws EOFException {
-    if (pos > this.fileLength) {
+    if (closed) {
+      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
+    if (pos > this.fileLength || pos < 0) {
       throw new EOFException();
     }
 
@@ -217,6 +223,10 @@ final class AdfsInputStream extends FSInputStream {
 
   @Override
   public synchronized long getPos() throws IOException {
+    if (closed) {
+      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+
     return this.offset;
   }
 

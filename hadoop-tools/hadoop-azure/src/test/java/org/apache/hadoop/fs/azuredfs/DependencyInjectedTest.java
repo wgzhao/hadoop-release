@@ -50,6 +50,7 @@ public abstract class DependencyInjectedTest {
   protected final MockServiceInjectorImpl mockServiceInjector;
   private final Configuration configuration;
   private final String fileSystemName;
+  private final String testUrl;
   private AdfsHttpClientSession adfsHttpClientSession;
 
   protected DependencyInjectedTest() throws Exception {
@@ -57,7 +58,8 @@ public abstract class DependencyInjectedTest {
     configuration = new Configuration();
     configuration.addResource("azure-adfs-test.xml");
 
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, getTestUrl(), null, null, null);
+    this.testUrl = this.getFileSystemName() + "@" + this.getAccountName() + TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX;
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, testUrl, null, null, null);
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
     this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
 
@@ -93,7 +95,7 @@ public abstract class DependencyInjectedTest {
   }
 
   protected String getTestUrl() {
-    return this.getFileSystemName() + "@" + this.getAccountName() + TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX;
+    return testUrl;
   }
 
   protected String getFileSystemName() {

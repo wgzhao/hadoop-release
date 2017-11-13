@@ -115,17 +115,19 @@ public interface AdfsHttpService extends InjectableService {
    * Creates a file on the Azure service.
    * @param azureDistributedFileSystem filesystem to create file or directory.
    * @param path path of the file to be created.
+   * @param overwrite should overwrite.
    * @return OutputStream stream to the file.
    */
-  OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+  OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws AzureDistributedFileSystemException;
 
   /**
    * Creates a file on the Azure service asynchronously.
    * @param azureDistributedFileSystem filesystem to create file or directory.
    * @param path path of the file to be created.
+   * @param overwrite should overwrite.
    * @return Future<OutputStream> Future of a stream to the file.
    */
-  Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws
+  Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws
       AzureDistributedFileSystemException;
 
   /**
@@ -165,17 +167,20 @@ public interface AdfsHttpService extends InjectableService {
    * Opens a file to write and returns the stream.
    * @param azureDistributedFileSystem filesystem to write a file to.
    * @param path file path to write.
+   * @param overwrite should overwrite.
    * @return OutputStream a stream to the file to write.
    */
-  OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+  OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws AzureDistributedFileSystemException;
 
   /**
    * Opens a file to write and returns the stream asynchronously.
    * @param azureDistributedFileSystem filesystem to write a file to.
    * @param path file path to write.
+   * @param overwrite should overwrite.
    * @return Future<OutputStream> Future of a stream to the file to write.
    */
-  Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException;
+  Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws
+      AzureDistributedFileSystemException;
 
   /**
    * Reads a file and returns the stream.
@@ -204,23 +209,23 @@ public interface AdfsHttpService extends InjectableService {
       AzureDistributedFileSystemException;
 
   /**
-   * Appends a byte array to a file.
+   * Writes a byte array to a file.
    * @param azureDistributedFileSystem filesystem to append data to file.
    * @param path path to append.
    * @param body the content to append to file.
    * @param offset offset to append.
    */
-  void appendFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException;
+  void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException;
 
   /**
-   * Appends a byte array to a file asynchronously.
+   * Writes a byte array to a file asynchronously.
    * @param azureDistributedFileSystem filesystem to append data to file.
    * @param path path to append.
    * @param body the content to append to file.
    * @param offset offset to append.
    * @return Future<void> Future of a Void object.
    */
-  Future<Void> appendFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws
+  Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws
       AzureDistributedFileSystemException;
 
   /**

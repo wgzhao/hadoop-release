@@ -4824,3 +4824,5 @@ ATS V1.5:
 
     WASB-17. Implementing read/append/write/flush/rename/delete for Azure Distributed File System.
 
+    WASB-18. Adding contract tests to Azure Distributed File system and fixing bugs.
+

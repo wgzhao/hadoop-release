@@ -33,6 +33,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 
 @Singleton
 public class MockAdfsHttpImpl implements AdfsHttpService {
+  public FileStatus fileStatus;
 
   @Override
   public Hashtable<String, String> getFilesystemProperties(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
@@ -85,12 +86,12 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public OutputStream createFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public Future<OutputStream> createFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -115,18 +116,18 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public OutputStream openFileForWrite(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+  public Future<OutputStream> openFileForWriteAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean overwrite) throws
+      AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset)
-      throws AzureDistributedFileSystemException {
+  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -137,12 +138,12 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public void appendFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
+  public void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
 
   }
 
   @Override
-  public Future<Void> appendFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
+  public Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
     return null;
   }
 
@@ -178,7 +179,7 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
 
   @Override
   public FileStatus getFileStatus(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
-    return null;
+    return fileStatus;
   }
 
   @Override

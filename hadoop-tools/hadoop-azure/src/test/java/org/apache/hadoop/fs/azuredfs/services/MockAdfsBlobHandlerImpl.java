@@ -54,7 +54,7 @@ public class MockAdfsBlobHandlerImpl extends AdfsBlobHandlerImpl {
 
     uriBuilder.setScheme(scheme);
     uriBuilder.setHost(host);
-    uriBuilder.setPort(8885);
+    uriBuilder.setPort(8880);
 
     uriBuilder.setPath("/" + this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME) + "/");
     return uriBuilder.build();

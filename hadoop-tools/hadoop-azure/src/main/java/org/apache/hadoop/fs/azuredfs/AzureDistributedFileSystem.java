@@ -18,9 +18,11 @@
 
 package org.apache.hadoop.fs.azuredfs;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -35,8 +37,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
@@ -107,7 +111,9 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FSDataInputStream open(final Path path, final int bufferSize) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<InputStream> open = this.execute("AzureDistributedFileSystem.open",
+
+    FileSystemOperation<InputStream> open = this.execute(
+        "AzureDistributedFileSystem.open",
         new Callable<InputStream>() {
           @Override
           public InputStream call() throws Exception {
@@ -122,14 +128,15 @@ public class AzureDistributedFileSystem extends FileSystem {
   }
 
   @Override
-  public FSDataOutputStream create(final Path f, final FsPermission permission, boolean overwrite, final int bufferSize,
+  public FSDataOutputStream create(final Path f, final FsPermission permission, final boolean overwrite, final int bufferSize,
       final short replication, final long blockSize, final Progressable progress) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<OutputStream> create = this.execute("AzureDistributedFileSystem.create",
+    FileSystemOperation<OutputStream> create = this.execute(
+        "AzureDistributedFileSystem.create",
         new Callable<OutputStream>() {
           @Override
           public OutputStream call() throws Exception {
-            return adfsHttpService.createFile(azureDistributedFileSystem, makeQualified(f));
+            return adfsHttpService.createFile(azureDistributedFileSystem, makeQualified(f), overwrite);
           }
         });
 
@@ -140,11 +147,12 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FSDataOutputStream append(final Path f, final int bufferSize, final Progressable progress) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<OutputStream> append = this.execute("AzureDistributedFileSystem.create",
+    FileSystemOperation<OutputStream> append = this.execute(
+        "AzureDistributedFileSystem.append",
         new Callable<OutputStream>() {
           @Override
           public OutputStream call() throws Exception {
-            return adfsHttpService.openFileForWrite(azureDistributedFileSystem, makeQualified(f));
+            return adfsHttpService.openFileForWrite(azureDistributedFileSystem, makeQualified(f), false);
           }
         });
 
@@ -154,18 +162,18 @@ public class AzureDistributedFileSystem extends FileSystem {
 
   public boolean rename(final Path src, final Path dst) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    final FileStatus fileStatus = tryGetFileStatus(src);
+
+    if (fileStatus == null) {
+      return false;
+    }
+
     FileSystemOperation<Boolean> rename = this.execute(
         "AzureDistributedFileSystem.rename",
         new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            // We need replace this logic with get properties when it is ready
-            FileStatus[] fileStatuses = adfsHttpService.listStatus(azureDistributedFileSystem, makeQualified(src));
-            if (fileStatuses == null || fileStatuses.length == 0) {
-              return false;
-            }
-
-            if (fileStatuses[0].isDirectory()) {
+            if (fileStatus.isDirectory()) {
               return nativeAzureFileSystem.rename(src, dst);
             }
 
@@ -181,22 +189,19 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public boolean delete(final Path f, final boolean recursive) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<Boolean> delete = this.execute("AzureDistributedFileSystem.delete",
+    final FileStatus fileStatus = tryGetFileStatus(f);
+
+    if (fileStatus == null) {
+      return false;
+    }
+
+    FileSystemOperation<Boolean> delete = this.execute(
+        "AzureDistributedFileSystem.delete",
         new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            // We need replace this logic with get properties when it is ready
-            FileStatus[] fileStatuses = adfsHttpService.listStatus(azureDistributedFileSystem, makeQualified(f));
-            if (fileStatuses == null || fileStatuses.length == 0) {
-              return false;
-            }
-
-            if (!fileStatuses[0].isDirectory() && recursive) {
-              return false;
-            }
-
-            if (fileStatuses[0].isDirectory()) {
-              return nativeAzureFileSystem.delete(makeQualified(f), recursive);
+            if (fileStatus.isDirectory()) {
+              return nativeAzureFileSystem.delete(f, recursive);
             }
 
             adfsHttpService.deleteFile(azureDistributedFileSystem, makeQualified(f));
@@ -211,6 +216,12 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FileStatus[] listStatus(final Path f) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
+    final FileStatus fileStatus = tryGetFileStatus(f);
+
+    if (fileStatus != null && !fileStatus.isDirectory()) {
+      throw new IOException();
+    }
+
     FileSystemOperation<FileStatus[]> listStatus = this.execute(
         "AzureDistributedFileSystem.listStatus",
         new Callable<FileStatus[]>() {
@@ -227,6 +238,20 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public boolean mkdirs(final Path f, final FsPermission permission) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
+
+    Path parentFolder = f.getParent();
+    if (parentFolder != null && parentFolder.getParent() != null) { // skip root
+      FileStatus fileStatus = tryGetFileStatus(f.getParent());
+      if (fileStatus != null && !fileStatus.isDirectory()) {
+        throw new ParentNotDirectoryException();
+      }
+
+      fileStatus = tryGetFileStatus(f);
+      if (fileStatus != null && !fileStatus.isDirectory()) {
+        throw new FileAlreadyExistsException();
+      }
+    }
+
     FileSystemOperation<Boolean> mkdirs = this.execute(
         "AzureDistributedFileSystem.mkdirs",
         new Callable<Boolean>() {
@@ -260,13 +285,19 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FileStatus getFileStatus(final Path f) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<FileStatus> getFileStatus = this.execute("AzureDistributedFileSystem.getFileStatus",
+    FileSystemOperation<FileStatus> getFileStatus = this.execute(
+        "AzureDistributedFileSystem.getFileStatus",
         new Callable<FileStatus>() {
           @Override
           public FileStatus call() throws Exception {
             return adfsHttpService.getFileStatus(azureDistributedFileSystem, makeQualified(f));
           }
         });
+
+    // Short term work-around until service is fixed.
+    if (getFileStatus.failed() && getFileStatus.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+      throw new FileNotFoundException();
+    }
 
     evaluateFileSystemOperation(getFileStatus);
     return getFileStatus.result;
@@ -296,9 +327,18 @@ public class AzureDistributedFileSystem extends FileSystem {
             this.userGroupInformation.getShortUserName()).toString()));
   }
 
+  private FileStatus tryGetFileStatus(final Path f) {
+    try {
+      return getFileStatus(f);
+    }
+    catch (Exception ex) {
+      return null;
+    }
+  }
+
   private void createFileSystem() throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<Void> createFileSystem = this.execute("AzureDistributedFileSystem.listStatus",
+    FileSystemOperation<Void> createFileSystem = this.execute("AzureDistributedFileSystem.createFileSystem",
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {

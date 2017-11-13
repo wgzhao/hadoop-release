@@ -28,7 +28,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME = "fs.azure.account.key.";
-  public static final String FS_AZURE_ACCOUNT_KEY_SUFFIX = ".data.core.windows.net";
+  public static final String FS_AZURE_ACCOUNT_KEY_SUFFIX = ".dfs.core.windows.net";
   public static final String FS_AZURE_SECURE_MODE = "fs.azure.secure.mode";
 
   // Supporting WASB

@@ -65,7 +65,7 @@ public interface AzureDistributedFileSystemRestClient {
   /**
    * The default base URL.
    */
-  String DEFAULT_BASE_URL = "http://account.data.core.windows.net";
+  String DEFAULT_BASE_URL = "http://account.dfs.core.windows.net";
 
   /**
    * Gets Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization..

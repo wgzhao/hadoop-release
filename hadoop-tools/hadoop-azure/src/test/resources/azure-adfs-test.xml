@@ -27,18 +27,24 @@
   <!--</property>-->
 
   <!--<property>-->
-    <!--<name>fs.azure.account.key.{YOURACCOUNT}.data.core.windows.net</name>-->
+    <!--<name>fs.azure.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>-->
     <!--<value>{ACCOUNTKEY}</value>-->
   <!--</property>-->
 
   <!--<property>-->
-    <!--<name>fs.azure.test.account.key.{YOURACCOUNT}.data.core.windows.net</name>-->
+    <!--<name>fs.azure.test.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>-->
     <!--<value>{ACCOUNTKEY}</value>-->
   <!--</property>-->
 
   <!--<property>-->
     <!--<name>fs.azure.adfs.emulator.enabled</name>-->
     <!--<value>true</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+    <!--<name>fs.contract.test.fs.wasb</name>-->
+    <!--<value>adfs://{CONTAINERNAME}@{ACCOUNTNAME}.dfs.core.windows.net/value>-->
+    <!--<description>The name of the azure file system for testing.</description>-->
   <!--</property>-->
 
   <property>
@@ -50,4 +56,5 @@
     <name>fs.AbstractFileSystem.adfss.impl</name>
     <value>org.apache.hadoop.fs.azuredfs.Adfss</value>
   </property>
+
 </configuration>

@@ -62,22 +62,12 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   }
 
   @Override
-  public OutputStream createFlushableWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) {
+  public OutputStream createWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) {
     return new AdfsOutputStream(
         this.adfsHttpService,
         this.adfsBufferPool,
         azureDistributedFileSystem,
         path,
-        true);
-  }
-
-  @Override
-  public OutputStream createNonFlushableWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) {
-    return new AdfsOutputStream(
-        this.adfsHttpService,
-        this.adfsBufferPool,
-        azureDistributedFileSystem,
-        path,
-        false);
+        offset);
   }
 }
