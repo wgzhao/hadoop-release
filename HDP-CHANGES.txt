@@ -4274,3 +4274,5 @@ ATS V1.5:
     it is less than 150 lines. (Chris Trezzo via mingma)
 
     YARN-5641. Localizer leaves behind tarballs after container is complete. Contributed by Eric Badger
+
+    YARN-6078. Containers stuck in Localizing state. Contributed by Billie Rinaldi.
