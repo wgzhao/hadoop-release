@@ -1239,3 +1239,6 @@ ATS V1.5:
     Varun Saxena)
 
     BUG-102428. YARN-7274. Ability to disable elasticity at leaf queue level. (Zian Chen via wangda)
+
+    HADOOP-12950. ShutdownHookManager should have a timeout for each of the
+    Registered shutdown hook. Contributed by Xiaoyu Yao.
