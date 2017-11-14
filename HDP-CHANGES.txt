@@ -1231,3 +1231,6 @@ ATS V1.5:
 
     BUG-91118. HDFS-6763. Initialize file system-wide quota once on
     transitioning to active.
+
+    BUG-91118. HADOOP-12950. ShutdownHookManager should have a timeout for each
+    of the Registered shutdown hook. Contributed by Xiaoyu Yao.
