@@ -89,6 +89,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
   public static final String ENV_DOCKER_CONTAINER_LOCAL_RESOURCE_MOUNTS =
       "YARN_CONTAINER_RUNTIME_DOCKER_LOCAL_RESOURCE_MOUNTS";
 
+  static final String CGROUPS_ROOT_DIRECTORY = "/sys/fs/cgroup";
+
   private Configuration conf;
   private DockerClient dockerClient;
   private PrivilegedOperationExecutor privilegedOperationExecutor;
@@ -336,7 +338,6 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
         LOCALIZED_RESOURCES);
     @SuppressWarnings("unchecked")
     List<String> userLocalDirs = ctx.getExecutionAttribute(USER_LOCAL_DIRS);
-
     Set<String> capabilities = new HashSet<>(Arrays.asList(conf.getStrings(
         YarnConfiguration.NM_DOCKER_CONTAINER_CAPABILITIES,
         YarnConfiguration.DEFAULT_NM_DOCKER_CONTAINER_CAPABILITIES)));
@@ -349,7 +350,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
         .setNetworkType(network)
         .setCapabilities(capabilities)
         .addMountLocation("/etc/passwd", "/etc/password:ro", false)
-        .addMountLocation("/sys/fs/cgroup", "/sys/fs/cgroup:ro", false);
+        .addMountLocation(CGROUPS_ROOT_DIRECTORY,
+            CGROUPS_ROOT_DIRECTORY + ":ro", false);
     List<String> allDirs = new ArrayList<>(containerLocalDirs);
 
     allDirs.addAll(filecacheDirs);

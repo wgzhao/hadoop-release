@@ -4673,3 +4673,6 @@ ATS V1.5:
 
     BUG-91756. YARN-5042. Mount /sys/fs/cgroup into Docker containers as read
     only mount. Contributed by luhuichun.
+
+    BUG-91756. YARN-5596. Fix failing unit test in TestDockerContainerRuntime.
+    Contributed by Sidharta Seethana.
