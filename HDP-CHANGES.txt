@@ -4683,3 +4683,6 @@ ATS V1.5:
 
     BUG-72507. HADOOP-14059. typo in s3a rename(self, subdir) error message.
     Contributed by Steve Loughran.
+
+    BUG-91757. HADOOP-13700. Remove unthrown IOException from
+    TrashPolicy#initialize and #getInstance signatures.
