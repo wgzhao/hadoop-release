@@ -4670,3 +4670,6 @@ ATS V1.5:
     TestResourceLocalizationService.testPublicResourceInitializesLocalDir fails
     Intermittently due to IllegalArgumentException from cleanup (templedf via
     rkanter)
+
+    BUG-91756. YARN-5042. Mount /sys/fs/cgroup into Docker containers as read
+    only mount. Contributed by luhuichun.
