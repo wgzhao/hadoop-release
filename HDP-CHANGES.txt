@@ -4676,3 +4676,7 @@ ATS V1.5:
 
     BUG-91756. YARN-5596. Fix failing unit test in TestDockerContainerRuntime.
     Contributed by Sidharta Seethana.
+
+    BUG-78852. YARN-5318. Fix intermittent test failure of TestRMAdminService#te
+    stRefreshNodesResourceWithFileSystemBasedConfigurationProvider. (Jun Gong
+    via Varun Saxena).
