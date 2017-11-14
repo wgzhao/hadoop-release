@@ -4680,3 +4680,6 @@ ATS V1.5:
     BUG-78852. YARN-5318. Fix intermittent test failure of TestRMAdminService#te
     stRefreshNodesResourceWithFileSystemBasedConfigurationProvider. (Jun Gong
     via Varun Saxena).
+
+    BUG-72507. HADOOP-14059. typo in s3a rename(self, subdir) error message.
+    Contributed by Steve Loughran.
