@@ -23,12 +23,7 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azuredfs.services.MockLoggingServiceImpl;
-
-import static org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX;
 
 public class DepencyInjectedContractTest extends DependencyInjectedTest {
   private final URI testUri;
@@ -44,7 +39,7 @@ public class DepencyInjectedContractTest extends DependencyInjectedTest {
 
     String[] splitAuthority = this.testUri.getAuthority().split("\\@");
     this.fileSystemName = splitAuthority[0];
-    this.accountName = splitAuthority[1].replace(FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX, "");
+    this.accountName = splitAuthority[1];
   }
 
   @Override

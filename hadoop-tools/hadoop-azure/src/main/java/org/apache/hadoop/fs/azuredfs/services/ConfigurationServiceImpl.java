@@ -41,6 +41,11 @@ final class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
+  public boolean isEmulator() {
+    return this.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
+  }
+
+  @Override
   public boolean isSecureMode() {
     return this.isSecure;
   }
@@ -49,15 +54,7 @@ final class ConfigurationServiceImpl implements ConfigurationService {
   public String getStorageAccountKey(final String accountName) {
     String accountKey = this.configuration.get(
         ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME
-            + accountName
-            + ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_SUFFIX);
-
-    if (accountKey == null) {
-      accountKey = this.configuration.get(
-          ConfigurationKeys.FS_AZURE_WASB_ACCOUNT_KEY_SUFFIX
-              + accountName
-              + ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_SUFFIX);
-    }
+            + accountName);
 
     return accountKey;
   }

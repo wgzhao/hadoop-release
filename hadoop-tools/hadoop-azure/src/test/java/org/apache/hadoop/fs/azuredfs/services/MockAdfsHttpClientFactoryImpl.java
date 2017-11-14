@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 @Singleton
@@ -48,17 +49,19 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
   }
 
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String accountName) {
+  URIBuilder getURIBuilder(final String hostName) {
     final URIBuilder uriBuilder = new URIBuilder();
-    final String host = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
+
+    final String testHost = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
+    final String testAccount = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME);
 
     String scheme = FileSystemUriSchemes.HTTP_SCHEME;
 
     uriBuilder.setScheme(scheme);
-    uriBuilder.setHost(host);
+    uriBuilder.setHost(testHost);
     uriBuilder.setPort(8889);
 
-    uriBuilder.setPath("/" + this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME) + "/");
+    uriBuilder.setPath("/" + UriUtils.extractRawAccountFromAccountName(testAccount) + "/");
 
     return uriBuilder;
   }

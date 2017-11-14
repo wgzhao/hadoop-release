@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,22 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.hadoop.fs.azuredfs.constants;
-
+@InterfaceAudience.Private
+@InterfaceStability.Evolving
+package org.apache.hadoop.fs.azuredfs.utils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-
-/**
- * Responsible to keep all the Azure Distributed Filesystem configurations keys in Hadoop configuration file.
- */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public final class TestConfigurationKeys {
-  public static final String FS_AZURE_TEST_ACCOUNT_NAME = "fs.azure.test.account.name";
-  public static final String FS_AZURE_TEST_ACCOUNT_KEY_PREFIX = "fs.azure.test.account.key.";
-  public static final String FS_AZURE_TEST_HOST_NAME = "fs.azure.test.host.name";
-  public static final String FS_AZURE_CONTRACT_TEST_URI = "fs.contract.test.fs.adfs";
-
-  private TestConfigurationKeys() {}
-}

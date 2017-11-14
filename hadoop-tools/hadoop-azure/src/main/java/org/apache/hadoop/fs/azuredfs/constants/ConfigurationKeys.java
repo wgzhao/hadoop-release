@@ -28,14 +28,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME = "fs.azure.account.key.";
-  public static final String FS_AZURE_ACCOUNT_KEY_SUFFIX = ".dfs.core.windows.net";
   public static final String FS_AZURE_SECURE_MODE = "fs.azure.secure.mode";
-
-  // Supporting WASB
-  public static final String FS_AZURE_WASB_ACCOUNT_KEY_SUFFIX = ".blob.core.windows.net";
 
   // Remove this and use common azure storage emulator property for public release.
   public static final String FS_AZURE_EMULATOR_ENABLED = "fs.azure.adfs.emulator.enabled";
+  public static final String AZURE_BLOCK_SIZE_PROPERTY_NAME = "fs.azure.block.size";
+  public static final String AZURE_BLOCK_LOCATION_HOST_PROPERTY_NAME = "fs.azure.block.location.impersonatedhost";
 
   private ConfigurationKeys() {}
 }

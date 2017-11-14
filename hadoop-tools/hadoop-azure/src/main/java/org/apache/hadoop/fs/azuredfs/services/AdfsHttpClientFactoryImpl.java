@@ -26,7 +26,6 @@ import com.google.inject.Singleton;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
@@ -66,7 +65,7 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
         this.adfsHttpClientSessionFactory.create(fs);
 
     final URIBuilder uriBuilder =
-        getURIBuilder(adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName());
+        getURIBuilder(adfsHttpClientSession.getHostName());
 
     final NetworkInterceptorImpl networkInterceptor =
         new NetworkInterceptorImpl(
@@ -80,7 +79,7 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   }
 
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String accountName) {
+  URIBuilder getURIBuilder(final String hostName) {
     final boolean isSecure = this.configurationService.isSecureMode();
 
     String scheme = FileSystemUriSchemes.HTTP_SCHEME;
@@ -91,7 +90,7 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
 
     final URIBuilder uriBuilder = new URIBuilder();
     uriBuilder.setScheme(scheme);
-    uriBuilder.setHost(accountName + FileSystemConfigurations.FS_AZURE_DEFAULT_HOST);
+    uriBuilder.setHost(hostName);
 
     return uriBuilder;
   }

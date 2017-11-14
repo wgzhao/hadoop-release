@@ -25,9 +25,11 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 
+import org.apache.commons.configuration.ConfigurationKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
@@ -51,6 +53,7 @@ public abstract class DependencyInjectedTest {
   private final Configuration configuration;
   private final String fileSystemName;
   private final String testUrl;
+  private final boolean isEmulator;
   private AdfsHttpClientSession adfsHttpClientSession;
 
   protected DependencyInjectedTest() throws Exception {
@@ -58,31 +61,37 @@ public abstract class DependencyInjectedTest {
     configuration = new Configuration();
     configuration.addResource("azure-adfs-test.xml");
 
-    this.testUrl = this.getFileSystemName() + "@" + this.getAccountName() + TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX;
+    this.testUrl = this.getFileSystemName() + "@" + this.getAccountName();
     final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, testUrl, null, null, null);
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
     this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
 
-    this.mockServiceInjector.replaceProvider(AdfsHttpClientSessionFactory.class, MockAdfsHttpClientSessionFactoryImpl
-        .class);
-    this.mockServiceInjector.replaceProvider(ConfigurationService.class, MockConfigurationServiceImpl.class);
+    this.isEmulator = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
     this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
-    this.mockServiceInjector.replaceProvider(AdfsHttpClientFactory.class, MockAdfsHttpClientFactoryImpl.class);
-    this.mockServiceInjector.replaceProvider(AdfsBlobHandler.class, MockAdfsBlobHandlerImpl.class);
+
+    if (isEmulator) {
+      this.mockServiceInjector.replaceProvider(AdfsHttpClientSessionFactory.class, MockAdfsHttpClientSessionFactoryImpl
+          .class);
+      this.mockServiceInjector.replaceProvider(ConfigurationService.class, MockConfigurationServiceImpl.class);
+      this.mockServiceInjector.replaceProvider(AdfsHttpClientFactory.class, MockAdfsHttpClientFactoryImpl.class);
+      this.mockServiceInjector.replaceProvider(AdfsBlobHandler.class, MockAdfsBlobHandlerImpl.class);
+    }
   }
 
   @Before
   public void initialize() throws ServiceResolutionException {
     MockServiceProviderImpl.Create(this.mockServiceInjector);
-    MockAdfsHttpClientSessionFactoryImpl azureDistributedFileSystemClientFactory =
-        (MockAdfsHttpClientSessionFactoryImpl) ServiceProviderImpl.instance().get(AdfsHttpClientSessionFactory.class);
 
-    this.adfsHttpClientSession = azureDistributedFileSystemClientFactory.create(
-        this.getAccountName(),
-        this.getAccountKey(),
-        this.getFileSystemName(),
-        this.getHostName());
-    azureDistributedFileSystemClientFactory.setSession(this.adfsHttpClientSession);
+    if (isEmulator) {
+      MockAdfsHttpClientSessionFactoryImpl azureDistributedFileSystemClientFactory =
+          (MockAdfsHttpClientSessionFactoryImpl) ServiceProviderImpl.instance().get(AdfsHttpClientSessionFactory.class);
+
+      this.adfsHttpClientSession = azureDistributedFileSystemClientFactory.create(
+          this.getAccountName(),
+          this.getAccountKey(),
+          this.getFileSystemName());
+      azureDistributedFileSystemClientFactory.setSession(this.adfsHttpClientSession);
+    }
   }
 
   @After
@@ -109,8 +118,7 @@ public abstract class DependencyInjectedTest {
   protected String getAccountKey() {
     return configuration.get(
         TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_PREFIX
-            + getAccountName()
-            + TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX);
+            + getAccountName());
   }
 
   protected Configuration getConfiguration() {

@@ -39,6 +39,11 @@ public final class MockConfigurationServiceImpl implements ConfigurationService 
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
   }
 
+  @Override
+  public boolean isEmulator() {
+    return this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
+  }
+
   public final boolean isSecureMode() {
     return this.isSecure;
   }
@@ -47,8 +52,7 @@ public final class MockConfigurationServiceImpl implements ConfigurationService 
   public String getStorageAccountKey(String accountName) {
     return configuration.get(
         TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_PREFIX
-            + accountName
-            + TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_SUFFIX);
+            + accountName);
   }
 
   public final Configuration getConfiguration() {

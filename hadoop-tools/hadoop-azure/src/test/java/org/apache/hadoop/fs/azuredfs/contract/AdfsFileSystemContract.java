@@ -18,34 +18,7 @@
 
 package org.apache.hadoop.fs.azuredfs.contract;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
-
-import org.junit.After;
-import org.junit.Before;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
-import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azuredfs.services.MockAdfsBlobHandlerImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientFactoryImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientSessionFactoryImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockConfigurationServiceImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockLoggingServiceImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockServiceInjectorImpl;
-import org.apache.hadoop.fs.azuredfs.services.MockServiceProviderImpl;
-import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 import org.apache.hadoop.fs.contract.AbstractBondedFSContract;
 
 public class AdfsFileSystemContract extends AbstractBondedFSContract {

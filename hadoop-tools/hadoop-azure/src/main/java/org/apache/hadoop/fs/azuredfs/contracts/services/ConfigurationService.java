@@ -29,6 +29,12 @@ import org.apache.hadoop.conf.Configuration;
 @InterfaceStability.Evolving
 public interface ConfigurationService extends InjectableService {
   /**
+   * Checks if ADFS is running from Emulator;
+   * @return is emulator mode.
+   */
+  boolean isEmulator();
+
+  /**
    * Retrieves storage secure mode from Hadoop configuration;
    * @return storage secure mode;
    */

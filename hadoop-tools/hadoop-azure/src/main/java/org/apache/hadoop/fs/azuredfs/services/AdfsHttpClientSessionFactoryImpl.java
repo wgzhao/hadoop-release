@@ -70,16 +70,12 @@ final class AdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessionFac
       throw new InvalidUriException(errMsg);
     }
 
-    String stringUri = uri.toString();
     String fileSystemName = authorityParts[0];
-    String accountName = authorityParts[1].substring(0, authorityParts[1].indexOf('.'));
-    String fileSystemAndAccountName = fileSystemName + AZURE_DISTRIBUTED_FILE_SYSTEM_AUTHORITY_DELIMITER + accountName;
-    String hostName = stringUri.substring(stringUri.indexOf(fileSystemAndAccountName) + fileSystemAndAccountName.length() + 1);
+    String accountName = authorityParts[1];
 
     return new AdfsHttpClientSessionImpl(
         accountName,
         this.configurationService.getStorageAccountKey(accountName),
-        fileSystemName,
-        hostName);
+        fileSystemName);
   }
 }

@@ -25,9 +25,9 @@ import com.google.inject.Singleton;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 
 @Singleton
 @InterfaceAudience.Private
@@ -35,9 +35,12 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
 class AdfsBlobHandlerImpl implements AdfsBlobHandler {
   @Override
   public URI convertAdfsUriToBlobUri(final URI adfsUri) throws URISyntaxException {
-    return new URI(adfsUri.toString().replace(
-        FileSystemConfigurations.FS_AZURE_DEFAULT_HOST,
-        FileSystemConfigurations.FS_WASB_DEFAULT_HOST));
+    String adfsUrl = adfsUri.toString();
+    if (UriUtils.containsAdfsUrl(adfsUrl)) {
+      return new URI(replaceAdfsWithBlob(adfsUrl));
+    }
+
+    return adfsUri;
   }
 
   @Override
@@ -57,6 +60,15 @@ class AdfsBlobHandlerImpl implements AdfsBlobHandler {
       scheme = FileSystemUriSchemes.HTTP_SCHEME;
     }
 
-    return new URI(scheme + "://" + accountName);
+    String modifedAccountName = accountName;
+    if (UriUtils.containsAdfsUrl(accountName)) {
+      modifedAccountName = replaceAdfsWithBlob(accountName);
+    }
+
+    return new URI(scheme + "://" + modifedAccountName);
+  }
+
+  private String replaceAdfsWithBlob(String adfsString) {
+    return adfsString.replace(".dfs.", ".blob.");
   }
 }

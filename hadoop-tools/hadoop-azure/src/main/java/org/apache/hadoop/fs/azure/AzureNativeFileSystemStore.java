@@ -41,7 +41,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.configuration.ConfigurationKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
@@ -56,10 +55,10 @@ import org.apache.hadoop.fs.azure.metrics.BandwidthGaugeUpdater;
 import org.apache.hadoop.fs.azure.metrics.ErrorMetricUpdater;
 import org.apache.hadoop.fs.azure.metrics.ResponseReceivedMetricUpdater;
 import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
@@ -882,7 +881,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     }
     else {
       // dfs.core.windows.net must be replaced with blob.core.windows.net
-      if (sessionUri.toString().endsWith(FileSystemConfigurations.FS_AZURE_DEFAULT_HOST)) {
+      if (UriUtils.containsAdfsUrl(sessionUri.toString())) {
         try {
           AdfsBlobHandler adfsBlobHandler = ServiceProviderImpl.instance().get(AdfsBlobHandler.class);
           sessionUri = adfsBlobHandler.convertAdfsUriToBlobUri(sessionUri);

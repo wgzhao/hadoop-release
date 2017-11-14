@@ -24,6 +24,7 @@ import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 
 /**
  * File System service to provider AzureDistributedFilesystem client.
@@ -38,25 +39,23 @@ final class AdfsHttpClientSessionImpl implements AdfsHttpClientSession {
   public AdfsHttpClientSessionImpl(
       final String accountName,
       final String accountKey,
-      final String fileSystem,
-      final String hostName) {
+      final String fileSystem) {
 
     Preconditions.checkNotNull(accountName, "accountName");
     Preconditions.checkNotNull(accountKey, "accountKey");
     Preconditions.checkNotNull(fileSystem, "fileSystem");
-    Preconditions.checkNotNull(hostName, "hostName");
 
     Preconditions.checkArgument(!accountName.isEmpty(), "accountName");
     Preconditions.checkArgument(!accountKey.isEmpty(), "accountKey");
     Preconditions.checkArgument(!fileSystem.isEmpty(), "fileSystem");
-    Preconditions.checkArgument(!hostName.isEmpty(), "hostName");
 
+    String rawAccountName = UriUtils.extractRawAccountFromAccountName(accountName);
     this.storageCredentialsAccountAndKey = new StorageCredentialsAccountAndKey(
-        accountName,
+        rawAccountName,
         accountKey);
 
     this.fileSystem = fileSystem;
-    this.hostName = hostName;
+    this.hostName = accountName;
   }
 
   @Override

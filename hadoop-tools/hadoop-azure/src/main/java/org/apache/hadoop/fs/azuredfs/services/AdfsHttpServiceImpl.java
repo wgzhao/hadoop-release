@@ -59,6 +59,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
@@ -69,6 +70,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.util.StringUtils;
 
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
@@ -93,14 +95,18 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private final ConcurrentHashMap<AzureDistributedFileSystem, AdfsHttpClient> adfsHttpClientCache;
   private final ThreadPoolExecutor writeExecutorService;
   private final ThreadPoolExecutor readExecutorService;
+  private final ConfigurationService configurationService;
 
   @Inject
   AdfsHttpServiceImpl(
+      final ConfigurationService configurationService,
       final AdfsHttpClientFactory adfsHttpClientFactory,
       final AdfsStreamFactory adfsStreamFactory) {
     Preconditions.checkNotNull(adfsHttpClientFactory, "adfsHttpClientFactory");
     Preconditions.checkNotNull(adfsStreamFactory, "adfsStreamFactory");
+    Preconditions.checkNotNull(configurationService, "configurationService");
 
+    this.configurationService = configurationService;
     this.adfsStreamFactory = adfsStreamFactory;
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
@@ -713,6 +719,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<FileStatus> getFileStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
+    final ConfigurationService configurationService = this.configurationService;
     final Callable<FileStatus> asyncCallable = new Callable<FileStatus>() {
       @Override
       public FileStatus call() throws Exception {
@@ -720,10 +727,16 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             .flatMap(new Func1<Hashtable<String, String>, Observable<FileStatus>>() {
               @Override
               public Observable<FileStatus> call(Hashtable<String, String> properties) {
+                long blockSize = configurationService.getConfiguration().getLong(
+                    ConfigurationKeys.AZURE_BLOCK_SIZE_PROPERTY_NAME,
+                    FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE);
+
                 return Observable.just(
                     new FileStatus(
                         getContentLength(properties),
-                        isDirectory(properties), 0, 0,
+                        isDirectory(properties),
+                        1,
+                        blockSize,
                         getLastModifiedTime(properties).getMillis(), path));
               }
             }).toBlocking().single();
@@ -747,6 +760,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public Future<FileStatus[]> listStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final ConfigurationService configurationService = this.configurationService;
+
     final Callable<FileStatus[]> asyncCallable = new Callable<FileStatus[]>() {
       @Override
       public FileStatus[] call() throws Exception {
@@ -779,6 +794,10 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                 null).flatMap(new Func1<ListSchema, Observable<FileStatus[]>>() {
                   @Override
                   public Observable<FileStatus[]> call(ListSchema listSchema) {
+                    long blockSize = configurationService.getConfiguration().getLong(
+                        ConfigurationKeys.AZURE_BLOCK_SIZE_PROPERTY_NAME,
+                        FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE);
+
                     final List<FileStatus> fileStatus = new LinkedList<>();
                     for (ListEntrySchema entry : listSchema.paths()) {
                       final DateTime dateTime = DateTime.parse(
@@ -786,10 +805,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                           DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
 
                       fileStatus.add(
-                          new FileStatus(entry.contentLength(),
+                          new FileStatus(
+                              entry.contentLength(),
                               entry.isDirectory() == null ? false : true,
-                              0,
-                              0,
+                              1,
+                              blockSize,
                               dateTime.getMillis(),
                               azureDistributedFileSystem.makeQualified(new Path(File.separator + entry.name()))));
                     }

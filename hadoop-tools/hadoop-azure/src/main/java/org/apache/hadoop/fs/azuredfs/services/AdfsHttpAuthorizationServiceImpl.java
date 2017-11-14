@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.microsoft.azure.storage.Constants;
@@ -45,7 +46,9 @@ import okhttp3.Request;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 @Singleton
 @InterfaceAudience.Private
@@ -53,10 +56,18 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationSer
 final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationService {
   private static final int EXPECTED_BLOB_QUEUE_CANONICALIZED_STRING_LENGTH = 300;
   private static final Pattern CRLF = Pattern.compile("\r\n", Pattern.LITERAL);
-  private static final String TARGET_STORAGE_VERSION = "2017-11-09";
+  private final String version;
 
   @Inject
-  AdfsHttpAuthorizationServiceImpl() {
+  AdfsHttpAuthorizationServiceImpl(ConfigurationService configurationService) {
+    Preconditions.checkNotNull(configurationService, "configurationService");
+
+    if (configurationService.isEmulator()) {
+      version = FileSystemConfigurations.ADFS_EMULATOR_TARGET_STORAGE_VERSION;
+    }
+    else {
+      version = FileSystemConfigurations.ADFS_TARGET_STORAGE_VERSION;
+    }
   }
 
   @Override
@@ -76,7 +87,7 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
     }
 
     headerBuilder.set(Constants.HeaderConstants.DATE, Utility.getGMTTime());
-    headerBuilder.set(Constants.HeaderConstants.STORAGE_VERSION_HEADER, TARGET_STORAGE_VERSION);
+    headerBuilder.set(Constants.HeaderConstants.STORAGE_VERSION_HEADER, version);
 
     final Request modifiedRequest = request.newBuilder().headers(headerBuilder.build()).build();
 

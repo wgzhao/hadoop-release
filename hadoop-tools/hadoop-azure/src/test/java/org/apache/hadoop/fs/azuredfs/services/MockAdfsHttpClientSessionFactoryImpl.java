@@ -22,9 +22,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 
 @Singleton
 public class MockAdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessionFactory {
@@ -42,9 +44,11 @@ public class MockAdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessi
   public AdfsHttpClientSession create(
       final String accountName,
       final String accountKey,
-      final String fileSystem,
-      final String hostName) {
-    return new AdfsHttpClientSessionImpl(accountName, accountKey, fileSystem, hostName);
+      final String fileSystem) {
+    return new AdfsHttpClientSessionImpl(
+        accountName,
+        accountKey,
+        fileSystem);
   }
 
   public void setSession(AdfsHttpClientSession adfsHttpClientSession) {

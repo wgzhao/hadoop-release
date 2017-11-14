@@ -20,6 +20,7 @@ package org.apache.hadoop.fs.azuredfs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -49,8 +50,7 @@ import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 
 import static org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   public AzureDistributedFileSystemTests() throws Exception {
@@ -58,7 +58,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test(expected = IOException.class)
-  public void appendDirShouldFail() throws Exception {
+  public void testAppendDirShouldFail() throws Exception {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
     fs.mkdirs(new Path("testfile"));
     fs.append(new Path("testfile"), 0);
@@ -85,7 +85,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void ensureFileCreated() throws Exception {
+  public void testEnsureFileCreated() throws Exception {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
     fs.create(new Path("testfile"));
 
@@ -93,8 +93,8 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     Assert.assertNotNull(fileStatus);
   }
 
-  @Test
-  public void ensureFileIsRenamed() throws Exception {
+  @Test(expected = FileNotFoundException.class)
+  public void testEnsureFileIsRenamed() throws Exception {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
     fs.create(new Path("testfile"));
     fs.rename(new Path("testfile"), new Path("testfile2"));
@@ -102,21 +102,21 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile2"));
     Assert.assertNotNull(fileStatus);
 
-    Assert.assertNull(tryGetFileStatus(fs, new Path("testfile")));
+    fs.getFileStatus(new Path("testfile"));
   }
 
-  @Test
-  public void ensureFileIsDeleted() throws Exception {
+  @Test(expected = FileNotFoundException.class)
+  public void testEnsureFileIsDeleted() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
     fs.delete(new Path("testfile"), false);
 
-    Assert.assertNull(tryGetFileStatus(fs, new Path("testfile")));
+    fs.getFileStatus(new Path("testfile"));
   }
 
   @Test
-  public void writeOneByteToFile() throws Exception {
+  public void testWriteOneByteToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
@@ -130,10 +130,10 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void readWriteBytesToFile() throws Exception {
+  public void testReadWriteBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
-    writeOneByteToFile();
+    testWriteOneByteToFile();
 
     FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
     int i = inputStream.read();
@@ -142,7 +142,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void readWriteHeavyBytesToFile() throws Exception {
+  public void testReadWriteHeavyBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
@@ -162,7 +162,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void writeHeavyBytesToFile() throws Exception {
+  public void testWriteHeavyBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
@@ -194,8 +194,8 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     Assert.assertEquals(512000000, fileStatus.getLen());
   }
 
-  @Test
-  public void deleteDirectory() throws Exception {
+  @Test(expected = FileNotFoundException.class)
+  public void testDeleteDirectory() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.mkdirs(new Path("testfile"));
@@ -203,11 +203,11 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     fs.mkdirs(new Path("testfile/test1/test2"));
 
     fs.delete(new Path("testfile"), true);
-    Assert.assertNull(tryGetFileStatus(fs, new Path("testfile")));
+    fs.getFileStatus(new Path("testfile"));
   }
 
-  @Test
-  public void renameDirectory() throws Exception {
+  @Test(expected = FileNotFoundException.class)
+  public void testRenameDirectory() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.mkdirs(new Path("testDir"));
@@ -216,7 +216,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     fs.mkdirs(new Path("testDir/test1/test2/test3"));
 
     fs.rename(new Path("testDir/test1"), new Path("testDir/test10"));
-    Assert.assertNull(tryGetFileStatus(fs, new Path("testDir/test1")));
+    fs.getFileStatus(new Path("testDir/test1"));
   }
 
   @After
@@ -240,15 +240,6 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
         });
 
     Assert.assertEquals(FILE_SYSTEM_NOT_FOUND.getStatusCode(), ex.getStatusCode());
-  }
-
-  private FileStatus tryGetFileStatus(FileSystem fs, Path path) {
-    try {
-      return fs.getFileStatus(path);
-    }
-    catch (IOException ex) {
-      return null;
-    }
   }
 
   private String readString(FileSystem fs, Path testFile) throws IOException {

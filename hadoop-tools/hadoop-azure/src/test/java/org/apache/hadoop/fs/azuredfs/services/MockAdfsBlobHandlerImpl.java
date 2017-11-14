@@ -30,6 +30,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 @Singleton
@@ -56,7 +57,10 @@ public class MockAdfsBlobHandlerImpl extends AdfsBlobHandlerImpl {
     uriBuilder.setHost(host);
     uriBuilder.setPort(8880);
 
-    uriBuilder.setPath("/" + this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME) + "/");
+    uriBuilder.setPath(
+        "/"
+        + UriUtils.extractRawAccountFromAccountName(this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME))
+        + "/");
     return uriBuilder.build();
   }
 }

@@ -35,6 +35,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
@@ -43,6 +44,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
@@ -50,8 +52,10 @@ import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorRespo
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
+import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ServiceProvider;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
@@ -72,6 +76,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   private UserGroupInformation userGroupInformation;
   private ServiceProvider serviceProvider;
   private TracingService tracingService;
+  private LoggingService loggingService;
   private AdfsHttpService adfsHttpService;
   private NativeAzureFileSystem nativeAzureFileSystem;
 
@@ -87,6 +92,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       this.serviceProvider = ServiceProviderImpl.create(configuration);
       this.tracingService = serviceProvider.get(TracingService.class);
       this.adfsHttpService = serviceProvider.get(AdfsHttpService.class);
+      this.loggingService = serviceProvider.get(LoggingService.class);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -112,7 +118,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   public FSDataInputStream open(final Path path, final int bufferSize) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
 
-    FileSystemOperation<InputStream> open = this.execute(
+    FileSystemOperation<InputStream> open = execute(
         "AzureDistributedFileSystem.open",
         new Callable<InputStream>() {
           @Override
@@ -131,7 +137,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   public FSDataOutputStream create(final Path f, final FsPermission permission, final boolean overwrite, final int bufferSize,
       final short replication, final long blockSize, final Progressable progress) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<OutputStream> create = this.execute(
+    FileSystemOperation<OutputStream> create = execute(
         "AzureDistributedFileSystem.create",
         new Callable<OutputStream>() {
           @Override
@@ -147,7 +153,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FSDataOutputStream append(final Path f, final int bufferSize, final Progressable progress) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<OutputStream> append = this.execute(
+    FileSystemOperation<OutputStream> append = execute(
         "AzureDistributedFileSystem.append",
         new Callable<OutputStream>() {
           @Override
@@ -168,7 +174,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       return false;
     }
 
-    FileSystemOperation<Boolean> rename = this.execute(
+    FileSystemOperation<Boolean> rename = execute(
         "AzureDistributedFileSystem.rename",
         new Callable<Boolean>() {
           @Override
@@ -195,7 +201,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       return false;
     }
 
-    FileSystemOperation<Boolean> delete = this.execute(
+    FileSystemOperation<Boolean> delete = execute(
         "AzureDistributedFileSystem.delete",
         new Callable<Boolean>() {
           @Override
@@ -222,7 +228,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       throw new IOException();
     }
 
-    FileSystemOperation<FileStatus[]> listStatus = this.execute(
+    FileSystemOperation<FileStatus[]> listStatus = execute(
         "AzureDistributedFileSystem.listStatus",
         new Callable<FileStatus[]>() {
           @Override
@@ -252,7 +258,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       }
     }
 
-    FileSystemOperation<Boolean> mkdirs = this.execute(
+    FileSystemOperation<Boolean> mkdirs = execute(
         "AzureDistributedFileSystem.mkdirs",
         new Callable<Boolean>() {
           @Override
@@ -269,7 +275,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public void close() throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<Void> close = this.execute(
+    FileSystemOperation<Void> close = execute(
         "AzureDistributedFileSystem.close",
         new Callable<Void>() {
           @Override
@@ -285,7 +291,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public FileStatus getFileStatus(final Path f) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<FileStatus> getFileStatus = this.execute(
+    FileSystemOperation<FileStatus> getFileStatus = execute(
         "AzureDistributedFileSystem.getFileStatus",
         new Callable<FileStatus>() {
           @Override
@@ -296,7 +302,7 @@ public class AzureDistributedFileSystem extends FileSystem {
 
     // Short term work-around until service is fixed.
     if (getFileStatus.failed() && getFileStatus.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-      throw new FileNotFoundException();
+      throw new FileNotFoundException(f.toString());
     }
 
     evaluateFileSystemOperation(getFileStatus);
@@ -327,18 +333,62 @@ public class AzureDistributedFileSystem extends FileSystem {
             this.userGroupInformation.getShortUserName()).toString()));
   }
 
+  /**
+   * Return an array containing hostnames, offset and size of
+   * portions of the given file. For ADFS we'll just lie and give
+   * fake hosts to make sure we get many splits in MR jobs.
+   */
+  @Override
+  public BlockLocation[] getFileBlockLocations(FileStatus file,
+      long start, long len) throws IOException {
+    if (file == null) {
+      return null;
+    }
+
+    if ((start < 0) || (len < 0)) {
+      throw new IllegalArgumentException("Invalid start or len parameter");
+    }
+
+    if (file.getLen() < start) {
+      return new BlockLocation[0];
+    }
+    final String blobLocationHost = getConf().get(
+        ConfigurationKeys.AZURE_BLOCK_LOCATION_HOST_PROPERTY_NAME,
+        FileSystemConfigurations.AZURE_BLOCK_LOCATION_HOST_DEFAULT);
+
+    final String[] name = { blobLocationHost };
+    final String[] host = { blobLocationHost };
+    long blockSize = file.getBlockSize();
+    if (blockSize <= 0) {
+      throw new IllegalArgumentException(
+          "The block size for the given file is not a positive number: "
+              + blockSize);
+    }
+    int numberOfLocations = (int) (len / blockSize)
+        + ((len % blockSize == 0) ? 0 : 1);
+    BlockLocation[] locations = new BlockLocation[numberOfLocations];
+    for (int i = 0; i < locations.length; i++) {
+      long currentOffset = start + (i * blockSize);
+      long currentLength = Math.min(blockSize, start + len - currentOffset);
+      locations[i] = new BlockLocation(name, host, currentOffset, currentLength);
+    }
+
+    return locations;
+  }
+
   private FileStatus tryGetFileStatus(final Path f) {
     try {
       return getFileStatus(f);
     }
-    catch (Exception ex) {
+    catch (IOException ex) {
+      this.loggingService.log(LogLevel.Debug, "File not found " + f.toString());
       return null;
     }
   }
 
   private void createFileSystem() throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    FileSystemOperation<Void> createFileSystem = this.execute("AzureDistributedFileSystem.createFileSystem",
+    FileSystemOperation<Void> createFileSystem = execute("AzureDistributedFileSystem.createFileSystem",
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {

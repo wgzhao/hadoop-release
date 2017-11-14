@@ -41,4 +41,10 @@ public interface AdfsHttpClientSession {
    * @return the file system name associated with the current session.
    */
   String getFileSystem();
+
+  /**
+   * Return the host name.
+   * @return the host name.
+   */
+  String getHostName();
 }
