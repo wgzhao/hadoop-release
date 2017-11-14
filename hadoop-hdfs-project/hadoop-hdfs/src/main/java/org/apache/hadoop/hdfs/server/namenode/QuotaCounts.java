@@ -158,6 +158,13 @@ public class QuotaCounts {
   }
 
   @Override
+  public String toString() {
+    return "name space=" + getNameSpace() +
+        "\nstorage space=" + getStorageSpace() +
+        "\nstorage types=" + getTypeSpaces();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
