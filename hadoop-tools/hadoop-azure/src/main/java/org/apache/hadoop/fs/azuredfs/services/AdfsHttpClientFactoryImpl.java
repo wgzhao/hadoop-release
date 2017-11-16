@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.microsoft.rest.retry.RetryStrategy;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -33,6 +34,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.http.client.utils.URIBuilder;
 
@@ -43,20 +45,24 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   private final ConfigurationService configurationService;
   private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
   private final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory;
+  private final AdfsRetryStrategyFactory adfsRetryStrategyFactory;
 
   @Inject
   AdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
+      final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
+      final AdfsRetryStrategyFactory adfsRetryStrategyFactory) {
 
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
     Preconditions.checkNotNull(adfsHttpClientSessionFactory, "adfsHttpClientSessionFactory");
+    Preconditions.checkNotNull(adfsRetryStrategyFactory, "adfsRetryStrategyFactory");
 
     this.configurationService = configurationService;
     this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
     this.adfsHttpClientSessionFactory = adfsHttpClientSessionFactory;
+    this.adfsRetryStrategyFactory = adfsRetryStrategyFactory;
   }
 
   @Override
@@ -72,10 +78,14 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
             adfsHttpClientSession.getStorageCredentialsAccountAndKey(),
             this.adfsHttpAuthorizationService);
 
+    final RetryStrategy retryStrategy =
+        this.adfsRetryStrategyFactory.create();
+
     return new AdfsHttpClientImpl(
         uriBuilder.toString(),
         networkInterceptor,
-        adfsHttpClientSession);
+        adfsHttpClientSession,
+        retryStrategy);
   }
 
   @VisibleForTesting

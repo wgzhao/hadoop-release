@@ -30,8 +30,18 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME = "fs.azure.account.key.";
   public static final String FS_AZURE_SECURE_MODE = "fs.azure.secure.mode";
 
+  // Retry strategy defined by the user
+  public static final String KEY_MIN_BACKOFF_INTERVAL = "fs.azure.io.retry.min.backoff.interval";
+  public static final String KEY_MAX_BACKOFF_INTERVAL = "fs.azure.io.retry.max.backoff.interval";
+  public static final String KEY_BACKOFF_INTERVAL = "fs.azure.io.retry.backoff.interval";
+  public static final String KEY_MAX_IO_RETRIES = "fs.azure.io.retry.max.retries";
+
   // Remove this and use common azure storage emulator property for public release.
   public static final String FS_AZURE_EMULATOR_ENABLED = "fs.azure.adfs.emulator.enabled";
+
+  // Read and write buffer sizes defined by the user
+  public static final String KEY_WRITE_BLOCK_SIZE = "fs.azure.write.request.size";
+  public static final String KEY_READ_BLOCK_SIZE = "fs.azure.read.request.size";
   public static final String AZURE_BLOCK_SIZE_PROPERTY_NAME = "fs.azure.block.size";
   public static final String AZURE_BLOCK_LOCATION_HOST_PROPERTY_NAME = "fs.azure.block.location.impersonatedhost";
 

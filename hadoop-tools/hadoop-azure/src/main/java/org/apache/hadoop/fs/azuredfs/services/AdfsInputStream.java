@@ -33,37 +33,35 @@ import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AdfsInputStream extends FSInputStream {
-  private static final int DEFAULT_DOWNLOAD_BLOCK_SIZE = 4 * 1024 * 1024;
 
   private final AzureDistributedFileSystem azureDistributedFileSystem;
   private final AdfsHttpService adfsHttpService;
-  private final AdfsBufferPool adfsBufferPool;
   private final Path path;
 
   private long offset;
   private long fileLength = 0;
   private boolean closed;
   private List<Future<Void>> tasks;
+  private final int bufferSize;
 
   AdfsInputStream(
       final AdfsHttpService adfsHttpService,
-      final AdfsBufferPool adfsBufferPool,
       final AzureDistributedFileSystem azureDistributedFileSystem,
       final Path path,
-      final long fileLength) {
+      final long fileLength,
+      final int bufferSize) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(path, "path");
-    Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
+    Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE);
 
-    this.adfsBufferPool = adfsBufferPool;
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.path = path;
@@ -71,6 +69,7 @@ final class AdfsInputStream extends FSInputStream {
     this.fileLength = fileLength;
     this.closed = false;
     this.tasks = new ArrayList<>();
+    this.bufferSize = bufferSize;
   }
 
   /**
@@ -158,7 +157,7 @@ final class AdfsInputStream extends FSInputStream {
       int bufferOffset = off;
 
       while (remainingBytesToRead != 0) {
-        if (remainingBytesToRead < DEFAULT_DOWNLOAD_BLOCK_SIZE) {
+        if (remainingBytesToRead < bufferSize) {
           readFromService(
               this.offset,
               remainingBytesToRead,
@@ -172,14 +171,14 @@ final class AdfsInputStream extends FSInputStream {
         } else {
           readFromService(
               this.offset,
-              DEFAULT_DOWNLOAD_BLOCK_SIZE,
+              bufferSize,
               b,
               bufferOffset);
 
-          this.offset += DEFAULT_DOWNLOAD_BLOCK_SIZE;
-          bufferOffset += DEFAULT_DOWNLOAD_BLOCK_SIZE;
+          this.offset += bufferSize;
+          bufferOffset += bufferSize;
 
-          remainingBytesToRead -= DEFAULT_DOWNLOAD_BLOCK_SIZE;
+          remainingBytesToRead -= bufferSize;
         }
       }
 

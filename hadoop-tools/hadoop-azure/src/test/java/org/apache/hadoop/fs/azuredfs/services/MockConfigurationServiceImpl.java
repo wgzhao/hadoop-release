@@ -28,7 +28,6 @@ import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
-@Singleton
 public final class MockConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
   private boolean isSecure;

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import com.microsoft.azure.dfs.rest.client.generated.implementation.AzureDistributedFileSystemRestClientImpl;
 import com.microsoft.rest.RestClient;
 import com.microsoft.rest.ServiceResponseBuilder;
+import com.microsoft.rest.retry.RetryStrategy;
 import com.microsoft.rest.serializer.JacksonAdapter;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -42,12 +43,14 @@ final class AdfsHttpClientImpl extends AzureDistributedFileSystemRestClientImpl 
   public AdfsHttpClientImpl(
       final String baseUrl,
       final NetworkInterceptorImpl networkInterceptor,
-      final AdfsHttpClientSession adfsHttpClientSession) {
+      final AdfsHttpClientSession adfsHttpClientSession,
+      final RetryStrategy retryStrategy) {
     super(new RestClient.Builder()
         .withBaseUrl(baseUrl)
         .withNetworkInterceptor(networkInterceptor)
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
         .withSerializerAdapter(new JacksonAdapter())
+        .withRetryStrategy(retryStrategy)
         .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
         .build());
 

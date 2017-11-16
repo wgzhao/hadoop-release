@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -29,9 +30,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 
 @Singleton
 @InterfaceAudience.Private
@@ -39,35 +43,55 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
+  private final ConfigurationService configurationService;
 
   @Inject
   AdfsStreamFactoryImpl(
+      final ConfigurationService configurationService,
       final AdfsHttpService adfsHttpService,
       final AdfsBufferPool adfsBufferPool) {
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
+    Preconditions.checkNotNull(configurationService, "configurationService");
 
     this.adfsHttpService = adfsHttpService;
     this.adfsBufferPool = adfsBufferPool;
+    this.configurationService = configurationService;
   }
 
   @Override
   public InputStream createReadStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long fileLength) {
+    int bufferSize = getBufferSize(ConfigurationKeys.KEY_READ_BLOCK_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
     return new AdfsInputStream(
         this.adfsHttpService,
-        this.adfsBufferPool,
         azureDistributedFileSystem,
         path,
-        fileLength);
+        fileLength,
+        bufferSize);
   }
 
   @Override
   public OutputStream createWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) {
+    int bufferSize = getBufferSize(ConfigurationKeys.KEY_WRITE_BLOCK_SIZE, FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE);
     return new AdfsOutputStream(
         this.adfsHttpService,
         this.adfsBufferPool,
         azureDistributedFileSystem,
         path,
-        offset);
+        offset,
+        bufferSize);
+  }
+
+  @VisibleForTesting
+  int getBufferSize(final String userDefinedSize, final int defaulSize) {
+    final int bufferSize = this.configurationService.getConfiguration().getInt(userDefinedSize, defaulSize);
+
+    if (bufferSize < FileSystemConfigurations.MIN_BUFFER_SIZE) {
+      return FileSystemConfigurations.MIN_BUFFER_SIZE;
+    } else if (bufferSize > FileSystemConfigurations.MAX_BUFFER_SIZE) {
+      return FileSystemConfigurations.MAX_BUFFER_SIZE;
+    }
+
+    return bufferSize;
   }
 }

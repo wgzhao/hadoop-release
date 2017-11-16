@@ -4826,3 +4826,5 @@ ATS V1.5:
 
     WASB-18. Adding contract tests to Azure Distributed File system and fixing bugs.
 
+    WASB-19. Support for exponential backoff retry strategy and support for user defined read &write buffer size.
+

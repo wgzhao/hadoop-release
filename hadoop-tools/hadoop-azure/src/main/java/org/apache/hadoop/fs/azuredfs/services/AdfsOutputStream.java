@@ -36,6 +36,7 @@ import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
@@ -43,12 +44,11 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AdfsOutputStream extends OutputStream implements Syncable {
-  private static final int DEFAULT_UPLOAD_BLOCK_SIZE = 4 * 1024 * 1024;
-
   private final AzureDistributedFileSystem azureDistributedFileSystem;
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
   private final Path path;
+  private final int bufferSize;
 
   private ByteBuf buffer;
   private boolean closed;
@@ -60,19 +60,23 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       final AdfsBufferPool adfsBufferPool,
       final AzureDistributedFileSystem azureDistributedFileSystem,
       final Path path,
-      final long offset) {
+      final long offset,
+      final int bufferSize) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(path, "path");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
     Preconditions.checkArgument(offset >= 0);
+    Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE
+        && bufferSize <= FileSystemConfigurations.MAX_BUFFER_SIZE);
 
     this.adfsBufferPool = adfsBufferPool;
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.path = path;
     this.closed = false;
-    this.buffer = this.adfsBufferPool.getByteBuffer(DEFAULT_UPLOAD_BLOCK_SIZE);
+    this.bufferSize = bufferSize;
+    this.buffer = this.adfsBufferPool.getByteBuffer(this.bufferSize);
     this.tasks = new ArrayList<>();
     this.offset = offset;
   }
@@ -245,7 +249,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
     finally {
       adfsBufferPool.releaseByteBuffer(this.buffer);
-      this.buffer = this.adfsBufferPool.getByteBuffer(DEFAULT_UPLOAD_BLOCK_SIZE);
+      this.buffer = this.adfsBufferPool.getByteBuffer(bufferSize);
     }
   }
 

@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -42,8 +43,9 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
   MockAdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
-    super(configurationService, adfsHttpClientSessionFactory, adfsHttpAuthorizationService);
+      final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
+      final AdfsRetryStrategyFactory adfsRetryStrategyFactory ) {
+    super(configurationService, adfsHttpClientSessionFactory, adfsHttpAuthorizationService, adfsRetryStrategyFactory);
 
     this.configurationService = configurationService;
   }
