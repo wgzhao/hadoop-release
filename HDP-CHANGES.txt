@@ -4268,3 +4268,7 @@ ATS V1.5:
 
     HADOOP-13709. Ability to clean up subprocesses spawned by Shell when the
     process exits. Contributed by Eric Badger
+
+    YARN-6004. Refactor
+    TestResourceLocalizationService#testDownloadingResourcesOnContainer so that
+    it is less than 150 lines. (Chris Trezzo via mingma)
