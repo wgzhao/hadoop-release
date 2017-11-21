@@ -4704,3 +4704,6 @@ ATS V1.5:
     BUG-91905. YARN-6004. Refactor
     TestResourceLocalizationService#testDownloadingResourcesOnContainer so that
     it is less than 150 lines. (Chris Trezzo via mingma)
+
+    BUG-91905. YARN-6805. NPE in LinuxContainerExecutor due to null
+    PrivilegedOperationException exit code. Contributed by Jason Lowe
