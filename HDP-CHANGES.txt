@@ -4654,3 +4654,6 @@ ATS V1.5:
 
     BUG-111635. HDFS-9887. WebHdfs socket timeouts should be configurable.
     Contributed by Austin Donnelly and Chris Douglas.
+
+    BUG-111635. HDFS-9914. Fix configurable WebhDFS connect/read timeout.
+    Contributed by Xiaoyu Yao.
