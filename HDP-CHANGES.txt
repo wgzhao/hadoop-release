@@ -983,3 +983,6 @@ covered by CHANGES.txt.
 
     BUG-87417. HDFS-7798. Checkpointing failure caused by shared
     KerberosAuthenticator. (Chengbing Liu via yliu)
+
+    HADOOP-10668. TestZKFailoverControllerStress#testExpireBackAndForth
+    occasionally fails. Contributed by Ming Ma.
