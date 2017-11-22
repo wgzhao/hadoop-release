@@ -986,3 +986,6 @@ covered by CHANGES.txt.
 
     HADOOP-10668. TestZKFailoverControllerStress#testExpireBackAndForth
     occasionally fails. Contributed by Ming Ma.
+
+    HADOOP-10668. Addendum patch to fix TestZKFailoverController. Contributed by
+    Ming Ma.
