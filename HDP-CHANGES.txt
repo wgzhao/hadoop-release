@@ -992,3 +992,6 @@ covered by CHANGES.txt.
 
     HDFS-9358. TestNodeCount#testNodeCount timed out. Contributed by Masatake
     Iwasaki.
+
+    HDFS-3519. Checkpoint upload may interfere with a concurrent saveNamespace.
+    Contributed by Ming Ma.
