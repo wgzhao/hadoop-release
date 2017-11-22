@@ -1004,3 +1004,6 @@ covered by CHANGES.txt.
 
     YARN-6480. Timeout is too aggressive for
     TestAMRestart.testPreemptedAMRestartOnRMRestart. Contributed by Eric Badger
+
+    BUG-92100. MAPREDUCE-6413. TestLocalJobSubmission is failing with unknown
+    host. Contributed by zhihai xu
