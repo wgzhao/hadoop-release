@@ -167,8 +167,8 @@ public class TestApplicationHistoryClientService {
         clientService.getApplications(request);
     List<ApplicationReport> appReport = response.getApplicationList();
     Assert.assertNotNull(appReport);
-    Assert.assertEquals(appId, appReport.get(0).getApplicationId());
-    Assert.assertEquals(appId1, appReport.get(1).getApplicationId());
+    Assert.assertEquals(appId, appReport.get(1).getApplicationId());
+    Assert.assertEquals(appId1, appReport.get(0).getApplicationId());
 
     // Create a historyManager, and set the max_apps can be loaded
     // as 1.
