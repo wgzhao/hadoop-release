@@ -1010,3 +1010,6 @@ covered by CHANGES.txt.
 
     BUG-92100. YARN-4246. NPE while listing app attempt.
     (Nijel S F via rohithsharmaks)
+
+    BUG-92100. YARN-4312. TestSubmitApplicationWithRMHA fails on branch-2.7 and
+    branch-2.6 as some of the test cases time out. Contributed by Varun Saxena.
