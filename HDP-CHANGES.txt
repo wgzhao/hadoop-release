@@ -1001,3 +1001,6 @@ covered by CHANGES.txt.
 
     HDFS-8772. Fix TestStandbyIsHot#testDatanodeRestarts which occasionally fails.
     (Walter Su via wang).
+
+    YARN-6480. Timeout is too aggressive for
+    TestAMRestart.testPreemptedAMRestartOnRMRestart. Contributed by Eric Badger
