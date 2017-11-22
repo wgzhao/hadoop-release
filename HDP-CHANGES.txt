@@ -989,3 +989,6 @@ covered by CHANGES.txt.
 
     HADOOP-10668. Addendum patch to fix TestZKFailoverController. Contributed by
     Ming Ma.
+
+    HDFS-9358. TestNodeCount#testNodeCount timed out. Contributed by Masatake
+    Iwasaki.
