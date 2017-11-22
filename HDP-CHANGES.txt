@@ -995,3 +995,6 @@ covered by CHANGES.txt.
 
     HDFS-3519. Checkpoint upload may interfere with a concurrent saveNamespace.
     Contributed by Ming Ma.
+
+    BUG-92034. YARN-5862. TestDiskFailures.testLocalDirsFailures failed (Yufei
+    Gu via Varun Saxena)
