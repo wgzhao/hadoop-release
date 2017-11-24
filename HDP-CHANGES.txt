@@ -1019,3 +1019,6 @@ covered by CHANGES.txt.
 
     HDFS-9428. Fix intermittent failure of TestDNFencing.testQueueingWithAppend.
     Contributed by Masatake Iwasaki.
+
+    HADOOP-10823. TestReloadingX509TrustManager is flaky. Contributed by
+    Mingliang Liu.
