@@ -4700,3 +4700,7 @@ ATS V1.5:
 
     BUG-91905. YARN-5641. Localizer leaves behind tarballs after container is
     complete. Contributed by Eric Badger
+
+    BUG-91905. YARN-6004. Refactor
+    TestResourceLocalizationService#testDownloadingResourcesOnContainer so that
+    it is less than 150 lines. (Chris Trezzo via mingma)
