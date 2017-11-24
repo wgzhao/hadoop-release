@@ -4697,3 +4697,6 @@ ATS V1.5:
 
     BUG-91905. HADOOP-13709. Ability to clean up subprocesses spawned by Shell
     when the process exits. Contributed by Eric Badger
+
+    BUG-91905. YARN-5641. Localizer leaves behind tarballs after container is
+    complete. Contributed by Eric Badger
