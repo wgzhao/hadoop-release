@@ -4694,3 +4694,6 @@ ATS V1.5:
     Contributed by Xiaoyu Yao.
 
     BUG-91431. Whenever Spark2 Thriftserver restart, a random node manager will go down cause by patch from BUG-78576. (wangda)
+
+    BUG-91905. HADOOP-13709. Ability to clean up subprocesses spawned by Shell
+    when the process exits. Contributed by Eric Badger
