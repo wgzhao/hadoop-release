@@ -1016,3 +1016,6 @@ covered by CHANGES.txt.
 
     HDFS-6101. TestReplaceDatanodeOnFailure fails occasionally. Contributed by
     Wei-Chiu Chuang.
+
+    HDFS-9428. Fix intermittent failure of TestDNFencing.testQueueingWithAppend.
+    Contributed by Masatake Iwasaki.
