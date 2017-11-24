@@ -1013,3 +1013,6 @@ covered by CHANGES.txt.
 
     BUG-92100. YARN-4312. TestSubmitApplicationWithRMHA fails on branch-2.7 and
     branch-2.6 as some of the test cases time out. Contributed by Varun Saxena.
+
+    HDFS-6101. TestReplaceDatanodeOnFailure fails occasionally. Contributed by
+    Wei-Chiu Chuang.
