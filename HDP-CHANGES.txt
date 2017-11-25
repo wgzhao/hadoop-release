@@ -1811,3 +1811,6 @@ ATS V1.5:
 
     HADOOP-13513. Java 1.7 support for org.apache.hadoop.fs.azure testcases.
     Contributed by Tibor Kiss.
+
+    BUG-92212. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
+    Varun Saxena)
