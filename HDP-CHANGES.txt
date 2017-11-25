@@ -1234,3 +1234,6 @@ ATS V1.5:
 
     BUG-96433. Backport HDFS-8915 to fix intermittent UT failure
     o.a.h.hdfs.server.namenode.TestFSNamesystem#testFSLockGetWaiterCount
+
+    BUG-96433. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
+    Varun Saxena)
