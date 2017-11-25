@@ -142,7 +142,7 @@ extends ContainerLaunchContext {
   }
   
   @Override
-  public List<String> getCommands() {
+  public synchronized List<String> getCommands() {
     initCommands();
     return this.commands;
   }
@@ -161,7 +161,7 @@ extends ContainerLaunchContext {
   }
   
   @Override
-  public void setCommands(final List<String> commands) {
+  public synchronized void setCommands(final List<String> commands) {
     if (commands == null)
       return;
     initCommands();

@@ -4686,3 +4686,11 @@ ATS V1.5:
 
     BUG-91757. HADOOP-13700. Remove unthrown IOException from
     TrashPolicy#initialize and #getInstance signatures.
+
+    BUG-91876. HDFS-9887. WebHdfs socket timeouts should be configurable.
+    Contributed by Austin Donnelly and Chris Douglas.
+
+    BUG-91876. HDFS-9914. Fix configurable WebhDFS connect/read timeout.
+    Contributed by Xiaoyu Yao.
+
+    BUG-91431. Whenever Spark2 Thriftserver restart, a random node manager will go down cause by patch from BUG-78576. (wangda)
