@@ -30,3 +30,4 @@ software:
   Hadoop Core uses the SSL libraries from the Jetty project written 
 by mortbay.org.
 Patch Upgrade - Nov 15, 2017
+Patch Upgrade - Sat Nov 25 14:55:59 UTC 2017
