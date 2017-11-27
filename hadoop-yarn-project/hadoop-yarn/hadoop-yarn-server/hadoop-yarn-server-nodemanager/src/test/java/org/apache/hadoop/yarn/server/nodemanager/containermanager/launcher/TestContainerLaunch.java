@@ -1523,7 +1523,7 @@ public class TestContainerLaunch extends BaseContainerManagerTest {
       DefaultContainerExecutor executor = new DefaultContainerExecutor();
       executor.setConf(new Configuration());
       executor.writeLaunchEnv(fos, env, resources, commands,
-          new Path(localLogDir.getAbsolutePath()), user);
+          new Path(localLogDir.getAbsolutePath()), shellFile.getName());
       fos.flush();
       fos.close();
 

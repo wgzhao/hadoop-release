@@ -4694,3 +4694,19 @@ ATS V1.5:
     Contributed by Xiaoyu Yao.
 
     BUG-91431. Whenever Spark2 Thriftserver restart, a random node manager will go down cause by patch from BUG-78576. (wangda)
+
+    BUG-91905. HADOOP-13709. Ability to clean up subprocesses spawned by Shell
+    when the process exits. Contributed by Eric Badger
+
+    BUG-91905. YARN-5641. Localizer leaves behind tarballs after container is
+    complete. Contributed by Eric Badger
+
+    BUG-91905. YARN-6004. Refactor
+    TestResourceLocalizationService#testDownloadingResourcesOnContainer so that
+    it is less than 150 lines. (Chris Trezzo via mingma)
+
+    BUG-91905. YARN-6805. NPE in LinuxContainerExecutor due to null
+    PrivilegedOperationException exit code. Contributed by Jason Lowe
+
+    YARN-6078. Containers stuck in Localizing state. Contributed by Billie
+    Rinaldi.
