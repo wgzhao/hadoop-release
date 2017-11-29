@@ -4651,3 +4651,7 @@ ATS V1.5:
     own User Directory. Contributed by Rohith Sharma K S.
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
+
+    BUG-92292. HADOOP-15042. Azure PageBlobInputStream.skip() can return
+    negative value when numberOfPagesRemaining is 0. Contributed by Rajesh
+    Balamohan
