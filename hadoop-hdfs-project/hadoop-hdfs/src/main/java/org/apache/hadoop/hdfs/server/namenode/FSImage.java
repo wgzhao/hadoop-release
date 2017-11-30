@@ -45,6 +45,7 @@ import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.HAUtil;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.LayoutVersion;
+import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.NamenodeRole;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.RollingUpgradeStartupOption;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.StartupOption;
@@ -232,8 +233,7 @@ public class FSImage implements Closeable {
     if (layoutVersion < Storage.LAST_PRE_UPGRADE_LAYOUT_VERSION) {
       NNStorage.checkVersionUpgradable(storage.getLayoutVersion());
     }
-    if (startOpt != StartupOption.UPGRADE
-        && startOpt != StartupOption.UPGRADEONLY
+    if (!HdfsServerConstants.isUpgrade(startOpt)
         && !RollingUpgradeStartupOption.STARTED.matches(startOpt)
         && layoutVersion < Storage.LAST_PRE_UPGRADE_LAYOUT_VERSION
         && layoutVersion != HdfsConstants.NAMENODE_LAYOUT_VERSION) {
@@ -273,7 +273,8 @@ public class FSImage implements Closeable {
     switch(startOpt) {
     case UPGRADE:
     case UPGRADEONLY:
-      doUpgrade(target);
+    case UPGRADEFROMECTONONEC:
+      doUpgrade(target, startOpt);
       return false; // upgrade saved image already
     case IMPORT:
       doImportCheckpoint(target);
@@ -299,6 +300,9 @@ public class FSImage implements Closeable {
   public static boolean recoverStorageDirs(StartupOption startOpt,
       NNStorage storage, Map<StorageDirectory, StorageState> dataDirStates)
       throws IOException {
+    if (startOpt == StartupOption.UPGRADEFROMECTONONEC) {
+      storage.allowNewerVersion(HdfsServerConstants.EC_LAYOUT_VERSION);
+    }
     boolean isFormatted = false;
     // This loop needs to be over all storage dirs, even shared dirs, to make
     // sure that we properly examine their state, but we make sure we don't
@@ -380,11 +384,11 @@ public class FSImage implements Closeable {
     }
   }
 
-  void doUpgrade(FSNamesystem target) throws IOException {
+  void doUpgrade(FSNamesystem target, StartupOption startOpt) throws IOException {
     checkUpgrade();
 
     // load the latest image
-    this.loadFSImage(target, StartupOption.UPGRADE, null);
+    this.loadFSImage(target, startOpt, null);
 
     // Do upgrade for each directory
     target.checkRollingUpgrade("upgrade namenode");
@@ -767,14 +771,12 @@ public class FSImage implements Closeable {
       editLog.initJournalsForWrite();
       editLog.recoverUnclosedStreams();
     } else if (HAUtil.isHAEnabled(conf, nameserviceId)
-        && (startOpt == StartupOption.UPGRADE
-            || startOpt == StartupOption.UPGRADEONLY
+        && (HdfsServerConstants.isUpgrade(startOpt)
             || RollingUpgradeStartupOption.ROLLBACK.matches(startOpt))) {
       // This NN is HA, but we're doing an upgrade or a rollback of rolling
       // upgrade so init the edit log for write.
       editLog.initJournalsForWrite();
-      if (startOpt == StartupOption.UPGRADE
-          || startOpt == StartupOption.UPGRADEONLY) {
+      if (HdfsServerConstants.isUpgrade(startOpt)) {
         long sharedLogCTime = editLog.getSharedLogCTime();
         if (this.storage.getCTime() < sharedLogCTime) {
           throw new IOException("It looks like the shared log is already " +

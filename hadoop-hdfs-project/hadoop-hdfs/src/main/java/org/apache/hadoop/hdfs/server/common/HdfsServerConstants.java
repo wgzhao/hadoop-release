@@ -109,7 +109,8 @@ public final class HdfsServerConstants {
     // only used for StorageDirectory.analyzeStorage() in hot swap drive scenario.
     // TODO refactor StorageDirectory.analyzeStorage() so that we can do away with
     // this in StartupOption.
-    HOTSWAP("-hotswap");
+    HOTSWAP("-hotswap"),
+    UPGRADEFROMECTONONEC("-upgradeFromEcToNonEc");
 
     private static final Pattern ENUM_WITH_ROLLING_UPGRADE_OPTION = Pattern.compile(
         "(\\w+)\\((\\w+)\\)");
@@ -312,6 +313,15 @@ public final class HdfsServerConstants {
     COMMITTED;
   }
   
+  public static boolean isUpgrade(StartupOption option) {
+    return option == StartupOption.UPGRADE ||
+        option == StartupOption.UPGRADEONLY ||
+        option == StartupOption.UPGRADEFROMECTONONEC;
+  }
+
+  // NameNodeLayoutVersion for 2.3-ec images.
+  public static int EC_LAYOUT_VERSION = -64;
+
   public static final String NAMENODE_LEASE_HOLDER = "HDFS_NameNode";
   public static final long NAMENODE_LEASE_RECHECK_INTERVAL = 2000;
 

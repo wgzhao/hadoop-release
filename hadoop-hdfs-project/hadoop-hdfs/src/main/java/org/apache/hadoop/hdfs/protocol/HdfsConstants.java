@@ -181,4 +181,7 @@ public class HdfsConstants {
   public static final byte WARM_STORAGE_POLICY_ID = 5;
   public static final byte COLD_STORAGE_POLICY_ID = 2;
   public static final byte BLOCK_STORAGE_POLICY_ID_UNSPECIFIED = 0;
+
+  public static String XATTR_ERASURECODING_POLICY =
+      "hdfs.erasurecoding.policy";
 }

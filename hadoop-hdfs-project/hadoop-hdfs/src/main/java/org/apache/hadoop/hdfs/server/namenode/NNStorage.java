@@ -869,7 +869,7 @@ public class NNStorage extends Storage implements Closeable,
    */
   void processStartupOptionsForUpgrade(StartupOption startOpt, int layoutVersion)
       throws IOException {
-    if (startOpt == StartupOption.UPGRADE || startOpt == StartupOption.UPGRADEONLY) {
+    if (HdfsServerConstants.isUpgrade(startOpt)) {
       // If upgrade from a release that does not support federation,
       // if clusterId is provided in the startupOptions use it.
       // Else generate a new cluster ID      

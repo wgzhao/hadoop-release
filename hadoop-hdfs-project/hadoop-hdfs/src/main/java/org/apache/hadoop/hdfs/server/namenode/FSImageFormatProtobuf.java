@@ -193,7 +193,8 @@ public final class FSImageFormatProtobuf {
       if (!FSImageUtil.checkFileFormat(raFile)) {
         throw new IOException("Unrecognized file format");
       }
-      FileSummary summary = FSImageUtil.loadSummary(raFile);
+      FileSummary summary = FSImageUtil.loadSummary(
+          raFile, requireSameLayoutVersion);
       if (requireSameLayoutVersion && summary.getLayoutVersion() !=
           HdfsConstants.NAMENODE_LAYOUT_VERSION) {
         throw new IOException("Image version " + summary.getLayoutVersion() +

@@ -69,7 +69,7 @@ public final class FSImageFormatPBINode {
   private final static long USER_GROUP_STRID_MASK = (1 << 24) - 1;
   private final static int USER_STRID_OFFSET = 40;
   private final static int GROUP_STRID_OFFSET = 16;
-  private static final Log LOG = LogFactory.getLog(FSImageFormatPBINode.class);
+  public static final Log LOG = LogFactory.getLog(FSImageFormatPBINode.class);
 
   private static final int ACL_ENTRY_NAME_MASK = (1 << 24) - 1;
   private static final int ACL_ENTRY_NAME_OFFSET = 6;
@@ -203,6 +203,15 @@ public final class FSImageFormatPBINode {
       if (d.hasXAttrs()) {
         dir.addXAttrFeature(new XAttrFeature(
             loadXAttrs(d.getXAttrs(), state.getStringTable())));
+        for (XAttr xAttr : dir.getXAttrFeature().getXAttrs()) {
+          // Fail-fast if we find a directory with EC policy set.
+          if (xAttr.getName().equalsIgnoreCase(
+              HdfsConstants.XATTR_ERASURECODING_POLICY)) {
+            throw new HadoopIllegalArgumentException(
+                "Directory " + dir.getFullPathName() + " has EC policy set. " +
+                "Please delete this directory before attempting to upgrade.");
+          }
+        }
       }
       return dir;
     }

@@ -52,7 +52,11 @@ public class StorageInfo {
   protected final NodeType storageType; // Type of the node using this storage 
 
   protected static final String STORAGE_FILE_VERSION    = "VERSION";
-  
+
+  // Special case upgrade from newer to older layout version.
+  private boolean allowNewerLayoutVersion;
+  private int newerLayoutVersion;
+
   public StorageInfo(NodeType type) {
     this(0, 0, "", 0L, type);
   }
@@ -63,6 +67,8 @@ public class StorageInfo {
     namespaceID = nsID;
     cTime = cT;
     storageType = type;
+    allowNewerLayoutVersion = false;
+    newerLayoutVersion = 0;
   }
   
   public StorageInfo(StorageInfo from) {
@@ -175,10 +181,16 @@ public class StorageInfo {
       throws IncorrectVersionException, InconsistentFSStateException {
     int lv = Integer.parseInt(getProperty(props, sd, "layoutVersion"));
     if (lv < getServiceLayoutVersion()) { // future version
-      throw new IncorrectVersionException(getServiceLayoutVersion(), lv,
-          "storage directory " + sd.root.getAbsolutePath());
+      if (allowNewerLayoutVersion && lv == newerLayoutVersion) {
+        // Special case 'upgrade'.
+        layoutVersion = getServiceLayoutVersion();
+      } else {
+        throw new IncorrectVersionException(getServiceLayoutVersion(), lv,
+            "storage directory " + sd.root.getAbsolutePath());
+      }
+    } else {
+      layoutVersion = lv;
     }
-    layoutVersion = lv;
   }
   
   /** Validate and set namespaceID version from {@link Properties}*/
@@ -256,5 +268,10 @@ public class StorageInfo {
       file.close();
     }
     return props;
+  }
+
+  public void allowNewerVersion(int newerVersion) {
+    this.allowNewerLayoutVersion = true;
+    this.newerLayoutVersion = newerVersion;
   }
 }

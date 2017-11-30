@@ -45,6 +45,7 @@ import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.protocol.ClientProtocol;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeManager;
+import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.NamenodeRole;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.RollingUpgradeStartupOption;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.StartupOption;
@@ -106,6 +107,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -305,6 +307,9 @@ public class NameNode extends ReconfigurableBase implements
       + StartupOption.UPGRADE.getName() + 
         " [" + StartupOption.CLUSTERID.getName() + " cid]" +
         " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
+      + StartupOption.UPGRADEFROMECTONONEC.getName() +
+      " [" + StartupOption.CLUSTERID.getName() + " cid]" +
+      " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
       + StartupOption.UPGRADEONLY.getName() + 
         " [" + StartupOption.CLUSTERID.getName() + " cid]" +
         " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
@@ -1008,8 +1013,7 @@ public class NameNode extends ReconfigurableBase implements
   }
 
   protected HAState createHAState(StartupOption startOpt) {
-    if (!haEnabled || startOpt == StartupOption.UPGRADE 
-        || startOpt == StartupOption.UPGRADEONLY) {
+    if (!haEnabled || HdfsServerConstants.isUpgrade(startOpt)) {
       return ACTIVE_STATE;
     } else {
       return STANDBY_STATE;
@@ -1461,9 +1465,9 @@ public class NameNode extends ReconfigurableBase implements
       } else if (StartupOption.CHECKPOINT.getName().equalsIgnoreCase(cmd)) {
         startOpt = StartupOption.CHECKPOINT;
       } else if (StartupOption.UPGRADE.getName().equalsIgnoreCase(cmd)
-          || StartupOption.UPGRADEONLY.getName().equalsIgnoreCase(cmd)) {
-        startOpt = StartupOption.UPGRADE.getName().equalsIgnoreCase(cmd) ? 
-            StartupOption.UPGRADE : StartupOption.UPGRADEONLY;
+          || StartupOption.UPGRADEONLY.getName().equalsIgnoreCase(cmd)
+          || StartupOption.UPGRADEFROMECTONONEC.getName().equalsIgnoreCase(cmd)) {
+        startOpt = StartupOption.valueOf(cmd.toUpperCase(Locale.ENGLISH).substring(1));
         /* Can be followed by CLUSTERID with a required parameter or
          * RENAMERESERVED with an optional parameter
          */

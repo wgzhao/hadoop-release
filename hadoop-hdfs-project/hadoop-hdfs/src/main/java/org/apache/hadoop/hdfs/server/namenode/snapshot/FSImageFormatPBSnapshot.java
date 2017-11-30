@@ -35,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.hadoop.HadoopIllegalArgumentException;
 import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.fs.XAttr;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.hdfs.protocol.Block;
@@ -345,6 +347,15 @@ public class FSImageFormatPBSnapshot {
           if (dirCopyInPb.hasXAttrs()) {
             xAttrs = new XAttrFeature(FSImageFormatPBINode.Loader.loadXAttrs(
                 dirCopyInPb.getXAttrs(), state.getStringTable()));
+            for (XAttr xAttr : dir.getXAttrFeature().getXAttrs()) {
+              // Fail-fast if we find a directory with EC policy set.
+              if (xAttr.getName().equalsIgnoreCase(
+                  HdfsConstants.XATTR_ERASURECODING_POLICY)) {
+                throw new HadoopIllegalArgumentException(
+                    "Directory " + dir.getFullPathName() + " has EC policy set. " +
+                        "Please delete this directory before attempting to upgrade.");
+              }
+            }
           }
 
           long modTime = dirCopyInPb.getModificationTime();

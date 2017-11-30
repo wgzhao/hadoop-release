@@ -50,7 +50,14 @@ public final class FSImageUtil {
     return true;
   }
 
+
   public static FileSummary loadSummary(RandomAccessFile file)
+      throws IOException {
+    return loadSummary(file, true);
+  }
+
+  public static FileSummary loadSummary(RandomAccessFile file,
+                                        boolean enforceSupportedLayoutVersion)
       throws IOException {
     final int FILE_LENGTH_FIELD_SIZE = 4;
     long fileLength = file.length();
@@ -72,8 +79,9 @@ public final class FSImageUtil {
           + summary.getOndiskVersion());
     }
 
-    if (!NameNodeLayoutVersion.supports(Feature.PROTOBUF_FORMAT,
-        summary.getLayoutVersion())) {
+    if (enforceSupportedLayoutVersion &&
+        !NameNodeLayoutVersion.supports(Feature.PROTOBUF_FORMAT,
+            summary.getLayoutVersion())) {
       throw new IOException("Unsupported layout version "
           + summary.getLayoutVersion());
     }
