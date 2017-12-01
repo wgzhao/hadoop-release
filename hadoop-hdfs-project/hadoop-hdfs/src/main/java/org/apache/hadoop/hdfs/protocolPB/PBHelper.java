@@ -1366,7 +1366,8 @@ public class PBHelper {
         fs.getFileBufferSize(),
         fs.getEncryptDataTransfer(),
         fs.getTrashInterval(),
-        PBHelper.convert(fs.getChecksumType()));
+        PBHelper.convert(fs.getChecksumType()),
+        fs.hasKeyProviderUri() ? fs.getKeyProviderUri() : null );
   }
   
   public static FsServerDefaultsProto convert(FsServerDefaults fs) {
@@ -1380,6 +1381,7 @@ public class PBHelper {
       .setEncryptDataTransfer(fs.getEncryptDataTransfer())
       .setTrashInterval(fs.getTrashInterval())
       .setChecksumType(PBHelper.convert(fs.getChecksumType()))
+      .setKeyProviderUri(fs.getKeyProviderUri())
       .build();
   }
   

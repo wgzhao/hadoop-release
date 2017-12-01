@@ -34,7 +34,9 @@ import org.apache.hadoop.fs.permission.AclEntryScope;
 import org.apache.hadoop.fs.permission.AclEntryType;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.FsServerDefaults;
 import org.apache.hadoop.fs.StorageType;
+import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
@@ -715,5 +717,33 @@ public class TestPBHelper {
     assertTrue(
         "Expected empty map:" + ", got map:" + slowDisksConverted2,
         slowDisksConverted2.equals(SlowDiskReports.EMPTY_REPORT));
+  }
+
+  /**
+   * Test case for old namenode where the namenode doesn't support returning
+   * keyProviderUri.
+   */
+  @Test
+  public void testFSServerDefaultsHelper() {
+    HdfsProtos.FsServerDefaultsProto.Builder b =
+        HdfsProtos.FsServerDefaultsProto.newBuilder();
+    b.setBlockSize(DFSConfigKeys.DFS_BLOCK_SIZE_DEFAULT);
+    b.setBytesPerChecksum(DFSConfigKeys.DFS_BYTES_PER_CHECKSUM_DEFAULT);
+    b.setWritePacketSize(
+        DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_DEFAULT);
+    b.setReplication(DFSConfigKeys.DFS_REPLICATION_DEFAULT);
+    b.setFileBufferSize(DFSConfigKeys.IO_FILE_BUFFER_SIZE_DEFAULT);
+    b.setEncryptDataTransfer(DFSConfigKeys.DFS_ENCRYPT_DATA_TRANSFER_DEFAULT);
+    b.setTrashInterval(DFSConfigKeys.FS_TRASH_INTERVAL_DEFAULT);
+    b.setChecksumType(HdfsProtos.ChecksumTypeProto.valueOf(DataChecksum.Type
+        .valueOf(DFSConfigKeys.DFS_CHECKSUM_TYPE_DEFAULT).id));
+    HdfsProtos.FsServerDefaultsProto proto = b.build();
+
+    Assert.assertFalse("KeyProvider uri is not supported",
+        proto.hasKeyProviderUri());
+    FsServerDefaults fsServerDefaults = PBHelper.convert(proto);
+    Assert.assertNotNull("FsServerDefaults is null", fsServerDefaults);
+    Assert.assertNull("KeyProviderUri should be null",
+        fsServerDefaults.getKeyProviderUri());
   }
 }
