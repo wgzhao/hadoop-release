@@ -3512,3 +3512,6 @@ ATS V1.5:
 
     BUG-82686. HADOOP-14195. CredentialProviderFactory$getProviders is not
     thread-safe. Contributed by Vihang Karajgaonkar.
+
+    BUG-92666. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
+    Varun Saxena)
