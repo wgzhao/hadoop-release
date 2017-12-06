@@ -121,6 +121,7 @@ public class TreePath {
   INode toFile(UGIResolver ugi, BlockResolver blk,
       BlockAliasMap.Writer<FileRegion> out) throws IOException {
     final FileStatus s = getFileStatus();
+    // TODO should this store resolver's user/group?
     ugi.addUser(s.getOwner());
     ugi.addGroup(s.getGroup());
     INodeFile.Builder b = INodeFile.newBuilder()
@@ -141,7 +142,7 @@ public class TreePath {
             "Exact path handle not supported by filesystem " + fs.toString());
       }
     }
-    // TODO: storage policy should be configurable per path; use BlockResolver
+    //TODO: storage policy should be configurable per path; use BlockResolver
     long off = 0L;
     for (BlockProto block : blk.resolve(s)) {
       b.addBlocks(block);
