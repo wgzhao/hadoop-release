@@ -1237,3 +1237,5 @@ ATS V1.5:
 
     BUG-96433. YARN-5368. Memory leak in timeline server (Jonathan Eagles via
     Varun Saxena)
+
+    BUG-102428. YARN-7274. Ability to disable elasticity at leaf queue level. (Zian Chen via wangda)
