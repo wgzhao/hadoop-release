@@ -4654,3 +4654,5 @@ ATS V1.5:
 
     BUG-86408. MAPREDUCE-6415. Create a tool to combine aggregated logs into HAR
     files. (Robert Kanter via kasha)
+
+    BUG-86408. MAPREDUCE-6480. archive-logs tool may miss applications (rkanter)
