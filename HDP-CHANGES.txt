@@ -4828,3 +4828,5 @@ ATS V1.5:
 
     WASB-19. Support for exponential backoff retry strategy and support for user defined read &write buffer size.
 
+    WASB-22. Adding Validators for wasb2 configurations
+

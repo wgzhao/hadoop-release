@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.lang.reflect.Field;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -25,7 +26,19 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
+import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.IntegerConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.LongConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.StringConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.Base64StringConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.BooleanConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidConfigurationValueException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.diagnostics.Base64StringConfigurationBasicValidator;
+import org.apache.hadoop.fs.azuredfs.diagnostics.BooleanConfigurationBasicValidator;
+import org.apache.hadoop.fs.azuredfs.diagnostics.IntegerConfigurationBasicValidator;
+import org.apache.hadoop.fs.azuredfs.diagnostics.LongConfigurationBasicValidator;
+import org.apache.hadoop.fs.azuredfs.diagnostics.StringConfigurationBasicValidator;
 
 @Singleton
 @InterfaceAudience.Private
@@ -34,10 +47,65 @@ final class ConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
   private final boolean isSecure;
 
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_WRITE_BUFFER_SIZE,
+      MinValue = FileSystemConfigurations.MIN_BUFFER_SIZE,
+      MaxValue = FileSystemConfigurations.MAX_BUFFER_SIZE,
+      DefaultValue = FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE)
+  private int writeBufferSize;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_READ_BUFFER_SIZE,
+      MinValue = FileSystemConfigurations.MIN_BUFFER_SIZE,
+      MaxValue = FileSystemConfigurations.MAX_BUFFER_SIZE,
+      DefaultValue = FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE)
+  private int readBufferSize;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_MIN_BACKOFF_INTERVAL,
+      DefaultValue = FileSystemConfigurations.DEFAULT_MIN_BACKOFF_INTERVAL)
+  private int minBackoffInterval;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_MAX_BACKOFF_INTERVAL,
+      DefaultValue = FileSystemConfigurations.DEFAULT_MAX_BACKOFF_INTERVAL)
+  private int maxBackoffInterval;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_BACKOFF_INTERVAL,
+      DefaultValue = FileSystemConfigurations.DEFAULT_BACKOFF_INTERVAL)
+  private int backoffInterval;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_MAX_IO_RETRIES,
+      MinValue = 0,
+      DefaultValue = FileSystemConfigurations.DEFAULT_MAX_RETRY_ATTEMPTS)
+  private int maxIoRetries;
+
+  @LongConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_BLOCK_SIZE_PROPERTY_NAME,
+      MinValue = 0,
+      MaxValue = FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE,
+      DefaultValue = FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE)
+  private long azureBlockSize;
+
+  @StringConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_BLOCK_LOCATION_HOST_PROPERTY_NAME,
+      DefaultValue = FileSystemConfigurations.AZURE_BLOCK_LOCATION_HOST_DEFAULT)
+  private String azureBlockLocationHost;
+
   @Inject
-  ConfigurationServiceImpl(final Configuration configuration) {
+  ConfigurationServiceImpl(final Configuration configuration) throws IllegalAccessException, InvalidConfigurationValueException {
     this.configuration = configuration;
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
+
+    Field[] fields = this.getClass().getDeclaredFields();
+    for (Field field : fields) {
+      field.setAccessible(true);
+      if (field.isAnnotationPresent(IntegerConfigurationValidatorAnnotation.class)) {
+        field.set(this, validateInt(field));
+      } else if (field.isAnnotationPresent(LongConfigurationValidatorAnnotation.class)) {
+        field.set(this, validateLong(field));
+      } else if (field.isAnnotationPresent(StringConfigurationValidatorAnnotation.class)) {
+        field.set(this, validateString(field));
+      } else if (field.isAnnotationPresent(Base64StringConfigurationValidatorAnnotation.class)) {
+        field.set(this, validateBase64String(field));
+      } else if (field.isAnnotationPresent(BooleanConfigurationValidatorAnnotation.class)) {
+        field.set(this, validateBoolean(field));
+      }
+    }
   }
 
   @Override
@@ -62,5 +130,85 @@ final class ConfigurationServiceImpl implements ConfigurationService {
   @Override
   public Configuration getConfiguration() {
     return this.configuration;
+  }
+
+  public int getWriteBufferSize() {
+    return this.writeBufferSize;
+  }
+
+  public int getReadBufferSize() {
+    return this.readBufferSize;
+  }
+
+  public int getMinBackoffInterval() { return this.minBackoffInterval; }
+
+  public int getMaxBackoffInterval() { return this.maxBackoffInterval; }
+
+  public int getBackoffInterval() { return this.backoffInterval; }
+
+  public int getMaxIoRetries() {return this.maxIoRetries; }
+
+  public long getAzureBlockSize() { return this.azureBlockSize; }
+
+  public String getAzureBlockLocationHost() { return this.azureBlockLocationHost; }
+
+
+  int validateInt(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
+    IntegerConfigurationValidatorAnnotation validator = field.getAnnotation(IntegerConfigurationValidatorAnnotation.class);
+    String value = this.configuration.get(validator.ConfigurationKey());
+
+    // validate
+    return new IntegerConfigurationBasicValidator(
+        validator.MinValue(),
+        validator.MaxValue(),
+        validator.DefaultValue(),
+        validator.ConfigurationKey(),
+        validator.ThrowIfInvalid()).validate(value);
+  }
+
+  long validateLong(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
+    LongConfigurationValidatorAnnotation validator = field.getAnnotation(LongConfigurationValidatorAnnotation.class);
+    String value = this.configuration.get(validator.ConfigurationKey());
+
+    // validate
+    return new LongConfigurationBasicValidator(
+        validator.MinValue(),
+        validator.MaxValue(),
+        validator.DefaultValue(),
+        validator.ConfigurationKey(),
+        validator.ThrowIfInvalid()).validate(value);
+  }
+
+  String validateString(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
+    StringConfigurationValidatorAnnotation validator = field.getAnnotation(StringConfigurationValidatorAnnotation.class);
+    String value = this.configuration.get(validator.ConfigurationKey());
+
+    // validate
+    return new StringConfigurationBasicValidator(
+        validator.ConfigurationKey(),
+        validator.DefaultValue(),
+        validator.ThrowIfInvalid()).validate(value);
+  }
+
+  String validateBase64String(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
+    Base64StringConfigurationValidatorAnnotation validator = field.getAnnotation((Base64StringConfigurationValidatorAnnotation.class));
+    String value = this.configuration.get(validator.ConfigurationKey());
+
+    // validate
+    return new Base64StringConfigurationBasicValidator(
+        validator.ConfigurationKey(),
+        validator.DefaultValue(),
+        validator.ThrowIfInvalid()).validate(value);
+  }
+
+  boolean validateBoolean(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
+    BooleanConfigurationValidatorAnnotation validator = field.getAnnotation(BooleanConfigurationValidatorAnnotation.class);
+    String value = this.configuration.get(validator.ConfigurationKey());
+
+    // validate
+    return new BooleanConfigurationBasicValidator(
+        validator.ConfigurationKey(),
+        validator.DefaultValue(),
+        validator.ThrowIfInvalid()).validate(value);
   }
 }

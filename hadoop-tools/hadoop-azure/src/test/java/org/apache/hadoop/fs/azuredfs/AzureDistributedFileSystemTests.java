@@ -33,7 +33,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
@@ -198,9 +197,9 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
   @Test
   public void testReadAndWriteWithDifferentBufferSizesAndSeek() throws Exception {
-    testReadWriteAndSeek(KEY_WRITE_BLOCK_SIZE, "3072", MIN_BUFFER_SIZE);
-    testReadWriteAndSeek(KEY_WRITE_BLOCK_SIZE, "4194304", DEFAULT_READ_BUFFER_SIZE);
-    testReadWriteAndSeek(KEY_WRITE_BLOCK_SIZE, "104857600", MAX_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "3072", MIN_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "4194304", DEFAULT_READ_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "104857600", MAX_BUFFER_SIZE);
   }
 
   private void testReadWriteAndSeek(String configKey, String writeBuffer, int bufferSize) throws

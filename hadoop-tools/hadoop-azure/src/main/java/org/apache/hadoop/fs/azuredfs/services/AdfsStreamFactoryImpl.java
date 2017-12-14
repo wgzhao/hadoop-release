@@ -61,7 +61,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
 
   @Override
   public InputStream createReadStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long fileLength) {
-    int bufferSize = getBufferSize(ConfigurationKeys.KEY_READ_BLOCK_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
+    int bufferSize = getBufferSize(ConfigurationKeys.AZURE_READ_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
     return new AdfsInputStream(
         this.adfsHttpService,
         azureDistributedFileSystem,
@@ -72,7 +72,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
 
   @Override
   public OutputStream createWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) {
-    int bufferSize = getBufferSize(ConfigurationKeys.KEY_WRITE_BLOCK_SIZE, FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE);
+    int bufferSize = getBufferSize(ConfigurationKeys.AZURE_WRITE_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE);
     return new AdfsOutputStream(
         this.adfsHttpService,
         this.adfsBufferPool,

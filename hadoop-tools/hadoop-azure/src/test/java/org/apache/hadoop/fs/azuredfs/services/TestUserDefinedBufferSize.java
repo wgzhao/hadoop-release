@@ -38,15 +38,15 @@ public class TestUserDefinedBufferSize extends DependencyInjectedTest {
     adfsStreamFactory = (AdfsStreamFactoryImpl)ServiceProviderImpl.instance().get(AdfsStreamFactory.class);
 
     // testing: user haven't overwritten the default size for a write buffer
-    final int bufferSize = adfsStreamFactory.getBufferSize(KEY_WRITE_BLOCK_SIZE, DEFAULT_WRITE_BUFFER_SIZE);
+    final int bufferSize = adfsStreamFactory.getBufferSize(AZURE_WRITE_BUFFER_SIZE, DEFAULT_WRITE_BUFFER_SIZE);
     assertEquals(bufferSize, DEFAULT_WRITE_BUFFER_SIZE);
 
     // testing: user overwritten the default size for a write buffer with a valid value
-    testUserDefinedBufferSize(KEY_WRITE_BLOCK_SIZE, "10485760", DEFAULT_WRITE_BUFFER_SIZE, 10485760);
+    testUserDefinedBufferSize(AZURE_WRITE_BUFFER_SIZE, "10485760", DEFAULT_WRITE_BUFFER_SIZE, 10485760);
     // testing: user overwritten the default size for a read buffer with a value smaller than the minimum required
-    testUserDefinedBufferSize(KEY_READ_BLOCK_SIZE, "3072", DEFAULT_READ_BUFFER_SIZE, MIN_BUFFER_SIZE);
+    testUserDefinedBufferSize(AZURE_READ_BUFFER_SIZE, "3072", DEFAULT_READ_BUFFER_SIZE, MIN_BUFFER_SIZE);
     // testing: user overwritten the default size for a read buffer with a value larger than the maximum allowed
-    testUserDefinedBufferSize(KEY_READ_BLOCK_SIZE, "106000000", DEFAULT_READ_BUFFER_SIZE, MAX_BUFFER_SIZE);
+    testUserDefinedBufferSize(AZURE_READ_BUFFER_SIZE, "106000000", DEFAULT_READ_BUFFER_SIZE, MAX_BUFFER_SIZE);
   }
 
   private void testUserDefinedBufferSize(final String configKey, String userDefinedVal, final int defaultVal, final int actualVal) {

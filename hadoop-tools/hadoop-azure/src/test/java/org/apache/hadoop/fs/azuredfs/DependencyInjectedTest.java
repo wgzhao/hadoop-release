@@ -25,7 +25,6 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 
-import org.apache.commons.configuration.ConfigurationKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
