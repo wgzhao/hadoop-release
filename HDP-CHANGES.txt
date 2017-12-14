@@ -4656,3 +4656,6 @@ ATS V1.5:
     files. (Robert Kanter via kasha)
 
     BUG-86408. MAPREDUCE-6480. archive-logs tool may miss applications (rkanter)
+
+    BUG-93286. YARN-6805. NPE in LinuxContainerExecutor due to null
+    PrivilegedOperationException exit code. Contributed by Jason Lowe
