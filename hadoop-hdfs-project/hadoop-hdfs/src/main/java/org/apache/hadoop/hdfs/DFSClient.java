@@ -179,6 +179,7 @@ import org.apache.hadoop.hdfs.protocol.SnapshottableDirectoryStatus;
 import org.apache.hadoop.hdfs.protocol.UnresolvedPathException;
 import org.apache.hadoop.hdfs.protocol.datatransfer.DataTransferProtoUtil;
 import org.apache.hadoop.hdfs.protocol.datatransfer.IOStreamPair;
+import org.apache.hadoop.hdfs.protocol.datatransfer.InvalidEncryptionKeyException;
 import org.apache.hadoop.hdfs.protocol.datatransfer.Op;
 import org.apache.hadoop.hdfs.protocol.datatransfer.ReplaceDatanodeOnFailure;
 import org.apache.hadoop.hdfs.protocol.datatransfer.Sender;
@@ -188,7 +189,6 @@ import org.apache.hadoop.hdfs.protocol.datatransfer.sasl.DataTransferSaslUtil;
 import org.apache.hadoop.hdfs.protocol.datatransfer.sasl.SaslDataTransferClient;
 import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.BlockOpResponseProto;
 import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.OpBlockChecksumResponseProto;
-import org.apache.hadoop.hdfs.protocol.proto.DataTransferProtos.Status;
 import org.apache.hadoop.hdfs.protocolPB.PBHelper;
 import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.hdfs.security.token.block.DataEncryptionKey;
@@ -2304,7 +2304,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
       for(int j = 0; !done && j < datanodes.length; j++) {
         DataOutputStream out = null;
         DataInputStream in = null;
-        
+
         try {
           //connect to a datanode
           IOStreamPair pair = connectToDN(datanodes[j], timeout, lb);
@@ -2337,7 +2337,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
             throw new IOException("Byte-per-checksum not matched: bpc=" + bpc
                 + " but bytesPerCRC=" + bytesPerCRC);
           }
-          
+
           //read crc-per-block
           final long cpb = checksumData.getCrcPerBlock();
           if (locatedblocks.size() > 1 && i == 0) {
@@ -2348,7 +2348,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
           final MD5Hash md5 = new MD5Hash(
               checksumData.getMd5().toByteArray());
           md5.write(md5out);
-          
+
           // read crc-type
           final DataChecksum.Type ct;
           if (checksumData.hasCrcType()) {
@@ -2390,6 +2390,20 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
             i--; // repeat at i-th block
             refetchBlocks = true;
             break;
+          }
+        } catch (InvalidEncryptionKeyException iee) {
+          if (i > lastRetriedIndex) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Got invalid encryption key error in response to" +
+                  " OP_BLOCK_CHECKSUM "
+                  + "for file " + src + " for block " + block
+                  + " from datanode " + datanodes[j]
+                  + ". Will retry the block once.");
+            }
+            lastRetriedIndex = i;
+            done = true; // actually it's not done; but we'll retry
+            i--; // repeat at i-th block
+            clearDataEncryptionKey();
           }
         } catch (IOException ie) {
           LOG.warn("src=" + src + ", datanodes["+j+"]=" + datanodes[j], ie);
