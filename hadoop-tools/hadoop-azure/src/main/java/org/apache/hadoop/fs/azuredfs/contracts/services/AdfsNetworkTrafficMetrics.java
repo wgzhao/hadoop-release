@@ -18,34 +18,41 @@
 
 package org.apache.hadoop.fs.azuredfs.contracts.services;
 
-import io.netty.buffer.ByteBuf;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsBufferPool to create and release buffers.
+ * AdfsNetworkTrafficMetrics holds network traffic metrics.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsBufferPool extends InjectableService {
+public interface AdfsNetworkTrafficMetrics {
   /**
-   * Gets bytes buffer object for an existing byte array
-   * @param bytes to create ByteBuf from.
-   * @return ByteBuf
+   * Gets network metrics for write operations.
+   * @return network metrics for write operations.
    */
-  ByteBuf getByteBuffer(byte[] bytes);
+  AdfsNetworkThroughputMetrics getWriteMetrics();
 
   /**
-   * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
-   * @param bufferSize maximum capacity of the buffer
-   * @return ByteBuf
+   * Gets network metrics for read operations.
+   * @return network metrics for read operations.
    */
-  ByteBuf getByteBuffer(int bufferSize);
+  AdfsNetworkThroughputMetrics getReadMetrics();
 
   /**
-   * Releases an existing buffer
-   * @return true if buffer is successfully released
+   * Gets the start time of traffic metrics collection.
+   * @return the start time of traffic metrics collection.
    */
-  boolean releaseByteBuffer(ByteBuf byteBuf);
+  long getStartTime();
+
+  /**
+   * Gets the end time of traffic metrics collection.
+   * @return the end time of traffic metrics collection.
+   */
+  long getEndTime();
+
+  /**
+   * Stops traffic metrics collection.
+   */
+  void end();
 }

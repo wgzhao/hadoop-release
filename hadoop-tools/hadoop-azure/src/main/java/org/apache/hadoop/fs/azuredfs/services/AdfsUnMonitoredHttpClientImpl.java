@@ -20,32 +20,30 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import java.util.concurrent.TimeUnit;
 
-import com.microsoft.azure.dfs.rest.client.generated.implementation.AzureDistributedFileSystemRestClientImpl;
 import com.microsoft.rest.RestClient;
 import com.microsoft.rest.ServiceResponseBuilder;
 import com.microsoft.rest.retry.RetryStrategy;
 import com.microsoft.rest.serializer.JacksonAdapter;
+import okhttp3.Interceptor;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 
 /**
- * File System service to provider AzureDistributedFilesystem client.
+ * Adfs http client implementation.
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsHttpClientImpl extends AzureDistributedFileSystemRestClientImpl implements AdfsHttpClient {
-  private final AdfsHttpClientSession adfsHttpClientSession;
-
-  public AdfsHttpClientImpl(
+final class AdfsUnMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
+  public AdfsUnMonitoredHttpClientImpl(
       final String baseUrl,
-      final NetworkInterceptorImpl networkInterceptor,
+      final Interceptor networkInterceptor,
       final AdfsHttpClientSession adfsHttpClientSession,
       final RetryStrategy retryStrategy) {
-    super(new RestClient.Builder()
+    super(adfsHttpClientSession,
+        new RestClient.Builder()
         .withBaseUrl(baseUrl)
         .withNetworkInterceptor(networkInterceptor)
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
@@ -53,12 +51,5 @@ final class AdfsHttpClientImpl extends AzureDistributedFileSystemRestClientImpl 
         .withRetryStrategy(retryStrategy)
         .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
         .build());
-
-    this.adfsHttpClientSession = adfsHttpClientSession;
-  }
-
-  @Override
-  public AdfsHttpClientSession getSession() {
-    return this.adfsHttpClientSession;
   }
 }

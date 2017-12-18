@@ -120,7 +120,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     int currentOffset = off;
-    int writableBytes = this.buffer.writableBytes();
+    int writableBytes = this.buffer.maxWritableBytes();
     int numberOfBytesToWrite = length - currentOffset;
 
     while (numberOfBytesToWrite != 0) {
@@ -135,7 +135,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
         numberOfBytesToWrite = 0;
       }
 
-      writableBytes = this.buffer.writableBytes();
+      writableBytes = this.buffer.maxWritableBytes();
     }
   }
 
@@ -225,9 +225,14 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     final int length = this.buffer.readableBytes();
     bytes = new byte[length];
     this.buffer.getBytes(this.buffer.readerIndex(), bytes);
+    adfsBufferPool.releaseByteBuffer(this.buffer);
+
+    // Ensure GC collected
+    this.buffer = null;
 
     try {
-      final Future<Void> append = adfsHttpService.writeFileAsync(azureDistributedFileSystem,
+      final Future<Void> append = adfsHttpService.writeFileAsync(
+          azureDistributedFileSystem,
           path,
           bytes,
           this.offset);
@@ -248,7 +253,6 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       throw new IOException(exception);
     }
     finally {
-      adfsBufferPool.releaseByteBuffer(this.buffer);
       this.buffer = this.adfsBufferPool.getByteBuffer(bufferSize);
     }
   }

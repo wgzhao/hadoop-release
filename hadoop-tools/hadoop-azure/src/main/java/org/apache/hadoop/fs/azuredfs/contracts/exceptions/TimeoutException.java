@@ -16,36 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.contracts.services;
-
-import io.netty.buffer.ByteBuf;
+package org.apache.hadoop.fs.azuredfs.contracts.exceptions;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsBufferPool to create and release buffers.
+ * Thrown when a timeout happens.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsBufferPool extends InjectableService {
-  /**
-   * Gets bytes buffer object for an existing byte array
-   * @param bytes to create ByteBuf from.
-   * @return ByteBuf
-   */
-  ByteBuf getByteBuffer(byte[] bytes);
-
-  /**
-   * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
-   * @param bufferSize maximum capacity of the buffer
-   * @return ByteBuf
-   */
-  ByteBuf getByteBuffer(int bufferSize);
-
-  /**
-   * Releases an existing buffer
-   * @return true if buffer is successfully released
-   */
-  boolean releaseByteBuffer(ByteBuf byteBuf);
+public final class TimeoutException extends AzureDistributedFileSystemException {
+  public TimeoutException(String message) {
+    super(message);
+  }
 }

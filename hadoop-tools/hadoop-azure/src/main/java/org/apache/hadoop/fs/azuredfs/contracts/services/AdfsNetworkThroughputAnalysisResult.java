@@ -16,36 +16,44 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.contracts.services;
 
-import io.netty.buffer.ByteBuf;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsBufferPool to create and release buffers.
+ * AdfsNetworkThroughputAnalysisResult stores Network throughput analysis result metadata.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsBufferPool extends InjectableService {
+public interface AdfsNetworkThroughputAnalysisResult {
   /**
-   * Gets bytes buffer object for an existing byte array
-   * @param bytes to create ByteBuf from.
-   * @return ByteBuf
+   * Getter for calculated sleep duration.
+   * @return sleep duration value.
    */
-  ByteBuf getByteBuffer(byte[] bytes);
+  int getSleepDuration();
 
   /**
-   * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
-   * @param bufferSize maximum capacity of the buffer
-   * @return ByteBuf
+   * Setter for calculated sleep duration.
+   * @param value
    */
-  ByteBuf getByteBuffer(int bufferSize);
+  void setSleepDuration(int value);
 
   /**
-   * Releases an existing buffer
-   * @return true if buffer is successfully released
+   * Resets the number of consecutive no error counter.
    */
-  boolean releaseByteBuffer(ByteBuf byteBuf);
+  void resetConsecutiveNoErrorCount();
+
+  /**
+   * Gets the number of consecutive no error counter.
+   * @return the number of consecutive no error counter.
+   */
+  long getConsecutiveNoErrorCount();
+
+  /**
+   * Increments the number of consecutive no error counter.
+   * @return the number of consecutive no error counter.
+   */
+  long incrementConsecutiveNoErrorCount();
 }

@@ -32,6 +32,8 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationSer
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -56,19 +58,23 @@ class ServiceInjectorImpl extends AbstractModule {
 
     this.providers.put(ConfigurationService.class, ConfigurationServiceImpl.class);
     this.providers.put(AdfsHttpAuthorizationService.class, AdfsHttpAuthorizationServiceImpl.class);
+
     this.providers.put(AdfsHttpService.class, AdfsHttpServiceImpl.class);
-
     this.providers.put(AdfsHttpClientFactory.class, AdfsHttpClientFactoryImpl.class);
+
     this.providers.put(AdfsHttpClientSessionFactory.class, AdfsHttpClientSessionFactoryImpl.class);
-
     this.providers.put(AdfsStreamFactory.class, AdfsStreamFactoryImpl.class);
+
     this.providers.put(AdfsBufferPool.class, AdfsBufferPoolImpl.class);
-
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
-    this.providers.put(TracingService.class, TracingServiceImpl.class);
 
+    this.providers.put(TracingService.class, TracingServiceImpl.class);
     this.providers.put(AdfsBlobHandler.class, AdfsBlobHandlerImpl.class);
+
     this.providers.put(AdfsRetryStrategyFactory.class, AdfsRetryStrategyFactoryImpl.class);
+    this.providers.put(AdfsNetworkInterceptorFactory.class, AdfsNetworkInterceptorFactoryImpl.class);
+
+    this.providers.put(AdfsNetworkTrafficAnalysisService.class, AdfsNetworkTrafficAnalysisServiceImpl.class);
   }
 
   @Override

@@ -38,7 +38,10 @@ public class MockAdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessi
 
   @Override
   public AdfsHttpClientSession create(FileSystem fs) throws AzureDistributedFileSystemException {
-    return adfsHttpClientSession;
+    return new AdfsHttpClientSessionImpl(
+        this.adfsHttpClientSession.getHostName(),
+        this.adfsHttpClientSession.getStorageCredentialsAccountAndKey().exportBase64EncodedKey(),
+        this.adfsHttpClientSession.getFileSystem());
   }
 
   public AdfsHttpClientSession create(

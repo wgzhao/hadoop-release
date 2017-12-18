@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -35,6 +36,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 
 @InterfaceAudience.Private
@@ -43,20 +45,25 @@ final class AdfsInputStream extends FSInputStream {
 
   private final AzureDistributedFileSystem azureDistributedFileSystem;
   private final AdfsHttpService adfsHttpService;
+  private final AdfsBufferPool adfsBufferPool;
   private final Path path;
 
   private long offset;
+  private long bufferOffsetInStream;
   private long fileLength = 0;
+  private ByteBuf buffer;
   private boolean closed;
   private List<Future<Void>> tasks;
   private final int bufferSize;
 
   AdfsInputStream(
+      final AdfsBufferPool adfsBufferPool,
       final AdfsHttpService adfsHttpService,
       final AzureDistributedFileSystem azureDistributedFileSystem,
       final Path path,
       final long fileLength,
       final int bufferSize) {
+    Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(path, "path");
@@ -66,10 +73,13 @@ final class AdfsInputStream extends FSInputStream {
     this.adfsHttpService = adfsHttpService;
     this.path = path;
     this.offset = 0;
+    this.bufferOffsetInStream = 0;
     this.fileLength = fileLength;
     this.closed = false;
     this.tasks = new ArrayList<>();
     this.bufferSize = bufferSize;
+    this.adfsBufferPool = adfsBufferPool;
+    this.buffer = this.adfsBufferPool.getByteBuffer(this.bufferSize);
   }
 
   /**
@@ -150,43 +160,13 @@ final class AdfsInputStream extends FSInputStream {
       throw new IndexOutOfBoundsException();
     }
 
-    int readLength = available() > len ? len : available();
-
     try {
-      int remainingBytesToRead = readLength;
-      int bufferOffset = off;
-
-      while (remainingBytesToRead != 0) {
-        if (remainingBytesToRead < bufferSize) {
-          readFromService(
-              this.offset,
-              remainingBytesToRead,
-              b,
-              bufferOffset);
-
-          this.offset += remainingBytesToRead;
-          bufferOffset += remainingBytesToRead;
-
-          remainingBytesToRead = 0;
-        } else {
-          readFromService(
-              this.offset,
-              bufferSize,
-              b,
-              bufferOffset);
-
-          this.offset += bufferSize;
-          bufferOffset += bufferSize;
-
-          remainingBytesToRead -= bufferSize;
-        }
+      if (len < this.bufferSize) {
+        return readFromBuffer(b, off, len);
       }
 
-      for (Future<Void> task : tasks) {
-        task.get();
-      }
+      return readFromService(b, off, len);
 
-      return readLength;
     } catch (InterruptedException | ExecutionException ex) {
       for (Future task : tasks) {
         if (!task.isDone()) {
@@ -234,7 +214,77 @@ final class AdfsInputStream extends FSInputStream {
     return false;
   }
 
-  private synchronized void readFromService(
+  private synchronized int readFromService(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
+    int readLength = available() > len ? len : available();
+    int remainingBytesToRead = readLength;
+    int bufferOffset = off;
+
+    while (remainingBytesToRead != 0) {
+      if (remainingBytesToRead < bufferSize) {
+        sendReadRequest(
+            this.offset,
+            remainingBytesToRead,
+            b,
+            bufferOffset);
+
+        this.offset += remainingBytesToRead;
+        bufferOffset += remainingBytesToRead;
+
+        remainingBytesToRead = 0;
+      } else {
+        sendReadRequest(
+            this.offset,
+            bufferSize,
+            b,
+            bufferOffset);
+
+        this.offset += bufferSize;
+        bufferOffset += bufferSize;
+
+        remainingBytesToRead -= bufferSize;
+      }
+    }
+
+    for (Future<Void> task : tasks) {
+      task.get();
+    }
+
+    return readLength;
+  }
+
+  private synchronized int readFromBuffer(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
+    // Check to see if we already buffered the request.
+    if (this.offset >= bufferOffsetInStream
+        && this.offset + len <= bufferOffsetInStream + this.buffer.readableBytes()) {
+
+      long startOffset = this.offset - bufferOffsetInStream;
+      this.buffer.readerIndex((int) startOffset);
+    }
+    else {
+      int readLength = this.bufferSize > available() ? available() : this.bufferSize;
+      byte[] bytes = new byte[readLength];
+
+      sendReadRequest(
+          this.offset,
+          readLength,
+          bytes,
+          0);
+
+      for (Future<Void> task : tasks) {
+        task.get();
+      }
+
+      this.buffer = this.adfsBufferPool.getByteBuffer(bytes);
+      this.bufferOffsetInStream = this.offset;
+    }
+
+    int readLength = available() > len ? len : available();
+    this.offset += readLength;
+    this.buffer.readBytes(readLength).readBytes(b, off, readLength);
+    return readLength;
+  }
+
+  private synchronized void sendReadRequest(
       final long serviceOffset,
       final int serviceLength,
       final byte[] targetBuffer,

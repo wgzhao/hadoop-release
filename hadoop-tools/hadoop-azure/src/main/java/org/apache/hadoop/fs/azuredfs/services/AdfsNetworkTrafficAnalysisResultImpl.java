@@ -18,48 +18,32 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
-import com.google.inject.Singleton;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
+import com.google.inject.Inject;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
 
-/**
- * File System service to provider AzureDistributedFilesystem client.
- */
-@Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsBufferPoolImpl implements AdfsBufferPool {
-  private final PooledByteBufAllocator pooledByteBufAllocator;
+final class AdfsNetworkTrafficAnalysisResultImpl implements AdfsNetworkTrafficAnalysisResult {
+  private final AdfsNetworkThroughputAnalysisResult writeAnalysisResult;
+  private final AdfsNetworkThroughputAnalysisResult readAnalysisResult;
 
-  public AdfsBufferPoolImpl() {
-    this.pooledByteBufAllocator = PooledByteBufAllocator.DEFAULT;
+  @Inject
+  AdfsNetworkTrafficAnalysisResultImpl() {
+    this.writeAnalysisResult = new AdfsNetworkTrafficThroughputAnalysisResultImpl();
+    this.readAnalysisResult = new AdfsNetworkTrafficThroughputAnalysisResultImpl();
   }
 
   @Override
-  public ByteBuf getByteBuffer(final byte[] bytes) {
-    ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
-    buffer.retain();
-    return buffer;
+  public AdfsNetworkThroughputAnalysisResult getWriteAnalysisResult() {
+    return this.writeAnalysisResult;
   }
 
   @Override
-  public ByteBuf getByteBuffer(final int bufferSize) {
-    ByteBuf buffer = this.pooledByteBufAllocator.heapBuffer(0, bufferSize);
-    buffer.retain();
-    return buffer;
-  }
-
-  @Override
-  public synchronized boolean releaseByteBuffer(final ByteBuf byteBuf) {
-    while (byteBuf.refCnt() != 0) {
-      byteBuf.release();
-    }
-
-    return true;
+  public AdfsNetworkThroughputAnalysisResult getReadAnalysisResult() {
+    return this.readAnalysisResult;
   }
 }

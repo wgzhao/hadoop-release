@@ -63,6 +63,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   public InputStream createReadStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long fileLength) {
     int bufferSize = getBufferSize(ConfigurationKeys.AZURE_READ_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
     return new AdfsInputStream(
+        this.adfsBufferPool,
         this.adfsHttpService,
         azureDistributedFileSystem,
         path,
@@ -83,8 +84,8 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   }
 
   @VisibleForTesting
-  int getBufferSize(final String userDefinedSize, final int defaulSize) {
-    final int bufferSize = this.configurationService.getConfiguration().getInt(userDefinedSize, defaulSize);
+  int getBufferSize(final String userDefinedSize, final int defaultSize) {
+    final int bufferSize = this.configurationService.getConfiguration().getInt(userDefinedSize, defaultSize);
 
     if (bufferSize < FileSystemConfigurations.MIN_BUFFER_SIZE) {
       return FileSystemConfigurations.MIN_BUFFER_SIZE;

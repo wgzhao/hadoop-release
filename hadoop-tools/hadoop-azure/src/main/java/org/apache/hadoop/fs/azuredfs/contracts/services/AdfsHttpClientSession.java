@@ -37,14 +37,25 @@ public interface AdfsHttpClientSession {
   StorageCredentialsAccountAndKey getStorageCredentialsAccountAndKey();
 
   /**
-   * Return the file system name associated with the current session.
+   * Returns the file system name associated with the current session.
    * @return the file system name associated with the current session.
    */
   String getFileSystem();
 
   /**
-   * Return the host name.
+   * Returns the host name.
    * @return the host name.
    */
   String getHostName();
+
+  /**
+   * Returns session state
+   * @return session state.
+   */
+  AdfsHttpClientSessionState getSessionState();
+
+  /**
+   * Ends the session
+   */
+  void endSession();
 }

@@ -59,7 +59,7 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
   private final String version;
 
   @Inject
-  AdfsHttpAuthorizationServiceImpl(ConfigurationService configurationService) {
+  AdfsHttpAuthorizationServiceImpl(final ConfigurationService configurationService) {
     Preconditions.checkNotNull(configurationService, "configurationService");
 
     if (configurationService.isEmulator()) {

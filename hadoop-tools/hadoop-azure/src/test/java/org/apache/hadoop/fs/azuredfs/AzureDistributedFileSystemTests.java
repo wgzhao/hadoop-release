@@ -131,6 +131,15 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
+  public void ensureStatusWorksForRoot() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+
+    fs.getFileStatus(new Path("/"));
+    fs.listStatus(new Path("/"));
+  }
+
+  @Test
   public void testReadWriteBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
@@ -159,6 +168,28 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     int result = inputStream.read(r);
 
     assertNotEquals(-1, result);
+    assertArrayEquals(r, b);
+  }
+
+  @Test
+  public void testReadWriteHeavyBytesToFileWithSmallerChunks() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+
+    final byte[] b = new byte[5 * 1024000];
+    new Random().nextBytes(b);
+    stream.write(b);
+    stream.close();
+
+    final byte[] r = new byte[5 * 1024000];
+    FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
+    int offset = 0;
+    while(inputStream.read(r, offset, 100) > 0) {
+      offset += 100;
+    }
+
     assertArrayEquals(r, b);
   }
 
@@ -251,6 +282,17 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     fs.rename(new Path("testDir/test1"), new Path("testDir/test10"));
     fs.getFileStatus(new Path("testDir/test1"));
+  }
+
+  @Test
+  public void testRenameRoot() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    boolean renamed = fs.rename(new Path("/"), new Path("/ddd"));
+    assertFalse(renamed);
+
+    renamed = fs.rename(new Path(fs.getUri().toString() + "/"), new Path(fs.getUri().toString() + "/s"));
+    assertFalse(renamed);
   }
 
   @After

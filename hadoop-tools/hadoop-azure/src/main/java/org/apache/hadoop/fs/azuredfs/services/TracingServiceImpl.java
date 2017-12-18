@@ -87,7 +87,7 @@ final class TracingServiceImpl implements TracingService {
       return traceScope;
     }
 
-    return null;
+    return this.tracer.newNullScope();
   }
 
   @Override
@@ -98,7 +98,7 @@ final class TracingServiceImpl implements TracingService {
       return traceScope;
     }
 
-    return null;
+    return this.tracer.newNullScope();
   }
 
   @Override

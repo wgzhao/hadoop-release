@@ -18,48 +18,44 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
-import com.google.inject.Singleton;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import com.google.inject.Inject;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
 
-/**
- * File System service to provider AzureDistributedFilesystem client.
- */
-@Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsBufferPoolImpl implements AdfsBufferPool {
-  private final PooledByteBufAllocator pooledByteBufAllocator;
+final class AdfsNetworkTrafficThroughputAnalysisResultImpl implements AdfsNetworkThroughputAnalysisResult {
+  private final AtomicInteger sleepDuration;
+  private final AtomicLong consecutiveNoErrorCount;
 
-  public AdfsBufferPoolImpl() {
-    this.pooledByteBufAllocator = PooledByteBufAllocator.DEFAULT;
+  @Inject
+  AdfsNetworkTrafficThroughputAnalysisResultImpl() {
+    sleepDuration = new AtomicInteger();
+    consecutiveNoErrorCount = new AtomicLong();
   }
 
-  @Override
-  public ByteBuf getByteBuffer(final byte[] bytes) {
-    ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
-    buffer.retain();
-    return buffer;
+  public void setSleepDuration(final int value) {
+    sleepDuration.set(value);
   }
 
-  @Override
-  public ByteBuf getByteBuffer(final int bufferSize) {
-    ByteBuf buffer = this.pooledByteBufAllocator.heapBuffer(0, bufferSize);
-    buffer.retain();
-    return buffer;
+  public int getSleepDuration() {
+    return sleepDuration.get();
   }
 
-  @Override
-  public synchronized boolean releaseByteBuffer(final ByteBuf byteBuf) {
-    while (byteBuf.refCnt() != 0) {
-      byteBuf.release();
-    }
+  public void resetConsecutiveNoErrorCount() {
+    consecutiveNoErrorCount.set(0);
+  }
 
-    return true;
+  public long getConsecutiveNoErrorCount() {
+    return consecutiveNoErrorCount.get();
+  }
+
+  public long incrementConsecutiveNoErrorCount() {
+    return consecutiveNoErrorCount.incrementAndGet();
   }
 }

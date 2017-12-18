@@ -23,17 +23,20 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.microsoft.rest.retry.RetryStrategy;
+import okhttp3.Interceptor;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.http.client.utils.URIBuilder;
@@ -43,26 +46,32 @@ import org.apache.http.client.utils.URIBuilder;
 @InterfaceStability.Evolving
 class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   private final ConfigurationService configurationService;
-  private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
   private final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory;
   private final AdfsRetryStrategyFactory adfsRetryStrategyFactory;
+  private final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory;
+  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final boolean autoThrottleEnabled;
 
   @Inject
   AdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
-      final AdfsRetryStrategyFactory adfsRetryStrategyFactory) {
+      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsRetryStrategyFactory adfsRetryStrategyFactory,
+      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory) {
 
     Preconditions.checkNotNull(configurationService, "configurationService");
-    Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
     Preconditions.checkNotNull(adfsHttpClientSessionFactory, "adfsHttpClientSessionFactory");
     Preconditions.checkNotNull(adfsRetryStrategyFactory, "adfsRetryStrategyFactory");
+    Preconditions.checkNotNull(adfsNetworkInterceptorFactory, "adfsNetworkInterceptorFactory");
+    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
 
     this.configurationService = configurationService;
-    this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
     this.adfsHttpClientSessionFactory = adfsHttpClientSessionFactory;
     this.adfsRetryStrategyFactory = adfsRetryStrategyFactory;
+    this.adfsNetworkInterceptorFactory = adfsNetworkInterceptorFactory;
+    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
+    this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, false);
   }
 
   @Override
@@ -73,15 +82,30 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
     final URIBuilder uriBuilder =
         getURIBuilder(adfsHttpClientSession.getHostName());
 
-    final NetworkInterceptorImpl networkInterceptor =
-        new NetworkInterceptorImpl(
-            adfsHttpClientSession.getStorageCredentialsAccountAndKey(),
-            this.adfsHttpAuthorizationService);
+    final Interceptor networkInterceptor =
+        this.adfsNetworkInterceptorFactory.createNetworkAuthenticationProxy(adfsHttpClientSession);
 
     final RetryStrategy retryStrategy =
         this.adfsRetryStrategyFactory.create();
 
-    return new AdfsHttpClientImpl(
+    if (autoThrottleEnabled) {
+      final Interceptor networkThrottler =
+          this.adfsNetworkInterceptorFactory.createNetworkThrottler(adfsHttpClientSession);
+
+      final Interceptor networkThroughputMonitor =
+          this.adfsNetworkInterceptorFactory.createNetworkThroughputMonitor(adfsHttpClientSession);
+
+      return new AdfsMonitoredHttpClientImpl(
+          uriBuilder.toString(),
+          networkInterceptor,
+          networkThrottler,
+          networkThroughputMonitor,
+          adfsHttpClientSession,
+          adfsNetworkTrafficAnalysisService,
+          retryStrategy);
+    }
+
+    return new AdfsUnMonitoredHttpClientImpl(
         uriBuilder.toString(),
         networkInterceptor,
         adfsHttpClientSession,

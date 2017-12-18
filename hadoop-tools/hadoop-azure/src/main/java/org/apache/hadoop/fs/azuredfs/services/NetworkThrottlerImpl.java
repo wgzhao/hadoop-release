@@ -19,32 +19,33 @@
 package org.apache.hadoop.fs.azuredfs.services;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
 
 import com.google.common.base.Preconditions;
-import com.microsoft.azure.storage.StorageException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class NetworkInterceptorImpl implements Interceptor {
-  private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
+final class NetworkThrottlerImpl implements Interceptor {
   private final AdfsHttpClientSession adfsHttpClientSession;
+  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
 
-  NetworkInterceptorImpl(
+  NetworkThrottlerImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
-    Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
+      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService) {
+    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
 
-    this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
+    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
     this.adfsHttpClientSession = adfsHttpClientSession;
   }
 
@@ -52,14 +53,28 @@ final class NetworkInterceptorImpl implements Interceptor {
   public Response intercept(final Chain chain)
       throws IOException {
 
-    Request request = chain.request();
+    final Request request = chain.request();
 
-    try {
-      request = this.adfsHttpAuthorizationService.updateRequestWithAuthorizationHeader(
-          request,
-          this.adfsHttpClientSession.getStorageCredentialsAccountAndKey());
-    } catch (StorageException | InvalidKeyException exception) {
-      throw new IOException(exception);
+    final AdfsNetworkTrafficAnalysisResult adfsNetworkTrafficAnalysisResult =
+        this.adfsNetworkTrafficAnalysisService.getAdfsNetworkTrafficAnalysisResult(this.adfsHttpClientSession);
+
+    final AdfsNetworkThroughputAnalysisResult networkThroughputAnalysisResult;
+
+    if (NetworkUtils.isWriteRequest(request)) {
+      networkThroughputAnalysisResult = adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult();
+    }
+    else {
+      networkThroughputAnalysisResult = adfsNetworkTrafficAnalysisResult.getReadAnalysisResult();
+    }
+
+    final int sleepDuration = networkThroughputAnalysisResult.getSleepDuration();
+    if (sleepDuration > 0) {
+      try{
+        Thread.sleep(sleepDuration);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
     }
 
     return chain.proceed(request);

@@ -16,36 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.contracts.services;
 
-import io.netty.buffer.ByteBuf;
+package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsBufferPool to create and release buffers.
+ * AdfsNetworkTrafficAnalysisResult stores network analysis result metadata.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsBufferPool extends InjectableService {
+public interface AdfsNetworkTrafficAnalysisResult {
   /**
-   * Gets bytes buffer object for an existing byte array
-   * @param bytes to create ByteBuf from.
-   * @return ByteBuf
+   * Gets network analysis result for write operations.
+   * @return network analysis result for write operations.
    */
-  ByteBuf getByteBuffer(byte[] bytes);
+  AdfsNetworkThroughputAnalysisResult getWriteAnalysisResult();
 
   /**
-   * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
-   * @param bufferSize maximum capacity of the buffer
-   * @return ByteBuf
+   * Gets network analysis result for read operations.
+   * @return network analysis result for read operations.
    */
-  ByteBuf getByteBuffer(int bufferSize);
-
-  /**
-   * Releases an existing buffer
-   * @return true if buffer is successfully released
-   */
-  boolean releaseByteBuffer(ByteBuf byteBuf);
+  AdfsNetworkThroughputAnalysisResult getReadAnalysisResult();
 }

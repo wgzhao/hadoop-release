@@ -24,6 +24,7 @@ import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionState;
 import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 
 /**
@@ -35,6 +36,7 @@ final class AdfsHttpClientSessionImpl implements AdfsHttpClientSession {
   private final String fileSystem;
   private final String hostName;
   private final StorageCredentialsAccountAndKey storageCredentialsAccountAndKey;
+  private AdfsHttpClientSessionState adfsHttpClientSessionState;
 
   public AdfsHttpClientSessionImpl(
       final String accountName,
@@ -56,6 +58,7 @@ final class AdfsHttpClientSessionImpl implements AdfsHttpClientSession {
 
     this.fileSystem = fileSystem;
     this.hostName = accountName;
+    this.adfsHttpClientSessionState = AdfsHttpClientSessionState.OPEN;
   }
 
   @Override
@@ -63,11 +66,23 @@ final class AdfsHttpClientSessionImpl implements AdfsHttpClientSession {
     return this.storageCredentialsAccountAndKey;
   }
 
+  @Override
   public String getFileSystem() {
     return fileSystem;
   }
 
+  @Override
   public String getHostName() {
     return hostName;
+  }
+
+  @Override
+  public AdfsHttpClientSessionState getSessionState() {
+    return this.adfsHttpClientSessionState;
+  }
+
+  @Override
+  public synchronized void endSession() {
+    this.adfsHttpClientSessionState = AdfsHttpClientSessionState.CLOSED;
   }
 }

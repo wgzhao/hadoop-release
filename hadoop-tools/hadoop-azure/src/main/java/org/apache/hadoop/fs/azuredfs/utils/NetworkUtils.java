@@ -16,28 +16,34 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.contracts.services;
+package org.apache.hadoop.fs.azuredfs.utils;
 
-import com.microsoft.azure.dfs.rest.client.generated.AzureDistributedFileSystemRestClient;
-
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.TimeoutException;
+import okhttp3.Request;
 
 /**
- * Wrapper around AzureDistributedFileSystemRestClient to support session.
+ * Utility class to help with request operations.
  */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public interface AdfsHttpClient extends AzureDistributedFileSystemRestClient {
+public final class NetworkUtils {
   /**
-   * Return session info.
-   * @return session info for the current client.
+   * Checks whether a request is a write request.
+   * @param request
+   * @return true if a request is a write request.
    */
-  AdfsHttpClientSession getSession();
+  public static boolean isWriteRequest(final Request request) {
+    return request.method().equalsIgnoreCase("post")
+        || request.method().equalsIgnoreCase("patch")
+        || request.method().equalsIgnoreCase("put");
+  }
 
   /**
-   * Closes the client.
+   * Checks whether a request is a read request.
+   * @param request
+   * @return true if a request is a read request.
    */
-  void close() throws TimeoutException;
+  public static boolean isReadRequest(final Request request) {
+    return !isWriteRequest(request);
+  }
+
+  private NetworkUtils() {
+  }
 }

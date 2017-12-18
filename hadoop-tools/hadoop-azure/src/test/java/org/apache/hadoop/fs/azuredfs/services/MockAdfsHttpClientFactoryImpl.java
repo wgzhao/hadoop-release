@@ -26,8 +26,9 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
@@ -43,9 +44,10 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
   MockAdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
-      final AdfsRetryStrategyFactory adfsRetryStrategyFactory ) {
-    super(configurationService, adfsHttpClientSessionFactory, adfsHttpAuthorizationService, adfsRetryStrategyFactory);
+      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsRetryStrategyFactory adfsRetryStrategyFactory,
+      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory) {
+    super(configurationService, adfsHttpClientSessionFactory, adfsNetworkTrafficAnalysisService, adfsRetryStrategyFactory, adfsNetworkInterceptorFactory);
 
     this.configurationService = configurationService;
   }

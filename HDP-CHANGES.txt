@@ -4830,3 +4830,7 @@ ATS V1.5:
 
     WASB-22. Adding Validators for wasb2 configurations
 
+    WASB-23. Creating auto throttler for Azure Distributed Filesystem.
+
+    WASB-20. Updating the code to help with switching between emulator and cluster for Azure Distributed File System.
+

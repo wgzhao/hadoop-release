@@ -67,7 +67,7 @@
             <!-- To run with the default Sun ruleset, 
                  comment out the configLocation line -->
             <configLocation>src/config/checkstyle.xml</configLocation>
-            <suppressionsLocation>src/config/checkstyle-suppressions.xml</suppressionsLocation><suppressionsLocation>src/config/checkstyle-suppressions.xml</suppressionsLocation>
+            <suppressionsLocation>src/config/checkstyle-suppressions.xml</suppressionsLocation>
           </configuration>
           
       </plugin>
@@ -129,6 +129,12 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
       <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.threadly</groupId>
+      <artifactId>threadly</artifactId>
+      <version>4.9.0</version>
     </dependency>
 
     <dependency>

@@ -167,6 +167,11 @@ public class AzureDistributedFileSystem extends FileSystem {
   }
 
   public boolean rename(final Path src, final Path dst) throws IOException {
+    Path parentFolder = src.getParent();
+    if (parentFolder == null) {
+      return false;
+    }
+
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
     final FileStatus fileStatus = tryGetFileStatus(src);
 

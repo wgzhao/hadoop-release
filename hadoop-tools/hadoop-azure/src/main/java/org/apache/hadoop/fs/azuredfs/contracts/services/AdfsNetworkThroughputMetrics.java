@@ -16,36 +16,48 @@
  * limitations under the License.
  */
 
+
 package org.apache.hadoop.fs.azuredfs.contracts.services;
 
-import io.netty.buffer.ByteBuf;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsBufferPool to create and release buffers.
+ * AdfsNetworkThroughputMetrics stores network throughput metrics.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsBufferPool extends InjectableService {
+public interface AdfsNetworkThroughputMetrics {
   /**
-   * Gets bytes buffer object for an existing byte array
-   * @param bytes to create ByteBuf from.
-   * @return ByteBuf
+   * Updates metrics with results from the current storage operation.
+   * @param count The count of bytes transferred.
+   * @param isFailedOperation True if the operation failed; otherwise false.
    */
-  ByteBuf getByteBuffer(byte[] bytes);
+  void addBytesTransferred(long count, boolean isFailedOperation);
 
   /**
-   * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
-   * @param bufferSize maximum capacity of the buffer
-   * @return ByteBuf
+   * Gets number of communicated bytes for failed connections.
+   * @return number of communicated bytes for a failed connection.
    */
-  ByteBuf getByteBuffer(int bufferSize);
+  AtomicLong getBytesFailed();
 
   /**
-   * Releases an existing buffer
-   * @return true if buffer is successfully released
+   * Gets number of communicated bytes for successful connections.
+   * @return number of communicated bytes for successful connections.
    */
-  boolean releaseByteBuffer(ByteBuf byteBuf);
+  AtomicLong getBytesSuccessful();
+
+  /**
+   * Gets number of failed operations.
+   * @return number of failed operations.
+   */
+  AtomicLong getOperationsFailed();
+
+  /**
+   * Gets number of successful operations.
+   * @return number of successful operations.
+   */
+  AtomicLong getOperationsSuccessful();
 }
