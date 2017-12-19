@@ -4659,6 +4659,3 @@ ATS V1.5:
 
     BUG-93286. YARN-6805. NPE in LinuxContainerExecutor due to null
     PrivilegedOperationException exit code. Contributed by Jason Lowe
-
-    BUG-86408. YARN-3950. Add unique SHELL_ID environment variable to
-    DistributedShell. Contributed by Robert Kanter
