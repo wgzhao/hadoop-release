@@ -4652,8 +4652,5 @@ ATS V1.5:
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
 
-    BUG-86408. MAPREDUCE-6415. Create a tool to combine aggregated logs into HAR
-    files. (Robert Kanter via kasha)
-
     BUG-93286. YARN-6805. NPE in LinuxContainerExecutor due to null
     PrivilegedOperationException exit code. Contributed by Jason Lowe
