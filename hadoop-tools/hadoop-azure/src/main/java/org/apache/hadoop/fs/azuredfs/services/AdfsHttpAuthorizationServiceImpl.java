@@ -41,6 +41,7 @@ import com.microsoft.azure.storage.core.PathUtility;
 import com.microsoft.azure.storage.core.SR;
 import com.microsoft.azure.storage.core.StorageCredentialsHelper;
 import com.microsoft.azure.storage.core.Utility;
+import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.Request;
 
@@ -97,7 +98,7 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
 
     headerBuilder.set(Constants.HeaderConstants.AUTHORIZATION, authorization);
 
-    return modifiedRequest.newBuilder().headers(headerBuilder.build()).build();
+    return modifiedRequest.newBuilder().cacheControl(CacheControl.FORCE_NETWORK).headers(headerBuilder.build()).build();
   }
 
   private String canonicalizeRequest(

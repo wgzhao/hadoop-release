@@ -37,11 +37,25 @@ public interface AdfsBufferPool extends InjectableService {
   ByteBuf getByteBuffer(byte[] bytes);
 
   /**
+   * Copies a bytebuffer.
+   * @param bytebuffer to copy.
+   * @return ByteBuf copied bytebuffer
+   */
+  ByteBuf copy(ByteBuf byteBuf);
+
+  /**
    * Gets an empty buffer with dynamic size with maximum capacity of bufferSize
    * @param bufferSize maximum capacity of the buffer
    * @return ByteBuf
    */
-  ByteBuf getByteBuffer(int bufferSize);
+  ByteBuf getDynamicByteBuffer(int bufferSize);
+
+  /**
+   * Gets an empty buffer with fixed size with maximum capacity of bufferSize
+   * @param bufferSize maximum capacity of the buffer
+   * @return ByteBuf
+   */
+  ByteBuf getFixedByteBuffer(int bufferSize);
 
   /**
    * Releases an existing buffer

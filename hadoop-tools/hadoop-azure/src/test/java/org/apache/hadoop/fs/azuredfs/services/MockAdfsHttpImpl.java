@@ -24,6 +24,7 @@ import java.util.Hashtable;
 import java.util.concurrent.Future;
 
 import com.google.inject.Singleton;
+import io.netty.buffer.ByteBuf;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -127,23 +128,23 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset) throws AzureDistributedFileSystemException {
+  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int readBufferOffset) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int
+  public Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int
       readBufferOffset) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
+  public void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, ByteBuf body, long offset) throws AzureDistributedFileSystemException {
 
   }
 
   @Override
-  public Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException {
+  public Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, ByteBuf body, long offset) throws AzureDistributedFileSystemException {
     return null;
   }
 

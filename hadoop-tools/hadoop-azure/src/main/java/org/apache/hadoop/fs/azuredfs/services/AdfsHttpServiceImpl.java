@@ -45,8 +45,8 @@ import com.microsoft.azure.dfs.rest.client.generated.models.GetFilesystemPropert
 import com.microsoft.azure.dfs.rest.client.generated.models.GetPathPropertiesHeaders;
 import com.microsoft.azure.dfs.rest.client.generated.models.ListEntrySchema;
 import com.microsoft.azure.dfs.rest.client.generated.models.ListSchema;
-import com.microsoft.azure.dfs.rest.client.generated.models.ReadPathHeaders;
 import com.microsoft.rest.ServiceResponseWithHeaders;
+import io.netty.buffer.ByteBuf;
 import okhttp3.Headers;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -78,6 +78,7 @@ import org.apache.hadoop.util.StringUtils;
 
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
+import static org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_OUT;
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.HDI_IS_FOLDER;
 
 @Singleton
@@ -91,7 +92,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String COMP_PROPERTIES = "properties";
   private static final int LIST_MAX_RESULTS = 5000;
-  private static final int MAX_CONCURRENT_THREADS = 20;
+  private static final int MAX_CONCURRENT_THREADS = 40;
+  private static final int WRITE_BUFFER_SIZE = 8192;
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
   private final AdfsStreamFactory adfsStreamFactory;
@@ -113,8 +115,13 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.adfsStreamFactory = adfsStreamFactory;
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
-    this.readExecutorService = createThreadPoolExecutor(MAX_CONCURRENT_THREADS);
-    this.writeExecutorService = createThreadPoolExecutor(MAX_CONCURRENT_THREADS);
+
+    int maxConcurrentThreads = this.configurationService.getConfiguration().getInt(
+        AZURE_CONCURRENT_CONNECTION_VALUE_OUT,
+        MAX_CONCURRENT_THREADS);
+
+    this.readExecutorService = createThreadPoolExecutor(maxConcurrentThreads);
+    this.writeExecutorService = createThreadPoolExecutor(maxConcurrentThreads);
   }
 
   @Override
@@ -443,7 +450,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   @Override
-  public Void readFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final int length, final byte[]
+  public Void readFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final int length, final ByteBuf
       readBuffer, final int readBufferOffset) throws
       AzureDistributedFileSystemException {
     return execute(new Callable<Void>() {
@@ -456,33 +463,37 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   @Override
   public Future<Void> readFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final int length, final
-  byte[] targetBuffer, final int targetBufferOffset) throws
+  ByteBuf targetBuffer, final int targetBufferOffset) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
-          return adfsHttpClient.readPathWithServiceResponseAsync(
-              adfsHttpClient.getSession().getFileSystem(),
-              getRelativePath(path),
-              getRangeHeader(offset, length),
-              null,
-              FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT,
-              null,
-              null).
-              flatMap(new Func1<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>, Observable<Void>>() {
-                @Override
-                public Observable<Void> call(ServiceResponseWithHeaders<InputStream, ReadPathHeaders> inputStreamReadPathHeadersServiceResponseWithHeaders) {
-                  try {
-                    byte[] bytes = inputStreamReadPathHeadersServiceResponseWithHeaders.response().body().bytes();
-                    System.arraycopy(bytes, 0, targetBuffer, targetBufferOffset, length);
-                    return Observable.just(null);
-                  } catch (Exception ex) {
-                    return Observable.error(ex);
+        return adfsHttpClient.readPathAsync(
+            adfsHttpClient.getSession().getFileSystem(),
+            getRelativePath(path),
+            getRangeHeader(offset, length),
+            null,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT,
+            null,
+            null).
+            flatMap(new Func1<InputStream, Observable<Void>>() {
+              @Override
+              public Observable<Void> call(InputStream inputStream) {
+                try {
+                  byte[] buffer = new byte[WRITE_BUFFER_SIZE];
+                  targetBuffer.setIndex(0, targetBufferOffset);
+                  int readBytes = 0;
+                  while ((readBytes = inputStream.read(buffer)) != -1) {
+                    targetBuffer.writeBytes(buffer, 0, readBytes);
                   }
+                  inputStream.close();
+                  return Observable.just(null);
+                } catch (Exception ex) {
+                  return Observable.error(ex);
                 }
-              }).toBlocking().single();
-
+              }
+            }).toBlocking().single();
       }
     };
 
@@ -490,7 +501,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   @Override
-  public void writeFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final byte[] body, final long offset) throws
+  public void writeFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final ByteBuf body, final long offset) throws
       AzureDistributedFileSystemException {
     execute(new Callable<Void>() {
       @Override
@@ -502,32 +513,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   @Override
   public Future<Void> writeFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final
-  byte[] body, final long offset) throws AzureDistributedFileSystemException {
+  ByteBuf body, final long offset) throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
-          return adfsHttpClient.updatePathAsync(
-              getResource(false),
-              adfsHttpClient.getSession().getFileSystem(),
-              getRelativePath(path),
-              "data",
-              null,
-              Long.valueOf(offset),
-              null,
-              Integer.toString(body.length),
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              body,
-              null,
-              FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-              null,
-              null).toBlocking().single();
+        final int length = body.readableBytes();
+        byte[] bytes = new byte[length];
+        body.getBytes(body.readerIndex(), bytes);
+
+        Observable<Void> updatePathAsync = adfsHttpClient.updatePathAsync(
+            getResource(false),
+            adfsHttpClient.getSession().getFileSystem(),
+            getRelativePath(path),
+            "data",
+            null,
+            Long.valueOf(offset),
+            null,
+            Integer.toString(body.readableBytes()),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            bytes,
+            null,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null,
+            null);
+
+        bytes = null;
+        return updatePathAsync.toBlocking().single();
       }
     };
 
@@ -1053,6 +1071,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   private String getRangeHeader(long offset, long length) {
-    return "bytes=" + offset + "-" + (offset + length);
+    return "bytes=" + offset + "-" + (offset + length - 1);
   }
 }

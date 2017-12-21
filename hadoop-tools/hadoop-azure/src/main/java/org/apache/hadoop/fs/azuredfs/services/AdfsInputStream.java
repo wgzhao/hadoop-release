@@ -73,13 +73,14 @@ final class AdfsInputStream extends FSInputStream {
     this.adfsHttpService = adfsHttpService;
     this.path = path;
     this.offset = 0;
-    this.bufferOffsetInStream = 0;
+    this.bufferOffsetInStream = -1;
     this.fileLength = fileLength;
     this.closed = false;
     this.tasks = new ArrayList<>();
     this.bufferSize = bufferSize;
     this.adfsBufferPool = adfsBufferPool;
-    this.buffer = this.adfsBufferPool.getByteBuffer(this.bufferSize);
+    this.buffer = this.adfsBufferPool.getByteBuffer(new byte[this.bufferSize]);
+    this.buffer.clear();
   }
 
   /**
@@ -161,7 +162,7 @@ final class AdfsInputStream extends FSInputStream {
     }
 
     try {
-      if (len < this.bufferSize) {
+      if (len < FileSystemConfigurations.MIN_BUFFER_SIZE) {
         return readFromBuffer(b, off, len);
       }
 
@@ -182,9 +183,13 @@ final class AdfsInputStream extends FSInputStream {
 
   @Override
   public synchronized void close() throws IOException {
-    if (!closed) {
-      closed = true;
+    if (closed) {
+      return;
     }
+
+    closed = true;
+    this.adfsBufferPool.releaseByteBuffer(this.buffer);
+    this.buffer = null;
   }
 
   @Override
@@ -219,12 +224,14 @@ final class AdfsInputStream extends FSInputStream {
     int remainingBytesToRead = readLength;
     int bufferOffset = off;
 
+    final ByteBuf bytesBuffer = this.adfsBufferPool.getByteBuffer(b);
+
     while (remainingBytesToRead != 0) {
       if (remainingBytesToRead < bufferSize) {
         sendReadRequest(
             this.offset,
             remainingBytesToRead,
-            b,
+            bytesBuffer,
             bufferOffset);
 
         this.offset += remainingBytesToRead;
@@ -235,7 +242,7 @@ final class AdfsInputStream extends FSInputStream {
         sendReadRequest(
             this.offset,
             bufferSize,
-            b,
+            bytesBuffer,
             bufferOffset);
 
         this.offset += bufferSize;
@@ -249,45 +256,45 @@ final class AdfsInputStream extends FSInputStream {
       task.get();
     }
 
+    this.adfsBufferPool.releaseByteBuffer(bytesBuffer);
     return readLength;
   }
 
   private synchronized int readFromBuffer(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
     // Check to see if we already buffered the request.
     if (this.offset >= bufferOffsetInStream
-        && this.offset + len <= bufferOffsetInStream + this.buffer.readableBytes()) {
+        && this.offset + len <= bufferOffsetInStream + this.buffer.writerIndex()) {
 
       long startOffset = this.offset - bufferOffsetInStream;
       this.buffer.readerIndex((int) startOffset);
     }
     else {
       int readLength = this.bufferSize > available() ? available() : this.bufferSize;
-      byte[] bytes = new byte[readLength];
+      this.buffer.setIndex(0, readLength);
 
       sendReadRequest(
           this.offset,
           readLength,
-          bytes,
+          this.buffer,
           0);
 
       for (Future<Void> task : tasks) {
         task.get();
       }
 
-      this.buffer = this.adfsBufferPool.getByteBuffer(bytes);
       this.bufferOffsetInStream = this.offset;
     }
 
     int readLength = available() > len ? len : available();
     this.offset += readLength;
-    this.buffer.readBytes(readLength).readBytes(b, off, readLength);
+    this.buffer.readBytes(b, off, readLength);
     return readLength;
   }
 
   private synchronized void sendReadRequest(
       final long serviceOffset,
       final int serviceLength,
-      final byte[] targetBuffer,
+      final ByteBuf targetBuffer,
       final int bufferOffset) throws IOException {
 
     try {
@@ -298,9 +305,14 @@ final class AdfsInputStream extends FSInputStream {
           serviceLength,
           targetBuffer,
           bufferOffset);
+
+      read.get();
+
       this.tasks.add(read);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
+    } catch (ExecutionException | InterruptedException ex) {
+      Thread.currentThread().interrupt();
     }
   }
 }

@@ -194,20 +194,20 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void testWriteHeavyBytesToFile() throws Exception {
+  public void   testWriteHeavyBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
     final FSDataOutputStream stream = fs.create(new Path("testfile"));
     ExecutorService es = Executors.newCachedThreadPool();
 
+    final byte[] b = new byte[2 * 10240000];
+    new Random().nextBytes(b);
     List<Future<Void>> tasks = new ArrayList<>();
     for (int i = 0; i < 100; i++) {
       Callable<Void> callable = new Callable<Void>() {
         @Override
         public Void call() throws Exception {
-          final byte[] b = new byte[5 * 1024000];
-          new Random().nextBytes(b);
           stream.write(b);
           return null;
         }
@@ -220,26 +220,28 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
       task.get();
     }
 
+    tasks.clear();
     stream.close();
 
+    es.shutdownNow();
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
-    assertEquals(512000000, fileStatus.getLen());
+    assertEquals(2048000000, fileStatus.getLen());
   }
 
   @Test
   public void testReadAndWriteWithDifferentBufferSizesAndSeek() throws Exception {
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "3072", MIN_BUFFER_SIZE);
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "4194304", DEFAULT_READ_BUFFER_SIZE);
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, "104857600", MAX_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 3072, MIN_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 4194304, DEFAULT_READ_BUFFER_SIZE);
+    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 104857600, MAX_BUFFER_SIZE);
   }
 
-  private void testReadWriteAndSeek(String configKey, String writeBuffer, int bufferSize) throws
+  private void testReadWriteAndSeek(String configKey, int writeBuffer, int bufferSize) throws
       Exception {
     final Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
 
-    configuration.setInt(configKey, bufferSize);
+    configuration.setInt(configKey, writeBuffer);
     final FSDataOutputStream stream = fs.create(new Path("testfile"));
 
     final byte[] b = new byte[2 * bufferSize];
@@ -257,6 +259,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     result = inputStream.read(r, 0, bufferSize);
     assertNotEquals(-1, result);
     assertArrayEquals(r, b);
+    inputStream.close();
   }
 
   @Test(expected = FileNotFoundException.class)

@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.concurrent.Future;
 
+import io.netty.buffer.ByteBuf;
+
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileStatus;
@@ -191,7 +193,7 @@ public interface AdfsHttpService extends InjectableService {
    * @param readBuffer buffer to read the file content.
    * @param readBufferOffset offset of the read buffer.
    */
-  Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int readBufferOffset) throws
+  Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int readBufferOffset) throws
       AzureDistributedFileSystemException;
 
   /**
@@ -204,7 +206,7 @@ public interface AdfsHttpService extends InjectableService {
    * @param readBufferOffset offset of the read buffer.
    * @return Future<void> Future of a Void object.
    */
-  Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, byte[] readBuffer, int
+  Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int
       readBufferOffset) throws
       AzureDistributedFileSystemException;
 
@@ -215,7 +217,7 @@ public interface AdfsHttpService extends InjectableService {
    * @param body the content to append to file.
    * @param offset offset to append.
    */
-  void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws AzureDistributedFileSystemException;
+  void writeFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, ByteBuf body, long offset) throws AzureDistributedFileSystemException;
 
   /**
    * Writes a byte array to a file asynchronously.
@@ -225,7 +227,7 @@ public interface AdfsHttpService extends InjectableService {
    * @param offset offset to append.
    * @return Future<void> Future of a Void object.
    */
-  Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, byte[] body, long offset) throws
+  Future<Void> writeFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, ByteBuf body, long offset) throws
       AzureDistributedFileSystemException;
 
   /**

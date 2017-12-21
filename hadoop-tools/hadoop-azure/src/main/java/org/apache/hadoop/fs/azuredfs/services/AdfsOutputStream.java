@@ -21,14 +21,14 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import rx.Observable;
-import rx.functions.Action0;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -49,10 +49,11 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private final AdfsBufferPool adfsBufferPool;
   private final Path path;
   private final int bufferSize;
+  private final ExecutorService taskCleanupJobExecutor;
 
   private ByteBuf buffer;
   private boolean closed;
-  private List<Future<Void>> tasks;
+  private ArrayList<Future<Void>> tasks;
   private long offset;
 
   AdfsOutputStream(
@@ -76,9 +77,10 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.path = path;
     this.closed = false;
     this.bufferSize = bufferSize;
-    this.buffer = this.adfsBufferPool.getByteBuffer(this.bufferSize);
+    this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
     this.tasks = new ArrayList<>();
     this.offset = offset;
+    this.taskCleanupJobExecutor = Executors.newCachedThreadPool();
   }
 
   /**
@@ -208,6 +210,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     this.flushInternal();
+    this.taskCleanupJobExecutor.shutdownNow();
+    this.adfsBufferPool.releaseByteBuffer(this.buffer);
     this.closed = true;
   }
 
@@ -221,39 +225,35 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       return;
     }
 
-    final byte[] bytes;
-    final int length = this.buffer.readableBytes();
-    bytes = new byte[length];
-    this.buffer.getBytes(this.buffer.readerIndex(), bytes);
-    adfsBufferPool.releaseByteBuffer(this.buffer);
-
-    // Ensure GC collected
-    this.buffer = null;
-
     try {
+      final ByteBuf bytes = this.adfsBufferPool.copy(this.buffer);
+      final int readableBytes = bytes.readableBytes();
+
+      this.adfsBufferPool.releaseByteBuffer(this.buffer);
+      this.buffer = this.adfsBufferPool.getDynamicByteBuffer(bufferSize);
+
       final Future<Void> append = adfsHttpService.writeFileAsync(
           azureDistributedFileSystem,
           path,
           bytes,
           this.offset);
 
-      final AdfsOutputStream adfsOutputStream = this;
-      Observable.from(append).doOnCompleted(new Action0() {
+      final Future job = this.taskCleanupJobExecutor.submit(new Callable<Void>() {
         @Override
-        public void call() {
-          synchronized (adfsOutputStream) {
-            adfsOutputStream.tasks.remove(adfsOutputStream.tasks.indexOf(append));
-          }
+        public Void call() throws Exception {
+          append.get();
+          adfsBufferPool.releaseByteBuffer(bytes);
+          return null;
         }
       });
 
-      this.offset += bytes.length;
+      this.offset += readableBytes;
+
       this.tasks.add(append);
+      this.tasks.add(job);
+
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
-    }
-    finally {
-      this.buffer = this.adfsBufferPool.getByteBuffer(bufferSize);
     }
   }
 
@@ -266,6 +266,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       }
     }
 
+    tasks.clear();
+
     try {
       adfsHttpService.flushFile(azureDistributedFileSystem, path, this.offset);
     } catch (AzureDistributedFileSystemException exception) {
@@ -277,6 +279,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
       throw new IOException(exception);
     } finally {
+      this.adfsBufferPool.releaseByteBuffer(this.buffer);
+      this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
       this.tasks.clear();
     }
   }

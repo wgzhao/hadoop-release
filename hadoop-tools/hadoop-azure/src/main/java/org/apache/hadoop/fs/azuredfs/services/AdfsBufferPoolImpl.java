@@ -20,7 +20,6 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import com.google.inject.Singleton;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -34,10 +33,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AdfsBufferPoolImpl implements AdfsBufferPool {
-  private final PooledByteBufAllocator pooledByteBufAllocator;
-
   public AdfsBufferPoolImpl() {
-    this.pooledByteBufAllocator = PooledByteBufAllocator.DEFAULT;
   }
 
   @Override
@@ -48,8 +44,22 @@ final class AdfsBufferPoolImpl implements AdfsBufferPool {
   }
 
   @Override
-  public ByteBuf getByteBuffer(final int bufferSize) {
-    ByteBuf buffer = this.pooledByteBufAllocator.heapBuffer(0, bufferSize);
+  public ByteBuf copy(ByteBuf byteBuf) {
+    ByteBuf buffer = byteBuf.copy();
+    buffer.retain();
+    return buffer;
+  }
+
+  @Override
+  public ByteBuf getDynamicByteBuffer(int bufferSize) {
+    ByteBuf buffer = Unpooled.buffer(0, bufferSize);
+    buffer.retain();
+    return buffer;
+  }
+
+  @Override
+  public ByteBuf getFixedByteBuffer(int bufferSize) {
+    ByteBuf buffer = Unpooled.buffer(bufferSize);
     buffer.retain();
     return buffer;
   }

@@ -737,18 +737,12 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     this.downloadBlockSizeBytes = sessionConfiguration.getInt(
         KEY_STREAM_MIN_READ_SIZE, DEFAULT_DOWNLOAD_BLOCK_SIZE);
 
-    // Remove for public preview.
-    if (this.downloadBlockSizeBytes > DEFAULT_DOWNLOAD_BLOCK_SIZE) {
-      this.downloadBlockSizeBytes = DEFAULT_DOWNLOAD_BLOCK_SIZE;
-    }
+    this.downloadBlockSizeBytes = DEFAULT_DOWNLOAD_BLOCK_SIZE;
 
     this.uploadBlockSizeBytes = sessionConfiguration.getInt(
         KEY_WRITE_BLOCK_SIZE, DEFAULT_UPLOAD_BLOCK_SIZE);
 
-    // Remove for public preview.
-    if (this.uploadBlockSizeBytes > DEFAULT_UPLOAD_BLOCK_SIZE) {
-      this.uploadBlockSizeBytes = DEFAULT_UPLOAD_BLOCK_SIZE;
-    }
+    this.uploadBlockSizeBytes = DEFAULT_UPLOAD_BLOCK_SIZE;
 
     this.inputStreamVersion = sessionConfiguration.getInt(
         KEY_INPUT_STREAM_VERSION, DEFAULT_INPUT_STREAM_VERSION);
