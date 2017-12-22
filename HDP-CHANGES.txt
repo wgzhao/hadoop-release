@@ -5107,3 +5107,6 @@ ATS V1.5:
 
     HADOOP-15809. ABFS: better exception handling when making getAccessToken
     call. Contributed by Da Zhou
+
+    HADOOP-15086. NativeAzureFileSystem file rename is not atomic. Contributed
+    by Thomas Marquardt
