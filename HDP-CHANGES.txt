@@ -4654,3 +4654,6 @@ ATS V1.5:
 
     BUG-93286. YARN-6805. NPE in LinuxContainerExecutor due to null
     PrivilegedOperationException exit code. Contributed by Jason Lowe
+
+    BUG-93935. HDFS-9396. Total files and directories on jmx and web UI on
+    standby is uninitialized. Contributed by Kihwal Lee.
