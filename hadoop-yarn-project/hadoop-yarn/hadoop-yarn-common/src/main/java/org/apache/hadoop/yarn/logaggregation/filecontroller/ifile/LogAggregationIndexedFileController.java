@@ -286,16 +286,8 @@ public class LogAggregationIndexedFileController
                 currentRemoteLogFile.getName())) {
               overwriteCheckSum = false;
               long endIndex = checksumFileInputStream.readLong();
-              IndexedLogsMeta recoveredLogsMeta = null;
-              try {
-                truncateFileWithRetries(fc, currentRemoteLogFile,
-                    endIndex);
-                recoveredLogsMeta = loadIndexedLogsMeta(
-                    currentRemoteLogFile);
-              } catch (Exception ex) {
-                recoveredLogsMeta = loadIndexedLogsMeta(
-                    currentRemoteLogFile, endIndex);
-              }
+              IndexedLogsMeta recoveredLogsMeta = loadIndexedLogsMeta(
+                  currentRemoteLogFile, endIndex);
               if (recoveredLogsMeta != null) {
                 indexedLogsMeta = recoveredLogsMeta;
               }
@@ -818,8 +810,26 @@ public class LogAggregationIndexedFileController
       }
       long fileLength = end < 0 ? fileContext.getFileStatus(
           remoteLogPath).getLen() : end;
+
       fsDataIStream.seek(fileLength - Integer.SIZE/ Byte.SIZE - UUID_LENGTH);
       int offset = fsDataIStream.readInt();
+      // If the offset/log meta size is larger than 64M,
+      // output a warn message for better debug.
+      if (offset > 64 * 1024 * 1024) {
+        LOG.warn("The log meta size read from " + remoteLogPath
+            + " is " + offset);
+      }
+
+      // Load UUID and make sure the UUID is correct.
+      byte[] uuidRead = new byte[UUID_LENGTH];
+      int uuidReadLen = fsDataIStream.read(uuidRead);
+      if (uuidReadLen != UUID_LENGTH || !Arrays.equals(this.uuid, uuidRead)) {
+        throw new IOException("The UUID from "
+            + remoteLogPath + " is not correct.The offset of laoded UUID is "
+            + (fileLength - UUID_LENGTH));
+      }
+
+      // Load Log Meta
       byte[] array = new byte[offset];
       fsDataIStream.seek(
           fileLength - offset - Integer.SIZE/ Byte.SIZE - UUID_LENGTH);
