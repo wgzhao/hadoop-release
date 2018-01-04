@@ -19,6 +19,9 @@
 package org.apache.hadoop.fs.azuredfs.services;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -32,6 +35,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidati
 import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.StringConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.Base64StringConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.BooleanConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidConfigurationValueException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.diagnostics.Base64StringConfigurationBasicValidator;
@@ -43,7 +47,7 @@ import org.apache.hadoop.fs.azuredfs.diagnostics.StringConfigurationBasicValidat
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class ConfigurationServiceImpl implements ConfigurationService {
+class ConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
   private final boolean isSecure;
 
@@ -86,11 +90,19 @@ final class ConfigurationServiceImpl implements ConfigurationService {
       DefaultValue = FileSystemConfigurations.AZURE_BLOCK_LOCATION_HOST_DEFAULT)
   private String azureBlockLocationHost;
 
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_OUT,
+      MinValue = 1,
+      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_THREADS)
+  private int maxConcurrentThreads;
+
+  private Map<String, String> storageAccountKeys;
+
   @Inject
   ConfigurationServiceImpl(final Configuration configuration) throws IllegalAccessException, InvalidConfigurationValueException {
     this.configuration = configuration;
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
 
+    validateStorageAccountKeys();
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field field : fields) {
       field.setAccessible(true);
@@ -119,10 +131,11 @@ final class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public String getStorageAccountKey(final String accountName) {
-    String accountKey = this.configuration.get(
-        ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME
-            + accountName);
+  public String getStorageAccountKey(final String accountName) throws ConfigurationPropertyNotFoundException {
+    String accountKey = this.storageAccountKeys.get(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + accountName);
+    if (accountKey == null) {
+      throw new ConfigurationPropertyNotFoundException(accountName);
+    }
 
     return accountKey;
   }
@@ -132,26 +145,46 @@ final class ConfigurationServiceImpl implements ConfigurationService {
     return this.configuration;
   }
 
+  @Override
   public int getWriteBufferSize() {
     return this.writeBufferSize;
   }
 
+  @Override
   public int getReadBufferSize() {
     return this.readBufferSize;
   }
 
-  public int getMinBackoffInterval() { return this.minBackoffInterval; }
+  @Override
+  public int getMinBackoffIntervalMilliseconds() { return this.minBackoffInterval; }
 
-  public int getMaxBackoffInterval() { return this.maxBackoffInterval; }
+  @Override
+  public int getMaxBackoffIntervalMilliseconds() { return this.maxBackoffInterval; }
 
-  public int getBackoffInterval() { return this.backoffInterval; }
+  @Override
+  public int getBackoffIntervalMilliseconds() { return this.backoffInterval; }
 
-  public int getMaxIoRetries() {return this.maxIoRetries; }
+  @Override
+  public int getMaxIoRetries() { return this.maxIoRetries; }
 
+  @Override
   public long getAzureBlockSize() { return this.azureBlockSize; }
 
+  @Override
   public String getAzureBlockLocationHost() { return this.azureBlockLocationHost; }
 
+  @Override
+  public int getMaxConcurrentThreads() { return this.maxConcurrentThreads; }
+
+  void validateStorageAccountKeys() throws InvalidConfigurationValueException {
+    Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(
+        ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME, "", true);
+    this.storageAccountKeys = this.configuration.getValByRegex(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME);
+
+    for (String key : this.storageAccountKeys.keySet()) {
+      validator.validate(storageAccountKeys.get(key));
+    }
+  }
 
   int validateInt(Field field) throws IllegalAccessException, InvalidConfigurationValueException {
     IntegerConfigurationValidatorAnnotation validator = field.getAnnotation(IntegerConfigurationValidatorAnnotation.class);
@@ -210,5 +243,15 @@ final class ConfigurationServiceImpl implements ConfigurationService {
         validator.ConfigurationKey(),
         validator.DefaultValue(),
         validator.ThrowIfInvalid()).validate(value);
+  }
+
+  @VisibleForTesting
+  void setReadBufferSize(int bufferSize) {
+    this.readBufferSize = bufferSize;
+  }
+
+  @VisibleForTesting
+  void setWriteBufferSize(int bufferSize) {
+    this.writeBufferSize = bufferSize;
   }
 }

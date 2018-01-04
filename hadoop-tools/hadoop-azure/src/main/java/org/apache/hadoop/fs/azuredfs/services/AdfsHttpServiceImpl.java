@@ -61,7 +61,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
@@ -78,7 +77,6 @@ import org.apache.hadoop.util.StringUtils;
 
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
-import static org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_OUT;
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.HDI_IS_FOLDER;
 
 @Singleton
@@ -92,7 +90,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String COMP_PROPERTIES = "properties";
   private static final int LIST_MAX_RESULTS = 5000;
-  private static final int MAX_CONCURRENT_THREADS = 40;
   private static final int WRITE_BUFFER_SIZE = 8192;
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
@@ -116,12 +113,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
 
-    int maxConcurrentThreads = this.configurationService.getConfiguration().getInt(
-        AZURE_CONCURRENT_CONNECTION_VALUE_OUT,
-        MAX_CONCURRENT_THREADS);
-
-    this.readExecutorService = createThreadPoolExecutor(maxConcurrentThreads);
-    this.writeExecutorService = createThreadPoolExecutor(maxConcurrentThreads);
+    this.readExecutorService = createThreadPoolExecutor(this.configurationService.getMaxConcurrentThreads());
+    this.writeExecutorService = createThreadPoolExecutor(this.configurationService.getMaxConcurrentThreads());
   }
 
   @Override
@@ -715,7 +708,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public Future<FileStatus[]> listStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
-    final ConfigurationService configurationService = this.configurationService;
 
     final Callable<FileStatus[]> asyncCallable = new Callable<FileStatus[]>() {
       @Override
@@ -762,9 +754,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                   null,
                   null).toBlocking().single();
 
-              long blockSize = configurationService.getConfiguration().getLong(
-                  ConfigurationKeys.AZURE_BLOCK_SIZE_PROPERTY_NAME,
-                  FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE);
+              long blockSize = configurationService.getAzureBlockSize();
 
               for (ListEntrySchema entry : retrievedSchema.paths()) {
                 final DateTime dateTime = DateTime.parse(
@@ -1015,9 +1005,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     return getPropertiesObservable.flatMap(new Func1<Hashtable<String, String>, Observable<FileStatus>>() {
       @Override
       public Observable<FileStatus> call(Hashtable<String, String> properties) {
-        long blockSize = configurationService.getConfiguration().getLong(
-            ConfigurationKeys.AZURE_BLOCK_SIZE_PROPERTY_NAME,
-            FileSystemConfigurations.MAX_AZURE_BLOCK_SIZE);
+        long blockSize = configurationService.getAzureBlockSize();
 
         return Observable.just(
             new FileStatus(

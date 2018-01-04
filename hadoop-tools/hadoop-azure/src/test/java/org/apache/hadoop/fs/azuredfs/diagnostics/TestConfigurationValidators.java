@@ -20,8 +20,7 @@ package org.apache.hadoop.fs.azuredfs.diagnostics;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-
-import org.apache.commons.codec.binary.Base64;
+import com.microsoft.azure.storage.core.Base64;
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidConfigurationValueException;
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.*;
@@ -99,7 +98,7 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
 
   @Test
   public void testBase64StringConfigValidator() throws Exception {
-    String encodedVal = Base64.encodeBase64String("someValue".getBytes());
+    String encodedVal = Base64.encode("someValue".getBytes());
     Base64StringConfigurationBasicValidator base64StringConfigurationValidator = new Base64StringConfigurationBasicValidator(FAKE_KEY, "", false);
 
     assertEquals("", base64StringConfigurationValidator.validate(null));

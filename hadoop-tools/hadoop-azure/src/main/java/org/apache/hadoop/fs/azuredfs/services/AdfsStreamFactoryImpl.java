@@ -21,7 +21,6 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,8 +29,6 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
@@ -61,38 +58,23 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
 
   @Override
   public InputStream createReadStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long fileLength) {
-    int bufferSize = getBufferSize(ConfigurationKeys.AZURE_READ_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
     return new AdfsInputStream(
         this.adfsBufferPool,
         this.adfsHttpService,
         azureDistributedFileSystem,
         path,
         fileLength,
-        bufferSize);
+        configurationService.getReadBufferSize());
   }
 
   @Override
   public OutputStream createWriteStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) {
-    int bufferSize = getBufferSize(ConfigurationKeys.AZURE_WRITE_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE);
     return new AdfsOutputStream(
         this.adfsHttpService,
         this.adfsBufferPool,
         azureDistributedFileSystem,
         path,
         offset,
-        bufferSize);
-  }
-
-  @VisibleForTesting
-  int getBufferSize(final String userDefinedSize, final int defaultSize) {
-    final int bufferSize = this.configurationService.getConfiguration().getInt(userDefinedSize, defaultSize);
-
-    if (bufferSize < FileSystemConfigurations.MIN_BUFFER_SIZE) {
-      return FileSystemConfigurations.MIN_BUFFER_SIZE;
-    } else if (bufferSize > FileSystemConfigurations.MAX_BUFFER_SIZE) {
-      return FileSystemConfigurations.MAX_BUFFER_SIZE;
-    }
-
-    return bufferSize;
+        configurationService.getWriteBufferSize());
   }
 }

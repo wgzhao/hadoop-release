@@ -44,7 +44,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
-import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
@@ -55,6 +54,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ServiceProvider;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
@@ -79,6 +79,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   private LoggingService loggingService;
   private AdfsHttpService adfsHttpService;
   private NativeAzureFileSystem nativeAzureFileSystem;
+  private ConfigurationService configurationService;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -93,6 +94,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       this.tracingService = serviceProvider.get(TracingService.class);
       this.adfsHttpService = serviceProvider.get(AdfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class);
+      this.configurationService = serviceProvider.get(ConfigurationService.class);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -357,9 +359,7 @@ public class AzureDistributedFileSystem extends FileSystem {
     if (file.getLen() < start) {
       return new BlockLocation[0];
     }
-    final String blobLocationHost = getConf().get(
-        ConfigurationKeys.AZURE_BLOCK_LOCATION_HOST_PROPERTY_NAME,
-        FileSystemConfigurations.AZURE_BLOCK_LOCATION_HOST_DEFAULT);
+    final String blobLocationHost = this.configurationService.getAzureBlockLocationHost();
 
     final String[] name = { blobLocationHost };
     final String[] host = { blobLocationHost };

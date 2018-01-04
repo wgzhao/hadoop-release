@@ -18,7 +18,8 @@
 
 package org.apache.hadoop.fs.azuredfs.diagnostics;
 
-import org.apache.commons.codec.binary.Base64;
+import com.microsoft.azure.storage.core.Base64;
+
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.diagnostics.ConfigurationValidator;
@@ -41,7 +42,7 @@ public class Base64StringConfigurationBasicValidator extends ConfigurationBasicV
       return result;
     }
 
-    if (!Base64.isArrayByteBase64(configValue.getBytes())) {
+    if (!Base64.validateIsBase64String(configValue)) {
       throw new InvalidConfigurationValueException(getConfigKey());
     }
     return configValue;

@@ -21,21 +21,32 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.net.URISyntaxException;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidConfigurationValueException;
 
-public final class MockConfigurationServiceImpl implements ConfigurationService {
+public final class MockConfigurationServiceImpl extends ConfigurationServiceImpl {
   private final Configuration configuration;
   private boolean isSecure;
+  private int writeBufferSize;
+  private int readBufferSize;
+  private int minBackoffInterval;
+  private int maxBackoffInterval;
+  private int maxIoRetries;
+  private int backoffInterval;
+  private long azureBlockSize;
+  private String azureBlockLocationHost;
 
   @Inject
-  public MockConfigurationServiceImpl(Configuration configuration) throws URISyntaxException {
+  public MockConfigurationServiceImpl(Configuration configuration) throws URISyntaxException, InvalidConfigurationValueException, IllegalAccessException {
+    super(configuration);
     this.configuration = configuration;
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
+    this.writeBufferSize = this.configuration.getInt(ConfigurationKeys.AZURE_WRITE_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE);
+    this.readBufferSize = this.configuration.getInt(ConfigurationKeys.AZURE_READ_BUFFER_SIZE, FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE);
   }
 
   @Override
@@ -57,4 +68,31 @@ public final class MockConfigurationServiceImpl implements ConfigurationService 
   public final Configuration getConfiguration() {
     return this.configuration;
   }
+
+  @Override
+  public int getWriteBufferSize() { return this.writeBufferSize; }
+
+  @Override
+  public int getReadBufferSize() { return this.readBufferSize; }
+
+  @Override
+  public int getMinBackoffIntervalMilliseconds() { return this.minBackoffInterval; }
+
+  @Override
+  public int getMaxBackoffIntervalMilliseconds() { return this.maxBackoffInterval; }
+
+  @Override
+  public int getBackoffIntervalMilliseconds() { return this.backoffInterval; }
+
+  @Override
+  public int getMaxIoRetries() { return this.maxIoRetries; }
+
+  @Override
+  public long getAzureBlockSize() { return this.azureBlockSize; }
+
+  @Override
+  public String getAzureBlockLocationHost() { return null; }
+
+  @Override
+  public int getMaxConcurrentThreads() { return FileSystemConfigurations.MAX_CONCURRENT_THREADS; }
 }

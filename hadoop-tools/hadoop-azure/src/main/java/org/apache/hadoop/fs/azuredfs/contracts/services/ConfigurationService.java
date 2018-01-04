@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.azuredfs.contracts.services;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 
 /**
  * Configuration service collects required Azure Hadoop configurations and provides it to the consumers.
@@ -45,11 +46,65 @@ public interface ConfigurationService extends InjectableService {
    * @param accountName the account name to retrieve the key.
    * @return storage account key;
    */
-  String getStorageAccountKey(String accountName);
+  String getStorageAccountKey(String accountName) throws ConfigurationPropertyNotFoundException;
 
   /**
    * Returns Hadoop configuration.
    * @return Hadoop configuration.
    */
   Configuration getConfiguration();
+
+  /**
+   * Retrieves configured write buffer size
+   * @return the size of the write buffer
+   */
+  int getWriteBufferSize();
+
+  /**
+   * Retrieves configured read buffer size
+   * @return the size of the read buffer
+   */
+  int getReadBufferSize();
+
+  /**
+   * Retrieves configured min backoff interval
+   * @return min backoff interval
+   */
+  int getMinBackoffIntervalMilliseconds();
+
+  /**
+   * Retrieves configured max backoff interval
+   * @return max backoff interval
+   */
+  int getMaxBackoffIntervalMilliseconds();
+
+  /**
+   * Retrieves configured backoff interval
+   * @return backoff interval
+   */
+  int getBackoffIntervalMilliseconds();
+
+  /**
+   * Retrieves configured num of retries
+   * @return num of retries
+   */
+  int getMaxIoRetries();
+
+  /**
+   * Retrieves configured azure block size
+   * @return azure block size
+   */
+  long getAzureBlockSize();
+
+  /**
+   * Retrieves configured azure block location host
+   * @return azure block location host
+   */
+  String getAzureBlockLocationHost();
+
+  /**
+   * Retrieves configured number of concurrent threads
+   * @return number of concurrent threads
+   */
+  int getMaxConcurrentThreads();
 }

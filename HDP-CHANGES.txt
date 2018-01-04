@@ -4834,3 +4834,7 @@ ATS V1.5:
 
     WASB-20. Updating the code to help with switching between emulator and cluster for Azure Distributed File System.
 
+    WASB-24. Modifying the code to use the configuration validators
+
+    WASB-25. Fixed few ADFS bugs to unblock private preview
+

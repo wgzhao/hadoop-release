@@ -51,5 +51,7 @@ public final class FileSystemConfigurations {
   public static final long MAX_AZURE_BLOCK_SIZE = 512 * 1024 * 1024L;
   public static final String AZURE_BLOCK_LOCATION_HOST_DEFAULT = "localhost";
 
+  public static final int MAX_CONCURRENT_THREADS = 40;
+
   private FileSystemConfigurations() {}
 }

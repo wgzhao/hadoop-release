@@ -47,8 +47,6 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 
-import static org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys.*;
-import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.*;
 import static org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 import static org.junit.Assert.*;
@@ -226,40 +224,6 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     es.shutdownNow();
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
     assertEquals(2048000000, fileStatus.getLen());
-  }
-
-  @Test
-  public void testReadAndWriteWithDifferentBufferSizesAndSeek() throws Exception {
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 3072, MIN_BUFFER_SIZE);
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 4194304, DEFAULT_READ_BUFFER_SIZE);
-    testReadWriteAndSeek(AZURE_WRITE_BUFFER_SIZE, 104857600, MAX_BUFFER_SIZE);
-  }
-
-  private void testReadWriteAndSeek(String configKey, int writeBuffer, int bufferSize) throws
-      Exception {
-    final Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
-    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
-    fs.create(new Path("testfile"));
-
-    configuration.setInt(configKey, writeBuffer);
-    final FSDataOutputStream stream = fs.create(new Path("testfile"));
-
-    final byte[] b = new byte[2 * bufferSize];
-    new Random().nextBytes(b);
-    stream.write(b);
-    stream.close();
-
-    final byte[] r = new byte[2 * bufferSize];
-    final FSDataInputStream inputStream = fs.open(new Path("testfile"), bufferSize);
-    inputStream.seek(bufferSize);
-    int result = inputStream.read(r, bufferSize, bufferSize);
-    assertNotEquals(-1, result);
-
-    inputStream.seek(0);
-    result = inputStream.read(r, 0, bufferSize);
-    assertNotEquals(-1, result);
-    assertArrayEquals(r, b);
-    inputStream.close();
   }
 
   @Test(expected = FileNotFoundException.class)

@@ -23,13 +23,15 @@ import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-import org.apache.commons.net.util.Base64;
+import com.microsoft.azure.storage.core.Base64;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.annotations.ConfigurationValidationAnnotations.*;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
+
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.*;
 
-public class TestConfigurationServiceFieldsValidation extends DependencyInjectedTest  {
+public class TestConfigurationServiceFieldsValidation  {
   private ConfigurationServiceImpl configService;
 
   private static final String INT_KEY= "intKey";
@@ -40,6 +42,7 @@ public class TestConfigurationServiceFieldsValidation extends DependencyInjected
   private static final int DEFAULT_INT = 4194304;
   private static final int DEFAULT_LONG = 4194304;
   private final String encodedString;
+  private final String encodedAccountKey;
 
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = INT_KEY,
       MinValue = Integer.MIN_VALUE,
@@ -67,13 +70,16 @@ public class TestConfigurationServiceFieldsValidation extends DependencyInjected
 
   public TestConfigurationServiceFieldsValidation() throws Exception {
     super();
-    this.encodedString = Base64.encodeBase64String("base64Value".getBytes());
+    this.encodedString = Base64.encode("base64Value".getBytes());
+    this.encodedAccountKey = Base64.encode("someAccountKey".getBytes());
     Configuration configuration = new Configuration();
+    configuration.addResource("azure-adfs-test.xml");
     configuration.set(INT_KEY, "1234565");
     configuration.set(LONG_KEY, "4194304");
     configuration.set(STRING_KEY, "stringValue");
     configuration.set(BASE64_KEY, encodedString);
     configuration.set(BOOLEAN_KEY, "true");
+    configuration.set(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + "testaccount1.blob.core.windows.net", this.encodedAccountKey);
     configService = new ConfigurationServiceImpl(configuration);
   }
 
@@ -101,11 +107,22 @@ public class TestConfigurationServiceFieldsValidation extends DependencyInjected
     // test that all the ConfigurationServiceImpl annotated fields have been initialized in the constructor
     assertEquals(DEFAULT_WRITE_BUFFER_SIZE, configService.getWriteBufferSize());
     assertEquals(DEFAULT_READ_BUFFER_SIZE, configService.getReadBufferSize());
-    assertEquals(DEFAULT_MIN_BACKOFF_INTERVAL, configService.getMinBackoffInterval());
-    assertEquals(DEFAULT_MAX_BACKOFF_INTERVAL, configService.getMaxBackoffInterval());
-    assertEquals(DEFAULT_BACKOFF_INTERVAL, configService.getBackoffInterval());
+    assertEquals(DEFAULT_MIN_BACKOFF_INTERVAL, configService.getMinBackoffIntervalMilliseconds());
+    assertEquals(DEFAULT_MAX_BACKOFF_INTERVAL, configService.getMaxBackoffIntervalMilliseconds());
+    assertEquals(DEFAULT_BACKOFF_INTERVAL, configService.getBackoffIntervalMilliseconds());
     assertEquals(DEFAULT_MAX_RETRY_ATTEMPTS, configService.getMaxIoRetries());
     assertEquals(MAX_AZURE_BLOCK_SIZE, configService.getAzureBlockSize());
     assertEquals(AZURE_BLOCK_LOCATION_HOST_DEFAULT, configService.getAzureBlockLocationHost());
+  }
+
+  @Test
+  public void testGetAccountKey() throws Exception {
+    String accountKey = configService.getStorageAccountKey("testaccount1.blob.core.windows.net");
+    assertEquals(this.encodedAccountKey, accountKey);
+  }
+
+  @Test (expected = ConfigurationPropertyNotFoundException.class)
+  public void testGetAccountKeyWithNonExistingAccountName() throws Exception {
+    String accountKey = configService.getStorageAccountKey("bogusAccountName");
   }
 }
