@@ -287,7 +287,7 @@ public class LogAggregationIndexedFileController
               overwriteCheckSum = false;
               long endIndex = checksumFileInputStream.readLong();
               IndexedLogsMeta recoveredLogsMeta = loadIndexedLogsMeta(
-                  currentRemoteLogFile, endIndex);
+                  currentRemoteLogFile, endIndex, appId);
               if (recoveredLogsMeta != null) {
                 indexedLogsMeta = recoveredLogsMeta;
               }
@@ -518,11 +518,11 @@ public class LogAggregationIndexedFileController
       IndexedLogsMeta indexedLogsMeta = null;
       try {
         indexedLogsMeta = loadIndexedLogsMeta(thisNodeFile.getPath(),
-            endIndex);
+            endIndex, appId);
       } catch (Exception ex) {
         // DO NOTHING
         LOG.warn("Can not load log meta from the log file:"
-            + thisNodeFile.getPath());
+            + thisNodeFile.getPath() + "\n" + ex.getMessage());
         continue;
       }
       if (indexedLogsMeta == null) {
@@ -630,14 +630,14 @@ public class LogAggregationIndexedFileController
           endIndex = checkSumIndex.longValue();
         }
         IndexedLogsMeta current = loadIndexedLogsMeta(
-            thisNodeFile.getPath(), endIndex);
+            thisNodeFile.getPath(), endIndex, appId);
         if (current != null) {
           listOfLogsMeta.add(current);
         }
       } catch (IOException ex) {
         // DO NOTHING
         LOG.warn("Can not get log meta from the log file:"
-            + thisNodeFile.getPath());
+            + thisNodeFile.getPath() + "\n" + ex.getMessage());
       }
     }
     for (IndexedLogsMeta indexedLogMeta : listOfLogsMeta) {
@@ -715,6 +715,7 @@ public class LogAggregationIndexedFileController
           checkSumFiles.put(nodeName, Long.valueOf(index));
         }
       } catch (IOException ex) {
+        LOG.warn(ex.getMessage());
         continue;
       } finally {
         IOUtils.cleanup(LOG, checksumFileInputStream);
@@ -767,25 +768,26 @@ public class LogAggregationIndexedFileController
   }
 
   @Override
-  public String getApplicationOwner(Path aggregatedLogPath)
+  public String getApplicationOwner(Path aggregatedLogPath,
+      ApplicationId appId)
       throws IOException {
     if (this.cachedIndexedLogsMeta == null
         || !this.cachedIndexedLogsMeta.getRemoteLogPath()
             .equals(aggregatedLogPath)) {
       this.cachedIndexedLogsMeta = new CachedIndexedLogsMeta(
-          loadIndexedLogsMeta(aggregatedLogPath), aggregatedLogPath);
+          loadIndexedLogsMeta(aggregatedLogPath, appId), aggregatedLogPath);
     }
     return this.cachedIndexedLogsMeta.getCachedIndexedLogsMeta().getUser();
   }
 
   @Override
   public Map<ApplicationAccessType, String> getApplicationAcls(
-      Path aggregatedLogPath) throws IOException {
+      Path aggregatedLogPath, ApplicationId appId) throws IOException {
     if (this.cachedIndexedLogsMeta == null
         || !this.cachedIndexedLogsMeta.getRemoteLogPath()
             .equals(aggregatedLogPath)) {
       this.cachedIndexedLogsMeta = new CachedIndexedLogsMeta(
-          loadIndexedLogsMeta(aggregatedLogPath), aggregatedLogPath);
+          loadIndexedLogsMeta(aggregatedLogPath, appId), aggregatedLogPath);
     }
     return this.cachedIndexedLogsMeta.getCachedIndexedLogsMeta().getAcls();
   }
@@ -798,8 +800,8 @@ public class LogAggregationIndexedFileController
   }
 
   @Private
-  public IndexedLogsMeta loadIndexedLogsMeta(Path remoteLogPath, long end)
-      throws IOException {
+  public IndexedLogsMeta loadIndexedLogsMeta(Path remoteLogPath, long end,
+      ApplicationId appId) throws IOException {
     FileContext fileContext =
         FileContext.getFileContext(remoteLogPath.toUri(), conf);
     FSDataInputStream fsDataIStream = null;
@@ -823,9 +825,17 @@ public class LogAggregationIndexedFileController
       // Load UUID and make sure the UUID is correct.
       byte[] uuidRead = new byte[UUID_LENGTH];
       int uuidReadLen = fsDataIStream.read(uuidRead);
+      if (this.uuid == null) {
+        this.uuid = createUUID(appId);
+      }
       if (uuidReadLen != UUID_LENGTH || !Arrays.equals(this.uuid, uuidRead)) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("the length of loaded UUID:" + uuidReadLen);
+          LOG.debug("the loaded UUID:" + new String(uuidRead));
+          LOG.debug("the expected UUID:" + new String(this.uuid));
+        }
         throw new IOException("The UUID from "
-            + remoteLogPath + " is not correct.The offset of laoded UUID is "
+            + remoteLogPath + " is not correct.The offset of loaded UUID is "
             + (fileLength - UUID_LENGTH));
       }
 
@@ -845,9 +855,9 @@ public class LogAggregationIndexedFileController
     }
   }
 
-  private IndexedLogsMeta loadIndexedLogsMeta(Path remoteLogPath)
-      throws IOException {
-    return loadIndexedLogsMeta(remoteLogPath, -1);
+  private IndexedLogsMeta loadIndexedLogsMeta(Path remoteLogPath,
+      ApplicationId appId) throws IOException {
+    return loadIndexedLogsMeta(remoteLogPath, -1, appId);
   }
 
   /**
@@ -1052,6 +1062,7 @@ public class LogAggregationIndexedFileController
         this.out = compressAlgo.createCompressionStream(
             fsBufferedOutput, compressor, 0);
       } catch (IOException e) {
+        LOG.warn(e.getMessage());
         compressAlgo.returnCompressor(compressor);
         throw e;
       }
