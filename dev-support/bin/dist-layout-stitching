@@ -95,16 +95,16 @@ function copy()
     for childpath in "${src}"/*; do
       child="${childpath##*/}"
 
-      if [[ "${child}" == "share" ]]; then
-        copyifnotexists "${src}/${child}" "${dest}/${child}"
-      else
-        if [[ -d "${src}/${child}" ]]; then
-          mkdir -p "${dest}/${child}"
-          cp -pr "${src}/${child}"/* "${dest}/${child}"
-        else
-          cp -pr "${src}/${child}" "${dest}/${child}"
-        fi
-      fi
+      #if [[ "${child}" == "share" ]]; then
+       # copyifnotexists "${src}/${child}" "${dest}/${child}"
+      #else
+       if [[ -d "${src}/${child}" ]]; then
+         mkdir -p "${dest}/${child}"
+         cp -pr "${src}/${child}"/* "${dest}/${child}"
+       else
+         cp -pr "${src}/${child}" "${dest}/${child}"
+       fi
+      #fi
     done
   fi
 }
