@@ -4654,3 +4654,7 @@ ATS V1.5:
 
     BUG-98228. HDFS-11711. DN should not delete the block On "Too many open
     files" Exception. Contributed by Brahma Reddy Battula.
+    
+	 BUG-91431. Whenever Spark2 Thriftserver restart, a random node manager will go down cause by patch from BUG-78576. (wangda)
+
+    BUG-95914. Exception from RMRegistryService causes RM to shutdown
