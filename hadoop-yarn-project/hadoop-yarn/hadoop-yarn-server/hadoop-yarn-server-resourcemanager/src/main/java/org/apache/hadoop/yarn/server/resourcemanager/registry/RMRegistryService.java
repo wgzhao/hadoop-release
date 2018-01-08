@@ -186,7 +186,7 @@ public class RMRegistryService extends CompositeService {
     public void handle(RMAppAttemptEvent event) {
       try {
         handleAppAttemptEvent(event);
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.warn("handling {}: {}", event, e, e);
       }
     }
@@ -202,7 +202,7 @@ public class RMRegistryService extends CompositeService {
     public void handle(RMAppManagerEvent event) {
       try {
         handleAppManagerEvent(event);
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.warn("handling {}: {}", event, e, e);
       }
     }
@@ -219,7 +219,7 @@ public class RMRegistryService extends CompositeService {
     public void handle(RMStateStoreEvent event) {
       try {
         handleStateStoreEvent(event);
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.warn("handling {}: {}", event, e, e);
       }
     }
@@ -234,7 +234,7 @@ public class RMRegistryService extends CompositeService {
     public void handle(RMContainerEvent event) {
       try {
         handleContainerEvent(event);
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.warn("handling {}: {}", event, e, e);
       }
     }
