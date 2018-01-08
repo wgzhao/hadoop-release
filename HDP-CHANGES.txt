@@ -4651,3 +4651,8 @@ ATS V1.5:
     own User Directory. Contributed by Rohith Sharma K S.
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
+
+    BUG-96394. Both RM are in standby in secure cluster. YARN-6061. Add an
+    UncaughtExceptionHandler for critical threads in RM. (Yufei Gu via kasha)
+    YARN-6061. Addendum. Remove extraneous change. YARN-3742. YARN RM will shut
+    down if ZKClient creation times out. (Daniel Templeton via kasha)
