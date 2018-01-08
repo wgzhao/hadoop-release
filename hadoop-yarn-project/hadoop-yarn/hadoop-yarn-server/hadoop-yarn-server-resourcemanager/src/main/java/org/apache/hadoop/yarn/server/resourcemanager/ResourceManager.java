@@ -111,6 +111,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The ResourceManager is the main class that is a set of components.
@@ -171,7 +172,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
   private Configuration conf;
 
   private UserGroupInformation rmLoginUGI;
-  
+
   public ResourceManager() {
     super("ResourceManager");
   }
@@ -415,6 +416,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
     private ResourceManager rm;
     private boolean recoveryEnabled;
     private boolean fromActive = false;
+    private StandByTransitionRunnable standByTransitionRunnable;
 
     RMActiveServices(ResourceManager rm) {
       super("RMActiveServices");
@@ -423,6 +425,8 @@ public class ResourceManager extends CompositeService implements Recoverable {
 
     @Override
     protected void serviceInit(Configuration configuration) throws Exception {
+      standByTransitionRunnable = new StandByTransitionRunnable();
+
       conf.setBoolean(Dispatcher.DISPATCHER_EXIT_ON_ERROR_KEY, true);
       rmSecretManagerService = createRMSecretManagerService();
       addService(rmSecretManagerService);
@@ -757,30 +761,90 @@ public class ResourceManager extends CompositeService implements Recoverable {
     }
   }
 
-  @Private
-  public static class RMFatalEventDispatcher
-      implements EventHandler<RMFatalEvent> {
-
+  private class RMFatalEventDispatcher implements EventHandler<RMFatalEvent> {
     @Override
     public void handle(RMFatalEvent event) {
-      LOG.fatal("Received a " + RMFatalEvent.class.getName() + " of type " +
-          event.getType().name() + ". Cause:\n" + event.getCause());
+      LOG.error("Received " + event);
 
-      ExitUtil.terminate(1, event.getCause());
+      if (HAUtil.isHAEnabled(getConfig())) {
+        // If we're in an HA config, the right answer is always to go into
+        // standby.
+        LOG.warn("Transitioning the resource manager to standby.");
+        handleTransitionToStandByInNewThread();
+      } else {
+        // If we're stand-alone, we probably want to shut down, but the if and
+        // how depends on the event.
+        switch(event.getType()) {
+        case STATE_STORE_FENCED:
+          LOG.fatal("State store fenced even though the resource manager " +
+              "is not configured for high availability. Shutting down this " +
+              "resource manager to protect the integrity of the state store.");
+          ExitUtil.terminate(1, event.getExplanation());
+          break;
+        case STATE_STORE_OP_FAILED:
+          if (YarnConfiguration.shouldRMFailFast(getConfig())) {
+            LOG.fatal("Shutting down the resource manager because a state " +
+                "store operation failed, and the resource manager is " +
+                "configured to fail fast. See the yarn.fail-fast and " +
+                "yarn.resourcemanager.fail-fast properties.");
+            ExitUtil.terminate(1, event.getExplanation());
+          } else {
+            LOG.warn("Ignoring state store operation failure because the " +
+                "resource manager is not configured to fail fast. See the " +
+                "yarn.fail-fast and yarn.resourcemanager.fail-fast " +
+                "properties.");
+          }
+          break;
+        default:
+          LOG.fatal("Shutting down the resource manager.");
+          ExitUtil.terminate(1, event.getExplanation());
+        }
+      }
     }
   }
 
-  public void handleTransitionToStandBy() {
-    if (rmContext.isHAEnabled()) {
-      try {
-        // Transition to standby and reinit active services
-        LOG.info("Transitioning RM to Standby mode");
-        transitionToStandby(true);
-        adminService.resetLeaderElection();
+  /**
+   * Transition to standby state in a new thread. The transition operation is
+   * asynchronous to avoid deadlock caused by cyclic dependency.
+   */
+  private void handleTransitionToStandByInNewThread() {
+    Thread standByTransitionThread =
+        new Thread(activeServices.standByTransitionRunnable);
+    standByTransitionThread.setName("StandByTransitionThread");
+    standByTransitionThread.start();
+  }
+
+  /**
+   * The class to transition RM to standby state. The same
+   * {@link StandByTransitionRunnable} object could be used in multiple threads,
+   * but runs only once. That's because RM can go back to active state after
+   * transition to standby state, the same runnable in the old context can't
+   * transition RM to standby state again. A new runnable is created every time
+   * RM transitions to active state.
+   */
+  private class StandByTransitionRunnable implements Runnable {
+    // The atomic variable to make sure multiple threads with the same runnable
+    // run only once.
+    private AtomicBoolean hasAlreadyRun = new AtomicBoolean(false);
+
+    @Override
+    public void run() {
+      // Run this only once, even if multiple threads end up triggering
+      // this simultaneously.
+      if (hasAlreadyRun.getAndSet(true)) {
         return;
-      } catch (Exception e) {
-        LOG.fatal("Failed to transition RM to Standby mode.");
-        ExitUtil.terminate(1, e);
+      }
+
+      if (rmContext.isHAEnabled()) {
+        try {
+          // Transition to standby and reinit active services
+          LOG.info("Transitioning RM to Standby mode");
+          transitionToStandby(true);
+          adminService.resetLeaderElection();
+        } catch (Exception e) {
+          LOG.fatal("Failed to transition RM to Standby mode.", e);
+          ExitUtil.terminate(1, e);
+        }
       }
     }
   }
