@@ -4713,3 +4713,8 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    Both RM are in standby in secure cluster. YARN-6061. Add an
+    UncaughtExceptionHandler for critical threads in RM. (Yufei Gu via kasha)
+    YARN-6061. Addendum. Remove extraneous change. YARN-3742. YARN RM will shut
+    down if ZKClient creation times out. (Daniel Templeton via kasha)

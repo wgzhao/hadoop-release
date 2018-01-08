@@ -990,21 +990,18 @@ public abstract class RMStateStore extends AbstractService {
       Exception failureCause) {
     boolean isFenced = false;
     LOG.error("State store operation failed ", failureCause);
+
     if (HAUtil.isHAEnabled(getConfig())) {
-      LOG.warn("State-store fenced ! Transitioning RM to standby");
+      rmDispatcher.getEventHandler().handle(
+          new RMFatalEvent(RMFatalEventType.STATE_STORE_FENCED,
+              failureCause));
       isFenced = true;
-      Thread standByTransitionThread =
-          new Thread(new StandByTransitionThread());
-      standByTransitionThread.setName("StandByTransitionThread Handler");
-      standByTransitionThread.start();
-    } else if (YarnConfiguration.shouldRMFailFast(getConfig())) {
-      LOG.fatal("Fail RM now due to state-store error!");
+    } else {
       rmDispatcher.getEventHandler().handle(
           new RMFatalEvent(RMFatalEventType.STATE_STORE_OP_FAILED,
               failureCause));
-    } else {
-      LOG.warn("Skip the state-store error.");
     }
+
     return isFenced;
   }
  
@@ -1059,14 +1056,6 @@ public abstract class RMStateStore extends AbstractService {
 
   public void setResourceManager(ResourceManager rm) {
     this.resourceManager = rm;
-  }
-
-  private class StandByTransitionThread implements Runnable {
-    @Override
-    public void run() {
-      LOG.info("RMStateStore has been fenced");
-      resourceManager.handleTransitionToStandBy();
-    }
   }
 
   public RMStateStoreState getRMStateStoreState() {
