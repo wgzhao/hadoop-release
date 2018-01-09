@@ -4838,3 +4838,5 @@ ATS V1.5:
 
     WASB-25. Fixed few ADFS bugs to unblock private preview
 
+    WASB-26. Adding more logging, support for OOB writes toleration.
+

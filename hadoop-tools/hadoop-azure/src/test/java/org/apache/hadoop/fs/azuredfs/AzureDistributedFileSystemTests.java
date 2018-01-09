@@ -42,6 +42,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
@@ -192,7 +193,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
-  public void   testWriteHeavyBytesToFile() throws Exception {
+  public void testWriteHeavyBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
@@ -260,6 +261,34 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     renamed = fs.rename(new Path(fs.getUri().toString() + "/"), new Path(fs.getUri().toString() + "/s"));
     assertFalse(renamed);
+  }
+
+  @Test (expected = IOException.class)
+  public void testOOBWrites() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    int readBufferSize = ServiceProviderImpl.instance().get(ConfigurationService.class).getReadBufferSize();
+
+    fs.create(new Path("testfile"));
+    FSDataOutputStream writeStream = fs.create(new Path("testfile"));
+
+    byte[] bytesToRead = new byte[readBufferSize];
+    final byte[] b = new byte[2 * readBufferSize];
+    new Random().nextBytes(b);
+
+    writeStream.write(b);
+    writeStream.flush();
+
+    FSDataInputStream readStream = fs.open(new Path("testfile"));
+    readStream.read(bytesToRead, 0, readBufferSize);
+
+    writeStream.write(b);
+    writeStream.flush();
+
+    readStream.read(bytesToRead, 0, readBufferSize);
+
+    writeStream.close();
+    readStream.close();
   }
 
   @After

@@ -40,6 +40,9 @@ import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.htrace.core.TraceScope;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
@@ -47,6 +50,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private final AzureDistributedFileSystem azureDistributedFileSystem;
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
+  private final TracingService tracingService;
+  private final LoggingService loggingService;
   private final Path path;
   private final int bufferSize;
   private final ExecutorService taskCleanupJobExecutor;
@@ -60,11 +65,15 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       final AdfsHttpService adfsHttpService,
       final AdfsBufferPool adfsBufferPool,
       final AzureDistributedFileSystem azureDistributedFileSystem,
+      final TracingService tracingService,
+      final LoggingService loggingService,
       final Path path,
       final long offset,
       final int bufferSize) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
+    Preconditions.checkNotNull(adfsBufferPool, "tracingService");
+    Preconditions.checkNotNull(adfsBufferPool, "loggingService");
     Preconditions.checkNotNull(path, "path");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
     Preconditions.checkArgument(offset >= 0);
@@ -74,6 +83,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.adfsBufferPool = adfsBufferPool;
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
+    this.tracingService = tracingService;
+    this.loggingService = loggingService;
     this.path = path;
     this.closed = false;
     this.bufferSize = bufferSize;
@@ -121,6 +132,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       throw new IndexOutOfBoundsException();
     }
 
+    this.loggingService.debug("AdfsOutputStream.write byte array length: {0} offset: {1} len: {2}", data.length, off, length);
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsOutputStream.write");
+
     int currentOffset = off;
     int writableBytes = this.buffer.maxWritableBytes();
     int numberOfBytesToWrite = length - currentOffset;
@@ -139,6 +153,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
       writableBytes = this.buffer.maxWritableBytes();
     }
+
+    this.tracingService.traceEnd(traceScope);
   }
 
   /**
@@ -225,6 +241,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       return;
     }
 
+    this.loggingService.debug("AdfsOutputStream.writeCurrentBufferToService");
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsOutputStream.writeCurrentBufferToService");
+
     try {
       final ByteBuf bytes = this.adfsBufferPool.copy(this.buffer);
       final int readableBytes = bytes.readableBytes();
@@ -255,9 +274,15 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
+    finally {
+      this.tracingService.traceEnd(traceScope);
+    }
   }
 
   private synchronized void flushWrittenBytesToService() throws IOException {
+    this.loggingService.debug("AdfsOutputStream.flushWrittenBytesToService");
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsOutputStream.flushWrittenBytesToService");
+
     for (Future<Void> task : this.tasks) {
       try {
         task.get();
@@ -282,6 +307,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       this.adfsBufferPool.releaseByteBuffer(this.buffer);
       this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
       this.tasks.clear();
+      this.tracingService.traceEnd(traceScope);
     }
   }
 }

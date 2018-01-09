@@ -31,12 +31,37 @@ public final class MockLoggingServiceImpl implements LoggingService {
   public final List<String> messages = new ArrayList<>();
 
   @Override
-  public void log(LogLevel logLevel, String message, String... arguments) {
+  public void log(LogLevel logLevel, String message, Object... arguments) {
     messages.add(message);
   }
 
   @Override
   public boolean logLevelEnabled(LogLevel logLevel) {
     return true;
+  }
+
+  @Override
+  public void debug(String message, Object... arguments) {
+    messages.add(message);
+  }
+
+  @Override
+  public void info(String message, Object... arguments) {
+    messages.add(message);
+  }
+
+  @Override
+  public void warning(String message, Object... arguments) {
+    messages.add(message);
+  }
+
+  @Override
+  public void error(String message, Object... arguments) {
+    messages.add(message);
+  }
+
+  @Override
+  public void trace(String message, Object... arguments) {
+    messages.add(message);
   }
 }

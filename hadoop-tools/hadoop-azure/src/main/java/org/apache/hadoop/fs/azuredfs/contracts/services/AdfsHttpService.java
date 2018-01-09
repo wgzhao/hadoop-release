@@ -192,8 +192,16 @@ public interface AdfsHttpService extends InjectableService {
    * @param length the length of read operation
    * @param readBuffer buffer to read the file content.
    * @param readBufferOffset offset of the read buffer.
+   * @return Integer total bytes read.
    */
-  Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int readBufferOffset) throws
+  Integer readFile(
+      AzureDistributedFileSystem azureDistributedFileSystem,
+      Path path,
+      String version,
+      long offset,
+      int length,
+      ByteBuf readBuffer,
+      int readBufferOffset) throws
       AzureDistributedFileSystemException;
 
   /**
@@ -204,10 +212,17 @@ public interface AdfsHttpService extends InjectableService {
    * @param length the length of read operation
    * @param readBuffer buffer to read the file content.
    * @param readBufferOffset offset of the read buffer.
-   * @return Future<void> Future of a Void object.
+   * @param version of the file.
+   * @return Future<Integer> Future of total bytes read.
    */
-  Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int
-      readBufferOffset) throws
+  Future<Integer> readFileAsync(
+      AzureDistributedFileSystem azureDistributedFileSystem,
+      Path path,
+      String version,
+      long offset,
+      int length,
+      ByteBuf readBuffer,
+      int readBufferOffset) throws
       AzureDistributedFileSystemException;
 
   /**

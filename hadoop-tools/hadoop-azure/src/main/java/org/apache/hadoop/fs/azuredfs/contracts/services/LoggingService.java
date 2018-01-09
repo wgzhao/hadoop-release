@@ -29,12 +29,12 @@ import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 @InterfaceStability.Evolving
 public interface LoggingService extends InjectableService {
   /**
-   * Logs the provided message which the provided logLevel to Hadoop logging system.
+   * Logs the provided message with the provided logLevel to Hadoop logging system.
    * @param logLevel the log level {@link LogLevel}
    * @param message the message to be logged.
    * @param arguments if message is formatted, the values must be provided as arguments.
    */
-  void log(LogLevel logLevel, String message, String... arguments);
+  void log(LogLevel logLevel, String message, Object... arguments);
 
   /**
    * Returns true whether a certain logLevel is enabled.
@@ -42,4 +42,39 @@ public interface LoggingService extends InjectableService {
    * @return true if provided log level is enabled.
    */
   boolean logLevelEnabled(LogLevel logLevel);
+
+  /**
+   * Logs the provided debug message to Hadoop logging system.
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void debug(String message, Object... arguments);
+
+  /**
+   * Logs the provided info message to Hadoop logging system.
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void info(String message, Object... arguments);
+
+  /**
+   * Logs the provided warning message to Hadoop logging system.
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void warning(String message, Object... arguments);
+
+  /**
+   * Logs the provided error message to Hadoop logging system.
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void error(String message, Object... arguments);
+
+  /**
+   * Logs the provided trace message to Hadoop logging system.
+   * @param message the message to be logged.
+   * @param arguments if message is formatted, the values must be provided as arguments.
+   */
+  void trace(String message, Object... arguments);
 }

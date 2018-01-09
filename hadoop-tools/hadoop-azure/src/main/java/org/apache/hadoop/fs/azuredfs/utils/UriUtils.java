@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * Utility class to help with Adfs url transformation to blob urls.
  */
 public final class UriUtils {
-  private static final String ADFS_URI_REGEX = "[^.]+.dfs(\\.*)[^.]*(\\.*)core.windows.net";
+  private static final String ADFS_URI_REGEX = "[^.]+.dfs.(preprod.){0,1}core.windows.net";
   private static final Pattern ADFS_URI_PATTERN = Pattern.compile(ADFS_URI_REGEX);
 
   /**

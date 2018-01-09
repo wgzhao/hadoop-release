@@ -31,7 +31,6 @@ import org.threadly.concurrent.collections.ConcurrentArrayList;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
@@ -245,7 +244,7 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
       newSleepDuration = Math.min(newSleepDuration, maxSleepDuration);
     }
 
-    this.loggingService.log(LogLevel.Debug, String.format(
+    this.loggingService.debug(String.format(
           "%5.5s, %10d, %10d, %10d, %10d, %6.2f, %5d, %5d, %5d",
           accountName,
           (int) bytesFailed,

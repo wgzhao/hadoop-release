@@ -30,6 +30,8 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 
 /**
  * Adfs http client implementation.
@@ -39,16 +41,21 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 final class AdfsUnMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
   public AdfsUnMonitoredHttpClientImpl(
       final String baseUrl,
+      final ConfigurationService configurationService,
       final Interceptor networkInterceptor,
       final AdfsHttpClientSession adfsHttpClientSession,
-      final RetryStrategy retryStrategy) {
+      final RetryStrategy retryStrategy,
+      final LoggingService loggingService) {
     super(adfsHttpClientSession,
+        loggingService,
         new RestClient.Builder()
         .withBaseUrl(baseUrl)
         .withNetworkInterceptor(networkInterceptor)
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
         .withSerializerAdapter(new JacksonAdapter())
         .withRetryStrategy(retryStrategy)
+        .withMaxIdleConnections(configurationService.getMaxConcurrentReadThreads() + configurationService.getMaxConcurrentWriteThreads())
+        .withConnectionTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
         .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
         .build());
   }

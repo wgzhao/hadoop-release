@@ -93,7 +93,16 @@ class ConfigurationServiceImpl implements ConfigurationService {
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_OUT,
       MinValue = 1,
       DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_THREADS)
-  private int maxConcurrentThreads;
+  private int maxConcurrentWriteThreads;
+
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_IN,
+      MinValue = 1,
+      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_THREADS)
+  private int maxConcurrentReadThreads;
+
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_TOLERATE_CONCURRENT_APPEND,
+      DefaultValue = FileSystemConfigurations.DEFAULT_READ_TOLERATE_CONCURRENT_APPEND)
+  private boolean tolerateOobAppends;
 
   private Map<String, String> storageAccountKeys;
 
@@ -174,12 +183,18 @@ class ConfigurationServiceImpl implements ConfigurationService {
   public String getAzureBlockLocationHost() { return this.azureBlockLocationHost; }
 
   @Override
-  public int getMaxConcurrentThreads() { return this.maxConcurrentThreads; }
+  public int getMaxConcurrentWriteThreads() { return this.maxConcurrentWriteThreads; }
+
+  @Override
+  public int getMaxConcurrentReadThreads() { return this.maxConcurrentReadThreads; }
+
+  @Override
+  public boolean getTolerateOobAppends() { return this.tolerateOobAppends; }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(
         ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME, "", true);
-    this.storageAccountKeys = this.configuration.getValByRegex(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME);
+    this.storageAccountKeys = this.configuration.getValByRegex(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME_REGX);
 
     for (String key : this.storageAccountKeys.keySet()) {
       validator.validate(storageAccountKeys.get(key));

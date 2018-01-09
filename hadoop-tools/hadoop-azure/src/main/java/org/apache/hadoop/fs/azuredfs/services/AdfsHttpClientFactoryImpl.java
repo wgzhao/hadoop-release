@@ -39,6 +39,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFa
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.http.client.utils.URIBuilder;
 
 @Singleton
@@ -50,6 +51,7 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   private final AdfsRetryStrategyFactory adfsRetryStrategyFactory;
   private final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory;
   private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final LoggingService loggingService;
   private final boolean autoThrottleEnabled;
 
   @Inject
@@ -58,24 +60,30 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
       final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
       final AdfsRetryStrategyFactory adfsRetryStrategyFactory,
-      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory) {
+      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory,
+      final LoggingService loggingService) {
 
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(adfsHttpClientSessionFactory, "adfsHttpClientSessionFactory");
     Preconditions.checkNotNull(adfsRetryStrategyFactory, "adfsRetryStrategyFactory");
     Preconditions.checkNotNull(adfsNetworkInterceptorFactory, "adfsNetworkInterceptorFactory");
     Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.configurationService = configurationService;
     this.adfsHttpClientSessionFactory = adfsHttpClientSessionFactory;
     this.adfsRetryStrategyFactory = adfsRetryStrategyFactory;
     this.adfsNetworkInterceptorFactory = adfsNetworkInterceptorFactory;
     this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
+    this.loggingService = loggingService;
     this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, false);
   }
 
   @Override
   public AdfsHttpClient create(final FileSystem fs) throws AzureDistributedFileSystemException {
+    this.loggingService.debug(
+        "Creating AdfsHttpClient for filesystem: {0}", fs.getUri());
+
     final AdfsHttpClientSession adfsHttpClientSession =
         this.adfsHttpClientSessionFactory.create(fs);
 
@@ -89,6 +97,9 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
         this.adfsRetryStrategyFactory.create();
 
     if (autoThrottleEnabled) {
+      this.loggingService.debug(
+          "Auto throttle is enabled, creating AdfsMonitoredHttpClientImpl for filesystem: {0}", adfsHttpClientSession.getFileSystem());
+
       final Interceptor networkThrottler =
           this.adfsNetworkInterceptorFactory.createNetworkThrottler(adfsHttpClientSession);
 
@@ -97,19 +108,26 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
 
       return new AdfsMonitoredHttpClientImpl(
           uriBuilder.toString(),
+          configurationService,
           networkInterceptor,
           networkThrottler,
           networkThroughputMonitor,
           adfsHttpClientSession,
           adfsNetworkTrafficAnalysisService,
-          retryStrategy);
+          retryStrategy,
+          loggingService);
     }
+
+    this.loggingService.debug(
+        "Auto throttle is disabled, creating AdfsUnMonitoredHttpClientImpl for filesystem: {0}", adfsHttpClientSession.getFileSystem());
 
     return new AdfsUnMonitoredHttpClientImpl(
         uriBuilder.toString(),
+        configurationService,
         networkInterceptor,
         adfsHttpClientSession,
-        retryStrategy);
+        retryStrategy,
+        loggingService);
   }
 
   @VisibleForTesting

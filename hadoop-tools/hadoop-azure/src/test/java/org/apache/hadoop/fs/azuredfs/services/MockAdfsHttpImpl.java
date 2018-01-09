@@ -128,13 +128,14 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public Void readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int readBufferOffset) throws AzureDistributedFileSystemException {
+  public Integer readFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, String version, long offset, int length, ByteBuf readBuffer, int
+      readBufferOffset) throws AzureDistributedFileSystemException {
     return null;
   }
 
   @Override
-  public Future<Void> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, int length, ByteBuf readBuffer, int
-      readBufferOffset) throws AzureDistributedFileSystemException {
+  public Future<Integer> readFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, String version, long offset, int length, ByteBuf
+      readBuffer, int readBufferOffset) throws AzureDistributedFileSystemException {
     return null;
   }
 

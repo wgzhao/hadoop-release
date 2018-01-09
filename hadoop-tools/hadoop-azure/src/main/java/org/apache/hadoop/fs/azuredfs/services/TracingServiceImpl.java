@@ -45,6 +45,7 @@ import org.apache.htrace.core.Tracer;
 final class TracingServiceImpl implements TracingService {
   private final LoggingService loggingService;
   private final Tracer tracer;
+  private final ThreadLocal<SpanId> currentScopeId;
 
   @Inject
   TracingServiceImpl(
@@ -54,6 +55,7 @@ final class TracingServiceImpl implements TracingService {
     Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.loggingService = loggingService;
+    this.currentScopeId = new ThreadLocal<>();
 
     this.tracer = new Tracer.Builder(TracingServiceImpl.class.getSimpleName()).
         conf(new HTraceConfiguration() {
@@ -83,30 +85,30 @@ final class TracingServiceImpl implements TracingService {
   public TraceScope traceBegin(String description) {
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
       TraceScope traceScope = this.tracer.newScope(description);
-      traceScope.addTimelineAnnotation("Begin: " + description);
+      this.currentScopeId.set(traceScope.getSpanId());
       return traceScope;
     }
 
-    return this.tracer.newNullScope();
+    return null;
   }
 
   @Override
   public TraceScope traceBegin(String description, SpanId parentSpanId) {
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
       TraceScope traceScope = this.tracer.newScope(description, parentSpanId);
-      traceScope.addTimelineAnnotation("End: " + description);
+      this.currentScopeId.set(traceScope.getSpanId());
       return traceScope;
     }
 
-    return this.tracer.newNullScope();
+    return null;
   }
 
   @Override
   public void traceException(TraceScope traceScope, AzureDistributedFileSystemException azureDistributedFileSystemException) {
-    Preconditions.checkNotNull(traceScope, "traceScope");
-    Preconditions.checkNotNull(azureDistributedFileSystemException, "azureDistributedFileSystemException");
-
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
+      Preconditions.checkNotNull(traceScope, "traceScope");
+      Preconditions.checkNotNull(azureDistributedFileSystemException, "azureDistributedFileSystemException");
+
       StringWriter stringWriter = new StringWriter();
       PrintWriter printWriter = new PrintWriter(stringWriter);
       azureDistributedFileSystemException.printStackTrace(printWriter);
@@ -117,10 +119,17 @@ final class TracingServiceImpl implements TracingService {
   }
 
   @Override
-  public void traceEnd(TraceScope traceScope) {
-    Preconditions.checkNotNull(traceScope, "traceScope");
+  public SpanId getCurrentTraceScopeSpanId() {
+    return this.currentScopeId.get();
+  }
 
+  @Override
+  public void traceEnd(TraceScope traceScope) {
     if (this.loggingService.logLevelEnabled(LogLevel.Trace)) {
+      Preconditions.checkNotNull(traceScope, "traceScope");
+
+      SpanId[] parents = traceScope.getSpan().getParents();
+      this.currentScopeId.set(parents != null && parents.length > 0 ? parents[parents.length - 1] : null);
       traceScope.close();
     }
   }

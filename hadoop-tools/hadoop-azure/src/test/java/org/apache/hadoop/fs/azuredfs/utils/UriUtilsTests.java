@@ -30,6 +30,7 @@ public final class UriUtilsTests {
     Assert.assertFalse(UriUtils.containsAdfsUrl(""));
     Assert.assertFalse(UriUtils.containsAdfsUrl(null));
     Assert.assertFalse(UriUtils.containsAdfsUrl("adfs.dfs.cores.windows.net"));
+    Assert.assertFalse(UriUtils.containsAdfsUrl("xhdfs.blob.core.windows.net"));
   }
 
   @Test

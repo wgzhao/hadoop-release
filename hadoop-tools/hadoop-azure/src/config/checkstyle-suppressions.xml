@@ -47,4 +47,10 @@
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
               files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]rest[\\/]client[\\/]generated[\\/]AzureDistributedFileSystemRestClient.java"/>
+
+    <suppress checks="ParameterNumber|UnusedImportsCheck"
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsMonitoredHttpClientImpl.java"/>
+
+    <suppress checks="ParameterNumber|UnusedImportsCheck"
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsInputStream.java"/>
 </suppressions>

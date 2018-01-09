@@ -41,7 +41,7 @@ public final class JsonUtils {
       ObjectMapper mapper = new ObjectMapper();
       return mapper.reader(Map.class).readValue(jsonString);
     } catch (Exception e) {
-      LOG.debug("JSON Parsing exception: {} while parsing {}", e.getMessage(),
+      LOG.debug("JSON Parsing exception: {0} while parsing {1}", e.getMessage(),
           jsonString);
       if (jsonString.toLowerCase(Locale.ENGLISH).contains("server error")) {
         LOG.error(

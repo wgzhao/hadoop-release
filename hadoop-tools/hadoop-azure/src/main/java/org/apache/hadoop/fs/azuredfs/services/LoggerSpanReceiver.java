@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
-import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.htrace.core.HTraceConfiguration;
 import org.apache.htrace.core.Span;
@@ -33,6 +32,7 @@ import org.apache.htrace.core.SpanReceiver;
 import org.apache.htrace.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.htrace.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.htrace.fasterxml.jackson.databind.ObjectWriter;
+import org.apache.htrace.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * LoggerSpanReceiver is a layer between HTrace and log4j only used for {@link org.apache.hadoop.fs.azuredfs.contracts.services.TracingService}
@@ -40,7 +40,13 @@ import org.apache.htrace.fasterxml.jackson.databind.ObjectWriter;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class LoggerSpanReceiver extends SpanReceiver {
-  private static final ObjectWriter JSON_WRITER = new ObjectMapper().writer();
+  private static final ObjectWriter JSON_WRITER =
+      new ObjectMapper()
+          .configure(SerializationFeature.INDENT_OUTPUT, true)
+          .configure(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN, true)
+          .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+          .configure(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID, false)
+          .writer();
 
   public LoggerSpanReceiver(HTraceConfiguration hTraceConfiguration) {
     Preconditions.checkNotNull(hTraceConfiguration, "hTraceConfiguration");
@@ -54,13 +60,13 @@ public class LoggerSpanReceiver extends SpanReceiver {
     try {
       loggingService = ServiceProviderImpl.instance().get(LoggingService.class);
       jsonValue = JSON_WRITER.writeValueAsString(span);
-      loggingService.log(LogLevel.Trace, jsonValue);
+      loggingService.trace(jsonValue);
     }
     catch (ServiceResolutionException e) {
       // Can't log, logging service is invalid.
     }
     catch (JsonProcessingException e) {
-      loggingService.log(LogLevel.Error, "Json processing error: " + e.getMessage());
+      loggingService.error("Json processing error: " + e.getMessage());
     }
   }
 

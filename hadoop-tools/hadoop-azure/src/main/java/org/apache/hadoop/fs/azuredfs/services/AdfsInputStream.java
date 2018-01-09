@@ -38,14 +38,18 @@ import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.htrace.core.TraceScope;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AdfsInputStream extends FSInputStream {
-
   private final AzureDistributedFileSystem azureDistributedFileSystem;
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
+  private final TracingService tracingService;
+  private final LoggingService loggingService;
   private final Path path;
 
   private long offset;
@@ -53,24 +57,34 @@ final class AdfsInputStream extends FSInputStream {
   private long fileLength = 0;
   private ByteBuf buffer;
   private boolean closed;
-  private List<Future<Void>> tasks;
+  private List<Future<Integer>> tasks;
   private final int bufferSize;
+  private final String version;
 
   AdfsInputStream(
       final AdfsBufferPool adfsBufferPool,
       final AdfsHttpService adfsHttpService,
       final AzureDistributedFileSystem azureDistributedFileSystem,
+      final TracingService tracingService,
+      final LoggingService loggingService,
       final Path path,
       final long fileLength,
-      final int bufferSize) {
+      final int bufferSize,
+      final String version) {
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
+    Preconditions.checkNotNull(tracingService, "tracingService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
     Preconditions.checkNotNull(path, "path");
     Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE);
+    Preconditions.checkNotNull(version, "version");
+    Preconditions.checkArgument(version.length() > 0);
 
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
+    this.tracingService = tracingService;
+    this.loggingService = loggingService;
     this.path = path;
     this.offset = 0;
     this.bufferOffsetInStream = -1;
@@ -81,6 +95,7 @@ final class AdfsInputStream extends FSInputStream {
     this.adfsBufferPool = adfsBufferPool;
     this.buffer = this.adfsBufferPool.getByteBuffer(new byte[this.bufferSize]);
     this.buffer.clear();
+    this.version = version;
   }
 
   /**
@@ -145,6 +160,9 @@ final class AdfsInputStream extends FSInputStream {
    */
   @Override
   public synchronized int read(final byte[] b, final int off, final int len) throws IOException {
+    this.loggingService.debug("AdfsInputStream.read byte array length: {0} offset: {1} len: {2}", b.length, off, len);
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsInputStream.read");
+
     if (closed) {
       throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
@@ -167,7 +185,6 @@ final class AdfsInputStream extends FSInputStream {
       }
 
       return readFromService(b, off, len);
-
     } catch (InterruptedException | ExecutionException ex) {
       for (Future task : tasks) {
         if (!task.isDone()) {
@@ -178,6 +195,7 @@ final class AdfsInputStream extends FSInputStream {
       throw new IOException(ex);
     } finally {
       this.tasks.clear();
+      this.tracingService.traceEnd(traceScope);
     }
   }
 
@@ -220,6 +238,9 @@ final class AdfsInputStream extends FSInputStream {
   }
 
   private synchronized int readFromService(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
+    this.loggingService.debug("AdfsInputStream.readFromService byte array length: {0} offset: {1} len: {2}", b.length, off, len);
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsInputStream.readFromService");
+
     int readLength = available() > len ? len : available();
     int remainingBytesToRead = readLength;
     int bufferOffset = off;
@@ -227,68 +248,68 @@ final class AdfsInputStream extends FSInputStream {
     final ByteBuf bytesBuffer = this.adfsBufferPool.getByteBuffer(b);
 
     while (remainingBytesToRead != 0) {
-      if (remainingBytesToRead < bufferSize) {
-        sendReadRequest(
-            this.offset,
-            remainingBytesToRead,
-            bytesBuffer,
-            bufferOffset);
+      int bytesToRead = remainingBytesToRead > bufferSize ? bufferSize : remainingBytesToRead;
 
-        this.offset += remainingBytesToRead;
-        bufferOffset += remainingBytesToRead;
+      sendReadRequest(
+          this.offset,
+          bytesToRead,
+          bytesBuffer,
+          bufferOffset);
 
-        remainingBytesToRead = 0;
-      } else {
-        sendReadRequest(
-            this.offset,
-            bufferSize,
-            bytesBuffer,
-            bufferOffset);
+      this.offset += bytesToRead;
 
-        this.offset += bufferSize;
-        bufferOffset += bufferSize;
-
-        remainingBytesToRead -= bufferSize;
-      }
+      bufferOffset += bytesToRead;
+      remainingBytesToRead -= bytesToRead;
     }
 
-    for (Future<Void> task : tasks) {
-      task.get();
-    }
+    int totalBytesRead = this.waitAllAndGetTotalReadBytes();
+    Preconditions.checkArgument(readLength == totalBytesRead);
 
     this.adfsBufferPool.releaseByteBuffer(bytesBuffer);
+    this.tracingService.traceEnd(traceScope);
     return readLength;
   }
 
   private synchronized int readFromBuffer(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
+    this.loggingService.debug("AdfsInputStream.readFromBuffer byte array length: {0} offset: {1} len: {2}", b.length, off, len);
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsInputStream.readFromBuffer");
+
     // Check to see if we already buffered the request.
     if (this.offset >= bufferOffsetInStream
         && this.offset + len <= bufferOffsetInStream + this.buffer.writerIndex()) {
-
       long startOffset = this.offset - bufferOffsetInStream;
       this.buffer.readerIndex((int) startOffset);
     }
     else {
-      int readLength = this.bufferSize > available() ? available() : this.bufferSize;
-      this.buffer.setIndex(0, readLength);
+      int remainingSize = this.bufferSize > available() ? available() : this.bufferSize;
+      this.buffer.setIndex(0, remainingSize);
 
       sendReadRequest(
           this.offset,
-          readLength,
+          remainingSize,
           this.buffer,
           0);
 
-      for (Future<Void> task : tasks) {
-        task.get();
-      }
+      int totalBytesRead = this.waitAllAndGetTotalReadBytes();
+      Preconditions.checkArgument(totalBytesRead == remainingSize);
 
       this.bufferOffsetInStream = this.offset;
     }
 
-    int readLength = available() > len ? len : available();
+    int readLength = len > available() ? available() : len;
     this.offset += readLength;
     this.buffer.readBytes(b, off, readLength);
+    this.tracingService.traceEnd(traceScope);
     return readLength;
+  }
+
+  private synchronized int waitAllAndGetTotalReadBytes() throws InterruptedException, ExecutionException {
+    int totalBytesRead = 0;
+    for (Future<Integer> task : tasks) {
+      totalBytesRead += task.get();
+    }
+
+    return totalBytesRead;
   }
 
   private synchronized void sendReadRequest(
@@ -298,21 +319,18 @@ final class AdfsInputStream extends FSInputStream {
       final int bufferOffset) throws IOException {
 
     try {
-      final Future<Void> read = this.adfsHttpService.readFileAsync(
+      final Future<Integer> read = this.adfsHttpService.readFileAsync(
           this.azureDistributedFileSystem,
           path,
+          version,
           serviceOffset,
           serviceLength,
           targetBuffer,
           bufferOffset);
 
-      read.get();
-
       this.tasks.add(read);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
-    } catch (ExecutionException | InterruptedException ex) {
-      Thread.currentThread().interrupt();
     }
   }
 }

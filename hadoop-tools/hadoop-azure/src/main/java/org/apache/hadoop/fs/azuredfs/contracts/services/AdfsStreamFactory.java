@@ -37,9 +37,10 @@ public interface AdfsStreamFactory extends InjectableService {
    * @param azureDistributedFileSystem filesystem to create a read stream to a file path.
    * @param path file path to be read.
    * @param fileSize size of the file to create the read stream to.
+   * @param version version of the file.
    * @return InputStream a stream to the provided path.
    */
-  InputStream createReadStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long fileSize);
+  InputStream createReadStream(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long fileSize, String version);
 
   /**
    * Creates a write stream to the provided path on the service.

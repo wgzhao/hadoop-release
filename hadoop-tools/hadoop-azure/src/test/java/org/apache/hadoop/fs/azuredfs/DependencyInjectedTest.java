@@ -66,9 +66,9 @@ public abstract class DependencyInjectedTest {
     this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
 
     this.isEmulator = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
-    this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
 
     if (isEmulator) {
+      this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
       this.mockServiceInjector.replaceProvider(AdfsHttpClientSessionFactory.class, MockAdfsHttpClientSessionFactoryImpl
           .class);
       this.mockServiceInjector.replaceProvider(ConfigurationService.class, MockConfigurationServiceImpl.class);

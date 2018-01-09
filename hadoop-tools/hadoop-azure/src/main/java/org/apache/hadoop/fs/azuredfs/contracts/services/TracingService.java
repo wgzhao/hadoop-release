@@ -46,6 +46,12 @@ public interface TracingService extends InjectableService {
   TraceScope traceBegin(final String description, SpanId parentSpanId);
 
   /**
+   * Gets current thread latest generated traceScope id.
+   * @return current thread latest generated traceScope id.
+   */
+  SpanId getCurrentTraceScopeSpanId();
+
+  /**
    * Appends the provided exception to the trace scope.
    * @param traceScope the scope which exception needs to be attached to.
    * @param azureDistributedFileSystemException the exception to be attached to the scope.

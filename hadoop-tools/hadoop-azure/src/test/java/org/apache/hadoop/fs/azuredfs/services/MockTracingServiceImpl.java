@@ -38,6 +38,11 @@ public final class MockTracingServiceImpl implements TracingService {
   }
 
   @Override
+  public SpanId getCurrentTraceScopeSpanId() {
+    return null;
+  }
+
+  @Override
   public void traceException(TraceScope traceScope, AzureDistributedFileSystemException azureDistributedFileSystemException) {
   }
 

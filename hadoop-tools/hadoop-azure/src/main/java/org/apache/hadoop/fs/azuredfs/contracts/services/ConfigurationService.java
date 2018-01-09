@@ -104,7 +104,19 @@ public interface ConfigurationService extends InjectableService {
 
   /**
    * Retrieves configured number of concurrent threads
-   * @return number of concurrent threads
+   * @return number of concurrent write threads
    */
-  int getMaxConcurrentThreads();
+  int getMaxConcurrentWriteThreads();
+
+  /**
+   * Retrieves configured number of concurrent threads
+   * @return number of concurrent read threads
+   */
+  int getMaxConcurrentReadThreads();
+
+  /**
+   * Retrieves configured boolean for tolerating out of band writes to files
+   * @return configured boolean for tolerating out of band writes to files
+   */
+  boolean getTolerateOobAppends();
 }

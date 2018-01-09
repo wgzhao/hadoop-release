@@ -52,6 +52,7 @@ public final class FileSystemConfigurations {
   public static final String AZURE_BLOCK_LOCATION_HOST_DEFAULT = "localhost";
 
   public static final int MAX_CONCURRENT_THREADS = 40;
+  public static final boolean DEFAULT_READ_TOLERATE_CONCURRENT_APPEND = false;
 
   private FileSystemConfigurations() {}
 }

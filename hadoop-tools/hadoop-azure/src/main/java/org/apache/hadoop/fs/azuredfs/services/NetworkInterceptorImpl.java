@@ -31,21 +31,32 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.htrace.core.TraceScope;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class NetworkInterceptorImpl implements Interceptor {
   private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
   private final AdfsHttpClientSession adfsHttpClientSession;
+  private final TracingService tracingService;
+  private final LoggingService loggingService;
 
   NetworkInterceptorImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsHttpAuthorizationService adfsHttpAuthorizationService) {
+      final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
+      final LoggingService loggingService,
+      final TracingService tracingService) {
     Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
+    Preconditions.checkNotNull(tracingService, "tracingService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
     this.adfsHttpClientSession = adfsHttpClientSession;
+    this.tracingService = tracingService;
+    this.loggingService = loggingService;
   }
 
   @Override
@@ -53,6 +64,9 @@ final class NetworkInterceptorImpl implements Interceptor {
       throws IOException {
 
     Request request = chain.request();
+
+    final String scopeDescription = "Request METHOD: " + request.method() + " Url: " + request.url();
+    final TraceScope traceScope = this.tracingService.traceBegin(scopeDescription);
 
     try {
       request = this.adfsHttpAuthorizationService.updateRequestWithAuthorizationHeader(
@@ -62,6 +76,11 @@ final class NetworkInterceptorImpl implements Interceptor {
       throw new IOException(exception);
     }
 
-    return chain.proceed(request);
+    this.loggingService.debug("Sending request {0}", request.toString());
+    final Response response = chain.proceed(request);
+    this.tracingService.traceEnd(traceScope);
+    this.loggingService.debug("Received response {0} for request {1}", response.toString(), request.toString());
+
+    return response;
   }
 }

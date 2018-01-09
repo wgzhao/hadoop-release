@@ -46,6 +46,7 @@ import com.microsoft.azure.dfs.rest.client.generated.models.GetPathPropertiesHea
 import com.microsoft.azure.dfs.rest.client.generated.models.ListEntrySchema;
 import com.microsoft.azure.dfs.rest.client.generated.models.ListSchema;
 import com.microsoft.rest.ServiceResponseWithHeaders;
+import com.sun.istack.Nullable;
 import io.netty.buffer.ByteBuf;
 import okhttp3.Headers;
 import org.joda.time.DateTime;
@@ -64,6 +65,7 @@ import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceNetworkException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidFileSystemPropertyException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
@@ -73,7 +75,11 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.htrace.core.SpanId;
+import org.apache.htrace.core.TraceScope;
 
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
@@ -86,11 +92,12 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String FILE_SYSTEM = "filesystem";
   private static final String FILE = "file";
   private static final String DIRECTORY = "directory";
+  private static final String ETAG = "Etag";
   private static final String DATE_TIME_PATTERN = "E, dd MMM yyyy HH:mm:ss 'GMT'";
   private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String COMP_PROPERTIES = "properties";
+  private static final String CONDITIONAL_ALL = "*";
   private static final int LIST_MAX_RESULTS = 5000;
-  private static final int WRITE_BUFFER_SIZE = 8192;
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
   private final AdfsStreamFactory adfsStreamFactory;
@@ -98,23 +105,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private final ThreadPoolExecutor writeExecutorService;
   private final ThreadPoolExecutor readExecutorService;
   private final ConfigurationService configurationService;
+  private final TracingService tracingService;
+  private final LoggingService loggingService;
 
   @Inject
   AdfsHttpServiceImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientFactory adfsHttpClientFactory,
-      final AdfsStreamFactory adfsStreamFactory) {
+      final AdfsStreamFactory adfsStreamFactory,
+      final TracingService tracingService,
+      final LoggingService loggingService) {
     Preconditions.checkNotNull(adfsHttpClientFactory, "adfsHttpClientFactory");
     Preconditions.checkNotNull(adfsStreamFactory, "adfsStreamFactory");
     Preconditions.checkNotNull(configurationService, "configurationService");
+    Preconditions.checkNotNull(tracingService, "tracingService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.configurationService = configurationService;
     this.adfsStreamFactory = adfsStreamFactory;
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
+    this.tracingService = tracingService;
+    this.loggingService = loggingService;
 
-    this.readExecutorService = createThreadPoolExecutor(this.configurationService.getMaxConcurrentThreads());
-    this.writeExecutorService = createThreadPoolExecutor(this.configurationService.getMaxConcurrentThreads());
+    int maxConcurrentWriteThreads = this.configurationService.getMaxConcurrentWriteThreads();
+    int maxConcurrentReadThreads = this.configurationService.getMaxConcurrentReadThreads();
+
+    this.loggingService.debug(
+        "Creating AdfsHttpServiceImpl with read pool capacity of {0} and write pool capacity of {1}",
+        maxConcurrentReadThreads,
+        maxConcurrentWriteThreads);
+
+    this.readExecutorService = createThreadPoolExecutor(maxConcurrentReadThreads);
+    this.writeExecutorService = createThreadPoolExecutor(maxConcurrentWriteThreads);
   }
 
   @Override
@@ -134,12 +157,14 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Hashtable<String, String> getFilesystemProperties(final AzureDistributedFileSystem azureDistributedFileSystem)
       throws AzureDistributedFileSystemException {
-    return execute(new Callable<Hashtable<String, String>>() {
-      @Override
-      public Hashtable<String, String> call() throws Exception {
-        return getFilesystemPropertiesAsync(azureDistributedFileSystem).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.getFilesystemProperties",
+      new Callable<Hashtable<String, String>>() {
+        @Override
+        public Hashtable<String, String> call() throws Exception {
+          return getFilesystemPropertiesAsync(azureDistributedFileSystem).get();
+        }
+      });
   }
 
   @Override
@@ -147,25 +172,37 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
 
+    this.loggingService.debug(
+        "getFilesystemPropertiesAsync for filesystem: {0}",
+        adfsHttpClient.getSession().getFileSystem());
+
     final Callable<Hashtable<String, String>> asyncCallable = new Callable<Hashtable<String, String>>() {
       @Override
       public Hashtable<String, String> call() throws Exception {
-        return getFileSystemPropertiesInternal(adfsHttpClient).toBlocking().single();
+        Hashtable<String, String> properties = getFileSystemPropertiesInternal(adfsHttpClient).toBlocking().single();
+
+        loggingService.debug(
+            "Fetched filesystem properties for fs: {0}, properties: {1}",
+            adfsHttpClient.getSession().getFileSystem(),
+            properties);
+
+        return properties;
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.getFilesystemPropertiesAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
   public void setFilesystemProperties(final AzureDistributedFileSystem azureDistributedFileSystem, final Hashtable<String, String> properties) throws
       AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return setFilesystemPropertiesAsync(azureDistributedFileSystem, properties).get();
-      }
-    });
+    execute("AdfsHttpServiceImpl.setFilesystemProperties",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return setFilesystemPropertiesAsync(azureDistributedFileSystem, properties).get();
+        }
+      });
   }
 
   @Override
@@ -177,6 +214,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     }
 
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "setFilesystemPropertiesAsync for filesystem: {0} with properties: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        properties);
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -198,25 +240,31 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             adfsHttpClient.getSession().getFileSystem(),
             FILE_SYSTEM,
             serializedProperties,
-            null,
-            0,
-            null,
-            null).toBlocking().single();
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* xMsClientRequestId */,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null /* authorization */,
+            null /* xMsDate */).toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.setFilesystemPropertiesAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public Hashtable<String, String> getPathProperties(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    return execute(new Callable<Hashtable<String, String>>() {
-      @Override
-      public Hashtable<String, String> call() throws Exception {
-        return getPathPropertiesAsync(azureDistributedFileSystem, path).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.getPathProperties",
+      new Callable<Hashtable<String, String>>() {
+        @Override
+        public Hashtable<String, String> call() throws Exception {
+          return getPathPropertiesAsync(azureDistributedFileSystem, path).get();
+        }
+      });
   }
 
   @Override
@@ -224,24 +272,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
 
+    this.loggingService.debug(
+        "getPathPropertiesAsync for filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
+
     final Callable<Hashtable<String, String>> asyncCallable = new Callable<Hashtable<String, String>>() {
       @Override
       public Hashtable<String, String> call() throws Exception {
-        return getPathPropertiesInternal(adfsHttpClient, path).toBlocking().firstOrDefault(new Hashtable<String, String>());
+        Hashtable<String, String> properties = getPathPropertiesInternal(adfsHttpClient, path).toBlocking().firstOrDefault(new Hashtable<String, String>());
+
+        loggingService.debug(
+            "getPathPropertiesAsync properties for filesystem: {0} path: {1} properties: {2}",
+            adfsHttpClient.getSession().getFileSystem(),
+            path.toString(),
+            properties);
+
+        return properties;
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.getPathPropertiesAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
   public void createFilesystem(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return createFilesystemAsync(azureDistributedFileSystem).get();
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.createFilesystem",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return createFilesystemAsync(azureDistributedFileSystem).get();
+        }
+      });
   }
 
   @Override
@@ -250,37 +313,47 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
 
+    this.loggingService.debug(
+        "createFilesystemAsync for filesystem: {0}",
+        adfsHttpClient.getSession().getFileSystem());
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         return adfsHttpClient.createFilesystemAsync(
             adfsHttpClient.getSession().getFileSystem(),
             FILE_SYSTEM,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null).toBlocking().single();
+            null /* xMsProperties */,
+            null /* xMsOriginationId */,
+            null /* xMsClientRequestId */,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null /* authorization */,
+            null /* xMsDate */).toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.createFilesystemAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public void deleteFilesystem(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return deleteFilesystemAsync(azureDistributedFileSystem).get();
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.deleteFilesystem",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return deleteFilesystemAsync(azureDistributedFileSystem).get();
+        }
+      });
   }
 
   @Override
   public Future<Void> deleteFilesystemAsync(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "deleteFilesystemAsync for filesystem: {0}",
+        adfsHttpClient.getSession().getFileSystem());
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -289,49 +362,76 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.deleteFilesystemAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public OutputStream createFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite) throws
       AzureDistributedFileSystemException {
-    return execute(new Callable<OutputStream>() {
-      @Override
-      public OutputStream call() throws Exception {
-        return createFileAsync(azureDistributedFileSystem, path, overwrite).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.createFile",
+      new Callable<OutputStream>() {
+        @Override
+        public OutputStream call() throws Exception {
+          return createFileAsync(azureDistributedFileSystem, path, overwrite).get();
+        }
+      });
   }
 
   @Override
   public Future<OutputStream> createFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite)
       throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+
+    this.loggingService.debug(
+        "createFileAsync filesystem: {0} path: {1} overwrite: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        overwrite);
+
     final Callable<OutputStream> asyncCallable = new Callable<OutputStream>() {
       @Override
       public OutputStream call() throws Exception {
-        // This needs to be updated with swagger.
+        String ifNoneMatch = null;
         if (!overwrite) {
-          try {
-            getPathPropertiesInternal(adfsHttpClient, path).toBlocking().single();
-            // We shouldn't be here
-            throw new AzureServiceErrorResponseException(
-                AzureServiceErrorCode.PRE_CONDITION_FAILED.getStatusCode(),
-                AzureServiceErrorCode.PRE_CONDITION_FAILED.getErrorCode(),
-                "Overwrite is false and file exists, createFileAsync should fail.",
-                null);
-          }
-          catch (ErrorSchemaException ex) {
-            if (ex.response().code() != AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode()) {
-              throw ex;
-            }
-          }
+          ifNoneMatch = CONDITIONAL_ALL;
         }
 
         return adfsHttpClient.createPathAsync(
             getResource(false),
             adfsHttpClient.getSession().getFileSystem(),
-            getRelativePath(path)).
+            getRelativePath(path),
+            null /* contentLength */,
+            null /* contentType */,
+            null /* contentEncoding */,
+            null /* contentLanguage */,
+            null /* contentMD5 */,
+            null /* xMsCacheControl */,
+            null /* xMsContentType */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
+            null /* xMsRenameSource */,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsProposedLeaseId */,
+            null /* xMsSourceLeaseAction */,
+            null /* xMsSourceLeaseId */,
+            null /* xMsProperties */,
+            null /* xMsOriginationId */,
+            null /* ifMatch */,
+            ifNoneMatch,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* xMsSourceIfMatch */,
+            null /* xMsSourceIfNoneMatch */,
+            null /* xMsSourceIfModifiedSince */,
+            null /* xMsSourceIfUnmodifiedSince */,
+            null /* requestBody */,
+            null /* xMsClientRequestId */,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null /* authorization */,
+            null /* xMsDate */).
             flatMap(new Func1<Void, Observable<OutputStream>>() {
               @Override
               public Observable<OutputStream> call(Void aVoid) {
@@ -345,23 +445,30 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.createFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public Void createDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws AzureDistributedFileSystemException {
-    return execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return createDirectoryAsync(azureDistributedFileSystem, path).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.createDirectory",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return createDirectoryAsync(azureDistributedFileSystem, path).get();
+        }
+      });
   }
 
   @Override
   public Future<Void> createDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "createDirectoryAsync filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -372,30 +479,37 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.createDirectoryAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public InputStream openFileForRead(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws AzureDistributedFileSystemException {
-    return execute(new Callable<InputStream>() {
-      @Override
-      public InputStream call() throws Exception {
-        return openFileForReadAsync(azureDistributedFileSystem, path).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.openFileForRead",
+      new Callable<InputStream>() {
+        @Override
+        public InputStream call() throws Exception {
+          return openFileForReadAsync(azureDistributedFileSystem, path).get();
+        }
+      });
   }
 
   @Override
   public Future<InputStream> openFileForReadAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "openFileForReadAsync filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
+
     final Callable<InputStream> asyncCallable = new Callable<InputStream>() {
       @Override
       public InputStream call() throws Exception {
         return getFileStatusInternal(adfsHttpClient, path)
-            .flatMap(new Func1<FileStatus, Observable<InputStream>>() {
+            .flatMap(new Func1<VersionedFileStatus, Observable<InputStream>>() {
               @Override
-              public Observable<InputStream> call(FileStatus fileStatus) {
+              public Observable<InputStream> call(VersionedFileStatus fileStatus) {
                 if (fileStatus.isDirectory()) {
                   return Observable.error(new AzureServiceErrorResponseException(
                       AzureServiceErrorCode.PRE_CONDITION_FAILED.getStatusCode(),
@@ -407,31 +521,40 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                 return Observable.just(adfsStreamFactory.createReadStream(
                     azureDistributedFileSystem,
                     path,
-                    fileStatus.getLen()));
+                    fileStatus.getLen(),
+                    fileStatus.version));
               }
             }).toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.openFileForReadAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
 
   @Override
   public OutputStream openFileForWrite(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite) throws
       AzureDistributedFileSystemException {
-    return execute(new Callable<OutputStream>() {
-      @Override
-      public OutputStream call() throws Exception {
-        return openFileForWriteAsync(azureDistributedFileSystem, path, overwrite).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.openFileForWrite",
+      new Callable<OutputStream>() {
+        @Override
+        public OutputStream call() throws Exception {
+          return openFileForWriteAsync(azureDistributedFileSystem, path, overwrite).get();
+        }
+      });
   }
 
   @Override
   public Future<OutputStream> openFileForWriteAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite)
       throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "openFileForWriteAsync filesystem: {0} path: {1} overwrite: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        overwrite);
+
     final Callable<OutputStream> asyncCallable = new Callable<OutputStream>() {
       @Override
       public OutputStream call() throws Exception {
@@ -439,49 +562,70 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.openFileForWriteAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
-  public Void readFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final int length, final ByteBuf
-      readBuffer, final int readBufferOffset) throws
+  public Integer readFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final String version, final long offset, final int
+      length, final ByteBuf readBuffer, final int readBufferOffset) throws
       AzureDistributedFileSystemException {
-    return execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return readFileAsync(azureDistributedFileSystem, path, offset, length, readBuffer, readBufferOffset).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.readFile",
+      new Callable<Integer>() {
+        @Override
+        public Integer call() throws Exception {
+          return readFileAsync(azureDistributedFileSystem, path, version, offset, length, readBuffer, readBufferOffset).get();
+        }
+      });
   }
 
   @Override
-  public Future<Void> readFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final int length, final
-  ByteBuf targetBuffer, final int targetBufferOffset) throws
+  public Future<Integer> readFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final String version, final long offset,
+      final int length, final ByteBuf targetBuffer, final int targetBufferOffset) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
-    final Callable<Void> asyncCallable = new Callable<Void>() {
+    this.loggingService.debug(
+        "readFileAsync filesystem: {0} path: {1} offset: {2} length: {3} targetBufferOffset: {4}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        offset,
+        length,
+        targetBufferOffset);
+
+    final Callable<Integer> asyncCallable = new Callable<Integer>() {
       @Override
-      public Void call() throws Exception {
+      public Integer call() throws Exception {
+        final boolean tolerateOobAppends = configurationService.getTolerateOobAppends();
         return adfsHttpClient.readPathAsync(
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             getRangeHeader(offset, length),
-            null,
+            tolerateOobAppends ? CONDITIONAL_ALL : version,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT,
-            null,
-            null).
-            flatMap(new Func1<InputStream, Observable<Void>>() {
+            null /* authorization */,
+            null /* xMsDate */).
+            flatMap(new Func1<InputStream, Observable<Integer>>() {
               @Override
-              public Observable<Void> call(InputStream inputStream) {
+              public Observable<Integer> call(InputStream inputStream) {
                 try {
-                  byte[] buffer = new byte[WRITE_BUFFER_SIZE];
-                  targetBuffer.setIndex(0, targetBufferOffset);
-                  int readBytes = 0;
-                  while ((readBytes = inputStream.read(buffer)) != -1) {
-                    targetBuffer.writeBytes(buffer, 0, readBytes);
+                  int readBytes;
+                  int remainingBytes = length;
+                  int offset = targetBufferOffset;
+                  while ((readBytes = inputStream.read(targetBuffer.array(), offset, remainingBytes)) != -1) {
+                    offset += readBytes;
+                    remainingBytes -= readBytes;
                   }
+
+                  if (remainingBytes != 0) {
+                    throw new IllegalStateException("Read request must be fully read");
+                  }
+
                   inputStream.close();
-                  return Observable.just(null);
+                  return Observable.just(offset - targetBufferOffset);
                 } catch (Exception ex) {
                   return Observable.error(ex);
                 }
@@ -490,24 +634,32 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.readFileAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
   public void writeFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final ByteBuf body, final long offset) throws
       AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return writeFileAsync(azureDistributedFileSystem, path, body, offset).get();
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.writeFile",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return writeFileAsync(azureDistributedFileSystem, path, body, offset).get();
+        }
+      });
   }
 
   @Override
   public Future<Void> writeFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final
   ByteBuf body, final long offset) throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "writeFileAsync filesystem: {0} path: {1} offset: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        offset);
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -520,46 +672,61 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             "data",
-            null,
             Long.valueOf(offset),
-            null,
+            false /* retainUncommittedData */,
             Integer.toString(body.readableBytes()),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            null /* contentMD5 */,
+            null /* origin */,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsCacheControl */,
+            null /* xMsContentDisposition */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
+            null /* xMsContentType */,
+            null /* xMsProperties */,
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
             bytes,
-            null,
+            null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null,
-            null);
+            null /* authorization */,
+            null /* xMsDate */);
 
         bytes = null;
         return updatePathAsync.toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.writeFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public void flushFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) throws
       AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return flushFileAsync(azureDistributedFileSystem, path, offset).get();
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.flushFile",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          return flushFileAsync(azureDistributedFileSystem, path, offset).get();
+        }
+      });
   }
 
   @Override
   public Future<Void> flushFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "writeFileAsync filesystem: {0} path: {1} offset: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        offset);
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -568,45 +735,60 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             "commit",
-            null,
             Long.valueOf(offset),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            false,
+            null /* contentLength */,
+            null /* contentMD5 */,
+            null /* origin */,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsCacheControl */,
+            null /* xMsContentDisposition */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
+            null /* xMsContentType */,
+            null /* xMsProperties */,
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* requestBody */,
+            null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null,
-            null).toBlocking().single();
+            null /* authorization */,
+            null /* xMsDate */).toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.flushFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public void renameFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination)
       throws
       AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        renameFileAsync(azureDistributedFileSystem, source, destination).get();
-        return null;
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.renameFile",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          renameFileAsync(azureDistributedFileSystem, source, destination).get();
+          return null;
+        }
+      });
   }
 
   @Override
   public Future<Void> renameFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "writeFileAsync filesystem: {0} source: {1} destination: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        source.toString(),
+        destination.toString());
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -614,51 +796,66 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             getResource(false),
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(destination),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            null /* contentLength */,
+            null /* contentType */,
+            null /* contentEncoding */,
+            null /* contentLanguage */,
+            null /* contentMD5 */,
+            null /* xMsCacheControl */,
+            null /* xMsContentType */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
             Path.SEPARATOR + adfsHttpClient.getSession().getFileSystem() + Path.SEPARATOR + getRelativePath(source),
-            null,
-            null,
-            null,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsProposedLeaseId */,
             SOURCE_LEASE_ACTION_ACQUIRE,
-            null,
-            null,
-            null,
-            null,
-            null,
+            null /* xMsSourceLeaseId */,
+            null /* xMsProperties */,
+            null /* xMsOriginationId */,
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* xMsSourceIfMatch */,
+            null /* xMsSourceIfNoneMatch */,
+            null /* xMsSourceIfModifiedSince */,
+            null /* xMsSourceIfUnmodifiedSince */,
+            null /* requestBody */,
+            null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null,
-            null).toBlocking().single();
+            null /* authorization */,
+            null /* xMsDate */).toBlocking().single();
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.renameFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public void deleteFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    execute(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        deleteFileAsync(azureDistributedFileSystem, path).get();
-        return null;
-      }
-    });
+    execute(
+      "AdfsHttpServiceImpl.deleteFile",
+      new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          deleteFileAsync(azureDistributedFileSystem, path).get();
+          return null;
+        }
+      });
   }
 
   @Override
   public Future<Void> deleteFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "deleteFileAsync filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
+
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -666,23 +863,29 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.deleteFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
   public FileStatus getFileStatus(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws AzureDistributedFileSystemException {
-    return execute(new Callable<FileStatus>() {
-      @Override
-      public FileStatus call() throws Exception {
-        return getFileStatusAsync(azureDistributedFileSystem, path).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.getFileStatus",
+      new Callable<FileStatus>() {
+        @Override
+        public FileStatus call() throws Exception {
+          return getFileStatusAsync(azureDistributedFileSystem, path).get();
+        }
+      });
   }
 
   @Override
   public Future<FileStatus> getFileStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "getFileStatusAsync filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
 
     final Callable<FileStatus> asyncCallable = new Callable<FileStatus>() {
       @Override
@@ -691,23 +894,29 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.getFileStatusAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
   public FileStatus[] listStatus(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws AzureDistributedFileSystemException {
-    return execute(new Callable<FileStatus[]>() {
-      @Override
-      public FileStatus[] call() throws Exception {
-        return listStatusAsync(azureDistributedFileSystem, path).get();
-      }
-    });
+    return execute(
+      "AdfsHttpServiceImpl.listStatus",
+      new Callable<FileStatus[]>() {
+        @Override
+        public FileStatus[] call() throws Exception {
+          return listStatusAsync(azureDistributedFileSystem, path).get();
+        }
+      });
   }
 
   @Override
   public Future<FileStatus[]> listStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "listStatusAsync filesystem: {0} path: {1}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString());
 
     final Callable<FileStatus[]> asyncCallable = new Callable<FileStatus[]>() {
       @Override
@@ -749,10 +958,10 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                   relativePath,
                   lastSegmentId,
                   LIST_MAX_RESULTS,
-                  null,
+                  null /* xMsClientRequestId */,
                   FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-                  null,
-                  null).toBlocking().single();
+                  null /* authorization */,
+                  null /* xMsDate */).toBlocking().single();
 
               long blockSize = configurationService.getAzureBlockSize();
 
@@ -783,7 +992,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return submitTaskToQueue(adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.listStatusAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
@@ -791,7 +1000,20 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final AdfsHttpClient adfsHttpClient = this.adfsHttpClientCache.remove(azureDistributedFileSystem.getUri());
 
     if (adfsHttpClient != null) {
-      adfsHttpClient.close();
+      this.loggingService.debug(
+          "closeFileSystem filesystem: {0}",
+          adfsHttpClient.getSession().getFileSystem());
+
+      execute(
+          "AdfsHttpServiceImpl.closeFileSystem",
+          new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              adfsHttpClient.close();
+              return null;
+            }
+          }
+      );
     }
   }
 
@@ -819,23 +1041,50 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     return this.adfsHttpClientCache.get(azureDistributedFileSystem.getUri());
   }
 
-  private <T> T execute(final Callable<T> callableRestOperation) throws
+  private <T> T execute(
+      final String scopeDescription,
+      final Callable<T> callableRestOperation) throws
       AzureDistributedFileSystemException {
+    return this.execute(scopeDescription, callableRestOperation, null);
+  }
+
+  private <T> T execute(
+      final String scopeDescription,
+      final Callable<T> callableRestOperation,
+      @Nullable final SpanId currentTraceScopeId) throws
+      AzureDistributedFileSystemException {
+
+    TraceScope traceScope;
+    if (currentTraceScopeId == null) {
+      traceScope = this.tracingService.traceBegin(scopeDescription);
+    }
+    else {
+      traceScope = this.tracingService.traceBegin(scopeDescription, currentTraceScopeId);
+    }
 
     try {
       return callableRestOperation.call();
     } catch (ErrorSchemaException exception) {
-      throw parseErrorSchemaException(exception);
+      AzureServiceErrorResponseException ex = parseErrorSchemaException(exception);
+      tracingService.traceException(traceScope, ex);
+      throw ex;
     } catch (ExecutionException exception) {
       Throwable rootCause = ExceptionUtils.getRootCause(exception);
       if (rootCause instanceof ErrorSchemaException) {
-        throw parseErrorSchemaException((ErrorSchemaException) rootCause);
+        AzureServiceErrorResponseException ex = parseErrorSchemaException((ErrorSchemaException) rootCause);
+        tracingService.traceException(traceScope, ex);
+        throw ex;
       }
       else {
-        throw new InvalidAzureServiceErrorResponseException(exception);
+        InvalidAzureServiceErrorResponseException ex = new InvalidAzureServiceErrorResponseException(exception);
+        tracingService.traceException(traceScope, ex);
+        throw ex;
       }
     } catch (Exception exception) {
+      tracingService.traceException(traceScope, new AzureServiceNetworkException(scopeDescription, exception));
       throw new InvalidAzureServiceErrorResponseException(exception);
+    } finally {
+      tracingService.traceEnd(traceScope);
     }
   }
 
@@ -880,7 +1129,12 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
         DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
   }
 
-  private <T> Future<T> submitTaskToQueue(
+  private String getVersion(final Hashtable<String, String> properties) {
+    return properties.get(ETAG);
+  }
+
+  private <T> Future<T> executeAsync(
+      final String scopeDescription,
       final AdfsHttpClient adfsHttpClient,
       final ThreadPoolExecutor threadPoolExecutor,
       final Callable<T> task) {
@@ -888,9 +1142,18 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       throw new IllegalStateException("Cannot execute task in a closed session");
     }
 
+    final SpanId currentTraceScopeId = this.tracingService.getCurrentTraceScopeSpanId();
+
     for (;;){
       try {
-        return threadPoolExecutor.submit(task);
+        Callable<T> taskWithObservable = new Callable<T>() {
+          @Override
+          public T call() throws Exception {
+            return execute(scopeDescription, task, currentTraceScopeId);
+          }
+        };
+
+        return threadPoolExecutor.submit(taskWithObservable);
       }
       catch (RejectedExecutionException ex) {
         // Ignore and retry
@@ -991,7 +1254,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   // Internal calls are provided to prevent deadlocks in the thread executor pool
-  private Observable<FileStatus> getFileStatusInternal(final AdfsHttpClient adfsHttpClient, final Path path)
+  private Observable<VersionedFileStatus> getFileStatusInternal(final AdfsHttpClient adfsHttpClient, final Path path)
       throws AzureDistributedFileSystemException {
     Observable<Hashtable<String, String>> getPropertiesObservable;
 
@@ -1002,18 +1265,20 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       getPropertiesObservable = getPathPropertiesInternal(adfsHttpClient, path);
     }
 
-    return getPropertiesObservable.flatMap(new Func1<Hashtable<String, String>, Observable<FileStatus>>() {
+    return getPropertiesObservable.flatMap(new Func1<Hashtable<String, String>, Observable<VersionedFileStatus>>() {
       @Override
-      public Observable<FileStatus> call(Hashtable<String, String> properties) {
+      public Observable<VersionedFileStatus> call(Hashtable<String, String> properties) {
         long blockSize = configurationService.getAzureBlockSize();
 
         return Observable.just(
-            new FileStatus(
+            new VersionedFileStatus(
                 getContentLength(properties),
                 path.isRoot() || isDirectory(properties),
                 1,
                 blockSize,
-                getLastModifiedTime(properties).getMillis(), path));
+                getLastModifiedTime(properties).getMillis(),
+                path,
+                getVersion(properties)));
       }
     });
   }
@@ -1060,5 +1325,21 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   private String getRangeHeader(long offset, long length) {
     return "bytes=" + offset + "-" + (offset + length - 1);
+  }
+
+  private class VersionedFileStatus extends FileStatus {
+    private final String version;
+
+    public VersionedFileStatus(
+        final long length, final boolean isdir, final int blockReplication,
+        final long blocksize, final long modificationTime, final Path path,
+        String version) {
+      super(length, isdir, blockReplication, blocksize, modificationTime, path);
+
+      Preconditions.checkNotNull(version, "version");
+      Preconditions.checkArgument(version.length() > 0);
+
+      this.version = version;
+    }
   }
 }

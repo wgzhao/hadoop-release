@@ -33,6 +33,8 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 
 @Singleton
 @InterfaceAudience.Private
@@ -41,30 +43,45 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
   private final ConfigurationService configurationService;
+  private final TracingService tracingService;
+  private final LoggingService loggingService;
 
   @Inject
   AdfsStreamFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpService adfsHttpService,
-      final AdfsBufferPool adfsBufferPool) {
+      final AdfsBufferPool adfsBufferPool,
+      final LoggingService loggingService,
+      final TracingService tracingService) {
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
     Preconditions.checkNotNull(configurationService, "configurationService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
+    Preconditions.checkNotNull(tracingService, "tracingService");
 
     this.adfsHttpService = adfsHttpService;
     this.adfsBufferPool = adfsBufferPool;
     this.configurationService = configurationService;
+    this.loggingService = loggingService;
+    this.tracingService = tracingService;
   }
 
   @Override
-  public InputStream createReadStream(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long fileLength) {
+  public InputStream createReadStream(
+    final AzureDistributedFileSystem azureDistributedFileSystem,
+    final Path path,
+    final long fileLength,
+    final String version) {
     return new AdfsInputStream(
         this.adfsBufferPool,
         this.adfsHttpService,
         azureDistributedFileSystem,
+        tracingService,
+        loggingService,
         path,
         fileLength,
-        configurationService.getReadBufferSize());
+        configurationService.getReadBufferSize(),
+        version);
   }
 
   @Override
@@ -73,6 +90,8 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
         this.adfsHttpService,
         this.adfsBufferPool,
         azureDistributedFileSystem,
+        tracingService,
+        loggingService,
         path,
         offset,
         configurationService.getWriteBufferSize());

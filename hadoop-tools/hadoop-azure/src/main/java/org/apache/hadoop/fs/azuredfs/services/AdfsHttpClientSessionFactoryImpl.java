@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 
 @Singleton
 @InterfaceAudience.Private
@@ -41,15 +42,23 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 final class AdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessionFactory {
   private static final String AZURE_DISTRIBUTED_FILE_SYSTEM_AUTHORITY_DELIMITER = "@";
   private final ConfigurationService configurationService;
+  private final LoggingService loggingService;
 
   @Inject
-  AdfsHttpClientSessionFactoryImpl(final ConfigurationService configurationService) {
+  AdfsHttpClientSessionFactoryImpl(
+      final ConfigurationService configurationService,
+      final LoggingService loggingService) {
     Preconditions.checkNotNull(configurationService, "configurationService");
+    Preconditions.checkNotNull(loggingService, "loggingService");
     this.configurationService = configurationService;
+    this.loggingService = loggingService;
   }
 
   @Override
   public AdfsHttpClientSession create(final FileSystem fs) throws AzureDistributedFileSystemException {
+    this.loggingService.debug(
+        "Creating AdfsHttpClientSession for filesystem: {0}", fs.getUri());
+
     final URI uri = fs.getUri();
     final String authority = uri.getRawAuthority();
     if (null == authority) {

@@ -33,6 +33,8 @@ import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 
 /**
  * Adfs monitored http client implementation.
@@ -43,13 +45,16 @@ final class AdfsMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
   private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
   public AdfsMonitoredHttpClientImpl(
       final String baseUrl,
+      final ConfigurationService configurationService,
       final Interceptor networkInterceptor,
       final Interceptor networkThrottler,
       final Interceptor networkThroughputMonitor,
       final AdfsHttpClientSession adfsHttpClientSession,
       final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
-      final RetryStrategy retryStrategy) {
+      final RetryStrategy retryStrategy,
+      final LoggingService loggingService) {
     super(adfsHttpClientSession,
+        loggingService,
         new RestClient.Builder()
         .withBaseUrl(baseUrl)
         .withNetworkInterceptor(networkInterceptor)
@@ -58,6 +63,8 @@ final class AdfsMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
         .withSerializerAdapter(new JacksonAdapter())
         .withRetryStrategy(retryStrategy)
+        .withMaxIdleConnections(configurationService.getMaxConcurrentReadThreads() + configurationService.getMaxConcurrentWriteThreads())
+        .withConnectionTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
         .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
         .build());
 

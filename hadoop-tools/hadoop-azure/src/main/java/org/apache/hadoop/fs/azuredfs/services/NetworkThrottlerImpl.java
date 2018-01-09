@@ -31,6 +31,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 
 @InterfaceAudience.Private
@@ -38,15 +39,19 @@ import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 final class NetworkThrottlerImpl implements Interceptor {
   private final AdfsHttpClientSession adfsHttpClientSession;
   private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final LoggingService loggingService;
 
   NetworkThrottlerImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService) {
+      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final LoggingService loggingService) {
     Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
+    Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
     this.adfsHttpClientSession = adfsHttpClientSession;
+    this.loggingService = loggingService;
   }
 
   @Override
@@ -70,6 +75,8 @@ final class NetworkThrottlerImpl implements Interceptor {
     final int sleepDuration = networkThroughputAnalysisResult.getSleepDuration();
     if (sleepDuration > 0) {
       try{
+        this.loggingService.debug(
+            "Request {0} must be throttled for {1} ms.", request.toString(), sleepDuration);
         Thread.sleep(sleepDuration);
       }
       catch (InterruptedException ex) {

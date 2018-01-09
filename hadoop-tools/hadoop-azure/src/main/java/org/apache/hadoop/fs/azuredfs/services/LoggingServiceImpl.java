@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.text.MessageFormat;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -29,41 +31,59 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
+import org.apache.htrace.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.htrace.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.htrace.fasterxml.jackson.databind.ObjectWriter;
+import org.apache.htrace.fasterxml.jackson.databind.SerializationFeature;
 
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class LoggingServiceImpl implements LoggingService {
   private final Logger logger;
+  private boolean traceEnabled;
+  private boolean debugEnabled;
+  private boolean warningEnabled;
+  private boolean errorEnabled;
+  private boolean infoEnabled;
+
+  private static final ObjectWriter JSON_WRITER =
+      new ObjectMapper()
+          .configure(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN, true)
+          .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+          .configure(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID, false)
+          .writer();
 
   @Inject
   LoggingServiceImpl() {
     this.logger = LoggerFactory.getLogger(LoggingService.class);
+    this.cacheState();
   }
 
   @VisibleForTesting
   LoggingServiceImpl(final Logger logger) {
     Preconditions.checkNotNull(logger, "logger");
     this.logger = logger;
+    this.cacheState();
   }
 
   @Override
-  public void log(final LogLevel logLevel, final String message, final String... arguments) {
+  public void log(final LogLevel logLevel, final String message, final Object... arguments) {
     switch (logLevel) {
       case Trace:
-        this.logTrace(message, arguments);
+        this.trace(message, arguments);
         break;
       case Debug:
-        this.logDebug(message, arguments);
+        this.debug(message, arguments);
         break;
       case Warning:
-        this.logWarning(message, arguments);
+        this.warning(message, arguments);
         break;
       case Error:
-        this.logError(message, arguments);
+        this.error(message, arguments);
         break;
       case Info:
-        this.logInfo(message, arguments);
+        this.info(message, arguments);
         break;
       default:
         throw new AssertionError("Can't get here.");
@@ -74,59 +94,81 @@ final class LoggingServiceImpl implements LoggingService {
   public boolean logLevelEnabled(final LogLevel logLevel) {
     switch (logLevel) {
       case Trace:
-        return this.logger.isTraceEnabled();
+        return this.traceEnabled;
       case Debug:
-        return this.logger.isDebugEnabled();
+        return this.debugEnabled;
       case Warning:
-        return this.logger.isWarnEnabled();
+        return this.warningEnabled;
       case Error:
-        return this.logger.isErrorEnabled();
+        return this.errorEnabled;
       case Info:
-        return this.logger.isInfoEnabled();
+        return this.infoEnabled;
       default:
         throw new AssertionError("Can't get here.");
     }
   }
 
-  private void logDebug(final String message, final String... arguments) {
-    if (logger.isDebugEnabled()) {
+  public void debug(final String message, final Object... arguments) {
+    if (debugEnabled) {
       final String formattedMessage = ensureMessageFormatted(message, arguments);
       this.logger.debug(formattedMessage);
     }
   }
 
-  private void logInfo(final String message, final String... arguments) {
-    if (logger.isInfoEnabled()) {
+  public void info(final String message, final Object... arguments) {
+    if (infoEnabled) {
       final String formattedMessage = ensureMessageFormatted(message, arguments);
       this.logger.info(formattedMessage);
     }
   }
 
-  private void logWarning(final String message, final String... arguments) {
-    if (logger.isWarnEnabled()) {
+  public void warning(final String message, final Object... arguments) {
+    if (warningEnabled) {
       final String formattedMessage = ensureMessageFormatted(message, arguments);
       this.logger.warn(formattedMessage);
     }
   }
 
-  private void logError(final String message, final String... arguments) {
-    if (logger.isErrorEnabled()) {
+  public void error(final String message, final Object... arguments) {
+    if (errorEnabled) {
       final String formattedMessage = ensureMessageFormatted(message, arguments);
       this.logger.error(formattedMessage);
     }
   }
 
-  private void logTrace(final String message, final String... arguments) {
-    if (logger.isTraceEnabled()) {
+  public void trace(final String message, final Object... arguments) {
+    if (traceEnabled) {
       final String formattedMessage = ensureMessageFormatted(message, arguments);
       this.logger.trace(formattedMessage);
     }
   }
 
-  private String ensureMessageFormatted(final String message, final String... arguments) {
+  private void cacheState() {
+    this.debugEnabled = this.logger.isDebugEnabled();
+    this.traceEnabled = this.logger.isTraceEnabled();
+    this.warningEnabled = this.logger.isWarnEnabled();
+    this.errorEnabled = this.logger.isErrorEnabled();
+    this.infoEnabled = this.logger.isInfoEnabled();
+  }
+
+  private String ensureMessageFormatted(final String message, final Object... arguments) {
     String formatted = message;
     if (arguments != null && arguments.length > 0) {
-      formatted = String.format(message, arguments);
+      String[] convertedArguments = new String[arguments.length];
+      for (int i = 0; i < arguments.length; i++) {
+        try {
+          String convertedArgument = JSON_WRITER.writeValueAsString(arguments[i]);
+          convertedArguments[i] = convertedArgument;
+        }
+        catch (JsonProcessingException e) {
+          String errorMessage = "Json processing error: " + e.getMessage();
+          this.error(errorMessage);
+
+          throw new IllegalStateException(errorMessage);
+        }
+      }
+
+      formatted = MessageFormat.format(message, convertedArguments);
     }
 
     return formatted;
