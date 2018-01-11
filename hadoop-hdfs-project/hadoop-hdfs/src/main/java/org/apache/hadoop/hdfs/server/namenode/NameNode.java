@@ -307,9 +307,6 @@ public class NameNode extends ReconfigurableBase implements
       + StartupOption.UPGRADE.getName() + 
         " [" + StartupOption.CLUSTERID.getName() + " cid]" +
         " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
-      + StartupOption.UPGRADEFROMECTONONEC.getName() +
-      " [" + StartupOption.CLUSTERID.getName() + " cid]" +
-      " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
       + StartupOption.UPGRADEONLY.getName() + 
         " [" + StartupOption.CLUSTERID.getName() + " cid]" +
         " [" + StartupOption.RENAMERESERVED.getName() + "<k-v pairs>] ] | \n\t["
@@ -1465,8 +1462,7 @@ public class NameNode extends ReconfigurableBase implements
       } else if (StartupOption.CHECKPOINT.getName().equalsIgnoreCase(cmd)) {
         startOpt = StartupOption.CHECKPOINT;
       } else if (StartupOption.UPGRADE.getName().equalsIgnoreCase(cmd)
-          || StartupOption.UPGRADEONLY.getName().equalsIgnoreCase(cmd)
-          || StartupOption.UPGRADEFROMECTONONEC.getName().equalsIgnoreCase(cmd)) {
+          || StartupOption.UPGRADEONLY.getName().equalsIgnoreCase(cmd)) {
         startOpt = StartupOption.valueOf(cmd.toUpperCase(Locale.ENGLISH).substring(1));
         /* Can be followed by CLUSTERID with a required parameter or
          * RENAMERESERVED with an optional parameter

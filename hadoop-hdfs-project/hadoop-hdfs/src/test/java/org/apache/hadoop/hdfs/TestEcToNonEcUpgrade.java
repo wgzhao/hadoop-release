@@ -133,7 +133,7 @@ public class TestEcToNonEcUpgrade {
           .manageDataDfsDirs(false)
           .manageNameDfsDirs(false)
           .waitSafeMode(false)
-          .startupOption(StartupOption.UPGRADEFROMECTONONEC)
+          .startupOption(StartupOption.UPGRADE)
           .build();
       Assert.assertTrue("Expected failure while loading image " + imageName,
           expectSuccess);

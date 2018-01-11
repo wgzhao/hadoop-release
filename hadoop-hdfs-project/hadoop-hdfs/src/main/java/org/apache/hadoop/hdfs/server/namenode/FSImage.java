@@ -273,7 +273,6 @@ public class FSImage implements Closeable {
     switch(startOpt) {
     case UPGRADE:
     case UPGRADEONLY:
-    case UPGRADEFROMECTONONEC:
       doUpgrade(target, startOpt);
       return false; // upgrade saved image already
     case IMPORT:
@@ -300,7 +299,7 @@ public class FSImage implements Closeable {
   public static boolean recoverStorageDirs(StartupOption startOpt,
       NNStorage storage, Map<StorageDirectory, StorageState> dataDirStates)
       throws IOException {
-    if (startOpt == StartupOption.UPGRADEFROMECTONONEC) {
+    if (startOpt == StartupOption.UPGRADE || startOpt == StartupOption.UPGRADEONLY) {
       storage.allowNewerVersion(HdfsServerConstants.EC_LAYOUT_VERSION);
     }
     boolean isFormatted = false;
