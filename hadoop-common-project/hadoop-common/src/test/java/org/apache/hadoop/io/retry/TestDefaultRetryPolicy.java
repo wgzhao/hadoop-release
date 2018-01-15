@@ -21,7 +21,6 @@ package org.apache.hadoop.io.retry;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RemoteException;
 import org.apache.hadoop.ipc.RetriableException;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -36,18 +35,7 @@ import static org.junit.Assert.assertThat;
  */
 public class TestDefaultRetryPolicy {
   @Rule
-  public Timeout timeout = new Timeout(30000);
-
-  /** Verify FAIL < RETRY < FAILOVER_AND_RETRY. */
-  @Test
-  public void testRetryDecisionOrdering() throws Exception {
-    Assert.assertTrue(RetryPolicy.RetryAction.RetryDecision.FAIL.compareTo(
-        RetryPolicy.RetryAction.RetryDecision.RETRY) < 0);
-    Assert.assertTrue(RetryPolicy.RetryAction.RetryDecision.RETRY.compareTo(
-        RetryPolicy.RetryAction.RetryDecision.FAILOVER_AND_RETRY) < 0);
-    Assert.assertTrue(RetryPolicy.RetryAction.RetryDecision.FAIL.compareTo(
-        RetryPolicy.RetryAction.RetryDecision.FAILOVER_AND_RETRY) < 0);
-  }
+  public Timeout timeout = new Timeout(300000);
 
   /**
    * Verify that the default retry policy correctly retries

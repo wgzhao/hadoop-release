@@ -1156,7 +1156,7 @@ public class TestIPC {
       retryProxy.dummyRun();
       Assert.assertEquals(TestInvocationHandler.retry, totalRetry + 1);
     } finally {
-      Client.setCallIdAndRetryCount(0, 0, null);
+      Client.setCallIdAndRetryCount(0, 0);
       client.stop();
       server.stop();
     }
@@ -1189,7 +1189,7 @@ public class TestIPC {
     } finally {
       // Check if dummyRun called only once
       Assert.assertEquals(handler.invocations, 1);
-      Client.setCallIdAndRetryCount(0, 0, null);
+      Client.setCallIdAndRetryCount(0, 0);
       client.stop();
       server.stop();
     }
@@ -1234,7 +1234,7 @@ public class TestIPC {
     final int retryCount = 255;
     // Override client to store the call id
     final Client client = new Client(LongWritable.class, conf);
-    Client.setCallIdAndRetryCount(Client.nextCallId(), 255, null);
+    Client.setCallIdAndRetryCount(Client.nextCallId(), 255);
 
     // Attach a listener that tracks every call ID received by the server.
     final TestServer server = new TestServer(1, false);
