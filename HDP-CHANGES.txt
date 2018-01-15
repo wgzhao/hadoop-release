@@ -4719,3 +4719,6 @@ ATS V1.5:
 
     BUG-104555. HDFS-13120. Snapshot diff could be corrupted after concat.
     Contributed by Xiaoyu Yao.
+
+    YARN-5037. Fix random failure of TestRMRestart#testQueueMetricsOnRMRestart
+    (sandflee via Varun Saxena).
