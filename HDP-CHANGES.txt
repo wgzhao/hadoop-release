@@ -4716,3 +4716,6 @@ ATS V1.5:
 
     BUG-94618. YARN-5037. Fix random failure of
     TestRMRestart#testQueueMetricsOnRMRestart (sandflee via Varun Saxena).
+
+    BUG-94618. YARN-7274. Ability to disable elasticity at leaf queue level.
+    (Zian Chen via wangda)
