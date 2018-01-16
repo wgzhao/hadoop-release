@@ -417,7 +417,7 @@ public class TestRMFailover extends ClientBaseWithFixes {
    *
    * @throws InterruptedException if any
    */
-  @Test
+  //  @Test commenting this test as YARN-6202 not present in HDP.
   public void testUncaughtExceptionHandlerWithoutHA()
       throws InterruptedException {
     ExitUtil.disableSystemExit();
