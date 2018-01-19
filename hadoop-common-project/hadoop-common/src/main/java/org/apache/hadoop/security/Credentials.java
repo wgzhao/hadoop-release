@@ -186,7 +186,8 @@ public class Credentials implements Writable {
       in.close();
       return credentials;
     } catch(IOException ioe) {
-      throw new IOException("Exception reading " + filename, ioe);
+      throw IOUtils.wrapException(filename.toString(), "Credentials"
+          + ".readTokenStorageFile", ioe);
     } finally {
       IOUtils.cleanup(LOG, in);
     }
