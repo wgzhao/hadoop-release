@@ -84,7 +84,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.tracingService = tracingService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsOutputStream.class);
     this.path = path;
     this.closed = false;
     this.bufferSize = bufferSize;

@@ -54,7 +54,7 @@ final class TracingServiceImpl implements TracingService {
     Preconditions.checkNotNull(configuration, "configuration");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(TracingService.class);
     this.currentScopeId = new ThreadLocal<>();
 
     this.tracer = new Tracer.Builder(TracingServiceImpl.class.getSimpleName()).

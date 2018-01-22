@@ -29,6 +29,13 @@ import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 @InterfaceStability.Evolving
 public interface LoggingService extends InjectableService {
   /**
+   * Returns the logger with proper name.
+   * @param loggingClass logging class.
+   * @return proper logger
+   */
+  LoggingService get(Class loggingClass);
+
+  /**
    * Logs the provided message with the provided logLevel to Hadoop logging system.
    * @param logLevel the log level {@link LogLevel}
    * @param message the message to be logged.

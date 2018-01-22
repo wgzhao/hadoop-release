@@ -56,8 +56,8 @@ final class LoggingServiceImpl implements LoggingService {
 
   @Inject
   LoggingServiceImpl() {
-    this.logger = LoggerFactory.getLogger(LoggingService.class);
-    this.cacheState();
+    // Base implementation must not have a logger.
+    this.logger = null;
   }
 
   @VisibleForTesting
@@ -65,6 +65,13 @@ final class LoggingServiceImpl implements LoggingService {
     Preconditions.checkNotNull(logger, "logger");
     this.logger = logger;
     this.cacheState();
+  }
+
+  @Override
+  public LoggingService get(final Class loggingClass) {
+    Preconditions.checkNotNull(loggingClass, "loggingClass");
+    Logger logger = LoggerFactory.getLogger(loggingClass);
+    return new LoggingServiceImpl(logger);
   }
 
   @Override

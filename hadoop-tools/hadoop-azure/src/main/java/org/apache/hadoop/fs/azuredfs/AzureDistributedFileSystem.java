@@ -92,7 +92,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       this.serviceProvider = ServiceProviderImpl.create(configuration);
       this.tracingService = serviceProvider.get(TracingService.class);
       this.adfsHttpService = serviceProvider.get(AdfsHttpService.class);
-      this.loggingService = serviceProvider.get(LoggingService.class);
+      this.loggingService = serviceProvider.get(LoggingService.class).get(AzureDistributedFileSystem.class);
       this.configurationService = serviceProvider.get(ConfigurationService.class);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);

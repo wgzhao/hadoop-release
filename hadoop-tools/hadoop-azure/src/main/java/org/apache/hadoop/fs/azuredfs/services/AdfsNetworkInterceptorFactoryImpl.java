@@ -55,7 +55,7 @@ final class AdfsNetworkInterceptorFactoryImpl implements AdfsNetworkInterceptorF
 
     this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
     this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsNetworkInterceptorFactoryImpl.class);
     this.tracingService = tracingService;
   }
 

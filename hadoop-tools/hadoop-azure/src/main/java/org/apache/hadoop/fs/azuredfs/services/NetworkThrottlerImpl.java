@@ -51,7 +51,7 @@ final class NetworkThrottlerImpl implements Interceptor {
 
     this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
     this.adfsHttpClientSession = adfsHttpClientSession;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(NetworkThrottlerImpl.class);
   }
 
   @Override

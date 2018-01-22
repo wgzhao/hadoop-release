@@ -52,7 +52,7 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
     Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.adfsHttpClientSession = adfsHttpClientSession;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsHttpClientBaseImpl.class);
 
     restClient.httpClient().dispatcher().setMaxRequestsPerHost(MAX_REQUESTS_PER_HOST);
     restClient.httpClient().dispatcher().setMaxRequests(MAX_REQUESTS_PER_HOST);

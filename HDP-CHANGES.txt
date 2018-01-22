@@ -4840,3 +4840,7 @@ ATS V1.5:
 
     WASB-26. Adding more logging, support for OOB writes toleration.
 
+    WASB-28. Updating logging service to return scope specific loggers
+    
+    WASB-27. Adding rename directory and delete directory apis and fixing bugs.
+

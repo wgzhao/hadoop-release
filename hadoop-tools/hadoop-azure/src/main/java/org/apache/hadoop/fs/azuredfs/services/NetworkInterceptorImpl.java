@@ -56,7 +56,7 @@ final class NetworkInterceptorImpl implements Interceptor {
     this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
     this.adfsHttpClientSession = adfsHttpClientSession;
     this.tracingService = tracingService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(NetworkInterceptorImpl.class);
   }
 
   @Override

@@ -31,6 +31,11 @@ public final class MockLoggingServiceImpl implements LoggingService {
   public final List<String> messages = new ArrayList<>();
 
   @Override
+  public LoggingService get(Class loggingClass) {
+    return this;
+  }
+
+  @Override
   public void log(LogLevel logLevel, String message, Object... arguments) {
     messages.add(message);
   }

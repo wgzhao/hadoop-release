@@ -51,7 +51,7 @@ final class AdfsHttpClientSessionFactoryImpl implements AdfsHttpClientSessionFac
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(loggingService, "loggingService");
     this.configurationService = configurationService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsHttpClientSessionFactoryImpl.class);
   }
 
   @Override

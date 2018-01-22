@@ -62,7 +62,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
     this.adfsHttpService = adfsHttpService;
     this.adfsBufferPool = adfsBufferPool;
     this.configurationService = configurationService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsStreamFactoryImpl.class);
     this.tracingService = tracingService;
   }
 

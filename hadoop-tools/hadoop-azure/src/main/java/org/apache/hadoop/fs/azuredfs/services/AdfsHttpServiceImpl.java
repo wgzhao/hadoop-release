@@ -136,7 +136,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
     this.tracingService = tracingService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsHttpServiceImpl.class);
 
     int maxConcurrentWriteThreads = this.configurationService.getMaxConcurrentWriteThreads();
     int maxConcurrentReadThreads = this.configurationService.getMaxConcurrentReadThreads();

@@ -85,7 +85,7 @@ final class AdfsInputStream extends FSInputStream {
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.tracingService = tracingService;
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AdfsInputStream.class);
     this.path = path;
     this.offset = 0;
     this.bufferOffsetInStream = -1;
