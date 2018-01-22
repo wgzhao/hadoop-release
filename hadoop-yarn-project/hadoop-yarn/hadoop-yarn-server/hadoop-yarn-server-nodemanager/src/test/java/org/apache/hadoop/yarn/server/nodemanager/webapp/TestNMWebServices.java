@@ -114,7 +114,7 @@ public class TestNMWebServices extends JerseyTestBase {
   private Injector injector = Guice.createInjector(new ServletModule() {
     @Override
     protected void configureServlets() {
-      Configuration conf = new Configuration();
+      Configuration conf = new YarnConfiguration();
       conf.set(YarnConfiguration.NM_LOCAL_DIRS, testRootDir.getAbsolutePath());
       conf.set(YarnConfiguration.NM_LOG_DIRS, testLogDir.getAbsolutePath());
       conf.setBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED, true);
