@@ -24,57 +24,43 @@
 
 package com.microsoft.azure.dfs.rest.client.generated.models;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Collection;
 
-import org.apache.hadoop.classification.InterfaceAudience;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.microsoft.rest.ExpandableStringEnum;
+
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Defines values for ContentType.
+ * Defines values for ContentTypes.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
-public enum ContentType {
+public final class ContentTypes extends ExpandableStringEnum<ContentTypes> {
   /**
-   * Enum value application/octet-stream.
+   * Static value application/octet-stream for ContentTypes.
    */
-  APPLICATIONOCTET_STREAM("application/octet-stream"),
+  public static final ContentTypes APPLICATIONOCTET_STREAM = fromString("application/octet-stream");
 
   /**
-   * Enum value text/plain.
+   * Static value text/plain for ContentTypes.
    */
-  TEXTPLAIN("text/plain");
+  public static final ContentTypes TEXTPLAIN = fromString("text/plain");
 
   /**
-   * The actual serialized value for a ContentType instance.
-   */
-  private String value;
-
-  ContentType(String value) {
-    this.value = value;
-  }
-
-  /**
-   * Parses a serialized value to a ContentType instance.
+   * Creates or finds a ContentTypes from its string representation.
    *
-   * @param value the serialized value to parse.
-   * @return the parsed ContentType object, or null if unable to parse.
+   * @param name a name to look for
+   * @return the corresponding ContentTypes
    */
   @JsonCreator
-  public static ContentType fromString(String value) {
-    ContentType[] items = ContentType.values();
-    for (ContentType item : items) {
-      if (item.toString().equalsIgnoreCase(value)) {
-        return item;
-      }
-    }
-    return null;
+  public static ContentTypes fromString(String name) {
+    return fromString(name, ContentTypes.class);
   }
 
-  @JsonValue
-  @Override
-  public String toString() {
-    return this.value;
+  /**
+   * @return known ContentTypes values
+   */
+  public static Collection<ContentTypes> values() {
+    return values(ContentTypes.class);
   }
 }

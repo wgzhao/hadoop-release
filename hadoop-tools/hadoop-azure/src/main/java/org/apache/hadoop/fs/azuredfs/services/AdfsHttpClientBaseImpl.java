@@ -40,6 +40,7 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
   private final AdfsHttpClientSession adfsHttpClientSession;
   private final LoggingService loggingService;
   private static final int TIMEOUT_MILISECONDS = 5000;
+  private static final int MAX_REQUESTS_PER_HOST = 200;
 
   AdfsHttpClientBaseImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
@@ -52,6 +53,9 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
 
     this.adfsHttpClientSession = adfsHttpClientSession;
     this.loggingService = loggingService;
+
+    restClient.httpClient().dispatcher().setMaxRequestsPerHost(MAX_REQUESTS_PER_HOST);
+    restClient.httpClient().dispatcher().setMaxRequests(MAX_REQUESTS_PER_HOST);
   }
 
   @Override

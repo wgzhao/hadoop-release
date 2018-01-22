@@ -282,6 +282,24 @@ public interface AdfsHttpService extends InjectableService {
       AzureDistributedFileSystemException;
 
   /**
+   * Renames a directory from source to destination.
+   * @param azureDistributedFileSystem filesystem to rename a directory.
+   * @param source source path.
+   * @param destination destination path.
+   */
+  void renameDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination)
+      throws AzureDistributedFileSystemException;
+
+  /**
+   * Renames a directory from source to destination asynchronously.
+   * @param azureDistributedFileSystem filesystem to rename a directory.
+   * @param source source path.
+   * @param destination destination path.
+   */
+  Future<Void> renameDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws
+      AzureDistributedFileSystemException;
+
+  /**
    * Deletes a file.
    * @param azureDistributedFileSystem filesystem to delete the path.
    * @param path file path to be deleted.
@@ -295,6 +313,24 @@ public interface AdfsHttpService extends InjectableService {
    * @return Future<Void> Future of a Void object.
    */
   Future<Void> deleteFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path)
+      throws AzureDistributedFileSystemException;
+
+  /**
+   * Deletes a directory.
+   * @param azureDistributedFileSystem filesystem to delete the path.
+   * @param path directory path to be deleted.
+   * @param recursive true if directory is being deleted recursively.
+   */
+  void deleteDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean recursive) throws AzureDistributedFileSystemException;
+
+  /**
+   * Deletes a directory asynchronously.
+   * @param azureDistributedFileSystem filesystem to delete the path.
+   * @param path directory path to be deleted.
+   * @param recursive true if directory is being deleted recursively.
+   * @return Future<Void> Future of a Void object.
+   */
+  Future<Void> deleteDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean recursive)
       throws AzureDistributedFileSystemException;
 
   /**

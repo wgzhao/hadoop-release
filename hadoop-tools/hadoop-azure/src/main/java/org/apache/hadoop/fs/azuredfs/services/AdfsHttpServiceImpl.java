@@ -40,15 +40,21 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.microsoft.azure.dfs.rest.client.generated.models.ContentTypes;
+import com.microsoft.azure.dfs.rest.client.generated.models.CreatePathHeaders;
+import com.microsoft.azure.dfs.rest.client.generated.models.DeletePathHeaders;
 import com.microsoft.azure.dfs.rest.client.generated.models.ErrorSchemaException;
 import com.microsoft.azure.dfs.rest.client.generated.models.GetFilesystemPropertiesHeaders;
 import com.microsoft.azure.dfs.rest.client.generated.models.GetPathPropertiesHeaders;
 import com.microsoft.azure.dfs.rest.client.generated.models.ListEntrySchema;
 import com.microsoft.azure.dfs.rest.client.generated.models.ListSchema;
+import com.microsoft.azure.dfs.rest.client.generated.models.ReadPathHeaders;
 import com.microsoft.rest.ServiceResponseWithHeaders;
 import com.sun.istack.Nullable;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import okhttp3.Headers;
+import okio.BufferedSource;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import rx.Observable;
@@ -68,6 +74,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorRespo
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceNetworkException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidFileSystemPropertyException;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionState;
@@ -84,6 +91,7 @@ import org.apache.htrace.core.TraceScope;
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.HDI_IS_FOLDER;
+import static org.apache.hadoop.util.Time.now;
 
 @Singleton
 @InterfaceAudience.Private
@@ -98,6 +106,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String COMP_PROPERTIES = "properties";
   private static final String CONDITIONAL_ALL = "*";
   private static final int LIST_MAX_RESULTS = 5000;
+  private static final int DELETE_DIRECTORY_TIMEOUT_MILISECONDS = 120000;
+  private static final int RENAME_DIRECTORY_TIMEOUT_MILISECONDS = 120000;
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
   private final AdfsStreamFactory adfsStreamFactory;
@@ -246,7 +256,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* ifUnmodifiedSince */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).toBlocking().single();
       }
     };
@@ -327,7 +336,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* xMsOriginationId */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).toBlocking().single();
       }
     };
@@ -399,10 +407,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
         return adfsHttpClient.createPathAsync(
             getResource(false),
+            ContentTypes.APPLICATIONOCTET_STREAM.toString(),
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
+            null /* continuation */,
             null /* contentLength */,
-            null /* contentType */,
             null /* contentEncoding */,
             null /* contentLanguage */,
             null /* contentMD5 */,
@@ -430,7 +439,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* requestBody */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).
             flatMap(new Func1<Void, Observable<OutputStream>>() {
               @Override
@@ -474,8 +482,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       public Void call() throws Exception {
         return adfsHttpClient.createPathAsync(
             getResource(true),
+            ContentTypes.APPLICATIONOCTET_STREAM.toString(),
             adfsHttpClient.getSession().getFileSystem(),
-            getRelativePath(path)).toBlocking().single();
+            getRelativePath(path),
+            null /* continuation */,
+            "0",
+            null /* contentEncoding */,
+            null /* contentLanguage */,
+            null /* contentMD5 */,
+            null /* xMsCacheControl */,
+            null /* xMsContentType */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
+            null /* xMsRenameSource */,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsProposedLeaseId */,
+            null /* xMsSourceLeaseAction */,
+            null /* xMsSourceLeaseId */,
+            null /* xMsProperties */,
+            null /* xMsOriginationId */,
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* xMsSourceIfMatch */,
+            null /* xMsSourceIfNoneMatch */,
+            null /* xMsSourceIfModifiedSince */,
+            null /* xMsSourceIfUnmodifiedSince */,
+            null /* requestBody */,
+            null /* xMsClientRequestId */,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null /* xMsDate */).toBlocking().single();
       }
     };
 
@@ -596,7 +635,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       @Override
       public Integer call() throws Exception {
         final boolean tolerateOobAppends = configurationService.getTolerateOobAppends();
-        return adfsHttpClient.readPathAsync(
+        return adfsHttpClient.readPathWithServiceResponseAsync(
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             getRangeHeader(offset, length),
@@ -606,22 +645,18 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* ifUnmodifiedSince */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).
-            flatMap(new Func1<InputStream, Observable<Integer>>() {
+            flatMap(new Func1<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>, Observable<Integer>>() {
               @Override
-              public Observable<Integer> call(InputStream inputStream) {
+              public Observable<Integer> call(ServiceResponseWithHeaders<InputStream, ReadPathHeaders> serviceResponseWithHeaders) {
                 try {
                   int readBytes;
                   int remainingBytes = length;
                   int offset = targetBufferOffset;
+                  BufferedSource inputStream = serviceResponseWithHeaders.response().body().source();
                   while ((readBytes = inputStream.read(targetBuffer.array(), offset, remainingBytes)) != -1) {
                     offset += readBytes;
                     remainingBytes -= readBytes;
-                  }
-
-                  if (remainingBytes != 0) {
-                    throw new IllegalStateException("Read request must be fully read");
                   }
 
                   inputStream.close();
@@ -663,10 +698,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
-        final int length = body.readableBytes();
-        byte[] bytes = new byte[length];
-        body.getBytes(body.readerIndex(), bytes);
-
         Observable<Void> updatePathAsync = adfsHttpClient.updatePathAsync(
             getResource(false),
             adfsHttpClient.getSession().getFileSystem(),
@@ -690,13 +721,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* ifNoneMatch */,
             null /* ifModifiedSince */,
             null /* ifUnmodifiedSince */,
-            bytes,
+            new ByteBufInputStream(body),
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */);
 
-        bytes = null;
         return updatePathAsync.toBlocking().single();
       }
     };
@@ -722,7 +751,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
     this.loggingService.debug(
-        "writeFileAsync filesystem: {0} path: {1} offset: {2}",
+        "flushFileAsync filesystem: {0} path: {1} offset: {2}",
         adfsHttpClient.getSession().getFileSystem(),
         path.toString(),
         offset);
@@ -756,7 +785,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* requestBody */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).toBlocking().single();
       }
     };
@@ -784,7 +812,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
     this.loggingService.debug(
-        "writeFileAsync filesystem: {0} source: {1} destination: {2}",
+        "renameFileAsync filesystem: {0} source: {1} destination: {2}",
         adfsHttpClient.getSession().getFileSystem(),
         source.toString(),
         destination.toString());
@@ -794,10 +822,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       public Void call() throws Exception {
         return adfsHttpClient.createPathAsync(
             getResource(false),
+            ContentTypes.APPLICATIONOCTET_STREAM.toString(),
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(destination),
+            null /* continuation */,
             null /* contentLength */,
-            null /* contentType */,
             null /* contentEncoding */,
             null /* contentLanguage */,
             null /* contentMD5 */,
@@ -825,12 +854,103 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* requestBody */,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* authorization */,
             null /* xMsDate */).toBlocking().single();
       }
     };
 
     return executeAsync("AdfsHttpServiceImpl.renameFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
+  }
+
+  @Override
+  public void renameDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
+      AzureDistributedFileSystemException {
+    execute(
+        "AdfsHttpServiceImpl.renameDirectory",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            renameDirectoryAsync(azureDistributedFileSystem, source, destination).get();
+            return null;
+          }
+        });
+  }
+
+  @Override
+  public Future<Void> renameDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
+      AzureDistributedFileSystemException {
+    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "renameDirectory filesystem: {0} source: {1} destination: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        source.toString(),
+        destination.toString());
+
+    final Callable<Void> asyncCallable = new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        String continuation = null;
+        boolean operationPending = true;
+
+        long deadline = now() + DELETE_DIRECTORY_TIMEOUT_MILISECONDS;
+        while (operationPending) {
+          if (now() > deadline) {
+            loggingService.debug(
+                "Rename directory {0} to {1} timed out.",
+                source,
+                destination);
+
+            throw new TimeoutException("Rename directory timed out.");
+          }
+
+          continuation = adfsHttpClient.createPathWithServiceResponseAsync(
+              getResource(false),
+              adfsHttpClient.getSession().getFileSystem(),
+              getRelativePath(destination),
+              continuation,
+              null /* contentLength */,
+              ContentTypes.APPLICATIONOCTET_STREAM.toString(),
+              null /* contentEncoding */,
+              null /* contentLanguage */,
+              null /* contentMD5 */,
+              null /* xMsCacheControl */,
+              null /* xMsContentType */,
+              null /* xMsContentEncoding */,
+              null /* xMsContentLanguage */,
+              null /* xMsContentMd5 */,
+              Path.SEPARATOR + adfsHttpClient.getSession().getFileSystem() + Path.SEPARATOR + getRelativePath(source),
+              null /* xMsLeaseAction */,
+              null /* xMsLeaseId */,
+              null /* xMsProposedLeaseId */,
+              SOURCE_LEASE_ACTION_ACQUIRE,
+              null /* xMsSourceLeaseId */,
+              null /* xMsProperties */,
+              null /* xMsOriginationId */,
+              null /* ifMatch */,
+              null /* ifNoneMatch */,
+              null /* ifModifiedSince */,
+              null /* ifUnmodifiedSince */,
+              null /* xMsSourceIfMatch */,
+              null /* xMsSourceIfNoneMatch */,
+              null /* xMsSourceIfModifiedSince */,
+              null /* xMsSourceIfUnmodifiedSince */,
+              null /* requestBody */,
+              null /* xMsClientRequestId */,
+              FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+              null /* xMsDate */).flatMap(new Func1<ServiceResponseWithHeaders<Void, CreatePathHeaders>, Observable<String>>() {
+            @Override
+            public Observable<String> call(ServiceResponseWithHeaders<Void, CreatePathHeaders> voidCreatePathHeadersServiceResponseWithHeaders) {
+              return Observable.just(voidCreatePathHeadersServiceResponseWithHeaders.headers().xMsContinuation());
+            }
+          }).toBlocking().single();
+
+          operationPending = continuation != null;
+        }
+
+        return null;
+      }
+    };
+
+    return executeAsync("AdfsHttpServiceImpl.renameDirectoryAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
@@ -864,6 +984,76 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     };
 
     return executeAsync("AdfsHttpServiceImpl.deleteFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
+  }
+
+  @Override
+  public void deleteDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
+      AzureDistributedFileSystemException {
+    execute(
+        "AdfsHttpServiceImpl.deleteDirectory",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            deleteDirectoryAsync(azureDistributedFileSystem, path, recursive).get();
+            return null;
+          }
+        });
+  }
+
+  @Override
+  public Future<Void> deleteDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
+      AzureDistributedFileSystemException {
+    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    this.loggingService.debug(
+        "deleteDirectoryAsync filesystem: {0} path: {1} recursive: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        String.valueOf(recursive));
+
+    final Callable<Void> asyncCallable = new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        String continuation = null;
+        boolean operationPending = true;
+
+        long deadline = now() + DELETE_DIRECTORY_TIMEOUT_MILISECONDS;
+        while (operationPending) {
+          if (now() > deadline) {
+            loggingService.debug(
+                "Delete directory {0} timed out.",
+                path);
+
+            throw new TimeoutException("Delete directory timed out.");
+          }
+
+          continuation = adfsHttpClient.deletePathWithServiceResponseAsync(
+              getResource(false),
+              adfsHttpClient.getSession().getFileSystem(),
+              getRelativePath(path),
+              Boolean.valueOf(recursive),
+              continuation,
+              null /* xMsLeaseId */,
+              null /* ifMatch */,
+              null /* ifNonMatch */,
+              null /* ifModifiedSince */,
+              null /* ifUnmodifiedSince */,
+              null /* xMsClientRequestId */,
+              FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+              null /* xMsDate */).flatMap(new Func1<ServiceResponseWithHeaders<Void, DeletePathHeaders>, Observable<String>>() {
+            @Override
+            public Observable<String> call(ServiceResponseWithHeaders<Void, DeletePathHeaders> voidDeletePathHeadersServiceResponseWithHeaders) {
+              return Observable.just(voidDeletePathHeadersServiceResponseWithHeaders.headers().xMsContinuation());
+            }
+          }).toBlocking().single();
+
+          operationPending = continuation != null;
+        }
+
+        return null;
+      }
+    };
+
+    return executeAsync("AdfsHttpServiceImpl.deleteDirectoryAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
@@ -960,7 +1150,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                   LIST_MAX_RESULTS,
                   null /* xMsClientRequestId */,
                   FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-                  null /* authorization */,
                   null /* xMsDate */).toBlocking().single();
 
               long blockSize = configurationService.getAzureBlockSize();

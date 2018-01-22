@@ -26,13 +26,11 @@ package com.microsoft.azure.dfs.rest.client.generated.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Defines headers for GetPathProperties operation.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class GetPathPropertiesHeaders {
   /**
@@ -159,6 +157,13 @@ public class GetPathPropertiesHeaders {
    */
   @JsonProperty(value = "x-ms-version")
   private String xMsVersion;
+
+  /**
+   * The type of the resource.  The value may be "file" or "directory".  If
+   * not set, the value is "file".
+   */
+  @JsonProperty(value = "x-ms-resource-type")
+  private String xMsResourceType;
 
   /**
    * A comma-separated list of properties n1=v1,n2=v2,... associated with the
@@ -564,6 +569,26 @@ public class GetPathPropertiesHeaders {
    */
   public GetPathPropertiesHeaders withXMsVersion(String xMsVersion) {
     this.xMsVersion = xMsVersion;
+    return this;
+  }
+
+  /**
+   * Get the xMsResourceType value.
+   *
+   * @return the xMsResourceType value
+   */
+  public String xMsResourceType() {
+    return this.xMsResourceType;
+  }
+
+  /**
+   * Set the xMsResourceType value.
+   *
+   * @param xMsResourceType the xMsResourceType value to set
+   * @return the GetPathPropertiesHeaders object itself.
+   */
+  public GetPathPropertiesHeaders withXMsResourceType(String xMsResourceType) {
+    this.xMsResourceType = xMsResourceType;
     return this;
   }
 

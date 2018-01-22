@@ -28,13 +28,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * The ListSchema model.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class ListSchema {
   /**

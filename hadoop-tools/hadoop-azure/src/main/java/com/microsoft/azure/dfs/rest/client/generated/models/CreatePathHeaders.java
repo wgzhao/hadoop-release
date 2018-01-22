@@ -26,13 +26,11 @@ package com.microsoft.azure.dfs.rest.client.generated.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Defines headers for CreatePath operation.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class CreatePathHeaders {
   /**
@@ -60,6 +58,17 @@ public class CreatePathHeaders {
    */
   @JsonProperty(value = "x-ms-version")
   private String xMsVersion;
+
+  /**
+   * When renaming a directory, the number of paths that are renamed with
+   * each invocation is limited.  If the number of paths to be renamed
+   * exceeds this limit, a continuation token is returned in this response
+   * header.  When a continuation token is returned in the response, it must
+   * be specified in a subsequent invocation of the rename operation to
+   * continue renaming the directory.
+   */
+  @JsonProperty(value = "x-ms-continuation")
+  private String xMsContinuation;
 
   /**
    * The x-ms-origination-id of the request that created the resource. When a
@@ -153,6 +162,26 @@ public class CreatePathHeaders {
    */
   public CreatePathHeaders withXMsVersion(String xMsVersion) {
     this.xMsVersion = xMsVersion;
+    return this;
+  }
+
+  /**
+   * Get the xMsContinuation value.
+   *
+   * @return the xMsContinuation value
+   */
+  public String xMsContinuation() {
+    return this.xMsContinuation;
+  }
+
+  /**
+   * Set the xMsContinuation value.
+   *
+   * @param xMsContinuation the xMsContinuation value to set
+   * @return the CreatePathHeaders object itself.
+   */
+  public CreatePathHeaders withXMsContinuation(String xMsContinuation) {
+    this.xMsContinuation = xMsContinuation;
     return this;
   }
 

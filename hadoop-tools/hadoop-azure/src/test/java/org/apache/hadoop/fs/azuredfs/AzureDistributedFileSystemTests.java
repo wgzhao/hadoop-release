@@ -42,7 +42,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
@@ -278,16 +277,17 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     writeStream.write(b);
     writeStream.flush();
+    writeStream.close();
 
     FSDataInputStream readStream = fs.open(new Path("testfile"));
     readStream.read(bytesToRead, 0, readBufferSize);
 
+    writeStream = fs.create(new Path("testfile"));
     writeStream.write(b);
     writeStream.flush();
+    writeStream.close();
 
     readStream.read(bytesToRead, 0, readBufferSize);
-
-    writeStream.close();
     readStream.close();
   }
 

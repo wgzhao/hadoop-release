@@ -23,10 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import rx.Observable;
+import rx.functions.Func1;
+import rx.functions.FuncN;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -57,7 +59,6 @@ final class AdfsInputStream extends FSInputStream {
   private long fileLength = 0;
   private ByteBuf buffer;
   private boolean closed;
-  private List<Future<Integer>> tasks;
   private final int bufferSize;
   private final String version;
 
@@ -90,7 +91,6 @@ final class AdfsInputStream extends FSInputStream {
     this.bufferOffsetInStream = -1;
     this.fileLength = fileLength;
     this.closed = false;
-    this.tasks = new ArrayList<>();
     this.bufferSize = bufferSize;
     this.adfsBufferPool = adfsBufferPool;
     this.buffer = this.adfsBufferPool.getByteBuffer(new byte[this.bufferSize]);
@@ -179,24 +179,103 @@ final class AdfsInputStream extends FSInputStream {
       throw new IndexOutOfBoundsException();
     }
 
+    int readLength = len > available() ? available() : len;
+
+    // Check to see if buffer can be used.
+    boolean canReadFromBuffer = this.offset >= bufferOffsetInStream
+        && this.offset + readLength <= bufferOffsetInStream + this.buffer.writerIndex();
+
+    if (canReadFromBuffer) {
+      long bufferOffset = this.offset - bufferOffsetInStream;
+      this.buffer.readerIndex((int) bufferOffset);
+
+      this.offset += readLength;
+      this.buffer.readBytes(b, off, readLength);
+      this.tracingService.traceEnd(traceScope);
+      return readLength;
+    }
+
+    int remainingBytesToRead = readLength;
+    int bufferOffset = off;
+
+    final ByteBuf targetBuffer = this.adfsBufferPool.getByteBuffer(b);
+
+    List<Observable<Integer>> readObservables = new ArrayList<>();
+
     try {
-      if (len < FileSystemConfigurations.MIN_BUFFER_SIZE) {
-        return readFromBuffer(b, off, len);
-      }
+      while (remainingBytesToRead != 0) {
+        Observable<Integer> readObservable;
+        int chunkLength;
 
-      return readFromService(b, off, len);
-    } catch (InterruptedException | ExecutionException ex) {
-      for (Future task : tasks) {
-        if (!task.isDone()) {
-          task.cancel(true);
+        if (remainingBytesToRead > bufferSize) {
+          readObservable = Observable.from(this.adfsHttpService.readFileAsync(
+              this.azureDistributedFileSystem,
+              this.path,
+              this.version,
+              this.offset,
+              this.bufferSize,
+              targetBuffer,
+              bufferOffset));
+
+          chunkLength = bufferSize;
         }
+        else {
+          // Last download will be into the buffer
+          this.buffer.setIndex(0, this.bufferSize);
+          this.bufferOffsetInStream = this.offset;
+
+          final long targetBufferOffset = bufferOffset;
+          final long targetBufferBytesToWrite = remainingBytesToRead;
+
+          readObservable = Observable.from(this.adfsHttpService.readFileAsync(
+              this.azureDistributedFileSystem,
+              this.path,
+              this.version,
+              this.offset,
+              this.bufferSize,
+              this.buffer,
+              0)).switchMap(new Func1<Integer, Observable<Integer>>() {
+            @Override
+            public Observable<Integer> call(Integer integer) {
+              buffer.setIndex(0, integer);
+              buffer.readBytes(targetBuffer, (int) targetBufferOffset, (int) targetBufferBytesToWrite);
+              return Observable.just((int) targetBufferBytesToWrite);
+            }
+          });
+
+          chunkLength = remainingBytesToRead;
+        }
+
+        bufferOffset += chunkLength;
+        this.offset += chunkLength;
+        remainingBytesToRead -= chunkLength;
+
+        readObservables.add(readObservable);
       }
 
+      // Wait synchronously on the list of read operations.
+      Integer totalReadLength = Observable.zip(readObservables, new FuncN<Integer>() {
+        @Override
+        public Integer call(Object... results) {
+          int totalLength = 0;
+          for (Object result : results) {
+            totalLength += (Integer) result;
+          }
+
+          return totalLength;
+        }
+      }).toBlocking().toFuture().get();
+
+      Preconditions.checkArgument(totalReadLength == readLength);
+    }
+    catch (AzureDistributedFileSystemException | InterruptedException | ExecutionException ex) {
       throw new IOException(ex);
-    } finally {
-      this.tasks.clear();
+    }
+    finally {
       this.tracingService.traceEnd(traceScope);
     }
+
+    return readLength;
   }
 
   @Override
@@ -235,102 +314,5 @@ final class AdfsInputStream extends FSInputStream {
   @Override
   public boolean seekToNewSource(final long targetPos) throws IOException {
     return false;
-  }
-
-  private synchronized int readFromService(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
-    this.loggingService.debug("AdfsInputStream.readFromService byte array length: {0} offset: {1} len: {2}", b.length, off, len);
-    TraceScope traceScope = this.tracingService.traceBegin("AdfsInputStream.readFromService");
-
-    int readLength = available() > len ? len : available();
-    int remainingBytesToRead = readLength;
-    int bufferOffset = off;
-
-    final ByteBuf bytesBuffer = this.adfsBufferPool.getByteBuffer(b);
-
-    while (remainingBytesToRead != 0) {
-      int bytesToRead = remainingBytesToRead > bufferSize ? bufferSize : remainingBytesToRead;
-
-      sendReadRequest(
-          this.offset,
-          bytesToRead,
-          bytesBuffer,
-          bufferOffset);
-
-      this.offset += bytesToRead;
-
-      bufferOffset += bytesToRead;
-      remainingBytesToRead -= bytesToRead;
-    }
-
-    int totalBytesRead = this.waitAllAndGetTotalReadBytes();
-    Preconditions.checkArgument(readLength == totalBytesRead);
-
-    this.adfsBufferPool.releaseByteBuffer(bytesBuffer);
-    this.tracingService.traceEnd(traceScope);
-    return readLength;
-  }
-
-  private synchronized int readFromBuffer(final byte[] b, final int off, final int len) throws IOException, ExecutionException, InterruptedException {
-    this.loggingService.debug("AdfsInputStream.readFromBuffer byte array length: {0} offset: {1} len: {2}", b.length, off, len);
-    TraceScope traceScope = this.tracingService.traceBegin("AdfsInputStream.readFromBuffer");
-
-    // Check to see if we already buffered the request.
-    if (this.offset >= bufferOffsetInStream
-        && this.offset + len <= bufferOffsetInStream + this.buffer.writerIndex()) {
-      long startOffset = this.offset - bufferOffsetInStream;
-      this.buffer.readerIndex((int) startOffset);
-    }
-    else {
-      int remainingSize = this.bufferSize > available() ? available() : this.bufferSize;
-      this.buffer.setIndex(0, remainingSize);
-
-      sendReadRequest(
-          this.offset,
-          remainingSize,
-          this.buffer,
-          0);
-
-      int totalBytesRead = this.waitAllAndGetTotalReadBytes();
-      Preconditions.checkArgument(totalBytesRead == remainingSize);
-
-      this.bufferOffsetInStream = this.offset;
-    }
-
-    int readLength = len > available() ? available() : len;
-    this.offset += readLength;
-    this.buffer.readBytes(b, off, readLength);
-    this.tracingService.traceEnd(traceScope);
-    return readLength;
-  }
-
-  private synchronized int waitAllAndGetTotalReadBytes() throws InterruptedException, ExecutionException {
-    int totalBytesRead = 0;
-    for (Future<Integer> task : tasks) {
-      totalBytesRead += task.get();
-    }
-
-    return totalBytesRead;
-  }
-
-  private synchronized void sendReadRequest(
-      final long serviceOffset,
-      final int serviceLength,
-      final ByteBuf targetBuffer,
-      final int bufferOffset) throws IOException {
-
-    try {
-      final Future<Integer> read = this.adfsHttpService.readFileAsync(
-          this.azureDistributedFileSystem,
-          path,
-          version,
-          serviceOffset,
-          serviceLength,
-          targetBuffer,
-          bufferOffset);
-
-      this.tasks.add(read);
-    } catch (AzureDistributedFileSystemException exception) {
-      throw new IOException(exception);
-    }
   }
 }

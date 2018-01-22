@@ -26,13 +26,11 @@ package com.microsoft.azure.dfs.rest.client.generated.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Defines headers for SetFilesystemProperties operation.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class SetFilesystemPropertiesHeaders {
   /**

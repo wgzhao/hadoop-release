@@ -170,12 +170,32 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
+  public void renameDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> renameDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
   public void deleteFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
 
   }
 
   @Override
   public Future<Void> deleteFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
+  public void deleteDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean recursive) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> deleteDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, boolean recursive) throws AzureDistributedFileSystemException {
     return null;
   }
 

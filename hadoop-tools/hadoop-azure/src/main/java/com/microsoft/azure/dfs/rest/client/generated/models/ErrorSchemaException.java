@@ -28,13 +28,11 @@ import com.microsoft.rest.RestException;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Exception thrown for an invalid response with ErrorSchema information.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class ErrorSchemaException extends RestException {
   /**
