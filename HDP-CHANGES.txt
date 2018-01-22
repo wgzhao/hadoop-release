@@ -1268,3 +1268,6 @@ ATS V1.5:
 
     BUG-94158. HDFS-9555. LazyPersistFileScrubber should still sleep if there
     are errors in the clear progress. Contributed by Phil Yang.
+
+    BUG-94158. HDFS-11078. Fix NPE in LazyPersistFileScrubber. Contributed by
+    Inigo Goiri.
