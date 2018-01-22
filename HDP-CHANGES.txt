@@ -1265,3 +1265,6 @@ ATS V1.5:
 
     BUG-91089. HDFS-10223. peerFromSocketAndKey performs SASL exchange before
     setting connection timeouts
+
+    BUG-94158. HDFS-9555. LazyPersistFileScrubber should still sleep if there
+    are errors in the clear progress. Contributed by Phil Yang.
