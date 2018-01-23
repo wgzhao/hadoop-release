@@ -4751,3 +4751,6 @@ ATS V1.5:
 
     BUG-96289. HDFS-11701. NPE from Unresolved Host causes permanent
     DFSInputStream failures. Contributed by Lokesh Jain.
+
+    BUG-95259. HADOOP-15185. Update adls connector to use the current version of
+    ADLS SDK. Contributed by Atul Sikaria.
