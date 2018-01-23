@@ -147,8 +147,7 @@ public class RetryInvocationHandler<T> implements RpcInvocationHandler {
         }
       }
 
-      return new RetryInfo(maxRetryDelay, failover,
-          failover == null && retry == null? fail: null, ex);
+      return new RetryInfo(maxRetryDelay, failover, fail, ex);
     }
   }
 

@@ -29,7 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.PathIsNotEmptyDirectoryException;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.MiniDFSNNTopology;
 import org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider.ProxyFactory;
 import org.apache.hadoop.hdfs.server.protocol.NamenodeProtocols;
 import org.apache.hadoop.io.retry.MultiException;
@@ -524,5 +529,35 @@ public class TestRequestHedgingProxyProvider {
         return iterator.next();
       }
     };
+  }
+
+  @Test
+  public void testPathIsNotEmptyDirectoryException() throws Exception {
+    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(MiniDFSNNTopology.simpleHATopology()).numDataNodes(1)
+        .build();
+    cluster.waitActive();
+    cluster.transitionToActive(0);
+    String logicalName = HATestUtil.getLogicalHostname(cluster);
+    HATestUtil.setFailoverConfigurations(cluster, conf, logicalName, 0);
+    conf.set(
+        "dfs.client.failover.proxy.provider." + logicalName,
+        "org.apache.hadoop.hdfs.server.namenode.ha" +
+            ".RequestHedgingProxyProvider");
+    FileSystem fs = FileSystem.get(new URI("hdfs://" + logicalName), conf);
+    Path dir = new Path("/tmp/dir");
+    fs.mkdirs(dir);
+    fs.create(new Path(dir, "test.txt")).close();
+    try {
+      fs.delete(dir, false);
+      // The delete call should throw PathIsNotEmptyDirectoryException
+      Assert.fail("Expecting PathIsNotEmptyDirectoryException");
+    } catch (PathIsNotEmptyDirectoryException ex) {
+      // This is the proper exception to catch; move on.
+    }
+    Assert.assertTrue(fs.exists(dir));
+    Assert.assertTrue(fs.delete(dir, true));
+    fs.close();
+    cluster.shutdown();
   }
 }
