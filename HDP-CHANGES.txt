@@ -4655,3 +4655,6 @@ ATS V1.5:
     BUG-92292. HADOOP-15042. Azure PageBlobInputStream.skip() can return
     negative value when numberOfPagesRemaining is 0. Contributed by Rajesh
     Balamohan
+
+    BUG-95258. HADOOP-15185. Update adls connector to use the current version of
+    ADLS SDK. Contributed by Atul Sikaria.
