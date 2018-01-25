@@ -150,12 +150,12 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
-  public void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset) throws AzureDistributedFileSystemException {
+  public void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, boolean retainUncommitedData) throws AzureDistributedFileSystemException {
 
   }
 
   @Override
-  public Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset) throws AzureDistributedFileSystemException {
+  public Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, long offset, boolean retainUncommitedData) throws AzureDistributedFileSystemException {
     return null;
   }
 

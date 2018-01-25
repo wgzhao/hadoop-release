@@ -4844,3 +4844,5 @@ ATS V1.5:
     
     WASB-27. Adding rename directory and delete directory apis and fixing bugs.
 
+    WASB-29. Async flush and updating the http layer to handle new xmsproperties
+

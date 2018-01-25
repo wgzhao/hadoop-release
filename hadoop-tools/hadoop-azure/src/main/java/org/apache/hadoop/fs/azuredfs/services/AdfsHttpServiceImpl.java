@@ -25,8 +25,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,14 +51,12 @@ import com.microsoft.rest.ServiceResponseWithHeaders;
 import com.sun.istack.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import okhttp3.Headers;
 import okio.BufferedSource;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import rx.Observable;
 import rx.functions.Func1;
 
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -84,13 +80,9 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.htrace.core.SpanId;
 import org.apache.htrace.core.TraceScope;
 
-import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
-import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
-import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.HDI_IS_FOLDER;
 import static org.apache.hadoop.util.Time.now;
 
 @Singleton
@@ -100,7 +92,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String FILE_SYSTEM = "filesystem";
   private static final String FILE = "file";
   private static final String DIRECTORY = "directory";
-  private static final String ETAG = "Etag";
   private static final String DATE_TIME_PATTERN = "E, dd MMM yyyy HH:mm:ss 'GMT'";
   private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String COMP_PROPERTIES = "properties";
@@ -136,7 +127,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
     this.tracingService = tracingService;
-    this.loggingService = loggingService.get(AdfsHttpServiceImpl.class);
+    this.loggingService = loggingService.get(AdfsHttpService.class);
 
     int maxConcurrentWriteThreads = this.configurationService.getMaxConcurrentWriteThreads();
     int maxConcurrentReadThreads = this.configurationService.getMaxConcurrentReadThreads();
@@ -189,14 +180,15 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final Callable<Hashtable<String, String>> asyncCallable = new Callable<Hashtable<String, String>>() {
       @Override
       public Hashtable<String, String> call() throws Exception {
-        Hashtable<String, String> properties = getFileSystemPropertiesInternal(adfsHttpClient).toBlocking().single();
+        String xmsProperties = getFileSystemPropertiesInternal(adfsHttpClient).toBlocking().single().xMsProperties();
+        Hashtable<String, String> parsedXmsProperties = parseXMsProperties(xmsProperties);
 
         loggingService.debug(
             "Fetched filesystem properties for fs: {0}, properties: {1}",
             adfsHttpClient.getSession().getFileSystem(),
-            properties);
+            parsedXmsProperties);
 
-        return properties;
+        return parsedXmsProperties;
       }
     };
 
@@ -289,15 +281,16 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final Callable<Hashtable<String, String>> asyncCallable = new Callable<Hashtable<String, String>>() {
       @Override
       public Hashtable<String, String> call() throws Exception {
-        Hashtable<String, String> properties = getPathPropertiesInternal(adfsHttpClient, path).toBlocking().firstOrDefault(new Hashtable<String, String>());
+        String xmsProperties = getPathPropertiesInternal(adfsHttpClient, path).toBlocking().single().xMsProperties();
+        Hashtable<String, String> parsedXmsProperties = parseXMsProperties(xmsProperties);
 
         loggingService.debug(
             "getPathPropertiesAsync properties for filesystem: {0} path: {1} properties: {2}",
             adfsHttpClient.getSession().getFileSystem(),
             path.toString(),
-            properties);
+            parsedXmsProperties);
 
-        return properties;
+        return parsedXmsProperties;
       }
     };
 
@@ -703,7 +696,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             "data",
-            Long.valueOf(offset),
+            offset,
             false /* retainUncommittedData */,
             Integer.toString(body.readableBytes()),
             null /* contentMD5 */,
@@ -734,21 +727,22 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   @Override
-  public void flushFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) throws
+  public void flushFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final boolean retainUncommitedData)
+      throws
       AzureDistributedFileSystemException {
     execute(
       "AdfsHttpServiceImpl.flushFile",
       new Callable<Void>() {
         @Override
         public Void call() throws Exception {
-          return flushFileAsync(azureDistributedFileSystem, path, offset).get();
+          return flushFileAsync(azureDistributedFileSystem, path, offset, retainUncommitedData).get();
         }
       });
   }
 
   @Override
-  public Future<Void> flushFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset) throws
-      AzureDistributedFileSystemException {
+  public Future<Void> flushFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final boolean
+      retainUncommitedData) throws AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
     this.loggingService.debug(
         "flushFileAsync filesystem: {0} path: {1} offset: {2}",
@@ -764,8 +758,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path),
             "commit",
-            Long.valueOf(offset),
-            false,
+            offset,
+            retainUncommitedData /* retainUncommitedData */,
             null /* contentLength */,
             null /* contentMD5 */,
             null /* origin */,
@@ -891,7 +885,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
         String continuation = null;
         boolean operationPending = true;
 
-        long deadline = now() + DELETE_DIRECTORY_TIMEOUT_MILISECONDS;
+        long deadline = now() + RENAME_DIRECTORY_TIMEOUT_MILISECONDS;
         while (operationPending) {
           if (now() > deadline) {
             loggingService.debug(
@@ -1030,7 +1024,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               getResource(false),
               adfsHttpClient.getSession().getFileSystem(),
               getRelativePath(path),
-              Boolean.valueOf(recursive),
+              recursive,
               continuation,
               null /* xMsLeaseId */,
               null /* ifMatch */,
@@ -1300,26 +1294,22 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     return isDirectory ? DIRECTORY : FILE;
   }
 
-  private long getContentLength(final Hashtable<String, String> properties) {
-    if (properties.containsKey(CONTENT_LENGTH)) {
-      return Long.parseLong(properties.get(CONTENT_LENGTH));
+  private long parseContentLength(final String contentLength) {
+    if (contentLength == null) {
+      return -1;
     }
 
-    return 0;
+    return Long.valueOf(contentLength);
   }
 
-  private boolean isDirectory(final Hashtable<String, String> properties) {
-    return properties.containsKey(HDI_IS_FOLDER) && Boolean.parseBoolean(properties.get(HDI_IS_FOLDER));
+  private boolean parseIsDirectory(final String resourceType) {
+    return resourceType.equalsIgnoreCase(DIRECTORY);
   }
 
-  private DateTime getLastModifiedTime(final Hashtable<String, String> properties) {
+  private DateTime parseLastModifiedTime(final String lastModifiedTime) {
     return DateTime.parse(
-        properties.get(LAST_MODIFIED),
+        lastModifiedTime,
         DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
-  }
-
-  private String getVersion(final Hashtable<String, String> properties) {
-    return properties.get(ETAG);
   }
 
   private <T> Future<T> executeAsync(
@@ -1351,34 +1341,34 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   private ThreadPoolExecutor createThreadPoolExecutor(int maxConcurrentThreads) {
-    return new ThreadPoolExecutor(
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
         maxConcurrentThreads,
         maxConcurrentThreads,
-        0L,
-        TimeUnit.MILLISECONDS,
+        1L,
+        TimeUnit.SECONDS,
         new SynchronousQueue<Runnable>(),
         new ThreadPoolExecutor.AbortPolicy());
+
+    threadPoolExecutor.prestartCoreThread();
+    threadPoolExecutor.prestartAllCoreThreads();
+
+    return threadPoolExecutor;
   }
 
   // Internal calls are provided to prevent deadlocks in the thread executor pool
-  private Observable<Hashtable<String, String>> getFileSystemPropertiesInternal(final AdfsHttpClient adfsHttpClient) {
-    final Hashtable<String, String> properties = new Hashtable<>();
-
+  private Observable<GetFilesystemPropertiesHeaders> getFileSystemPropertiesInternal(final AdfsHttpClient adfsHttpClient) {
     Observable<ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>> response =
         adfsHttpClient.getFilesystemPropertiesWithServiceResponseAsync(
             adfsHttpClient.getSession().getFileSystem(),
             FILE_SYSTEM);
 
-    return response.flatMap(new Func1<ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>, Observable<Hashtable<String, String>>>() {
+    return response.flatMap(new Func1<ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>, Observable<GetFilesystemPropertiesHeaders>>() {
       @Override
-      public Observable<Hashtable<String, String>> call(ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>
+      public Observable<GetFilesystemPropertiesHeaders> call(ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>
           voidGetFilesystemPropertiesHeadersServiceResponseWithHeaders) {
         try {
-          Headers headers = voidGetFilesystemPropertiesHeadersServiceResponseWithHeaders.headResponse().raw().headers();
-          properties.putAll(parseHeaders(headers));
-          String xMsProperties = voidGetFilesystemPropertiesHeadersServiceResponseWithHeaders.headers().xMsProperties();
-          properties.putAll(parseXMsProperties(xMsProperties));
-          return Observable.just(properties);
+          GetFilesystemPropertiesHeaders headers = voidGetFilesystemPropertiesHeadersServiceResponseWithHeaders.headers();
+          return Observable.just(headers);
         }
         catch (Exception ex) {
           return Observable.error(ex);
@@ -1388,23 +1378,19 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   // Internal calls are provided to prevent deadlocks in the thread executor pool
-  private Observable<Hashtable<String, String>> getPathPropertiesInternal(final AdfsHttpClient adfsHttpClient, final Path path) {
-    final Hashtable<String, String> properties = new Hashtable<>();
+  private Observable<GetPathPropertiesHeaders> getPathPropertiesInternal(final AdfsHttpClient adfsHttpClient, final Path path) {
     Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>> response =
         adfsHttpClient.getPathPropertiesWithServiceResponseAsync(
             adfsHttpClient.getSession().getFileSystem(),
             getRelativePath(path));
 
-    return response.flatMap(new Func1<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>, Observable<Hashtable<String, String>>>() {
+    return response.flatMap(new Func1<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>, Observable<GetPathPropertiesHeaders>>() {
       @Override
-      public Observable<Hashtable<String, String>> call(ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>
+      public Observable<GetPathPropertiesHeaders> call(ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>
           voidGetPathPropertiesHeadersServiceResponseWithHeaders) {
         try {
-          Headers headers = voidGetPathPropertiesHeadersServiceResponseWithHeaders.headResponse().headers();
-          properties.putAll(parseHeaders(headers));
-          String xMsProperties = voidGetPathPropertiesHeadersServiceResponseWithHeaders.headers().xMsProperties();
-          properties.putAll(parseXMsProperties(xMsProperties));
-          return Observable.just(properties);
+          GetPathPropertiesHeaders headers = voidGetPathPropertiesHeadersServiceResponseWithHeaders.headers();
+          return Observable.just(headers);
         }
         catch (Exception ex) {
           return Observable.error(ex);
@@ -1445,44 +1431,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   // Internal calls are provided to prevent deadlocks in the thread executor pool
   private Observable<VersionedFileStatus> getFileStatusInternal(final AdfsHttpClient adfsHttpClient, final Path path)
       throws AzureDistributedFileSystemException {
-    Observable<Hashtable<String, String>> getPropertiesObservable;
+    final long blockSize = configurationService.getAzureBlockSize();
 
     if (path.isRoot()) {
-      getPropertiesObservable = getFileSystemPropertiesInternal(adfsHttpClient);
-    }
-    else {
-      getPropertiesObservable = getPathPropertiesInternal(adfsHttpClient, path);
+      return getFileSystemPropertiesInternal(adfsHttpClient).flatMap(new Func1<GetFilesystemPropertiesHeaders, Observable<VersionedFileStatus>>() {
+        @Override
+        public Observable<VersionedFileStatus> call(GetFilesystemPropertiesHeaders getFilesystemPropertiesHeaders) {
+          return Observable.just(
+              new VersionedFileStatus(
+                  parseContentLength(getFilesystemPropertiesHeaders.contentLength()),
+                  true,
+                  1,
+                  blockSize,
+                  parseLastModifiedTime(getFilesystemPropertiesHeaders.lastModified()).getMillis(),
+                  path,
+                  getFilesystemPropertiesHeaders.eTag()));
+        }
+      });
     }
 
-    return getPropertiesObservable.flatMap(new Func1<Hashtable<String, String>, Observable<VersionedFileStatus>>() {
+    return getPathPropertiesInternal(adfsHttpClient, path).flatMap(new Func1<GetPathPropertiesHeaders, Observable<VersionedFileStatus>>() {
       @Override
-      public Observable<VersionedFileStatus> call(Hashtable<String, String> properties) {
-        long blockSize = configurationService.getAzureBlockSize();
-
+      public Observable<VersionedFileStatus> call(GetPathPropertiesHeaders getPathPropertiesHeaders) {
         return Observable.just(
             new VersionedFileStatus(
-                getContentLength(properties),
-                path.isRoot() || isDirectory(properties),
+                parseContentLength(getPathPropertiesHeaders.contentLength()),
+                parseIsDirectory(getPathPropertiesHeaders.xMsResourceType()),
                 1,
                 blockSize,
-                getLastModifiedTime(properties).getMillis(),
+                parseLastModifiedTime(getPathPropertiesHeaders.lastModified()).getMillis(),
                 path,
-                getVersion(properties)));
+                getPathPropertiesHeaders.eTag()));
       }
     });
-  }
-
-  private Hashtable<String, String> parseHeaders(Headers headers) {
-    Map<String, List<String>> headersMap = headers.toMultimap();
-    Hashtable<String, String> properties = new Hashtable<>();
-
-    for (Map.Entry<String, List<String>> header : headersMap.entrySet()) {
-      String key = WordUtils.capitalizeFully(header.getKey(), "-".toCharArray());
-      List<String> values = header.getValue();
-      properties.put(key, StringUtils.join(',', values));
-    }
-
-    return properties;
   }
 
   private Hashtable<String, String> parseXMsProperties(String xMsProperties) throws InvalidFileSystemPropertyException {
@@ -1519,7 +1500,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private class VersionedFileStatus extends FileStatus {
     private final String version;
 
-    public VersionedFileStatus(
+    VersionedFileStatus(
         final long length, final boolean isdir, final int blockReplication,
         final long blocksize, final long modificationTime, final Path path,
         String version) {

@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +29,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultiset;
 import io.netty.buffer.ByteBuf;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -58,8 +61,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
   private ByteBuf buffer;
   private boolean closed;
-  private ArrayList<Future<Void>> tasks;
+  private Multiset<WriteOperation> writeOperations;
   private long offset;
+  private long lastFlushOffset;
 
   AdfsOutputStream(
       final AdfsHttpService adfsHttpService,
@@ -84,12 +88,17 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
     this.tracingService = tracingService;
-    this.loggingService = loggingService.get(AdfsOutputStream.class);
+    this.loggingService = loggingService;
     this.path = path;
     this.closed = false;
     this.bufferSize = bufferSize;
     this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
-    this.tasks = new ArrayList<>();
+    this.writeOperations = TreeMultiset.create(new Comparator<WriteOperation>() {
+      @Override
+      public int compare(WriteOperation o1, WriteOperation o2) {
+        return (int) (o1.startOffset - o2.startOffset);
+      }
+    });
     this.offset = offset;
     this.taskCleanupJobExecutor = Executors.newCachedThreadPool();
   }
@@ -169,12 +178,12 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
 
-    this.flushInternal();
+    this.flushInternalAsync();
   }
 
   /**
-   * Force all data in the output stream to be written to Azure storage.
-   * Wait to return until this is complete.
+   * @deprecated As of HADOOP 0.21.0, replaced by hflush
+   * @see #hflush()
    */
   @Override
   public void sync() throws IOException {
@@ -185,9 +194,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.flushInternal();
   }
 
-  /**
-   * Force all data in the output stream to be written to Azure storage.
-   * Wait to return until this is complete.
+  /** Similar to posix fsync, flush out the data in client's user buffer
+   * all the way to the disk device (but the disk may have it in its cache).
+   * @throws IOException if error occurs
    */
   @Override
   public void hsync() throws IOException {
@@ -198,9 +207,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.flushInternal();
   }
 
-  /**
-   * Force all data in the output stream to be written to Azure storage.
-   * Wait to return until this is complete.
+  /** Flush out the data in client's user buffer. After the return of
+   * this call, new readers will see the data.
+   * @throws IOException if any error occurs
    */
   @Override
   public void hflush() throws IOException {
@@ -226,6 +235,19 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     this.flushInternal();
+
+    try {
+      for (WriteOperation writeOperation : this.writeOperations) {
+        writeOperation.task.get();
+      }
+    }
+    catch (InterruptedException | ExecutionException ex) {
+      throw new IOException(ex);
+    }
+    finally {
+      writeOperations.clear();
+    }
+
     this.taskCleanupJobExecutor.shutdownNow();
     this.adfsBufferPool.releaseByteBuffer(this.buffer);
     this.closed = true;
@@ -234,6 +256,11 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private synchronized void flushInternal() throws IOException {
     this.writeCurrentBufferToService();
     this.flushWrittenBytesToService();
+  }
+
+  private synchronized void flushInternalAsync() throws IOException {
+    this.writeCurrentBufferToService();
+    this.flushWrittenBytesToServiceAsync();
   }
 
   private synchronized void writeCurrentBufferToService() throws IOException {
@@ -260,17 +287,19 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       final Future job = this.taskCleanupJobExecutor.submit(new Callable<Void>() {
         @Override
         public Void call() throws Exception {
-          append.get();
-          adfsBufferPool.releaseByteBuffer(bytes);
+          try {
+            append.get();
+          }
+          finally {
+            adfsBufferPool.releaseByteBuffer(bytes);
+          }
+
           return null;
         }
       });
 
+      this.writeOperations.add(new WriteOperation(job, this.offset, readableBytes));
       this.offset += readableBytes;
-
-      this.tasks.add(append);
-      this.tasks.add(job);
-
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -280,34 +309,70 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   }
 
   private synchronized void flushWrittenBytesToService() throws IOException {
-    this.loggingService.debug("AdfsOutputStream.flushWrittenBytesToService");
-    TraceScope traceScope = this.tracingService.traceBegin("AdfsOutputStream.flushWrittenBytesToService");
-
-    for (Future<Void> task : this.tasks) {
+    for (WriteOperation writeOperation : this.writeOperations) {
       try {
-        task.get();
+        writeOperation.task.get();
       } catch (InterruptedException | ExecutionException ex) {
         throw new IOException(ex);
       }
     }
 
-    tasks.clear();
+    flushWrittenBytesToServiceInternal(this.offset, false);
+  }
+
+  private synchronized void flushWrittenBytesToServiceAsync() throws IOException {
+    ArrayList<WriteOperation> finishedWriteOperations = new ArrayList<>();
+    for (WriteOperation writeOperation : this.writeOperations) {
+      if (writeOperation.task.isDone()) {
+        finishedWriteOperations.add(writeOperation);
+      }
+    }
+
+    if (finishedWriteOperations.size() == 0) {
+      return;
+    }
+
+    long writtenOffset = 0;
+    for (int i = 0; i < finishedWriteOperations.size(); i++) {
+      if (finishedWriteOperations.get(i).startOffset == writtenOffset) {
+        writtenOffset += finishedWriteOperations.get(i).length;
+      }
+    }
+
+    if (writtenOffset > this.lastFlushOffset) {
+      this.flushWrittenBytesToServiceInternal(writtenOffset, true);
+    }
+  }
+
+  private synchronized void flushWrittenBytesToServiceInternal(final long offset, final boolean retainUncommitedData) throws IOException {
+    this.loggingService.debug("AdfsOutputStream.flushWrittenBytesToService");
+    TraceScope traceScope = this.tracingService.traceBegin("AdfsOutputStream.flushWrittenBytesToService");
 
     try {
-      adfsHttpService.flushFile(azureDistributedFileSystem, path, this.offset);
+      adfsHttpService.flushFile(azureDistributedFileSystem, path, offset, retainUncommitedData);
+      this.lastFlushOffset = offset;
     } catch (AzureDistributedFileSystemException exception) {
-      for (Future task : tasks) {
-        if (!task.isDone()) {
-          task.cancel(true);
-        }
-      }
-
       throw new IOException(exception);
     } finally {
       this.adfsBufferPool.releaseByteBuffer(this.buffer);
       this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
-      this.tasks.clear();
       this.tracingService.traceEnd(traceScope);
+    }
+  }
+
+  class WriteOperation {
+    private final Future<Void> task;
+    private final long startOffset;
+    private final long length;
+
+    WriteOperation(final Future<Void> task, final long startOffset, final long length) {
+      Preconditions.checkNotNull(task, "task");
+      Preconditions.checkArgument(startOffset >= 0, "startOffset");
+      Preconditions.checkArgument(length >= 0, "length");
+
+      this.task = task;
+      this.startOffset = startOffset;
+      this.length = length;
     }
   }
 }

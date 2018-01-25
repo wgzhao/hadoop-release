@@ -250,17 +250,21 @@ public interface AdfsHttpService extends InjectableService {
    * @param azureDistributedFileSystem filesystem to flush.
    * @param path path of the file to be flushed.
    * @param offset offset to apply flush.
+   * @param retainUncommitedData when flush is called out of order this parameter must be true.
    */
-  void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset) throws AzureDistributedFileSystemException;
+  void flushFile(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset, final boolean retainUncommitedData) throws
+      AzureDistributedFileSystemException;
 
   /**
    * Flushes the current pending appends to a file on the service asynchronously.
    * @param azureDistributedFileSystem filesystem to flush.
    * @param path path of the file to be flushed.
    * @param offset offset to apply flush.
+   * @param retainUncommitedData when flush is called out of order this parameter must be true.
    * @return Future<Void> Future of a Void object.
    */
-  Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset) throws AzureDistributedFileSystemException;
+  Future<Void> flushFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, final long offset, final boolean retainUncommitedData) throws
+      AzureDistributedFileSystemException;
 
   /**
    * Renames a file from source to destination.

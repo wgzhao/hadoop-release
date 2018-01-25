@@ -70,6 +70,12 @@ public class GetFilesystemPropertiesHeaders {
   private String xMsProperties;
 
   /**
+   * The size of the resource in bytes.
+   */
+  @JsonProperty(value = "Content-Length")
+  private String contentLength;
+
+  /**
    * The x-ms-origination-id of the request that created the resource. When a
    * request fails on the client-side due to a timeout or network error, it
    * may have succeeded on the server-side. When retrying the request, if a
@@ -131,6 +137,15 @@ public class GetFilesystemPropertiesHeaders {
    */
   public String xMsRequestId() {
     return this.xMsRequestId;
+  }
+
+  /**
+   * Get the contentLength value.
+   *
+   * @return the contentLength value
+   */
+  public String contentLength() {
+    return this.contentLength;
   }
 
   /**

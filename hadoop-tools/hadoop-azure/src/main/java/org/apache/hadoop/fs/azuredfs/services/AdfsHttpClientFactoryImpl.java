@@ -75,7 +75,7 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
     this.adfsRetryStrategyFactory = adfsRetryStrategyFactory;
     this.adfsNetworkInterceptorFactory = adfsNetworkInterceptorFactory;
     this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
-    this.loggingService = loggingService.get(AdfsHttpClientFactoryImpl.class);
+    this.loggingService = loggingService.get(AdfsHttpClientFactory.class);
     this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, false);
   }
 

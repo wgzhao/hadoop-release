@@ -153,7 +153,6 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   public void testReadWriteHeavyBytesToFile() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
-    fs.create(new Path("testfile"));
     final FSDataOutputStream stream = fs.create(new Path("testfile"));
 
     final byte[] b = new byte[5 * 10240000];
@@ -163,6 +162,62 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     final byte[] r = new byte[5 * 10240000];
     FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
+    int result = inputStream.read(r);
+
+    assertNotEquals(-1, result);
+    assertArrayEquals(r, b);
+  }
+
+  @Test
+  public void testAdfsOutputStreamAsyncFlushWithRetainUncommitedData() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final FSDataOutputStream stream = fs.create(new Path("/testfile"));
+
+    final byte[] b = new byte[5 * 1024000];
+    new Random().nextBytes(b);
+
+    for (int i = 0; i < 2; i++) {
+      stream.write(b);
+
+      for (int j = 0; j < 200; j++) {
+        stream.flush();
+        Thread.sleep(10);
+      }
+    }
+
+    stream.close();
+
+    final byte[] r = new byte[5 * 1024000];
+    FSDataInputStream inputStream = fs.open(new Path("/testfile"), 4 * 1024 * 1024);
+
+    while (inputStream.available() != 0) {
+      int result = inputStream.read(r);
+
+      assertNotEquals(-1, result);
+      assertArrayEquals(r, b);
+    }
+  }
+
+  @Test
+  public void testAdfsOutputStreamSyncFlush() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final FSDataOutputStream stream = fs.create(new Path("/testfile"));
+
+    final byte[] b = new byte[5 * 10240000];
+    new Random().nextBytes(b);
+    stream.write(b);
+
+    for (int i = 0; i < 200; i++) {
+      stream.hsync();
+      stream.hflush();
+      Thread.sleep(10);
+    }
+    stream.close();
+
+    final byte[] r = new byte[5 * 10240000];
+    FSDataInputStream inputStream = fs.open(new Path("/testfile"), 4 * 1024 * 1024);
     int result = inputStream.read(r);
 
     assertNotEquals(-1, result);

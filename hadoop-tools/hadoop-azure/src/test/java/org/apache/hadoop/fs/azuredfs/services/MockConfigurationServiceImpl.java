@@ -95,4 +95,7 @@ public final class MockConfigurationServiceImpl extends ConfigurationServiceImpl
 
   @Override
   public int getMaxConcurrentWriteThreads() { return FileSystemConfigurations.MAX_CONCURRENT_THREADS; }
+
+  @Override
+  public int getMaxConcurrentReadThreads() { return FileSystemConfigurations.MAX_CONCURRENT_THREADS; }
 }

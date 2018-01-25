@@ -56,8 +56,7 @@ final class LoggingServiceImpl implements LoggingService {
 
   @Inject
   LoggingServiceImpl() {
-    // Base implementation must not have a logger.
-    this.logger = null;
+    this(LoggerFactory.getLogger(LoggingService.class));
   }
 
   @VisibleForTesting

@@ -57,7 +57,7 @@ final class TracingServiceImpl implements TracingService {
     this.loggingService = loggingService.get(TracingService.class);
     this.currentScopeId = new ThreadLocal<>();
 
-    this.tracer = new Tracer.Builder(TracingServiceImpl.class.getSimpleName()).
+    this.tracer = new Tracer.Builder(TracingService.class.getSimpleName()).
         conf(new HTraceConfiguration() {
           @Override
           public String get(String key) {

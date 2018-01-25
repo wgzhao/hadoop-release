@@ -64,7 +64,7 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
       final LoggingService loggingService) {
     Preconditions.checkNotNull(loggingService, "loggingService");
 
-    this.loggingService = loggingService.get(AdfsNetworkTrafficAnalysisServiceImpl.class);
+    this.loggingService = loggingService.get(AdfsNetworkTrafficAnalysisService.class);
     this.adfsNetworkTrafficMetricsCache = new ConcurrentHashMap<>();
     this.adfsNetworkTrafficAnalysisResultCache = new ConcurrentHashMap<>();
     this.adfsNetworkTrafficAnalysisTimers = new ConcurrentHashMap<>();
