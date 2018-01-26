@@ -4722,3 +4722,7 @@ ATS V1.5:
 
     BUG-94928. HDFS-11078. Fix NPE in LazyPersistFileScrubber. Contributed by
     Inigo Goiri.
+
+    BUG-95293. YARN-5920. Fix deadlock in
+    TestRMHA.testTransitionedToStandbyShouldNotHang. Contributed by Varun
+    Saxena.
