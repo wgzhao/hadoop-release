@@ -129,6 +129,7 @@ import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Options.ChecksumOpt;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.PathIsNotEmptyDirectoryException;
 import org.apache.hadoop.fs.QuotaUsage;
 import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -2104,7 +2105,8 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
                                      FileNotFoundException.class,
                                      SafeModeException.class,
                                      UnresolvedPathException.class,
-                                     SnapshotAccessControlException.class);
+                                     SnapshotAccessControlException.class,
+                                     PathIsNotEmptyDirectoryException.class);
     } finally {
       scope.close();
     }
