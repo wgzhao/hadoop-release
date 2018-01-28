@@ -4726,3 +4726,6 @@ ATS V1.5:
     BUG-95293. YARN-5920. Fix deadlock in
     TestRMHA.testTransitionedToStandbyShouldNotHang. Contributed by Varun
     Saxena.
+
+    BUG-95314. YARN-7699. queueUsagePercentage is coming as INF for getApp REST
+    api call. Contributed by Sunil G.
