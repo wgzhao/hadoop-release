@@ -584,6 +584,16 @@ public class TestBalancer {
     int numOfDatanodes = capacities.length;
 
     try {
+      cluster = new MiniDFSCluster.Builder(conf)
+          .numDataNodes(capacities.length)
+          .racks(racks)
+          .simulatedCapacities(capacities)
+          .build();
+      cluster.getConfiguration(0).setInt(DFSConfigKeys.DFS_REPLICATION_KEY,
+          DFSConfigKeys.DFS_REPLICATION_DEFAULT);
+      conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY,
+          DFSConfigKeys.DFS_REPLICATION_DEFAULT);
+      cluster.waitClusterUp();
       cluster.waitActive();
       client = NameNodeProxies.createProxy(conf, cluster.getFileSystem(0).getUri(),
           ClientProtocol.class).getProxy();
@@ -979,16 +989,6 @@ public class TestBalancer {
                                 .simulatedCapacities(capacities)
                                 .build();
     try {
-      cluster = new MiniDFSCluster.Builder(conf)
-                                  .numDataNodes(0)
-                                  .build();
-      cluster.getConfiguration(0).setInt(DFSConfigKeys.DFS_REPLICATION_KEY,
-          DFSConfigKeys.DFS_REPLICATION_DEFAULT);
-      conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY,
-          DFSConfigKeys.DFS_REPLICATION_DEFAULT);
-      cluster.startDataNodes(conf, numOfDatanodes, true,
-          StartupOption.REGULAR, racks, null, capacities, false);
-      cluster.waitClusterUp();
       cluster.waitActive();
       client = NameNodeProxies.createProxy(conf,
           cluster.getFileSystem(0).getUri(), ClientProtocol.class).getProxy();

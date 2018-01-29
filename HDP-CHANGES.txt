@@ -4717,3 +4717,5 @@ ATS V1.5:
     BUG-99666. HDFS-11384. Add option for balancer to disperse getBlocks calls
     to avoid NameNode's rpc.CallQueueLength spike HDFS-12347:
     TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
+
+    BUG-99666. HDFS-11384 addendum.
