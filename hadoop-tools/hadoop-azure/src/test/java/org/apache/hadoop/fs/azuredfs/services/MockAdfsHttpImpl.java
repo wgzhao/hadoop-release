@@ -67,6 +67,16 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   }
 
   @Override
+  public void setPathProperties(AzureDistributedFileSystem azureDistributedFileSystem, Path path, Hashtable<String, String> properties) throws AzureDistributedFileSystemException {
+
+  }
+
+  @Override
+  public Future<Void> setPathPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, Hashtable<String, String> properties) throws AzureDistributedFileSystemException {
+    return null;
+  }
+
+  @Override
   public void createFilesystem(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
 
   }

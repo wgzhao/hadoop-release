@@ -4846,3 +4846,5 @@ ATS V1.5:
 
     WASB-29. Async flush and updating the http layer to handle new xmsproperties
 
+    WASB-30. Updating xms properties parser to decode base64 property values before usage
+

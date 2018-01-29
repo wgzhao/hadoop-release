@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -33,7 +34,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import sun.security.pkcs.EncodingException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -279,6 +283,62 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     es.shutdownNow();
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
     assertEquals(2048000000, fileStatus.getLen());
+  }
+
+  @Test
+  public void testBase64FileSystemProperties() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final Hashtable<String, String> properties = new Hashtable<>();
+    properties.put("key", "{ value: value }");
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    ServiceProviderImpl.instance().get(AdfsHttpService.class).setFilesystemProperties(
+        fs, properties);
+    Hashtable<String, String> fetchedProperties = ServiceProviderImpl.instance().get(AdfsHttpService.class).getFilesystemProperties(fs);
+
+    Assert.assertEquals(properties, fetchedProperties);
+  }
+
+  @Test
+  public void testBase64PathProperties() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final Hashtable<String, String> properties = new Hashtable<>();
+    properties.put("key", "{ value: valueTest }");
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("/testpath"));
+    ServiceProviderImpl.instance().get(AdfsHttpService.class).setPathProperties(
+        fs, new Path("/testpath"), properties);
+    Hashtable<String, String> fetchedProperties =
+        ServiceProviderImpl.instance().get(AdfsHttpService.class).getPathProperties(fs, new Path("/testpath"));
+
+    Assert.assertEquals(properties, fetchedProperties);
+  }
+
+  @Test (expected = Exception.class)
+  public void testBase64InvalidFileSystemProperties() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final Hashtable<String, String> properties = new Hashtable<>();
+    properties.put("key", "{ value: value歲 }");
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    ServiceProviderImpl.instance().get(AdfsHttpService.class).setFilesystemProperties(
+        fs, properties);
+    Hashtable<String, String> fetchedProperties = ServiceProviderImpl.instance().get(AdfsHttpService.class).getFilesystemProperties(fs);
+
+    Assert.assertEquals(properties, fetchedProperties);
+  }
+
+  @Test (expected = Exception.class)
+  public void testBase64InvalidPathProperties() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final Hashtable<String, String> properties = new Hashtable<>();
+    properties.put("key", "{ value: valueTest兩 }");
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("/testpath"));
+    ServiceProviderImpl.instance().get(AdfsHttpService.class).setPathProperties(
+        fs, new Path("/testpath"), properties);
+    Hashtable<String, String> fetchedProperties =
+        ServiceProviderImpl.instance().get(AdfsHttpService.class).getPathProperties(fs, new Path("/testpath"));
+
+    Assert.assertEquals(properties, fetchedProperties);
   }
 
   @Test(expected = FileNotFoundException.class)

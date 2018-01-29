@@ -18,10 +18,18 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -96,6 +104,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String COMP_PROPERTIES = "properties";
   private static final String CONDITIONAL_ALL = "*";
+  private static final String XMS_PROPERTIES_ENCODING = "ISO-8859-1";
   private static final int LIST_MAX_RESULTS = 5000;
   private static final int DELETE_DIRECTORY_TIMEOUT_MILISECONDS = 120000;
   private static final int RENAME_DIRECTORY_TIMEOUT_MILISECONDS = 120000;
@@ -181,7 +190,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       @Override
       public Hashtable<String, String> call() throws Exception {
         String xmsProperties = getFileSystemPropertiesInternal(adfsHttpClient).toBlocking().single().xMsProperties();
-        Hashtable<String, String> parsedXmsProperties = parseXMsProperties(xmsProperties);
+        Hashtable<String, String> parsedXmsProperties = parseCommaSeparatedXmsProperties(xmsProperties);
 
         loggingService.debug(
             "Fetched filesystem properties for fs: {0}, properties: {1}",
@@ -224,24 +233,13 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
-        String serializedProperties = "";
-        Set<String> keys = properties.keySet();
-        Iterator<String> itr = keys.iterator();
-
-        while (itr.hasNext()) {
-          String key = itr.next();
-          serializedProperties += key + "=" + properties.get(key);
-
-          if (itr.hasNext()) {
-            serializedProperties += ",";
-          }
-        }
+        String commaSeparatedProperties = convertXmsPropertiesToCommaSeparatedString(properties);
 
         return adfsHttpClient.setFilesystemPropertiesAsync(
             COMP_PROPERTIES,
             adfsHttpClient.getSession().getFileSystem(),
             FILE_SYSTEM,
-            serializedProperties,
+            commaSeparatedProperties,
             null /* ifMatch */,
             null /* ifNoneMatch */,
             null /* ifModifiedSince */,
@@ -259,13 +257,13 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public Hashtable<String, String> getPathProperties(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
     return execute(
-      "AdfsHttpServiceImpl.getPathProperties",
-      new Callable<Hashtable<String, String>>() {
-        @Override
-        public Hashtable<String, String> call() throws Exception {
-          return getPathPropertiesAsync(azureDistributedFileSystem, path).get();
-        }
-      });
+        "AdfsHttpServiceImpl.getPathProperties",
+        new Callable<Hashtable<String, String>>() {
+          @Override
+          public Hashtable<String, String> call() throws Exception {
+            return getPathPropertiesAsync(azureDistributedFileSystem, path).get();
+          }
+        });
   }
 
   @Override
@@ -282,7 +280,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       @Override
       public Hashtable<String, String> call() throws Exception {
         String xmsProperties = getPathPropertiesInternal(adfsHttpClient, path).toBlocking().single().xMsProperties();
-        Hashtable<String, String> parsedXmsProperties = parseXMsProperties(xmsProperties);
+        Hashtable<String, String> parsedXmsProperties = parseCommaSeparatedXmsProperties(xmsProperties);
 
         loggingService.debug(
             "getPathPropertiesAsync properties for filesystem: {0} path: {1} properties: {2}",
@@ -295,6 +293,71 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     };
 
     return executeAsync("AdfsHttpServiceImpl.getPathPropertiesAsync", adfsHttpClient, readExecutorService, asyncCallable);
+  }
+
+  @Override
+  public void setPathProperties(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final Hashtable<String,
+      String> properties) throws
+      AzureDistributedFileSystemException {
+    execute(
+        "AdfsHttpServiceImpl.setPathProperties",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            return setPathPropertiesAsync(azureDistributedFileSystem, path, properties).get();
+          }
+        });
+  }
+
+  @Override
+  public Future<Void> setPathPropertiesAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final
+    Hashtable<String, String> properties) throws
+      AzureDistributedFileSystemException {
+    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+
+    this.loggingService.debug(
+        "setFilesystemPropertiesAsync for filesystem: {0} path: {1} with properties: {2}",
+        adfsHttpClient.getSession().getFileSystem(),
+        path.toString(),
+        properties);
+
+    final Callable<Void> asyncCallable = new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        String commaSeparatedProperties = convertXmsPropertiesToCommaSeparatedString(properties);
+        Observable<Void> updatePathAsync = adfsHttpClient.updatePathAsync(
+            getResource(false),
+            adfsHttpClient.getSession().getFileSystem(),
+            getRelativePath(path),
+            "properties",
+            null /* position */,
+            null /* retainUncommitedData */,
+            null /* contentLength */,
+            null /* contentMD5 */,
+            null /* origin */,
+            null /* xMsLeaseAction */,
+            null /* xMsLeaseId */,
+            null /* xMsCacheControl */,
+            null /* xMsContentDisposition */,
+            null /* xMsContentEncoding */,
+            null /* xMsContentLanguage */,
+            null /* xMsContentMd5 */,
+            null /* xMsContentType */,
+            commaSeparatedProperties,
+            null /* ifMatch */,
+            null /* ifNoneMatch */,
+            null /* ifModifiedSince */,
+            null /* ifUnmodifiedSince */,
+            null /* requestBody */,
+            null /* xMsClientRequestId */,
+            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+            null /* xMsDate */);
+
+        return updatePathAsync.toBlocking().single();
+      }
+    };
+
+    return executeAsync("AdfsHttpServiceImpl.setPathPropertiesAsync", adfsHttpClient, readExecutorService, asyncCallable);
   }
 
   @Override
@@ -1466,8 +1529,39 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     });
   }
 
-  private Hashtable<String, String> parseXMsProperties(String xMsProperties) throws InvalidFileSystemPropertyException {
+  private String convertXmsPropertiesToCommaSeparatedString(final Hashtable<String, String> properties) throws UnsupportedEncodingException,
+      CharacterCodingException {
+    String commaSeparatedProperties = "";
+    Set<String> keys = properties.keySet();
+    Iterator<String> itr = keys.iterator();
+
+    final CharsetEncoder encoder = Charset.forName(XMS_PROPERTIES_ENCODING).newEncoder();
+
+    while (itr.hasNext()) {
+      String key = itr.next();
+      String value = properties.get(key);
+
+      Boolean canEncodeValue = encoder.canEncode(value);
+      if (!canEncodeValue) {
+        throw new CharacterCodingException();
+      }
+
+      String encodedPropertyValue = DatatypeConverter.printBase64Binary(encoder.encode(CharBuffer.wrap(value)).array());
+      commaSeparatedProperties += key + "=" + encodedPropertyValue;
+
+      if (itr.hasNext()) {
+        commaSeparatedProperties += ",";
+      }
+    }
+
+    return commaSeparatedProperties;
+  }
+
+  private Hashtable<String, String> parseCommaSeparatedXmsProperties(String xMsProperties) throws
+      InvalidFileSystemPropertyException, UnsupportedEncodingException, CharacterCodingException {
     Hashtable<String, String> properties = new Hashtable<>();
+
+    final CharsetDecoder decoder = Charset.forName(XMS_PROPERTIES_ENCODING).newDecoder();
 
     if (xMsProperties != null && !xMsProperties.isEmpty()) {
       String[] userProperties = xMsProperties.split(",");
@@ -1481,12 +1575,14 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
           throw new InvalidFileSystemPropertyException(xMsProperties);
         }
 
-        String[] nameValue = property.split("=");
+        String[] nameValue = property.split("=", 2);
         if (nameValue.length != 2) {
           throw new InvalidFileSystemPropertyException(xMsProperties);
         }
 
-        properties.put(nameValue[0], nameValue[1]);
+        byte[] decodedValue = DatatypeConverter.parseBase64Binary(nameValue[1]);
+        String value = decoder.decode(ByteBuffer.wrap(decodedValue)).toString();
+        properties.put(nameValue[0], value);
       }
     }
 

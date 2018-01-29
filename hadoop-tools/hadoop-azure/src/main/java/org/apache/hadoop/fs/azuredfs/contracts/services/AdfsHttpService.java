@@ -88,6 +88,25 @@ public interface AdfsHttpService extends InjectableService {
       AzureDistributedFileSystemException;
 
   /**
+   * Sets path properties on the Azure service.
+   * @param azureDistributedFileSystem filesystem to get the properties of the path.
+   * @param path path to set properties.
+   * @param properties hash table containing all the path properties.
+   */
+  void setPathProperties(AzureDistributedFileSystem azureDistributedFileSystem, Path path, Hashtable<String, String> properties) throws
+      AzureDistributedFileSystemException;
+
+  /**
+   * Sets path properties on the Azure service asynchronously.
+   * @param azureDistributedFileSystem filesystem to get the properties of the path.
+   * @param path path to get properties.
+   * @param properties hash table containing all the path properties.
+   * @return Future<Void> Future of a Void object.
+   */
+  Future<Void> setPathPropertiesAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path path, Hashtable<String, String> properties) throws
+      AzureDistributedFileSystemException;
+
+  /**
    * Creates filesystem on the Azure service.
    * @param azureDistributedFileSystem filesystem to be created.
    */
