@@ -4754,3 +4754,6 @@ ATS V1.5:
 
     BUG-95259. HADOOP-15185. Update adls connector to use the current version of
     ADLS SDK. Contributed by Atul Sikaria.
+
+    BUG-95259. HADOOP-15186. Allow Azure Data Lake SDK dependency version to be
+    set on the command line. Contributed by Vishwajeet Dusane.
