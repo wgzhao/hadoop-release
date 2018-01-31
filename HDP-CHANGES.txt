@@ -4662,3 +4662,5 @@ ATS V1.5:
 
     YARN-4126. RM should not issue delegation tokens in unsecure mode.
     Contributed by Bibin A Chundatt
+
+    Revert YARN-4126. RM should not issue delegation tokens in unsecure mode.
