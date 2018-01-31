@@ -94,8 +94,8 @@ public final class MockConfigurationServiceImpl extends ConfigurationServiceImpl
   public String getAzureBlockLocationHost() { return null; }
 
   @Override
-  public int getMaxConcurrentWriteThreads() { return FileSystemConfigurations.MAX_CONCURRENT_THREADS; }
+  public int getMaxConcurrentWriteThreads() { return FileSystemConfigurations.MAX_CONCURRENT_WRITE_THREADS; }
 
   @Override
-  public int getMaxConcurrentReadThreads() { return FileSystemConfigurations.MAX_CONCURRENT_THREADS; }
+  public int getMaxConcurrentReadThreads() { return FileSystemConfigurations.MAX_CONCURRENT_READ_THREADS; }
 }

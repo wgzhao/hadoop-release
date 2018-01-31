@@ -92,12 +92,12 @@ class ConfigurationServiceImpl implements ConfigurationService {
 
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_OUT,
       MinValue = 1,
-      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_THREADS)
+      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_WRITE_THREADS)
   private int maxConcurrentWriteThreads;
 
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CONCURRENT_CONNECTION_VALUE_IN,
       MinValue = 1,
-      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_THREADS)
+      DefaultValue = FileSystemConfigurations.MAX_CONCURRENT_READ_THREADS)
   private int maxConcurrentReadThreads;
 
   @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_TOLERATE_CONCURRENT_APPEND,
