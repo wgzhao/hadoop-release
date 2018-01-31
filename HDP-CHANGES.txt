@@ -4658,3 +4658,5 @@ ATS V1.5:
 
     BUG-95258. HADOOP-15185. Update adls connector to use the current version of
     ADLS SDK. Contributed by Atul Sikaria.
+
+    BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
