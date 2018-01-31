@@ -4659,3 +4659,6 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+
+    YARN-4126. RM should not issue delegation tokens in unsecure mode.
+    Contributed by Bibin A Chundatt
