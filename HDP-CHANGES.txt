@@ -4729,3 +4729,6 @@ ATS V1.5:
 
     BUG-95314. YARN-7699. queueUsagePercentage is coming as INF for getApp REST
     api call. Contributed by Sunil G.
+
+    YARN-4126. RM should not issue delegation tokens in unsecure mode.
+    Contributed by Bibin A Chundatt
