@@ -4720,3 +4720,5 @@ ATS V1.5:
     down if ZKClient creation times out. (Daniel Templeton via kasha)
 
     YARN-7962. Race Condition When Stopping DelegationTokenRenewer. Contributed by Beluga Behr
+
+    BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
