@@ -4733,6 +4733,9 @@ ATS V1.5:
     YARN-4126. RM should not issue delegation tokens in unsecure mode.
     Contributed by Bibin A Chundatt
 
+    HDFS-13061. SaslDataTransferClient#checkTrustAndSend should
+    not trust a partially trusted channel. Contributed by Ajay Kumar.
+
     Revert YARN-4126. RM should not issue delegation tokens in unsecure mode.
 
     BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
