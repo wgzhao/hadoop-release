@@ -4734,3 +4734,5 @@ ATS V1.5:
     Contributed by Bibin A Chundatt
 
     Revert YARN-4126. RM should not issue delegation tokens in unsecure mode.
+
+    BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
