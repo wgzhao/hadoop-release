@@ -4739,3 +4739,6 @@ ATS V1.5:
     Revert YARN-4126. RM should not issue delegation tokens in unsecure mode.
 
     BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
+
+    BUG-95201. HDFS-13060. Adding a BlacklistBasedTrustedChannelResolver for
+    TrustedChannelResolver. Contributed by Ajay Kumar.
