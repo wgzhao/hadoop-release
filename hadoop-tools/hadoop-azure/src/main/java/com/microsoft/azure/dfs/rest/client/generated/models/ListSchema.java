@@ -36,88 +36,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public class ListSchema {
   /**
-   * The prefix property.
-   */
-  @JsonProperty(value = "prefix")
-  private String prefix;
-
-  /**
-   * The segmentId property.
-   */
-  @JsonProperty(value = "segmentId")
-  private String segmentId;
-
-  /**
-   * The maxResults property.
-   */
-  @JsonProperty(value = "maxResults")
-  private Integer maxResults;
-
-  /**
    * The paths property.
    */
   @JsonProperty(value = "paths")
   private List<ListEntrySchema> paths;
-
-  /**
-   * Get the prefix value.
-   *
-   * @return the prefix value
-   */
-  public String prefix() {
-    return this.prefix;
-  }
-
-  /**
-   * Set the prefix value.
-   *
-   * @param prefix the prefix value to set
-   * @return the ListSchema object itself.
-   */
-  public ListSchema withPrefix(String prefix) {
-    this.prefix = prefix;
-    return this;
-  }
-
-  /**
-   * Get the segmentId value.
-   *
-   * @return the segmentId value
-   */
-  public String segmentId() {
-    return this.segmentId;
-  }
-
-  /**
-   * Set the segmentId value.
-   *
-   * @param segmentId the segmentId value to set
-   * @return the ListSchema object itself.
-   */
-  public ListSchema withSegmentId(String segmentId) {
-    this.segmentId = segmentId;
-    return this;
-  }
-
-  /**
-   * Get the maxResults value.
-   *
-   * @return the maxResults value
-   */
-  public Integer maxResults() {
-    return this.maxResults;
-  }
-
-  /**
-   * Set the maxResults value.
-   *
-   * @param maxResults the maxResults value to set
-   * @return the ListSchema object itself.
-   */
-  public ListSchema withMaxResults(Integer maxResults) {
-    this.maxResults = maxResults;
-    return this;
-  }
 
   /**
    * Get the paths value.

@@ -43,7 +43,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
@@ -77,7 +76,6 @@ public class AzureDistributedFileSystem extends FileSystem {
   private TracingService tracingService;
   private LoggingService loggingService;
   private AdfsHttpService adfsHttpService;
-  private NativeAzureFileSystem nativeAzureFileSystem;
   private ConfigurationService configurationService;
 
   @Override
@@ -106,11 +104,6 @@ public class AzureDistributedFileSystem extends FileSystem {
 
     this.loggingService.debug(
         "Initializing NativeAzureFileSystem for {0}", uri);
-
-    nativeAzureFileSystem = new NativeAzureFileSystem();
-    nativeAzureFileSystem.initialize(
-        URI.create(FileSystemUriSchemes.WASB_SCHEME + "://" + uri.getAuthority()),
-        configuration);
 
     this.setWorkingDirectory(this.getHomeDirectory());
     this.createFileSystem();
@@ -200,23 +193,47 @@ public class AzureDistributedFileSystem extends FileSystem {
     }
 
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    final FileStatus fileStatus = tryGetFileStatus(src);
+    final FileStatus srcFileStatus = tryGetFileStatus(src);
 
-    if (fileStatus == null) {
+    if (srcFileStatus == null) {
       return false;
     }
 
+    final FileStatus dstFileStatus = tryGetFileStatus(dst);
     final FileSystemOperation<Boolean> rename = execute(
         "AzureDistributedFileSystem.rename",
         new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            if (fileStatus.isDirectory()) {
-              return nativeAzureFileSystem.rename(src, dst);
+            if (srcFileStatus.isDirectory()) {
+              if (dstFileStatus == null) {
+                adfsHttpService.renameDirectory(azureDistributedFileSystem, makeQualified(src), makeQualified(dst));
+                return true;
+              }
+
+              if (!dstFileStatus.isDirectory()) {
+                return false;
+              }
+
+              final String sourceDirectoryName = src.getName();
+              final Path adjustedDst = new Path(dst, sourceDirectoryName);
+              adfsHttpService.renameDirectory(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
+              return true;
             }
 
-            adfsHttpService.renameFile(azureDistributedFileSystem, makeQualified(src), makeQualified(dst));
-            return true;
+            if (dstFileStatus == null) {
+              adfsHttpService.renameFile(azureDistributedFileSystem, makeQualified(src), makeQualified(dst));
+              return true;
+            }
+
+            if (dstFileStatus.isDirectory()) {
+              String sourceFileName = src.getName();
+              Path adjustedDst = new Path(dst, sourceFileName);
+              adfsHttpService.renameFile(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
+              return true;
+            }
+
+            return false;
           }
         }, false);
 
@@ -242,10 +259,11 @@ public class AzureDistributedFileSystem extends FileSystem {
           @Override
           public Boolean call() throws Exception {
             if (fileStatus.isDirectory()) {
-              return nativeAzureFileSystem.delete(f, recursive);
+              adfsHttpService.deleteDirectory(azureDistributedFileSystem, makeQualified(f), recursive);
             }
-
-            adfsHttpService.deleteFile(azureDistributedFileSystem, makeQualified(f));
+            else {
+              adfsHttpService.deleteFile(azureDistributedFileSystem, makeQualified(f));
+            }
             return true;
           }
         }, false);
@@ -361,7 +379,6 @@ public class AzureDistributedFileSystem extends FileSystem {
   @Override
   public void setWorkingDirectory(final Path newDir) {
     this.workingDir = newDir;
-    this.nativeAzureFileSystem.setWorkingDirectory(newDir);
   }
 
   @Override

@@ -54,17 +54,11 @@ import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.BandwidthGaugeUpdater;
 import org.apache.hadoop.fs.azure.metrics.ErrorMetricUpdater;
 import org.apache.hadoop.fs.azure.metrics.ResponseReceivedMetricUpdater;
-import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
-import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
-import org.apache.hadoop.fs.azuredfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
 import org.mortbay.util.ajax.JSON;
 import org.apache.hadoop.util.VersionInfo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -736,7 +730,6 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
     //
     this.downloadBlockSizeBytes = sessionConfiguration.getInt(
         KEY_STREAM_MIN_READ_SIZE, DEFAULT_DOWNLOAD_BLOCK_SIZE);
-
     this.uploadBlockSizeBytes = sessionConfiguration.getInt(
         KEY_WRITE_BLOCK_SIZE, DEFAULT_UPLOAD_BLOCK_SIZE);
 
@@ -879,22 +872,8 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       CloudStorageAccount account =
           CloudStorageAccount.getDevelopmentStorageAccount();
       storageInteractionLayer.createBlobClient(account);
-    }
-    else {
-      // dfs.core.windows.net must be replaced with blob.core.windows.net
-      if (UriUtils.containsAdfsUrl(sessionUri.toString())) {
-        try {
-          AdfsBlobHandler adfsBlobHandler = ServiceProviderImpl.instance().get(AdfsBlobHandler.class);
-          sessionUri = adfsBlobHandler.convertAdfsUriToBlobUri(sessionUri);
-          blobEndPoint = adfsBlobHandler.getBlobEndpointUriFromBlobUriAndAccountName(sessionUri, accountName);
-        } catch (AzureDistributedFileSystemException | URISyntaxException ex) {
-          throw new AzureException(ex);
-        }
-      }
-      else {
-        blobEndPoint = new URI(getHTTPScheme() + "://" + accountName);
-      }
-
+    } else {
+      blobEndPoint = new URI(getHTTPScheme() + "://" + accountName);
       storageInteractionLayer.createBlobClient(blobEndPoint, credentials);
     }
     suppressRetryPolicyInClientIfNeeded();
@@ -1945,8 +1924,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
     // Strip the container name from the path and return the path
     // relative to the root directory of the container.
-    boolean isAdfsEmulator = sessionConfiguration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
-    int parts = isStorageEmulator || isAdfsEmulator ? 4 : 3;
+    int parts = isStorageEmulator ? 4 : 3;
     normKey = keyUri.getPath().split("/", parts)[(parts - 1)];
 
     // Return the fixed key.

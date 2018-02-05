@@ -55,7 +55,7 @@ public interface AzureDistributedFileSystemRestClient {
   /**
    * The default base URL.
    */
-  String DEFAULT_BASE_URL = "http://account.dfs.core.windows.net";
+  String DEFAULT_BASE_URL = "http://account.data.core.windows.net";
 
   /**
    * Gets the REST client.
@@ -84,13 +84,12 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void createFilesystem(String filesystem, String resource);
 
@@ -99,13 +98,12 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem      The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                        the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                        and 63 characters.
-   * @param resource        The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> createFilesystemAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
 
@@ -114,12 +112,11 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> createFilesystemAsync(String filesystem, String resource);
 
@@ -128,12 +125,11 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, CreateFilesystemHeaders>> createFilesystemWithServiceResponseAsync(String filesystem, String resource);
 
@@ -142,19 +138,18 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId   A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void createFilesystem(String filesystem, String resource, String xMsProperties, String xMsOriginationId, String xMsClientRequestId, Integer timeout,
       String xMsDate);
@@ -164,19 +159,18 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId   A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> createFilesystemAsync(String filesystem, String resource, String xMsProperties, String xMsOriginationId, String xMsClientRequestId,
       Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
@@ -186,18 +180,17 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId   A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> createFilesystemAsync(String filesystem, String resource, String xMsProperties, String xMsOriginationId, String xMsClientRequestId,
       Integer timeout, String xMsDate);
@@ -207,18 +200,17 @@ public interface AzureDistributedFileSystemRestClient {
    * Create a filesystem rooted at the specified location. If the filesystem already exists, the operation fails.  This operation does not support
    * conditional HTTP requests.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId   A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, CreateFilesystemHeaders>> createFilesystemWithServiceResponseAsync(String filesystem, String resource, String
       xMsProperties, String xMsOriginationId, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -228,214 +220,175 @@ public interface AzureDistributedFileSystemRestClient {
    * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
    * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param component  The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  void setFilesystemProperties(String component, String filesystem, String resource);
+  void setFilesystemProperties(String filesystem, String resource);
 
   /**
    * Set Filesystem Properties.
    * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
    * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param component       The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem      The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                        the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                        and 63 characters.
-   * @param resource        The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> setFilesystemPropertiesAsync(String component, String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> setFilesystemPropertiesAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Set Filesystem Properties.
    * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
    * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param component  The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<Void> setFilesystemPropertiesAsync(String component, String filesystem, String resource);
+  Observable<Void> setFilesystemPropertiesAsync(String filesystem, String resource);
 
   /**
    * Set Filesystem Properties.
    * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
    * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param component  The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<ServiceResponseWithHeaders<Void, SetFilesystemPropertiesHeaders>> setFilesystemPropertiesWithServiceResponseAsync(String component, String
-      filesystem, String resource);
+  Observable<ServiceResponseWithHeaders<Void, SetFilesystemPropertiesHeaders>> setFilesystemPropertiesWithServiceResponseAsync(String filesystem, String
+      resource);
 
   /**
    * Set Filesystem Properties.
    * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
    * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param component          The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated
-   *                          list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not
-   *                          included in the list will be removed.  All properties are removed if the header is omitted.  To merge new and existing
-   *                          properties, first get all existing properties and the current E-Tag, then make a conditional request with the E-Tag and
-   *                          include values for all properties.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated list
+   *                      of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not included in the
+   *                      list will be removed.  All properties are removed if the header is omitted.  To merge new and existing properties, first get all
+   *                      existing properties and the current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  void setFilesystemProperties(String component, String filesystem, String resource, String xMsProperties, String ifMatch, String ifNoneMatch, String
-      ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Set Filesystem Properties.
-   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
-   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param component          The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated
-   *                          list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not
-   *                          included in the list will be removed.  All properties are removed if the header is omitted.  To merge new and existing
-   *                          properties, first get all existing properties and the current E-Tag, then make a conditional request with the E-Tag and
-   *                          include values for all properties.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  ServiceFuture<Void> setFilesystemPropertiesAsync(String component, String filesystem, String resource, String xMsProperties, String ifMatch, String
-      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void>
-      serviceCallback);
-
-  /**
-   * Set Filesystem Properties.
-   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
-   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param component          The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated
-   *                           list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not included
-   *                           in the list will be removed.  All properties are removed if the header is omitted.  To merge new and existing properties,
-   *                           first get all existing properties and the current E-Tag, then make a conditional request with the E-Tag and include values for
-   *                           all properties.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<Void> setFilesystemPropertiesAsync(String component, String filesystem, String resource, String xMsProperties, String ifMatch, String
-      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Set Filesystem Properties.
-   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
-   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param component          The component to be updated.  Must be "properties" to set the properties of a filesystem.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                           and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param xMsProperties      Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated
-   *                          list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not
-   *                          included in the list will be removed.  All properties are removed if the header is omitted.  To merge new and existing
-   *                          properties, first get all existing properties and the current E-Tag, then make a conditional request with the E-Tag and
-   *                          include values for all properties.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<ServiceResponseWithHeaders<Void, SetFilesystemPropertiesHeaders>> setFilesystemPropertiesWithServiceResponseAsync(String component, String
-      filesystem, String resource, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
+  void setFilesystemProperties(String filesystem, String resource, String xMsProperties, String ifModifiedSince, String ifUnmodifiedSince, String
       xMsClientRequestId, Integer timeout, String xMsDate);
+
+  /**
+   * Set Filesystem Properties.
+   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
+   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated list
+   *                      of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not included in the
+   *                      list will be removed.  All properties are removed if the header is omitted.  To merge new and existing properties, first get all
+   *                      existing properties and the current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
+   */
+  ServiceFuture<Void> setFilesystemPropertiesAsync(String filesystem, String resource, String xMsProperties, String ifModifiedSince, String
+      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+
+  /**
+   * Set Filesystem Properties.
+   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
+   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated list
+   *                      of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not included in the
+   *                      list will be removed.  All properties are removed if the header is omitted.  To merge new and existing properties, first get all
+   *                      existing properties and the current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<Void> setFilesystemPropertiesAsync(String filesystem, String resource, String xMsProperties, String ifModifiedSince, String ifUnmodifiedSince,
+      String xMsClientRequestId, Integer timeout, String xMsDate);
+
+  /**
+   * Set Filesystem Properties.
+   * Set properties for the filesystem.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for
+   * Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param xMsProperties Optional.  Valid only when using the "Set Properties" operations or the "Flush Data" operation for files.  A comma-separated list
+   *                      of properties (n1=v1,n2=v2,...) to be associated with the resource.  If the resource exists, any properties not included in the
+   *                      list will be removed.  All properties are removed if the header is omitted.  To merge new and existing properties, first get all
+   *                      existing properties and the current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<ServiceResponseWithHeaders<Void, SetFilesystemPropertiesHeaders>> setFilesystemPropertiesWithServiceResponseAsync(String filesystem, String
+      resource, String xMsProperties, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive  If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified, the list
-   *                   will only include paths that share the same root.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the ListSchema object if successful.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
+   * @return the ListSchema object if successful.
    */
   ListSchema listPaths(boolean recursive, String filesystem, String resource);
 
@@ -443,15 +396,14 @@ public interface AzureDistributedFileSystemRestClient {
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive       If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified, the
-   *                       list will only include paths that share the same root.
-   * @param filesystem      The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                        the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                        and 63 characters.
-   * @param resource        The value must be "filesystem" for all filesystem operations.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, final ServiceCallback<ListSchema> serviceCallback);
 
@@ -459,14 +411,13 @@ public interface AzureDistributedFileSystemRestClient {
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive  If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified, the list
-   *                  will only include paths that share the same root.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the observable to the ListSchema object
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the ListSchema object
    */
   Observable<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource);
 
@@ -474,136 +425,129 @@ public interface AzureDistributedFileSystemRestClient {
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive  If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified, the list
-   *                  will only include paths that share the same root.
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the observable to the ListSchema object
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the ListSchema object
    */
-  Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>> listPathsWithServiceResponseAsync(boolean recursive, String filesystem, String
-      resource);
+  Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>> listPathsWithServiceResponseAsync(boolean recursive, String filesystem, String resource);
 
   /**
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive          If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified,
-   *                           the list will only include paths that share the same root.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param prefix             Filter results to paths beginning with the specified prefix.
-   * @param segmentId          An optional value that identifies the segment of the list to be returned with the next list operation. The operation returns
-   *                          the "segmentId" within the response body if the list returned was not complete. The "segmentId" may then be used in a
-   *                          subsequent call to request the next segment of the list.
-   * @param maxResults         An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will
-   *                           include up to 5,000 items.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param directory Filters results to paths within the specified directory. An error occurs if the directory does not exist.
+   * @param continuation The number of paths returned with each invocation is limited. If the  number of paths to be returned exceeds this limit, a
+   *                     continuation token  is returned in the response header x-ms-continuation. When a continuation  token is returned in the response, it
+   *                     must be specified in a subsequent  invocation of the list operation to continue listing the paths."
+   * @param maxResults An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will include up
+   *                  to 5,000 items.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    * @return the ListSchema object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  ListSchema listPaths(boolean recursive, String filesystem, String resource, String prefix, String segmentId, Integer maxResults, String
+  ListSchema listPaths(boolean recursive, String filesystem, String resource, String directory, String continuation, Integer maxResults, String
       xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive          If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified,
-   *                           the list will only include paths that share the same root.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param prefix             Filter results to paths beginning with the specified prefix.
-   * @param segmentId          An optional value that identifies the segment of the list to be returned with the next list operation. The operation returns
-   *                           the "segmentId" within the response body if the list returned was not complete. The "segmentId" may then be used in a
-   *                           subsequent call to request the next segment of the list.
-   * @param maxResults         An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will
-   *                           include up to 5,000 items.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param directory Filters results to paths within the specified directory. An error occurs if the directory does not exist.
+   * @param continuation The number of paths returned with each invocation is limited. If the  number of paths to be returned exceeds this limit, a
+   *                     continuation token  is returned in the response header x-ms-continuation. When a continuation  token is returned in the response, it
+   *                     must be specified in a subsequent  invocation of the list operation to continue listing the paths."
+   * @param maxResults An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will include up
+   *                  to 5,000 items.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String prefix, String segmentId, Integer maxResults,
-      String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<ListSchema> serviceCallback);
+  ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String directory, String continuation, Integer
+      maxResults, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<ListSchema> serviceCallback);
 
   /**
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive          If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified,
-   *                           the list will only include paths that share the same root.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                           and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param prefix             Filter results to paths beginning with the specified prefix.
-   * @param segmentId          An optional value that identifies the segment of the list to be returned with the next list operation. The operation returns
-   *                          the "segmentId" within the response body if the list returned was not complete. The "segmentId" may then be used in a
-   *                          subsequent call to request the next segment of the list.
-   * @param maxResults         An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will
-   *                           include up to 5,000 items.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param directory Filters results to paths within the specified directory. An error occurs if the directory does not exist.
+   * @param continuation The number of paths returned with each invocation is limited. If the  number of paths to be returned exceeds this limit, a
+   *                     continuation token  is returned in the response header x-ms-continuation. When a continuation  token is returned in the response, it
+   *                     must be specified in a subsequent  invocation of the list operation to continue listing the paths."
+   * @param maxResults An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will include up
+   *                  to 5,000 items.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the observable to the ListSchema object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the ListSchema object
    */
-  Observable<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String prefix, String segmentId, Integer maxResults, String
-      xMsClientRequestId, Integer timeout, String xMsDate);
+  Observable<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String directory, String continuation, Integer maxResults,
+      String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * List Paths.
    * List filesystem paths and their properties.
    *
-   * @param recursive          If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "prefix" is specified,
-   *                           the list will only include paths that share the same root.
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param prefix             Filter results to paths beginning with the specified prefix.
-   * @param segmentId          An optional value that identifies the segment of the list to be returned with the next list operation. The operation returns
-   *                          the "segmentId" within the response body if the list returned was not complete. The "segmentId" may then be used in a
-   *                          subsequent call to request the next segment of the list.
-   * @param maxResults         An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will
-   *                           include up to 5,000 items.
+   * @param recursive If "true", all paths are listed; otherwise, only paths at the root of the filesystem are listed.  If "directory" is specified, the list
+   *                 will only include paths that share the same root.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param directory Filters results to paths within the specified directory. An error occurs if the directory does not exist.
+   * @param continuation The number of paths returned with each invocation is limited. If the  number of paths to be returned exceeds this limit, a
+   *                     continuation token  is returned in the response header x-ms-continuation. When a continuation  token is returned in the response, it
+   *                     must be specified in a subsequent  invocation of the list operation to continue listing the paths."
+   * @param maxResults An optional value that specifies the maximum number of items to return. If omitted or greater than 5,000, the response will include up
+   *                  to 5,000 items.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the observable to the ListSchema object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the ListSchema object
    */
   Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>> listPathsWithServiceResponseAsync(boolean recursive, String filesystem, String
-      resource, String prefix, String segmentId, Integer maxResults, String xMsClientRequestId, Integer timeout, String xMsDate);
+      resource, String directory, String continuation, Integer maxResults, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void getFilesystemProperties(String filesystem, String resource);
 
@@ -611,13 +555,12 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem      The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                        the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                        and 63 characters.
-   * @param resource        The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
 
@@ -627,9 +570,9 @@ public interface AzureDistributedFileSystemRestClient {
    *
    * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
    *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> getFilesystemPropertiesAsync(String filesystem, String resource);
 
@@ -637,12 +580,11 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>> getFilesystemPropertiesWithServiceResponseAsync(String filesystem, String
       resource);
@@ -651,17 +593,16 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void getFilesystemProperties(String filesystem, String resource, String xMsClientRequestId, Integer timeout, String xMsDate);
 
@@ -669,17 +610,16 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, String xMsClientRequestId, Integer timeout, String xMsDate, final
   ServiceCallback<Void> serviceCallback);
@@ -688,16 +628,15 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> getFilesystemPropertiesAsync(String filesystem, String resource, String xMsClientRequestId, Integer timeout, String xMsDate);
 
@@ -705,156 +644,18 @@ public interface AzureDistributedFileSystemRestClient {
    * Get Filesystem Properties.
    * All system and user-defined filesystem properties are specified in the response headers.
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, GetFilesystemPropertiesHeaders>> getFilesystemPropertiesWithServiceResponseAsync(String filesystem, String
       resource, String xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
-   */
-  void deleteFilesystem(String filesystem, String resource);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem      The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                        the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3
-   *                        and 63 characters.
-   * @param resource        The value must be "filesystem" for all filesystem operations.
-   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
-   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<Void> deleteFilesystemAsync(String filesystem, String resource);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the
-   *                   dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63
-   *                   characters.
-   * @param resource   The value must be "filesystem" for all filesystem operations.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<ServiceResponseWithHeaders<Void, DeleteFilesystemHeaders>> deleteFilesystemWithServiceResponseAsync(String filesystem, String resource);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
-   */
-  void deleteFilesystem(String filesystem, String resource, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-      xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
-   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Delete Filesystem.
@@ -865,58 +666,172 @@ public interface AzureDistributedFileSystemRestClient {
    * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
-   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  Observable<Void> deleteFilesystemAsync(String filesystem, String resource, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
+  void deleteFilesystem(String filesystem, String resource);
 
   /**
    * Delete Filesystem.
-   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds.
-   * While the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the
-   * service returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any
-   * files or directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
    * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and
-   *                          the dash (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between
-   *                          3 and 63 characters.
-   * @param resource           The value must be "filesystem" for all filesystem operations.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
+   */
+  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<Void> deleteFilesystemAsync(String filesystem, String resource);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<ServiceResponseWithHeaders<Void, DeleteFilesystemHeaders>> deleteFilesystemWithServiceResponseAsync(String filesystem, String resource);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
+   */
+  void deleteFilesystem(String filesystem, String resource, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout,
+      String xMsDate);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
+   */
+  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, String ifModifiedSince, String ifUnmodifiedSince, String
+      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<Void> deleteFilesystemAsync(String filesystem, String resource, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId,
+      Integer timeout, String xMsDate);
+
+  /**
+   * Delete Filesystem.
+   * Marks the filesystem for deletion.  When a filesystem is deleted, a filesystem with the same identifier cannot be created for at least 30 seconds. While
+   * the filesystem is being deleted, attempts to create a filesystem with the same identifier will fail with status code 409 (Conflict), with the service
+   * returning additional error information indicating that the filesystem is being deleted. All other operations, including operations on any files or
+   * directories within the filesystem, will fail with status code 404 (Not Found) while the filesystem is being deleted. This operation supports
+   * conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param filesystem The filesystem identifier.  The value must start and end with a letter or number and must contain only letters, numbers, and the dash
+   *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
+   * @param resource The value must be "filesystem" for all filesystem operations.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, DeleteFilesystemHeaders>> deleteFilesystemWithServiceResponseAsync(String filesystem, String resource, String
-      ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
+      ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -925,16 +840,14 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource    The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                    'application/octet-stream', 'text/plain'
-   * @param filesystem  The filesystem identifier.
-   * @param path        The file or directory path.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  void createPath(String resource, String contentType, String filesystem, String path);
+  void createPath(String resource, String filesystem, String path);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -943,16 +856,14 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource        The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType     Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                        'application/octet-stream', 'text/plain'
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> createPathAsync(String resource, String contentType, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> createPathAsync(String resource, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -961,15 +872,13 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource    The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                    'application/octet-stream', 'text/plain'
-   * @param filesystem  The filesystem identifier.
-   * @param path        The file or directory path.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<Void> createPathAsync(String resource, String contentType, String filesystem, String path);
+  Observable<Void> createPathAsync(String resource, String filesystem, String path);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -978,16 +887,13 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource    The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                    'application/octet-stream', 'text/plain'
-   * @param filesystem  The filesystem identifier.
-   * @param path        The file or directory path.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<ServiceResponseWithHeaders<Void, CreatePathHeaders>> createPathWithServiceResponseAsync(String resource, String contentType, String
-      filesystem, String path);
+  Observable<ServiceResponseWithHeaders<Void, CreatePathHeaders>> createPathWithServiceResponseAsync(String resource, String filesystem, String path);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -996,79 +902,144 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource                   The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType                Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                                   'application/octet-stream', 'text/plain'
-   * @param filesystem                 The filesystem identifier.
-   * @param path                       The file or directory path.
-   * @param continuation               Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the
-   *                                   number of paths to be renamed exceeds this limit, a continuation token is returned in this response header.  When a
-   *                                   continuation token is returned in the response, it must be specified in a subsequent invocation of the rename
-   *                                   operation to continue renaming the directory.
-   * @param contentLength              Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater
-   *                                   than 0 and less than or equal to 268,435,456 (256 MB) to create a file with content.
-   * @param contentEncoding            Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client
-   *                                   when the "Read File" operation is performed.
-   * @param contentLanguage            Optional.  Specifies the natural language used by the intended audience for the file.
-   * @param contentMD5                 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during
-   *                                   transport. When this header is specified, the storage service validates the hash. If the two hashes do not match,
-   *                                   the operation will fail with error code 400 (Bad Request).
-   * @param xMsCacheControl            Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentType             Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentEncoding         Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentLanguage         Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentMd5              Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File"
-   *                                   operations.
-   * @param xMsRenameSource            An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".
-   *                                   If "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing
-   *                                   properties will be preserved.
-   * @param xMsLeaseAction             Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The
-   *                                   lease ID is returned in the response headers and can be used with append and flush operations.
-   * @param xMsLeaseId                 Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and
-   *                                   the lease ID must match.
-   * @param xMsProposedLeaseId         Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the
-   *                                   proposed ID when the resource is created.
-   * @param xMsSourceLeaseAction       Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the
-   *                                   rename operation.  The lease is released when the rename operation completes.
-   * @param xMsSourceLeaseId           Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the
-   *                                   lease ID must match.
-   * @param xMsProperties              A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId           A UUID persisted with the resource upon creation and used to identify the request that created it.
-   * @param ifMatch                    Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                                  specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch                Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if
-   *                                   the resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince            Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified
-   *                                  since the specified date and time.
-   * @param ifUnmodifiedSince          Optional. A date and time value. Specify this header to perform the operation only if the resource has not been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfMatch           Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the
-   *                                   value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfNoneMatch       Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation
-   *                                   only if the source's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfModifiedSince   Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
-   *                                   modified since the specified date and time.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param continuation Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the number of paths
+   *                     to be renamed exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the rename operation to continue renaming the directory.
+   * @param contentLength Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater than 0 and less
+   *                     than or equal to 268,435,456 (256 MB) to create a file with content.
+   * @param contentEncoding Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client when the "Read
+   *                        File" operation is performed.
+   * @param contentLanguage Optional.  Specifies the natural language used by the intended audience for the file.
+   * @param contentMD5 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during transport. When this
+   *                   header is specified, the storage service validates the hash. If the two hashes do not match, the operation will fail with error code
+   *                   400 (Bad Request).
+   * @param xMsCacheControl Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentType Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File" operations.
+   * @param xMsRenameSource An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".  If
+   *                        "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing properties will be
+   *                        preserved.
+   * @param xMsLeaseAction Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The lease ID is
+   *                       returned in the response headers and can be used with append and flush operations.
+   * @param xMsLeaseId Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and the lease ID must
+   *                   match.
+   * @param xMsProposedLeaseId Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the proposed ID
+   *                           when the resource is created.
+   * @param xMsSourceLeaseAction Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the rename
+   *                             operation.  The lease is released when the rename operation completes.
+   * @param xMsSourceLeaseId Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the lease ID
+   *                         must match.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsSourceIfMatch Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the value
+   *                         specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation only if
+   *                             the source's ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfModifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
+   *                                 modified since the specified date and time.
    * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
-   *                                  modified since the specified date and time.
-   * @param requestBody                Optional.  The content of the file to be created.
-   * @param xMsClientRequestId         A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout                    An optional operation timeout value in seconds. The period begins when the request is received by the service. If
-   *                                   the timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate                    Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   *                                   modified since the specified date and time.
+   * @param requestBody Optional.  The content of the file to be created.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  void createPath(String resource, String contentType, String filesystem, String path, String continuation, String contentLength, String contentEncoding,
+  void createPath(String resource, String filesystem, String path, String continuation, String contentLength, String contentEncoding, String
+      contentLanguage, String contentMD5, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String xMsContentLanguage, String
+      xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String xMsSourceLeaseAction, String
+      xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
+      String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream
+      requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
+
+  /**
+   * Create File | Create Directory | Rename File | Rename Directory.
+   * Create or rename a file or directory.    By default, the destination is overwritten and if the destination already exists and has a lease the lease is
+   * broken.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations]
+   * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
+   * already exists, use a conditional request with If-Nome-Match: "*".
+   *
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param continuation Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the number of paths
+   *                     to be renamed exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the rename operation to continue renaming the directory.
+   * @param contentLength Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater than 0 and less
+   *                     than or equal to 268,435,456 (256 MB) to create a file with content.
+   * @param contentEncoding Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client when the "Read
+   *                        File" operation is performed.
+   * @param contentLanguage Optional.  Specifies the natural language used by the intended audience for the file.
+   * @param contentMD5 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during transport. When this
+   *                   header is specified, the storage service validates the hash. If the two hashes do not match, the operation will fail with error code
+   *                   400 (Bad Request).
+   * @param xMsCacheControl Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentType Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File" operations.
+   * @param xMsRenameSource An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".  If
+   *                        "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing properties will be
+   *                        preserved.
+   * @param xMsLeaseAction Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The lease ID is
+   *                       returned in the response headers and can be used with append and flush operations.
+   * @param xMsLeaseId Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and the lease ID must
+   *                   match.
+   * @param xMsProposedLeaseId Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the proposed ID
+   *                           when the resource is created.
+   * @param xMsSourceLeaseAction Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the rename
+   *                             operation.  The lease is released when the rename operation completes.
+   * @param xMsSourceLeaseId Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the lease ID
+   *                         must match.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsSourceIfMatch Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the value
+   *                         specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation only if
+   *                             the source's ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfModifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
+   *                                 modified since the specified date and time.
+   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
+   *                                   modified since the specified date and time.
+   * @param requestBody Optional.  The content of the file to be created.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
+   */
+  ServiceFuture<Void> createPathAsync(String resource, String filesystem, String path, String continuation, String contentLength, String contentEncoding,
       String contentLanguage, String contentMD5, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String xMsContentLanguage, String
       xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String xMsSourceLeaseAction, String
       xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
       String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String
-      xMsClientRequestId, Integer timeout, String xMsDate);
+      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -1077,363 +1048,399 @@ public interface AzureDistributedFileSystemRestClient {
    * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
    * already exists, use a conditional request with If-Nome-Match: "*".
    *
-   * @param resource                   The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType                Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                                   'application/octet-stream', 'text/plain'
-   * @param filesystem                 The filesystem identifier.
-   * @param path                       The file or directory path.
-   * @param continuation               Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the
-   *                                   number of paths to be renamed exceeds this limit, a continuation token is returned in this response header.  When a
-   *                                   continuation token is returned in the response, it must be specified in a subsequent invocation of the rename
-   *                                   operation to continue renaming the directory.
-   * @param contentLength              Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater
-   *                                   than 0 and less than or equal to 268,435,456 (256 MB) to create a file with content.
-   * @param contentEncoding            Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client
-   *                                   when the "Read File" operation is performed.
-   * @param contentLanguage            Optional.  Specifies the natural language used by the intended audience for the file.
-   * @param contentMD5                 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during
-   *                                   transport. When this header is specified, the storage service validates the hash. If the two hashes do not match,
-   *                                   the operation will fail with error code 400 (Bad Request).
-   * @param xMsCacheControl            Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentType             Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentEncoding         Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentLanguage         Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentMd5              Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File"
-   *                                   operations.
-   * @param xMsRenameSource            An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".
-   *                                   If "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing
-   *                                   properties will be preserved.
-   * @param xMsLeaseAction             Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The
-   *                                   lease ID is returned in the response headers and can be used with append and flush operations.
-   * @param xMsLeaseId                 Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and
-   *                                   the lease ID must match.
-   * @param xMsProposedLeaseId         Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the
-   *                                   proposed ID when the resource is created.
-   * @param xMsSourceLeaseAction       Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the
-   *                                   rename operation.  The lease is released when the rename operation completes.
-   * @param xMsSourceLeaseId           Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the
-   *                                   lease ID must match.
-   * @param xMsProperties              A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId           A UUID persisted with the resource upon creation and used to identify the request that created it.
-   * @param ifMatch                    Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                                  specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch                Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if
-   *                                   the resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince            Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified
-   *                                  since the specified date and time.
-   * @param ifUnmodifiedSince          Optional. A date and time value. Specify this header to perform the operation only if the resource has not been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfMatch           Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the
-   *                                   value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfNoneMatch       Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation
-   *                                   only if the source's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfModifiedSince   Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
-   *                                  modified since the specified date and time.
-   * @param requestBody                Optional.  The content of the file to be created.
-   * @param xMsClientRequestId         A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout                    An optional operation timeout value in seconds. The period begins when the request is received by the service. If
-   *                                   the timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate                    Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback            the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  ServiceFuture<Void> createPathAsync(String resource, String contentType, String filesystem, String path, String continuation, String contentLength,
-      String contentEncoding, String contentLanguage, String contentMD5, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String
-      xMsContentLanguage, String xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String
-      xMsSourceLeaseAction, String xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String ifMatch, String ifNoneMatch, String ifModifiedSince,
-      String ifUnmodifiedSince, String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince,
-      InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
-
-  /**
-   * Create File | Create Directory | Rename File | Rename Directory.
-   * Create or rename a file or directory.    By default, the destination is overwritten and if the destination already exists and has a lease the lease is
-   * broken.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations]
-   * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
-   * already exists, use a conditional request with If-Nome-Match: "*".
-   *
-   * @param resource                   The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType                Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                                   'application/octet-stream', 'text/plain'
-   * @param filesystem                 The filesystem identifier.
-   * @param path                       The file or directory path.
-   * @param continuation               Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the
-   *                                   number of paths to be renamed exceeds this limit, a continuation token is returned in this response header.  When a
-   *                                   continuation token is returned in the response, it must be specified in a subsequent invocation of the rename
-   *                                   operation to continue renaming the directory.
-   * @param contentLength              Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater
-   *                                   than 0 and less than or equal to 268,435,456 (256 MB) to create a file with content.
-   * @param contentEncoding            Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client
-   *                                   when the "Read File" operation is performed.
-   * @param contentLanguage            Optional.  Specifies the natural language used by the intended audience for the file.
-   * @param contentMD5                 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during
-   *                                   transport. When this header is specified, the storage service validates the hash. If the two hashes do not match,
-   *                                   the operation will fail with error code 400 (Bad Request).
-   * @param xMsCacheControl            Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentType             Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentEncoding         Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentLanguage         Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentMd5              Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File"
-   *                                   operations.
-   * @param xMsRenameSource            An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".
-   *                                   If "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing
-   *                                   properties will be preserved.
-   * @param xMsLeaseAction             Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The
-   *                                   lease ID is returned in the response headers and can be used with append and flush operations.
-   * @param xMsLeaseId                 Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and
-   *                                   the lease ID must match.
-   * @param xMsProposedLeaseId         Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the
-   *                                   proposed ID when the resource is created.
-   * @param xMsSourceLeaseAction       Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the
-   *                                   rename operation.  The lease is released when the rename operation completes.
-   * @param xMsSourceLeaseId           Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the
-   *                                   lease ID must match.
-   * @param xMsProperties              A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId           A UUID persisted with the resource upon creation and used to identify the request that created it.
-   * @param ifMatch                    Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                                  specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch                Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if
-   *                                   the resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince            Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified
-   *                                  since the specified date and time.
-   * @param ifUnmodifiedSince          Optional. A date and time value. Specify this header to perform the operation only if the resource has not been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfMatch           Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the
-   *                                   value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfNoneMatch       Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation
-   *                                   only if the source's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfModifiedSince   Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
-   *                                  modified since the specified date and time.
-   * @param requestBody                Optional.  The content of the file to be created.
-   * @param xMsClientRequestId         A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout                    An optional operation timeout value in seconds. The period begins when the request is received by the service. If
-   *                                   the timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate                    Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<Void> createPathAsync(String resource, String contentType, String filesystem, String path, String continuation, String contentLength, String
-      contentEncoding, String contentLanguage, String contentMD5, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String
-      xMsContentLanguage, String xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String
-      xMsSourceLeaseAction, String xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String ifMatch, String ifNoneMatch, String
-      ifModifiedSince, String ifUnmodifiedSince, String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String
-      xMsSourceIfUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Create File | Create Directory | Rename File | Rename Directory.
-   * Create or rename a file or directory.    By default, the destination is overwritten and if the destination already exists and has a lease the lease is
-   * broken.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations]
-   * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
-   * already exists, use a conditional request with If-Nome-Match: "*".
-   *
-   * @param resource                   The value must be "file" or "directory" to indicate the resource type.
-   * @param contentType                Optional.  The MIME type for a file.  The default is "application/octet-stream". Possible values include:
-   *                                   'application/octet-stream', 'text/plain'
-   * @param filesystem                 The filesystem identifier.
-   * @param path                       The file or directory path.
-   * @param continuation               Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the
-   *                                   number of paths to be renamed exceeds this limit, a continuation token is returned in this response header.  When a
-   *                                   continuation token is returned in the response, it must be specified in a subsequent invocation of the rename
-   *                                   operation to continue renaming the directory.
-   * @param contentLength              Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater
-   *                                   than 0 and less than or equal to 268,435,456 (256 MB) to create a file with content.
-   * @param contentEncoding            Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client
-   *                                   when the "Read File" operation is performed.
-   * @param contentLanguage            Optional.  Specifies the natural language used by the intended audience for the file.
-   * @param contentMD5                 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during
-   *                                   transport. When this header is specified, the storage service validates the hash. If the two hashes do not match,
-   *                                   the operation will fail with error code 400 (Bad Request).
-   * @param xMsCacheControl            Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentType             Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentEncoding         Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentLanguage         Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File"
-   *                                   operations.
-   * @param xMsContentMd5              Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File"
-   *                                   operations.
-   * @param xMsRenameSource            An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".
-   *                                   If "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing
-   *                                   properties will be preserved.
-   * @param xMsLeaseAction             Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The
-   *                                   lease ID is returned in the response headers and can be used with append and flush operations.
-   * @param xMsLeaseId                 Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and
-   *                                   the lease ID must match.
-   * @param xMsProposedLeaseId         Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the
-   *                                   proposed ID when the resource is created.
-   * @param xMsSourceLeaseAction       Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the
-   *                                   rename operation.  The lease is released when the rename operation completes.
-   * @param xMsSourceLeaseId           Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the
-   *                                   lease ID must match.
-   * @param xMsProperties              A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
-   * @param xMsOriginationId           A UUID persisted with the resource upon creation and used to identify the request that created it.
-   * @param ifMatch                    Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                                  specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch                Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if
-   *                                   the resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince            Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified
-   *                                  since the specified date and time.
-   * @param ifUnmodifiedSince          Optional. A date and time value. Specify this header to perform the operation only if the resource has not been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfMatch           Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the
-   *                                   value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfNoneMatch       Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation
-   *                                   only if the source's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param xMsSourceIfModifiedSince   Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
-   *                                   modified since the specified date and time.
-   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
-   *                                  modified since the specified date and time.
-   * @param requestBody                Optional.  The content of the file to be created.
-   * @param xMsClientRequestId         A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout                    An optional operation timeout value in seconds. The period begins when the request is received by the service. If
-   *                                   the timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate                    Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<ServiceResponseWithHeaders<Void, CreatePathHeaders>> createPathWithServiceResponseAsync(String resource, String contentType, String
-      filesystem, String path, String continuation, String contentLength, String contentEncoding, String contentLanguage, String contentMD5, String
-      xMsCacheControl, String xMsContentType, String xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsRenameSource, String
-      xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String xMsSourceLeaseAction, String xMsSourceLeaseId, String xMsProperties, String
-      xMsOriginationId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsSourceIfMatch, String
-      xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer
-      timeout, String xMsDate);
-
-  /**
-   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
-   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
+   * @param path The file or directory path.
+   * @param continuation Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the number of paths
+   *                     to be renamed exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the rename operation to continue renaming the directory.
+   * @param contentLength Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater than 0 and less
+   *                     than or equal to 268,435,456 (256 MB) to create a file with content.
+   * @param contentEncoding Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client when the "Read
+   *                        File" operation is performed.
+   * @param contentLanguage Optional.  Specifies the natural language used by the intended audience for the file.
+   * @param contentMD5 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during transport. When this
+   *                   header is specified, the storage service validates the hash. If the two hashes do not match, the operation will fail with error code
+   *                   400 (Bad Request).
+   * @param xMsCacheControl Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentType Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File" operations.
+   * @param xMsRenameSource An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".  If
+   *                        "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing properties will be
+   *                        preserved.
+   * @param xMsLeaseAction Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The lease ID is
+   *                       returned in the response headers and can be used with append and flush operations.
+   * @param xMsLeaseId Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and the lease ID must
+   *                   match.
+   * @param xMsProposedLeaseId Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the proposed ID
+   *                           when the resource is created.
+   * @param xMsSourceLeaseAction Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the rename
+   *                             operation.  The lease is released when the rename operation completes.
+   * @param xMsSourceLeaseId Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the lease ID
+   *                         must match.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsSourceIfMatch Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the value
+   *                         specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation only if
+   *                             the source's ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfModifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
+   *                                 modified since the specified date and time.
+   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
+   *                                   modified since the specified date and time.
+   * @param requestBody Optional.  The content of the file to be created.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
-  void updatePath(String resource, String filesystem, String path);
+  Observable<Void> createPathAsync(String resource, String filesystem, String path, String continuation, String contentLength, String contentEncoding,
+      String contentLanguage, String contentMD5, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String xMsContentLanguage, String
+      xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String xMsSourceLeaseAction, String
+      xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
+      String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody,
+      String xMsClientRequestId, Integer timeout, String xMsDate);
+
+  /**
+   * Create File | Create Directory | Rename File | Rename Directory.
+   * Create or rename a file or directory.    By default, the destination is overwritten and if the destination already exists and has a lease the lease is
+   * broken.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service Operations]
+   * (https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).  To fail if the destination
+   * already exists, use a conditional request with If-Nome-Match: "*".
+   *
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param continuation Optional.  When renaming a directory, the number of paths that are renamed with each invocation is limited.  If the number of paths
+   *                     to be renamed exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the rename operation to continue renaming the directory.
+   * @param contentLength Required for "Create File" and "Create Directory".  Must be 0 to create a directory or empty file.  Must be greater than 0 and less
+   *                     than or equal to 268,435,456 (256 MB) to create a file with content.
+   * @param contentEncoding Optional.  Specifies which content encodings have been applied to the file. This value is returned to the client when the "Read
+   *                        File" operation is performed.
+   * @param contentLanguage Optional.  Specifies the natural language used by the intended audience for the file.
+   * @param contentMD5 Optional.  An MD5 hash of the resource content. This hash is used to verify the integrity of the resource during transport. When this
+   *                   header is specified, the storage service validates the hash. If the two hashes do not match, the operation will fail with error code
+   *                   400 (Bad Request).
+   * @param xMsCacheControl Optional.  The service stores this value and includes it in the "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentType Optional.  The service stores this value and includes it in the "Content-Type" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional.  The service stores this value and includes it in the "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional.  The service stores this value and includes it in the "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional.  The service stores this value and includes it in the "Content-MD5" response header for "Read File" operations.
+   * @param xMsRenameSource An optional file or directory to be renamed.  The value must have the following format: "/{filesysystem}/{path}".  If
+   *                        "x-ms-properties" is specified, the properties will overwrite the existing properties; otherwise, the existing properties will be
+   *                        preserved.
+   * @param xMsLeaseAction Optional for create operations.  The value must be "acquire" to acquire a lease on the path after creation.  The lease ID is
+   *                       returned in the response headers and can be used with append and flush operations.
+   * @param xMsLeaseId Optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have an active lease and the lease ID must
+   *                   match.
+   * @param xMsProposedLeaseId Optional for create operations.  Required when "x-ms-lease-action" is used.  A lease will be acquired using the proposed ID
+   *                           when the resource is created.
+   * @param xMsSourceLeaseAction Optional for rename operations.  The value must be "acquire" to acquire a lease on the source before beginning the rename
+   *                             operation.  The lease is released when the rename operation completes.
+   * @param xMsSourceLeaseId Optional for rename operations.  A lease ID for the source path.  The source path must have an active lease and the lease ID
+   *                         must match.
+   * @param xMsProperties A comma-separated list of properties n1=v1,n2=v2,... to be associated with the resource.
+   * @param xMsOriginationId A UUID persisted with the resource upon creation and used to identify the request that created it.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
+   * @param xMsSourceIfMatch Optional.  An ETag value. Specify this header to perform the rename operation only if the source's ETag matches the value
+   *                         specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the rename operation only if
+   *                             the source's ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param xMsSourceIfModifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the source has been
+   *                                 modified since the specified date and time.
+   * @param xMsSourceIfUnmodifiedSince Optional. A date and time value. Specify this header to perform the rename operation only if the soruce has not been
+   *                                   modified since the specified date and time.
+   * @param requestBody Optional.  The content of the file to be created.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<ServiceResponseWithHeaders<Void, CreatePathHeaders>> createPathWithServiceResponseAsync(String resource, String filesystem, String path,
+      String continuation, String contentLength, String contentEncoding, String contentLanguage, String contentMD5, String xMsCacheControl, String
+      xMsContentType, String xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsRenameSource, String xMsLeaseAction, String
+      xMsLeaseId, String xMsProposedLeaseId, String xMsSourceLeaseAction, String xMsSourceLeaseId, String xMsProperties, String xMsOriginationId, String
+      ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String
+      xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
    * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource        The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
+   */
+  void updatePath(String action, String filesystem, String path);
+
+  /**
+   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
+   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @return the {@link ServiceFuture} object
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> updatePathAsync(String resource, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
    * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
-  Observable<Void> updatePathAsync(String resource, String filesystem, String path);
+  Observable<Void> updatePathAsync(String action, String filesystem, String path);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
    * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
-  Observable<ServiceResponseWithHeaders<Void, UpdatePathHeaders>> updatePathWithServiceResponseAsync(String resource, String filesystem, String path);
+  Observable<ServiceResponseWithHeaders<Void, UpdatePathHeaders>> updatePathWithServiceResponseAsync(String action, String filesystem, String path);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
    * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource              The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem            The filesystem identifier.
-   * @param path                  The file or directory path.
-   * @param component             The component to be updated.  Must be "data" to upload data to be appended to a file or to flush previously uploaded data
-   *                             to a file. Must be "properties" to only set the properties of a file or directory.
-   * @param position              This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.
-   *                              It is required when uploading data to be appended to the file and when flushing previously uploaded data to the file.
-   *                              The value must be the position where the data is to be appended.  Uploaded data is not immediately flushed, or written,
-   *                              to the file.  To flush, the previously uploaded data must be contiguous, the position parameter must be specified and
-   *                              equal to the length of the file after all data has been written, and there must not be a request entity body included
-   *                              with the request.
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param position This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.  It is required
+   *                 when uploading data to be appended to the file and when flushing previously uploaded data to the file.  The value must be the position
+   *                 where the data is to be appended.  Uploaded data is not immediately flushed, or written, to the file.  To flush, the previously uploaded
+   *                 data must be contiguous, the position parameter must be specified and equal to the length of the file after all data has been written,
+   *                 and there must not be a request entity body included with the request.
    * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
-   *                             the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the
-   *                             specified position are written to the file when flush succeeds, but this optional parameter allows data after the flush
-   *                             position to be retained for a future flush operation.
-   * @param contentLength         Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in
-   *                              bytes for "Append Data".
-   * @param contentMD5            Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
-   * @param origin                Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The
-   *                              presence of this header results in cross-origin resource sharing (CORS) headers on the response
-   * @param xMsLeaseAction        Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
-   * @param xMsLeaseId            The lease ID must be specified if there is an active lease.
-   * @param xMsCacheControl       Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Cache-Control" response header for "Read File" operations.
+   *                              the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the specified
+   *                              position are written to the file when flush succeeds, but this optional parameter allows data after the flush position to
+   *                              be retained for a future flush operation.
+   * @param contentLength Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in bytes for
+   *                      "Append Data".
+   * @param contentMD5 Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
+   * @param origin Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The presence of this header
+   *              results in cross-origin resource sharing (CORS) headers on the response
+   * @param xMsLeaseAction Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param xMsCacheControl Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                        "Cache-Control" response header for "Read File" operations.
    * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
    *                              "Content-Disposition" response header for "Read File" operations.
-   * @param xMsContentEncoding    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Encoding" response header for "Read File" operations.
-   * @param xMsContentLanguage    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Language" response header for "Read File" operations.
-   * @param xMsContentMd5         Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-MD5" response header for "Read File" operations.
-   * @param xMsContentType        Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Type" response header for "Read File" operations.
-   * @param xMsProperties         Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations
-   *                              or the "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with
-   *                              the resource.  If the resource exists, any properties not included in the list will be removed.  All properties are
-   *                              removed if the header is omitted.  To merge new and existing properties, first get all existing properties and the
-   *                              current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
-   * @param ifMatch               Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform
-   *                              the operation only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch           Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*")
-   *                              value. Specify this header to perform the operation only if the resource's ETag does not match the value specified. The
-   *                              ETag must be specified in quotes.
-   * @param ifModifiedSince       Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has been modified since the specified date and time.
-   * @param ifUnmodifiedSince     Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has not been modified since the specified date and time.
-   * @param requestBody           Valid only for append operations.  The data to be uploaded and appended to the file.
-   * @param xMsClientRequestId    A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout               An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                              timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate               Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param xMsContentEncoding Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                      "Content-MD5" response header for "Read File" operations.
+   * @param xMsContentType Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                       "Content-Type" response header for "Read File" operations.
+   * @param xMsProperties Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations or the
+   *                      "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If
+   *                      the resource exists, any properties not included in the list will be removed.  All properties are removed if the header is omitted.
+   *                      To merge new and existing properties, first get all existing properties and the current E-Tag, then make a conditional request
+   *                      with the E-Tag and include values for all properties.
+   * @param ifMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform the operation
+   *                only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
+   * @param ifNoneMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*") value. Specify
+   *                    this header to perform the operation only if the resource's ETag does not match the value specified. The ETag must be specified in
+   *                    quotes.
+   * @param ifModifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                        the operation only if the resource has been modified since the specified date and time.
+   * @param ifUnmodifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                          the operation only if the resource has not been modified since the specified date and time.
+   * @param requestBody Valid only for append operations.  The data to be uploaded and appended to the file.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
-  void updatePath(String resource, String filesystem, String path, String component, Long position, Boolean retainUncommittedData, String contentLength,
+  void updatePath(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength, String contentMD5,
+      String origin, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentDisposition, String xMsContentEncoding, String
+      xMsContentLanguage, String xMsContentMd5, String xMsContentType, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince,
+      String ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
+
+  /**
+   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
+   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param position This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.  It is required
+   *                 when uploading data to be appended to the file and when flushing previously uploaded data to the file.  The value must be the position
+   *                 where the data is to be appended.  Uploaded data is not immediately flushed, or written, to the file.  To flush, the previously uploaded
+   *                 data must be contiguous, the position parameter must be specified and equal to the length of the file after all data has been written,
+   *                 and there must not be a request entity body included with the request.
+   * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
+   *                              the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the specified
+   *                              position are written to the file when flush succeeds, but this optional parameter allows data after the flush position to
+   *                              be retained for a future flush operation.
+   * @param contentLength Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in bytes for
+   *                      "Append Data".
+   * @param contentMD5 Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
+   * @param origin Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The presence of this header
+   *              results in cross-origin resource sharing (CORS) headers on the response
+   * @param xMsLeaseAction Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param xMsCacheControl Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                        "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                              "Content-Disposition" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                      "Content-MD5" response header for "Read File" operations.
+   * @param xMsContentType Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                       "Content-Type" response header for "Read File" operations.
+   * @param xMsProperties Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations or the
+   *                      "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If
+   *                      the resource exists, any properties not included in the list will be removed.  All properties are removed if the header is omitted.
+   *                      To merge new and existing properties, first get all existing properties and the current E-Tag, then make a conditional request
+   *                      with the E-Tag and include values for all properties.
+   * @param ifMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform the operation
+   *                only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
+   * @param ifNoneMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*") value. Specify
+   *                    this header to perform the operation only if the resource's ETag does not match the value specified. The ETag must be specified in
+   *                    quotes.
+   * @param ifModifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                        the operation only if the resource has been modified since the specified date and time.
+   * @param ifUnmodifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                          the operation only if the resource has not been modified since the specified date and time.
+   * @param requestBody Valid only for append operations.  The data to be uploaded and appended to the file.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
+   */
+  ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength,
+      String contentMD5, String origin, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentDisposition, String
+      xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsContentType, String xMsProperties, String ifMatch, String ifNoneMatch,
+      String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate, final
+  ServiceCallback<Void> serviceCallback);
+
+  /**
+   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
+   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   *
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param position This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.  It is required
+   *                 when uploading data to be appended to the file and when flushing previously uploaded data to the file.  The value must be the position
+   *                 where the data is to be appended.  Uploaded data is not immediately flushed, or written, to the file.  To flush, the previously uploaded
+   *                 data must be contiguous, the position parameter must be specified and equal to the length of the file after all data has been written,
+   *                 and there must not be a request entity body included with the request.
+   * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
+   *                              the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the specified
+   *                              position are written to the file when flush succeeds, but this optional parameter allows data after the flush position to
+   *                              be retained for a future flush operation.
+   * @param contentLength Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in bytes for
+   *                      "Append Data".
+   * @param contentMD5 Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
+   * @param origin Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The presence of this header
+   *              results in cross-origin resource sharing (CORS) headers on the response
+   * @param xMsLeaseAction Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param xMsCacheControl Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                        "Cache-Control" response header for "Read File" operations.
+   * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                              "Content-Disposition" response header for "Read File" operations.
+   * @param xMsContentEncoding Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                      "Content-MD5" response header for "Read File" operations.
+   * @param xMsContentType Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                       "Content-Type" response header for "Read File" operations.
+   * @param xMsProperties Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations or the
+   *                      "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If
+   *                      the resource exists, any properties not included in the list will be removed.  All properties are removed if the header is omitted.
+   *                      To merge new and existing properties, first get all existing properties and the current E-Tag, then make a conditional request
+   *                      with the E-Tag and include values for all properties.
+   * @param ifMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform the operation
+   *                only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
+   * @param ifNoneMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*") value. Specify
+   *                    this header to perform the operation only if the resource's ETag does not match the value specified. The ETag must be specified in
+   *                    quotes.
+   * @param ifModifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                        the operation only if the resource has been modified since the specified date and time.
+   * @param ifUnmodifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                          the operation only if the resource has not been modified since the specified date and time.
+   * @param requestBody Valid only for append operations.  The data to be uploaded and appended to the file.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   */
+  Observable<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength,
       String contentMD5, String origin, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentDisposition, String
       xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsContentType, String xMsProperties, String ifMatch, String ifNoneMatch,
       String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -1441,339 +1448,199 @@ public interface AzureDistributedFileSystemRestClient {
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
    * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob Service
+   * Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource              The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem            The filesystem identifier.
-   * @param path                  The file or directory path.
-   * @param component             The component to be updated.  Must be "data" to upload data to be appended to a file or to flush previously uploaded data
-   *                             to a file. Must be "properties" to only set the properties of a file or directory.
-   * @param position              This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.
-   *                              It is required when uploading data to be appended to the file and when flushing previously uploaded data to the file.
-   *                              The value must be the position where the data is to be appended.  Uploaded data is not immediately flushed, or written,
-   *                              to the file.  To flush, the previously uploaded data must be contiguous, the position parameter must be specified and
-   *                              equal to the length of the file after all data has been written, and there must not be a request entity body included
-   *                              with the request.
+   * @param action The action must be "append" to upload data to be appended to a file, "flush" to flush previously uploaded data to a file, or
+   *               "setProperties" to set the properties of a file or directory.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param position This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.  It is required
+   *                 when uploading data to be appended to the file and when flushing previously uploaded data to the file.  The value must be the position
+   *                 where the data is to be appended.  Uploaded data is not immediately flushed, or written, to the file.  To flush, the previously uploaded
+   *                 data must be contiguous, the position parameter must be specified and equal to the length of the file after all data has been written,
+   *                 and there must not be a request entity body included with the request.
    * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
-   *                             the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the
-   *                             specified position are written to the file when flush succeeds, but this optional parameter allows data after the flush
-   *                             position to be retained for a future flush operation.
-   * @param contentLength         Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in
-   *                              bytes for "Append Data".
-   * @param contentMD5            Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
-   * @param origin                Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The
-   *                              presence of this header results in cross-origin resource sharing (CORS) headers on the response
-   * @param xMsLeaseAction        Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
-   * @param xMsLeaseId            The lease ID must be specified if there is an active lease.
-   * @param xMsCacheControl       Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Cache-Control" response header for "Read File" operations.
+   *                              the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the specified
+   *                              position are written to the file when flush succeeds, but this optional parameter allows data after the flush position to
+   *                              be retained for a future flush operation.
+   * @param contentLength Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in bytes for
+   *                      "Append Data".
+   * @param contentMD5 Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
+   * @param origin Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The presence of this header
+   *              results in cross-origin resource sharing (CORS) headers on the response
+   * @param xMsLeaseAction Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param xMsCacheControl Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                        "Cache-Control" response header for "Read File" operations.
    * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
    *                              "Content-Disposition" response header for "Read File" operations.
-   * @param xMsContentEncoding    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Encoding" response header for "Read File" operations.
-   * @param xMsContentLanguage    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Language" response header for "Read File" operations.
-   * @param xMsContentMd5         Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-MD5" response header for "Read File" operations.
-   * @param xMsContentType        Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Type" response header for "Read File" operations.
-   * @param xMsProperties         Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations
-   *                              or the "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with
-   *                              the resource.  If the resource exists, any properties not included in the list will be removed.  All properties are
-   *                              removed if the header is omitted.  To merge new and existing properties, first get all existing properties and the
-   *                              current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
-   * @param ifMatch               Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform
-   *                              the operation only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch           Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*")
-   *                              value. Specify this header to perform the operation only if the resource's ETag does not match the value specified. The
-   *                              ETag must be specified in quotes.
-   * @param ifModifiedSince       Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has been modified since the specified date and time.
-   * @param ifUnmodifiedSince     Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has not been modified since the specified date and time.
-   * @param requestBody           Valid only for append operations.  The data to be uploaded and appended to the file.
-   * @param xMsClientRequestId    A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout               An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                              timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate               Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback       the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param xMsContentEncoding Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Encoding" response header for "Read File" operations.
+   * @param xMsContentLanguage Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                           "Content-Language" response header for "Read File" operations.
+   * @param xMsContentMd5 Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                      "Content-MD5" response header for "Read File" operations.
+   * @param xMsContentType Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
+   *                       "Content-Type" response header for "Read File" operations.
+   * @param xMsProperties Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations or the
+   *                      "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with the resource.  If
+   *                      the resource exists, any properties not included in the list will be removed.  All properties are removed if the header is omitted.
+   *                      To merge new and existing properties, first get all existing properties and the current E-Tag, then make a conditional request
+   *                      with the E-Tag and include values for all properties.
+   * @param ifMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform the operation
+   *                only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
+   * @param ifNoneMatch Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*") value. Specify
+   *                    this header to perform the operation only if the resource's ETag does not match the value specified. The ETag must be specified in
+   *                    quotes.
+   * @param ifModifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                        the operation only if the resource has been modified since the specified date and time.
+   * @param ifUnmodifiedSince Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to perform
+   *                          the operation only if the resource has not been modified since the specified date and time.
+   * @param requestBody Valid only for append operations.  The data to be uploaded and appended to the file.
+   * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  ServiceFuture<Void> updatePathAsync(String resource, String filesystem, String path, String component, Long position, Boolean retainUncommittedData,
-      String contentLength, String contentMD5, String origin, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentDisposition,
-      String xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsContentType, String xMsProperties, String ifMatch, String
-      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate, final
-  ServiceCallback<Void> serviceCallback);
-
-  /**
-   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
-   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param resource              The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem            The filesystem identifier.
-   * @param path                  The file or directory path.
-   * @param component             The component to be updated.  Must be "data" to upload data to be appended to a file or to flush previously uploaded data
-   *                             to a file. Must be "properties" to only set the properties of a file or directory.
-   * @param position              This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.
-   *                              It is required when uploading data to be appended to the file and when flushing previously uploaded data to the file.
-   *                              The value must be the position where the data is to be appended.  Uploaded data is not immediately flushed, or written,
-   *                              to the file.  To flush, the previously uploaded data must be contiguous, the position parameter must be specified and
-   *                              equal to the length of the file after all data has been written, and there must not be a request entity body included
-   *                              with the request.
-   * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
-   *                             the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the
-   *                             specified position are written to the file when flush succeeds, but this optional parameter allows data after the flush
-   *                             position to be retained for a future flush operation.
-   * @param contentLength         Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in
-   *                              bytes for "Append Data".
-   * @param contentMD5            Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
-   * @param origin                Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The
-   *                              presence of this header results in cross-origin resource sharing (CORS) headers on the response
-   * @param xMsLeaseAction        Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
-   * @param xMsLeaseId            The lease ID must be specified if there is an active lease.
-   * @param xMsCacheControl       Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Cache-Control" response header for "Read File" operations.
-   * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Disposition" response header for "Read File" operations.
-   * @param xMsContentEncoding    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Encoding" response header for "Read File" operations.
-   * @param xMsContentLanguage    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Language" response header for "Read File" operations.
-   * @param xMsContentMd5         Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-MD5" response header for "Read File" operations.
-   * @param xMsContentType        Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Type" response header for "Read File" operations.
-   * @param xMsProperties         Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations
-   *                              or the "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with
-   *                              the resource.  If the resource exists, any properties not included in the list will be removed.  All properties are
-   *                              removed if the header is omitted.  To merge new and existing properties, first get all existing properties and the
-   *                              current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
-   * @param ifMatch               Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform
-   *                              the operation only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch           Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*")
-   *                              value. Specify this header to perform the operation only if the resource's ETag does not match the value specified. The
-   *                              ETag must be specified in quotes.
-   * @param ifModifiedSince       Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has been modified since the specified date and time.
-   * @param ifUnmodifiedSince     Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has not been modified since the specified date and time.
-   * @param requestBody           Valid only for append operations.  The data to be uploaded and appended to the file.
-   * @param xMsClientRequestId    A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout               An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                              timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate               Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<Void> updatePathAsync(String resource, String filesystem, String path, String component, Long position, Boolean retainUncommittedData, String
-      contentLength, String contentMD5, String origin, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentDisposition, String
-      xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsContentType, String xMsProperties, String ifMatch, String ifNoneMatch,
-      String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
-
-  /**
-   * Append Data | Flush Data | Set File Properties | Set Directory Properties.
-   * Uploads data to be appended to a file, flushes (writes) previously uploaded data to a file, or sets properties for a file or directory.  Data can only
-   * be appended to a file.  This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
-   * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
-   *
-   * @param resource              The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem            The filesystem identifier.
-   * @param path                  The file or directory path.
-   * @param component             The component to be updated.  Must be "data" to upload data to be appended to a file or to flush previously uploaded data
-   *                             to a file. Must be "properties" to only set the properties of a file or directory.
-   * @param position              This parameter allows the caller to upload data in parallel and control the order in which it is appended to the file.
-   *                              It is required when uploading data to be appended to the file and when flushing previously uploaded data to the file.
-   *                              The value must be the position where the data is to be appended.  Uploaded data is not immediately flushed, or written,
-   *                              to the file.  To flush, the previously uploaded data must be contiguous, the position parameter must be specified and
-   *                              equal to the length of the file after all data has been written, and there must not be a request entity body included
-   *                              with the request.
-   * @param retainUncommittedData Valid only for flush operations.  If "true", uncommitted data is retained after the flush operation completes; otherwise,
-   *                             the uncommitted data is deleted after the flush operation.  The default is false.  Data at offsets less than the
-   *                             specified position are written to the file when flush succeeds, but this optional parameter allows data after the flush
-   *                             position to be retained for a future flush operation.
-   * @param contentLength         Required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the length of the request content in
-   *                              bytes for "Append Data".
-   * @param contentMD5            Optional.  An MD5 hash of the request content. This hash is used to verify the integrity of the content during transport.
-   * @param origin                Optional and only valid for set properties operations.  Specifies the origin from which the request is issued. The
-   *                              presence of this header results in cross-origin resource sharing (CORS) headers on the response
-   * @param xMsLeaseAction        Optional.  The lease action can be "renew" to renew an existing lease or "release" to release a lease.
-   * @param xMsLeaseId            The lease ID must be specified if there is an active lease.
-   * @param xMsCacheControl       Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Cache-Control" response header for "Read File" operations.
-   * @param xMsContentDisposition Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Disposition" response header for "Read File" operations.
-   * @param xMsContentEncoding    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Encoding" response header for "Read File" operations.
-   * @param xMsContentLanguage    Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Language" response header for "Read File" operations.
-   * @param xMsContentMd5         Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-MD5" response header for "Read File" operations.
-   * @param xMsContentType        Optional and only valid for flush and set properties operations.  The service stores this value and includes it in the
-   *                              "Content-Type" response header for "Read File" operations.
-   * @param xMsProperties         Optional and only valid for flush and set properties operations.  Valid only when using the "Set Properties" operations
-   *                              or the "Flush Data" operation for files.  A comma-separated list of properties (n1=v1,n2=v2,...) to be associated with
-   *                              the resource.  If the resource exists, any properties not included in the list will be removed.  All properties are
-   *                              removed if the header is omitted.  To merge new and existing properties, first get all existing properties and the
-   *                              current E-Tag, then make a conditional request with the E-Tag and include values for all properties.
-   * @param ifMatch               Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value. Specify this header to perform
-   *                              the operation only if the resource's ETag matches the value specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch           Optional for Flush Data and Set Properties, but invalid for Append Data.  An ETag value or the special wildcard ("*")
-   *                              value. Specify this header to perform the operation only if the resource's ETag does not match the value specified. The
-   *                              ETag must be specified in quotes.
-   * @param ifModifiedSince       Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has been modified since the specified date and time.
-   * @param ifUnmodifiedSince     Optional for Flush Data and Set Properties, but invalid for Append Data. A date and time value. Specify this header to
-   *                              perform the operation only if the resource has not been modified since the specified date and time.
-   * @param requestBody           Valid only for append operations.  The data to be uploaded and appended to the file.
-   * @param xMsClientRequestId    A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout               An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                              timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate               Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
-   * @throws IllegalArgumentException thrown if parameters fail the validation
-   */
-  Observable<ServiceResponseWithHeaders<Void, UpdatePathHeaders>> updatePathWithServiceResponseAsync(String resource, String filesystem, String path,
-      String component, Long position, Boolean retainUncommittedData, String contentLength, String contentMD5, String origin, String xMsLeaseAction, String
-      xMsLeaseId, String xMsCacheControl, String xMsContentDisposition, String xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String
-      xMsContentType, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody,
-      String xMsClientRequestId, Integer timeout, String xMsDate);
+  Observable<ServiceResponseWithHeaders<Void, UpdatePathHeaders>> updatePathWithServiceResponseAsync(String action, String filesystem, String path, Long
+      position, Boolean retainUncommittedData, String contentLength, String contentMD5, String origin, String xMsLeaseAction, String xMsLeaseId, String
+      xMsCacheControl, String xMsContentDisposition, String xMsContentEncoding, String xMsContentLanguage, String xMsContentMd5, String xMsContentType,
+      String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody, String
+      xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
    *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
    *                       "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem     The filesystem identifier.
-   * @param path           The file or directory path.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void leasePath(String xMsLeaseAction, String filesystem, String path);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param xMsLeaseAction  There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
-   *                        "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
-   *                        "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
+   *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
+   *                       "release" and specify the "x-ms-lease-id" to release a lease.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
    *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
    *                       "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem     The filesystem identifier.
-   * @param path           The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
    *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
    *                       "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem     The filesystem identifier.
-   * @param path           The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, LeasePathHeaders>> leasePathWithServiceResponseAsync(String xMsLeaseAction, String filesystem, String path);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param xMsLeaseAction     There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id"
-   *                           and "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.
-   *                           Use "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param xMsLeaseDuration   The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
-   *                           must be between 15 and 60 seconds.
-   * @param xMsLeaseId         Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current
-   *                           lease ID.
+   * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
+   *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
+   *                       "release" and specify the "x-ms-lease-id" to release a lease.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param xMsLeaseDuration The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration must
+   *                         be between 15 and 60 seconds.
+   * @param xMsLeaseId Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current lease ID.
    * @param xMsProposedLeaseId Required when "x-ms-lease-action" is "acquire".  A lease will be acquired with this lease ID if the operation is successful.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void leasePath(String xMsLeaseAction, String filesystem, String path, Integer xMsLeaseDuration, String xMsLeaseId, String xMsProposedLeaseId, String
       ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param xMsLeaseAction     There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id"
-   *                           and "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.
-   *                           Use "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param xMsLeaseDuration   The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
-   *                           must be between 15 and 60 seconds.
-   * @param xMsLeaseId         Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current
-   *                           lease ID.
+   * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
+   *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
+   *                       "release" and specify the "x-ms-lease-id" to release a lease.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param xMsLeaseDuration The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration must
+   *                         be between 15 and 60 seconds.
+   * @param xMsLeaseId Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current lease ID.
    * @param xMsProposedLeaseId Required when "x-ms-lease-action" is "acquire".  A lease will be acquired with this lease ID if the operation is successful.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, Integer xMsLeaseDuration, String xMsLeaseId, String
       xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout,
@@ -1781,34 +1648,33 @@ public interface AzureDistributedFileSystemRestClient {
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param xMsLeaseAction     There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id"
-   *                           and "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.
-   *                           Use "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param xMsLeaseDuration   The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
-   *                           must be between 15 and 60 seconds.
-   * @param xMsLeaseId         Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current
-   *                           lease ID.
+   * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
+   *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
+   *                       "release" and specify the "x-ms-lease-id" to release a lease.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param xMsLeaseDuration The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration must
+   *                         be between 15 and 60 seconds.
+   * @param xMsLeaseId Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current lease ID.
    * @param xMsProposedLeaseId Required when "x-ms-lease-action" is "acquire".  A lease will be acquired with this lease ID if the operation is successful.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, Integer xMsLeaseDuration, String xMsLeaseId, String
       xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout,
@@ -1816,34 +1682,33 @@ public interface AzureDistributedFileSystemRestClient {
 
   /**
    * Lease Path.
-   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information,
-   * see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param xMsLeaseAction     There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id"
-   *                           and "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.
-   *                           Use "release" and specify the "x-ms-lease-id" to release a lease.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param xMsLeaseDuration   The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
-   *                           must be between 15 and 60 seconds.
-   * @param xMsLeaseId         Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current
-   *                           lease ID.
+   * @param xMsLeaseAction There are three lease actions: "acquire", "renew", and "release".  Use "acquire" and specify the "x-ms-proposed-lease-id" and
+   *                       "x-ms-lease-duration" to acquire a new lease.  Use "renew" and specify the "x-ms-lease-id" to renew an existing lease.  Use
+   *                       "release" and specify the "x-ms-lease-id" to release a lease.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param xMsLeaseDuration The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration must
+   *                         be between 15 and 60 seconds.
+   * @param xMsLeaseId Required when "x-ms-lease-action" is "renew" or "release". For the renew and release actions, this must match the current lease ID.
    * @param xMsProposedLeaseId Required when "x-ms-lease-action" is "acquire".  A lease will be acquired with this lease ID if the operation is successful.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, LeasePathHeaders>> leasePathWithServiceResponseAsync(String xMsLeaseAction, String filesystem, String path,
       Integer xMsLeaseDuration, String xMsLeaseId, String xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
@@ -1856,11 +1721,11 @@ public interface AzureDistributedFileSystemRestClient {
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the InputStream object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
+   * @return the InputStream object if successful.
    */
   InputStream readPath(String filesystem, String path);
 
@@ -1870,11 +1735,11 @@ public interface AzureDistributedFileSystemRestClient {
    * information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<InputStream> readPathAsync(String filesystem, String path, final ServiceCallback<InputStream> serviceCallback);
 
@@ -1885,9 +1750,9 @@ public interface AzureDistributedFileSystemRestClient {
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the observable to the InputStream object
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the InputStream object
    */
   Observable<InputStream> readPathAsync(String filesystem, String path);
 
@@ -1898,9 +1763,9 @@ public interface AzureDistributedFileSystemRestClient {
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the observable to the InputStream object
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the InputStream object
    */
   Observable<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>> readPathWithServiceResponseAsync(String filesystem, String path);
 
@@ -1910,25 +1775,25 @@ public interface AzureDistributedFileSystemRestClient {
    * information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param range              The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param range The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the InputStream object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
+   * @return the InputStream object if successful.
    */
   InputStream readPath(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
       String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -1939,24 +1804,24 @@ public interface AzureDistributedFileSystemRestClient {
    * information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param range              The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param range The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<InputStream> readPathAsync(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
       ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<InputStream> serviceCallback);
@@ -1967,23 +1832,23 @@ public interface AzureDistributedFileSystemRestClient {
    * information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param range              The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param range The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the observable to the InputStream object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the InputStream object
    */
   Observable<InputStream> readPathAsync(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
       ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -1994,104 +1859,99 @@ public interface AzureDistributedFileSystemRestClient {
    * information, see [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param range              The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param range The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the observable to the InputStream object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the observable to the InputStream object
    */
-  Observable<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>> readPathWithServiceResponseAsync(String filesystem, String path, String range,
-      String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
+  Observable<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>> readPathWithServiceResponseAsync(String filesystem, String path, String range, String
+      ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void getPathProperties(String filesystem, String path);
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> getPathPropertiesAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> getPathPropertiesAsync(String filesystem, String path);
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>> getPathPropertiesWithServiceResponseAsync(String filesystem, String path);
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void getPathProperties(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
       xMsClientRequestId, Integer timeout, String xMsDate);
@@ -2099,26 +1959,25 @@ public interface AzureDistributedFileSystemRestClient {
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
-   *                           specified. The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
-   *                           since the specified date and time.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
-   *                           timeout value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> getPathPropertiesAsync(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
       ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
@@ -2128,22 +1987,22 @@ public interface AzureDistributedFileSystemRestClient {
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
    * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> getPathPropertiesAsync(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
       ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -2153,22 +2012,22 @@ public interface AzureDistributedFileSystemRestClient {
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
    * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>> getPathPropertiesWithServiceResponseAsync(String filesystem, String path, String
       ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -2178,12 +2037,12 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void deletePath(String resource, String filesystem, String path);
 
@@ -2192,12 +2051,12 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource        The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem      The filesystem identifier.
-   * @param path            The file or directory path.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
@@ -2206,11 +2065,11 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> deletePathAsync(String resource, String filesystem, String path);
 
@@ -2219,11 +2078,11 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
-   * @param path       The file or directory path.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param path The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path);
 
@@ -2232,31 +2091,30 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
-   *                           "false" and the directory is non-empty, an error occurs.
-   * @param continuation       Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of
-   *                           paths to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token
-   *                           is returned in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the
-   *                           directory.
-   * @param xMsLeaseId         The lease ID must be specified if there is an active lease.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param recursive Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If "false" and
+   *                  the directory is non-empty, an error occurs.
+   * @param continuation Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of paths
+   *                     to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the directory.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
-   * @throws ErrorSchemaException     thrown if the request is rejected by server
-   * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
+   * @throws ErrorSchemaException thrown if the request is rejected by server
+   * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
    */
   void deletePath(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
       ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -2266,31 +2124,30 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
-   *                           "false" and the directory is non-empty, an error occurs.
-   * @param continuation       Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of
-   *                           paths to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token
-   *                           is returned in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the
-   *                           directory.
-   * @param xMsLeaseId         The lease ID must be specified if there is an active lease.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param recursive Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If "false" and
+   *                  the directory is non-empty, an error occurs.
+   * @param continuation Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of paths
+   *                     to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the directory.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @param serviceCallback    the async ServiceCallback to handle successful and failed responses.
-   * @return the {@link ServiceFuture} object
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
+   * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceFuture} object
    */
   ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String
       ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final
@@ -2301,30 +2158,29 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
-   *                           "false" and the directory is non-empty, an error occurs.
-   * @param continuation       Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of
-   *                           paths to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token
-   *                           is returned in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the
-   *                           directory.
-   * @param xMsLeaseId         The lease ID must be specified if there is an active lease.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param recursive Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If "false" and
+   *                  the directory is non-empty, an error occurs.
+   * @param continuation Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of paths
+   *                     to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the directory.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String
       ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
@@ -2334,30 +2190,29 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
-   * @param filesystem         The filesystem identifier.
-   * @param path               The file or directory path.
-   * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
-   *                           "false" and the directory is non-empty, an error occurs.
-   * @param continuation       Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of
-   *                           paths to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token
-   *                           is returned in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the
-   *                           directory.
-   * @param xMsLeaseId         The lease ID must be specified if there is an active lease.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
-   * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
-   *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
+   * @param resource The value must be "file" or "directory" to indicate the resource type.
+   * @param filesystem The filesystem identifier.
+   * @param path The file or directory path.
+   * @param recursive Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If "false" and
+   *                  the directory is non-empty, an error occurs.
+   * @param continuation Optional.  When deleting a directory, the number of paths that are deleted with each invocation is limited.  If the number of paths
+   *                     to be deleted exceeds this limit, a continuation token is returned in this response header.  When a continuation token is returned
+   *                     in the response, it must be specified in a subsequent invocation of the delete operation to continue deleting the directory.
+   * @param xMsLeaseId The lease ID must be specified if there is an active lease.
+   * @param ifMatch Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified. The ETag
+   *                must be specified in quotes.
+   * @param ifNoneMatch Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the resource's
+   *                    ETag does not match the value specified. The ETag must be specified in quotes.
+   * @param ifModifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                        specified date and time.
+   * @param ifUnmodifiedSince Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
    *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
-   * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
-   * @return the {@link ServiceResponseWithHeaders} object if successful.
+   * @param timeout An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout value
+   *                elapses before the operation completes, the operation fails.
+   * @param xMsDate Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @throws IllegalArgumentException thrown if parameters fail the validation
+   * @return the {@link ServiceResponseWithHeaders} object if successful.
    */
   Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path, Boolean
       recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String

@@ -4850,3 +4850,5 @@ ATS V1.5:
 
     WASB-31. Updating thread pool size for network read/write ops
 
+    WASB-32. Updating ADFS http client auto-generated code to the latest version
+

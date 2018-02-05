@@ -33,11 +33,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import sun.security.pkcs.EncodingException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -46,13 +43,10 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 
-import static org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
-import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 import static org.junit.Assert.*;
 
 public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
@@ -229,6 +223,34 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
+  public void testListPath() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final List<Future> tasks = new ArrayList<>();
+
+    ExecutorService es = Executors.newCachedThreadPool();
+    for (int i = 0; i < 6000; i++) {
+      final Path fileName = new Path("/test" + i);
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          fs.create(fileName);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    for (Future<Void> task : tasks) {
+      task.get();
+    }
+
+    FileStatus[] files = fs.listStatus(new Path("/"));
+    Assert.assertEquals(files.length, 6000 + 1 /* user directory */);
+  }
+
+  @Test
   public void testReadWriteHeavyBytesToFileWithSmallerChunks() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
@@ -366,6 +388,65 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     fs.getFileStatus(new Path("testDir/test1"));
   }
 
+  @Test(expected = FileNotFoundException.class)
+  public void testRenameRootDirectory() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final List<Future> tasks = new ArrayList<>();
+
+    ExecutorService es = Executors.newCachedThreadPool();
+    for (int i = 0; i < 1000; i++) {
+      final Path fileName = new Path("/test/" + i);
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          fs.create(fileName);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    for (Future<Void> task : tasks) {
+      task.get();
+    }
+
+    fs.rename(new Path("/test"), new Path("/renamedDir"));
+
+    FileStatus[] files = fs.listStatus(new Path("/renamedDir"));
+    Assert.assertEquals(files.length, 1000);
+    fs.getFileStatus(new Path("/test"));
+  }
+
+  @Test(expected = FileNotFoundException.class)
+  public void testDeleteRootDirectory() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final List<Future> tasks = new ArrayList<>();
+
+    ExecutorService es = Executors.newCachedThreadPool();
+    for (int i = 0; i < 1000; i++) {
+      final Path fileName = new Path("/test/" + i);
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          fs.create(fileName);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    for (Future<Void> task : tasks) {
+      task.get();
+    }
+
+    fs.delete(new Path("/test"), true);
+    fs.getFileStatus(new Path("/test"));
+  }
+
   @Test
   public void testRenameRoot() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
@@ -404,29 +485,6 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     readStream.read(bytesToRead, 0, readBufferSize);
     readStream.close();
-  }
-
-  @After
-  public void TestCleanup() throws Exception {
-    FileSystem.closeAll();
-
-    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
-    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
-
-    final AdfsHttpService adfsHttpService = ServiceProviderImpl.instance().get(AdfsHttpService.class);
-    adfsHttpService.deleteFilesystem(fs);
-
-    AzureServiceErrorResponseException ex = intercept(
-        AzureServiceErrorResponseException.class,
-        new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            adfsHttpService.getFilesystemProperties(fs);
-            return null;
-          }
-        });
-
-    assertEquals(FILE_SYSTEM_NOT_FOUND.getStatusCode(), ex.getStatusCode());
   }
 
   private String readString(FileSystem fs, Path testFile) throws IOException {

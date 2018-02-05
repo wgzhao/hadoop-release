@@ -63,11 +63,10 @@ public class ListPathsHeaders {
   private String xMsVersion;
 
   /**
-   * A comma-separated list of properties n1=v1,n2=v2,... associated with the
-   * resource.
+   * The continuation token used for continuing listing the paths.
    */
-  @JsonProperty(value = "x-ms-properties")
-  private String xMsProperties;
+  @JsonProperty(value = "x-ms-continuation")
+  private String xMsContinuation;
 
   /**
    * The x-ms-origination-id of the request that created the resource. When a
@@ -165,22 +164,22 @@ public class ListPathsHeaders {
   }
 
   /**
-   * Get the xMsProperties value.
+   * Get the xMsContinuation value.
    *
-   * @return the xMsProperties value
+   * @return the xMsContinuation value
    */
-  public String xMsProperties() {
-    return this.xMsProperties;
+  public String xMsContinuation() {
+    return this.xMsContinuation;
   }
 
   /**
-   * Set the xMsProperties value.
+   * Set the xMsContinuation value.
    *
-   * @param xMsProperties the xMsProperties value to set
+   * @param xMsContinuation the xMsContinuation value to set
    * @return the ListPathsHeaders object itself.
    */
-  public ListPathsHeaders withXMsProperties(String xMsProperties) {
-    this.xMsProperties = xMsProperties;
+  public ListPathsHeaders withXMsContinuation(String xMsContinuation) {
+    this.xMsContinuation = xMsContinuation;
     return this;
   }
 

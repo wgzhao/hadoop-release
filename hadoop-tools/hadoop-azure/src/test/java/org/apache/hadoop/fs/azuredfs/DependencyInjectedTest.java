@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.azuredfs;
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,21 +32,28 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
+import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.services.MockAdfsBlobHandlerImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientFactoryImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpClientSessionFactoryImpl;
+import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockConfigurationServiceImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockLoggingServiceImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockServiceInjectorImpl;
 import org.apache.hadoop.fs.azuredfs.services.MockServiceProviderImpl;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
+
+import static org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
+import static org.apache.hadoop.test.LambdaTestUtils.intercept;
+import static org.junit.Assert.assertEquals;
 
 public abstract class DependencyInjectedTest {
   protected final MockServiceInjectorImpl mockServiceInjector;
@@ -94,8 +102,28 @@ public abstract class DependencyInjectedTest {
   }
 
   @After
-  public void clearFileSystemCache() throws IOException {
+  public void testCleanup() throws Exception {
     FileSystem.closeAll();
+
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+
+    final AdfsHttpService adfsHttpService = ServiceProviderImpl.instance().get(AdfsHttpService.class);
+    adfsHttpService.deleteFilesystem(fs);
+
+    if (!(adfsHttpService instanceof MockAdfsHttpImpl)) {
+      AzureServiceErrorResponseException ex = intercept(
+          AzureServiceErrorResponseException.class,
+          new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              adfsHttpService.getFilesystemProperties(fs);
+              return null;
+            }
+          });
+
+      assertEquals(FILE_SYSTEM_NOT_FOUND.getStatusCode(), ex.getStatusCode());
+    }
   }
 
   protected String getHostName() {
