@@ -4742,3 +4742,5 @@ ATS V1.5:
 
     BUG-95201. HDFS-13060. Adding a BlacklistBasedTrustedChannelResolver for
     TrustedChannelResolver. Contributed by Ajay Kumar.
+
+    YARN-4593 Deadlock in AbstractService.getConfig() (stevel)
