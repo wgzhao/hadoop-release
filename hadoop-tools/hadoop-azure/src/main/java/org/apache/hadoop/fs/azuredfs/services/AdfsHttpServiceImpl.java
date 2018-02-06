@@ -38,11 +38,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.microsoft.azure.dfs.rest.client.generated.models.CreatePathHeaders;
@@ -110,9 +113,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
   private final AdfsStreamFactory adfsStreamFactory;
-  private final ConcurrentHashMap<Integer, AdfsHttpClient> adfsHttpClientCache;
-  private final ThreadPoolExecutor writeExecutorService;
-  private final ThreadPoolExecutor readExecutorService;
+  private final ConcurrentHashMap<AzureDistributedFileSystem, AdfsHttpClient> adfsHttpClientCache;
+  private final ConcurrentHashMap<AzureDistributedFileSystem, ThreadPoolExecutor> adfsHttpClientWriteExecutorServiceCache;
+  private final ConcurrentHashMap<AzureDistributedFileSystem, ThreadPoolExecutor> adfsHttpClientReadExecutorServiceCache;
   private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
@@ -133,33 +136,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.configurationService = configurationService;
     this.adfsStreamFactory = adfsStreamFactory;
     this.adfsHttpClientCache = new ConcurrentHashMap<>();
+    this.adfsHttpClientReadExecutorServiceCache = new ConcurrentHashMap<>();
+    this.adfsHttpClientWriteExecutorServiceCache = new ConcurrentHashMap<>();
     this.adfsHttpClientFactory = adfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AdfsHttpService.class);
-
-    int maxConcurrentWriteThreads = this.configurationService.getMaxConcurrentWriteThreads();
-    int maxConcurrentReadThreads = this.configurationService.getMaxConcurrentReadThreads();
-
-    this.loggingService.debug(
-        "Creating AdfsHttpServiceImpl with read pool capacity of {0} and write pool capacity of {1}",
-        maxConcurrentReadThreads,
-        maxConcurrentWriteThreads);
-
-    this.readExecutorService = createThreadPoolExecutor(maxConcurrentReadThreads);
-    this.writeExecutorService = createThreadPoolExecutor(maxConcurrentWriteThreads);
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    try {
-      this.readExecutorService.shutdownNow();
-      this.writeExecutorService.shutdownNow();
-
-      this.readExecutorService.awaitTermination(10, TimeUnit.SECONDS);
-      this.writeExecutorService.awaitTermination(10, TimeUnit.SECONDS);
-    } finally {
-      super.finalize();
-    }
   }
 
   @Override
@@ -178,7 +159,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Hashtable<String, String>> getFilesystemPropertiesAsync(final AzureDistributedFileSystem azureDistributedFileSystem) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
         "getFilesystemPropertiesAsync for filesystem: {0}",
@@ -222,7 +204,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       return ConcurrentUtils.constantFuture(null);
     }
 
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "setFilesystemPropertiesAsync for filesystem: {0} with properties: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -264,7 +248,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Hashtable<String, String>> getPathPropertiesAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
         "getPathPropertiesAsync for filesystem: {0} path: {1}",
@@ -308,7 +293,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public Future<Void> setPathPropertiesAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final
   Hashtable<String, String> properties) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
         "setFilesystemPropertiesAsync for filesystem: {0} path: {1} with properties: {2}",
@@ -351,7 +337,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return executeAsync("AdfsHttpServiceImpl.setPathPropertiesAsync", adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.setPathPropertiesAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
@@ -368,7 +354,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   @Override
   public Future<Void> createFilesystemAsync(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
         "createFilesystemAsync for filesystem: {0}",
@@ -405,7 +392,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   @Override
   public Future<Void> deleteFilesystemAsync(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "deleteFilesystemAsync for filesystem: {0}",
         adfsHttpClient.getSession().getFileSystem());
@@ -437,7 +426,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<OutputStream> createFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite)
       throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
         "createFileAsync filesystem: {0} path: {1} overwrite: {2}",
@@ -518,7 +508,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> createDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "createDirectoryAsync filesystem: {0} path: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -582,7 +574,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<InputStream> openFileForReadAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "openFileForReadAsync filesystem: {0} path: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -633,7 +627,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<OutputStream> openFileForWriteAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean overwrite)
       throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "openFileForWriteAsync filesystem: {0} path: {1} overwrite: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -647,7 +643,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return executeAsync("AdfsHttpServiceImpl.openFileForWriteAsync", adfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.openFileForWriteAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
@@ -668,7 +664,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public Future<Integer> readFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final String version, final long offset,
       final int length, final ByteBuf targetBuffer, final int targetBufferOffset) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "readFileAsync filesystem: {0} path: {1} offset: {2} length: {3} targetBufferOffset: {4}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -734,7 +732,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> writeFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final
   ByteBuf body, final long offset) throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "writeFileAsync filesystem: {0} path: {1} offset: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -795,7 +795,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> flushFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final long offset, final boolean
       retainUncommitedData) throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "flushFileAsync filesystem: {0} path: {1} offset: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -855,7 +857,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> renameFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "renameFileAsync filesystem: {0} source: {1} destination: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -922,7 +926,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> renameDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "renameDirectory filesystem: {0} source: {1} destination: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -1013,7 +1019,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> deleteFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "deleteFileAsync filesystem: {0} path: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -1046,7 +1054,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<Void> deleteDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "deleteDirectoryAsync filesystem: {0} path: {1} recursive: {2}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -1114,7 +1124,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<FileStatus> getFileStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "getFileStatusAsync filesystem: {0} path: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -1145,7 +1157,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public Future<FileStatus[]> listStatusAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
       AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getFileSystemClient(azureDistributedFileSystem);
+    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
+    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
+
     this.loggingService.debug(
         "listStatusAsync filesystem: {0} path: {1}",
         adfsHttpClient.getSession().getFileSystem(),
@@ -1231,7 +1245,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   @Override
   public synchronized void closeFileSystem(final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.adfsHttpClientCache.remove(azureDistributedFileSystem.hashCode());
+    final AdfsHttpClient adfsHttpClient = this.adfsHttpClientCache.remove(azureDistributedFileSystem);
 
     if (adfsHttpClient != null) {
       this.loggingService.debug(
@@ -1249,6 +1263,26 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
           }
       );
     }
+
+    final ThreadPoolExecutor readThreadPoolExecutor = this.adfsHttpClientReadExecutorServiceCache.get(azureDistributedFileSystem);
+
+    if (readThreadPoolExecutor != null) {
+      readThreadPoolExecutor.shutdownNow();
+      this.adfsHttpClientReadExecutorServiceCache.remove(azureDistributedFileSystem);
+    }
+
+    final ThreadPoolExecutor writeThreadPoolExecutor = this.adfsHttpClientWriteExecutorServiceCache.get(azureDistributedFileSystem);
+
+    if (writeThreadPoolExecutor != null) {
+      writeThreadPoolExecutor.shutdownNow();
+      this.adfsHttpClientWriteExecutorServiceCache.remove(azureDistributedFileSystem);
+    }
+  }
+
+  @VisibleForTesting
+  synchronized boolean threadPoolsAreRunning(final AzureDistributedFileSystem azureDistributedFileSystem) {
+    return this.adfsHttpClientReadExecutorServiceCache.get(azureDistributedFileSystem) != null
+        || this.adfsHttpClientWriteExecutorServiceCache.get(azureDistributedFileSystem) != null;
   }
 
   private String getRelativePath(final Path path) {
@@ -1270,21 +1304,79 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     return relativePath;
   }
 
-  private synchronized AdfsHttpClient getFileSystemClient(final AzureDistributedFileSystem azureDistributedFileSystem) throws
+  private synchronized AdfsHttpClient getOrCreateFileSystemClient(final AzureDistributedFileSystem azureDistributedFileSystem) throws
       AzureDistributedFileSystemException {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
 
-    AdfsHttpClient adfsHttpClient = this.adfsHttpClientCache.get(azureDistributedFileSystem.hashCode());
+    AdfsHttpClient adfsHttpClient = this.adfsHttpClientCache.get(azureDistributedFileSystem);
+
     if (adfsHttpClient != null) {
       return adfsHttpClient;
     }
 
     adfsHttpClient = adfsHttpClientFactory.create(azureDistributedFileSystem);
     this.adfsHttpClientCache.put(
-        azureDistributedFileSystem.hashCode(),
+        azureDistributedFileSystem,
         adfsHttpClient);
 
     return adfsHttpClient;
+  }
+
+  private synchronized ThreadPoolExecutor getOrCreateFileSystemClientReadThreadPoolExecutor(
+    final AdfsHttpClient adfsHttpClient,
+    final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
+    return getOrCreateFileSystemClientThreadPoolExecutor(
+        adfsHttpClient,
+        azureDistributedFileSystem,
+        ThreadPoolExecutorType.READ);
+  }
+
+  private synchronized ThreadPoolExecutor getOrCreateFileSystemClientWriteThreadPoolExecutor(
+      final AdfsHttpClient adfsHttpClient,
+      final AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
+    return getOrCreateFileSystemClientThreadPoolExecutor(
+        adfsHttpClient,
+        azureDistributedFileSystem,
+        ThreadPoolExecutorType.WRITE);
+  }
+
+  private synchronized ThreadPoolExecutor getOrCreateFileSystemClientThreadPoolExecutor(
+      final AdfsHttpClient adfsHttpClient,
+      final AzureDistributedFileSystem azureDistributedFileSystem,
+      final ThreadPoolExecutorType threadPoolExecutorType) throws
+      AzureDistributedFileSystemException {
+    Preconditions.checkNotNull(adfsHttpClient, "adfsHttpClient");
+    Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
+
+    final boolean isRead = threadPoolExecutorType == ThreadPoolExecutorType.READ;
+
+    ThreadPoolExecutor threadPoolExecutor =
+        isRead
+            ? this.adfsHttpClientReadExecutorServiceCache.get(azureDistributedFileSystem)
+            : this.adfsHttpClientWriteExecutorServiceCache.get(azureDistributedFileSystem);
+
+    if (threadPoolExecutor != null) {
+      return threadPoolExecutor;
+    }
+
+    int maxConcurrentThreads =
+        isRead
+            ? this.configurationService.getMaxConcurrentReadThreads()
+            : this.configurationService.getMaxConcurrentWriteThreads();
+
+    this.loggingService.debug(
+        "Creating AdfsHttpServiceImpl with " + (isRead ? "read" : "write") + " pool capacity of {0}",
+        maxConcurrentThreads);
+
+    threadPoolExecutor = createThreadPoolExecutor((isRead ? "Rex-" : "Wex-") + adfsHttpClient.getSession().getFileSystem(), maxConcurrentThreads);
+
+    final ConcurrentHashMap<AzureDistributedFileSystem, ThreadPoolExecutor> cache =
+        isRead
+            ? this.adfsHttpClientReadExecutorServiceCache
+            : this.adfsHttpClientWriteExecutorServiceCache;
+
+    cache.put(azureDistributedFileSystem, threadPoolExecutor);
+    return threadPoolExecutor;
   }
 
   private <T> T execute(
@@ -1400,14 +1492,24 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     }
   }
 
-  private ThreadPoolExecutor createThreadPoolExecutor(int maxConcurrentThreads) {
+  private ThreadPoolExecutor createThreadPoolExecutor(final String threadName, int maxConcurrentThreads) {
+    // Do not use new ThreadPoolExecutor.AbortPolicy()
+    // It will cause so many threads to be created and not be used.
+    // AbortPolicy has some locking mechanisms underneath. Look at
+    // ThreadPoolExecutor.java Line 1863.
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
         maxConcurrentThreads,
         maxConcurrentThreads,
         1L,
         TimeUnit.SECONDS,
         new SynchronousQueue<Runnable>(),
-        new ThreadPoolExecutor.AbortPolicy());
+        new ThreadFactoryBuilder().setNameFormat(threadName + "-%d").build(),
+        new RejectedExecutionHandler() {
+          @Override
+          public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            throw new RejectedExecutionException("Task " + r.toString() + " rejected from: " + threadName);
+          }
+        });
 
     threadPoolExecutor.prestartCoreThread();
     threadPoolExecutor.prestartAllCoreThreads();
@@ -1602,5 +1704,10 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
       this.version = version;
     }
+  }
+
+  private enum ThreadPoolExecutorType {
+    READ,
+    WRITE
   }
 }

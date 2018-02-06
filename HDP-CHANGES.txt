@@ -4852,3 +4852,5 @@ ATS V1.5:
 
     WASB-32. Updating ADFS http client auto-generated code to the latest version
 
+    WASB-34. Fixing vast thread leaks due to underlying specific JDK ThreadPoolExecutor implementation and creating thread pools per client.
+

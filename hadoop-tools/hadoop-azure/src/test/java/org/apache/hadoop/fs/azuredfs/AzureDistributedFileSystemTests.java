@@ -228,7 +228,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     final List<Future> tasks = new ArrayList<>();
 
-    ExecutorService es = Executors.newCachedThreadPool();
+    ExecutorService es = Executors.newFixedThreadPool(10);
     for (int i = 0; i < 6000; i++) {
       final Path fileName = new Path("/test" + i);
       Callable<Void> callable = new Callable<Void>() {
@@ -246,6 +246,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
       task.get();
     }
 
+    es.shutdownNow();
     FileStatus[] files = fs.listStatus(new Path("/"));
     Assert.assertEquals(files.length, 6000 + 1 /* user directory */);
   }
@@ -278,7 +279,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     fs.create(new Path("testfile"));
     final FSDataOutputStream stream = fs.create(new Path("testfile"));
-    ExecutorService es = Executors.newCachedThreadPool();
+    ExecutorService es = Executors.newFixedThreadPool(10);
 
     final byte[] b = new byte[2 * 10240000];
     new Random().nextBytes(b);
@@ -394,7 +395,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     final List<Future> tasks = new ArrayList<>();
 
-    ExecutorService es = Executors.newCachedThreadPool();
+    ExecutorService es = Executors.newFixedThreadPool(10);
     for (int i = 0; i < 1000; i++) {
       final Path fileName = new Path("/test/" + i);
       Callable<Void> callable = new Callable<Void>() {
@@ -412,6 +413,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
       task.get();
     }
 
+    es.shutdownNow();
     fs.rename(new Path("/test"), new Path("/renamedDir"));
 
     FileStatus[] files = fs.listStatus(new Path("/renamedDir"));
@@ -425,7 +427,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     final List<Future> tasks = new ArrayList<>();
 
-    ExecutorService es = Executors.newCachedThreadPool();
+    ExecutorService es = Executors.newFixedThreadPool(10);
     for (int i = 0; i < 1000; i++) {
       final Path fileName = new Path("/test/" + i);
       Callable<Void> callable = new Callable<Void>() {
@@ -443,6 +445,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
       task.get();
     }
 
+    es.shutdownNow();
     fs.delete(new Path("/test"), true);
     fs.getFileStatus(new Path("/test"));
   }
