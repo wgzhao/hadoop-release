@@ -1024,3 +1024,6 @@ covered by CHANGES.txt.
     Mingliang Liu.
 
     BUG-96042. MAPREDUCE-6436. JobHistory cache issue. Contributed by Kai Sasaki
+
+    BUG-96041. MAPREDUCE-6797. Job history server scans can become blocked on a
+    single, slow entry. Contributed by Prabhu Joseph
