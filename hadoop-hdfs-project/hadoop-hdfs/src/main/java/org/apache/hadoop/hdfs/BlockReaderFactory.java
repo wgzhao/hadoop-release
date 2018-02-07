@@ -320,34 +320,38 @@ public class BlockReaderFactory implements ShortCircuitReplicaCreator {
     BlockReader reader = null;
 
     Preconditions.checkNotNull(configuration);
-    if (conf.shortCircuitLocalReads && allowShortCircuitLocalReads) {
-      if (clientContext.getUseLegacyBlockReaderLocal()) {
-        reader = getLegacyBlockReaderLocal();
-        if (reader != null) {
-          if (LOG.isTraceEnabled()) {
-            LOG.trace(this + ": returning new legacy block reader local.");
+    try {
+      if (conf.shortCircuitLocalReads && allowShortCircuitLocalReads) {
+        if (clientContext.getUseLegacyBlockReaderLocal()) {
+          reader = getLegacyBlockReaderLocal();
+          if (reader != null) {
+            if (LOG.isTraceEnabled()) {
+              LOG.trace(this + ": returning new legacy block reader local.");
+            }
+            return reader;
           }
-          return reader;
+        } else {
+          reader = getBlockReaderLocal();
+          if (reader != null) {
+            if (LOG.isTraceEnabled()) {
+              LOG.trace(this + ": returning new block reader local.");
+            }
+            return reader;
+          }
         }
-      } else {
-        reader = getBlockReaderLocal();
+      }
+      if (conf.domainSocketDataTraffic) {
+        reader = getRemoteBlockReaderFromDomain();
         if (reader != null) {
           if (LOG.isTraceEnabled()) {
-            LOG.trace(this + ": returning new block reader local.");
+            LOG.trace(this + ": returning new remote block reader using " +
+                "UNIX domain socket on " + pathInfo.getPath());
           }
           return reader;
         }
       }
-    }
-    if (conf.domainSocketDataTraffic) {
-      reader = getRemoteBlockReaderFromDomain();
-      if (reader != null) {
-        if (LOG.isTraceEnabled()) {
-          LOG.trace(this + ": returning new remote block reader using " +
-              "UNIX domain socket on " + pathInfo.getPath());
-        }
-        return reader;
-      }
+    } catch (IOException e) {
+      LOG.debug("Block read failed. Getting remote block reader using TCP", e);
     }
     Preconditions.checkState(!DFSInputStream.tcpReadsDisabledForTesting,
         "TCP reads were disabled for testing, but we failed to " +
@@ -403,7 +407,7 @@ public class BlockReaderFactory implements ShortCircuitReplicaCreator {
     return null;
   }
 
-  private BlockReader getBlockReaderLocal() throws InvalidToken {
+  private BlockReader getBlockReaderLocal() throws IOException {
     if (LOG.isTraceEnabled()) {
       LOG.trace(this + ": trying to construct a BlockReaderLocal " +
           "for short-circuit reads.");

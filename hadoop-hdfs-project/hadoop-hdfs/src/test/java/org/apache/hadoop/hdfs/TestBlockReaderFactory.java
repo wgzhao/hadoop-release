@@ -28,6 +28,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.LocatedBlock;
 import org.apache.hadoop.hdfs.shortcircuit.DfsClientShmManager.PerDatanodeVisitorInfo;
 import org.apache.hadoop.hdfs.shortcircuit.DfsClientShmManager.Visitor;
+import org.apache.hadoop.hdfs.shortcircuit.DomainSocketFactory;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitCache;
 import org.apache.hadoop.hdfs.shortcircuit.ShortCircuitReplicaInfo;
 import org.apache.hadoop.net.unix.DomainSocket;
@@ -55,12 +57,17 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.junit.rules.ExpectedException;
 
 public class TestBlockReaderFactory {
   static final Log LOG = LogFactory.getLog(TestBlockReaderFactory.class);
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void init() {
@@ -124,6 +131,32 @@ public class TestBlockReaderFactory {
         calculateFileContentsFromSeed(SEED, TEST_FILE_LEN);
     Assert.assertTrue(Arrays.equals(contents, expected));
     cluster.shutdown();
+    sockDir.close();
+  }
+
+  /**
+   +   * Test the case where address passed to DomainSocketFactory#getPathInfo is
+   +   * unresolved. In such a case an exception should be thrown.
+   +   */
+  @Test(timeout=60000)
+  public void testGetPathInfoWithUnresolvedHost() throws Exception {
+    TemporarySocketDirectory sockDir = new TemporarySocketDirectory();
+
+    Configuration conf =
+        createShortCircuitConf("testGetPathInfoWithUnresolvedHost", sockDir);
+    conf.set(DFS_CLIENT_CONTEXT,
+        "testGetPathInfoWithUnresolvedHost_Context");
+    conf.setBoolean(DFS_CLIENT_DOMAIN_SOCKET_DATA_TRAFFIC, true);
+
+    DFSClient.Conf shortCircuitConf = new DFSClient.Conf(conf);
+    DomainSocketFactory domainSocketFactory =
+        new DomainSocketFactory(shortCircuitConf);
+    InetSocketAddress targetAddr =
+        InetSocketAddress.createUnresolved("random", 32456);
+
+    thrown.expect(IOException.class);
+    thrown.expectMessage("Unresolved host: " + targetAddr);
+    domainSocketFactory.getPathInfo(targetAddr, shortCircuitConf);
     sockDir.close();
   }
   

@@ -292,7 +292,7 @@ public class RemoteBlockReader2  implements BlockReader {
   protected RemoteBlockReader2(String file, String bpid, long blockId,
       DataChecksum checksum, boolean verifyChecksum,
       long startOffset, long firstChunkOffset, long bytesToRead, Peer peer,
-      DatanodeID datanodeID, PeerCache peerCache) {
+      DatanodeID datanodeID, PeerCache peerCache) throws IOException {
     this.isLocal = DFSClient.isLocalAddress(NetUtils.
         createSocketAddr(datanodeID.getXferAddr()));
     // Path is used only for printing block and file information in debug
