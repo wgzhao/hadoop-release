@@ -1022,3 +1022,5 @@ covered by CHANGES.txt.
 
     HADOOP-10823. TestReloadingX509TrustManager is flaky. Contributed by
     Mingliang Liu.
+
+    BUG-96042. MAPREDUCE-6436. JobHistory cache issue. Contributed by Kai Sasaki
