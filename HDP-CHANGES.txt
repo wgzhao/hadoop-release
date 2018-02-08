@@ -4716,3 +4716,6 @@ ATS V1.5:
 
     BUG-104555. YARN-7274. Ability to disable elasticity at leaf queue level.
     (Zian Chen via wangda)
+
+    BUG-104555. HDFS-13120. Snapshot diff could be corrupted after concat.
+    Contributed by Xiaoyu Yao.
