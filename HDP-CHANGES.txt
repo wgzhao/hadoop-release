@@ -1242,3 +1242,6 @@ ATS V1.5:
 
     HADOOP-12950. ShutdownHookManager should have a timeout for each of the
     Registered shutdown hook. Contributed by Xiaoyu Yao.
+
+    HDFS-13120. Snapshot diff could be corrupted after concat. Contributed by
+    Xiaoyu Yao.
