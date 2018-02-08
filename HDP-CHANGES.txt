@@ -1835,3 +1835,6 @@ ATS V1.5:
 
     BUG-83759. HADOOP-14029. Fix KMSClientProvider for non-secure proxyuser use
     case. Contributed by Xiaoyu Yao.
+
+    BUG-96973. HDFS-13120. Snapshot diff could be corrupted after concat.
+    Contributed by Xiaoyu Yao.
