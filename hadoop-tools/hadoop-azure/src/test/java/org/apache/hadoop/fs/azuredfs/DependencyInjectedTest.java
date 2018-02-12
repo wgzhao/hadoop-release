@@ -151,4 +151,6 @@ public abstract class DependencyInjectedTest {
   protected Configuration getConfiguration() {
     return this.configuration;
   }
+
+  protected boolean isEmulator() { return isEmulator; }
 }

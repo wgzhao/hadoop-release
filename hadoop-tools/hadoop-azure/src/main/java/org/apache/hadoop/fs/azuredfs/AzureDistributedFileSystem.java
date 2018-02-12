@@ -278,12 +278,6 @@ public class AzureDistributedFileSystem extends FileSystem {
         "AzureDistributedFileSystem.listStatus path: {0}", f.toString());
 
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    final FileStatus fileStatus = tryGetFileStatus(f);
-
-    if (fileStatus != null && !fileStatus.isDirectory()) {
-      throw new IOException();
-    }
-
     final FileSystemOperation<FileStatus[]> listStatus = execute(
         "AzureDistributedFileSystem.listStatus",
         new Callable<FileStatus[]>() {

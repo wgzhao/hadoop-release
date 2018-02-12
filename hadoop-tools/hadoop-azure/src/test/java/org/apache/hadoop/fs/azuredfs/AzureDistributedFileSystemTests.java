@@ -33,6 +33,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -309,6 +313,92 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
+  public void testWriteHeavyBytesToFileSyncFlush() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+    ExecutorService es = Executors.newFixedThreadPool(10);
+
+    final byte[] b = new byte[2 * 10240000];
+    new Random().nextBytes(b);
+
+    List<Future<Void>> tasks = new ArrayList<>();
+    for (int i = 0; i < 300; i++) {
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          stream.write(b);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    boolean shouldStop = false;
+    while (!shouldStop) {
+      shouldStop = true;
+      for (Future<Void> task : tasks) {
+        if (!task.isDone()) {
+          stream.hsync();
+          shouldStop = false;
+          Thread.sleep(60000);
+        }
+      }
+    }
+
+    tasks.clear();
+    stream.close();
+
+    es.shutdownNow();
+    FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
+    assertEquals(6144000000l, fileStatus.getLen());
+  }
+
+  @Test
+  public void testWriteHeavyBytesToFileAsyncFlush() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("testfile"));
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+    ExecutorService es = Executors.newFixedThreadPool(10);
+
+    final byte[] b = new byte[2 * 10240000];
+    new Random().nextBytes(b);
+
+    List<Future<Void>> tasks = new ArrayList<>();
+    for (int i = 0; i < 300; i++) {
+      Callable<Void> callable = new Callable<Void>() {
+        @Override
+        public Void call() throws Exception {
+          stream.write(b);
+          return null;
+        }
+      };
+
+      tasks.add(es.submit(callable));
+    }
+
+    boolean shouldStop = false;
+    while (!shouldStop) {
+      shouldStop = true;
+      for (Future<Void> task : tasks) {
+        if (!task.isDone()) {
+          stream.flush();
+          shouldStop = false;
+        }
+      }
+    }
+
+    tasks.clear();
+    stream.close();
+
+    es.shutdownNow();
+    FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
+    assertEquals(6144000000l, fileStatus.getLen());
+  }
+
+  @Test
   public void testBase64FileSystemProperties() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final Hashtable<String, String> properties = new Hashtable<>();
@@ -490,6 +580,59 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     readStream.close();
   }
 
+  @Test
+  public void testBlobBackCompat() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    String storageConnectionString = getBlobConnectionString();
+    CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
+    CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
+    CloudBlobContainer container = blobClient.getContainerReference(this.getFileSystemName());
+    container.createIfNotExists();
+
+    CloudBlockBlob blockBlob = container.getBlockBlobReference("test/10/10/10");
+    blockBlob.uploadText("");
+
+    blockBlob = container.getBlockBlobReference("test/10/123/3/2/1/3");
+    blockBlob.uploadText("");
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("/test/10/"));
+    assertEquals(fileStatuses.length, 2);
+    assertEquals(fileStatuses[0].getPath().getName(), "10");
+    assertTrue(fileStatuses[0].isDirectory());
+    assertEquals(fileStatuses[0].getLen(), 0);
+    assertEquals(fileStatuses[1].getPath().getName(), "123");
+    assertTrue(fileStatuses[1].isDirectory());
+    assertEquals(fileStatuses[1].getLen(), 0);
+  }
+
+  @Test
+  public void listFiles() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.mkdirs(new Path("/test"));
+
+    FileStatus[] fileStatuses = fs.listStatus(new Path("/"));
+    assertEquals(fileStatuses.length, 2);
+
+    fs.mkdirs(new Path("/test/sub"));
+    fileStatuses = fs.listStatus(new Path("/test"));
+    assertEquals(fileStatuses.length, 1);
+    assertEquals(fileStatuses[0].getPath().getName(), "sub");
+    assertTrue(fileStatuses[0].isDirectory());
+    assertEquals(fileStatuses[0].getLen(), 0);
+
+    fs.create(new Path("/test/f"));
+    fileStatuses = fs.listStatus(new Path("/test"));
+    assertEquals(fileStatuses.length, 2);
+    assertEquals(fileStatuses[0].getPath().getName(), "f");
+    assertFalse(fileStatuses[0].isDirectory());
+    assertEquals(fileStatuses[0].getLen(), 0);
+    assertEquals(fileStatuses[1].getPath().getName(), "sub");
+    assertTrue(fileStatuses[1].isDirectory());
+    assertEquals(fileStatuses[1].getLen(), 0);
+  }
+
   private String readString(FileSystem fs, Path testFile) throws IOException {
     FSDataInputStream inputStream = fs.open(testFile);
     String ret = readString(inputStream);
@@ -522,5 +665,21 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
         outputStream));
     writer.write(value);
     writer.close();
+  }
+
+  private String getBlobConnectionString() {
+    String connectionString;
+    if (isEmulator()) {
+      connectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" +
+          this.getHostName() + ":8880/" + this.getAccountName().split("\\.") [0]
+          + ";AccountName=" + this.getAccountName().split("\\.")[0]
+          + ";AccountKey=" + this.getAccountKey();
+    }
+    else {
+      connectionString = "DefaultEndpointsProtocol=http;AccountName=" + this.getAccountName().replaceFirst(".dfs.", ".blob.")
+          + ";AccountKey=" + this.getAccountKey();
+    }
+
+    return connectionString;
   }
 }

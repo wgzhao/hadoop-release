@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -29,9 +30,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultiset;
 import io.netty.buffer.ByteBuf;
+import org.threadly.concurrent.collections.ConcurrentArrayList;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -61,7 +61,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
   private ByteBuf buffer;
   private boolean closed;
-  private Multiset<WriteOperation> writeOperations;
+  private ConcurrentArrayList<WriteOperation> writeOperations;
   private long offset;
   private long lastFlushOffset;
 
@@ -93,12 +93,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.closed = false;
     this.bufferSize = bufferSize;
     this.buffer = this.adfsBufferPool.getDynamicByteBuffer(this.bufferSize);
-    this.writeOperations = TreeMultiset.create(new Comparator<WriteOperation>() {
-      @Override
-      public int compare(WriteOperation o1, WriteOperation o2) {
-        return (int) (o1.startOffset - o2.startOffset);
-      }
-    });
+    this.writeOperations = new ConcurrentArrayList<>();
+
     this.offset = offset;
     this.taskCleanupJobExecutor = Executors.newCachedThreadPool();
   }
@@ -235,18 +231,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     }
 
     this.flushInternal();
-
-    try {
-      for (WriteOperation writeOperation : this.writeOperations) {
-        writeOperation.task.get();
-      }
-    }
-    catch (InterruptedException | ExecutionException ex) {
-      throw new IOException(ex);
-    }
-    finally {
-      writeOperations.clear();
-    }
+    writeOperations.clear();
 
     this.taskCleanupJobExecutor.shutdownNow();
     this.adfsBufferPool.releaseByteBuffer(this.buffer);
@@ -277,12 +262,14 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
       this.adfsBufferPool.releaseByteBuffer(this.buffer);
       this.buffer = this.adfsBufferPool.getDynamicByteBuffer(bufferSize);
+      final long offset = this.offset;
+      this.offset += readableBytes;
 
       final Future<Void> append = adfsHttpService.writeFileAsync(
           azureDistributedFileSystem,
           path,
           bytes,
-          this.offset);
+          offset);
 
       final Future job = this.taskCleanupJobExecutor.submit(new Callable<Void>() {
         @Override
@@ -298,8 +285,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
         }
       });
 
-      this.writeOperations.add(new WriteOperation(job, this.offset, readableBytes));
-      this.offset += readableBytes;
+      this.writeOperations.add(new WriteOperation(job, offset, readableBytes));
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -323,7 +309,8 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private synchronized void flushWrittenBytesToServiceAsync() throws IOException {
     ArrayList<WriteOperation> finishedWriteOperations = new ArrayList<>();
     for (WriteOperation writeOperation : this.writeOperations) {
-      if (writeOperation.task.isDone()) {
+      if (writeOperation.task.isDone()
+          && (writeOperation.startOffset + writeOperation.length) >= this.lastFlushOffset) {
         finishedWriteOperations.add(writeOperation);
       }
     }
@@ -332,8 +319,26 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       return;
     }
 
+    Collections.sort(finishedWriteOperations, new Comparator<WriteOperation>() {
+      @Override
+      public int compare(WriteOperation o1, WriteOperation o2) {
+        if (o1.startOffset == o2.startOffset
+            && o1.task.hashCode() == o2.task.hashCode()
+            && o1.length == o2.length) {
+          return 0;
+        }
+
+        return (int) (o1.startOffset - o2.startOffset);
+      }
+    });
+
     long writtenOffset = 0;
-    for (int i = 0; i < finishedWriteOperations.size(); i++) {
+    for (int i = 0; i < finishedWriteOperations.size() - 1; i++) {
+      if (finishedWriteOperations.get(i).startOffset + finishedWriteOperations.get(i).length
+          != finishedWriteOperations.get(i + 1).startOffset) {
+        return;
+      }
+
       if (finishedWriteOperations.get(i).startOffset == writtenOffset) {
         writtenOffset += finishedWriteOperations.get(i).length;
       }

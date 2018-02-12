@@ -1168,75 +1168,65 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     final Callable<FileStatus[]> asyncCallable = new Callable<FileStatus[]>() {
       @Override
       public FileStatus[] call() throws Exception {
-        Observable<Void> result = Observable.just(null);
-        if (!path.isRoot()) {
-          result = getFileStatusInternal(adfsHttpClient, path).flatMap(new Func1<FileStatus, Observable<Void>>() {
-            @Override
-            public Observable<Void> call(FileStatus fileStatus) {
-              if (!fileStatus.isDirectory()) {
-                return Observable.error(new AzureServiceErrorResponseException(
-                    AzureServiceErrorCode.PRE_CONDITION_FAILED.getStatusCode(),
-                    AzureServiceErrorCode.PRE_CONDITION_FAILED.getErrorCode(),
-                    "listStatusAsync must be used with directories and not directories",
-                    null));
-              }
+        String relativePath = path.isRoot() ? null : getRelativePath(path);
+        if (relativePath != null && !relativePath.endsWith(File.separator)) {
+          relativePath += File.separator;
+        }
+        boolean remaining = true;
+        String continuation = null;
+        ArrayList<FileStatus> fileStatuses = new ArrayList<>();
 
-              return Observable.just(null);
+        while (remaining) {
+          ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> serviceResponseWithHeaders = adfsHttpClient.listPathsWithServiceResponseAsync(
+              false,
+              adfsHttpClient.getSession().getFileSystem(),
+              FILE_SYSTEM,
+              relativePath,
+              continuation,
+              LIST_MAX_RESULTS,
+              null /* xMsClientRequestId */,
+              FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+              null /* xMsDate */).toBlocking().single();
+
+          ListSchema retrievedSchema = serviceResponseWithHeaders.body();
+          if (retrievedSchema == null) {
+            throw new AzureServiceErrorResponseException(
+                AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+                AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+                "listStatusAsync directory path not found",
+                null);
+          }
+
+          continuation = serviceResponseWithHeaders.headers().xMsContinuation();
+          long blockSize = configurationService.getAzureBlockSize();
+
+          for (ListEntrySchema entry : retrievedSchema.paths()) {
+            long lastModifiedMillis = 0;
+            long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
+            boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
+            if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
+              final DateTime dateTime = DateTime.parse(
+                  entry.lastModified(),
+                  DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
+              lastModifiedMillis = dateTime.getMillis();
             }
-          });
+
+            fileStatuses.add(
+                new FileStatus(
+                    contentLength,
+                    isDirectory,
+                    1,
+                    blockSize,
+                    lastModifiedMillis,
+                    azureDistributedFileSystem.makeQualified(new Path(File.separator + entry.name()))));
+          }
+
+          if (continuation == null || continuation.isEmpty()) {
+            remaining = false;
+          }
         }
 
-        return result.flatMap(new Func1<Void, Observable<FileStatus[]>>() {
-          @Override
-          public Observable<FileStatus[]> call(Void voidObj) {
-            String relativePath = path.isRoot() ? null : getRelativePath(path);
-            if (relativePath != null && !relativePath.endsWith(File.separator)) {
-              relativePath += File.separator;
-            }
-            boolean remaining = true;
-            String continuation = null;
-            ArrayList<FileStatus> fileStatuses = new ArrayList<>();
-
-            while (remaining) {
-              ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> serviceResponseWithHeaders = adfsHttpClient.listPathsWithServiceResponseAsync(
-                  false,
-                  adfsHttpClient.getSession().getFileSystem(),
-                  FILE_SYSTEM,
-                  relativePath,
-                  continuation,
-                  LIST_MAX_RESULTS,
-                  null /* xMsClientRequestId */,
-                  FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-                  null /* xMsDate */).toBlocking().single();
-
-              ListSchema retrievedSchema = serviceResponseWithHeaders.body();
-              continuation = serviceResponseWithHeaders.headers().xMsContinuation();
-
-              long blockSize = configurationService.getAzureBlockSize();
-
-              for (ListEntrySchema entry : retrievedSchema.paths()) {
-                final DateTime dateTime = DateTime.parse(
-                    entry.lastModified(),
-                    DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
-
-                fileStatuses.add(
-                    new FileStatus(
-                        entry.contentLength(),
-                        entry.isDirectory() == null ? false : true,
-                        1,
-                        blockSize,
-                        dateTime.getMillis(),
-                        azureDistributedFileSystem.makeQualified(new Path(File.separator + entry.name()))));
-              }
-
-              if (continuation == null || continuation.isEmpty()) {
-                remaining = false;
-              }
-            }
-
-            return Observable.just(fileStatuses.toArray(new FileStatus[0]));
-          }
-        }).toBlocking().single();
+        return fileStatuses.toArray(new FileStatus[0]);
       }
     };
 

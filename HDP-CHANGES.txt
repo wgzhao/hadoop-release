@@ -4854,3 +4854,5 @@ ATS V1.5:
 
     WASB-34. Fixing vast thread leaks due to underlying specific JDK ThreadPoolExecutor implementation and creating thread pools per client.
 
+    WASB-35. Updating the client for the list operation and fixing AdfsOutputStream concurrency issues
+
