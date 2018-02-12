@@ -3008,3 +3008,7 @@ ATS V1.5:
 
     BUG-90496. HDFS-11634. Optimize BlockIterator when interating starts in the
     middle. Contributed by Konstantin V Shvachko.
+
+    BUG-96643. HDFS-10453. ReplicationMonitor thread could stuck for long time
+    due to the race between replication and delete of same file in a large
+    cluster.. Contributed by He Xiaoqiao.

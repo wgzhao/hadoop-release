@@ -3827,6 +3827,7 @@ public class BlockManager implements BlockStatsMXBean {
 
     private final Block block;
     private final BlockCollection bc;
+    private final long blockSize;
 
     private final DatanodeDescriptor srcNode;
     private final List<DatanodeDescriptor> containingNodes;
@@ -3845,6 +3846,7 @@ public class BlockManager implements BlockStatsMXBean {
         int priority) {
       this.block = block;
       this.bc = bc;
+      this.blockSize = block.getNumBytes();
       this.srcNode = srcNode;
       this.srcNode.incrementPendingReplicationWithoutTargets();
       this.containingNodes = containingNodes;
@@ -3860,7 +3862,7 @@ public class BlockManager implements BlockStatsMXBean {
       try {
         targets = blockplacement.chooseTarget(bc.getName(),
             additionalReplRequired, srcNode, liveReplicaStorages, false,
-            excludedNodes, block.getNumBytes(),
+            excludedNodes, blockSize,
             storagePolicySuite.getPolicy(bc.getStoragePolicyID()));
       } finally {
         srcNode.decrementPendingReplicationWithoutTargets();
