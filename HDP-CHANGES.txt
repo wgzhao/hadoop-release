@@ -4744,3 +4744,7 @@ ATS V1.5:
     TrustedChannelResolver. Contributed by Ajay Kumar.
 
     YARN-4593 Deadlock in AbstractService.getConfig() (stevel)
+
+    BUG-96390. HDFS-10453. ReplicationMonitor thread could stuck for long time
+    due to the race between replication and delete of same file in a large
+    cluster.. Contributed by He Xiaoqiao.
