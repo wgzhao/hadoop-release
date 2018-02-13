@@ -208,7 +208,8 @@ public class FSImage implements Closeable {
     // check whether all is consistent before transitioning.
     Map<StorageDirectory, StorageState> dataDirStates =
              new HashMap<StorageDirectory, StorageState>();
-    boolean isFormatted = recoverStorageDirs(startOpt, storage, dataDirStates);
+    boolean isFormatted = recoverStorageDirs(conf, startOpt, storage,
+        dataDirStates);
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Data dir states:\n  " +
@@ -296,11 +297,15 @@ public class FSImage implements Closeable {
    * @param dataDirStates output of storage directory states
    * @return true if there is at least one valid formatted storage directory
    */
-  public static boolean recoverStorageDirs(StartupOption startOpt,
-      NNStorage storage, Map<StorageDirectory, StorageState> dataDirStates)
-      throws IOException {
-    if (startOpt == StartupOption.UPGRADE || startOpt == StartupOption.UPGRADEONLY) {
-      storage.allowNewerVersion(HdfsServerConstants.EC_LAYOUT_VERSION);
+  public static boolean recoverStorageDirs(Configuration conf,
+      StartupOption startOpt, NNStorage storage,
+      Map<StorageDirectory, StorageState> dataDirStates) throws IOException {
+
+    boolean allowNewerVersion = conf.getBoolean(
+        DFSConfigKeys.DFS_UPGRADE_ALLOW_OLDER_VERSION_KEY,
+        DFSConfigKeys.DFS_UPGRADE_ALLOW_OLDER_VERSION_DEFAULT);
+    if (allowNewerVersion) {
+      Util.allowOlderVersion(HdfsServerConstants.EC_LAYOUT_VERSION);
     }
     boolean isFormatted = false;
     // This loop needs to be over all storage dirs, even shared dirs, to make

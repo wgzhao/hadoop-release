@@ -37,6 +37,7 @@ import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.LayoutFlags;
 import org.apache.hadoop.hdfs.protocol.LayoutVersion;
 import org.apache.hadoop.hdfs.server.common.Storage;
+import org.apache.hadoop.hdfs.server.common.Util;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogLoader.EditLogValidation;
 import org.apache.hadoop.hdfs.server.namenode.TransferFsImage.HttpGetFailedException;
 import org.apache.hadoop.hdfs.web.URLConnectionFactory;
@@ -394,10 +395,16 @@ public class EditLogFileInputStream extends EditLogInputStream {
     if (verifyLayoutVersion &&
         (logVersion < HdfsConstants.NAMENODE_LAYOUT_VERSION || // future version
          logVersion > Storage.LAST_UPGRADABLE_LAYOUT_VERSION)) { // unsupported
-      throw new LogHeaderCorruptException(
-          "Unexpected version of the file system log file: "
-          + logVersion + ". Current version = "
-          + HdfsConstants.NAMENODE_LAYOUT_VERSION + ".");
+      if (Util.canUpgradeToOlderVersion() &&
+          logVersion == Util.getNewerLayoutVersion()) {
+        // Special case 'upgrade'.
+        logVersion = HdfsConstants.NAMENODE_LAYOUT_VERSION;
+      } else {
+        throw new LogHeaderCorruptException(
+            "Unexpected version of the file system log file: "
+                + logVersion + ". Current version = "
+                + HdfsConstants.NAMENODE_LAYOUT_VERSION + ".");
+      }
     }
     return logVersion;
   }

@@ -244,8 +244,8 @@ public class BootstrapStandby implements Tool, Configurable {
     Map<StorageDirectory, StorageState> dataDirStates =
         new HashMap<>();
     try {
-      isFormatted = FSImage.recoverStorageDirs(StartupOption.UPGRADE, storage,
-          dataDirStates);
+      isFormatted = FSImage.recoverStorageDirs(conf, StartupOption.UPGRADE,
+          storage, dataDirStates);
       if (dataDirStates.values().contains(StorageState.NOT_FORMATTED)) {
         // recoverStorageDirs returns true if there is a formatted directory
         isFormatted = false;

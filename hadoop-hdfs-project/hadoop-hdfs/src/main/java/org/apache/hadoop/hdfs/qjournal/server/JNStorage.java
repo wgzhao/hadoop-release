@@ -26,12 +26,15 @@ import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.hdfs.DFSConfigKeys;
+import org.apache.hadoop.hdfs.server.common.HdfsServerConstants;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.NodeType;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.StartupOption;
 import org.apache.hadoop.hdfs.server.common.InconsistentFSStateException;
 import org.apache.hadoop.hdfs.server.common.IncorrectVersionException;
 import org.apache.hadoop.hdfs.server.common.Storage;
 import org.apache.hadoop.hdfs.server.common.StorageErrorReporter;
+import org.apache.hadoop.hdfs.server.common.Util;
 import org.apache.hadoop.hdfs.server.namenode.FileJournalManager;
 import org.apache.hadoop.hdfs.server.namenode.NNStorage;
 import org.apache.hadoop.hdfs.server.protocol.NamespaceInfo;
@@ -72,6 +75,13 @@ class JNStorage extends Storage {
     sd = new StorageDirectory(logDir);
     this.addStorageDir(sd);
     this.fjm = new FileJournalManager(conf, sd, errorReporter);
+
+    boolean allowUpgradeToOlderVersion = conf.getBoolean(
+        DFSConfigKeys.DFS_UPGRADE_ALLOW_OLDER_VERSION_KEY,
+        DFSConfigKeys.DFS_UPGRADE_ALLOW_OLDER_VERSION_DEFAULT);
+    if (allowUpgradeToOlderVersion) {
+      Util.allowOlderVersion(HdfsServerConstants.EC_LAYOUT_VERSION);
+    }
 
     analyzeAndRecoverStorage(startOpt);
   }
@@ -211,16 +221,6 @@ class JNStorage extends Storage {
     if (state == StorageState.NORMAL) {
       readProperties(sd);
     }
-  }
-
-  @Override
-  protected void setLayoutVersion(Properties props, StorageDirectory sd)
-      throws IncorrectVersionException, InconsistentFSStateException {
-    int lv = Integer.parseInt(getProperty(props, sd, "layoutVersion"));
-    // For journal node, since it now does not decode but just scan through the
-    // edits, it can handle edits with future version in most of the cases.
-    // Thus currently we may skip the layoutVersion check here.
-    layoutVersion = lv;
   }
 
   void analyzeAndRecoverStorage(StartupOption startOpt) throws IOException {

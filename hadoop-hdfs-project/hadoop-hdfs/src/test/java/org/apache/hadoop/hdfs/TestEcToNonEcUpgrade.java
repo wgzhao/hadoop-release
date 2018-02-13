@@ -105,6 +105,7 @@ public class TestEcToNonEcUpgrade {
    */
   public void testImageLoading(final String imageName, boolean expectSuccess)
       throws Exception {
+
     final File tarFile =
         new File(System.getProperty("test.cache.data", "build/test/cache") +
             "/" + imageName);
@@ -113,7 +114,8 @@ public class TestEcToNonEcUpgrade {
       throw new IOException("Could not delete dfs directory '" + testDir + "'");
     }
     FileUtil.unTar(tarFile, testDir);
-    final File nameDir = new File(testDir, getImageName(tarFile));
+    final File nameDir = new File(testDir, getImageName(tarFile)+"/nn");
+    final File dataDir = new File(testDir, getImageName(tarFile)+"/dn");
 
     // Sanity check that the image was correctly unpacked where we expect it.
     GenericTestUtils.assertExists(Paths.get(
@@ -122,18 +124,24 @@ public class TestEcToNonEcUpgrade {
     final Configuration conf = new HdfsConfiguration();
     conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
         nameDir.getAbsolutePath());
+    conf.set(DFSConfigKeys.DFS_DATANODE_DATA_DIR_KEY,
+        dataDir.getAbsolutePath());
+
     conf.setInt(DFSConfigKeys.DFS_NAMENODE_NUM_CHECKPOINTS_RETAINED_KEY,
         Integer.MAX_VALUE);  // Ensure saveNameSpace keeps all old images.
+    conf.setBoolean(DFSConfigKeys.DFS_UPGRADE_ALLOW_OLDER_VERSION_KEY, true);
 
     MiniDFSCluster cluster = null;
 
     try {
+      StartupOption startupOption = StartupOption.ROLLINGUPGRADE;
+      startupOption.setRollingUpgradeStartupOption("started");
       cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1)
           .format(false)
           .manageDataDfsDirs(false)
           .manageNameDfsDirs(false)
-          .waitSafeMode(false)
-          .startupOption(StartupOption.UPGRADE)
+          .waitSafeMode(true)
+          .startupOption(startupOption)
           .build();
       Assert.assertTrue("Expected failure while loading image " + imageName,
           expectSuccess);

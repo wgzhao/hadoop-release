@@ -996,5 +996,9 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String  DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_KEY =
       "dfs.client.socket.send.buffer.size";
   public static final int DFS_CLIENT_SOCKET_SEND_BUFFER_SIZE_DEFAULT =
-      HdfsConstants.DEFAULT_DATA_SOCKET_SIZE;  
+      HdfsConstants.DEFAULT_DATA_SOCKET_SIZE;
+
+  public static final String DFS_UPGRADE_ALLOW_OLDER_VERSION_KEY =
+      "dfs.upgrade.allow.older.version";
+  public static final boolean DFS_UPGRADE_ALLOW_OLDER_VERSION_DEFAULT = false;
 }

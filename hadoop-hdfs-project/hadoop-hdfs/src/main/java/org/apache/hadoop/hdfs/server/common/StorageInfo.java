@@ -53,10 +53,6 @@ public class StorageInfo {
 
   protected static final String STORAGE_FILE_VERSION    = "VERSION";
 
-  // Special case upgrade from newer to older layout version.
-  private boolean allowNewerLayoutVersion;
-  private int newerLayoutVersion;
-
   public StorageInfo(NodeType type) {
     this(0, 0, "", 0L, type);
   }
@@ -67,8 +63,6 @@ public class StorageInfo {
     namespaceID = nsID;
     cTime = cT;
     storageType = type;
-    allowNewerLayoutVersion = false;
-    newerLayoutVersion = 0;
   }
   
   public StorageInfo(StorageInfo from) {
@@ -181,7 +175,7 @@ public class StorageInfo {
       throws IncorrectVersionException, InconsistentFSStateException {
     int lv = Integer.parseInt(getProperty(props, sd, "layoutVersion"));
     if (lv < getServiceLayoutVersion()) { // future version
-      if (allowNewerLayoutVersion && lv == newerLayoutVersion) {
+      if (Util.canUpgradeToOlderVersion() && lv == Util.getNewerLayoutVersion()) {
         // Special case 'upgrade'.
         layoutVersion = getServiceLayoutVersion();
       } else {
@@ -270,8 +264,4 @@ public class StorageInfo {
     return props;
   }
 
-  public void allowNewerVersion(int newerVersion) {
-    this.allowNewerLayoutVersion = true;
-    this.newerLayoutVersion = newerVersion;
-  }
 }

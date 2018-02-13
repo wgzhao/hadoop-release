@@ -34,6 +34,10 @@ import java.util.List;
 public final class Util {
   private final static Log LOG = LogFactory.getLog(Util.class.getName());
 
+  // Special case upgrade from newer to older layout version.
+  private static boolean allowUpgradeToOlderLayoutVersion = false;
+  private static int newerLayoutVersion = 0;
+
   /**
    * Interprets the passed string as a URI. In case of error it 
    * assumes the specified string is a file.
@@ -120,5 +124,18 @@ public final class Util {
     }
 
     return isEnabled;
+  }
+
+  public static void allowOlderVersion(int newerVersion) {
+    allowUpgradeToOlderLayoutVersion = true;
+    newerLayoutVersion = newerVersion;
+  }
+
+  public static boolean canUpgradeToOlderVersion() {
+    return allowUpgradeToOlderLayoutVersion;
+  }
+
+  public static int getNewerLayoutVersion() {
+    return newerLayoutVersion;
   }
 }
