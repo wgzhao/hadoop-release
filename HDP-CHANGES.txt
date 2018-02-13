@@ -4657,3 +4657,7 @@ ATS V1.5:
 
     BUG-93935. HDFS-9396. Total files and directories on jmx and web UI on
     standby is uninitialized. Contributed by Kihwal Lee.
+
+    BUG-96614. HDFS-10453. ReplicationMonitor thread could stuck for long time
+    due to the race between replication and delete of same file in a large
+    cluster.. Contributed by He Xiaoqiao.
