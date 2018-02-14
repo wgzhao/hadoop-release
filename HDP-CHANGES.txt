@@ -4748,3 +4748,6 @@ ATS V1.5:
     BUG-96390. HDFS-10453. ReplicationMonitor thread could stuck for long time
     due to the race between replication and delete of same file in a large
     cluster.. Contributed by He Xiaoqiao.
+
+    BUG-96289. HDFS-11701. NPE from Unresolved Host causes permanent
+    DFSInputStream failures. Contributed by Lokesh Jain.
