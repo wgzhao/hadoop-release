@@ -20,6 +20,8 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.concurrent.Future;
 
@@ -232,5 +234,10 @@ public class MockAdfsHttpImpl implements AdfsHttpService {
   @Override
   public void closeFileSystem(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException {
 
+  }
+
+  @Override
+  public boolean isAtomicRenameKey(String key) {
+    return false;
   }
 }

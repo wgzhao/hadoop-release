@@ -55,5 +55,7 @@ public final class FileSystemConfigurations {
   public static final int MAX_CONCURRENT_WRITE_THREADS = 8;
   public static final boolean DEFAULT_READ_TOLERATE_CONCURRENT_APPEND = false;
 
+  public static final String DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES ="/hbase";
+
   private FileSystemConfigurations() {}
 }

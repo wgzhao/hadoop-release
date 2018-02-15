@@ -104,6 +104,10 @@ class ConfigurationServiceImpl implements ConfigurationService {
       DefaultValue = FileSystemConfigurations.DEFAULT_READ_TOLERATE_CONCURRENT_APPEND)
   private boolean tolerateOobAppends;
 
+  @StringConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_ATOMIC_RENAME_KEY,
+          DefaultValue = FileSystemConfigurations.DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES)
+  private String azureAtomicDirs;
+
   private Map<String, String> storageAccountKeys;
 
   @Inject
@@ -190,6 +194,9 @@ class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public boolean getTolerateOobAppends() { return this.tolerateOobAppends; }
+
+  @Override
+  public String getAzureAtomicRenameDirs() { return this.azureAtomicDirs; }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(

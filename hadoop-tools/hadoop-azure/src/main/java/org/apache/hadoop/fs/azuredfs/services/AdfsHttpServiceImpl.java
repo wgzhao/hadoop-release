@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -30,6 +32,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -119,6 +123,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
+  private final Set<String> azureAtomicRenameDirSet;
 
   @Inject
   AdfsHttpServiceImpl(
@@ -141,6 +146,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
     this.adfsHttpClientFactory = adfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AdfsHttpService.class);
+    this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(configurationService.getAzureAtomicRenameDirs().split(",")));
   }
 
   @Override
@@ -843,6 +849,12 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   public void renameFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination)
       throws
       AzureDistributedFileSystemException {
+
+    if(isAtomicRenameKey(source.getName())) {
+      this.loggingService.warning("The atomic rename feature is not supported by the ADFS scheme; however rename,"
+              +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
+    }
+
     execute(
         "AdfsHttpServiceImpl.renameFile",
         new Callable<Void>() {
@@ -912,6 +924,12 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   @Override
   public void renameDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
+
+    if(isAtomicRenameKey(source.getName())) {
+      this.loggingService.warning("The atomic rename feature is not supported by the ADFS scheme; however rename,"
+              +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
+    }
+
     execute(
         "AdfsHttpServiceImpl.renameDirectory",
         new Callable<Void>() {
@@ -1273,6 +1291,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   synchronized boolean threadPoolsAreRunning(final AzureDistributedFileSystem azureDistributedFileSystem) {
     return this.adfsHttpClientReadExecutorServiceCache.get(azureDistributedFileSystem) != null
         || this.adfsHttpClientWriteExecutorServiceCache.get(azureDistributedFileSystem) != null;
+  }
+
+  @Override
+  public boolean isAtomicRenameKey(String key) {
+    return isKeyForDirectorySet(key, azureAtomicRenameDirSet);
   }
 
   private String getRelativePath(final Path path) {
@@ -1678,6 +1701,27 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   private String getRangeHeader(long offset, long length) {
     return "bytes=" + offset + "-" + (offset + length - 1);
+  }
+
+  private boolean isKeyForDirectorySet(String key, Set<String> dirSet) {
+    for (String dir : dirSet) {
+      if (dir.isEmpty() || key.startsWith(dir + "/")) {
+        return true;
+      }
+
+      try {
+        URI uri = new URI(dir);
+        if (null == uri.getAuthority()) {
+          if (key.startsWith(dir + "/")){
+            return true;
+          }
+        }
+      } catch (URISyntaxException e) {
+        this.loggingService.info("URI syntax error creating URI for {}", dir);
+      }
+    }
+
+    return false;
   }
 
   private class VersionedFileStatus extends FileStatus {

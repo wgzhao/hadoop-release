@@ -119,4 +119,14 @@ public interface ConfigurationService extends InjectableService {
    * @return configured boolean for tolerating out of band writes to files
    */
   boolean getTolerateOobAppends();
+
+
+  /**
+   * Retrieves the comma-separated list of directories to receive special treatment so that folder
+   * rename is made atomic. The default value for this setting is just '/hbase'.
+   * Example directories list : <value>/hbase,/data</value>
+   * @see <a href="https://hadoop.apache.org/docs/stable/hadoop-azure/index.html#Configuring_Credentials">AtomicRenameProperty</a>
+   * @return
+   */
+  String getAzureAtomicRenameDirs();
 }

@@ -393,4 +393,11 @@ public interface AdfsHttpService extends InjectableService {
    * @param azureDistributedFileSystem filesystem to perform the list operation.
    */
   void closeFileSystem(AzureDistributedFileSystem azureDistributedFileSystem) throws AzureDistributedFileSystemException;
+
+  /**
+   * Checks for the given path if it is marked as atomic rename directory or not.
+   * @param key
+   * @return True if the given path is listed under atomic rename property otherwise False.
+   */
+  boolean isAtomicRenameKey(String key);
 }

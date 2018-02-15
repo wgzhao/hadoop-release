@@ -98,4 +98,7 @@ public final class MockConfigurationServiceImpl extends ConfigurationServiceImpl
 
   @Override
   public int getMaxConcurrentReadThreads() { return FileSystemConfigurations.MAX_CONCURRENT_READ_THREADS; }
+
+  @Override
+  public String getAzureAtomicRenameDirs() { return FileSystemConfigurations.DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES; }
 }
