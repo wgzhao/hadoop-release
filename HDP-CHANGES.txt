@@ -4818,3 +4818,6 @@ ATS V1.5:
 
     HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
     (Wei-Chiu Chuang via iwasakims)
+
+    HDFS-11187. Optimize disk access for last partial chunk checksum of
+    Finalized replica. Contributed by Gabor Bota, Wei-Chiu Chuang.
