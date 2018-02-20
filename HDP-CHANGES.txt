@@ -4713,3 +4713,6 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    BUG-112563. HDFS-11187. Optimize disk access for last partial chunk checksum
+    of Finalized replica. Contributed by Gabor Bota, Wei-Chiu Chuang.
