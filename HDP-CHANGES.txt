@@ -4857,3 +4857,6 @@ ATS V1.5:
     WASB-35. Updating the client for the list operation and fixing AdfsOutputStream concurrency issues
 
     WASB-33. Updating ADFS Code to log warning on Rename Path for directories listed for "fs.azure.atomic.rename.key" property.
+
+    WASB-36. Updating listStatus/flush operations with workarounds to prevent invalid responses from the service
+

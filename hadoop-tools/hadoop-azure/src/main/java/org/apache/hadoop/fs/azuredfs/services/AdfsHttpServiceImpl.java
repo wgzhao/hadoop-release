@@ -31,8 +31,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -597,8 +600,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               public Observable<InputStream> call(VersionedFileStatus fileStatus) {
                 if (fileStatus.isDirectory()) {
                   return Observable.error(new AzureServiceErrorResponseException(
-                      AzureServiceErrorCode.PRE_CONDITION_FAILED.getStatusCode(),
-                      AzureServiceErrorCode.PRE_CONDITION_FAILED.getErrorCode(),
+                      AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+                      AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
                       "openFileForReadAsync must be used with files and not directories",
                       null));
                 }
@@ -1187,9 +1190,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       @Override
       public FileStatus[] call() throws Exception {
         String relativePath = path.isRoot() ? null : getRelativePath(path);
-        if (relativePath != null && !relativePath.endsWith(File.separator)) {
-          relativePath += File.separator;
-        }
         boolean remaining = true;
         String continuation = null;
         ArrayList<FileStatus> fileStatuses = new ArrayList<>();
@@ -1207,12 +1207,26 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               null /* xMsDate */).toBlocking().single();
 
           ListSchema retrievedSchema = serviceResponseWithHeaders.body();
-          if (retrievedSchema == null) {
-            throw new AzureServiceErrorResponseException(
-                AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
-                AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
-                "listStatusAsync directory path not found",
-                null);
+          if (retrievedSchema == null || retrievedSchema.paths().size() == 0) {
+            ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders> getPathPropertiesHeaders =
+                adfsHttpClient.getPathPropertiesWithServiceResponseAsync(
+                adfsHttpClient.getSession().getFileSystem(),
+                relativePath).toBlocking().single();
+
+            VersionedFileStatus fileStatus = getFileStatusFromPathPropertiesHeaders(new Path(relativePath), getPathPropertiesHeaders.headers());
+            if (fileStatus == null) {
+              throw new AzureServiceErrorResponseException(
+                  AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+                  AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+                  "listStatusAsync directory path not found",
+                  null);
+            }
+
+            if (!fileStatus.isDirectory()) {
+              fileStatuses.add(fileStatus);
+            }
+
+            return fileStatuses.toArray(new FileStatus[0]);
           }
 
           continuation = serviceResponseWithHeaders.headers().xMsContinuation();
@@ -1402,38 +1416,43 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private <T> T execute(
       final String scopeDescription,
       final Callable<T> callableRestOperation,
-      @Nullable final SpanId currentTraceScopeId) throws
-      AzureDistributedFileSystemException {
+      @Nullable final SpanId parentTraceId) throws
+      AzureServiceErrorResponseException {
 
     TraceScope traceScope;
-    if (currentTraceScopeId == null) {
+    if (parentTraceId == null) {
       traceScope = this.tracingService.traceBegin(scopeDescription);
     } else {
-      traceScope = this.tracingService.traceBegin(scopeDescription, currentTraceScopeId);
+      traceScope = this.tracingService.traceBegin(scopeDescription, parentTraceId);
     }
 
     try {
       return callableRestOperation.call();
-    } catch (ErrorSchemaException exception) {
-      AzureServiceErrorResponseException ex = parseErrorSchemaException(exception);
-      tracingService.traceException(traceScope, ex);
-      throw ex;
-    } catch (ExecutionException exception) {
-      Throwable rootCause = ExceptionUtils.getRootCause(exception);
-      if (rootCause instanceof ErrorSchemaException) {
-        AzureServiceErrorResponseException ex = parseErrorSchemaException((ErrorSchemaException) rootCause);
-        tracingService.traceException(traceScope, ex);
-        throw ex;
-      } else {
-        InvalidAzureServiceErrorResponseException ex = new InvalidAzureServiceErrorResponseException(exception);
-        tracingService.traceException(traceScope, ex);
-        throw ex;
-      }
     } catch (Exception exception) {
-      tracingService.traceException(traceScope, new AzureServiceNetworkException(scopeDescription, exception));
-      throw new InvalidAzureServiceErrorResponseException(exception);
+      final Throwable rootCause = ExceptionUtils.getRootCause(exception);
+      AzureServiceErrorResponseException adfsFilesystemException;
+
+      if (exception instanceof AzureServiceErrorResponseException) {
+        adfsFilesystemException = (AzureServiceErrorResponseException) exception;
+      } else if (rootCause instanceof AzureServiceErrorResponseException) {
+        adfsFilesystemException = (AzureServiceErrorResponseException) rootCause;
+      } else if (exception instanceof ErrorSchemaException) {
+        adfsFilesystemException = parseErrorSchemaException((ErrorSchemaException) exception);
+      } else if (rootCause instanceof ErrorSchemaException) {
+        adfsFilesystemException = parseErrorSchemaException((ErrorSchemaException) rootCause);
+      } else if (exception instanceof ExecutionException) {
+        adfsFilesystemException = new InvalidAzureServiceErrorResponseException((Exception) rootCause);
+      } else {
+        adfsFilesystemException = new InvalidAzureServiceErrorResponseException(
+            new AzureServiceNetworkException(scopeDescription, exception));
+      }
+
+      tracingService.traceException(traceScope, adfsFilesystemException);
+      throw adfsFilesystemException;
     } finally {
-      tracingService.traceEnd(traceScope);
+      if (parentTraceId == null) {
+        tracingService.traceEnd(traceScope);
+      }
     }
   }
 
@@ -1469,7 +1488,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   private boolean parseIsDirectory(final String resourceType) {
-    return resourceType.equalsIgnoreCase(DIRECTORY);
+    return resourceType == null ? false : resourceType.equalsIgnoreCase(DIRECTORY);
   }
 
   private DateTime parseLastModifiedTime(final String lastModifiedTime) {
@@ -1553,10 +1572,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
 
   // Internal calls are provided to prevent deadlocks in the thread executor pool
   private Observable<GetPathPropertiesHeaders> getPathPropertiesInternal(final AdfsHttpClient adfsHttpClient, final Path path) {
+    final String relativePath = getRelativePath(path);
     Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>> response =
         adfsHttpClient.getPathPropertiesWithServiceResponseAsync(
             adfsHttpClient.getSession().getFileSystem(),
-            getRelativePath(path));
+            relativePath);
 
     return response.flatMap(new Func1<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>, Observable<GetPathPropertiesHeaders>>() {
       @Override
@@ -1581,8 +1601,8 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       public Observable<OutputStream> call(FileStatus fileStatus) {
         if (fileStatus.isDirectory()) {
           return Observable.error(new AzureServiceErrorResponseException(
-              AzureServiceErrorCode.PRE_CONDITION_FAILED.getStatusCode(),
-              AzureServiceErrorCode.PRE_CONDITION_FAILED.getErrorCode(),
+              AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+              AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
               "openFileForWriteAsync must be used with files and not directories",
               null));
         }
@@ -1604,39 +1624,79 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   // Internal calls are provided to prevent deadlocks in the thread executor pool
   private Observable<VersionedFileStatus> getFileStatusInternal(final AdfsHttpClient adfsHttpClient, final Path path)
       throws AzureDistributedFileSystemException {
-    final long blockSize = configurationService.getAzureBlockSize();
-
     if (path.isRoot()) {
       return getFileSystemPropertiesInternal(adfsHttpClient).flatMap(new Func1<GetFilesystemPropertiesHeaders, Observable<VersionedFileStatus>>() {
         @Override
         public Observable<VersionedFileStatus> call(GetFilesystemPropertiesHeaders getFilesystemPropertiesHeaders) {
-          return Observable.just(
-              new VersionedFileStatus(
-                  parseContentLength(getFilesystemPropertiesHeaders.contentLength()),
-                  true,
-                  1,
-                  blockSize,
-                  parseLastModifiedTime(getFilesystemPropertiesHeaders.lastModified()).getMillis(),
-                  path,
-                  getFilesystemPropertiesHeaders.eTag()));
+          return Observable.just(getFileStatusFromFilesystemPropertiesHeaders(path, getFilesystemPropertiesHeaders));
         }
       });
     }
 
-    return getPathPropertiesInternal(adfsHttpClient, path).flatMap(new Func1<GetPathPropertiesHeaders, Observable<VersionedFileStatus>>() {
+    return getPathPropertiesInternal(adfsHttpClient, path).onErrorResumeNext(
+        new Func1<Throwable, Observable<? extends GetPathPropertiesHeaders>>() {
+          @Override
+          public Observable<? extends GetPathPropertiesHeaders> call(Throwable throwable) {
+            // back-compat directories created by blob api
+            ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> serviceResponseWithHeaders = adfsHttpClient.listPathsWithServiceResponseAsync(
+                false,
+                adfsHttpClient.getSession().getFileSystem(),
+                FILE_SYSTEM,
+                getRelativePath(path),
+                null,
+                1,
+                null /* xMsClientRequestId */,
+                FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
+                null /* xMsDate */).toBlocking().single();
+
+            GetPathPropertiesHeaders headers = new GetPathPropertiesHeaders();
+            if (serviceResponseWithHeaders.body() == null
+                || serviceResponseWithHeaders.body().paths() == null
+                || serviceResponseWithHeaders.body().paths().size() == 0) {
+              return Observable.error(throwable);
+            }
+
+            DateFormat dateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+            return Observable.just(headers
+                .withXMsResourceType(DIRECTORY)
+                .withContentLength("0")
+                .withLastModified(dateFormat.format(new Date()))
+                .withETag("0"));
+          }
+        }).flatMap(new Func1<GetPathPropertiesHeaders, Observable<VersionedFileStatus>>() {
       @Override
       public Observable<VersionedFileStatus> call(GetPathPropertiesHeaders getPathPropertiesHeaders) {
-        return Observable.just(
-            new VersionedFileStatus(
-                parseContentLength(getPathPropertiesHeaders.contentLength()),
-                parseIsDirectory(getPathPropertiesHeaders.xMsResourceType()),
-                1,
-                blockSize,
-                parseLastModifiedTime(getPathPropertiesHeaders.lastModified()).getMillis(),
-                path,
-                getPathPropertiesHeaders.eTag()));
+        return Observable.just(getFileStatusFromPathPropertiesHeaders(path, getPathPropertiesHeaders));
       }
     });
+  }
+
+  private VersionedFileStatus getFileStatusFromFilesystemPropertiesHeaders(
+      final Path path,
+      final GetFilesystemPropertiesHeaders getFilesystemPropertiesHeaders) {
+    final long blockSize = configurationService.getAzureBlockSize();
+    return new VersionedFileStatus(
+        parseContentLength(getFilesystemPropertiesHeaders.contentLength()),
+        true,
+        1,
+        blockSize,
+        parseLastModifiedTime(getFilesystemPropertiesHeaders.lastModified()).getMillis(),
+        path,
+        getFilesystemPropertiesHeaders.eTag());
+  }
+
+  private VersionedFileStatus getFileStatusFromPathPropertiesHeaders(
+      final Path path,
+      final GetPathPropertiesHeaders getPathPropertiesHeaders) {
+    final long blockSize = configurationService.getAzureBlockSize();
+    return new VersionedFileStatus(
+        parseContentLength(getPathPropertiesHeaders.contentLength()),
+        parseIsDirectory(getPathPropertiesHeaders.xMsResourceType()),
+        1,
+        blockSize,
+        parseLastModifiedTime(getPathPropertiesHeaders.lastModified()).getMillis(),
+        path,
+        getPathPropertiesHeaders.eTag());
   }
 
   private String convertXmsPropertiesToCommaSeparatedString(final Hashtable<String, String> properties) throws UnsupportedEncodingException,

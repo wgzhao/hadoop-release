@@ -133,7 +133,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
-    evaluateFileSystemOperation(open);
+    evaluateFileSystemPathOperation(path, open);
     return new FSDataInputStream(open.result);
   }
 
@@ -157,7 +157,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
-    evaluateFileSystemOperation(create);
+    evaluateFileSystemPathOperation(f, create);
     return new FSDataOutputStream(create.result, null);
   }
 
@@ -179,7 +179,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
-    evaluateFileSystemOperation(append);
+    evaluateFileSystemPathOperation(f, append);
     return new FSDataOutputStream(append.result, null);
   }
 
@@ -237,7 +237,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         }, false);
 
-    evaluateFileSystemOperation(rename);
+    evaluateFileSystemPathOperation(src, rename);
     return rename.result;
   }
 
@@ -268,7 +268,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         }, false);
 
-    evaluateFileSystemOperation(delete);
+    evaluateFileSystemPathOperation(f, delete);
     return delete.result;
   }
 
@@ -287,7 +287,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
-    evaluateFileSystemOperation(listStatus);
+    evaluateFileSystemPathOperation(f, listStatus);
     return listStatus.result;
   }
 
@@ -320,7 +320,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         }, false);
 
-    evaluateFileSystemOperation(mkdirs, AzureServiceErrorCode.PATH_CONFLICT);
+    evaluateFileSystemPathOperation(f, mkdirs, AzureServiceErrorCode.PATH_CONFLICT);
     return mkdirs.result;
   }
 
@@ -356,12 +356,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
-    // Short term work-around until service is fixed.
-    if (getFileStatus.failed() && getFileStatus.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-      throw new FileNotFoundException(f.toString());
-    }
-
-    evaluateFileSystemOperation(getFileStatus);
+    evaluateFileSystemPathOperation(f, getFileStatus);
     return getFileStatus.result;
   }
 
@@ -534,8 +529,19 @@ public class AzureDistributedFileSystem extends FileSystem {
   private <T> void evaluateFileSystemOperation(
       final FileSystemOperation<T> fileSystemOperation,
       final AzureServiceErrorCode... whitelistedErrorCodes) throws IOException {
+    evaluateFileSystemPathOperation(null, fileSystemOperation, whitelistedErrorCodes);
+  }
+
+  private <T> void evaluateFileSystemPathOperation(
+      final Path path,
+      final FileSystemOperation<T> fileSystemOperation,
+      final AzureServiceErrorCode... whitelistedErrorCodes) throws IOException {
     if (fileSystemOperation.failed()) {
       if (!ArrayUtils.contains(whitelistedErrorCodes, fileSystemOperation.exception.getErrorCode())) {
+        if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+          throw new FileNotFoundException(path == null ? null : path.toString());
+        }
+
         throw new IOException(fileSystemOperation.exception);
       }
     }

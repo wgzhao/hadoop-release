@@ -38,6 +38,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
@@ -57,6 +58,21 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   public AzureDistributedFileSystemTests() throws Exception {
     super();
   }
+
+  @Test(expected = FileNotFoundException.class)
+  public void openDirectory() throws Exception {
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
+    fs.mkdirs(new Path("testFolder"));
+    fs.open(new Path("testFolder"));
+  }
+
+  @Test(expected = FileNotFoundException.class)
+  public void writeDirectory() throws Exception {
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(this.getConfiguration());
+    fs.mkdirs(new Path("testFolder"));
+    fs.append(new Path("testFolder"));
+  }
+
 
   @Test(expected = IOException.class)
   public void testAppendDirShouldFail() throws Exception {
@@ -171,6 +187,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
+  @Ignore(value = "Due to bug in the service")
   public void testAdfsOutputStreamAsyncFlushWithRetainUncommitedData() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
@@ -253,6 +270,25 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     es.shutdownNow();
     FileStatus[] files = fs.listStatus(new Path("/"));
     Assert.assertEquals(files.length, 6000 + 1 /* user directory */);
+  }
+
+  @Test
+  public void testListFileVsListDir() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    fs.create(new Path("/testFile"));
+
+    FileStatus[] testFiles = fs.listStatus(new Path("/testFile"));
+    Assert.assertEquals(testFiles.length, 1);
+    Assert.assertFalse(testFiles[0].isDirectory());
+  }
+
+  @Test(expected = FileNotFoundException.class)
+  public void testListNonExistentDir() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+
+    fs.listStatus(new Path("/testFile/"));
   }
 
   @Test
@@ -356,6 +392,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
   }
 
   @Test
+  @Ignore(value = "Due to bug in the service")
   public void testWriteHeavyBytesToFileAsyncFlush() throws Exception {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
@@ -676,7 +713,9 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
           + ";AccountKey=" + this.getAccountKey();
     }
     else {
-      connectionString = "DefaultEndpointsProtocol=http;AccountName=" + this.getAccountName().replaceFirst(".dfs.", ".blob.")
+      connectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" +
+          this.getAccountName().replaceFirst(".dfs.", ".blob.")
+          + ";AccountName=" + this.getAccountName().split("\\.")[0]
           + ";AccountKey=" + this.getAccountKey();
     }
 
