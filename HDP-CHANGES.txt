@@ -4864,3 +4864,5 @@ ATS V1.5:
 
     WASB-37. Enabling file system statistics for Azure Distributed File system
 
+    WASB-39. Adding connection write timeout to ADFS http client
+

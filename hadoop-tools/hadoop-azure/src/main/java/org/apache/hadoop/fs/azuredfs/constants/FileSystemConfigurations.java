@@ -30,6 +30,7 @@ public final class FileSystemConfigurations {
   public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
   public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
   public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
+  public static final int FS_AZURE_DEFAULT_CONNECTION_WRITE_TIMEOUT = 90;
   public static final String HDI_IS_FOLDER = "hdi_isfolder";
 
   // Retry parameter defaults.

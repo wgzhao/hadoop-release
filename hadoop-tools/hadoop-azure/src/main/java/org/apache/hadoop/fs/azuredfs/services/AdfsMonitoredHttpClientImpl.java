@@ -26,6 +26,8 @@ import com.microsoft.rest.ServiceResponseBuilder;
 import com.microsoft.rest.retry.RetryStrategy;
 import com.microsoft.rest.serializer.JacksonAdapter;
 import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -55,7 +57,10 @@ final class AdfsMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
       final LoggingService loggingService) {
     super(adfsHttpClientSession,
         loggingService,
-        new RestClient.Builder()
+        new RestClient.Builder(
+            (new OkHttpClient.Builder())
+                .writeTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_WRITE_TIMEOUT, TimeUnit.SECONDS),
+            new Retrofit.Builder())
         .withBaseUrl(baseUrl)
         .withNetworkInterceptor(networkInterceptor)
         .withNetworkInterceptor(networkThrottler)
