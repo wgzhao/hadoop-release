@@ -43,6 +43,7 @@ import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.htrace.core.TraceScope;
@@ -55,6 +56,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
   private final AdfsBufferPool adfsBufferPool;
   private final TracingService tracingService;
   private final LoggingService loggingService;
+  private final AdfsStatisticsService adfsStatisticsService;
   private final Path path;
   private final int bufferSize;
   private final ExecutorService taskCleanupJobExecutor;
@@ -69,12 +71,14 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       final AdfsHttpService adfsHttpService,
       final AdfsBufferPool adfsBufferPool,
       final AzureDistributedFileSystem azureDistributedFileSystem,
+      final AdfsStatisticsService adfsStatisticsService,
       final TracingService tracingService,
       final LoggingService loggingService,
       final Path path,
       final long offset,
       final int bufferSize) {
     Preconditions.checkNotNull(azureDistributedFileSystem, "azureDistributedFileSystem");
+    Preconditions.checkNotNull(adfsStatisticsService, "adfsStatisticsService");
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(adfsBufferPool, "tracingService");
     Preconditions.checkNotNull(adfsBufferPool, "loggingService");
@@ -87,6 +91,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
     this.adfsBufferPool = adfsBufferPool;
     this.azureDistributedFileSystem = azureDistributedFileSystem;
     this.adfsHttpService = adfsHttpService;
+    this.adfsStatisticsService = adfsStatisticsService;
     this.tracingService = tracingService;
     this.loggingService = loggingService;
     this.path = path;
@@ -159,6 +164,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
       writableBytes = this.buffer.maxWritableBytes();
     }
 
+    this.adfsStatisticsService.incrementWriteOps(this.azureDistributedFileSystem, 1);
     this.tracingService.traceEnd(traceScope);
   }
 
@@ -285,6 +291,7 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
         }
       });
 
+      this.adfsStatisticsService.incrementBytesWritten(this.azureDistributedFileSystem, readableBytes);
       this.writeOperations.add(new WriteOperation(job, offset, readableBytes));
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);

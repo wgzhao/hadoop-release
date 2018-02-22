@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFac
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -75,6 +76,7 @@ class ServiceInjectorImpl extends AbstractModule {
     this.providers.put(AdfsNetworkInterceptorFactory.class, AdfsNetworkInterceptorFactoryImpl.class);
 
     this.providers.put(AdfsNetworkTrafficAnalysisService.class, AdfsNetworkTrafficAnalysisServiceImpl.class);
+    this.providers.put(AdfsStatisticsService.class, AdfsStatisticsServiceImpl.class);
   }
 
   @Override

@@ -51,6 +51,7 @@ import org.apache.hadoop.fs.azuredfs.contracts.exceptions.FileSystemOperationUnh
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -77,6 +78,7 @@ public class AzureDistributedFileSystem extends FileSystem {
   private LoggingService loggingService;
   private AdfsHttpService adfsHttpService;
   private ConfigurationService configurationService;
+  private AdfsStatisticsService adfsStatisticsService;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -92,6 +94,7 @@ public class AzureDistributedFileSystem extends FileSystem {
       this.adfsHttpService = serviceProvider.get(AdfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class).get(AzureDistributedFileSystem.class);
       this.configurationService = serviceProvider.get(ConfigurationService.class);
+      this.adfsStatisticsService = serviceProvider.get(AdfsStatisticsService.class);
     } catch (AzureDistributedFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -108,6 +111,10 @@ public class AzureDistributedFileSystem extends FileSystem {
     this.setWorkingDirectory(this.getHomeDirectory());
     this.createFileSystem();
     this.mkdirs(this.workingDir);
+
+    if (statistics != null) {
+      this.adfsStatisticsService.subscribe(this, statistics);
+    }
   }
 
   @Override
@@ -158,6 +165,7 @@ public class AzureDistributedFileSystem extends FileSystem {
         });
 
     evaluateFileSystemPathOperation(f, create);
+    // Keep the second argument null. Statistics are already traced by adfsStatisticService.
     return new FSDataOutputStream(create.result, null);
   }
 
@@ -339,6 +347,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         });
 
+    this.adfsStatisticsService.unsubscribe(this);
     evaluateFileSystemOperation(close);
   }
 
@@ -546,6 +555,9 @@ public class AzureDistributedFileSystem extends FileSystem {
       }
     }
   }
+
+  @VisibleForTesting
+  FileSystem.Statistics getFsStatistics() { return this.statistics; }
 
   @VisibleForTesting
   class FileSystemOperation<T> {

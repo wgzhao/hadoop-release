@@ -163,6 +163,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
     int i = inputStream.read();
+    inputStream.close();
 
     assertEquals(100, i);
   }
@@ -181,9 +182,32 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     final byte[] r = new byte[5 * 10240000];
     FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
     int result = inputStream.read(r);
+    inputStream.close();
 
     assertNotEquals(-1, result);
     assertArrayEquals(r, b);
+  }
+
+  @Test
+  public void testReadWriteHeavyBytesToFileWithStatistics() throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
+    final FSDataOutputStream stream = fs.create(new Path("testfile"));
+    final FileSystem.Statistics adfsStatistics = fs.getFsStatistics();
+    adfsStatistics.reset();
+
+    final byte[] b = new byte[5 * 10240000];
+    new Random().nextBytes(b);
+    stream.write(b);
+    stream.close();
+
+    final byte[] r = new byte[5 * 10240000];
+    FSDataInputStream inputStream = fs.open(new Path("testfile"), 4 * 1024 * 1024);
+    inputStream.read(r);
+    inputStream.close();
+
+    Assert.assertEquals(r.length, adfsStatistics.getBytesRead());
+    Assert.assertEquals(b.length, adfsStatistics.getBytesWritten());
   }
 
   @Test
@@ -216,6 +240,8 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
       assertNotEquals(-1, result);
       assertArrayEquals(r, b);
     }
+
+    inputStream.close();
   }
 
   @Test
@@ -241,6 +267,8 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
 
     assertNotEquals(-1, result);
     assertArrayEquals(r, b);
+
+    inputStream.close();
   }
 
   @Test
@@ -311,6 +339,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     }
 
     assertArrayEquals(r, b);
+    inputStream.close();
   }
 
   @Test
@@ -353,6 +382,9 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     final FSDataOutputStream stream = fs.create(new Path("testfile"));
+    final FileSystem.Statistics adfsStatistics = fs.getFsStatistics();
+    adfsStatistics.reset();
+
     ExecutorService es = Executors.newFixedThreadPool(10);
 
     final byte[] b = new byte[2 * 10240000];
@@ -389,6 +421,7 @@ public class AzureDistributedFileSystemTests extends DependencyInjectedTest {
     es.shutdownNow();
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
     assertEquals(6144000000l, fileStatus.getLen());
+    assertEquals(6144000000l, adfsStatistics.getBytesWritten());
   }
 
   @Test

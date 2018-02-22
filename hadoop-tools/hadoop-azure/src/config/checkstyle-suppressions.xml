@@ -53,4 +53,7 @@
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
               files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsInputStream.java"/>
+
+    <suppress checks="ParameterNumber|UnusedImportsCheck"
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsOutputStream.java"/>
 </suppressions>

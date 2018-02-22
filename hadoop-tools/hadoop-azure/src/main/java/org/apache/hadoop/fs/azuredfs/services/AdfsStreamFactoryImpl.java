@@ -31,6 +31,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -43,6 +44,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
   private final AdfsHttpService adfsHttpService;
   private final AdfsBufferPool adfsBufferPool;
   private final ConfigurationService configurationService;
+  private final AdfsStatisticsService adfsStatisticsService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
 
@@ -51,16 +53,19 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
       final ConfigurationService configurationService,
       final AdfsHttpService adfsHttpService,
       final AdfsBufferPool adfsBufferPool,
+      final AdfsStatisticsService adfsStatisticsService,
       final LoggingService loggingService,
       final TracingService tracingService) {
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(adfsBufferPool, "adfsBufferPool");
+    Preconditions.checkNotNull(adfsStatisticsService, "adfsStatisticsService");
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(loggingService, "loggingService");
     Preconditions.checkNotNull(tracingService, "tracingService");
 
     this.adfsHttpService = adfsHttpService;
     this.adfsBufferPool = adfsBufferPool;
+    this.adfsStatisticsService = adfsStatisticsService;
     this.configurationService = configurationService;
     this.loggingService = loggingService.get(AdfsStreamFactory.class);
     this.tracingService = tracingService;
@@ -76,6 +81,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
         this.adfsBufferPool,
         this.adfsHttpService,
         azureDistributedFileSystem,
+        adfsStatisticsService,
         tracingService,
         loggingService,
         path,
@@ -90,6 +96,7 @@ class AdfsStreamFactoryImpl implements AdfsStreamFactory {
         this.adfsHttpService,
         this.adfsBufferPool,
         azureDistributedFileSystem,
+        adfsStatisticsService,
         tracingService,
         loggingService,
         path,

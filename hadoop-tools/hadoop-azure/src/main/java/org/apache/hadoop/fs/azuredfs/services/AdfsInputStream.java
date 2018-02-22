@@ -35,11 +35,13 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.azuredfs.Adfs;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.htrace.core.TraceScope;
@@ -52,6 +54,7 @@ final class AdfsInputStream extends FSInputStream {
   private final AdfsBufferPool adfsBufferPool;
   private final TracingService tracingService;
   private final LoggingService loggingService;
+  private final AdfsStatisticsService adfsStatisticsService;
   private final Path path;
 
   private long offset;
@@ -66,6 +69,7 @@ final class AdfsInputStream extends FSInputStream {
       final AdfsBufferPool adfsBufferPool,
       final AdfsHttpService adfsHttpService,
       final AzureDistributedFileSystem azureDistributedFileSystem,
+      final AdfsStatisticsService adfsStatisticsService,
       final TracingService tracingService,
       final LoggingService loggingService,
       final Path path,
@@ -77,6 +81,7 @@ final class AdfsInputStream extends FSInputStream {
     Preconditions.checkNotNull(adfsHttpService, "adfsHttpService");
     Preconditions.checkNotNull(tracingService, "tracingService");
     Preconditions.checkNotNull(loggingService, "loggingService");
+    Preconditions.checkNotNull(adfsStatisticsService, "adfsStatisticsService");
     Preconditions.checkNotNull(path, "path");
     Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE);
     Preconditions.checkNotNull(version, "version");
@@ -86,6 +91,7 @@ final class AdfsInputStream extends FSInputStream {
     this.adfsHttpService = adfsHttpService;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AdfsInputStream.class);
+    this.adfsStatisticsService = adfsStatisticsService;
     this.path = path;
     this.offset = 0;
     this.bufferOffsetInStream = -1;
@@ -274,6 +280,9 @@ final class AdfsInputStream extends FSInputStream {
     finally {
       this.tracingService.traceEnd(traceScope);
     }
+
+    this.adfsStatisticsService.incrementReadOps(this.azureDistributedFileSystem, 1);
+    this.adfsStatisticsService.incrementBytesRead(this.azureDistributedFileSystem, readLength);
 
     return readLength;
   }
