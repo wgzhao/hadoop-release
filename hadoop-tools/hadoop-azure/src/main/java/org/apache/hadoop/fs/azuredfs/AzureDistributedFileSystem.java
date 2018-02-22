@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azuredfs;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +27,16 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.threadly.util.ExceptionUtils;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -73,6 +80,8 @@ public class AzureDistributedFileSystem extends FileSystem {
   private URI uri;
   private Path workingDir;
   private UserGroupInformation userGroupInformation;
+  private String user;
+  private String primaryUserGroup;
   private ServiceProvider serviceProvider;
   private TracingService tracingService;
   private LoggingService loggingService;
@@ -104,6 +113,8 @@ public class AzureDistributedFileSystem extends FileSystem {
 
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
     this.userGroupInformation = UserGroupInformation.getCurrentUser();
+    this.user = userGroupInformation.getUserName();
+    this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
 
     this.loggingService.debug(
         "Initializing NativeAzureFileSystem for {0}", uri);
@@ -254,6 +265,14 @@ public class AzureDistributedFileSystem extends FileSystem {
     this.loggingService.debug(
         "AzureDistributedFileSystem.delete path: {0} recursive: {1}", f.toString(), recursive);
 
+    if (f.isRoot()) {
+      if (!recursive) {
+        return false;
+      }
+
+      return deleteRoot();
+    }
+
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
     final FileStatus fileStatus = tryGetFileStatus(f);
 
@@ -311,11 +330,11 @@ public class AzureDistributedFileSystem extends FileSystem {
       if (fileStatus != null && !fileStatus.isDirectory()) {
         throw new ParentNotDirectoryException();
       }
+    }
 
-      fileStatus = tryGetFileStatus(f);
-      if (fileStatus != null && !fileStatus.isDirectory()) {
-        throw new FileAlreadyExistsException();
-      }
+    FileStatus fileStatus = tryGetFileStatus(f);
+    if (fileStatus != null && !fileStatus.isDirectory()) {
+      throw new FileAlreadyExistsException();
     }
 
     final FileSystemOperation<Boolean> mkdirs = execute(
@@ -328,7 +347,7 @@ public class AzureDistributedFileSystem extends FileSystem {
           }
         }, false);
 
-    evaluateFileSystemPathOperation(f, mkdirs, AzureServiceErrorCode.PATH_CONFLICT);
+    evaluateFileSystemPathOperation(f, mkdirs);
     return mkdirs.result;
   }
 
@@ -433,6 +452,50 @@ public class AzureDistributedFileSystem extends FileSystem {
     return locations;
   }
 
+  public String getOwnerUser() {
+    return user;
+  }
+
+  public String getOwnerUserPrimaryGroup() {
+    return primaryUserGroup;
+  }
+
+  private boolean deleteRoot() throws IOException {
+    this.loggingService.debug("Deleting root content");
+
+    final ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+    try {
+      final FileStatus[] ls = listStatus(makeQualified(new Path(File.separator)));
+      final ArrayList<Future> deleteTasks = new ArrayList<>();
+      for (final FileStatus fs : ls) {
+        final Future deleteTask = executorService.submit(new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            delete(fs.getPath(), fs.isDirectory());
+            return null;
+          }
+        });
+        deleteTasks.add(deleteTask);
+      }
+
+      for (final Future deleteTask : deleteTasks) {
+        execute("deleteRoot", new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            deleteTask.get();
+            return null;
+          }
+        });
+      }
+    }
+    finally {
+      executorService.shutdownNow();
+    }
+
+    return true;
+  }
+
   private FileStatus tryGetFileStatus(final Path f) {
     try {
       return getFileStatus(f);
@@ -527,6 +590,10 @@ public class AzureDistributedFileSystem extends FileSystem {
       tracingService.traceException(traceScope, azureDistributedFileSystemException);
       throw new IOException(azureDistributedFileSystemException);
     } catch (Exception exception) {
+      if (exception instanceof ExecutionException) {
+        exception = (Exception) ExceptionUtils.getRootCause(exception);
+      }
+
       final FileSystemOperationUnhandledException fileSystemOperationUnhandledException = new FileSystemOperationUnhandledException(exception);
       tracingService.traceException(traceScope, fileSystemOperationUnhandledException);
       throw new IOException(fileSystemOperationUnhandledException);
@@ -549,6 +616,9 @@ public class AzureDistributedFileSystem extends FileSystem {
       if (!ArrayUtils.contains(whitelistedErrorCodes, fileSystemOperation.exception.getErrorCode())) {
         if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
           throw new FileNotFoundException(path == null ? null : path.toString());
+        }
+        if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_CONFLICT) {
+          throw new FileAlreadyExistsException(path == null ? null : path.toString());
         }
 
         throw new IOException(fileSystemOperation.exception);

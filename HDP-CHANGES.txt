@@ -4860,3 +4860,7 @@ ATS V1.5:
 
     WASB-36. Updating listStatus/flush operations with workarounds to prevent invalid responses from the service
 
+    WASB-38. Fixing ADFS clients bugs
+
+    WASB-37. Enabling file system statistics for Azure Distributed File system
+
