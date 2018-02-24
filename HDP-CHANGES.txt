@@ -4818,3 +4818,6 @@ ATS V1.5:
     (Ravi Prakash via aw)
 
     BUG-114808. HDFS-10784. Implement WebHdfsFileSystem#listStatusIterator.
+
+    BUG-114808. HDFS-13052. WebHDFS: Add support for snasphot diff.
+    Contributed by Lokesh Jain.

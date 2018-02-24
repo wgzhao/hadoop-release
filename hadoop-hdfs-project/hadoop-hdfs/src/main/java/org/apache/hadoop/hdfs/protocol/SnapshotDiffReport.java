@@ -69,8 +69,12 @@ public class SnapshotDiffReport {
       }
       return null;
     }
-  };
-  
+
+    public static DiffType parseDiffType(String s){
+      return DiffType.valueOf(s.toUpperCase());
+    }
+  }
+
   /**
    * Representing the full path and diff type of a file/directory where changes
    * have happened.
