@@ -57,6 +57,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.XAttr;
+import org.apache.hadoop.fs.FsServerDefaults;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hdfs.DFSUtil;
@@ -65,6 +66,8 @@ import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
 import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
 import org.apache.hadoop.hdfs.protocol.LocatedBlocks;
+import org.apache.hadoop.hdfs.protocol.SnapshotDiffReport;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenIdentifier;
 import org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenSecretManager;
 import org.apache.hadoop.hdfs.server.blockmanagement.BlockManager;
@@ -766,6 +769,10 @@ public class NamenodeWebHdfsMethods {
           final ExcludeDatanodesParam excludeDatanodes,
       @QueryParam(FsActionParam.NAME) @DefaultValue(FsActionParam.DEFAULT)
           final FsActionParam fsAction,
+      @QueryParam(SnapshotNameParam.NAME) @DefaultValue(SnapshotNameParam.DEFAULT)
+          final SnapshotNameParam snapshotName,
+      @QueryParam(OldSnapshotNameParam.NAME) @DefaultValue(OldSnapshotNameParam.DEFAULT)
+          final OldSnapshotNameParam oldSnapshotName,
       @QueryParam(TokenKindParam.NAME) @DefaultValue(TokenKindParam.DEFAULT)
           final TokenKindParam tokenKind,
       @QueryParam(TokenServiceParam.NAME) @DefaultValue(TokenServiceParam.DEFAULT)
@@ -776,8 +783,9 @@ public class NamenodeWebHdfsMethods {
           final StartAfterParam startAfter
       ) throws IOException, InterruptedException {
     return get(ugi, delegation, username, doAsUser, ROOT, op, offset, length,
-        renewer, bufferSize, xattrNames, xattrEncoding, excludeDatanodes, fsAction,
-        tokenKind, tokenService, noredirect, startAfter);
+        renewer, bufferSize, xattrNames, xattrEncoding, excludeDatanodes,
+        fsAction, snapshotName, oldSnapshotName, tokenKind, tokenService,
+        noredirect, startAfter);
   }
 
   /** Handle HTTP GET request. */
@@ -811,6 +819,10 @@ public class NamenodeWebHdfsMethods {
           final ExcludeDatanodesParam excludeDatanodes,
       @QueryParam(FsActionParam.NAME) @DefaultValue(FsActionParam.DEFAULT)
           final FsActionParam fsAction,
+      @QueryParam(SnapshotNameParam.NAME) @DefaultValue(SnapshotNameParam.DEFAULT)
+          final SnapshotNameParam snapshotName,
+      @QueryParam(OldSnapshotNameParam.NAME) @DefaultValue(OldSnapshotNameParam.DEFAULT)
+          final OldSnapshotNameParam oldSnapshotName,
       @QueryParam(TokenKindParam.NAME) @DefaultValue(TokenKindParam.DEFAULT)
           final TokenKindParam tokenKind,
       @QueryParam(TokenServiceParam.NAME) @DefaultValue(TokenServiceParam.DEFAULT)
@@ -823,19 +835,15 @@ public class NamenodeWebHdfsMethods {
 
     init(ugi, delegation, username, doAsUser, path, op, offset, length,
         renewer, bufferSize, xattrEncoding, excludeDatanodes, fsAction,
-        tokenKind, tokenService, startAfter);
+        snapshotName, oldSnapshotName, tokenKind, tokenService, startAfter);
 
     return ugi.doAs(new PrivilegedExceptionAction<Response>() {
       @Override
       public Response run() throws IOException, URISyntaxException {
-        try {
-          return get(ugi, delegation, username, doAsUser,
-              path.getAbsolutePath(), op, offset, length, renewer, bufferSize,
-              xattrNames, xattrEncoding, excludeDatanodes, fsAction, tokenKind,
-              tokenService, noredirect, startAfter);
-        } finally {
-          reset();
-        }
+        return get(ugi, delegation, username, doAsUser, path.getAbsolutePath(),
+            op, offset, length, renewer, bufferSize, xattrNames, xattrEncoding,
+            excludeDatanodes, fsAction, snapshotName, oldSnapshotName,
+            tokenKind, tokenService, noredirect, startAfter);
       }
     });
   }
@@ -855,6 +863,8 @@ public class NamenodeWebHdfsMethods {
       final XAttrEncodingParam xattrEncoding,
       final ExcludeDatanodesParam excludeDatanodes,
       final FsActionParam fsAction,
+      final SnapshotNameParam snapshotName,
+      final OldSnapshotNameParam oldSnapshotName,
       final TokenKindParam tokenKind,
       final TokenServiceParam tokenService,
       final NoRedirectParam noredirectParam,
@@ -1004,6 +1014,36 @@ public class NamenodeWebHdfsMethods {
       }
       final DirectoryListing listing = getDirectoryListing(np, fullpath, start);
       final String js = JsonUtil.toJsonString(listing);
+      return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
+    }
+    case GETALLSTORAGEPOLICY: {
+      BlockStoragePolicy[] storagePolicies = np.getStoragePolicies();
+      final String js = JsonUtil.toJsonString(storagePolicies);
+      return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
+    }
+    case GETSTORAGEPOLICY: {
+      BlockStoragePolicy storagePolicy = np.getStoragePolicy(fullpath);
+      final String js = JsonUtil.toJsonString(storagePolicy);
+      return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
+    }
+    case GETSERVERDEFAULTS: {
+      // Since none of the server defaults values are hot reloaded, we can
+      // cache the output of serverDefaults.
+      String serverDefaultsResponse =
+          (String) context.getAttribute("serverDefaults");
+      if (serverDefaultsResponse == null) {
+        FsServerDefaults serverDefaults = np.getServerDefaults();
+        serverDefaultsResponse = JsonUtil.toJsonString(serverDefaults);
+        context.setAttribute("serverDefaults", serverDefaultsResponse);
+      }
+      return Response.ok(serverDefaultsResponse)
+          .type(MediaType.APPLICATION_JSON).build();
+    }
+    case GETSNAPSHOTDIFF: {
+      SnapshotDiffReport diffReport =
+          np.getSnapshotDiffReport(fullpath, oldSnapshotName.getValue(),
+              snapshotName.getValue());
+      final String js = JsonUtil.toJsonString(diffReport);
       return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
     }
     default:

@@ -35,6 +35,7 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.util.DataChecksum;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ChunkedArrayList;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 
@@ -980,5 +981,85 @@ public class JsonUtil {
       }
       return array;
     }
+  }
+
+  public static String toJsonString(SnapshotDiffReport diffReport) {
+    return toJsonString(SnapshotDiffReport.class.getSimpleName(),
+        toJsonMap(diffReport));
+  }
+
+  private static Object toJsonMap(SnapshotDiffReport diffReport) {
+    final Map<String, Object> m = new TreeMap<String, Object>();
+    m.put("snapshotRoot", diffReport.getSnapshotRoot());
+    m.put("fromSnapshot", diffReport.getFromSnapshot());
+    m.put("toSnapshot", diffReport.getLaterSnapshotName());
+    Object[] diffList = new Object[diffReport.getDiffList().size()];
+    for (int i = 0; i < diffReport.getDiffList().size(); i++) {
+      diffList[i] = toJsonMap(diffReport.getDiffList().get(i));
+    }
+    m.put("diffList", diffList);
+    return m;
+  }
+
+  private static Object toJsonMap(
+      SnapshotDiffReport.DiffReportEntry diffReportEntry) {
+    final Map<String, Object> m = new TreeMap<String, Object>();
+    m.put("type", diffReportEntry.getType());
+    if (diffReportEntry.getSourcePath() != null) {
+      m.put("sourcePath",
+          DFSUtil.bytes2String(diffReportEntry.getSourcePath()));
+    }
+    if (diffReportEntry.getTargetPath() != null) {
+      m.put("targetPath",
+          DFSUtil.bytes2String(diffReportEntry.getTargetPath()));
+    }
+    return m;
+  }
+
+  public static SnapshotDiffReport toSnapshotDiffReport(final Map<?, ?> json) {
+    if (json == null) {
+      return null;
+    }
+    Map<?, ?> m =
+        (Map<?, ?>) json.get(SnapshotDiffReport.class.getSimpleName());
+    String snapshotRoot = (String) m.get("snapshotRoot");
+    String fromSnapshot = (String) m.get("fromSnapshot");
+    String toSnapshot = (String) m.get("toSnapshot");
+    List<SnapshotDiffReport.DiffReportEntry> diffList =
+        toDiffList(getList(m, "diffList"));
+    return new SnapshotDiffReport(snapshotRoot, fromSnapshot, toSnapshot,
+        diffList);
+  }
+
+  private static List<SnapshotDiffReport.DiffReportEntry> toDiffList(
+      List<?> objs) {
+    if (objs == null) {
+      return null;
+    }
+    List<SnapshotDiffReport.DiffReportEntry> diffList =
+        new ChunkedArrayList<>();
+    for (int i = 0; i < objs.size(); i++) {
+      diffList.add(toDiffReportEntry((Map<?, ?>) objs.get(i)));
+    }
+    return diffList;
+  }
+
+  private static SnapshotDiffReport.DiffReportEntry toDiffReportEntry(
+      Map<?, ?> json) {
+    if (json == null) {
+      return null;
+    }
+    SnapshotDiffReport.DiffType type =
+        SnapshotDiffReport.DiffType.parseDiffType((String) json.get("type"));
+    byte[] sourcePath = toByteArray((String) json.get("sourcePath"));
+    byte[] targetPath = toByteArray((String) json.get("targetPath"));
+    return new SnapshotDiffReport.DiffReportEntry(type, sourcePath, targetPath);
+  }
+
+  private static byte[] toByteArray(String str) {
+    if (str == null) {
+      return null;
+    }
+    return DFSUtil.string2Bytes(str);
   }
 }
