@@ -255,14 +255,14 @@
           $('#table-datanodes').dataTable( {
             'lengthMenu': [ [25, 50, 100, -1], [25, 50, 100, "All"] ],
             'columns': [
-              { 'orderDataType': 'ng-value', 'searchable': true },
-              { 'orderDataType': 'ng-value', 'searchable': true },
-              { 'orderDataType': 'ng-value', 'type': 'numeric' },
-              { 'orderDataType': 'ng-value', 'type': 'numeric' },
-              { 'orderDataType': 'ng-value', 'type': 'numeric' },
-              { 'orderData': 3, 'type': 'numeric' },
-              { 'orderDataType': 'ng-value', 'type': 'numeric'},
-              { 'orderData': 5 }
+              { 'orderDataType': 'ng-value', 'searchable': true, "defaultContent": "" },
+              { 'orderDataType': 'ng-value', 'searchable': true, "defaultContent": "" },
+              { 'orderDataType': 'ng-value', 'type': 'numeric', "defaultContent": 0 },
+              { 'orderDataType': 'ng-value', 'type': 'numeric', "defaultContent": 0 },
+              { 'orderDataType': 'ng-value', 'type': 'numeric', "defaultContent": 0 },
+              { 'orderData': 3, 'type': 'numeric', "defaultContent": 0 },
+              { 'orderDataType': 'ng-value', 'type': 'numeric', "defaultContent": 0 },
+              { 'orderData': 5, "defaultContent": "" }
             ]});
           $('#ui-tabs a[href="#tab-datanode"]').tab('show');
         });
