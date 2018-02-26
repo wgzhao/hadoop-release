@@ -2933,3 +2933,6 @@ ATS V1.5:
     case of exception. (Contributed by Mingliang Liu)
 
     BUG-64664. HADOOP-12449. TestDNS and TestNetUtils failing if no network. (stevel)
+
+	 HADOOP-15266.  [branch-2] Upper/Lower case conversion support for group names in LdapGroupsMapping. 
+	 (Contributed by Nanda kumar.)
