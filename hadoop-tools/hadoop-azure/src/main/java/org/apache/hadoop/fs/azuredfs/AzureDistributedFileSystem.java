@@ -48,7 +48,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.ParentNotDirectoryException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
@@ -325,30 +324,23 @@ public class AzureDistributedFileSystem extends FileSystem {
 
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
     final Path parentFolder = f.getParent();
-    if (parentFolder != null && parentFolder.getParent() != null) { // skip root
-      FileStatus fileStatus = tryGetFileStatus(f.getParent());
-      if (fileStatus != null && !fileStatus.isDirectory()) {
-        throw new ParentNotDirectoryException();
-      }
-    }
-
-    FileStatus fileStatus = tryGetFileStatus(f);
-    if (fileStatus != null && !fileStatus.isDirectory()) {
-      throw new FileAlreadyExistsException();
+    if (parentFolder == null) {
+      // Cannot create root
+      return true;
     }
 
     final FileSystemOperation<Boolean> mkdirs = execute(
         "AzureDistributedFileSystem.mkdirs",
-        new Callable<Boolean>() {
+        new Callable<Void>() {
           @Override
-          public Boolean call() throws Exception {
+          public Void call() throws Exception {
             adfsHttpService.createDirectory(azureDistributedFileSystem, makeQualified(f));
-            return true;
+            return null;
           }
-        }, false);
+        });
 
-    evaluateFileSystemPathOperation(f, mkdirs);
-    return mkdirs.result;
+    evaluateFileSystemPathOperation(f, mkdirs, AzureServiceErrorCode.PATH_ALREADY_EXISTS);
+    return true;
   }
 
   @Override

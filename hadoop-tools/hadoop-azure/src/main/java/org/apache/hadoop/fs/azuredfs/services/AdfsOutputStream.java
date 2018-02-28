@@ -147,9 +147,9 @@ final class AdfsOutputStream extends OutputStream implements Syncable {
 
     int currentOffset = off;
     int writableBytes = this.buffer.maxWritableBytes();
-    int numberOfBytesToWrite = length - currentOffset;
+    int numberOfBytesToWrite = length;
 
-    while (numberOfBytesToWrite != 0) {
+    while (numberOfBytesToWrite > 0) {
       if (writableBytes < numberOfBytesToWrite) {
         this.buffer.writeBytes(data, currentOffset, writableBytes);
         writeCurrentBufferToService();

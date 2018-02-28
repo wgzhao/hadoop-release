@@ -4866,3 +4866,5 @@ ATS V1.5:
 
     WASB-39. Adding connection write timeout to ADFS http client
 
+    WASB-40. Fixes for updating createPath to throw for existing dirs, and AdfsoutputStream bug
+

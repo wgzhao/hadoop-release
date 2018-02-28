@@ -38,7 +38,7 @@ public interface AdfsBufferPool extends InjectableService {
 
   /**
    * Copies a bytebuffer.
-   * @param bytebuffer to copy.
+   * @param byteBuf to copy.
    * @return ByteBuf copied bytebuffer
    */
   ByteBuf copy(ByteBuf byteBuf);

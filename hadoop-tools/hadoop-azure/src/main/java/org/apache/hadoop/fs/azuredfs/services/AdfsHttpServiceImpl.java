@@ -552,7 +552,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             null /* xMsProperties */,
             null /* xMsOriginationId */,
             null /* ifMatch */,
-            null /* ifNoneMatch */,
+            CONDITIONAL_ALL,
             null /* ifModifiedSince */,
             null /* ifUnmodifiedSince */,
             null /* xMsSourceIfMatch */,
@@ -1214,7 +1214,9 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
                 adfsHttpClient.getSession().getFileSystem(),
                 relativePath).toBlocking().single();
 
-            VersionedFileStatus fileStatus = getFileStatusFromPathPropertiesHeaders(azureDistributedFileSystem, new Path(relativePath),
+            VersionedFileStatus fileStatus = getFileStatusFromPathPropertiesHeaders(
+                azureDistributedFileSystem,
+                azureDistributedFileSystem.makeQualified(new Path(File.separator + relativePath)),
                 getPathPropertiesHeaders.headers());
             if (fileStatus == null) {
               throw new AzureServiceErrorResponseException(
