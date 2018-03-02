@@ -4869,4 +4869,6 @@ ATS V1.5:
     WASB-40. Fixes for updating createPath to throw for existing dirs, and AdfsoutputStream bug
 
     WASB-43. Refactoring test class and create tests and itests for unit and integration tests
-    
+
+    WASB-41. Reverting guava upgrade version due to conflict with hadoop
+
