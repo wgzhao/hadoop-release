@@ -26,7 +26,6 @@ import com.google.inject.AbstractModule;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBlobHandler;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsBufferPool;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
@@ -70,7 +69,6 @@ class ServiceInjectorImpl extends AbstractModule {
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
 
     this.providers.put(TracingService.class, TracingServiceImpl.class);
-    this.providers.put(AdfsBlobHandler.class, AdfsBlobHandlerImpl.class);
 
     this.providers.put(AdfsRetryStrategyFactory.class, AdfsRetryStrategyFactoryImpl.class);
     this.providers.put(AdfsNetworkInterceptorFactory.class, AdfsNetworkInterceptorFactoryImpl.class);

@@ -19,15 +19,15 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.tools.contract.AbstractContractDistCpTest;
+import org.apache.hadoop.fs.contract.AbstractContractAppendTest;
+import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-/**
- * Contract test suite covering WASB integration with DistCp.
- */
-public class AdfsFileSystemContractDistCp extends AbstractContractDistCpTest {
+import static org.apache.hadoop.fs.contract.ContractTestUtils.skip;
+
+public class TestAdfsFileSystemContractAppend extends AbstractContractAppendTest {
   private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-  public AdfsFileSystemContractDistCp() throws Exception {
+  public TestAdfsFileSystemContractAppend() throws Exception {
     dependencyInjectedContractTest = new DepencyInjectedContractTest();
   }
 
@@ -38,7 +38,12 @@ public class AdfsFileSystemContractDistCp extends AbstractContractDistCpTest {
   }
 
   @Override
-  protected AdfsFileSystemContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+  protected AbstractFSContract createContract(Configuration conf) {
+    return new TestAdfsFileSystemContract(conf);
+  }
+
+  @Override
+  public void testRenameFileBeingAppended() throws Throwable {
+    skip("Skipping as renaming an opened file is not supported");
   }
 }

@@ -19,24 +19,20 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractCreateTest;
-import org.apache.hadoop.fs.contract.AbstractFSContract;
+import org.apache.hadoop.fs.contract.AbstractBondedFSContract;
 
-public class AdfsFileSystemContractCreate extends AbstractContractCreateTest{
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+public class TestAdfsFileSystemContract extends AbstractBondedFSContract {
 
-  public AdfsFileSystemContractCreate() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  public static final String CONTRACT_XML = "adfs.xml";
+
+  protected TestAdfsFileSystemContract(Configuration conf) {
+    super(conf);
+    //insert the base features
+    addConfResource(CONTRACT_XML);
   }
 
   @Override
-  public void setup() throws Exception {
-    dependencyInjectedContractTest.initialize();
-    super.setup();
-  }
-
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+  public String getScheme() {
+    return "adfs";
   }
 }

@@ -18,33 +18,40 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.htrace.core.MilliSpan;
 import org.apache.htrace.core.TraceScope;
 
-public class TracingServiceImplTests extends DependencyInjectedTest {
-  public TracingServiceImplTests() throws Exception {
+public class ITestTracingServiceImpl extends DependencyInjectedTest {
+  final List<String> messageStorage;
+  final LoggingService loggingService;
+
+  public ITestTracingServiceImpl() throws Exception {
     super();
 
-    this.mockServiceInjector.replaceProvider(LoggingService.class, MockLoggingServiceImpl.class);
-    this.mockServiceInjector.replaceProvider(TracingService.class, TracingServiceImpl.class);
+    this.messageStorage = new ArrayList<>();
+    this.loggingService = AdfsLoggingTestUtils.createMockLoggingService(messageStorage);
+    this.mockServiceInjector.removeProvider(LoggingService.class);
+    this.mockServiceInjector.replaceInstance(LoggingService.class, this.loggingService);
   }
 
   @Test
   public void traceSerializationTest() throws Exception {
-    MockLoggingServiceImpl mockLoggingService = (MockLoggingServiceImpl) ServiceProviderImpl.instance().get(LoggingService.class);
-
-    TracingService tracingService = ServiceProviderImpl.instance().get(TracingService.class);
+    TracingService tracingService = new TracingServiceImpl(new Configuration(), loggingService);
     TraceScope traceScope = tracingService.traceBegin("Test Scope");
     traceScope.addTimelineAnnotation("Timeline Annotations");
     traceScope.addKVAnnotation("key", "value");
     traceScope.close();
 
     // Should not throw exception.
-    MilliSpan.fromJson(mockLoggingService.messages.get(0));
+    MilliSpan.fromJson(messageStorage.get(0));
   }
 }

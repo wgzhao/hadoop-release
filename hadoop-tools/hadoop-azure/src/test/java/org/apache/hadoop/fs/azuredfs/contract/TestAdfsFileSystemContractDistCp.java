@@ -19,13 +19,15 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractDeleteTest;
-import org.apache.hadoop.fs.contract.AbstractFSContract;
+import org.apache.hadoop.tools.contract.AbstractContractDistCpTest;
 
-public class AdfsFileSystemContractDelete extends AbstractContractDeleteTest {
+/**
+ * Contract test suite covering WASB integration with DistCp.
+ */
+public class TestAdfsFileSystemContractDistCp extends AbstractContractDistCpTest {
   private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-  public AdfsFileSystemContractDelete() throws Exception {
+  public TestAdfsFileSystemContractDistCp() throws Exception {
     dependencyInjectedContractTest = new DepencyInjectedContractTest();
   }
 
@@ -36,7 +38,7 @@ public class AdfsFileSystemContractDelete extends AbstractContractDeleteTest {
   }
 
   @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+  protected TestAdfsFileSystemContract createContract(Configuration conf) {
+    return new TestAdfsFileSystemContract(conf);
   }
 }

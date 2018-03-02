@@ -30,6 +30,7 @@ public final class TestConfigurationKeys {
   public static final String FS_AZURE_TEST_ACCOUNT_NAME = "fs.azure.test.account.name";
   public static final String FS_AZURE_TEST_ACCOUNT_KEY_PREFIX = "fs.azure.test.account.key.";
   public static final String FS_AZURE_TEST_HOST_NAME = "fs.azure.test.host.name";
+  public static final String FS_AZURE_TEST_HOST_PORT = "fs.azure.test.host.port";
   public static final String FS_AZURE_CONTRACT_TEST_URI = "fs.contract.test.fs.adfs";
 
   private TestConfigurationKeys() {}

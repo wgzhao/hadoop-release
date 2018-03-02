@@ -23,21 +23,23 @@ import org.mockito.Mockito;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azuredfs.AzureDistributedFileSystem;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestAdfsStatisticsService {
-  public TestAdfsStatisticsService() throws Exception {
-    super();
+public class TestAdfsStatisticsServiceImpl {
+  final AdfsStatisticsServiceImpl adfsStatisticsService;
+  final AzureDistributedFileSystem azureDistributedFileSystem;
+  final FileSystem.Statistics statistics;
+
+  public TestAdfsStatisticsServiceImpl() throws Exception {
+    this.adfsStatisticsService = new AdfsStatisticsServiceImpl();
+    this.azureDistributedFileSystem = Mockito.mock(AzureDistributedFileSystem.class);
+    this.statistics = new FileSystem.Statistics("test");
+    this.adfsStatisticsService.subscribe(azureDistributedFileSystem, this.statistics);
   }
 
   @Test
   public void testEnsureSubscription() throws Exception {
-    final AdfsStatisticsServiceImpl adfsStatisticsService = new AdfsStatisticsServiceImpl();
-    final AzureDistributedFileSystem azureDistributedFileSystem = new AzureDistributedFileSystem();
-
-    adfsStatisticsService.subscribe(azureDistributedFileSystem, new FileSystem.Statistics("test"));
     assertEquals(1, adfsStatisticsService.getSubscribers().size());
     assertEquals(azureDistributedFileSystem, adfsStatisticsService.getSubscribers().keys().nextElement());
 
@@ -47,48 +49,24 @@ public class TestAdfsStatisticsService {
 
   @Test
   public void testEnsureIncrementReadOps() throws Exception {
-    final AdfsStatisticsService adfsStatisticsService = new AdfsStatisticsServiceImpl();
-    final AzureDistributedFileSystem azureDistributedFileSystem = new AzureDistributedFileSystem();
-    final FileSystem.Statistics statistics = new FileSystem.Statistics("test");
-
-    adfsStatisticsService.subscribe(azureDistributedFileSystem, statistics);
-
     adfsStatisticsService.incrementReadOps(azureDistributedFileSystem, 100);
     assertEquals(100, statistics.getReadOps());
   }
 
   @Test
   public void testEnsureIncrementBytesRead() throws Exception {
-    final AdfsStatisticsService adfsStatisticsService = new AdfsStatisticsServiceImpl();
-    final AzureDistributedFileSystem azureDistributedFileSystem = new AzureDistributedFileSystem();
-    final FileSystem.Statistics statistics = new FileSystem.Statistics("test");
-
-    adfsStatisticsService.subscribe(azureDistributedFileSystem, statistics);
-
     adfsStatisticsService.incrementBytesRead(azureDistributedFileSystem, 200);
     assertEquals(200, statistics.getBytesRead());
   }
 
   @Test
   public void testEnsureIncrementWriteOps() throws Exception {
-    final AdfsStatisticsService adfsStatisticsService = new AdfsStatisticsServiceImpl();
-    final AzureDistributedFileSystem azureDistributedFileSystem = new AzureDistributedFileSystem();
-    final FileSystem.Statistics statistics = new FileSystem.Statistics("test");
-
-    adfsStatisticsService.subscribe(azureDistributedFileSystem, statistics);
-
     adfsStatisticsService.incrementWriteOps(azureDistributedFileSystem, 300);
     assertEquals(300, statistics.getWriteOps());
   }
 
   @Test
   public void testEnsureIncrementBytesWritten() throws Exception {
-    final AdfsStatisticsService adfsStatisticsService = new AdfsStatisticsServiceImpl();
-    final AzureDistributedFileSystem azureDistributedFileSystem = new AzureDistributedFileSystem();
-    final FileSystem.Statistics statistics = new FileSystem.Statistics("test");
-
-    adfsStatisticsService.subscribe(azureDistributedFileSystem, statistics);
-
     adfsStatisticsService.incrementBytesWritten(azureDistributedFileSystem, 400);
     assertEquals(400, statistics.getBytesWritten());
   }

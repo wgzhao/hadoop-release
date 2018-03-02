@@ -22,6 +22,7 @@ import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import org.apache.hadoop.fs.AbstractFileSystem;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
@@ -31,19 +32,25 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
-import org.apache.hadoop.fs.azuredfs.services.MockAdfsHttpImpl;
 import org.apache.hadoop.fs.azuredfs.services.ServiceProviderImpl;
 
-public class FileSystemRegistrationTests extends DependencyInjectedTest {
-  public FileSystemRegistrationTests() throws Exception {
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doReturn;
+
+public class ITestFileSystemRegistration extends DependencyInjectedTest {
+  public ITestFileSystemRegistration() throws Exception {
     super();
 
-    this.mockServiceInjector.replaceProvider(AdfsHttpService.class, MockAdfsHttpImpl.class);
+    this.mockServiceInjector.removeProvider(AdfsHttpService.class);
+    this.mockServiceInjector.replaceInstance(AdfsHttpService.class, Mockito.mock(AdfsHttpService.class));
   }
 
   @Test
   public void ensureAzureDistributedFileSystemIsDefaultFileSystem() throws Exception {
-    ((MockAdfsHttpImpl) ServiceProviderImpl.instance().get(AdfsHttpService.class)).fileStatus = new FileStatus(0, true, 0, 0, 0, new Path("/blah"));
+    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
+        .when(ServiceProviderImpl.instance().get(AdfsHttpService.class))
+        .getFileStatus((AzureDistributedFileSystem) anyObject(), (Path) anyObject());
+
     FileSystem fs = FileSystem.get(this.getConfiguration());
     Assert.assertTrue(fs instanceof AzureDistributedFileSystem);
 
@@ -53,7 +60,10 @@ public class FileSystemRegistrationTests extends DependencyInjectedTest {
 
   @Test
   public void ensureSecureAzureDistributedIsDefaultFileSystem() throws Exception {
-    ((MockAdfsHttpImpl)ServiceProviderImpl.instance().get(AdfsHttpService.class)).fileStatus = new FileStatus(0, true, 0, 0, 0, new Path("/blah"));
+    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
+        .when(ServiceProviderImpl.instance().get(AdfsHttpService.class))
+        .getFileStatus((AzureDistributedFileSystem) anyObject(), (Path) anyObject());
+
     final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, this.getTestUrl(), null, null, null);
     this.getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 

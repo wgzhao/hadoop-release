@@ -20,47 +20,74 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 
-public class LoggingServiceImplTests {
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+
+public class TestLoggingServiceImpl {
   @Test
   public void ensureLogsAreNotLoggedWhenDisabled() throws Exception {
-    MockLogger logger = new MockLogger(false);
+    Logger logger = AdfsLoggingTestUtils.createMockLogger(false);
     LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
 
     verifyAllLogLevelsDisabled(logger);
 
     for (LogLevel logLevel : LogLevel.values()) {
-      azureLoggingService.log(logLevel, "");
-      Assert.assertEquals(logger.lastMessage, null);
-      Assert.assertEquals(logger.lastLogLevel, null);
+      azureLoggingService.log(logLevel, "message");
+
+      verify(logger, never()).info(anyString());
+      verify(logger, never()).debug(anyString());
+      verify(logger, never()).warn(anyString());
+      verify(logger, never()).trace(anyString());
+      verify(logger, never()).error(anyString());
+
+      Mockito.reset(logger);
     }
   }
 
   @Test
   public void ensureLogsAreLoggedWhenEnabled() throws Exception {
-    MockLogger logger = new MockLogger(true);
+    Logger logger = AdfsLoggingTestUtils.createMockLogger(true);
     LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
 
     verifyAllLogLevelsEnabled(logger);
 
     for (LogLevel logLevel : LogLevel.values()) {
       azureLoggingService.log(logLevel, logLevel.toString());
-      Assert.assertEquals(logger.lastMessage, logLevel.toString());
-      Assert.assertEquals(logger.lastLogLevel, logLevel);
+
+      if (logLevel == LogLevel.Info) {
+        Mockito.verify(logger).info(logLevel.toString());
+      }
+      else if (logLevel == LogLevel.Debug) {
+        Mockito.verify(logger).debug(logLevel.toString());
+      }
+      else if (logLevel == LogLevel.Warning) {
+        Mockito.verify(logger).warn(logLevel.toString());
+      }
+      else if (logLevel == LogLevel.Trace) {
+        Mockito.verify(logger).trace(logLevel.toString());
+      }
+      else if (logLevel == LogLevel.Error) {
+        Mockito.verify(logger).error(logLevel.toString());
+      }
+
+      Mockito.reset(logger);
     }
   }
 
-  private void verifyAllLogLevelsEnabled(MockLogger logger) {
+  private void verifyAllLogLevelsEnabled(Logger logger) {
     assertLogLevelsToBe(logger, true);
   }
 
-  private void verifyAllLogLevelsDisabled(MockLogger logger) {
+  private void verifyAllLogLevelsDisabled(Logger logger) {
     assertLogLevelsToBe(logger, false);
   }
 
-  private void assertLogLevelsToBe(MockLogger logger, boolean enabled) {
+  private void assertLogLevelsToBe(Logger logger, boolean enabled) {
     Assert.assertTrue(logger.isInfoEnabled() == enabled);
     Assert.assertTrue(logger.isDebugEnabled() == enabled);
     Assert.assertTrue(logger.isErrorEnabled() == enabled);

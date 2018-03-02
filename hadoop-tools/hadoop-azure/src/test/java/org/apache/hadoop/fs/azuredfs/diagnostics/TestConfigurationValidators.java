@@ -18,12 +18,14 @@
 
 package org.apache.hadoop.fs.azuredfs.diagnostics;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
 import com.microsoft.azure.storage.core.Base64;
+import org.junit.Test;
+
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.InvalidConfigurationValueException;
+
 import static org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations.*;
+import static org.junit.Assert.assertEquals;
 
 public class TestConfigurationValidators extends DependencyInjectedTest {
 
@@ -36,35 +38,35 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
   @Test
   public void testIntegerConfigValidator() throws Exception {
     IntegerConfigurationBasicValidator integerConfigurationValidator = new IntegerConfigurationBasicValidator(
-        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY,false);
+        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY, false);
 
     assertEquals(MIN_BUFFER_SIZE, (int) integerConfigurationValidator.validate("3072"));
     assertEquals(DEFAULT_READ_BUFFER_SIZE, (int) integerConfigurationValidator.validate(null));
     assertEquals(MAX_BUFFER_SIZE, (int) integerConfigurationValidator.validate("104857600"));
   }
 
-  @Test (expected = InvalidConfigurationValueException.class)
+  @Test(expected = InvalidConfigurationValueException.class)
   public void testIntegerConfigValidatorThrowsIfMissingValidValue() throws Exception {
     IntegerConfigurationBasicValidator integerConfigurationValidator = new IntegerConfigurationBasicValidator(
-        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY,true);
-    int result = integerConfigurationValidator.validate("3072");
+        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY, true);
+    integerConfigurationValidator.validate("3072");
   }
 
   @Test
   public void testLongConfigValidator() throws Exception {
     LongConfigurationBasicValidator longConfigurationValidator = new LongConfigurationBasicValidator(
-        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_WRITE_BUFFER_SIZE, FAKE_KEY,false);
+        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_WRITE_BUFFER_SIZE, FAKE_KEY, false);
 
     assertEquals(DEFAULT_WRITE_BUFFER_SIZE, (long) longConfigurationValidator.validate(null));
     assertEquals(MIN_BUFFER_SIZE, (long) longConfigurationValidator.validate("3072"));
     assertEquals(MAX_BUFFER_SIZE, (long) longConfigurationValidator.validate("104857600"));
   }
 
-  @Test (expected = InvalidConfigurationValueException.class)
+  @Test(expected = InvalidConfigurationValueException.class)
   public void testLongConfigValidatorThrowsIfMissingValidValue() throws Exception {
     LongConfigurationBasicValidator longConfigurationValidator = new LongConfigurationBasicValidator(
-        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY,true);
-    long result = longConfigurationValidator.validate(null);
+        MIN_BUFFER_SIZE, MAX_BUFFER_SIZE, DEFAULT_READ_BUFFER_SIZE, FAKE_KEY, true);
+    longConfigurationValidator.validate(null);
   }
 
   @Test
@@ -76,10 +78,10 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
     assertEquals(false, booleanConfigurationValidator.validate(null));
   }
 
-  @Test (expected = InvalidConfigurationValueException.class)
+  @Test(expected = InvalidConfigurationValueException.class)
   public void testBooleanConfigValidatorThrowsIfMissingValidValue() throws Exception {
     BooleanConfigurationBasicValidator booleanConfigurationValidator = new BooleanConfigurationBasicValidator(FAKE_KEY, false, true);
-    boolean result =  booleanConfigurationValidator.validate("almostTrue");
+    booleanConfigurationValidator.validate("almostTrue");
   }
 
   @Test
@@ -90,10 +92,10 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
     assertEquals("someValue", stringConfigurationValidator.validate("someValue"));
   }
 
-  @Test (expected = InvalidConfigurationValueException.class)
+  @Test(expected = InvalidConfigurationValueException.class)
   public void testStringConfigValidatorThrowsIfMissingValidValue() throws Exception {
     StringConfigurationBasicValidator stringConfigurationValidator = new StringConfigurationBasicValidator(FAKE_KEY, "value", true);
-    String result = stringConfigurationValidator.validate(null);
+    stringConfigurationValidator.validate(null);
   }
 
   @Test
@@ -105,7 +107,7 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
     assertEquals(encodedVal, base64StringConfigurationValidator.validate(encodedVal));
   }
 
-  @Test (expected = InvalidConfigurationValueException.class)
+  @Test(expected = InvalidConfigurationValueException.class)
   public void testBase64StringConfigValidatorThrowsIfMissingValidValue() throws Exception {
     Base64StringConfigurationBasicValidator base64StringConfigurationValidator = new Base64StringConfigurationBasicValidator(FAKE_KEY, "value", true);
     String result = base64StringConfigurationValidator.validate("some&%Value");

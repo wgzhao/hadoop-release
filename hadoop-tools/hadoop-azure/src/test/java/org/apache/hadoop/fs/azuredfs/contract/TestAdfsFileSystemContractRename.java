@@ -16,23 +16,27 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.services;
+package org.apache.hadoop.fs.azuredfs.contract;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.contract.AbstractContractRenameTest;
+import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-import com.google.inject.Singleton;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageException;
-import okhttp3.Request;
+public class TestAdfsFileSystemContractRename extends AbstractContractRenameTest {
+  private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
+  public TestAdfsFileSystemContractRename() throws Exception {
+    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  }
 
-@Singleton
-public class MockAdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationService {
   @Override
-  public Request updateRequestWithAuthorizationHeader(Request request, StorageCredentialsAccountAndKey storageCredentialsAccountAndKey) throws IOException,
-      InvalidKeyException, StorageException {
-    return null;
+  public void setup() throws Exception {
+    dependencyInjectedContractTest.initialize();
+    super.setup();
+  }
+
+  @Override
+  protected AbstractFSContract createContract(Configuration conf) {
+    return new TestAdfsFileSystemContract(conf);
   }
 }

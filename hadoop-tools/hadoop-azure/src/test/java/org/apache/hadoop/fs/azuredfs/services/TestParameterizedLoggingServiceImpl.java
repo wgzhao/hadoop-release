@@ -21,15 +21,16 @@ package org.apache.hadoop.fs.azuredfs.services;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import org.apache.hadoop.fs.azuredfs.contracts.log.LogLevel;
 
 @RunWith(Parameterized.class)
-public class ParameterizedLoggingServiceImplTests {
+public class TestParameterizedLoggingServiceImpl {
   private LogLevel logLevel;
   private String logMessage;
 
@@ -44,39 +45,36 @@ public class ParameterizedLoggingServiceImplTests {
     });
   }
 
-  public ParameterizedLoggingServiceImplTests(LogLevel logLevel, String logMessage) {
+  public TestParameterizedLoggingServiceImpl(LogLevel logLevel, String logMessage) {
     this.logLevel = logLevel;
     this.logMessage = logMessage;
   }
 
   @Test
   public void verifyLoggingTests() throws Exception {
-    MockLogger logger = new MockLogger(true);
+    Logger logger = AdfsLoggingTestUtils.createMockLogger(true);
     LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
     azureLoggingService.log(this.logLevel, this.logMessage);
-    Assert.assertTrue(logger.lastMessage.contains(this.logMessage));
-    Assert.assertEquals(this.logLevel, logger.lastLogLevel);
+    AdfsLoggingTestUtils.ensureCalledWithValue(logger, logLevel, this.logMessage);
+    Mockito.reset(logger);
   }
 
   @Test
   public void verifyOnlyOneLoggerTests() throws Exception {
-    MockLogger logger = new MockLogger(this.logLevel);
+    Logger logger = AdfsLoggingTestUtils.createMockLogger(this.logLevel);
     LoggingServiceImpl azureLoggingService = new LoggingServiceImpl(logger);
 
     for (LogLevel logLevel : LogLevel.values()) {
-      logger.lastMessage = null;
-      logger.lastLogLevel = null;
-
       if (logLevel != this.logLevel) {
         azureLoggingService.log(logLevel, this.logMessage);
-        Assert.assertNull(logger.lastMessage);
-        Assert.assertNull(logger.lastLogLevel);
+        AdfsLoggingTestUtils.ensureOnlyLogLevelCall(logger, logLevel);
       }
       else {
         azureLoggingService.log(logLevel, this.logMessage);
-        Assert.assertTrue(logger.lastMessage.contains(this.logMessage));
-        Assert.assertEquals(this.logLevel, logger.lastLogLevel);
+        AdfsLoggingTestUtils.ensureCalledWithValue(logger, logLevel, this.logMessage);
       }
+
+      Mockito.reset(logger);
     }
   }
 }

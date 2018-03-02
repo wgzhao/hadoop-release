@@ -17,8 +17,13 @@
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <!--<property>-->
-  <!--<name>fs.azure.host.name</name>-->
+  <!--<name>fs.azure.test.host.name</name>-->
   <!--<value>{HOSTNAME}</value>-->
+  <!--</property>-->
+
+  <!--<property>-->
+  <!--<name>fs.azure.test.host.port</name>-->
+  <!--<value>{PORT}</value>-->
   <!--</property>-->
 
   <!--<property>-->

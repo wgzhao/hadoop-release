@@ -123,6 +123,6 @@ public class TestConfigurationServiceFieldsValidation  {
 
   @Test (expected = ConfigurationPropertyNotFoundException.class)
   public void testGetAccountKeyWithNonExistingAccountName() throws Exception {
-    String accountKey = configService.getStorageAccountKey("bogusAccountName");
+    configService.getStorageAccountKey("bogusAccountName");
   }
 }

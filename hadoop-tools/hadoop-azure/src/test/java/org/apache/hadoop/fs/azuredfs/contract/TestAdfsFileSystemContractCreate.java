@@ -19,13 +19,13 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractSeekTest;
+import org.apache.hadoop.fs.contract.AbstractContractCreateTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-public class AdfsFileSystemContractSeek extends AbstractContractSeekTest{
+public class TestAdfsFileSystemContractCreate extends AbstractContractCreateTest{
   private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-  public AdfsFileSystemContractSeek() throws Exception {
+  public TestAdfsFileSystemContractCreate() throws Exception {
     dependencyInjectedContractTest = new DepencyInjectedContractTest();
   }
 
@@ -37,6 +37,6 @@ public class AdfsFileSystemContractSeek extends AbstractContractSeekTest{
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+    return new TestAdfsFileSystemContract(conf);
   }
 }

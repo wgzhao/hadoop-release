@@ -16,27 +16,23 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azuredfs.contract;
+package org.apache.hadoop.fs.azuredfs;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractOpenTest;
-import org.apache.hadoop.fs.contract.AbstractFSContract;
+import java.io.FileNotFoundException;
 
-public class AdfsFileSystemContractOpen extends AbstractContractOpenTest {
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+import org.junit.Test;
 
-  public AdfsFileSystemContractOpen() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+import org.apache.hadoop.fs.Path;
+
+public class ITestAzureDistributedFileSystemOpen extends DependencyInjectedTest {
+  public ITestAzureDistributedFileSystemOpen() throws Exception {
+    super();
   }
 
-  @Override
-  public void setup() throws Exception {
-    dependencyInjectedContractTest.initialize();
-    super.setup();
-  }
-
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+  @Test(expected = FileNotFoundException.class)
+  public void testOpenDirectory() throws Exception {
+    final AzureDistributedFileSystem fs = this.getFileSystem();
+    fs.mkdirs(new Path("testFolder"));
+    fs.open(new Path("testFolder"));
   }
 }

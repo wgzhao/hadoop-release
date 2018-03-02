@@ -19,16 +19,13 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.contract.AbstractContractAppendTest;
+import org.apache.hadoop.fs.contract.AbstractContractSeekTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-import static org.apache.hadoop.fs.contract.ContractTestUtils.skip;
-
-public class AdfsFileSystemContractAppend extends AbstractContractAppendTest {
+public class TestAdfsFileSystemContractSeek extends AbstractContractSeekTest{
   private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-  public AdfsFileSystemContractAppend() throws Exception {
+  public TestAdfsFileSystemContractSeek() throws Exception {
     dependencyInjectedContractTest = new DepencyInjectedContractTest();
   }
 
@@ -40,11 +37,6 @@ public class AdfsFileSystemContractAppend extends AbstractContractAppendTest {
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
-  }
-
-  @Override
-  public void testRenameFileBeingAppended() throws Throwable {
-    skip("Skipping as renaming an opened file is not supported");
+    return new TestAdfsFileSystemContract(conf);
   }
 }

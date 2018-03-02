@@ -60,13 +60,14 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
     final URIBuilder uriBuilder = new URIBuilder();
 
     final String testHost = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
+    final Integer testHostPort = this.configurationService.getConfiguration().getInt(TestConfigurationKeys.FS_AZURE_TEST_HOST_PORT, 80);
     final String testAccount = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME);
 
     String scheme = FileSystemUriSchemes.HTTP_SCHEME;
 
     uriBuilder.setScheme(scheme);
     uriBuilder.setHost(testHost);
-    uriBuilder.setPort(8889);
+    uriBuilder.setPort(testHostPort);
 
     uriBuilder.setPath("/" + UriUtils.extractRawAccountFromAccountName(testAccount) + "/");
 

@@ -21,7 +21,7 @@ package org.apache.hadoop.fs.azuredfs.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-public final class UriUtilsTests {
+public final class TestUriUtils {
   @Test
   public void testIfUriContainsAdfs() throws Exception {
     Assert.assertTrue(UriUtils.containsAdfsUrl("adfs.dfs.core.windows.net"));

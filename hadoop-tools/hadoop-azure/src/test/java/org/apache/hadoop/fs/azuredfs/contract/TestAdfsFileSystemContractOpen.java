@@ -19,13 +19,13 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractMkdirTest;
+import org.apache.hadoop.fs.contract.AbstractContractOpenTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-public class AdfsFileSystemContractMkdir extends AbstractContractMkdirTest {
+public class TestAdfsFileSystemContractOpen extends AbstractContractOpenTest {
   private final DepencyInjectedContractTest dependencyInjectedContractTest;
 
-  public AdfsFileSystemContractMkdir() throws Exception {
+  public TestAdfsFileSystemContractOpen() throws Exception {
     dependencyInjectedContractTest = new DepencyInjectedContractTest();
   }
 
@@ -37,6 +37,6 @@ public class AdfsFileSystemContractMkdir extends AbstractContractMkdirTest {
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new AdfsFileSystemContract(conf);
+    return new TestAdfsFileSystemContract(conf);
   }
 }
