@@ -22,6 +22,11 @@
     </include>
 
     <property>
+        <name>fs.contract.test.root-tests-enabled</name>
+        <value>false</value>
+    </property>
+
+    <property>
         <name>fs.contract.supports-append</name>
         <value>true</value>
     </property>
@@ -46,4 +51,18 @@
         <value>true</value>
     </property>
 
+    <property>
+        <name>fs.contract.supports-settimes</name>
+        <value>false</value>
+    </property>
+
+    <property>
+        <name>fs.contract.supports-concat</name>
+        <value>false</value>
+    </property>
+
+    <property>
+        <name>fs.contract.supports-getfilestatus</name>
+        <value>true</value>
+    </property>
 </configuration>

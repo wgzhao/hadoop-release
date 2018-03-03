@@ -387,7 +387,11 @@ public class AzureDistributedFileSystem extends FileSystem {
 
   @Override
   public void setWorkingDirectory(final Path newDir) {
-    this.workingDir = newDir;
+    if (newDir.isAbsolute()) {
+      this.workingDir = newDir;
+    } else {
+      this.workingDir = new Path(workingDir, newDir);
+    }
   }
 
   @Override
