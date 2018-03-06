@@ -4757,3 +4757,15 @@ ATS V1.5:
 
     BUG-95259. HADOOP-15186. Allow Azure Data Lake SDK dependency version to be
     set on the command line. Contributed by Vishwajeet Dusane.
+
+    BUG-94080. YARN-3742. YARN RM will shut down if ZKClient creation times out.
+    (Daniel Templeton via kasha)
+
+    BUG-94080. YARN-6061. Add an UncaughtExceptionHandler for critical threads
+    in RM. (Yufei Gu via kasha)
+
+    BUG-93986. YARN-7697. Fetching logs for finished application fails even
+    though log aggregation is complete
+
+    BUG-92367. YARN-7558. yarn logs command fails to get logs for running
+    containers if UI authentication is enabled
