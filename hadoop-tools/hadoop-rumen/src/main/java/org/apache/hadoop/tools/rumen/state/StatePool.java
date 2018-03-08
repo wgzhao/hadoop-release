@@ -18,10 +18,10 @@
 package org.apache.hadoop.tools.rumen.state;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -219,7 +219,7 @@ public class StatePool {
     // register the module with the object-mapper
     mapper.registerModule(module);
 
-    JsonParser parser = mapper.getFactory().createParser((DataInputStream)in);
+    JsonParser parser = mapper.getFactory().createParser((InputStream)in);
     StatePool statePool = mapper.readValue(parser, StatePool.class);
     this.setStates(statePool.getStates());
     parser.close();
@@ -288,7 +288,7 @@ public class StatePool {
 
     JsonFactory outFactory = outMapper.getFactory();
     JsonGenerator jGen =
-        outFactory.createGenerator((DataOutputStream)out, JsonEncoding.UTF8);
+        outFactory.createGenerator((OutputStream)out, JsonEncoding.UTF8);
     jGen.useDefaultPrettyPrinter();
 
     jGen.writeObject(this);
