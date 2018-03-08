@@ -4816,3 +4816,4 @@ ATS V1.5:
 
     BUG-121169. HADOOP-13442. Optimize UGI group lookups. Contributed by Daryn
     Sharp.
+HDFS-12614. FSPermissionChecker#getINodeAttrs() throws NPE when INodeAttributesProvider configured. Contributed by Manoj Govindassamy.
