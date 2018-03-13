@@ -19,14 +19,14 @@
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractRenameTest;
+import org.apache.hadoop.fs.contract.AbstractContractSeekTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-public class TestAdfsFileSystemContractRename extends AbstractContractRenameTest {
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+public class ITestAdfsFileSystemContractSeek extends AbstractContractSeekTest{
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public TestAdfsFileSystemContractRename() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  public ITestAdfsFileSystemContractSeek() throws Exception {
+    dependencyInjectedContractTest = new DependencyInjectedContractTest();
   }
 
   @Override
@@ -37,6 +37,6 @@ public class TestAdfsFileSystemContractRename extends AbstractContractRenameTest
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new TestAdfsFileSystemContract(conf);
+    return new ITestAdfsFileSystemContract(conf);
   }
 }

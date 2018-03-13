@@ -29,11 +29,13 @@ import org.mockito.internal.util.MockUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azure.AzureNativeFileSystemStore;
+import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
+import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azuredfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureServiceErrorResponseException;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.ServiceResolutionException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
@@ -54,14 +56,16 @@ public abstract class DependencyInjectedTest {
   private final String fileSystemName;
   private final String testUrl;
   private final boolean isEmulator;
+  private NativeAzureFileSystem wasb;
 
   protected DependencyInjectedTest() throws Exception {
     fileSystemName = UUID.randomUUID().toString();
     configuration = new Configuration();
     configuration.addResource("azure-adfs-test.xml");
 
-    this.testUrl = this.getFileSystemName() + "@" + this.getAccountName();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, testUrl, null, null, null);
+    final String adfsUrl = this.getFileSystemName() + "@" + this.getAccountName();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, adfsUrl, null, null, null);
+    this.testUrl = defaultUri.toString();
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
     this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
 
@@ -70,17 +74,33 @@ public abstract class DependencyInjectedTest {
 
   @Before
   public void initialize() throws Exception {
-    if (isEmulator) {
+    if (this.isEmulator) {
       this.mockServiceInjector.replaceProvider(AdfsHttpClientFactory.class, MockAdfsHttpClientFactoryImpl.class);
       this.mockServiceInjector.replaceInstance(AdfsHttpClientSessionFactory.class,
           AdfsHttpClientTestUtils.createAdfsHttpClientSessionFactory(this.getAccountName(), this.getAccountKey(), this.fileSystemName));
     }
 
     MockServiceProviderImpl.Create(this.mockServiceInjector);
+
+    if (!this.isEmulator) {
+      final URI wasbUri = new URI(adfsUrlToWasbUrl(this.getTestUrl()));
+      final AzureNativeFileSystemStore azureNativeFileSystemStore = new AzureNativeFileSystemStore();
+      azureNativeFileSystemStore.initialize(
+          wasbUri,
+          this.getConfiguration(),
+          new AzureFileSystemInstrumentation(this.getConfiguration()));
+
+      this.wasb = new NativeAzureFileSystem(azureNativeFileSystemStore);
+      this.wasb.initialize(wasbUri, configuration);
+    }
   }
 
   @After
   public void testCleanup() throws Exception {
+    if (this.wasb != null) {
+      this.wasb.close();
+    }
+
     FileSystem.closeAll();
 
     final AzureDistributedFileSystem fs = this.getFileSystem();
@@ -102,10 +122,14 @@ public abstract class DependencyInjectedTest {
     }
   }
 
-  protected AzureDistributedFileSystem getFileSystem() throws Exception {
+  public AzureDistributedFileSystem getFileSystem() throws Exception {
     final Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
     final AzureDistributedFileSystem fs = (AzureDistributedFileSystem) FileSystem.get(configuration);
     return fs;
+  }
+
+  protected NativeAzureFileSystem getWasbFileSystem() {
+    return this.wasb;
   }
 
   protected String getHostName() {
@@ -135,4 +159,16 @@ public abstract class DependencyInjectedTest {
   }
 
   protected boolean isEmulator() { return isEmulator; }
+
+  protected static String wasbUrlToAdfsUrl(String wasbUrl) {
+    String data = wasbUrl.replace("wasb://", "adfs://");
+    data = data.replace(".blob.", ".dfs.");
+    return data;
+  }
+
+  protected static String adfsUrlToWasbUrl(String adfsUrl) {
+    String data = adfsUrl.replace("adfs://", "wasb://");
+    data = data.replace(".dfs.", ".blob.");
+    return data;
+  }
 }

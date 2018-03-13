@@ -15,18 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractOpenTest;
+import org.apache.hadoop.fs.contract.AbstractContractGetFileStatusTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-public class TestAdfsFileSystemContractOpen extends AbstractContractOpenTest {
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+public class ITestAdfsFileSystemContractGetFileStatus extends AbstractContractGetFileStatusTest {
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public TestAdfsFileSystemContractOpen() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  public ITestAdfsFileSystemContractGetFileStatus() throws Exception {
+    dependencyInjectedContractTest = new DependencyInjectedContractTest();
   }
 
   @Override
@@ -37,6 +36,7 @@ public class TestAdfsFileSystemContractOpen extends AbstractContractOpenTest {
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new TestAdfsFileSystemContract(conf);
+    return new ITestAdfsFileSystemContract(conf);
   }
+
 }

@@ -17,23 +17,23 @@
  */
 package org.apache.hadoop.fs.azuredfs.contract;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
 
-public class TestAzureDistributedFileSystemContract extends FileSystemContractBaseTest {
+public class ITestAzureDistributedFileSystemContract extends FileSystemContractBaseTest {
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
+
+  public ITestAzureDistributedFileSystemContract() throws Exception {
+    this.dependencyInjectedContractTest = new DependencyInjectedContractTest();
+  }
+
   @Override
   protected void setUp() throws Exception {
-    Configuration configuration = new Configuration();
-    configuration.addResource("azure-adfs-test.xml");
-    URI testUri = new URI(configuration.get(TestConfigurationKeys.FS_AZURE_CONTRACT_TEST_URI));
-    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, testUri.toString());
-    fs = FileSystem.get(configuration);
+    this.dependencyInjectedContractTest.initialize();
+    fs = this.dependencyInjectedContractTest.getFileSystem();
     super.setUp();
   }
 

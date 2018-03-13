@@ -21,11 +21,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractConcatTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-public class TestAdfsFileSystemContractConcat extends AbstractContractConcatTest{
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+public class ITestAdfsFileSystemContractConcat extends AbstractContractConcatTest{
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public TestAdfsFileSystemContractConcat() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  public ITestAdfsFileSystemContractConcat() throws Exception {
+    dependencyInjectedContractTest = new DependencyInjectedContractTest();
   }
 
   @Override
@@ -36,7 +36,7 @@ public class TestAdfsFileSystemContractConcat extends AbstractContractConcatTest
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new TestAdfsFileSystemContract(conf);
+    return new ITestAdfsFileSystemContract(conf);
   }
 
 }

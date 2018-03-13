@@ -50,8 +50,10 @@ public class ITestFileSystemInitialization extends DependencyInjectedTest {
         .getFileStatus((AzureDistributedFileSystem) anyObject(), (Path) anyObject());
 
     final FileSystem fs = FileSystem.get(this.getConfiguration());
+    final String accountName = this.getAccountName();
+    final String filesystem = this.getFileSystemName();
 
-    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SCHEME, this.getTestUrl(), null, null, null));
+    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SCHEME, filesystem + "@" + accountName, null, null, null));
     Assert.assertNotNull(fs.getWorkingDirectory());
   }
 
@@ -61,11 +63,13 @@ public class ITestFileSystemInitialization extends DependencyInjectedTest {
         .when(ServiceProviderImpl.instance().get(AdfsHttpService.class))
         .getFileStatus((AzureDistributedFileSystem) anyObject(), (Path) anyObject());
 
-    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, this.getTestUrl(), null, null, null);
+    final String accountName = this.getAccountName();
+    final String filesystem = this.getFileSystemName();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, filesystem + "@" + accountName, null, null, null);
     this.getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
     final FileSystem fs = FileSystem.get(this.getConfiguration());
-    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, this.getTestUrl(), null, null, null));
+    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ADFS_SECURE_SCHEME, filesystem + "@" + accountName, null, null, null));
     Assert.assertNotNull(fs.getWorkingDirectory());
   }
 }

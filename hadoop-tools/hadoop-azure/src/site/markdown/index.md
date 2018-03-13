@@ -628,3 +628,120 @@ Overall, to run all the tests using `mvn test`,  a sample `azure-auth-keys.xml` 
 
 DO NOT ADD `azure-auth-keys.xml` TO REVISION CONTROL.  The keys to your Azure
 Storage account are a secret and must not be shared.
+
+## Running ADFS Tests
+
+After completing the configuration, execute the test run through Maven.
+
+```bash
+mvn -T 1C clean verify
+```
+
+It's also possible to execute multiple test suites in parallel by passing the
+`parallel-tests` property on the command line.  The tests spend most of their
+time blocked on network I/O, so running in parallel tends to
+complete full test runs faster.
+
+```bash
+mvn -T 1C -Dparallel-tests clean verify
+```
+
+Some tests must run with exclusive access to the storage container, so even with the
+`parallel-tests` property, several test suites will run in serial in a separate
+Maven execution step after the parallel tests.
+
+By default, `parallel-tests` runs 4 test suites concurrently.  This can be tuned
+by passing the `testsThreadCount` property.
+
+```bash
+mvn -T 1C -Dparallel-tests -DtestsThreadCount=8 clean verify
+```
+
+<!---
+To run just unit tests, which do not require Azure connectivity or credentials,
+use any of the above invocations, but switch the goal to `test` instead of
+`verify`.
+-->
+
+```bash
+mvn -T 1C clean test
+
+mvn -T 1C -Dparallel-tests clean test
+
+mvn -T 1C -Dparallel-tests -DtestsThreadCount=8 clean test
+```
+
+To run only a specific named subset of tests, pass the `test` property for unit
+tests or the `it.test` property for integration tests.
+
+```bash
+mvn -T 1C clean test -Dtest=TestRollingWindowAverage
+
+mvn -T 1C clean verify -Dscale -Dit.test=ITestFileSystemOperationExceptionMessage -Dtest=none
+
+mvn -T 1C clean verify -Dtest=none -Dit.test=ITest*
+
+```
+
+Note
+
+1. When running a specific subset of tests, the patterns passed in `test`
+and `it.test` override the configuration of which tests need to run in isolation
+in a separate serial phase (mentioned above).  This can cause unpredictable
+results, so the recommendation is to avoid passing `parallel-tests` in
+combination with `test` or `it.test`.  If you know that you are specifying only
+tests that can run safely in parallel, then it will work.  For wide patterns,
+like `ITest*` shown above, it may cause unpredictable test failures.
+
+2. The command line shell may try to expand the "*" and sometimes the "#" symbols
+in test patterns. In such situations, escape the character it with a "\\" prefix.
+Example:
+
+          mvn -T 1C clean verify -Dtest=none -Dit.test=ITest\*
+
+
+## Viewing the results
+
+Integration test results and logs are stored in `target/failsafe-reports/`.
+An HTML report can be generated during site generation, or with the `surefire-report`
+plugin:
+
+```bash
+
+# for the unit tests
+mvn -T 1C surefire-report:report-only
+
+# for the integration tests
+mvn -T 1C surefire-report:failsafe-report-only
+
+# all reports for this module
+mvn -T 1C site:site
+```
+
+## Scale Tests
+
+There are a set of tests designed to measure the scalability and performance
+at scale of the filesystem client, *Scale Tests*. Tests include: creating
+and traversing directory trees, uploading large files, renaming them,
+deleting them, seeking through the files, performing random IO, and others.
+This makes them a foundational part of the benchmarking.
+
+By their very nature they are slow. And, as their execution time is often
+limited by bandwidth between the computer running the tests and the Azure endpoint,
+parallel execution does not speed these tests up.
+
+### Enabling the Scale Tests
+
+The tests are enabled if the `scale` property is set in the maven build
+this can be done regardless of whether or not the parallel test profile
+is used
+
+```bash
+mvn -T 1C verify -Dscale
+
+mvn -T 1C verify -Dparallel-tests -Dscale -DtestsThreadCount=8
+```
+
+The most bandwidth intensive tests (those which upload data) always run
+sequentially; those which are slow due to HTTPS setup costs or server-side
+actions are included in the set of parallelized tests.

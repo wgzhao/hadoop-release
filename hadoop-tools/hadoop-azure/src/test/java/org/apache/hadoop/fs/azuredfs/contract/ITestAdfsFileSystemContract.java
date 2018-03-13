@@ -21,11 +21,11 @@ package org.apache.hadoop.fs.azuredfs.contract;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractBondedFSContract;
 
-public class TestAdfsFileSystemContract extends AbstractBondedFSContract {
+public class ITestAdfsFileSystemContract extends AbstractBondedFSContract {
 
   public static final String CONTRACT_XML = "adfs.xml";
 
-  protected TestAdfsFileSystemContract(Configuration conf) {
+  protected ITestAdfsFileSystemContract(Configuration conf) {
     super(conf);
     //insert the base features
     addConfResource(CONTRACT_XML);

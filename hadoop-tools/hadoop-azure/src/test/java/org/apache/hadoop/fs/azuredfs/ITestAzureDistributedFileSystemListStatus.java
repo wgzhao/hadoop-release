@@ -88,7 +88,7 @@ public class ITestAzureDistributedFileSystemListStatus extends DependencyInjecte
 
     FileStatus[] testFiles = fs.listStatus(new Path("/testFolder/testFolder2/testFolder3/testFile"));
     Assert.assertEquals(testFiles.length, 1);
-    Assert.assertEquals(testFiles[0].getPath(), new Path(FileSystemUriSchemes.ADFS_SCHEME + "://" + this.getTestUrl(),
+    Assert.assertEquals(testFiles[0].getPath(), new Path(this.getTestUrl(),
         "/testFolder/testFolder2/testFolder3/testFile"));
     Assert.assertFalse(testFiles[0].isDirectory());
   }

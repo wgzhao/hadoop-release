@@ -23,13 +23,13 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static junit.framework.TestCase.assertEquals;
@@ -38,33 +38,24 @@ import static junit.framework.TestCase.assertTrue;
 
 
 public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
-  private WasbComponentHelper wasbComponentHelper;
-
-  // native FS and adfs point to same container
-  private final NativeAzureFileSystem nativeFs;
-  private final AzureDistributedFileSystem adFs;
-
   private static final String WASB_TEST_CONTEXT = "wasb test file";
   private static final String ADFS_TEST_CONTEXT = "adfs test file";
   private static final String TEST_CONTEXT = "THIS IS FOR TEST";
 
   public ITestWasbAdfsCompatibility() throws Exception {
     super();
-    wasbComponentHelper = new WasbComponentHelper();
-    // create file system using native FS
-    nativeFs = wasbComponentHelper.nativeFs;
-    // point ADFS to the fs created by native fs
-    Configuration adFsConfig = this.getConfiguration();
-    String adfsUrl = wasbUrlToAdfsUrl(nativeFs.getUri().toString());
-    adFsConfig.set("fs.defaultFS", adfsUrl);
-    adFs = (AzureDistributedFileSystem) FileSystem.get(adFsConfig);
+
+    Assume.assumeFalse(this.isEmulator());
   }
 
   @Test
   public void testListFileStatus() throws Exception {
     // crate file using adfs
+    AzureDistributedFileSystem fs = this.getFileSystem();
+    NativeAzureFileSystem wasb = this.getWasbFileSystem();
+
     Path path1 = new Path("/testfiles/~12/!008/3/adFsTestfile");
-    FSDataOutputStream adfsStream = adFs.create(path1, true);
+    FSDataOutputStream adfsStream = fs.create(path1, true);
     adfsStream.write(ADFS_TEST_CONTEXT.getBytes());
     adfsStream.flush();
     adfsStream.hsync();
@@ -72,15 +63,15 @@ public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
 
     // create file using wasb
     Path path2 = new Path("/testfiles/~12/!008/3/nativeFsTestfile");
-    System.out.println(nativeFs.getUri());
-    FSDataOutputStream nativeFsStream = nativeFs.create(path2, true);
+    System.out.println(wasb.getUri());
+    FSDataOutputStream nativeFsStream = wasb.create(path2, true);
     nativeFsStream.write(WASB_TEST_CONTEXT.getBytes());
     nativeFsStream.flush();
     nativeFsStream.hsync();
     nativeFsStream.close();
     // list file using adfs and wasb
-    FileStatus[] adfsFileStatus = adFs.listStatus(new Path("/testfiles/~12/!008/3/"));
-    FileStatus[] nativeFsFileStatus = nativeFs.listStatus(new Path("/testfiles/~12/!008/3/"));
+    FileStatus[] adfsFileStatus = fs.listStatus(new Path("/testfiles/~12/!008/3/"));
+    FileStatus[] nativeFsFileStatus = wasb.listStatus(new Path("/testfiles/~12/!008/3/"));
 
     assertEquals(2, adfsFileStatus.length);
     assertEquals(2, nativeFsFileStatus.length);
@@ -88,18 +79,22 @@ public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
 
   @Test
   @Ignore("3/2/2018: Can not use WASB to consume file created by ADFS, a bug has been created to track this issue")
-  public void testReadFile() throws IOException {
+  public void testReadFile() throws Exception {
     boolean[] createFileWithAdfs = new boolean[]{false, true, false, true};
     boolean[] readFileWithAdfs = new boolean[]{false, true, true, false};
+
+    AzureDistributedFileSystem adfs = this.getFileSystem();
+    NativeAzureFileSystem wasb = this.getWasbFileSystem();
+
     FileSystem fs;
     BufferedReader br = null;
     for (int i = 0; i< 4; i++) {
       try {
         Path path = new Path("/testfiles/~12/!008/testfile" + i);
         if (createFileWithAdfs[i]) {
-          fs = adFs;
+          fs = adfs;
         } else {
-          fs = nativeFs;
+          fs = wasb;
         }
 
         // Write
@@ -115,9 +110,9 @@ public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
 
         // Read
         if (readFileWithAdfs[i]) {
-          fs = adFs;
+          fs = adfs;
         } else {
-          fs = nativeFs;
+          fs = wasb;
         }
         FSDataInputStream inputStream = fs.open(path);
         br = new BufferedReader(new InputStreamReader(fs.open(path)));
@@ -138,26 +133,30 @@ public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
   }
 
   @Test
-  public void testDir() throws IOException {
+  public void testDir() throws Exception {
     boolean[] createDirWithAdfs = new boolean[]{false, true, false, true};
     boolean[] readDirWithAdfs = new boolean[]{false, true, true, false};
+
+    AzureDistributedFileSystem adfs = this.getFileSystem();
+    NativeAzureFileSystem wasb = this.getWasbFileSystem();
+
     FileSystem fs;
     for (int i = 0; i < 4; i++) {
       Path path = new Path("/testDir/t" + i);
       //create
       if (createDirWithAdfs[i]) {
-        fs = adFs;
+        fs = adfs;
       } else {
-        fs = nativeFs;
+        fs = wasb;
       }
       assertTrue(fs.mkdirs(path));
       //check
       assertTrue(fs.exists(path));
       //read
       if (readDirWithAdfs[i]) {
-        fs = adFs;
+        fs = adfs;
       } else {
-        fs = nativeFs;
+        fs = wasb;
       }
       assertTrue(fs.exists(path));
       FileStatus dirStatus = fs.getFileStatus(path);
@@ -177,36 +176,27 @@ public class ITestWasbAdfsCompatibility extends DependencyInjectedTest {
   }
 
   @Test
-  public void testSetWorkingDirectory() throws IOException {
+  public void testSetWorkingDirectory() throws Exception {
     //create folders
-    assertTrue(adFs.mkdirs(new Path("/d1/d2/d3/d4")));
+    AzureDistributedFileSystem adfs = this.getFileSystem();
+    NativeAzureFileSystem wasb = this.getWasbFileSystem();
+
+    assertTrue(adfs.mkdirs(new Path("/d1/d2/d3/d4")));
 
     //set working directory to path1
     Path path1 = new Path("/d1/d2");
-    nativeFs.setWorkingDirectory(path1);
-    adFs.setWorkingDirectory(path1);
-    assertEquals(path1, nativeFs.getWorkingDirectory());
-    assertEquals(path1, adFs.getWorkingDirectory());
+    wasb.setWorkingDirectory(path1);
+    adfs.setWorkingDirectory(path1);
+    assertEquals(path1, wasb.getWorkingDirectory());
+    assertEquals(path1, adfs.getWorkingDirectory());
 
     //set working directory to path2
     Path path2 = new Path("d3/d4");
-    nativeFs.setWorkingDirectory(path2);
-    adFs.setWorkingDirectory(path2);
+    wasb.setWorkingDirectory(path2);
+    adfs.setWorkingDirectory(path2);
 
     Path path3 = new Path("/d1/d2/d3/d4");
-    assertEquals(path3, nativeFs.getWorkingDirectory());
-    assertEquals(path3, adFs.getWorkingDirectory());
-  }
-
-  private static String wasbUrlToAdfsUrl(String wasbUrl) {
-    String data = wasbUrl.replace("wasb://", "adfs://");
-    data = data.replace(".blob.", ".dfs.");
-    return data;
-  }
-
-  private static String adfsUrlToWasbUrl(String adfsUrl) {
-    String data = adfsUrl.replace("adfs://", "wasb://");
-    data = data.replace(".dfs.", ".blob.");
-    return data;
+    assertEquals(path3, wasb.getWorkingDirectory());
+    assertEquals(path3, adfs.getWorkingDirectory());
   }
 }

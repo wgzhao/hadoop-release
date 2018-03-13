@@ -15,18 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.contract.AbstractContractRootDirectoryTest;
+import org.apache.hadoop.fs.contract.AbstractContractOpenTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
-import org.junit.Ignore;
 
-public class TestAdfsFileSystemContractRootDirectory extends AbstractContractRootDirectoryTest {
-  private final DepencyInjectedContractTest dependencyInjectedContractTest;
+public class ITestAdfsFileSystemContractOpen extends AbstractContractOpenTest {
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public TestAdfsFileSystemContractRootDirectory() throws Exception {
-    dependencyInjectedContractTest = new DepencyInjectedContractTest();
+  public ITestAdfsFileSystemContractOpen() throws Exception {
+    dependencyInjectedContractTest = new DependencyInjectedContractTest();
   }
 
   @Override
@@ -37,11 +37,6 @@ public class TestAdfsFileSystemContractRootDirectory extends AbstractContractRoo
 
   @Override
   protected AbstractFSContract createContract(Configuration conf) {
-    return new TestAdfsFileSystemContract(conf);
-  }
-
-  @Override
-  @Ignore("ADFS always return false when non-recursively remove root dir")
-  public void testRmNonEmptyRootDirNonRecursive() throws Throwable {
+    return new ITestAdfsFileSystemContract(conf);
   }
 }

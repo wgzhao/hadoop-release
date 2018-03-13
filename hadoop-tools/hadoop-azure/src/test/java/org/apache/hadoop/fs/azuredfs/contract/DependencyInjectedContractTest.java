@@ -25,12 +25,12 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.azuredfs.DependencyInjectedTest;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 
-public class DepencyInjectedContractTest extends DependencyInjectedTest {
+public class DependencyInjectedContractTest extends DependencyInjectedTest {
   private final URI testUri;
   private final String fileSystemName;
   private final String accountName;
 
-  public DepencyInjectedContractTest() throws Exception {
+  public DependencyInjectedContractTest() throws Exception {
     super();
 
     Configuration configuration = getConfiguration();

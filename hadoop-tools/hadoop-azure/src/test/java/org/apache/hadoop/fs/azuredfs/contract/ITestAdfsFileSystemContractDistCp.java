@@ -15,31 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hadoop.fs.azuredfs;
+
+package org.apache.hadoop.fs.azuredfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azure.AbstractWasbTestBase;
-import org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount;
-import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
+import org.apache.hadoop.tools.contract.AbstractContractDistCpTest;
 
-import java.net.URI;
+/**
+ * Contract test suite covering WASB integration with DistCp.
+ */
+public class ITestAdfsFileSystemContractDistCp extends AbstractContractDistCpTest {
+  private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-public class WasbComponentHelper extends AbstractWasbTestBase {
-  public AzureBlobStorageTestAccount wasbAccount;
-  public NativeAzureFileSystem nativeFs;
-
-  public WasbComponentHelper() throws Exception {
-    super.setUp();
-    Configuration conf = fs.getConf();
-    conf.setBoolean(NativeAzureFileSystem.APPEND_SUPPORT_ENABLE_PROPERTY_NAME, true);
-    URI uri = fs.getUri();
-    fs.initialize(uri, conf);
-    wasbAccount = getTestAccount();
-    nativeFs = wasbAccount.getFileSystem();
+  public ITestAdfsFileSystemContractDistCp() throws Exception {
+    dependencyInjectedContractTest = new DependencyInjectedContractTest();
   }
 
   @Override
-  protected AzureBlobStorageTestAccount createTestAccount() throws Exception {
-    return AzureBlobStorageTestAccount.create();
+  public void setup() throws Exception {
+    dependencyInjectedContractTest.initialize();
+    super.setup();
+  }
+
+  @Override
+  protected ITestAdfsFileSystemContract createContract(Configuration conf) {
+    return new ITestAdfsFileSystemContract(conf);
   }
 }
