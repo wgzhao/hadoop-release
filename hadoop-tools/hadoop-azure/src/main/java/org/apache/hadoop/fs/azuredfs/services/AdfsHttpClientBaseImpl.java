@@ -56,6 +56,9 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
 
     restClient.httpClient().dispatcher().setMaxRequestsPerHost(MAX_REQUESTS_PER_HOST);
     restClient.httpClient().dispatcher().setMaxRequests(MAX_REQUESTS_PER_HOST);
+
+    this.withDnsSuffix(this.adfsHttpClientSession.getHostName());
+    this.withAccountName(this.adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName());
   }
 
   @Override

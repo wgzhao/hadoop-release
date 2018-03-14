@@ -40,30 +40,6 @@ public class GetPathPropertiesHeaders {
   private String acceptRanges;
 
   /**
-   * Returned if the request includes an Origin header and CORS is enabled
-   * with a matching rule. This header returns the value of the origin
-   * request header in case of a match.
-   */
-  @JsonProperty(value = "Access-Control-Allow-Origin")
-  private String accessControlAllowOrigin;
-
-  /**
-   * Returned if the request includes an Origin header and CORS is enabled
-   * with a matching rule. Returns the list of response headers that are to
-   * be exposed to the client or issuer of the request.
-   */
-  @JsonProperty(value = "Access-Control-Expose-Headers")
-  private String accessControlExposeHeaders;
-
-  /**
-   * Returned if the request includes an Origin header and CORS is enabled
-   * with a matching rule that does not allow all origins. This header will
-   * be set to true.
-   */
-  @JsonProperty(value = "Access-Control-Allow-Credentials")
-  private String accessControlAllowCredentials;
-
-  /**
    * If the Cache-Control request header has previously been set for the
    * resource, that value is returned in this header.
    */
@@ -96,13 +72,6 @@ public class GetPathPropertiesHeaders {
    */
   @JsonProperty(value = "Content-Length")
   private String contentLength;
-
-  /**
-   * This header is returned so that the client can check for message content
-   * integrity.
-   */
-  @JsonProperty(value = "Content-MD5")
-  private String contentMD5;
 
   /**
    * Indicates the range of bytes returned in the event that the client
@@ -139,13 +108,6 @@ public class GetPathPropertiesHeaders {
   private String lastModified;
 
   /**
-   * Returned with the value of the Origin header when CORS rules are
-   * specified. See CORS Support for the Storage Services for details.
-   */
-  @JsonProperty(value = "Vary")
-  private String vary;
-
-  /**
    * A server-generated UUID recorded in the analytics logs for
    * troubleshooting and correlation.
    */
@@ -166,8 +128,9 @@ public class GetPathPropertiesHeaders {
   private String xMsResourceType;
 
   /**
-   * A comma-separated list of properties n1=v1,n2=v2,... associated with the
-   * resource.
+   * The user-defined properties associated with the file or directory, in
+   * the format of a comma-separated list of name and value pairs "n1=v1,
+   * n2=v2, ...", where each value is base64 encoded.
    */
   @JsonProperty(value = "x-ms-properties")
   private String xMsProperties;
@@ -198,21 +161,6 @@ public class GetPathPropertiesHeaders {
   private String xMsServerEncrypted;
 
   /**
-   * The x-ms-origination-id of the request that created the resource. When a
-   * request fails on the client-side due to a timeout or network error, it
-   * may have succeeded on the server-side. When retrying the request, if a
-   * response is received with a 409 status and a FilesystemAlreadyExists
-   * service error code, the client may compare the x-ms-origination-id
-   * response header with the x-ms-origination-id of a previous failed
-   * request to determine if the previous request succeeded on the
-   * server-side.  This header will not be included in the response if the
-   * originating request did not include the optional x-ms-origination-id
-   * header.
-   */
-  @JsonProperty(value = "x-ms-origination-id")
-  private String xMsOriginationId;
-
-  /**
    * Get the acceptRanges value.
    *
    * @return the acceptRanges value
@@ -229,66 +177,6 @@ public class GetPathPropertiesHeaders {
    */
   public GetPathPropertiesHeaders withAcceptRanges(String acceptRanges) {
     this.acceptRanges = acceptRanges;
-    return this;
-  }
-
-  /**
-   * Get the accessControlAllowOrigin value.
-   *
-   * @return the accessControlAllowOrigin value
-   */
-  public String accessControlAllowOrigin() {
-    return this.accessControlAllowOrigin;
-  }
-
-  /**
-   * Set the accessControlAllowOrigin value.
-   *
-   * @param accessControlAllowOrigin the accessControlAllowOrigin value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withAccessControlAllowOrigin(String accessControlAllowOrigin) {
-    this.accessControlAllowOrigin = accessControlAllowOrigin;
-    return this;
-  }
-
-  /**
-   * Get the accessControlExposeHeaders value.
-   *
-   * @return the accessControlExposeHeaders value
-   */
-  public String accessControlExposeHeaders() {
-    return this.accessControlExposeHeaders;
-  }
-
-  /**
-   * Set the accessControlExposeHeaders value.
-   *
-   * @param accessControlExposeHeaders the accessControlExposeHeaders value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withAccessControlExposeHeaders(String accessControlExposeHeaders) {
-    this.accessControlExposeHeaders = accessControlExposeHeaders;
-    return this;
-  }
-
-  /**
-   * Get the accessControlAllowCredentials value.
-   *
-   * @return the accessControlAllowCredentials value
-   */
-  public String accessControlAllowCredentials() {
-    return this.accessControlAllowCredentials;
-  }
-
-  /**
-   * Set the accessControlAllowCredentials value.
-   *
-   * @param accessControlAllowCredentials the accessControlAllowCredentials value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withAccessControlAllowCredentials(String accessControlAllowCredentials) {
-    this.accessControlAllowCredentials = accessControlAllowCredentials;
     return this;
   }
 
@@ -393,26 +281,6 @@ public class GetPathPropertiesHeaders {
   }
 
   /**
-   * Get the contentMD5 value.
-   *
-   * @return the contentMD5 value
-   */
-  public String contentMD5() {
-    return this.contentMD5;
-  }
-
-  /**
-   * Set the contentMD5 value.
-   *
-   * @param contentMD5 the contentMD5 value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withContentMD5(String contentMD5) {
-    this.contentMD5 = contentMD5;
-    return this;
-  }
-
-  /**
    * Get the contentRange value.
    *
    * @return the contentRange value
@@ -509,26 +377,6 @@ public class GetPathPropertiesHeaders {
    */
   public GetPathPropertiesHeaders withLastModified(String lastModified) {
     this.lastModified = lastModified;
-    return this;
-  }
-
-  /**
-   * Get the vary value.
-   *
-   * @return the vary value
-   */
-  public String vary() {
-    return this.vary;
-  }
-
-  /**
-   * Set the vary value.
-   *
-   * @param vary the vary value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withVary(String vary) {
-    this.vary = vary;
     return this;
   }
 
@@ -689,26 +537,6 @@ public class GetPathPropertiesHeaders {
    */
   public GetPathPropertiesHeaders withXMsServerEncrypted(String xMsServerEncrypted) {
     this.xMsServerEncrypted = xMsServerEncrypted;
-    return this;
-  }
-
-  /**
-   * Get the xMsOriginationId value.
-   *
-   * @return the xMsOriginationId value
-   */
-  public String xMsOriginationId() {
-    return this.xMsOriginationId;
-  }
-
-  /**
-   * Set the xMsOriginationId value.
-   *
-   * @param xMsOriginationId the xMsOriginationId value to set
-   * @return the GetPathPropertiesHeaders object itself.
-   */
-  public GetPathPropertiesHeaders withXMsOriginationId(String xMsOriginationId) {
-    this.xMsOriginationId = xMsOriginationId;
     return this;
   }
 

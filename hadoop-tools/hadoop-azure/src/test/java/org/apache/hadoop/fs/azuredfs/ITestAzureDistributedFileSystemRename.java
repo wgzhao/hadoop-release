@@ -71,7 +71,7 @@ public class ITestAzureDistributedFileSystemRename extends DependencyInjectedTes
     fs.mkdirs(new Path("testDir/test1/test2"));
     fs.mkdirs(new Path("testDir/test1/test2/test3"));
 
-    fs.rename(new Path("testDir/test1"), new Path("testDir/test10"));
+    Assert.assertTrue(fs.rename(new Path("testDir/test1"), new Path("testDir/test10")));
     fs.getFileStatus(new Path("testDir/test1"));
   }
 

@@ -4872,3 +4872,5 @@ ATS V1.5:
 
     WASB-41. Reverting guava upgrade version due to conflict with hadoop
 
+    WASB-45. Updating ADFS http client auto-generated code to the latest version
+

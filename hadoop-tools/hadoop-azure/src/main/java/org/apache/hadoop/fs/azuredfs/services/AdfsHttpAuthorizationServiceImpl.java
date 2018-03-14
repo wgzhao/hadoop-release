@@ -62,13 +62,7 @@ final class AdfsHttpAuthorizationServiceImpl implements AdfsHttpAuthorizationSer
   @Inject
   AdfsHttpAuthorizationServiceImpl(final ConfigurationService configurationService) {
     Preconditions.checkNotNull(configurationService, "configurationService");
-
-    if (configurationService.isEmulator()) {
-      version = FileSystemConfigurations.ADFS_EMULATOR_TARGET_STORAGE_VERSION;
-    }
-    else {
-      version = FileSystemConfigurations.ADFS_TARGET_STORAGE_VERSION;
-    }
+    version = FileSystemConfigurations.ADFS_TARGET_STORAGE_VERSION;
   }
 
   @Override

@@ -48,7 +48,7 @@
 
     <property>
         <name>fs.contract.rename-creates-dest-dirs</name>
-        <value>true</value>
+        <value>false</value>
     </property>
 
     <property>
