@@ -4874,3 +4874,5 @@ ATS V1.5:
 
     WASB-45. Updating ADFS http client auto-generated code to the latest version
 
+    WASB-46. Removing temporary work-around(s) in ADFS driver and upgraded the API version
+

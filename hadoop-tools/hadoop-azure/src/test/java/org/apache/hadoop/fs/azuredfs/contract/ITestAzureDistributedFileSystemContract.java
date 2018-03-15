@@ -43,7 +43,7 @@ public class ITestAzureDistributedFileSystemContract extends FileSystemContractB
   }
 
   @Test
-  public void testListOnFolderWithNoChilren() throws IOException {
+  public void testListOnFolderWithNoChildren() throws IOException {
     assertTrue(fs.mkdirs(path("testListStatus/c/1")));
 
     FileStatus[] paths;
@@ -92,5 +92,4 @@ public class ITestAzureDistributedFileSystemContract extends FileSystemContractB
   @Ignore("A bug has been created to track this issue")
   public void testRenameDirectoryMoveToNonExistentDirectory() throws Exception {
   }
-
 }

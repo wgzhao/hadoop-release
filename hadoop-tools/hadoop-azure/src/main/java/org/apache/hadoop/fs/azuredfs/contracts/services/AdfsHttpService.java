@@ -286,40 +286,22 @@ public interface AdfsHttpService extends InjectableService {
       AzureDistributedFileSystemException;
 
   /**
-   * Renames a file from source to destination.
+   * Renames a file or directory from source to destination.
    * @param azureDistributedFileSystem filesystem to rename a file.
    * @param source source path.
    * @param destination destination path.
    */
-  void renameFile(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination)
+  void rename(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination)
       throws AzureDistributedFileSystemException;
 
   /**
-   * Renames a file from source to destination asynchronously.
+   * Renames a file or directory from source to destination asynchronously.
    * @param azureDistributedFileSystem filesystem to rename a file.
    * @param source source path.
    * @param destination destination path.
    * @return Future<Void> Future of a Void object.
    */
-  Future<Void> renameFileAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws
-      AzureDistributedFileSystemException;
-
-  /**
-   * Renames a directory from source to destination.
-   * @param azureDistributedFileSystem filesystem to rename a directory.
-   * @param source source path.
-   * @param destination destination path.
-   */
-  void renameDirectory(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination)
-      throws AzureDistributedFileSystemException;
-
-  /**
-   * Renames a directory from source to destination asynchronously.
-   * @param azureDistributedFileSystem filesystem to rename a directory.
-   * @param source source path.
-   * @param destination destination path.
-   */
-  Future<Void> renameDirectoryAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws
+  Future<Void> renameAsync(AzureDistributedFileSystem azureDistributedFileSystem, Path source, Path destination) throws
       AzureDistributedFileSystemException;
 
   /**

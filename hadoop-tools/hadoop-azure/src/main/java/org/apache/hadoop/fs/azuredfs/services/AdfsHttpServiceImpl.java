@@ -31,11 +31,8 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -112,12 +109,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   private static final String FILE = "file";
   private static final String DIRECTORY = "directory";
   private static final String DATE_TIME_PATTERN = "E, dd MMM yyyy HH:mm:ss 'GMT'";
-  private static final String SOURCE_LEASE_ACTION_ACQUIRE = "acquire";
   private static final String CONDITIONAL_ALL = "*";
   private static final String XMS_PROPERTIES_ENCODING = "ISO-8859-1";
   private static final int LIST_MAX_RESULTS = 5000;
   private static final int DELETE_DIRECTORY_TIMEOUT_MILISECONDS = 180000;
-  private static final int RENAME_DIRECTORY_TIMEOUT_MILISECONDS = 180000;
+  private static final int RENAME_TIMEOUT_MILISECONDS = 180000;
 
   private final AdfsHttpClientFactory adfsHttpClientFactory;
   private final AdfsStreamFactory adfsStreamFactory;
@@ -838,108 +834,33 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
   }
 
   @Override
-  public void renameFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination)
-      throws
+  public void rename(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
-
-    if(isAtomicRenameKey(source.getName())) {
-      this.loggingService.warning("The atomic rename feature is not supported by the ADFS scheme; however rename,"
-              +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
-    }
-
     execute(
-        "AdfsHttpServiceImpl.renameFile",
+        "AdfsHttpServiceImpl.rename",
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            renameFileAsync(azureDistributedFileSystem, source, destination).get();
+            renameAsync(azureDistributedFileSystem, source, destination).get();
             return null;
           }
         });
   }
 
   @Override
-  public Future<Void> renameFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
-      AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
-
-    this.loggingService.debug(
-        "renameFileAsync filesystem: {0} source: {1} destination: {2}",
-        adfsHttpClient.getSession().getFileSystem(),
-        source.toString(),
-        destination.toString());
-
-    final Callable<Void> asyncCallable = new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return adfsHttpClient.createPathAsync(
-            adfsHttpClient.getSession().getFileSystem(),
-            getRelativePath(destination),
-            null /* resource */,
-            null /* continuation */,
-            null /* contentLength */,
-            null /* cacheControl */,
-            null /* contentEncoding */,
-            null /* contentLanguage */,
-            null /* contentDisposition */,
-            null /* xMsCacheControl */,
-            null /* xMsContentType */,
-            null /* xMsContentEncoding */,
-            null /* xMsContentLanguage */,
-            null /* xMsContentDisposition */,
-            Path.SEPARATOR + adfsHttpClient.getSession().getFileSystem() + Path.SEPARATOR + getRelativePath(source),
-            null /* xMsLeaseAction */,
-            null /* xMsLeaseId */,
-            null /* xMsProposedLeaseId */,
-            null /* xMsSourceLeaseId */,
-            null /* xMsProperties */,
-            null /* ifMatch */,
-            null /* ifNoneMatch */,
-            null /* ifModifiedSince */,
-            null /* ifUnmodifiedSince */,
-            null /* xMsSourceIfMatch */,
-            null /* xMsSourceIfNoneMatch */,
-            null /* xMsSourceIfModifiedSince */,
-            null /* xMsSourceIfUnmodifiedSince */,
-            null /* requestBody */,
-            null /* xMsClientRequestId */,
-            FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-            null /* xMsDate */).toBlocking().single();
-      }
-    };
-
-    return executeAsync("AdfsHttpServiceImpl.renameFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
-  }
-
-  @Override
-  public void renameDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
+  public Future<Void> renameAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
       AzureDistributedFileSystemException {
 
     if(isAtomicRenameKey(source.getName())) {
       this.loggingService.warning("The atomic rename feature is not supported by the ADFS scheme; however rename,"
-              +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
+          +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
     }
 
-    execute(
-        "AdfsHttpServiceImpl.renameDirectory",
-        new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            renameDirectoryAsync(azureDistributedFileSystem, source, destination).get();
-            return null;
-          }
-        });
-  }
-
-  @Override
-  public Future<Void> renameDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path source, final Path destination) throws
-      AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
     final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
-        "renameDirectory filesystem: {0} source: {1} destination: {2}",
+        "renameAsync filesystem: {0} source: {1} destination: {2}",
         adfsHttpClient.getSession().getFileSystem(),
         source.toString(),
         destination.toString());
@@ -950,15 +871,15 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
         String continuation = null;
         boolean operationPending = true;
 
-        long deadline = now() + RENAME_DIRECTORY_TIMEOUT_MILISECONDS;
+        long deadline = now() + RENAME_TIMEOUT_MILISECONDS;
         while (operationPending) {
           if (now() > deadline) {
             loggingService.debug(
-                "Rename directory {0} to {1} timed out.",
+                "Rename {0} to {1} timed out.",
                 source,
                 destination);
 
-            throw new TimeoutException("Rename directory timed out.");
+            throw new TimeoutException("Rename timed out.");
           }
 
           continuation = adfsHttpClient.createPathWithServiceResponseAsync(
@@ -983,7 +904,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               null /* xMsSourceLeaseId */,
               null /* xMsProperties */,
               null /* ifMatch */,
-              null /* ifNoneMatch */,
+              null /* ifNonMatch */,
               null /* ifModifiedSince */,
               null /* ifUnmodifiedSince */,
               null /* xMsSourceIfMatch */,
@@ -1194,29 +1115,12 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               null /* xMsDate */).toBlocking().single();
 
           ListSchema retrievedSchema = serviceResponseWithHeaders.body();
-          if (!path.isRoot() && (retrievedSchema == null || retrievedSchema.paths().size() == 0)) {
-            ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders> getPathPropertiesHeaders =
-                adfsHttpClient.getPathPropertiesWithServiceResponseAsync(
-                adfsHttpClient.getSession().getFileSystem(),
-                relativePath).toBlocking().single();
-
-            VersionedFileStatus fileStatus = getFileStatusFromPathPropertiesHeaders(
-                azureDistributedFileSystem,
-                azureDistributedFileSystem.makeQualified(new Path(File.separator + relativePath)),
-                getPathPropertiesHeaders.headers());
-            if (fileStatus == null) {
-              throw new AzureServiceErrorResponseException(
-                  AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
-                  AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
-                  "listStatusAsync directory path not found",
-                  null);
-            }
-
-            if (!fileStatus.isDirectory()) {
-              fileStatuses.add(fileStatus);
-            }
-
-            return fileStatuses.toArray(new FileStatus[0]);
+          if (retrievedSchema == null) {
+            throw new AzureServiceErrorResponseException(
+                AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+                AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+                "listStatusAsync path not found",
+                null);
           }
 
           continuation = serviceResponseWithHeaders.headers().xMsContinuation();
@@ -1629,36 +1533,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       });
     }
 
-    return getPathPropertiesInternal(adfsHttpClient, path).onErrorResumeNext(
-        new Func1<Throwable, Observable<? extends GetPathPropertiesHeaders>>() {
-          @Override
-          public Observable<? extends GetPathPropertiesHeaders> call(Throwable throwable) {
-            // back-compat directories created by blob api
-            ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> serviceResponseWithHeaders = adfsHttpClient.listPathsWithServiceResponseAsync(
-                false,
-                adfsHttpClient.getSession().getFileSystem(),
-                FILE_SYSTEM,
-                getRelativePath(path),
-                null,
-                1,
-                null /* xMsClientRequestId */,
-                FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
-                null /* xMsDate */).toBlocking().single();
-
-            GetPathPropertiesHeaders headers = new GetPathPropertiesHeaders();
-            if (serviceResponseWithHeaders.body() == null
-                || serviceResponseWithHeaders.body().paths() == null
-                || serviceResponseWithHeaders.body().paths().size() == 0) {
-              return Observable.error(throwable);
-            }
-
-            DateFormat dateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
-            return Observable.just(headers
-                .withXMsResourceType(DIRECTORY)
-                .withContentLength("0")
-                .withLastModified(dateFormat.format(new Date())));
-          }
-        }).flatMap(new Func1<GetPathPropertiesHeaders, Observable<VersionedFileStatus>>() {
+    return getPathPropertiesInternal(adfsHttpClient, path).flatMap(new Func1<GetPathPropertiesHeaders, Observable<VersionedFileStatus>>() {
       @Override
       public Observable<VersionedFileStatus> call(GetPathPropertiesHeaders getPathPropertiesHeaders) {
         return Observable.just(getFileStatusFromPathPropertiesHeaders(azureDistributedFileSystem, path, getPathPropertiesHeaders));

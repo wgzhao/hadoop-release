@@ -35,6 +35,8 @@ public enum AzureServiceErrorCode {
   FILE_SYSTEM_NOT_FOUND("FilesystemNotFound", HttpURLConnection.HTTP_NOT_FOUND),
   PATH_NOT_FOUND("PathNotFound", HttpURLConnection.HTTP_NOT_FOUND),
   PRE_CONDITION_FAILED("PreconditionFailed", HttpURLConnection.HTTP_PRECON_FAILED),
+  SOURCE_PATH_NOT_FOUND("SourcePathNotFound", HttpURLConnection.HTTP_NOT_FOUND),
+  INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE("InvalidSourceOrDestinationResourceType", HttpURLConnection.HTTP_CONFLICT),
   UNKNOWN(null, -1);
 
   private final String errorCode;

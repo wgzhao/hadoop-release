@@ -211,51 +211,39 @@ public class AzureDistributedFileSystem extends FileSystem {
     }
 
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    final FileStatus srcFileStatus = tryGetFileStatus(src);
-
-    if (srcFileStatus == null) {
-      return false;
-    }
-
     final FileStatus dstFileStatus = tryGetFileStatus(dst);
     final FileSystemOperation<Boolean> rename = execute(
         "AzureDistributedFileSystem.rename",
         new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            if (srcFileStatus.isDirectory()) {
-              if (dstFileStatus == null) {
-                adfsHttpService.renameDirectory(azureDistributedFileSystem, makeQualified(src), makeQualified(dst));
-                return true;
-              }
+            String sourceFileName = src.getName();
+            Path adjustedDst = dst;
 
+            if (dstFileStatus != null) {
               if (!dstFileStatus.isDirectory()) {
                 return false;
               }
 
-              final String sourceDirectoryName = src.getName();
-              final Path adjustedDst = new Path(dst, sourceDirectoryName);
-              adfsHttpService.renameDirectory(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
-              return true;
+              adjustedDst = new Path(dst, sourceFileName);
+              // TODO - Remove after service is fixed
+              FileStatus dstFileStatus = tryGetFileStatus(adjustedDst);
+              if (dstFileStatus != null) {
+                return false;
+              }
             }
 
-            if (dstFileStatus == null) {
-              adfsHttpService.renameFile(azureDistributedFileSystem, makeQualified(src), makeQualified(dst));
-              return true;
-            }
-
-            if (dstFileStatus.isDirectory()) {
-              String sourceFileName = src.getName();
-              Path adjustedDst = new Path(dst, sourceFileName);
-              adfsHttpService.renameFile(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
-              return true;
-            }
-
-            return false;
+            adfsHttpService.rename(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
+            return true;
           }
         }, false);
 
-    evaluateFileSystemPathOperation(src, rename);
+    evaluateFileSystemPathOperation(
+        src,
+        rename,
+        AzureServiceErrorCode.SOURCE_PATH_NOT_FOUND,
+        AzureServiceErrorCode.INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE);
+
     return rename.result;
   }
 
