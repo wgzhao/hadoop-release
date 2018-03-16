@@ -18,13 +18,19 @@
 
 package org.apache.hadoop.fs.azuredfs;
 
+import java.io.FileNotFoundException;
+import java.util.EnumSet;
+
 import org.junit.Test;
 
+import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ITestAzureDistributedFileSystemCreate extends DependencyInjectedTest {
   public ITestAzureDistributedFileSystemCreate() throws Exception {
@@ -45,5 +51,56 @@ public class ITestAzureDistributedFileSystemCreate extends DependencyInjectedTes
 
     FileStatus fileStatus = fs.getFileStatus(new Path("testfile"));
     assertNotNull(fileStatus);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testCreateNonRecursive() throws Exception {
+    final AzureDistributedFileSystem fs = this.getFileSystem();
+    Path testFolder = new Path("/testFolder");
+    Path testFile = new Path(testFolder, "testFile");
+    try {
+      fs.createNonRecursive(testFile, true, 1024, (short)1, 1024, null);
+      assertTrue("Should've thrown", false);
+    } catch (FileNotFoundException e) {
+    }
+    fs.mkdirs(testFolder);
+    fs.createNonRecursive(testFile, true, 1024, (short)1, 1024, null)
+        .close();
+    assertTrue(fs.exists(testFile));
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testCreateNonRecursive1() throws Exception {
+    final AzureDistributedFileSystem fs = this.getFileSystem();
+    Path testFolder = new Path("/testFolder");
+    Path testFile = new Path(testFolder, "testFile");
+    try {
+      fs.createNonRecursive(testFile, FsPermission.getDefault(), EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE), 1024, (short)1, 1024, null);
+      assertTrue("Should've thrown", false);
+    } catch (FileNotFoundException e) {
+    }
+    fs.mkdirs(testFolder);
+    fs.createNonRecursive(testFile, true, 1024, (short)1, 1024, null)
+        .close();
+    assertTrue(fs.exists(testFile));
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testCreateNonRecursive2() throws Exception {
+    final AzureDistributedFileSystem fs = this.getFileSystem();
+    Path testFolder = new Path("/testFolder");
+    Path testFile = new Path(testFolder, "testFile");
+    try {
+      fs.createNonRecursive(testFile, FsPermission.getDefault(), false, 1024, (short)1, 1024, null);
+      assertTrue("Should've thrown", false);
+    } catch (FileNotFoundException e) {
+    }
+    fs.mkdirs(testFolder);
+    fs.createNonRecursive(testFile, true, 1024, (short)1, 1024, null)
+        .close();
+    assertTrue(fs.exists(testFile));
   }
 }

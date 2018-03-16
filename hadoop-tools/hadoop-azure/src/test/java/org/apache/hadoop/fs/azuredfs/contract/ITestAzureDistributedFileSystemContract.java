@@ -82,14 +82,4 @@ public class ITestAzureDistributedFileSystemContract extends FileSystemContractB
   @Ignore("Not implemented in ADFS yet")
   public void testMkdirsWithUmask() throws Exception {
   }
-
-  @Override
-  @Ignore("A bug has been created to track this issue")
-  public void testRenameFileMoveToNonExistentDirectory() throws Exception {
-  }
-
-  @Override
-  @Ignore("A bug has been created to track this issue")
-  public void testRenameDirectoryMoveToNonExistentDirectory() throws Exception {
-  }
 }

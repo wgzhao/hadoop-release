@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +44,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
@@ -180,6 +182,49 @@ public class AzureDistributedFileSystem extends FileSystem {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
+  public FSDataOutputStream createNonRecursive(final Path f, final FsPermission permission,
+      final boolean overwrite, final int bufferSize, final short replication, final long blockSize,
+      final Progressable progress) throws IOException {
+
+    final Path parent = f.getParent();
+    final FileStatus parentFileStatus = tryGetFileStatus(parent);
+
+    if (parentFileStatus == null) {
+      throw new FileNotFoundException("Cannot create file "
+          + f.getName() + " because parent folder does not exist.");
+    }
+
+    return create(f, permission, overwrite, bufferSize, replication, blockSize, progress);
+  }
+
+  @Override
+  @SuppressWarnings("deprecation")
+  public FSDataOutputStream createNonRecursive(final Path f, final FsPermission permission,
+      final EnumSet<CreateFlag> flags, final int bufferSize, final short replication, final long blockSize,
+      final Progressable progress) throws IOException {
+
+    // Check if file should be appended or overwritten. Assume that the file
+    // is overwritten on if the CREATE and OVERWRITE create flags are set.
+    final EnumSet<CreateFlag> createflags =
+        EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE);
+    final boolean overwrite = flags.containsAll(createflags);
+
+    // Delegate the create non-recursive call.
+    return this.createNonRecursive(f, permission, overwrite,
+        bufferSize, replication, blockSize, progress);
+  }
+
+  @Override
+  @SuppressWarnings("deprecation")
+  public FSDataOutputStream createNonRecursive(final Path f,
+      final boolean overwrite, final int bufferSize, final short replication, final long blockSize,
+      final Progressable progress) throws IOException {
+    return this.createNonRecursive(f, FsPermission.getFileDefault(),
+        overwrite, bufferSize, replication, blockSize, progress);
+  }
+
+  @Override
   public FSDataOutputStream append(final Path f, final int bufferSize, final Progressable progress) throws IOException {
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
 
@@ -242,7 +287,8 @@ public class AzureDistributedFileSystem extends FileSystem {
         src,
         rename,
         AzureServiceErrorCode.SOURCE_PATH_NOT_FOUND,
-        AzureServiceErrorCode.INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE);
+        AzureServiceErrorCode.INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE,
+        AzureServiceErrorCode.RENAME_DESTINATION_PARENT_PATH_NOT_FOUND);
 
     return rename.result;
   }

@@ -4876,3 +4876,5 @@ ATS V1.5:
 
     WASB-46. Removing temporary work-around(s) in ADFS driver and upgraded the API version
 
+    WASB-47. Adding createNonRecursive for ADFS driver and enabling disabled rename tests
+
