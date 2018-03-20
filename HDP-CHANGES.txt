@@ -4880,3 +4880,5 @@ ATS V1.5:
 
     WASB-48. Updating ADFS http client auto-generated code to the latest version and removing previous workarounds
 
+    WASB-49. Making filesystem creation configurable during AzureDistributedFileSystem initialize call
+

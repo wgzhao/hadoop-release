@@ -121,7 +121,11 @@ public class AzureDistributedFileSystem extends FileSystem {
         "Initializing NativeAzureFileSystem for {0}", uri);
 
     this.setWorkingDirectory(this.getHomeDirectory());
-    this.createFileSystem();
+
+    if (this.configurationService.getCreateRemoteFileSystemDuringInitialization()) {
+      this.createFileSystem();
+    }
+
     this.mkdirs(this.workingDir);
 
     if (statistics != null) {

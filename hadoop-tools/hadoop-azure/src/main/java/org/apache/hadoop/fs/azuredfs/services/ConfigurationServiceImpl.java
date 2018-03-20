@@ -108,6 +108,10 @@ class ConfigurationServiceImpl implements ConfigurationService {
           DefaultValue = FileSystemConfigurations.DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES)
   private String azureAtomicDirs;
 
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION,
+      DefaultValue = FileSystemConfigurations.DEFAULT_AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION)
+  private boolean createRemoteFileSystemDuringInitialization;
+
   private Map<String, String> storageAccountKeys;
 
   @Inject
@@ -197,6 +201,9 @@ class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public String getAzureAtomicRenameDirs() { return this.azureAtomicDirs; }
+
+  @Override
+  public boolean getCreateRemoteFileSystemDuringInitialization() { return this.createRemoteFileSystemDuringInitialization; }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(

@@ -67,6 +67,7 @@ public abstract class DependencyInjectedTest {
     final URI defaultUri = new URI(FileSystemUriSchemes.ADFS_SCHEME, adfsUrl, null, null, null);
     this.testUrl = defaultUri.toString();
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
+    configuration.setBoolean(ConfigurationKeys.AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION, true);
     this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
 
     this.isEmulator = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);

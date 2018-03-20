@@ -120,7 +120,6 @@ public interface ConfigurationService extends InjectableService {
    */
   boolean getTolerateOobAppends();
 
-
   /**
    * Retrieves the comma-separated list of directories to receive special treatment so that folder
    * rename is made atomic. The default value for this setting is just '/hbase'.
@@ -129,4 +128,10 @@ public interface ConfigurationService extends InjectableService {
    * @return
    */
   String getAzureAtomicRenameDirs();
+
+  /**
+   * Retrieves configured boolean for creating remote file system during initialization
+   * @return configured boolean for creating remote file system during initialization
+   */
+  boolean getCreateRemoteFileSystemDuringInitialization();
 }
