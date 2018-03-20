@@ -271,11 +271,6 @@ public class AzureDistributedFileSystem extends FileSystem {
               }
 
               adjustedDst = new Path(dst, sourceFileName);
-              // TODO - Remove after service is fixed
-              FileStatus dstFileStatus = tryGetFileStatus(adjustedDst);
-              if (dstFileStatus != null) {
-                return false;
-              }
             }
 
             adfsHttpService.rename(azureDistributedFileSystem, makeQualified(src), makeQualified(adjustedDst));
@@ -307,28 +302,20 @@ public class AzureDistributedFileSystem extends FileSystem {
     }
 
     final AzureDistributedFileSystem azureDistributedFileSystem = this;
-    final FileStatus fileStatus = tryGetFileStatus(f);
-
-    if (fileStatus == null) {
-      return false;
-    }
-
     final FileSystemOperation<Boolean> delete = execute(
         "AzureDistributedFileSystem.delete",
         new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            if (fileStatus.isDirectory()) {
-              adfsHttpService.deleteDirectory(azureDistributedFileSystem, makeQualified(f), recursive);
-            }
-            else {
-              adfsHttpService.deleteFile(azureDistributedFileSystem, makeQualified(f));
-            }
+            adfsHttpService.delete(azureDistributedFileSystem, makeQualified(f), recursive);
             return true;
           }
         }, false);
 
-    evaluateFileSystemPathOperation(f, delete);
+    evaluateFileSystemPathOperation(
+        f,
+        delete,
+        AzureServiceErrorCode.PATH_NOT_FOUND);
     return delete.result;
   }
 

@@ -4878,3 +4878,5 @@ ATS V1.5:
 
     WASB-47. Adding createNonRecursive for ADFS driver and enabling disabled rename tests
 
+    WASB-48. Updating ADFS http client auto-generated code to the latest version and removing previous workarounds
+

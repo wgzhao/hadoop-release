@@ -904,7 +904,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               null /* xMsSourceLeaseId */,
               null /* xMsProperties */,
               null /* ifMatch */,
-              null /* ifNonMatch */,
+              CONDITIONAL_ALL,
               null /* ifModifiedSince */,
               null /* ifUnmodifiedSince */,
               null /* xMsSourceIfMatch */,
@@ -928,66 +928,31 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return executeAsync("AdfsHttpServiceImpl.renameDirectoryAsync", adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.renameAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override
-  public void deleteFile(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
+  public void delete(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
       AzureDistributedFileSystemException {
     execute(
-        "AdfsHttpServiceImpl.deleteFile",
+        "AdfsHttpServiceImpl.delete",
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            deleteFileAsync(azureDistributedFileSystem, path).get();
+            deleteAsync(azureDistributedFileSystem, path, recursive).get();
             return null;
           }
         });
   }
 
   @Override
-  public Future<Void> deleteFileAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path) throws
+  public Future<Void> deleteAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
       AzureDistributedFileSystemException {
     final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
     final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
 
     this.loggingService.debug(
-        "deleteFileAsync filesystem: {0} path: {1}",
-        adfsHttpClient.getSession().getFileSystem(),
-        path.toString());
-
-    final Callable<Void> asyncCallable = new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        return adfsHttpClient.deletePathAsync(getResource(false), adfsHttpClient.getSession().getFileSystem(), getRelativePath(path)).toBlocking().single();
-      }
-    };
-
-    return executeAsync("AdfsHttpServiceImpl.deleteFileAsync", adfsHttpClient, writeExecutorService, asyncCallable);
-  }
-
-  @Override
-  public void deleteDirectory(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
-      AzureDistributedFileSystemException {
-    execute(
-        "AdfsHttpServiceImpl.deleteDirectory",
-        new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            deleteDirectoryAsync(azureDistributedFileSystem, path, recursive).get();
-            return null;
-          }
-        });
-  }
-
-  @Override
-  public Future<Void> deleteDirectoryAsync(final AzureDistributedFileSystem azureDistributedFileSystem, final Path path, final boolean recursive) throws
-      AzureDistributedFileSystemException {
-    final AdfsHttpClient adfsHttpClient = this.getOrCreateFileSystemClient(azureDistributedFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(adfsHttpClient, azureDistributedFileSystem);
-
-    this.loggingService.debug(
-        "deleteDirectoryAsync filesystem: {0} path: {1} recursive: {2}",
+        "deleteAsync filesystem: {0} path: {1} recursive: {2}",
         adfsHttpClient.getSession().getFileSystem(),
         path.toString(),
         String.valueOf(recursive));
@@ -1009,7 +974,6 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
           }
 
           continuation = adfsHttpClient.deletePathWithServiceResponseAsync(
-              getResource(true),
               adfsHttpClient.getSession().getFileSystem(),
               getRelativePath(path),
               recursive,
@@ -1035,7 +999,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
       }
     };
 
-    return executeAsync("AdfsHttpServiceImpl.deleteDirectoryAsync", adfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AdfsHttpServiceImpl.deleteAsync", adfsHttpClient, writeExecutorService, asyncCallable);
   }
 
   @Override

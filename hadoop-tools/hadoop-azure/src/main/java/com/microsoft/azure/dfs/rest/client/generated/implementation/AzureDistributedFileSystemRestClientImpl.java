@@ -87,76 +87,14 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization.
    */
   private String xMsVersion;
-
-  /**
-   * Gets Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization.
-   *
-   * @return the xMsVersion value.
-   */
-  public String xMsVersion() {
-    return this.xMsVersion;
-  }
-
-  /**
-   * Sets Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization.
-   *
-   * @param xMsVersion the xMsVersion value.
-   * @return the service client itself
-   */
-  public AzureDistributedFileSystemRestClientImpl withXMsVersion(String xMsVersion) {
-    this.xMsVersion = xMsVersion;
-    return this;
-  }
-
   /**
    * The Azure Storage account name.
    */
   private String accountName;
-
-  /**
-   * Gets The Azure Storage account name.
-   *
-   * @return the accountName value.
-   */
-  public String accountName() {
-    return this.accountName;
-  }
-
-  /**
-   * Sets The Azure Storage account name.
-   *
-   * @param accountName the accountName value.
-   * @return the service client itself
-   */
-  public AzureDistributedFileSystemRestClientImpl withAccountName(String accountName) {
-    this.accountName = accountName;
-    return this;
-  }
-
   /**
    * The DNS suffix for the Azure Distributed Filesystem endpoint.
    */
   private String dnsSuffix;
-
-  /**
-   * Gets The DNS suffix for the Azure Distributed Filesystem endpoint.
-   *
-   * @return the dnsSuffix value.
-   */
-  public String dnsSuffix() {
-    return this.dnsSuffix;
-  }
-
-  /**
-   * Sets The DNS suffix for the Azure Distributed Filesystem endpoint.
-   *
-   * @param dnsSuffix the dnsSuffix value.
-   * @return the service client itself
-   */
-  public AzureDistributedFileSystemRestClientImpl withDnsSuffix(String dnsSuffix) {
-    this.dnsSuffix = dnsSuffix;
-    return this;
-  }
 
   /**
    * Initializes an instance of AzureDistributedFileSystemRestClient client.
@@ -208,6 +146,66 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
     initialize();
   }
 
+  /**
+   * Gets Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization.
+   *
+   * @return the xMsVersion value.
+   */
+  public String xMsVersion() {
+    return this.xMsVersion;
+  }
+
+  /**
+   * Sets Specifies the version of the REST protocol used for processing the request. This is required when using shared key authorization.
+   *
+   * @param xMsVersion the xMsVersion value.
+   * @return the service client itself
+   */
+  public AzureDistributedFileSystemRestClientImpl withXMsVersion(String xMsVersion) {
+    this.xMsVersion = xMsVersion;
+    return this;
+  }
+
+  /**
+   * Gets The Azure Storage account name.
+   *
+   * @return the accountName value.
+   */
+  public String accountName() {
+    return this.accountName;
+  }
+
+  /**
+   * Sets The Azure Storage account name.
+   *
+   * @param accountName the accountName value.
+   * @return the service client itself
+   */
+  public AzureDistributedFileSystemRestClientImpl withAccountName(String accountName) {
+    this.accountName = accountName;
+    return this;
+  }
+
+  /**
+   * Gets The DNS suffix for the Azure Distributed Filesystem endpoint.
+   *
+   * @return the dnsSuffix value.
+   */
+  public String dnsSuffix() {
+    return this.dnsSuffix;
+  }
+
+  /**
+   * Sets The DNS suffix for the Azure Distributed Filesystem endpoint.
+   *
+   * @param dnsSuffix the dnsSuffix value.
+   * @return the service client itself
+   */
+  public AzureDistributedFileSystemRestClientImpl withDnsSuffix(String dnsSuffix) {
+    this.dnsSuffix = dnsSuffix;
+    return this;
+  }
+
   private void initialize() {
     this.dnsSuffix = "dfs.core.windows.net";
     initializeService();
@@ -215,117 +213,6 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
 
   private void initializeService() {
     service = retrofit().create(AzureDistributedFileSystemRestClientService.class);
-  }
-
-  /**
-   * The interface defining all the services for AzureDistributedFileSystemRestClient to be
-   * used by Retrofit to perform actually REST calls.
-   */
-  interface AzureDistributedFileSystemRestClientService {
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient createFilesystem"})
-    @PUT("{filesystem}")
-    Observable<Response<ResponseBody>> createFilesystem(@Path("filesystem") String filesystem, @Header("x-ms-properties") String xMsProperties, @Query
-        ("resource") String resource, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date")
-        String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient setFilesystemProperties"})
-    @PATCH("{filesystem}")
-    Observable<Response<ResponseBody>> setFilesystemProperties(@Path("filesystem") String filesystem, @Header("x-ms-properties") String xMsProperties,
-        @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Query("resource") String resource,
-        @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
-        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient listPaths"})
-    @GET("{filesystem}")
-    Observable<Response<ResponseBody>> listPaths(@Path("filesystem") String filesystem, @Query("directory") String directory, @Query("recursive") boolean
-        recursive, @Query("continuation") String continuation, @Query("maxResults") Integer maxResults, @Query("resource") String resource, @Header
-        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
-        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient getFilesystemProperties"})
-    @HEAD("{filesystem}")
-    Observable<Response<Void>> getFilesystemProperties(@Path("filesystem") String filesystem, @Query("resource") String resource, @Header
-        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version")
-        String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient deleteFilesystem"})
-    @HTTP(path = "{filesystem}", method = "DELETE", hasBody = true)
-    Observable<Response<ResponseBody>> deleteFilesystem(@Path("filesystem") String filesystem, @Header("If-Modified-Since") String ifModifiedSince,
-        @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Query("resource") String resource, @Header("x-ms-client-request-id") String
-        xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header
-        ("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/octet-stream", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient createPath"})
-    @PUT("{filesystem}/{path}")
-    Observable<Response<ResponseBody>> createPath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("resource") String resource,
-        @Query("continuation") String continuation, @Header("Content-Length") String contentLength, @Header("Cache-Control") String cacheControl, @Header
-        ("Content-Encoding") String contentEncoding, @Header("Content-Language") String contentLanguage, @Header("Content-Disposition") String
-        contentDisposition, @Header("x-ms-cache-control") String xMsCacheControl, @Header("x-ms-content-type") String xMsContentType, @Header
-        ("x-ms-content-encoding") String xMsContentEncoding, @Header("x-ms-content-language") String xMsContentLanguage, @Header("x-ms-content-disposition")
-        String xMsContentDisposition, @Header("x-ms-rename-source") String xMsRenameSource, @Header("x-ms-lease-action") String xMsLeaseAction, @Header
-        ("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-proposed-lease-id") String xMsProposedLeaseId, @Header("x-ms-source-lease-id") String
-        xMsSourceLeaseId, @Header("x-ms-properties") String xMsProperties, @Header("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch,
-        @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Header("x-ms-source-if-match") String
-        xMsSourceIfMatch, @Header("x-ms-source-if-none-match") String xMsSourceIfNoneMatch, @Header("x-ms-source-if-modified-since") String
-        xMsSourceIfModifiedSince, @Header("x-ms-source-if-unmodified-since") String xMsSourceIfUnmodifiedSince, @Body RequestBody requestBody, @Header
-        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version")
-        String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/octet-stream", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient updatePath"})
-    @PATCH("{filesystem}/{path}")
-    Observable<Response<ResponseBody>> updatePath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("action") String action,
-        @Query("position") Long position, @Query("retainUncommittedData") Boolean retainUncommittedData, @Header("Content-Length") String contentLength,
-        @Header("x-ms-lease-action") String xMsLeaseAction, @Header("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-cache-control") String xMsCacheControl,
-        @Header("x-ms-content-type") String xMsContentType, @Header("x-ms-content-disposition") String xMsContentDisposition, @Header
-        ("x-ms-content-encoding") String xMsContentEncoding, @Header("x-ms-content-language") String xMsContentLanguage, @Header("x-ms-properties") String
-        xMsProperties, @Header("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince,
-        @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Body RequestBody requestBody, @Header("x-ms-client-request-id") String xMsClientRequestId,
-        @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host")
-        String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient leasePath"})
-    @POST("{filesystem}/{path}")
-    Observable<Response<ResponseBody>> leasePath(@Path("filesystem") String filesystem, @Path("path") String path, @Header("x-ms-lease-action") String
-        xMsLeaseAction, @Header("x-ms-lease-duration") Integer xMsLeaseDuration, @Header("x-ms-lease-break-period") Integer xMsLeaseBreakPeriod, @Header
-        ("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-proposed-lease-id") String xMsProposedLeaseId, @Header("If-Match") String ifMatch, @Header
-        ("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince,
-        @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
-        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient readPath"})
-    @GET("{filesystem}/{path}")
-    @Streaming
-    Observable<Response<ResponseBody>> readPath(@Path("filesystem") String filesystem, @Path("path") String path, @Header("Range") String range, @Header
-        ("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header
-        ("If-Unmodified-Since") String ifUnmodifiedSince, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout,
-        @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient getPathProperties"})
-    @HEAD("{filesystem}/{path}")
-    Observable<Response<Void>> getPathProperties(@Path("filesystem") String filesystem, @Path("path") String path, @Header("If-Match") String ifMatch,
-        @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String
-        ifUnmodifiedSince, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String
-        xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
-    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
-        + ".AzureDistributedFileSystemRestClient deletePath"})
-    @HTTP(path = "{filesystem}/{path}", method = "DELETE", hasBody = true)
-    Observable<Response<ResponseBody>> deletePath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("recursive") Boolean
-        recursive, @Query("resource") String resource, @Query("continuation") String continuation, @Header("x-ms-lease-id") String xMsLeaseId, @Header
-        ("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header
-        ("If-Unmodified-Since") String ifUnmodifiedSince, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout,
-        @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
-
   }
 
   /**
@@ -920,8 +807,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
     final String xMsDate = null;
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
     return service.listPaths(filesystem, directory, recursive, continuation, maxResults, resource, xMsClientRequestId, timeout, xMsDate, this.xMsVersion(),
-        parameterizedHost)
-        .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>>>() {
+        parameterizedHost).flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>> call(Response<ResponseBody> response) {
             try {
@@ -1020,13 +906,13 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    */
   public Observable<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String directory, String continuation, Integer
       maxResults, String xMsClientRequestId, Integer timeout, String xMsDate) {
-    return listPathsWithServiceResponseAsync(recursive, filesystem, resource, directory, continuation, maxResults, xMsClientRequestId, timeout, xMsDate).map(
-        new Func1<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>, ListSchema>() {
-          @Override
-          public ListSchema call(ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> response) {
-            return response.body();
-          }
-        });
+    return listPathsWithServiceResponseAsync(recursive, filesystem, resource, directory, continuation, maxResults, xMsClientRequestId, timeout, xMsDate)
+        .map(new Func1<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>, ListSchema>() {
+               @Override
+               public ListSchema call(ServiceResponseWithHeaders<ListSchema, ListPathsHeaders> response) {
+                 return response.body();
+               }
+             });
   }
 
   /**
@@ -1068,8 +954,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
     }
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
     return service.listPaths(filesystem, directory, recursive, continuation, maxResults, resource, xMsClientRequestId, timeout, xMsDate, this.xMsVersion(),
-        parameterizedHost)
-        .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>>>() {
+        parameterizedHost).flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<ListSchema, ListPathsHeaders>> call(Response<ResponseBody> response) {
             try {
@@ -1789,7 +1674,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       contentEncoding, String contentLanguage, String contentDisposition, String xMsCacheControl, String xMsContentType, String xMsContentEncoding, String
       xMsContentLanguage, String xMsContentDisposition, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId, String
       xMsSourceLeaseId, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsSourceIfMatch,
-      String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String xMsClientRequestId,
+      String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, final InputStream requestBody, String xMsClientRequestId,
       Integer timeout, String xMsDate) {
     createPathWithServiceResponseAsync(filesystem, path, resource, continuation, contentLength, cacheControl, contentEncoding, contentLanguage,
         contentDisposition, xMsCacheControl, xMsContentType, xMsContentEncoding, xMsContentLanguage, xMsContentDisposition, xMsRenameSource, xMsLeaseAction,
@@ -1873,8 +1758,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       cacheControl, String contentEncoding, String contentLanguage, String contentDisposition, String xMsCacheControl, String xMsContentType, String
       xMsContentEncoding, String xMsContentLanguage, String xMsContentDisposition, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String
       xMsProposedLeaseId, String xMsSourceLeaseId, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
-      String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String
-      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback) {
+      String xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, final InputStream requestBody,
+      String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback) {
     return ServiceFuture.fromHeaderResponse(createPathWithServiceResponseAsync(filesystem, path, resource, continuation, contentLength, cacheControl,
         contentEncoding, contentLanguage, contentDisposition, xMsCacheControl, xMsContentType, xMsContentEncoding, xMsContentLanguage, xMsContentDisposition,
         xMsRenameSource, xMsLeaseAction, xMsLeaseId, xMsProposedLeaseId, xMsSourceLeaseId, xMsProperties, ifMatch, ifNoneMatch, ifModifiedSince,
@@ -1956,7 +1841,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       String contentEncoding, String contentLanguage, String contentDisposition, String xMsCacheControl, String xMsContentType, String xMsContentEncoding,
       String xMsContentLanguage, String xMsContentDisposition, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId,
       String xMsSourceLeaseId, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-      xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String
+      xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, final InputStream requestBody, String
       xMsClientRequestId, Integer timeout, String xMsDate) {
     return createPathWithServiceResponseAsync(filesystem, path, resource, continuation, contentLength, cacheControl, contentEncoding, contentLanguage,
         contentDisposition, xMsCacheControl, xMsContentType, xMsContentEncoding, xMsContentLanguage, xMsContentDisposition, xMsRenameSource, xMsLeaseAction,
@@ -2292,8 +2177,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    */
   public void updatePath(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength, String
       xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String
-      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody,
-      String xMsClientRequestId, Integer timeout, String xMsDate) {
+      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
+      final InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate) {
     updatePathWithServiceResponseAsync(action, filesystem, path, position, retainUncommittedData, contentLength, xMsLeaseAction, xMsLeaseId,
         xMsCacheControl, xMsContentType, xMsContentDisposition, xMsContentEncoding, xMsContentLanguage, xMsProperties, ifMatch, ifNoneMatch, ifModifiedSince,
         ifUnmodifiedSince, requestBody, xMsClientRequestId, timeout, xMsDate).toBlocking().single().body();
@@ -2360,7 +2245,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   public ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String
       contentLength, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String
       xMsContentEncoding, String xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback) {
+      ifUnmodifiedSince, final InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate,
+      final ServiceCallback<Void> serviceCallback) {
     return ServiceFuture.fromHeaderResponse(updatePathWithServiceResponseAsync(action, filesystem, path, position, retainUncommittedData, contentLength,
         xMsLeaseAction, xMsLeaseId, xMsCacheControl, xMsContentType, xMsContentDisposition, xMsContentEncoding, xMsContentLanguage, xMsProperties, ifMatch,
         ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, requestBody, xMsClientRequestId, timeout, xMsDate), serviceCallback);
@@ -2426,7 +2312,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   public Observable<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String
       contentLength, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String
       xMsContentEncoding, String xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate) {
+      ifUnmodifiedSince, final InputStream requestBody, String xMsClientRequestId, Integer timeout, String xMsDate) {
     return updatePathWithServiceResponseAsync(action, filesystem, path, position, retainUncommittedData, contentLength, xMsLeaseAction, xMsLeaseId,
         xMsCacheControl, xMsContentType, xMsContentDisposition, xMsContentEncoding, xMsContentLanguage, xMsProperties, ifMatch, ifNoneMatch, ifModifiedSince,
         ifUnmodifiedSince, requestBody, xMsClientRequestId, timeout, xMsDate).map(new Func1<ServiceResponseWithHeaders<Void, UpdatePathHeaders>, Void>() {
@@ -2495,7 +2381,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    */
   public Observable<ServiceResponseWithHeaders<Void, UpdatePathHeaders>> updatePathWithServiceResponseAsync(String action, String filesystem, String path,
       Long position, Boolean retainUncommittedData, final String contentLength, String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String
-  xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String xMsContentLanguage, String xMsProperties, String ifMatch, String
+      xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String xMsContentLanguage, String xMsProperties, String ifMatch, String
       ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, final InputStream requestBody, String xMsClientRequestId, Integer timeout, String
       xMsDate) {
     if (this.accountName() == null) {
@@ -2736,25 +2622,25 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
   public void leasePath(String xMsLeaseAction, String filesystem, String path, Integer xMsLeaseDuration, Integer xMsLeaseBreakPeriod, String xMsLeaseId,
-  String xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer
-  timeout, String xMsDate) {
+      String xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer
+      timeout, String xMsDate) {
     leasePathWithServiceResponseAsync(xMsLeaseAction, filesystem, path, xMsLeaseDuration, xMsLeaseBreakPeriod, xMsLeaseId, xMsProposedLeaseId, ifMatch,
-    ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate).toBlocking().single().body();
+        ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate).toBlocking().single().body();
   }
 
   /**
    * Lease Path.
    * Create and manage a lease to restrict write and delete access to the path. This operation supports conditional HTTP requests.  For more information, see
-    * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
-    * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * [Specifying Conditional Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param xMsLeaseAction      There are five lease actions: "acquire", "break", "change", "renew", and "release". Use "acquire" and specify the
    *                            "x-ms-proposed-lease-id" and "x-ms-lease-duration" to acquire a new lease. Use "break" to break an existing lease. When a
    *                            lease is broken, the lease break period is allowed to elapse, during which time no lease operation except break and release
    *                            can be performed on the blob. When a lease is successfully broken, the response indicates the interval in seconds until a new
-    *                            lease can be acquired. Use "change" and specify the current lease ID in "x-ms-lease-id" and the new lease ID in
-    *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
-    *                            existing lease. Use "release" and specify the "x-ms-lease-id" to release a lease.
+   *                            lease can be acquired. Use "change" and specify the current lease ID in "x-ms-lease-id" and the new lease ID in
+   *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
+   *                            existing lease. Use "release" and specify the "x-ms-lease-id" to release a lease.
    * @param filesystem          The filesystem identifier.
    * @param path                The file or directory path.
    * @param xMsLeaseDuration    The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
@@ -2774,8 +2660,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifUnmodifiedSince   Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
    *                            since the specified date and time.
    * @param xMsClientRequestId  A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout             An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-    *                           value elapses before the operation completes, the operation fails.
+   * @param timeout             An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
+   *                            timeout value elapses before the operation completes, the operation fails.
    * @param xMsDate             Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @param serviceCallback     the async ServiceCallback to handle successful and failed responses.
    * @return the {@link ServiceFuture} object
@@ -2785,7 +2671,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       String xMsLeaseId, String xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
       xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback) {
     return ServiceFuture.fromHeaderResponse(leasePathWithServiceResponseAsync(xMsLeaseAction, filesystem, path, xMsLeaseDuration, xMsLeaseBreakPeriod,
-    xMsLeaseId, xMsProposedLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate), serviceCallback);
+        xMsLeaseId, xMsProposedLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate), serviceCallback);
   }
 
   /**
@@ -2798,9 +2684,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    *                            "x-ms-proposed-lease-id" and "x-ms-lease-duration" to acquire a new lease. Use "break" to break an existing lease. When a
    *                            lease is broken, the lease break period is allowed to elapse, during which time no lease operation except break and release
    *                            can be performed on the blob. When a lease is successfully broken, the response indicates the interval in seconds until a new
-    *                            lease can be acquired. Use "change" and specify the current lease ID in "x-ms-lease-id" and the new lease ID in
-    *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
-    *                            existing lease. Use "release" and specify the "x-ms-lease-id" to release a lease.
+   *                            lease can be acquired. Use "change" and specify the current lease ID in "x-ms-lease-id" and the new lease ID in
+   *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
+   *                            existing lease. Use "release" and specify the "x-ms-lease-id" to release a lease.
    * @param filesystem          The filesystem identifier.
    * @param path                The file or directory path.
    * @param xMsLeaseDuration    The lease duration is required to acquire a lease, and specifies the duration of the lease in seconds.  The lease duration
@@ -2850,7 +2736,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    *                            lease is broken, the lease break period is allowed to elapse, during which time no lease operation except break and release
    *                            can be performed on the blob. When a lease is successfully broken, the response indicates the interval in seconds until a new
    *                            lease can be acquired. Use "change" and specify the current lease ID in "x-ms-lease-id" and the new lease ID in
-    *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
+   *                            "x-ms-proposed-lease-id" to change the lease ID of an active lease. Use "renew" and specify the "x-ms-lease-id" to renew an
    *                            existing lease. Use "release" and specify the "x-ms-lease-id" to release a lease.
    * @param filesystem          The filesystem identifier.
    * @param path                The file or directory path.
@@ -2896,8 +2782,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       throw new IllegalArgumentException("Parameter path is required and cannot be null.");
     }
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
-    return service.leasePath(filesystem, path, xMsLeaseAction, xMsLeaseDuration, xMsLeaseBreakPeriod, xMsLeaseId, xMsProposedLeaseId, ifMatch,
-        ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
+    return service.leasePath(filesystem, path, xMsLeaseAction, xMsLeaseDuration, xMsLeaseBreakPeriod, xMsLeaseId, xMsProposedLeaseId, ifMatch, ifNoneMatch,
+        ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
         .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<Void, LeasePathHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<Void, LeasePathHeaders>> call(Response<ResponseBody> response) {
@@ -3052,9 +2938,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
   public InputStream readPath(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-  ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
+      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
     return readPathWithServiceResponseAsync(filesystem, path, range, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout,
-    xMsDate).toBlocking().single().body();
+        xMsDate).toBlocking().single().body();
   }
 
   /**
@@ -3066,8 +2952,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param range              The HTTP Range request header specifies one or more byte ranges of the resource to be retrieved.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
+   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
+   *                           specified. The ETag must be specified in quotes.
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
@@ -3114,8 +3000,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    */
   public Observable<InputStream> readPathAsync(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince,
       String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
-    return readPathWithServiceResponseAsync(filesystem, path, range, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId,
-        timeout, xMsDate).map(new Func1<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>, InputStream>() {
+    return readPathWithServiceResponseAsync(filesystem, path, range, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout,
+        xMsDate).map(new Func1<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>, InputStream>() {
       @Override
       public InputStream call(ServiceResponseWithHeaders<InputStream, ReadPathHeaders> response) {
         return response.body();
@@ -3148,7 +3034,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   public Observable<ServiceResponseWithHeaders<InputStream, ReadPathHeaders>> readPathWithServiceResponseAsync(String filesystem, String path, String range,
-  String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
+      String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
     if (this.accountName() == null) {
       throw new IllegalArgumentException("Parameter this.accountName() is required and cannot be null.");
     }
@@ -3221,7 +3107,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
@@ -3240,7 +3127,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
@@ -3286,8 +3174,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
@@ -3296,9 +3183,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
    *                           value elapses before the operation completes, the operation fails.
@@ -3307,16 +3194,17 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  public void getPathProperties(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-  xMsClientRequestId, Integer timeout, String xMsDate) {
+  public void getPathProperties(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince,
+      String xMsClientRequestId, Integer timeout, String xMsDate) {
     getPathPropertiesWithServiceResponseAsync(filesystem, path, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout,
-    xMsDate).toBlocking().single().body();
+        xMsDate).toBlocking().single().body();
   }
 
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft
+   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
@@ -3350,8 +3238,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    *
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
-   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value specified
-   *                           . The ETag must be specified in quotes.
+   * @param ifMatch            Optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag matches the value
+   *                           specified. The ETag must be specified in quotes.
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
@@ -3379,8 +3267,7 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   /**
    * Get File Properties | Get Directory Properties.
    * Get the properties for a file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional
-   * Headers for Blob Service Operations](https://docs.microsoft
-   * .com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
+   * Headers for Blob Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
@@ -3388,10 +3275,10 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    *                           specified. The ETag must be specified in quotes.
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
-   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
+   *                           the specified date and time.
+   * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
+   *                           since the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
    *                           timeout value elapses before the operation completes, the operation fails.
@@ -3414,8 +3301,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       throw new IllegalArgumentException("Parameter path is required and cannot be null.");
     }
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
-    return service.getPathProperties(filesystem, path, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate,
-        this.xMsVersion(), parameterizedHost)
+    return service.getPathProperties(filesystem, path, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate, this
+        .xMsVersion(), parameterizedHost)
         .flatMap(new Func1<Response<Void>, Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<Void, GetPathPropertiesHeaders>> call(Response<Void> response) {
@@ -3443,15 +3330,14 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  public void deletePath(String resource, String filesystem, String path) {
-    deletePathWithServiceResponseAsync(resource, filesystem, path).toBlocking().single().body();
+  public void deletePath(String filesystem, String path) {
+    deletePathWithServiceResponseAsync(filesystem, path).toBlocking().single().body();
   }
 
   /**
@@ -3459,15 +3345,14 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource        The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem      The filesystem identifier.
    * @param path            The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, final ServiceCallback<Void> serviceCallback) {
-    return ServiceFuture.fromHeaderResponse(deletePathWithServiceResponseAsync(resource, filesystem, path), serviceCallback);
+  public ServiceFuture<Void> deletePathAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback) {
+    return ServiceFuture.fromHeaderResponse(deletePathWithServiceResponseAsync(filesystem, path), serviceCallback);
   }
 
   /**
@@ -3475,14 +3360,13 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public Observable<Void> deletePathAsync(String resource, String filesystem, String path) {
-    return deletePathWithServiceResponseAsync(resource, filesystem, path).map(new Func1<ServiceResponseWithHeaders<Void, DeletePathHeaders>, Void>() {
+  public Observable<Void> deletePathAsync(String filesystem, String path) {
+    return deletePathWithServiceResponseAsync(filesystem, path).map(new Func1<ServiceResponseWithHeaders<Void, DeletePathHeaders>, Void>() {
       @Override
       public Void call(ServiceResponseWithHeaders<Void, DeletePathHeaders> response) {
         return response.body();
@@ -3495,21 +3379,17 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path) {
+  public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String filesystem, String path) {
     if (this.accountName() == null) {
       throw new IllegalArgumentException("Parameter this.accountName() is required and cannot be null.");
     }
     if (this.dnsSuffix() == null) {
       throw new IllegalArgumentException("Parameter this.dnsSuffix() is required and cannot be null.");
-    }
-    if (resource == null) {
-      throw new IllegalArgumentException("Parameter resource is required and cannot be null.");
     }
     if (filesystem == null) {
       throw new IllegalArgumentException("Parameter filesystem is required and cannot be null.");
@@ -3528,8 +3408,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
     final Integer timeout = null;
     final String xMsDate = null;
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
-    return service.deletePath(filesystem, path, recursive, resource, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince,
-    xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
+    return service.deletePath(filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince,
+        xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
         .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> call(Response<ResponseBody> response) {
@@ -3548,7 +3428,6 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -3563,9 +3442,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
    *                           value elapses before the operation completes, the operation fails.
@@ -3574,10 +3453,10 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  public void deletePath(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
-  ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
-    deletePathWithServiceResponseAsync(resource, filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince,
-    ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate).toBlocking().single().body();
+  public void deletePath(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch,
+      String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
+    deletePathWithServiceResponseAsync(filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince,
+        xMsClientRequestId, timeout, xMsDate).toBlocking().single().body();
   }
 
   /**
@@ -3585,7 +3464,6 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -3600,9 +3478,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
    *                           value elapses before the operation completes, the operation fails.
@@ -3611,11 +3489,11 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId,
-  String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final
+  public ServiceFuture<Void> deletePathAsync(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch,
+      String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final
   ServiceCallback<Void> serviceCallback) {
-    return ServiceFuture.fromHeaderResponse(deletePathWithServiceResponseAsync(resource, filesystem, path, recursive, continuation, xMsLeaseId, ifMatch,
-    ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate), serviceCallback);
+    return ServiceFuture.fromHeaderResponse(deletePathWithServiceResponseAsync(filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch,
+        ifModifiedSince, ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate), serviceCallback);
   }
 
   /**
@@ -3623,7 +3501,6 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -3638,9 +3515,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
    *                           value elapses before the operation completes, the operation fails.
@@ -3648,10 +3525,10 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public Observable<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String
-  ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
-    return deletePathWithServiceResponseAsync(resource, filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince,
-    ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate).map(new Func1<ServiceResponseWithHeaders<Void, DeletePathHeaders>, Void>() {
+  public Observable<Void> deletePathAsync(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
+      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate) {
+    return deletePathWithServiceResponseAsync(filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince,
+        ifUnmodifiedSince, xMsClientRequestId, timeout, xMsDate).map(new Func1<ServiceResponseWithHeaders<Void, DeletePathHeaders>, Void>() {
       @Override
       public Void call(ServiceResponseWithHeaders<Void, DeletePathHeaders> response) {
         return response.body();
@@ -3664,7 +3541,6 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -3679,9 +3555,9 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
    * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-    *                          specified date and time.
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified since
-    *                          the specified date and time.
+   *                          the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
    * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
    *                           value elapses before the operation completes, the operation fails.
@@ -3689,17 +3565,14 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path,
-  Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-  xMsClientRequestId, Integer timeout, String xMsDate) {
+  public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String filesystem, String path, Boolean
+      recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
+      xMsClientRequestId, Integer timeout, String xMsDate) {
     if (this.accountName() == null) {
       throw new IllegalArgumentException("Parameter this.accountName() is required and cannot be null.");
     }
     if (this.dnsSuffix() == null) {
       throw new IllegalArgumentException("Parameter this.dnsSuffix() is required and cannot be null.");
-    }
-    if (resource == null) {
-      throw new IllegalArgumentException("Parameter resource is required and cannot be null.");
     }
     if (filesystem == null) {
       throw new IllegalArgumentException("Parameter filesystem is required and cannot be null.");
@@ -3708,8 +3581,8 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
       throw new IllegalArgumentException("Parameter path is required and cannot be null.");
     }
     String parameterizedHost = Joiner.on(", ").join("{accountName}", this.accountName(), "{dnsSuffix}", this.dnsSuffix());
-    return service.deletePath(filesystem, path, recursive, resource, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince,
-    xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
+    return service.deletePath(filesystem, path, recursive, continuation, xMsLeaseId, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince,
+        xMsClientRequestId, timeout, xMsDate, this.xMsVersion(), parameterizedHost)
         .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>>>() {
           @Override
           public Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> call(Response<ResponseBody> response) {
@@ -3724,12 +3597,123 @@ public class AzureDistributedFileSystemRestClientImpl extends ServiceClient impl
   }
 
   private ServiceResponseWithHeaders<Void, DeletePathHeaders> deletePathDelegate(Response<ResponseBody> response) throws ErrorSchemaException, IOException,
-  IllegalArgumentException {
+      IllegalArgumentException {
     return this.restClient().responseBuilderFactory().<Void, ErrorSchemaException>newInstance(this.serializerAdapter())
         .register(200, new TypeToken<Void>() {
         }.getType())
         .registerError(ErrorSchemaException.class)
         .buildWithHeaders(response, DeletePathHeaders.class);
+  }
+
+  /**
+   * The interface defining all the services for AzureDistributedFileSystemRestClient to be
+   * used by Retrofit to perform actually REST calls.
+   */
+  interface AzureDistributedFileSystemRestClientService {
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient createFilesystem"})
+    @PUT("{filesystem}")
+    Observable<Response<ResponseBody>> createFilesystem(@Path("filesystem") String filesystem, @Header("x-ms-properties") String xMsProperties, @Query
+        ("resource") String resource, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date")
+        String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient setFilesystemProperties"})
+    @PATCH("{filesystem}")
+    Observable<Response<ResponseBody>> setFilesystemProperties(@Path("filesystem") String filesystem, @Header("x-ms-properties") String xMsProperties,
+        @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Query("resource") String resource,
+        @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
+        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient listPaths"})
+    @GET("{filesystem}")
+    Observable<Response<ResponseBody>> listPaths(@Path("filesystem") String filesystem, @Query("directory") String directory, @Query("recursive") boolean
+        recursive, @Query("continuation") String continuation, @Query("maxResults") Integer maxResults, @Query("resource") String resource, @Header
+        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
+        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient getFilesystemProperties"})
+    @HEAD("{filesystem}")
+    Observable<Response<Void>> getFilesystemProperties(@Path("filesystem") String filesystem, @Query("resource") String resource, @Header
+        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version")
+        String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient deleteFilesystem"})
+    @HTTP(path = "{filesystem}", method = "DELETE", hasBody = true)
+    Observable<Response<ResponseBody>> deleteFilesystem(@Path("filesystem") String filesystem, @Header("If-Modified-Since") String ifModifiedSince,
+        @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Query("resource") String resource, @Header("x-ms-client-request-id") String
+        xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header
+        ("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/octet-stream", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient createPath"})
+    @PUT("{filesystem}/{path}")
+    Observable<Response<ResponseBody>> createPath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("resource") String resource,
+        @Query("continuation") String continuation, @Header("Content-Length") String contentLength, @Header("Cache-Control") String cacheControl, @Header
+        ("Content-Encoding") String contentEncoding, @Header("Content-Language") String contentLanguage, @Header("Content-Disposition") String
+        contentDisposition, @Header("x-ms-cache-control") String xMsCacheControl, @Header("x-ms-content-type") String xMsContentType, @Header
+        ("x-ms-content-encoding") String xMsContentEncoding, @Header("x-ms-content-language") String xMsContentLanguage, @Header("x-ms-content-disposition")
+        String xMsContentDisposition, @Header("x-ms-rename-source") String xMsRenameSource, @Header("x-ms-lease-action") String xMsLeaseAction, @Header
+        ("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-proposed-lease-id") String xMsProposedLeaseId, @Header("x-ms-source-lease-id") String
+        xMsSourceLeaseId, @Header("x-ms-properties") String xMsProperties, @Header("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch,
+        @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Header("x-ms-source-if-match") String
+        xMsSourceIfMatch, @Header("x-ms-source-if-none-match") String xMsSourceIfNoneMatch, @Header("x-ms-source-if-modified-since") String
+        xMsSourceIfModifiedSince, @Header("x-ms-source-if-unmodified-since") String xMsSourceIfUnmodifiedSince, @Body RequestBody requestBody, @Header
+        ("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version")
+        String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/octet-stream", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient updatePath"})
+    @PATCH("{filesystem}/{path}")
+    Observable<Response<ResponseBody>> updatePath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("action") String action,
+        @Query("position") Long position, @Query("retainUncommittedData") Boolean retainUncommittedData, @Header("Content-Length") String contentLength,
+        @Header("x-ms-lease-action") String xMsLeaseAction, @Header("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-cache-control") String xMsCacheControl,
+        @Header("x-ms-content-type") String xMsContentType, @Header("x-ms-content-disposition") String xMsContentDisposition, @Header
+        ("x-ms-content-encoding") String xMsContentEncoding, @Header("x-ms-content-language") String xMsContentLanguage, @Header("x-ms-properties") String
+        xMsProperties, @Header("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince,
+        @Header("If-Unmodified-Since") String ifUnmodifiedSince, @Body RequestBody requestBody, @Header("x-ms-client-request-id") String xMsClientRequestId,
+        @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host")
+        String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient leasePath"})
+    @POST("{filesystem}/{path}")
+    Observable<Response<ResponseBody>> leasePath(@Path("filesystem") String filesystem, @Path("path") String path, @Header("x-ms-lease-action") String
+        xMsLeaseAction, @Header("x-ms-lease-duration") Integer xMsLeaseDuration, @Header("x-ms-lease-break-period") Integer xMsLeaseBreakPeriod, @Header
+        ("x-ms-lease-id") String xMsLeaseId, @Header("x-ms-proposed-lease-id") String xMsProposedLeaseId, @Header("If-Match") String ifMatch, @Header
+        ("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince,
+        @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
+        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient readPath"})
+    @GET("{filesystem}/{path}")
+    @Streaming
+    Observable<Response<ResponseBody>> readPath(@Path("filesystem") String filesystem, @Path("path") String path, @Header("Range") String range, @Header
+        ("If-Match") String ifMatch, @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header
+        ("If-Unmodified-Since") String ifUnmodifiedSince, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout,
+        @Header("x-ms-date") String xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient getPathProperties"})
+    @HEAD("{filesystem}/{path}")
+    Observable<Response<Void>> getPathProperties(@Path("filesystem") String filesystem, @Path("path") String path, @Header("If-Match") String ifMatch,
+        @Header("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String
+        ifUnmodifiedSince, @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String
+        xMsDate, @Header("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
+    @Headers({"Content-Type: application/json; charset=utf-8", "x-ms-logging-context: com.microsoft.azure.dfs.rest.client.generated"
+        + ".AzureDistributedFileSystemRestClient deletePath"})
+    @HTTP(path = "{filesystem}/{path}", method = "DELETE", hasBody = true)
+    Observable<Response<ResponseBody>> deletePath(@Path("filesystem") String filesystem, @Path("path") String path, @Query("recursive") Boolean
+        recursive, @Query("continuation") String continuation, @Header("x-ms-lease-id") String xMsLeaseId, @Header("If-Match") String ifMatch, @Header
+        ("If-None-Match") String ifNoneMatch, @Header("If-Modified-Since") String ifModifiedSince, @Header("If-Unmodified-Since") String ifUnmodifiedSince,
+        @Header("x-ms-client-request-id") String xMsClientRequestId, @Query("timeout") Integer timeout, @Header("x-ms-date") String xMsDate, @Header
+        ("x-ms-version") String xMsVersion, @Header("x-ms-parameterized-host") String parameterizedHost);
+
   }
 
 }

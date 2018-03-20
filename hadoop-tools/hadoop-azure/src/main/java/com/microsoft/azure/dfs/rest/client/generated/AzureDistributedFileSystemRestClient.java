@@ -435,7 +435,7 @@ public interface AzureDistributedFileSystemRestClient {
    *                   (-) character.  Consecutive dashes are not permitted.  All letters must be lowercase.  The value must have between 3 and 63 characters.
    * @param resource   The value must be "filesystem" for all filesystem operations.
    * @return the ListSchema object if successful.
-   * @throws IllegalArgumentException thrown iInputStream requestBodyf parameters fail the validation
+   * @throws IllegalArgumentException thrown if parameters fail the validation
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
@@ -1459,8 +1459,8 @@ public interface AzureDistributedFileSystemRestClient {
    */
   ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength,
       String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String
-      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream
-      requestBody, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody,
+      String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
@@ -1521,8 +1521,8 @@ public interface AzureDistributedFileSystemRestClient {
    */
   Observable<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength,
       String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String
-      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream
-      requestBody, String xMsClientRequestId, Integer timeout, String xMsDate);
+      xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody,
+      String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
@@ -1935,8 +1935,8 @@ public interface AzureDistributedFileSystemRestClient {
    *                           specified. The ETag must be specified in quotes.
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
-   *                          specified date and time.
+   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
+   *                           the specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
    *                           since the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
@@ -1995,8 +1995,8 @@ public interface AzureDistributedFileSystemRestClient {
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
    *                           since the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
-   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the timeout
-   *                           value elapses before the operation completes, the operation fails.
+   * @param timeout            An optional operation timeout value in seconds. The period begins when the request is received by the service. If the
+   *                           timeout value elapses before the operation completes, the operation fails.
    * @param xMsDate            Specifies the Coordinated Universal Time (UTC) for the request.  This is required when using shared key authorization.
    * @return the observable to the InputStream object
    * @throws IllegalArgumentException thrown if parameters fail the validation
@@ -2070,8 +2070,8 @@ public interface AzureDistributedFileSystemRestClient {
    *                           specified. The ETag must be specified in quotes.
    * @param ifNoneMatch        Optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform the operation only if the
    *                           resource's ETag does not match the value specified. The ETag must be specified in quotes.
-   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since
-   *                           the specified date and time.
+   * @param ifModifiedSince    Optional. A date and time value. Specify this header to perform the operation only if the resource has been modified since the
+   *                          specified date and time.
    * @param ifUnmodifiedSince  Optional. A date and time value. Specify this header to perform the operation only if the resource has not been modified
    *                           since the specified date and time.
    * @param xMsClientRequestId A UUID recorded in the analytics logs for troubleshooting and correlation.
@@ -2167,61 +2167,56 @@ public interface AzureDistributedFileSystemRestClient {
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  void deletePath(String resource, String filesystem, String path);
+  void deletePath(String filesystem, String path);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource        The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem      The filesystem identifier.
    * @param path            The file or directory path.
    * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> deletePathAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<Void> deletePathAsync(String resource, String filesystem, String path);
+  Observable<Void> deletePathAsync(String filesystem, String path);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource   The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem The filesystem identifier.
    * @param path       The file or directory path.
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path);
+  Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String filesystem, String path);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -2247,15 +2242,14 @@ public interface AzureDistributedFileSystemRestClient {
    * @throws ErrorSchemaException     thrown if the request is rejected by server
    * @throws RuntimeException         all other wrapped checked exceptions if the request fails to be sent
    */
-  void deletePath(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
-      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
+  void deletePath(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String
+      ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -2281,16 +2275,15 @@ public interface AzureDistributedFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String
-      ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final
-  ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> deletePathAsync(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
+      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void>
+      serviceCallback);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -2315,15 +2308,14 @@ public interface AzureDistributedFileSystemRestClient {
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<Void> deletePathAsync(String resource, String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String
-      ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
+  Observable<Void> deletePathAsync(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
+      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate);
 
   /**
    * Delete File | Delete Directory.
    * Delete the file or directory. This operation supports conditional HTTP requests.  For more information, see [Specifying Conditional Headers for Blob
    * Service Operations](https://docs.microsoft.com/en-us/rest/api/storageservices/specifying-conditional-headers-for-blob-service-operations).
    *
-   * @param resource           The value must be "file" or "directory" to indicate the resource type.
    * @param filesystem         The filesystem identifier.
    * @param path               The file or directory path.
    * @param recursive          Required and valid only when the resource is a directory.  If "true", all paths beneath the directory will be deleted. If
@@ -2348,8 +2340,8 @@ public interface AzureDistributedFileSystemRestClient {
    * @return the {@link ServiceResponseWithHeaders} object if successful.
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String resource, String filesystem, String path, Boolean
-      recursive, String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-      xMsClientRequestId, Integer timeout, String xMsDate);
+  Observable<ServiceResponseWithHeaders<Void, DeletePathHeaders>> deletePathWithServiceResponseAsync(String filesystem, String path, Boolean recursive,
+      String continuation, String xMsLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId,
+      Integer timeout, String xMsDate);
 
 }
