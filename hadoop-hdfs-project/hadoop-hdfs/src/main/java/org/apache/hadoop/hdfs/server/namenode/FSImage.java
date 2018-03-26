@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,6 +69,7 @@ import org.apache.hadoop.hdfs.server.protocol.NamespaceInfo;
 import org.apache.hadoop.hdfs.util.Canceler;
 import org.apache.hadoop.hdfs.util.MD5FileUtils;
 import org.apache.hadoop.io.MD5Hash;
+import org.apache.hadoop.util.ExitUtil;
 import org.apache.hadoop.util.Time;
 
 import com.google.common.base.Joiner;
@@ -84,6 +87,13 @@ public class FSImage implements Closeable {
 
   protected FSEditLog editLog = null;
   private boolean isUpgradeFinalized = false;
+
+  // True if 'fail on image errors' behavior is enabled via configuration.
+  private final boolean exitOnBadImageEnabled;
+
+  // If true, then image corruption was detected. The NameNode process will
+  // exit immediately after saving the image.
+  private AtomicBoolean exitAfterSave = new AtomicBoolean(false);
 
   protected NNStorage storage;
 
@@ -138,6 +148,10 @@ public class FSImage implements Closeable {
                        DFSConfigKeys.DFS_NAMENODE_NAME_DIR_RESTORE_DEFAULT)) {
       storage.setRestoreFailedStorage(true);
     }
+
+    this.exitOnBadImageEnabled = conf.getBoolean(
+        DFSConfigKeys.DFS_NAMENODE_EXIT_ON_BAD_IMAGE_KEY,
+        DFSConfigKeys.DFS_NAMENODE_EXIT_ON_BAD_IMAGE_DEFAULT);
 
     this.editLog = FSEditLog.newInstance(conf, storage, editsDirs);
     archivalManager = new NNStorageRetentionManager(conf, storage, editLog);
@@ -910,7 +924,13 @@ public class FSImage implements Closeable {
 
     FSImageFormatProtobuf.Saver saver = new FSImageFormatProtobuf.Saver(context);
     FSImageCompression compression = FSImageCompression.createCompression(conf);
-    saver.save(newFile, compression);
+    long numErrors = saver.save(newFile, compression);
+    if (numErrors > 0) {
+      // The image is likely corrupted.
+      LOG.error("Detected " + numErrors + " errors while saving FsImage " +
+          dstFile);
+      exitAfterSave.set(exitOnBadImageEnabled);
+    }
 
     MD5FileUtils.saveMD5File(dstFile, saver.getSavedDigest());
     storage.setMostRecentCheckpointInfo(txid, Time.now());
@@ -1047,6 +1067,12 @@ public class FSImage implements Closeable {
     } finally {
       removeFromCheckpointing(imageTxId);
     }
+
+    if (exitAfterSave.get()) {
+      LOG.fatal("NameNode process will exit now... The saved FsImage " +
+          nnf + " is potentially corrupted.");
+      ExitUtil.terminate(-1);
+    }
   }
 
   /**
@@ -1114,7 +1140,11 @@ public class FSImage implements Closeable {
 
       // Since we now have a new checkpoint, we can clean up some
       // old edit logs and checkpoints.
-      purgeOldStorage(nnf);
+      // Do not purge anything if we just wrote a corrupted FsImage.
+      if (!exitAfterSave.get()) {
+        purgeOldStorage(nnf);
+        archivalManager.purgeCheckpoints(NameNodeFile.IMAGE_NEW);
+      }
     } finally {
       // Notify any threads waiting on the checkpoint to be canceled
       // that it is complete.
