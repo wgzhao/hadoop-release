@@ -913,6 +913,13 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final String DFS_DATANODE_XCEIVER_STOP_TIMEOUT_MILLIS_KEY = "dfs.datanode.xceiver.stop.timeout.millis";
   public static final long   DFS_DATANODE_XCEIVER_STOP_TIMEOUT_MILLIS_DEFAULT = 60000;
 
+  // Undocumented configuration key to help debug some snapshot corruption
+  // issues. If set to true, then the standby NameNode will exit immediately
+  // after writing a known bad FsImage.
+  public static final String DFS_NAMENODE_EXIT_ON_BAD_IMAGE_KEY =
+      "dfs.namenode.exit.on.bad.image";
+  public static final boolean DFS_NAMENODE_EXIT_ON_BAD_IMAGE_DEFAULT = true;
+
   // WebHDFS retry policy
   public static final String  DFS_HTTP_CLIENT_RETRY_POLICY_ENABLED_KEY = "dfs.http.client.retry.policy.enabled";
   public static final boolean DFS_HTTP_CLIENT_RETRY_POLICY_ENABLED_DEFAULT = false;
