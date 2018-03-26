@@ -25,12 +25,14 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -882,6 +884,11 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
             throw new TimeoutException("Rename timed out.");
           }
 
+          String encodedRenameSource = URLEncoder.encode(Path.SEPARATOR + adfsHttpClient.getSession().getFileSystem()
+                  + Path.SEPARATOR + getRelativePath(source), StandardCharsets.UTF_8.toString());
+          // This is to ensure it matches .NET and Azure Blob SDK's behavior
+          encodedRenameSource = encodedRenameSource.replace("+", "%20").replace("%2F", "/");
+
           continuation = adfsHttpClient.createPathWithServiceResponseAsync(
               adfsHttpClient.getSession().getFileSystem(),
               getRelativePath(destination),
@@ -897,7 +904,7 @@ final class AdfsHttpServiceImpl implements AdfsHttpService {
               null /* xMsContentEncoding */,
               null /* xMsContentLanguage */,
               null /* xMsContentDisposition */,
-              Path.SEPARATOR + adfsHttpClient.getSession().getFileSystem() + Path.SEPARATOR + getRelativePath(source),
+              encodedRenameSource,
               null /* xMsLeaseAction */,
               null /* xMsLeaseId */,
               null /* xMsProposedLeaseId */,

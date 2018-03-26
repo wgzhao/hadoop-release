@@ -27,12 +27,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ITestAzureDistributedFileSystemRename extends DependencyInjectedTest {
@@ -61,6 +64,36 @@ public class ITestAzureDistributedFileSystemRename extends DependencyInjectedTes
     fs.rename(new Path("/testSrc"), new Path("/testDst"));
     FileStatus[] fileStatus = fs.listStatus(new Path("/testDst"));
     assertNotNull(fileStatus);
+  }
+
+  @Ignore("3/23/2018: Fix for UTF-8 unicode percent encoding/decoding is waiting for merge, so ignore this test for now")
+  @Test
+  public void testRenameFileUsingUnicode() throws Exception {
+    final AzureDistributedFileSystem fs = this.getFileSystem();
+    //Todo: 3/23/2018 known issue: ListStatus operation to folders/files whose name contains '?' will fail
+    //This is because Auto rest client didn't encode '?' in the uri query parameters
+    String[] folders1 = new String[]{"/%2c%26", "/ÖáΠ⇒", "/A +B", "/A~`!@#$%^&*()-_+={};:'>,<B"};
+    String[] folders2 = new String[]{"/abcÖ⇒123", "/abcÖáΠ⇒123", "/B+ C", "/B~`!@#$%^&*()-_+={};:'>,<C"};
+    String[] files = new String[]{"/%2c%27", "/中文", "/C +D", "/C~`!@#$%^&*()-_+={};:'>,<D"};
+
+    for (int i = 0; i < 4; i++) {
+      Path folderPath1 = new Path(folders1[i]);
+      assertTrue(fs.mkdirs(folderPath1));
+      assertTrue(fs.exists(folderPath1));
+
+      Path filePath = new Path(folders1[i] + files[i]);
+      fs.create(filePath);
+      assertTrue(fs.exists(filePath));
+
+      Path folderPath2 = new Path(folders2[i]);
+      fs.rename(folderPath1, folderPath2);
+      assertFalse(fs.exists(folderPath1));
+      assertTrue(fs.exists(folderPath2));
+
+      FileStatus[] fileStatus = fs.listStatus(folderPath2);
+      assertEquals("/" + fileStatus[0].getPath().getName(), files[i]);
+      assertNotNull(fileStatus);
+    }
   }
 
   @Test(expected = FileNotFoundException.class)
