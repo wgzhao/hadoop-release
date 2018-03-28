@@ -4999,3 +4999,6 @@ ATS V1.5:
     WASB-65. Refactoring abfs client and removing dependency on Autorest
 
     HADOOP-15446. WASB: PageBlobInputStream.skip breaks HBASE replication
+
+    HADOOP-15320. Remove customized getFileBlockLocations for hadoop-azure and
+    hadoop-azure-datalake. Contributed by Shanyu Zhao
