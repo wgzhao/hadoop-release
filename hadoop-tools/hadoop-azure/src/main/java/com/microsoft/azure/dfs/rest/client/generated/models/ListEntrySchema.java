@@ -64,30 +64,6 @@ public class ListEntrySchema {
   private Long contentLength;
 
   /**
-   * The contentType property.
-   */
-  @JsonProperty(value = "contentType")
-  private String contentType;
-
-  /**
-   * The leaseStatus property.
-   */
-  @JsonProperty(value = "leaseStatus")
-  private String leaseStatus;
-
-  /**
-   * The leaseDuration property.
-   */
-  @JsonProperty(value = "leaseDuration")
-  private String leaseDuration;
-
-  /**
-   * The serverEncrypted property.
-   */
-  @JsonProperty(value = "serverEncrypted")
-  private Boolean serverEncrypted;
-
-  /**
    * Get the name value.
    *
    * @return the name value
@@ -184,86 +160,6 @@ public class ListEntrySchema {
    */
   public ListEntrySchema withContentLength(Long contentLength) {
     this.contentLength = contentLength;
-    return this;
-  }
-
-  /**
-   * Get the contentType value.
-   *
-   * @return the contentType value
-   */
-  public String contentType() {
-    return this.contentType;
-  }
-
-  /**
-   * Set the contentType value.
-   *
-   * @param contentType the contentType value to set
-   * @return the ListEntrySchema object itself.
-   */
-  public ListEntrySchema withContentType(String contentType) {
-    this.contentType = contentType;
-    return this;
-  }
-
-  /**
-   * Get the leaseStatus value.
-   *
-   * @return the leaseStatus value
-   */
-  public String leaseStatus() {
-    return this.leaseStatus;
-  }
-
-  /**
-   * Set the leaseStatus value.
-   *
-   * @param leaseStatus the leaseStatus value to set
-   * @return the ListEntrySchema object itself.
-   */
-  public ListEntrySchema withLeaseStatus(String leaseStatus) {
-    this.leaseStatus = leaseStatus;
-    return this;
-  }
-
-  /**
-   * Get the leaseDuration value.
-   *
-   * @return the leaseDuration value
-   */
-  public String leaseDuration() {
-    return this.leaseDuration;
-  }
-
-  /**
-   * Set the leaseDuration value.
-   *
-   * @param leaseDuration the leaseDuration value to set
-   * @return the ListEntrySchema object itself.
-   */
-  public ListEntrySchema withLeaseDuration(String leaseDuration) {
-    this.leaseDuration = leaseDuration;
-    return this;
-  }
-
-  /**
-   * Get the serverEncrypted value.
-   *
-   * @return the serverEncrypted value
-   */
-  public Boolean serverEncrypted() {
-    return this.serverEncrypted;
-  }
-
-  /**
-   * Set the serverEncrypted value.
-   *
-   * @param serverEncrypted the serverEncrypted value to set
-   * @return the ListEntrySchema object itself.
-   */
-  public ListEntrySchema withServerEncrypted(Boolean serverEncrypted) {
-    this.serverEncrypted = serverEncrypted;
     return this;
   }
 

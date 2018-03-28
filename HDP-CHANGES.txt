@@ -4882,3 +4882,7 @@ ATS V1.5:
 
     WASB-49. Making filesystem creation configurable during AzureDistributedFileSystem initialize call
 
+    WASB-51. Updating ListEntrySchema contract to the latest version
+
+    WASB-50. Updating ADFS http client to percent encode rename source header
+
