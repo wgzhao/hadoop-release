@@ -4816,3 +4816,5 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+
+    BUG-120800. HADOOP-15317. Improve NetworkTopology chooseRandom's loop.
