@@ -4813,3 +4813,7 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-120037. YARN-8106. Update LogAggregationIndexedFileController to use
+    readFull instead read to avoid IOException while loading log meta. (Prabhu
+    Joseph via wangda)
