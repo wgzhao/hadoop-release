@@ -22,37 +22,37 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsNetworkTrafficMetrics holds network traffic metrics.
+ * AdfsThrottlingNetworkThroughputAnalysisResult stores Network throughput analysis result metadata.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsNetworkTrafficMetrics {
+public interface AdfsThrottlingNetworkThroughputAnalysisResult {
   /**
-   * Gets network metrics for write operations.
-   * @return network metrics for write operations.
+   * Getter for calculated sleep duration.
+   * @return sleep duration value.
    */
-  AdfsNetworkThroughputMetrics getWriteMetrics();
+  int getSleepDuration();
 
   /**
-   * Gets network metrics for read operations.
-   * @return network metrics for read operations.
+   * Setter for calculated sleep duration.
+   * @param value
    */
-  AdfsNetworkThroughputMetrics getReadMetrics();
+  void setSleepDuration(int value);
 
   /**
-   * Gets the start time of traffic metrics collection.
-   * @return the start time of traffic metrics collection.
+   * Resets the number of consecutive no error counter.
    */
-  long getStartTime();
+  void resetConsecutiveNoErrorCount();
 
   /**
-   * Gets the end time of traffic metrics collection.
-   * @return the end time of traffic metrics collection.
+   * Gets the number of consecutive no error counter.
+   * @return the number of consecutive no error counter.
    */
-  long getEndTime();
+  long getConsecutiveNoErrorCount();
 
   /**
-   * Stops traffic metrics collection.
+   * Increments the number of consecutive no error counter.
+   * @return the number of consecutive no error counter.
    */
-  void end();
+  long incrementConsecutiveNoErrorCount();
 }

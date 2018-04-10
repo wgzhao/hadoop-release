@@ -22,11 +22,11 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsNetworkTrafficAnalysisService responsible for http client session traffic analysis.
+ * AdfsThrottlingNetworkTrafficAnalysisService responsible for http client session traffic analysis.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsNetworkTrafficAnalysisService extends InjectableService {
+public interface AdfsThrottlingNetworkTrafficAnalysisService extends InjectableService {
   /**
    * Subscribes an adfsHttpClientSession to be analyzed by AnalysisService.
    * @param adfsHttpClientSession
@@ -47,16 +47,16 @@ public interface AdfsNetworkTrafficAnalysisService extends InjectableService {
   void unsubscribeFromAnalysis(AdfsHttpClientSession adfsHttpClientSession);
 
   /**
-   * Gets cached network throughput metrics for a specific adfsHttpClientSession.
+   * Gets cached throttling network throughput metrics for a specific adfsHttpClientSession.
    * @param adfsHttpClientSession
-   * @return cached network throughput metrics for a specific adfsHttpClientSession.
+   * @return cached throttling network throughput metrics for a specific adfsHttpClientSession.
    */
-  AdfsNetworkTrafficMetrics getAdfsNetworkThroughputMetrics(AdfsHttpClientSession adfsHttpClientSession);
+  AdfsThrottlingNetworkTrafficMetrics getAdfsThrottlingNetworkThroughputMetrics(AdfsHttpClientSession adfsHttpClientSession);
 
   /**
-   * Gets cached network throughput analysis result for a specific adfsHttpClientSession.
+   * Gets cached throttling network throughput analysis result for a specific adfsHttpClientSession.
    * @param adfsHttpClientSession
-   * @return cached network throughput analysis result for a specific adfsHttpClientSession.
+   * @return cached throttling network throughput analysis result for a specific adfsHttpClientSession.
    */
-  AdfsNetworkTrafficAnalysisResult getAdfsNetworkTrafficAnalysisResult(AdfsHttpClientSession adfsHttpClientSession);
+  AdfsThrottlingNetworkTrafficAnalysisResult getAdfsThrottlingNetworkTrafficAnalysisResult(AdfsHttpClientSession adfsHttpClientSession);
 }

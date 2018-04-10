@@ -27,8 +27,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azuredfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsInterceptorFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -45,11 +45,11 @@ public class MockAdfsHttpClientFactoryImpl extends AdfsHttpClientFactoryImpl {
   MockAdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService,
       final AdfsRetryStrategyFactory adfsRetryStrategyFactory,
-      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory,
+      final AdfsInterceptorFactory adfsInterceptorFactory,
       final LoggingService loggingService) {
-    super(configurationService, adfsHttpClientSessionFactory, adfsNetworkTrafficAnalysisService, adfsRetryStrategyFactory, adfsNetworkInterceptorFactory,
+    super(configurationService, adfsHttpClientSessionFactory, adfsThrottlingNetworkTrafficAnalysisService, adfsRetryStrategyFactory, adfsInterceptorFactory,
         loggingService);
 
     this.configurationService = configurationService;

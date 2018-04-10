@@ -28,9 +28,9 @@ import okhttp3.Response;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 
@@ -38,18 +38,18 @@ import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 @InterfaceStability.Evolving
 final class NetworkThrottlerImpl implements Interceptor {
   private final AdfsHttpClientSession adfsHttpClientSession;
-  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService;
   private final LoggingService loggingService;
 
   NetworkThrottlerImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService,
       final LoggingService loggingService) {
-    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
+    Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisService, "adfsThrottlingNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
-    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
+    this.adfsThrottlingNetworkTrafficAnalysisService = adfsThrottlingNetworkTrafficAnalysisService;
     this.adfsHttpClientSession = adfsHttpClientSession;
     this.loggingService = loggingService.get(NetworkThrottlerImpl.class);
   }
@@ -60,19 +60,19 @@ final class NetworkThrottlerImpl implements Interceptor {
 
     final Request request = chain.request();
 
-    final AdfsNetworkTrafficAnalysisResult adfsNetworkTrafficAnalysisResult =
-        this.adfsNetworkTrafficAnalysisService.getAdfsNetworkTrafficAnalysisResult(this.adfsHttpClientSession);
+    final AdfsThrottlingNetworkTrafficAnalysisResult adfsThrottlingNetworkTrafficAnalysisResult =
+        this.adfsThrottlingNetworkTrafficAnalysisService.getAdfsThrottlingNetworkTrafficAnalysisResult(this.adfsHttpClientSession);
 
-    final AdfsNetworkThroughputAnalysisResult networkThroughputAnalysisResult;
+    final AdfsThrottlingNetworkThroughputAnalysisResult throttlingNetworkThroughputAnalysisResult;
 
     if (NetworkUtils.isWriteRequest(request)) {
-      networkThroughputAnalysisResult = adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult();
+      throttlingNetworkThroughputAnalysisResult = adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult();
     }
     else {
-      networkThroughputAnalysisResult = adfsNetworkTrafficAnalysisResult.getReadAnalysisResult();
+      throttlingNetworkThroughputAnalysisResult = adfsThrottlingNetworkTrafficAnalysisResult.getReadAnalysisResult();
     }
 
-    final int sleepDuration = networkThroughputAnalysisResult.getSleepDuration();
+    final int sleepDuration = throttlingNetworkThroughputAnalysisResult.getSleepDuration();
     if (sleepDuration > 0) {
       try{
         this.loggingService.debug(

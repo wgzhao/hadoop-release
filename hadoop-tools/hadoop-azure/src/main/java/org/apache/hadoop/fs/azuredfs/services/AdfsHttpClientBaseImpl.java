@@ -18,9 +18,13 @@
 
 package org.apache.hadoop.fs.azuredfs.services;
 
+import java.lang.reflect.Field;
+
 import com.google.common.base.Preconditions;
 import com.microsoft.azure.dfs.rest.client.generated.implementation.AzureDistributedFileSystemRestClientImpl;
 import com.microsoft.rest.RestClient;
+import com.microsoft.rest.retry.RetryStrategy;
+import okhttp3.Response;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -45,8 +49,9 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
   AdfsHttpClientBaseImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
       final LoggingService loggingService,
-      final RestClient restClient) {
-    super(restClient);
+      final RestClient.Builder restClient) {
+  // UpdateBuilder is created due to bug created: https://github.com/Azure/autorest-clientruntime-for-java/issues/410
+    super(updateBuilder(restClient).build());
 
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
     Preconditions.checkNotNull(loggingService, "loggingService");
@@ -54,8 +59,8 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
     this.adfsHttpClientSession = adfsHttpClientSession;
     this.loggingService = loggingService.get(AdfsHttpClientBaseImpl.class);
 
-    restClient.httpClient().dispatcher().setMaxRequestsPerHost(MAX_REQUESTS_PER_HOST);
-    restClient.httpClient().dispatcher().setMaxRequests(MAX_REQUESTS_PER_HOST);
+    this.restClient().httpClient().dispatcher().setMaxRequestsPerHost(MAX_REQUESTS_PER_HOST);
+    this.restClient().httpClient().dispatcher().setMaxRequests(MAX_REQUESTS_PER_HOST);
 
     this.withDnsSuffix(this.adfsHttpClientSession.getHostName());
     this.withAccountName(this.adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName());
@@ -82,6 +87,29 @@ abstract class AdfsHttpClientBaseImpl extends AzureDistributedFileSystemRestClie
 
         throw new TimeoutException("Closing adfsHttpClientSession timed out.");
       }
+    }
+  }
+
+  /**
+   * This is a temporary fix to overwrite and disable the default retry strategy to be built in the restClient. The
+   * RetryHandler in package - com.microsoft.rest.retry has a bug that prevents customized retry strategy to be set
+   * to the retry handler, and another bug which causes immediate retry without wait. The correct exponential backoff
+   * retry is added in httpClient build.
+  **/
+  private static RestClient.Builder updateBuilder(final RestClient.Builder builder) {
+    try {
+      final Class<?> bClass = builder.getClass();
+      final Field retryStrategyField = bClass.getDeclaredField("retryStrategy");
+      retryStrategyField.setAccessible(true);
+      retryStrategyField.set(builder, new RetryStrategy("DummyRetryStrategy", false) {
+        @Override
+        public boolean shouldRetry(int retryCount, Response response) {
+          return false;
+        }
+      });
+      return builder;
+    } catch (Exception ex) {
+      throw new IllegalStateException();
     }
   }
 }

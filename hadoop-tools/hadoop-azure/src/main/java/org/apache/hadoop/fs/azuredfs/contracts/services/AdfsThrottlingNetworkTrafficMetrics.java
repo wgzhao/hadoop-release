@@ -20,18 +20,39 @@ package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 
 /**
- * AdfsExponentialBackoffRetryStrategy factory.
+ * AdfsThrottlingNetworkTrafficMetrics holds network traffic metrics.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsRetryStrategyFactory extends InjectableService {
+public interface AdfsThrottlingNetworkTrafficMetrics {
   /**
-   * Creates and configures an instance of AdfsExponentialBackoffRetryStrategy
-   * @return AdfsExponentialBackoffRetryStrategy instance
+   * Gets throttling network metrics for write operations.
+   * @return throttling network metrics for write operations.
    */
-  AdfsRetryStrategy create() throws AzureDistributedFileSystemException;
-}
+  AdfsThrottlingNetworkThroughputMetrics getWriteMetrics();
 
+  /**
+   * Gets throttling network metrics for read operations.
+   * @return throttling network metrics for read operations.
+   */
+  AdfsThrottlingNetworkThroughputMetrics getReadMetrics();
+
+  /**
+   * Gets the start time of traffic metrics collection.
+   * @return the start time of traffic metrics collection.
+   */
+  long getStartTime();
+
+  /**
+   * Gets the end time of traffic metrics collection.
+   * @return the end time of traffic metrics collection.
+   */
+  long getEndTime();
+
+  /**
+   * Stops traffic metrics collection.
+   */
+  void end();
+}

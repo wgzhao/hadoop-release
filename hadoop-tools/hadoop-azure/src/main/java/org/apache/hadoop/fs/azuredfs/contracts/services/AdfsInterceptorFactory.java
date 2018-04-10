@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import okhttp3.Interceptor;
@@ -26,11 +25,11 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 
 /**
- * AdfsNetworkInterceptorFactory responsible for creating network traffic interceptors.
+ * AdfsInterceptorFactory responsible for creating interceptors.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsNetworkInterceptorFactory extends InjectableService {
+public interface AdfsInterceptorFactory extends InjectableService {
   /**
    * Create a network authentication proxy for a given adfsHttpClientSession.
    * @param adfsHttpClientSession
@@ -47,7 +46,6 @@ public interface AdfsNetworkInterceptorFactory extends InjectableService {
    */
   Interceptor createNetworkThroughputMonitor(AdfsHttpClientSession adfsHttpClientSession) throws AzureDistributedFileSystemException;
 
-
   /**
    * Create a network throttler for a given adfsHttpClientSession.
    * @param adfsHttpClientSession
@@ -55,4 +53,13 @@ public interface AdfsNetworkInterceptorFactory extends InjectableService {
    * @throws AzureDistributedFileSystemException
    */
   Interceptor createNetworkThrottler(AdfsHttpClientSession adfsHttpClientSession) throws AzureDistributedFileSystemException;
+
+  /**
+   * Create a retry interceptor for a given adfsHttpClientSession.
+   * @param adfsRetryStrategy
+   * @return an instance of retry interceptor.
+   * @throws AzureDistributedFileSystemException
+   */
+  Interceptor createRetryInterceptor(AdfsRetryStrategy adfsRetryStrategy)
+      throws AzureDistributedFileSystemException;
 }

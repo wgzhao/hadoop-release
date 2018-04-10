@@ -22,17 +22,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputMetrics;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkTrafficThroughputMetricsImpl implements AdfsNetworkThroughputMetrics {
+final class AdfsThrottlingNetworkTrafficThroughputMetricsImpl implements AdfsThrottlingNetworkThroughputMetrics {
   private AtomicLong bytesFailed;
   private AtomicLong bytesSuccessful;
   private AtomicLong operationsFailed;
   private AtomicLong operationsSuccessful;
 
-  AdfsNetworkTrafficThroughputMetricsImpl() {
+  AdfsThrottlingNetworkTrafficThroughputMetricsImpl() {
     this.bytesFailed = new AtomicLong();
     this.bytesSuccessful = new AtomicLong();
     this.operationsFailed = new AtomicLong();

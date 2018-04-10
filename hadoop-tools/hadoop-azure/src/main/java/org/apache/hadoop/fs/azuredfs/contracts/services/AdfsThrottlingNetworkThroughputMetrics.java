@@ -16,27 +16,47 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azuredfs.contracts.services;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsNetworkTrafficAnalysisResult stores network analysis result metadata.
+ * AdfsThrottlingNetworkThroughputMetrics stores network throughput metrics.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsNetworkTrafficAnalysisResult {
+public interface AdfsThrottlingNetworkThroughputMetrics {
   /**
-   * Gets network analysis result for write operations.
-   * @return network analysis result for write operations.
+   * Updates metrics with results from the current storage operation.
+   * @param count The count of bytes transferred.
+   * @param isFailedOperation True if the operation failed; otherwise false.
    */
-  AdfsNetworkThroughputAnalysisResult getWriteAnalysisResult();
+  void addBytesTransferred(long count, boolean isFailedOperation);
 
   /**
-   * Gets network analysis result for read operations.
-   * @return network analysis result for read operations.
+   * Gets number of communicated bytes for failed connections.
+   * @return number of communicated bytes for a failed connection.
    */
-  AdfsNetworkThroughputAnalysisResult getReadAnalysisResult();
+  AtomicLong getBytesFailed();
+
+  /**
+   * Gets number of communicated bytes for successful connections.
+   * @return number of communicated bytes for successful connections.
+   */
+  AtomicLong getBytesSuccessful();
+
+  /**
+   * Gets number of failed operations.
+   * @return number of failed operations.
+   */
+  AtomicLong getOperationsFailed();
+
+  /**
+   * Gets number of successful operations.
+   * @return number of successful operations.
+   */
+  AtomicLong getOperationsSuccessful();
 }

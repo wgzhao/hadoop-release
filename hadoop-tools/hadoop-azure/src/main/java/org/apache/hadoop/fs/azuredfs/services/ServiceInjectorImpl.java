@@ -31,14 +31,15 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationSer
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsInterceptorFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStatisticsService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsStreamFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
+
 /**
  * This class is responsible to configure all the services used by Azure Distributed Filesystem.
  */
@@ -71,9 +72,9 @@ class ServiceInjectorImpl extends AbstractModule {
     this.providers.put(TracingService.class, TracingServiceImpl.class);
 
     this.providers.put(AdfsRetryStrategyFactory.class, AdfsRetryStrategyFactoryImpl.class);
-    this.providers.put(AdfsNetworkInterceptorFactory.class, AdfsNetworkInterceptorFactoryImpl.class);
+    this.providers.put(AdfsInterceptorFactory.class, AdfsInterceptorFactoryImpl.class);
 
-    this.providers.put(AdfsNetworkTrafficAnalysisService.class, AdfsNetworkTrafficAnalysisServiceImpl.class);
+    this.providers.put(AdfsThrottlingNetworkTrafficAnalysisService.class, AdfsThrottlingNetworkTrafficAnalysisServiceImpl.class);
     this.providers.put(AdfsStatisticsService.class, AdfsStatisticsServiceImpl.class);
   }
 

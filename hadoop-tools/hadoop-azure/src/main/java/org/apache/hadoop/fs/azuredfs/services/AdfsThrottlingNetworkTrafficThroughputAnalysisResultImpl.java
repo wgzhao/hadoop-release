@@ -25,16 +25,16 @@ import com.google.inject.Inject;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputAnalysisResult;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkTrafficThroughputAnalysisResultImpl implements AdfsNetworkThroughputAnalysisResult {
+final class AdfsThrottlingNetworkTrafficThroughputAnalysisResultImpl implements AdfsThrottlingNetworkThroughputAnalysisResult {
   private final AtomicInteger sleepDuration;
   private final AtomicLong consecutiveNoErrorCount;
 
   @Inject
-  AdfsNetworkTrafficThroughputAnalysisResultImpl() {
+  AdfsThrottlingNetworkTrafficThroughputAnalysisResultImpl() {
     sleepDuration = new AtomicInteger();
     consecutiveNoErrorCount = new AtomicLong();
   }

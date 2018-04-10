@@ -22,7 +22,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.microsoft.rest.retry.RetryStrategy;
 import okhttp3.Interceptor;
 
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -35,8 +34,8 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClient;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategyFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
@@ -49,8 +48,8 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   private final ConfigurationService configurationService;
   private final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory;
   private final AdfsRetryStrategyFactory adfsRetryStrategyFactory;
-  private final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory;
-  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final AdfsInterceptorFactory adfsInterceptorFactory;
+  private final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService;
   private final LoggingService loggingService;
   private final boolean autoThrottleEnabled;
 
@@ -58,25 +57,25 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
   AdfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
       final AdfsHttpClientSessionFactory adfsHttpClientSessionFactory,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService,
       final AdfsRetryStrategyFactory adfsRetryStrategyFactory,
-      final AdfsNetworkInterceptorFactory adfsNetworkInterceptorFactory,
+      final AdfsInterceptorFactory adfsInterceptorFactory,
       final LoggingService loggingService) {
 
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(adfsHttpClientSessionFactory, "adfsHttpClientSessionFactory");
     Preconditions.checkNotNull(adfsRetryStrategyFactory, "adfsRetryStrategyFactory");
-    Preconditions.checkNotNull(adfsNetworkInterceptorFactory, "adfsNetworkInterceptorFactory");
-    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
+    Preconditions.checkNotNull(adfsInterceptorFactory, "adfsInterceptorFactory");
+    Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisService, "adfsThrottlingNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.configurationService = configurationService;
     this.adfsHttpClientSessionFactory = adfsHttpClientSessionFactory;
     this.adfsRetryStrategyFactory = adfsRetryStrategyFactory;
-    this.adfsNetworkInterceptorFactory = adfsNetworkInterceptorFactory;
-    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
+    this.adfsInterceptorFactory = adfsInterceptorFactory;
+    this.adfsThrottlingNetworkTrafficAnalysisService = adfsThrottlingNetworkTrafficAnalysisService;
     this.loggingService = loggingService.get(AdfsHttpClientFactory.class);
-    this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, false);
+    this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, true);
   }
 
   @Override
@@ -91,20 +90,20 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
         getURIBuilder(adfsHttpClientSession.getHostName());
 
     final Interceptor networkInterceptor =
-        this.adfsNetworkInterceptorFactory.createNetworkAuthenticationProxy(adfsHttpClientSession);
+        this.adfsInterceptorFactory.createNetworkAuthenticationProxy(adfsHttpClientSession);
 
-    final RetryStrategy retryStrategy =
-        this.adfsRetryStrategyFactory.create();
+    final Interceptor retryInterceptor =
+        this.adfsInterceptorFactory.createRetryInterceptor(this.adfsRetryStrategyFactory.create());
 
     if (autoThrottleEnabled) {
       this.loggingService.debug(
           "Auto throttle is enabled, creating AdfsMonitoredHttpClientImpl for filesystem: {0}", adfsHttpClientSession.getFileSystem());
 
       final Interceptor networkThrottler =
-          this.adfsNetworkInterceptorFactory.createNetworkThrottler(adfsHttpClientSession);
+          this.adfsInterceptorFactory.createNetworkThrottler(adfsHttpClientSession);
 
       final Interceptor networkThroughputMonitor =
-          this.adfsNetworkInterceptorFactory.createNetworkThroughputMonitor(adfsHttpClientSession);
+          this.adfsInterceptorFactory.createNetworkThroughputMonitor(adfsHttpClientSession);
 
       return new AdfsMonitoredHttpClientImpl(
           uriBuilder.toString(),
@@ -112,9 +111,9 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
           networkInterceptor,
           networkThrottler,
           networkThroughputMonitor,
+          retryInterceptor,
           adfsHttpClientSession,
-          adfsNetworkTrafficAnalysisService,
-          retryStrategy,
+          adfsThrottlingNetworkTrafficAnalysisService,
           loggingService);
     }
 
@@ -125,8 +124,8 @@ class AdfsHttpClientFactoryImpl implements AdfsHttpClientFactory {
         uriBuilder.toString(),
         configurationService,
         networkInterceptor,
+        retryInterceptor,
         adfsHttpClientSession,
-        retryStrategy,
         loggingService);
   }
 

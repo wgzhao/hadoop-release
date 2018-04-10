@@ -19,6 +19,7 @@
 package org.apache.hadoop.fs.azuredfs.services;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.google.common.base.Preconditions;
 import okhttp3.Interceptor;
@@ -28,23 +29,24 @@ import okhttp3.Response;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputMetrics;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azuredfs.utils.NetworkUtils;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class NetworkThroughputMonitorImpl implements Interceptor {
-  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService;
   private final AdfsHttpClientSession adfsHttpClientSession;
 
   NetworkThroughputMonitorImpl(
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService) {
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService) {
     Preconditions.checkNotNull(adfsHttpClientSession, "adfsHttpClientSession");
-    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficeAnalysisService");
+    Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisService, "adfsThrottlingNetworkTrafficeAnalysisService");
 
-    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
+    this.adfsThrottlingNetworkTrafficAnalysisService = adfsThrottlingNetworkTrafficAnalysisService;
     this.adfsHttpClientSession = adfsHttpClientSession;
   }
 
@@ -55,23 +57,38 @@ final class NetworkThroughputMonitorImpl implements Interceptor {
     final Request request = chain.request();
     final Response response = chain.proceed(request);
 
-    final boolean isFailed = !response.isSuccessful();
+    final boolean isSuccessful = response.isSuccessful();
+
+    boolean isIngressEgressFailure = false;
+
+    if (!isSuccessful) {
+      final List<AzureServiceErrorCode> azureServiceErrorCodes = AzureServiceErrorCode.getAzureServiceCode(response.code());
+      for (AzureServiceErrorCode azureServiceErrorCode : azureServiceErrorCodes) {
+        if (azureServiceErrorCode.getStatusCode() == AzureServiceErrorCode.INGRESS_OVER_ACCOUNT_LIMIT.getStatusCode()
+            || azureServiceErrorCode.getStatusCode() == AzureServiceErrorCode.EGRESS_OVER_ACCOUNT_LIMIT.getStatusCode()) {
+          isIngressEgressFailure = true;
+          break;
+        }
+      }
+    }
+
     final long totalBytes = (request.body() == null ? 0 : request.body().contentLength()) + (response.body() == null ? 0 : response.body().contentLength());
 
-    final AdfsNetworkThroughputMetrics networkThroughputMetrics;
+    final AdfsThrottlingNetworkThroughputMetrics throttlingNetworkThroughputMetrics;
 
     if (NetworkUtils.isWriteRequest(request)) {
-      networkThroughputMetrics = this.adfsNetworkTrafficAnalysisService
-          .getAdfsNetworkThroughputMetrics(adfsHttpClientSession)
+      throttlingNetworkThroughputMetrics = this.adfsThrottlingNetworkTrafficAnalysisService
+          .getAdfsThrottlingNetworkThroughputMetrics(adfsHttpClientSession)
           .getWriteMetrics();
-    }
-    else {
-      networkThroughputMetrics = this.adfsNetworkTrafficAnalysisService
-          .getAdfsNetworkThroughputMetrics(adfsHttpClientSession)
+    } else {
+      throttlingNetworkThroughputMetrics = this.adfsThrottlingNetworkTrafficAnalysisService
+          .getAdfsThrottlingNetworkThroughputMetrics(adfsHttpClientSession)
           .getReadMetrics();
     }
 
-    networkThroughputMetrics.addBytesTransferred(totalBytes, isFailed);
+    // Only treat Egress/Ingress throttling as failure.
+    throttlingNetworkThroughputMetrics.addBytesTransferred(totalBytes, isIngressEgressFailure);
+
     return response;
   }
 }

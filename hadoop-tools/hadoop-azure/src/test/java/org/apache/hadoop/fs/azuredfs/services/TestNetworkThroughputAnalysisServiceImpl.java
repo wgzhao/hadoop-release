@@ -20,8 +20,8 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import org.junit.Test;
 
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficMetrics;
 import org.apache.hadoop.fs.contract.ContractTestUtils.NanoTimer;
 
 import static org.junit.Assert.assertEquals;
@@ -37,17 +37,17 @@ public class TestNetworkThroughputAnalysisServiceImpl {
   private static final long MEGABYTE = 1024 * 1024;
   private static final int MAX_ACCEPTABLE_PERCENT_DIFFERENCE = 20;
 
-  final AdfsNetworkTrafficAnalysisServiceImpl adfsNetworkTrafficAnalysisService;
+  final AdfsThrottlingNetworkTrafficAnalysisServiceImpl adfsThrottlingNetworkTrafficAnalysisService;
   final AdfsHttpClientSessionImpl adfsHttpClientSession;
-  final AdfsNetworkTrafficAnalysisResult adfsNetworkTrafficAnalysisResult;
-  final AdfsNetworkTrafficMetrics adfsNetworkTrafficMetrics;
+  final AdfsThrottlingNetworkTrafficAnalysisResult adfsThrottlingNetworkTrafficAnalysisResult;
+  final AdfsThrottlingNetworkTrafficMetrics adfsThrottlingNetworkTrafficMetrics;
 
   public TestNetworkThroughputAnalysisServiceImpl() {
-    this.adfsNetworkTrafficAnalysisService = new AdfsNetworkTrafficAnalysisServiceImpl(AdfsLoggingTestUtils.createMockLoggingService());
+    this.adfsThrottlingNetworkTrafficAnalysisService = new AdfsThrottlingNetworkTrafficAnalysisServiceImpl(AdfsLoggingTestUtils.createMockLoggingService());
     this.adfsHttpClientSession = new AdfsHttpClientSessionImpl("testaccount.dfs.core.windows.net", "dGVzdFN0cmluZw==", "testFileSystem");
-    this.adfsNetworkTrafficAnalysisService.subscribeForAnalysis(adfsHttpClientSession, ANALYSIS_PERIOD);
-    this.adfsNetworkTrafficAnalysisResult = adfsNetworkTrafficAnalysisService.getAdfsNetworkTrafficAnalysisResult(adfsHttpClientSession);
-    this.adfsNetworkTrafficMetrics = adfsNetworkTrafficAnalysisService.getAdfsNetworkThroughputMetrics(adfsHttpClientSession);
+    this.adfsThrottlingNetworkTrafficAnalysisService.subscribeForAnalysis(adfsHttpClientSession, ANALYSIS_PERIOD);
+    this.adfsThrottlingNetworkTrafficAnalysisResult = adfsThrottlingNetworkTrafficAnalysisService.getAdfsThrottlingNetworkTrafficAnalysisResult(adfsHttpClientSession);
+    this.adfsThrottlingNetworkTrafficMetrics = adfsThrottlingNetworkTrafficAnalysisService.getAdfsThrottlingNetworkThroughputMetrics(adfsHttpClientSession);
   }
 
   /**
@@ -57,11 +57,11 @@ public class TestNetworkThroughputAnalysisServiceImpl {
    */
   @Test
   public void testNoMetricUpdatesThenNoWaiting() {
-    validate(0, adfsNetworkTrafficAnalysisResult.getReadAnalysisResult().getSleepDuration());
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getReadAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
     sleep(ANALYSIS_PERIOD_PLUS_10_PERCENT);
-    validate(0, adfsNetworkTrafficAnalysisResult.getReadAnalysisResult().getSleepDuration());
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getReadAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
   }
 
   /**
@@ -70,10 +70,10 @@ public class TestNetworkThroughputAnalysisServiceImpl {
    */
   @Test
   public void testOnlySuccessThenNoWaiting() {
-    adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
     sleep(ANALYSIS_PERIOD_PLUS_10_PERCENT);
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
   }
 
   /**
@@ -83,14 +83,14 @@ public class TestNetworkThroughputAnalysisServiceImpl {
    */
   @Test
   public void testOnlyErrorsAndWaiting() {
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
-    adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, true);
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, true);
     sleep(ANALYSIS_PERIOD_PLUS_10_PERCENT);
     final int expectedSleepDuration1 = 1100;
-    validateLessThanOrEqual(expectedSleepDuration1, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validateLessThanOrEqual(expectedSleepDuration1, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
     sleep(10 * ANALYSIS_PERIOD);
     final int expectedSleepDuration2 = 900;
-    validateLessThanOrEqual(expectedSleepDuration2, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validateLessThanOrEqual(expectedSleepDuration2, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
   }
 
   /**
@@ -100,14 +100,14 @@ public class TestNetworkThroughputAnalysisServiceImpl {
    */
   @Test
   public void testSuccessAndErrorsAndWaiting() {
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
-    adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(2 * MEGABYTE, true);
-    adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(2 * MEGABYTE, true);
+    adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
 
     sleep(ANALYSIS_PERIOD_PLUS_10_PERCENT);
     NanoTimer timer = new NanoTimer();
 
-    int sleepDuration = adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration();
+    int sleepDuration = adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration();
     if (sleepDuration > 0) {
       sleep(sleepDuration);
     }
@@ -118,7 +118,7 @@ public class TestNetworkThroughputAnalysisServiceImpl {
                   MAX_ACCEPTABLE_PERCENT_DIFFERENCE);
     sleep(10 * ANALYSIS_PERIOD);
     final int expectedSleepDuration = 110;
-    validateLessThanOrEqual(expectedSleepDuration, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validateLessThanOrEqual(expectedSleepDuration, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
   }
 
   /**
@@ -128,17 +128,17 @@ public class TestNetworkThroughputAnalysisServiceImpl {
    */
   @Test
   public void testManySuccessAndErrorsAndWaiting() {
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
 
     final int numberOfRequests = 20;
     for (int i = 0; i < numberOfRequests; i++) {
-      adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(2 * MEGABYTE, true);
-      adfsNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
+      adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(2 * MEGABYTE, true);
+      adfsThrottlingNetworkTrafficMetrics.getWriteMetrics().addBytesTransferred(8 * MEGABYTE, false);
     }
     sleep(ANALYSIS_PERIOD_PLUS_10_PERCENT);
     NanoTimer timer = new NanoTimer();
 
-    int sleepDuration = adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration();
+    int sleepDuration = adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration();
     if (sleepDuration > 0) {
       sleep(sleepDuration);
     }
@@ -147,7 +147,7 @@ public class TestNetworkThroughputAnalysisServiceImpl {
                   timer.elapsedTimeMs(),
                   MAX_ACCEPTABLE_PERCENT_DIFFERENCE);
     sleep(10 * ANALYSIS_PERIOD);
-    validate(0, adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
+    validate(0, adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult().getSleepDuration());
   }
 
   private void sleep(long milliseconds) {

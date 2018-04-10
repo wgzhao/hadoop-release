@@ -16,44 +16,40 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azuredfs.contracts.services;
+
+import okhttp3.Response;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * AdfsNetworkThroughputAnalysisResult stores Network throughput analysis result metadata.
+ * AdfsRetryStrategy
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface AdfsNetworkThroughputAnalysisResult {
-  /**
-   * Getter for calculated sleep duration.
-   * @return sleep duration value.
-   */
-  int getSleepDuration();
+public interface AdfsRetryStrategy {
+    /**
+     * Returns name of the current retry strategy
+     * @return name of the current retry strategy
+     * */
+    String name();
 
-  /**
-   * Setter for calculated sleep duration.
-   * @param value
-   */
-  void setSleepDuration(int value);
+    /**
+     * Returns if a request should be retried based on the retry count, current response,
+     * and the current strategy.
+     *
+     * @param retryCount The current retry attempt count.
+     * @param response The exception that caused the retry conditions to occur.
+     * @return true if the request should be retried; false otherwise.
+     */
+    boolean shouldRetry(int retryCount, Response response);
 
-  /**
-   * Resets the number of consecutive no error counter.
-   */
-  void resetConsecutiveNoErrorCount();
-
-  /**
-   * Gets the number of consecutive no error counter.
-   * @return the number of consecutive no error counter.
-   */
-  long getConsecutiveNoErrorCount();
-
-  /**
-   * Increments the number of consecutive no error counter.
-   * @return the number of consecutive no error counter.
-   */
-  long incrementConsecutiveNoErrorCount();
+    /**
+     * Returns the specified sleep time needed for the next retry
+     *
+     * @param retries The current retry attempt count.
+     * @return retry Interval for next retry;
+     * */
+    long getRetryInterval(int retries);
 }

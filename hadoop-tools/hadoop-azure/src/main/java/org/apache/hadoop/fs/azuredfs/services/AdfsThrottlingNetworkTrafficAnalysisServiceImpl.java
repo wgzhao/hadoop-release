@@ -32,17 +32,17 @@ import org.threadly.concurrent.collections.ConcurrentArrayList;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputMetrics;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficMetrics;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficAnalysisService {
+final class AdfsThrottlingNetworkTrafficAnalysisServiceImpl implements AdfsThrottlingNetworkTrafficAnalysisService {
   private static final int DEFAULT_ANALYSIS_PERIOD_MS = 10 * 1000;
   private static final double MIN_ACCEPTABLE_ERROR_PERCENTAGE = .1;
   private static final double MAX_EQUILIBRIUM_ERROR_PERCENTAGE = 1;
@@ -54,20 +54,20 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
   private static final int MAX_ANALYSIS_PERIOD_MS = 30000;
 
   private final LoggingService loggingService;
-  private final ConcurrentHashMap<String, AtomicReference<AdfsNetworkTrafficMetrics>> adfsNetworkTrafficMetricsCache;
-  private final ConcurrentHashMap<String, AdfsNetworkTrafficAnalysisResultImpl> adfsNetworkTrafficAnalysisResultCache;
-  private final ConcurrentHashMap<String, Timer> adfsNetworkTrafficAnalysisTimers;
+  private final ConcurrentHashMap<String, AtomicReference<AdfsThrottlingNetworkTrafficMetrics>> adfsThrottlingNetworkTrafficMetricsCache;
+  private final ConcurrentHashMap<String, AdfsThrottlingNetworkTrafficAnalysisResultImpl> adfsThrottlingNetworkTrafficAnalysisResultCache;
+  private final ConcurrentHashMap<String, Timer> adfsThrottlingNetworkTrafficAnalysisTimers;
   private final ConcurrentHashMap<String, ConcurrentArrayList<AdfsHttpClientSession>> registeredAdfsClientSessions;
 
   @Inject
-  AdfsNetworkTrafficAnalysisServiceImpl(
+  AdfsThrottlingNetworkTrafficAnalysisServiceImpl(
       final LoggingService loggingService) {
     Preconditions.checkNotNull(loggingService, "loggingService");
 
-    this.loggingService = loggingService.get(AdfsNetworkTrafficAnalysisService.class);
-    this.adfsNetworkTrafficMetricsCache = new ConcurrentHashMap<>();
-    this.adfsNetworkTrafficAnalysisResultCache = new ConcurrentHashMap<>();
-    this.adfsNetworkTrafficAnalysisTimers = new ConcurrentHashMap<>();
+    this.loggingService = loggingService.get(AdfsThrottlingNetworkTrafficAnalysisService.class);
+    this.adfsThrottlingNetworkTrafficMetricsCache = new ConcurrentHashMap<>();
+    this.adfsThrottlingNetworkTrafficAnalysisResultCache = new ConcurrentHashMap<>();
+    this.adfsThrottlingNetworkTrafficAnalysisTimers = new ConcurrentHashMap<>();
     this.registeredAdfsClientSessions = new ConcurrentHashMap<>();
   }
 
@@ -84,9 +84,9 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
 
     final String accountName = adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName();
 
-    if (this.adfsNetworkTrafficAnalysisResultCache.get(accountName) != null
-        && this.adfsNetworkTrafficMetricsCache.get(accountName) != null
-        && this.adfsNetworkTrafficAnalysisTimers.get(accountName) != null
+    if (this.adfsThrottlingNetworkTrafficAnalysisResultCache.get(accountName) != null
+        && this.adfsThrottlingNetworkTrafficMetricsCache.get(accountName) != null
+        && this.adfsThrottlingNetworkTrafficAnalysisTimers.get(accountName) != null
         && this.registeredAdfsClientSessions.get(accountName) != null) {
 
       ConcurrentArrayList<AdfsHttpClientSession> registeredSessions = this.registeredAdfsClientSessions.get(accountName);
@@ -97,27 +97,27 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
       return;
     }
 
-    if (this.adfsNetworkTrafficAnalysisResultCache.get(accountName) != null
-        || this.adfsNetworkTrafficMetricsCache.get(accountName) != null
-        || this.adfsNetworkTrafficAnalysisTimers.get(accountName) != null
+    if (this.adfsThrottlingNetworkTrafficAnalysisResultCache.get(accountName) != null
+        || this.adfsThrottlingNetworkTrafficMetricsCache.get(accountName) != null
+        || this.adfsThrottlingNetworkTrafficAnalysisTimers.get(accountName) != null
         || this.registeredAdfsClientSessions.get(accountName) != null) {
       throw new IllegalStateException("Corrupted state");
     }
 
-    final AtomicReference<AdfsNetworkTrafficMetrics> networkTrafficMetrics =
-        new AtomicReference<AdfsNetworkTrafficMetrics>(new AdfsNetworkTrafficMetricsImpl(System.currentTimeMillis()));
+    final AtomicReference<AdfsThrottlingNetworkTrafficMetrics> networkTrafficMetrics =
+        new AtomicReference<AdfsThrottlingNetworkTrafficMetrics>(new AdfsThrottlingNetworkTrafficMetricsImpl(System.currentTimeMillis()));
 
-    final AdfsNetworkTrafficAnalysisResultImpl networkTrafficAnalysisResult =
-        new AdfsNetworkTrafficAnalysisResultImpl();
+    final AdfsThrottlingNetworkTrafficAnalysisResultImpl networkTrafficAnalysisResult =
+        new AdfsThrottlingNetworkTrafficAnalysisResultImpl();
 
-    this.adfsNetworkTrafficAnalysisResultCache.put(accountName, networkTrafficAnalysisResult);
-    this.adfsNetworkTrafficMetricsCache.put(accountName, networkTrafficMetrics);
+    this.adfsThrottlingNetworkTrafficAnalysisResultCache.put(accountName, networkTrafficAnalysisResult);
+    this.adfsThrottlingNetworkTrafficMetricsCache.put(accountName, networkTrafficMetrics);
 
-    final Timer timer = new Timer(String.format(accountName + "-AdfsNetworkTrafficAnalysisServiceImplTimer"));
+    final Timer timer = new Timer(String.format(accountName + "-AdfsThrottlingNetworkTrafficAnalysisServiceImplTimer"));
     final AnalysisBackgroundTask task = new AnalysisBackgroundTask(
         accountName,
-        this.adfsNetworkTrafficMetricsCache,
-        this.adfsNetworkTrafficAnalysisResultCache,
+        this.adfsThrottlingNetworkTrafficMetricsCache,
+        this.adfsThrottlingNetworkTrafficAnalysisResultCache,
         analysisFrequencyInMs);
 
     timer.schedule(
@@ -125,7 +125,7 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
         analysisFrequencyInMs,
         analysisFrequencyInMs);
 
-    this.adfsNetworkTrafficAnalysisTimers.put(accountName, timer);
+    this.adfsThrottlingNetworkTrafficAnalysisTimers.put(accountName, timer);
 
     ConcurrentArrayList<AdfsHttpClientSession> subscribedSessions = new ConcurrentArrayList<>();
     subscribedSessions.add(adfsHttpClientSession);
@@ -151,7 +151,7 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
       return;
     }
 
-    final Timer timer = this.adfsNetworkTrafficAnalysisTimers.remove(accountName);
+    final Timer timer = this.adfsThrottlingNetworkTrafficAnalysisTimers.remove(accountName);
 
     if (timer == null) {
       return;
@@ -159,27 +159,27 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
 
     timer.cancel();
 
-    this.adfsNetworkTrafficAnalysisResultCache.remove(accountName);
-    this.adfsNetworkTrafficMetricsCache.remove(accountName);
+    this.adfsThrottlingNetworkTrafficAnalysisResultCache.remove(accountName);
+    this.adfsThrottlingNetworkTrafficMetricsCache.remove(accountName);
     this.registeredAdfsClientSessions.remove(accountName);
   }
 
   @Override
-  public AdfsNetworkTrafficMetrics getAdfsNetworkThroughputMetrics(AdfsHttpClientSession adfsHttpClientSession) {
+  public AdfsThrottlingNetworkTrafficMetrics getAdfsThrottlingNetworkThroughputMetrics(AdfsHttpClientSession adfsHttpClientSession) {
     final String accountName = adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName();
-    return adfsNetworkTrafficMetricsCache.get(accountName).get();
+    return adfsThrottlingNetworkTrafficMetricsCache.get(accountName).get();
   }
 
   @Override
-  public AdfsNetworkTrafficAnalysisResult getAdfsNetworkTrafficAnalysisResult(AdfsHttpClientSession adfsHttpClientSession) {
+  public AdfsThrottlingNetworkTrafficAnalysisResult getAdfsThrottlingNetworkTrafficAnalysisResult(AdfsHttpClientSession adfsHttpClientSession) {
     final String accountName = adfsHttpClientSession.getStorageCredentialsAccountAndKey().getAccountName();
-    return adfsNetworkTrafficAnalysisResultCache.get(accountName);
+    return adfsThrottlingNetworkTrafficAnalysisResultCache.get(accountName);
   }
 
-  private AdfsNetworkThroughputAnalysisResult analyzeMetricsAndUpdateSleepDuration(
+  private AdfsThrottlingNetworkThroughputAnalysisResult analyzeMetricsAndUpdateSleepDuration(
       final String accountName,
-      final AdfsNetworkThroughputAnalysisResult adfsNetworkTrafficAnalysisResult,
-      final AdfsNetworkThroughputMetrics metrics,
+      final AdfsThrottlingNetworkThroughputAnalysisResult adfsThrottlingNetworkTrafficAnalysisResult,
+      final AdfsThrottlingNetworkThroughputMetrics metrics,
       final long timeElapsed,
       final int analysisFrequencyInMs) {
     final double percentageConversionFactor = 100;
@@ -196,21 +196,21 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
     double newSleepDuration;
 
     if (errorPercentage < MIN_ACCEPTABLE_ERROR_PERCENTAGE) {
-      adfsNetworkTrafficAnalysisResult.incrementConsecutiveNoErrorCount();
+      adfsThrottlingNetworkTrafficAnalysisResult.incrementConsecutiveNoErrorCount();
       // Decrease sleepDuration in order to increase throughput.
       final double reductionFactor =
-          (adfsNetworkTrafficAnalysisResult.getConsecutiveNoErrorCount() * analysisFrequencyInMs
+          (adfsThrottlingNetworkTrafficAnalysisResult.getConsecutiveNoErrorCount() * analysisFrequencyInMs
               >= RAPID_SLEEP_DECREASE_TRANSITION_PERIOD_MS)
               ? RAPID_SLEEP_DECREASE_FACTOR
               : SLEEP_DECREASE_FACTOR;
 
-      newSleepDuration = adfsNetworkTrafficAnalysisResult.getSleepDuration() * reductionFactor;
+      newSleepDuration = adfsThrottlingNetworkTrafficAnalysisResult.getSleepDuration() * reductionFactor;
     } else if (errorPercentage < MAX_EQUILIBRIUM_ERROR_PERCENTAGE) {
       // Do not modify sleepDuration in order to stabilize throughput.
-      newSleepDuration = adfsNetworkTrafficAnalysisResult.getSleepDuration();
+      newSleepDuration = adfsThrottlingNetworkTrafficAnalysisResult.getSleepDuration();
     } else {
       // Increase sleepDuration in order to minimize error rate.
-      adfsNetworkTrafficAnalysisResult.resetConsecutiveNoErrorCount();
+      adfsThrottlingNetworkTrafficAnalysisResult.resetConsecutiveNoErrorCount();
 
       // Increase sleep duration in order to reduce throughput and error rate.
       // First, calculate target throughput: bytesSuccessful / periodMs.
@@ -232,7 +232,7 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
           / (operationsFailed + operationsSuccessful);
 
       final double maxSleepDuration = analysisFrequencyInMs;
-      final double minSleepDuration = adfsNetworkTrafficAnalysisResult.getSleepDuration() * SLEEP_INCREASE_FACTOR;
+      final double minSleepDuration = adfsThrottlingNetworkTrafficAnalysisResult.getSleepDuration() * SLEEP_INCREASE_FACTOR;
 
       // Add 1 ms to avoid rounding down and to decrease proximity to the server
       // side ingress/egress limit.  Ensure that the new sleep duration is
@@ -253,30 +253,30 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
           (int) operationsSuccessful,
           errorPercentage,
           timeElapsed,
-          (int) adfsNetworkTrafficAnalysisResult.getSleepDuration(),
+          (int) adfsThrottlingNetworkTrafficAnalysisResult.getSleepDuration(),
           (int) newSleepDuration));
 
-    adfsNetworkTrafficAnalysisResult.setSleepDuration((int) newSleepDuration);
-    return adfsNetworkTrafficAnalysisResult;
+    adfsThrottlingNetworkTrafficAnalysisResult.setSleepDuration((int) newSleepDuration);
+    return adfsThrottlingNetworkTrafficAnalysisResult;
   }
 
   class AnalysisBackgroundTask extends TimerTask {
     private final AtomicInteger doingWork;
-    private final ConcurrentHashMap<String, AtomicReference<AdfsNetworkTrafficMetrics>> adfsNetworkTrafficMetricsCache;
-    private final ConcurrentHashMap<String, AdfsNetworkTrafficAnalysisResultImpl> adfsNetworkTrafficAnalysisResultCache;
+    private final ConcurrentHashMap<String, AtomicReference<AdfsThrottlingNetworkTrafficMetrics>> adfsThrottlingNetworkTrafficMetricsCache;
+    private final ConcurrentHashMap<String, AdfsThrottlingNetworkTrafficAnalysisResultImpl> adfsThrottlingNetworkTrafficAnalysisResultCache;
     private final int analysisFrequencyInMs;
     private final String accountName;
 
     AnalysisBackgroundTask(
         final String accountName,
-        final ConcurrentHashMap<String, AtomicReference<AdfsNetworkTrafficMetrics>> adfsNetworkTrafficMetricsCache,
-        final ConcurrentHashMap<String, AdfsNetworkTrafficAnalysisResultImpl> adfsNetworkTrafficAnalysisResultCache,
+        final ConcurrentHashMap<String, AtomicReference<AdfsThrottlingNetworkTrafficMetrics>> adfsThrottlingNetworkTrafficMetricsCache,
+        final ConcurrentHashMap<String, AdfsThrottlingNetworkTrafficAnalysisResultImpl> adfsThrottlingNetworkTrafficAnalysisResultCache,
         final int analysisFrequencyInMs) {
-      Preconditions.checkNotNull(adfsNetworkTrafficMetricsCache, "adfsNetworkTrafficMetricsCache");
-      Preconditions.checkNotNull(adfsNetworkTrafficAnalysisResultCache, "adfsNetworkTrafficAnalysisResultCache");
+      Preconditions.checkNotNull(adfsThrottlingNetworkTrafficMetricsCache, "adfsThrottlingNetworkTrafficMetricsCache");
+      Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisResultCache, "adfsThrottlingNetworkTrafficAnalysisResultCache");
 
-      this.adfsNetworkTrafficMetricsCache = adfsNetworkTrafficMetricsCache;
-      this.adfsNetworkTrafficAnalysisResultCache = adfsNetworkTrafficAnalysisResultCache;
+      this.adfsThrottlingNetworkTrafficMetricsCache = adfsThrottlingNetworkTrafficMetricsCache;
+      this.adfsThrottlingNetworkTrafficAnalysisResultCache = adfsThrottlingNetworkTrafficAnalysisResultCache;
       this.accountName = accountName;
       this.doingWork = new AtomicInteger(0);
       this.analysisFrequencyInMs = analysisFrequencyInMs;
@@ -294,28 +294,28 @@ final class AdfsNetworkTrafficAnalysisServiceImpl implements AdfsNetworkTrafficA
         }
 
         final long now = System.currentTimeMillis();
-        final AtomicReference<AdfsNetworkTrafficMetrics> adfsNetworkTrafficMetrics =
-            this.adfsNetworkTrafficMetricsCache.get(this.accountName);
-        final AdfsNetworkTrafficAnalysisResultImpl adfsNetworkTrafficAnalysisResult =
-            this.adfsNetworkTrafficAnalysisResultCache.get(this.accountName);
+        final AtomicReference<AdfsThrottlingNetworkTrafficMetrics> adfsThrottlingNetworkTrafficMetrics =
+            this.adfsThrottlingNetworkTrafficMetricsCache.get(this.accountName);
+        final AdfsThrottlingNetworkTrafficAnalysisResultImpl adfsThrottlingNetworkTrafficAnalysisResult =
+            this.adfsThrottlingNetworkTrafficAnalysisResultCache.get(this.accountName);
 
-        if (now - adfsNetworkTrafficMetrics.get().getStartTime() >= this.analysisFrequencyInMs) {
-          final AdfsNetworkTrafficMetrics oldMetrics = adfsNetworkTrafficMetrics.getAndSet(
-              new AdfsNetworkTrafficMetricsImpl(System.currentTimeMillis()));
+        if (now - adfsThrottlingNetworkTrafficMetrics.get().getStartTime() >= this.analysisFrequencyInMs) {
+          final AdfsThrottlingNetworkTrafficMetrics oldMetrics = adfsThrottlingNetworkTrafficMetrics.getAndSet(
+              new AdfsThrottlingNetworkTrafficMetricsImpl(System.currentTimeMillis()));
           oldMetrics.end();
 
           final long timeElapsed = oldMetrics.getEndTime() - oldMetrics.getStartTime();
 
           analyzeMetricsAndUpdateSleepDuration(
               this.accountName,
-              adfsNetworkTrafficAnalysisResult.getWriteAnalysisResult(),
+              adfsThrottlingNetworkTrafficAnalysisResult.getWriteAnalysisResult(),
               oldMetrics.getWriteMetrics(),
               timeElapsed,
               this.analysisFrequencyInMs);
 
           analyzeMetricsAndUpdateSleepDuration(
               this.accountName,
-              adfsNetworkTrafficAnalysisResult.getReadAnalysisResult(),
+              adfsThrottlingNetworkTrafficAnalysisResult.getReadAnalysisResult(),
               oldMetrics.getReadMetrics(),
               timeElapsed,
               this.analysisFrequencyInMs);

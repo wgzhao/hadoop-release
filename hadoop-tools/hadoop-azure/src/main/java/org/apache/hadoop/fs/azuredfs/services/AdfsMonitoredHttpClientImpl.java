@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Preconditions;
 import com.microsoft.rest.RestClient;
 import com.microsoft.rest.ServiceResponseBuilder;
-import com.microsoft.rest.retry.RetryStrategy;
 import com.microsoft.rest.serializer.JacksonAdapter;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -34,7 +33,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 
@@ -44,16 +43,16 @@ import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AdfsMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
-  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService;
   public AdfsMonitoredHttpClientImpl(
       final String baseUrl,
       final ConfigurationService configurationService,
       final Interceptor networkInterceptor,
       final Interceptor networkThrottler,
       final Interceptor networkThroughputMonitor,
+      final Interceptor retryInterceptor,
       final AdfsHttpClientSession adfsHttpClientSession,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
-      final RetryStrategy retryStrategy,
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService,
       final LoggingService loggingService) {
     super(adfsHttpClientSession,
         loggingService,
@@ -65,22 +64,21 @@ final class AdfsMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
         .withNetworkInterceptor(networkInterceptor)
         .withNetworkInterceptor(networkThrottler)
         .withNetworkInterceptor(networkThroughputMonitor)
+        .withInterceptor(retryInterceptor)
         .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
         .withSerializerAdapter(new JacksonAdapter())
-        .withRetryStrategy(retryStrategy)
         .withMaxIdleConnections(configurationService.getMaxConcurrentReadThreads() + configurationService.getMaxConcurrentWriteThreads())
         .withConnectionTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-        .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
-        .build());
+        .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS));
 
-    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
-    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
-    this.adfsNetworkTrafficAnalysisService.subscribeForAnalysis(adfsHttpClientSession);
+    Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisService, "adfsThrottlingNetworkTrafficAnalysisService");
+    this.adfsThrottlingNetworkTrafficAnalysisService = adfsThrottlingNetworkTrafficAnalysisService;
+    this.adfsThrottlingNetworkTrafficAnalysisService.subscribeForAnalysis(adfsHttpClientSession);
   }
 
   @Override
   public void close() throws TimeoutException {
     super.close();
-    this.adfsNetworkTrafficAnalysisService.unsubscribeFromAnalysis(this.getSession());
+    this.adfsThrottlingNetworkTrafficAnalysisService.unsubscribeFromAnalysis(this.getSession());
   }
 }

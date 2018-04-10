@@ -22,28 +22,28 @@ import com.google.inject.Inject;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputAnalysisResult;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputAnalysisResult;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisResult;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkTrafficAnalysisResultImpl implements AdfsNetworkTrafficAnalysisResult {
-  private final AdfsNetworkThroughputAnalysisResult writeAnalysisResult;
-  private final AdfsNetworkThroughputAnalysisResult readAnalysisResult;
+final class AdfsThrottlingNetworkTrafficAnalysisResultImpl implements AdfsThrottlingNetworkTrafficAnalysisResult {
+  private final AdfsThrottlingNetworkThroughputAnalysisResult writeAnalysisResult;
+  private final AdfsThrottlingNetworkThroughputAnalysisResult readAnalysisResult;
 
   @Inject
-  AdfsNetworkTrafficAnalysisResultImpl() {
-    this.writeAnalysisResult = new AdfsNetworkTrafficThroughputAnalysisResultImpl();
-    this.readAnalysisResult = new AdfsNetworkTrafficThroughputAnalysisResultImpl();
+  AdfsThrottlingNetworkTrafficAnalysisResultImpl() {
+    this.writeAnalysisResult = new AdfsThrottlingNetworkTrafficThroughputAnalysisResultImpl();
+    this.readAnalysisResult = new AdfsThrottlingNetworkTrafficThroughputAnalysisResultImpl();
   }
 
   @Override
-  public AdfsNetworkThroughputAnalysisResult getWriteAnalysisResult() {
+  public AdfsThrottlingNetworkThroughputAnalysisResult getWriteAnalysisResult() {
     return this.writeAnalysisResult;
   }
 
   @Override
-  public AdfsNetworkThroughputAnalysisResult getReadAnalysisResult() {
+  public AdfsThrottlingNetworkThroughputAnalysisResult getReadAnalysisResult() {
     return this.readAnalysisResult;
   }
 }

@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.microsoft.rest.RestClient;
 import com.microsoft.rest.ServiceResponseBuilder;
-import com.microsoft.rest.retry.RetryStrategy;
 import com.microsoft.rest.serializer.JacksonAdapter;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -45,8 +44,8 @@ final class AdfsUnMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
       final String baseUrl,
       final ConfigurationService configurationService,
       final Interceptor networkInterceptor,
+      final Interceptor retryInterceptor,
       final AdfsHttpClientSession adfsHttpClientSession,
-      final RetryStrategy retryStrategy,
       final LoggingService loggingService) {
     super(adfsHttpClientSession,
         loggingService,
@@ -54,14 +53,13 @@ final class AdfsUnMonitoredHttpClientImpl extends AdfsHttpClientBaseImpl {
             (new OkHttpClient.Builder())
                 .writeTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_WRITE_TIMEOUT, TimeUnit.SECONDS),
             new Retrofit.Builder())
-        .withBaseUrl(baseUrl)
-        .withNetworkInterceptor(networkInterceptor)
-        .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
-        .withSerializerAdapter(new JacksonAdapter())
-        .withRetryStrategy(retryStrategy)
-        .withMaxIdleConnections(configurationService.getMaxConcurrentReadThreads() + configurationService.getMaxConcurrentWriteThreads())
-        .withConnectionTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-        .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS)
-        .build());
+            .withBaseUrl(baseUrl)
+            .withNetworkInterceptor(networkInterceptor)
+            .withInterceptor(retryInterceptor)
+            .withResponseBuilderFactory(new ServiceResponseBuilder.Factory())
+            .withSerializerAdapter(new JacksonAdapter())
+            .withMaxIdleConnections(configurationService.getMaxConcurrentReadThreads() + configurationService.getMaxConcurrentWriteThreads())
+            .withConnectionTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
+            .withReadTimeout(FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT, TimeUnit.SECONDS));
   }
 }

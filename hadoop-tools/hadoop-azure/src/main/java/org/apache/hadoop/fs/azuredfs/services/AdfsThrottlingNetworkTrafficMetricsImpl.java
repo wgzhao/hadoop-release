@@ -20,31 +20,31 @@ package org.apache.hadoop.fs.azuredfs.services;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkThroughputMetrics;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkThroughputMetrics;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficMetrics;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkTrafficMetricsImpl implements AdfsNetworkTrafficMetrics {
+final class AdfsThrottlingNetworkTrafficMetricsImpl implements AdfsThrottlingNetworkTrafficMetrics {
   private long endTime;
   private final long startTime;
-  private final AdfsNetworkThroughputMetrics writeNetworkThroughputMetrics;
-  private final AdfsNetworkThroughputMetrics readNetworkThroughputMetrics;
+  private final AdfsThrottlingNetworkThroughputMetrics writeNetworkThroughputMetrics;
+  private final AdfsThrottlingNetworkThroughputMetrics readNetworkThroughputMetrics;
 
-  AdfsNetworkTrafficMetricsImpl(long startTime) {
+  AdfsThrottlingNetworkTrafficMetricsImpl(long startTime) {
     this.startTime = startTime;
 
-    this.writeNetworkThroughputMetrics = new AdfsNetworkTrafficThroughputMetricsImpl();
-    this.readNetworkThroughputMetrics = new AdfsNetworkTrafficThroughputMetricsImpl();
+    this.writeNetworkThroughputMetrics = new AdfsThrottlingNetworkTrafficThroughputMetricsImpl();
+    this.readNetworkThroughputMetrics = new AdfsThrottlingNetworkTrafficThroughputMetricsImpl();
   }
 
   @Override
-  public AdfsNetworkThroughputMetrics getWriteMetrics() {
+  public AdfsThrottlingNetworkThroughputMetrics getWriteMetrics() {
     return this.writeNetworkThroughputMetrics;
   }
 
   @Override
-  public AdfsNetworkThroughputMetrics getReadMetrics() {
+  public AdfsThrottlingNetworkThroughputMetrics getReadMetrics() {
     return this.readNetworkThroughputMetrics;
   }
 

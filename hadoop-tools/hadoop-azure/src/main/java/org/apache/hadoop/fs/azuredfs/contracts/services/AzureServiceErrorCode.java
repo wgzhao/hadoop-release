@@ -19,6 +19,8 @@
 package org.apache.hadoop.fs.azuredfs.contracts.services;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -29,22 +31,26 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public enum AzureServiceErrorCode {
-  FILE_SYSTEM_ALREADY_EXISTS("FilesystemAlreadyExists", HttpURLConnection.HTTP_CONFLICT),
-  PATH_ALREADY_EXISTS("PathAlreadyExists", HttpURLConnection.HTTP_CONFLICT),
-  PATH_CONFLICT("PathConflict", HttpURLConnection.HTTP_CONFLICT),
-  FILE_SYSTEM_NOT_FOUND("FilesystemNotFound", HttpURLConnection.HTTP_NOT_FOUND),
-  PATH_NOT_FOUND("PathNotFound", HttpURLConnection.HTTP_NOT_FOUND),
-  PRE_CONDITION_FAILED("PreconditionFailed", HttpURLConnection.HTTP_PRECON_FAILED),
-  SOURCE_PATH_NOT_FOUND("SourcePathNotFound", HttpURLConnection.HTTP_NOT_FOUND),
-  INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE("InvalidSourceOrDestinationResourceType", HttpURLConnection.HTTP_CONFLICT),
-  RENAME_DESTINATION_PARENT_PATH_NOT_FOUND("RenameDestinationParentPathNotFound", HttpURLConnection.HTTP_NOT_FOUND),
-  UNKNOWN(null, -1);
+  FILE_SYSTEM_ALREADY_EXISTS("FilesystemAlreadyExists", HttpURLConnection.HTTP_CONFLICT, null),
+  PATH_ALREADY_EXISTS("PathAlreadyExists", HttpURLConnection.HTTP_CONFLICT, null),
+  PATH_CONFLICT("PathConflict", HttpURLConnection.HTTP_CONFLICT, null),
+  FILE_SYSTEM_NOT_FOUND("FilesystemNotFound", HttpURLConnection.HTTP_NOT_FOUND, null),
+  PATH_NOT_FOUND("PathNotFound", HttpURLConnection.HTTP_NOT_FOUND, null),
+  PRE_CONDITION_FAILED("PreconditionFailed", HttpURLConnection.HTTP_PRECON_FAILED, null),
+  SOURCE_PATH_NOT_FOUND("SourcePathNotFound", HttpURLConnection.HTTP_NOT_FOUND, null),
+  INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE("InvalidSourceOrDestinationResourceType", HttpURLConnection.HTTP_CONFLICT, null),
+  RENAME_DESTINATION_PARENT_PATH_NOT_FOUND("RenameDestinationParentPathNotFound", HttpURLConnection.HTTP_NOT_FOUND, null),
+  INGRESS_OVER_ACCOUNT_LIMIT(null, HttpURLConnection.HTTP_UNAVAILABLE, "Ingress is over the account limit."),
+  EGRESS_OVER_ACCOUNT_LIMIT(null, HttpURLConnection.HTTP_UNAVAILABLE, "Egress is over the account limit."),
+  UNKNOWN(null, -1, null);
 
   private final String errorCode;
   private final int httpStatusCode;
-  AzureServiceErrorCode(String errorCode, int httpStatusCodes) {
+  private final String errorMessage;
+  AzureServiceErrorCode(String errorCode, int httpStatusCodes, String errorMessage) {
     this.errorCode = errorCode;
     this.httpStatusCode = httpStatusCodes;
+    this.errorMessage = errorMessage;
   }
 
   public int getStatusCode() {
@@ -55,13 +61,47 @@ public enum AzureServiceErrorCode {
     return this.errorCode;
   }
 
+  public static List<AzureServiceErrorCode> getAzureServiceCode(int httpStatusCode) {
+    List<AzureServiceErrorCode> errorCodes = new ArrayList<>();
+    if (httpStatusCode == UNKNOWN.httpStatusCode) {
+      errorCodes.add(UNKNOWN);
+      return errorCodes;
+    }
+
+    for (AzureServiceErrorCode azureServiceErrorCode : AzureServiceErrorCode.values()) {
+      if (azureServiceErrorCode.httpStatusCode == httpStatusCode) {
+        errorCodes.add(azureServiceErrorCode);
+      }
+    }
+
+    return errorCodes;
+  }
+
   public static AzureServiceErrorCode getAzureServiceCode(int httpStatusCode, String errorCode) {
     if (errorCode == null || errorCode.isEmpty() || httpStatusCode == UNKNOWN.httpStatusCode) {
       return UNKNOWN;
     }
 
     for (AzureServiceErrorCode azureServiceErrorCode : AzureServiceErrorCode.values()) {
-      if (errorCode.equalsIgnoreCase(azureServiceErrorCode.errorCode) && azureServiceErrorCode.httpStatusCode == httpStatusCode) {
+      if (errorCode.equalsIgnoreCase(azureServiceErrorCode.errorCode)
+          && azureServiceErrorCode.httpStatusCode == httpStatusCode) {
+        return azureServiceErrorCode;
+      }
+    }
+
+    return UNKNOWN;
+  }
+
+  public static AzureServiceErrorCode getAzureServiceCode(int httpStatusCode, String errorCode, final String errorMessage) {
+    if (errorCode == null || errorCode.isEmpty() || httpStatusCode == UNKNOWN.httpStatusCode || errorMessage == null || errorMessage.isEmpty()) {
+      return UNKNOWN;
+    }
+
+    for (AzureServiceErrorCode azureServiceErrorCode : AzureServiceErrorCode.values()) {
+      if (azureServiceErrorCode.httpStatusCode == httpStatusCode
+          && errorCode.equalsIgnoreCase(azureServiceErrorCode.errorCode)
+          && errorMessage.equalsIgnoreCase(azureServiceErrorCode.errorMessage)
+      ) {
         return azureServiceErrorCode;
       }
     }

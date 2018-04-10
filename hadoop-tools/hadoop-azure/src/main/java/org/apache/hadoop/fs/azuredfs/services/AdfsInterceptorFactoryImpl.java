@@ -28,34 +28,35 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azuredfs.contracts.exceptions.AzureDistributedFileSystemException;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsHttpClientSession;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsNetworkInterceptorFactory;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsThrottlingNetworkTrafficAnalysisService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsInterceptorFactory;
 import org.apache.hadoop.fs.azuredfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azuredfs.contracts.services.TracingService;
+import org.apache.hadoop.fs.azuredfs.contracts.services.AdfsRetryStrategy;
 
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-final class AdfsNetworkInterceptorFactoryImpl implements AdfsNetworkInterceptorFactory {
+final class AdfsInterceptorFactoryImpl implements AdfsInterceptorFactory {
   private final AdfsHttpAuthorizationService adfsHttpAuthorizationService;
-  private final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService;
+  private final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService;
   private final LoggingService loggingService;
   private final TracingService tracingService;
 
   @Inject
-  AdfsNetworkInterceptorFactoryImpl(
+  AdfsInterceptorFactoryImpl(
       final AdfsHttpAuthorizationService adfsHttpAuthorizationService,
-      final AdfsNetworkTrafficAnalysisService adfsNetworkTrafficAnalysisService,
+      final AdfsThrottlingNetworkTrafficAnalysisService adfsThrottlingNetworkTrafficAnalysisService,
       final LoggingService loggingService,
       final TracingService tracingService) {
     Preconditions.checkNotNull(adfsHttpAuthorizationService, "adfsHttpAuthorizationService");
-    Preconditions.checkNotNull(adfsNetworkTrafficAnalysisService, "adfsNetworkTrafficAnalysisService");
+    Preconditions.checkNotNull(adfsThrottlingNetworkTrafficAnalysisService, "adfsThrottlingNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(loggingService, "loggingService");
     Preconditions.checkNotNull(tracingService, "tracingService");
 
     this.adfsHttpAuthorizationService = adfsHttpAuthorizationService;
-    this.adfsNetworkTrafficAnalysisService = adfsNetworkTrafficAnalysisService;
-    this.loggingService = loggingService.get(AdfsNetworkInterceptorFactory.class);
+    this.adfsThrottlingNetworkTrafficAnalysisService = adfsThrottlingNetworkTrafficAnalysisService;
+    this.loggingService = loggingService.get(AdfsInterceptorFactory.class);
     this.tracingService = tracingService;
   }
 
@@ -72,15 +73,21 @@ final class AdfsNetworkInterceptorFactoryImpl implements AdfsNetworkInterceptorF
   public Interceptor createNetworkThrottler(final AdfsHttpClientSession adfsHttpClientSession) throws AzureDistributedFileSystemException {
     return new NetworkThrottlerImpl(
         adfsHttpClientSession,
-        this.adfsNetworkTrafficAnalysisService,
+        this.adfsThrottlingNetworkTrafficAnalysisService,
         loggingService);
   }
 
   @Override
   public Interceptor createNetworkThroughputMonitor(final AdfsHttpClientSession adfsHttpClientSession) throws AzureDistributedFileSystemException {
-    NetworkThroughputMonitorImpl networkThroughputMonitor = new NetworkThroughputMonitorImpl(
+    return new NetworkThroughputMonitorImpl(
         adfsHttpClientSession,
-        this.adfsNetworkTrafficAnalysisService);
-    return networkThroughputMonitor;
+        this.adfsThrottlingNetworkTrafficAnalysisService);
+  }
+
+  @Override
+  public Interceptor createRetryInterceptor(final AdfsRetryStrategy adfsRetryStrategy) throws AzureDistributedFileSystemException {
+    return new NetworkRetryImpl(
+        adfsRetryStrategy,
+        this.loggingService);
   }
 }
