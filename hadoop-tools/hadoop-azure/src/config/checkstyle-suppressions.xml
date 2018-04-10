@@ -43,20 +43,20 @@
 
 <suppressions>
     <suppress checks="FileLengthCheck|UnusedImportsCheck|ParameterNumber|RedundantThrows|MagicNumber"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]rest[\\/]client[\\/]generated[\\/]implementation[\\/]AzureDistributedFileSystemRestClientImpl.java"/>
+              files="com[\\/]microsoft[\\/]azure[\\/]bfs[\\/]rest[\\/]client[\\/]generated[\\/]implementation[\\/]AzureBlobFileSystemRestClientImpl.java"/>
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="com[\\/]microsoft[\\/]azure[\\/]dfs[\\/]rest[\\/]client[\\/]generated[\\/]AzureDistributedFileSystemRestClient.java"/>
+              files="com[\\/]microsoft[\\/]azure[\\/]bfs[\\/]rest[\\/]client[\\/]generated[\\/]AzureBlobFileSystemRestClient.java"/>
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsMonitoredHttpClientImpl.java"/>
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsMonitoredHttpClientImpl.java"/>
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsInputStream.java"/>
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsInputStream.java"/>
 
     <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsOutputStream.java"/>
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsOutputStream.java"/>
 
     <suppress checks="ParameterNumber"
-              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azuredfs[\\/]services[\\/]AdfsHttpServiceImpl.java"/>
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsHttpServiceImpl.java"/>
 </suppressions>

@@ -4892,3 +4892,5 @@ ATS V1.5:
 
     WASB-56. Fixing a few bugs when code was merged into trunk
 
+    WASB-57. Renaming AzureDistributedFileSystem to AzureBlobFileSystem
+

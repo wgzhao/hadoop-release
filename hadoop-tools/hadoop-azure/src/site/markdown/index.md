@@ -629,7 +629,7 @@ Overall, to run all the tests using `mvn test`,  a sample `azure-auth-keys.xml` 
 DO NOT ADD `azure-auth-keys.xml` TO REVISION CONTROL.  The keys to your Azure
 Storage account are a secret and must not be shared.
 
-## Running ADFS Tests
+## Running ABFS Tests
 
 After completing the configuration, execute the test run through Maven.
 

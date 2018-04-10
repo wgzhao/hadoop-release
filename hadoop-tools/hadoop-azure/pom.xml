@@ -89,8 +89,8 @@
         </executions>
       </plugin>
 
-      <!--ADFS code base requires higher version of guava than hadoop.
-          Using shade guava 16.0 will be included in ADFS jar.-->
+      <!--ABFS code base requires higher version of guava than hadoop.
+          Using shade guava 16.0 will be included in ABFS jar.-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -386,10 +386,10 @@
                     <fs.azure.scale.test.timeout>${fs.azure.scale.test.timeout}</fs.azure.scale.test.timeout>
                   </systemPropertyVariables>
                   <includes>
-                    <include>org/apache/hadoop/fs/azuredfs/**/Test*.java</include>
+                    <include>org/apache/hadoop/fs/azurebfs/**/Test*.java</include>
                   </includes>
                   <excludes>
-                    <exclude>org/apache/hadoop/fs/azuredfs/contract/**/Test*.java</exclude>
+                    <exclude>org/apache/hadoop/fs/azurebfs/contract/**/Test*.java</exclude>
                   </excludes>
                 </configuration>
               </execution>
@@ -466,11 +466,11 @@
                   <!-- and instead run them sequentially in a separate -->
                   <!-- Surefire execution step later. -->
                   <includes>
-                    <include>org/apache/hadoop/fs/azuredfs/**/ITest*.java</include>
+                    <include>org/apache/hadoop/fs/azurebfs/**/ITest*.java</include>
                   </includes>
                   <excludes>
-                    <exclude>org/apache/hadoop/fs/azuredfs/contract/**/ITest*.java</exclude>
-                    <exclude>org/apache/hadoop/fs/azuredfs/ITestWasbAdfsCompatibility.java</exclude>
+                    <exclude>org/apache/hadoop/fs/azurebfs/contract/**/ITest*.java</exclude>
+                    <exclude>org/apache/hadoop/fs/azurebfs/ITestWasbAbfsCompatibility.java</exclude>
                   </excludes>
                 </configuration>
               </execution>
@@ -493,8 +493,8 @@
                     <fs.azure.scale.test.timeout>${fs.azure.scale.test.timeout}</fs.azure.scale.test.timeout>
                   </systemPropertyVariables>
                   <includes>
-                    <include>org/apache/hadoop/fs/azuredfs/contract/**/ITest*.java</include>
-                    <include>org/apache/hadoop/fs/azuredfs/ITestWasbAdfsCompatibility.java</include>
+                    <include>org/apache/hadoop/fs/azurebfs/contract/**/ITest*.java</include>
+                    <include>org/apache/hadoop/fs/azurebfs/ITestWasbAbfsCompatibility.java</include>
                   </includes>
                 </configuration>
               </execution>
