@@ -285,9 +285,17 @@ public class AzureDistributedFileSystem extends FileSystem {
     evaluateFileSystemPathOperation(
         src,
         rename,
+        AzureServiceErrorCode.PATH_ALREADY_EXISTS,
+        AzureServiceErrorCode.INVALID_RENAME_SOURCE_PATH,
         AzureServiceErrorCode.SOURCE_PATH_NOT_FOUND,
         AzureServiceErrorCode.INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE,
         AzureServiceErrorCode.RENAME_DESTINATION_PARENT_PATH_NOT_FOUND);
+
+    if (rename.exception != null && rename.exception.getErrorCode() == AzureServiceErrorCode.INVALID_RENAME_SOURCE_PATH) {
+      if (src.equals(dst)) {
+        return true;
+      }
+    }
 
     return rename.result;
   }

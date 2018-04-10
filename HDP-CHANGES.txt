@@ -4890,3 +4890,5 @@ ATS V1.5:
 
     WASB-52. Adding retry logic to driver; Enable auto-throttling
 
+    WASB-56. Fixing a few bugs when code was merged into trunk
+
