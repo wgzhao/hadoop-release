@@ -104,9 +104,8 @@ public class RMRegistryOperationsService extends RegistryAdminService {
    */
   public void onApplicationAttemptUnregistered(ApplicationAttemptId attemptId)
       throws IOException {
-    LOG.info("Application attempt {} unregistered, purging app attempt records",
-        attemptId);
-    purgeAppAttemptRecords(attemptId);
+    LOG.info("Application attempt {} unregistered, skipping purging app " +
+        "attempt records", attemptId);
   }
 
   /**
@@ -141,11 +140,8 @@ public class RMRegistryOperationsService extends RegistryAdminService {
    * @throws IOException problems
    */
   public void onContainerFinished(ContainerId id) throws IOException {
-    LOG.info("Container {} finished, purging container-level records",
-        id);
-    purgeRecordsAsync("/",
-        id.toString(),
-        PersistencePolicies.CONTAINER);
+    LOG.info("Container {} finished, skipping purging container-level records" +
+        " (should be handled by AM)", id);
   }
 
   /**
