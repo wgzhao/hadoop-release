@@ -16,40 +16,51 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
 
+  <!--
+  <property>
+    <name>fs.azure.test.account.name</name>
+    <value>{YOURACCOUNT}</value>
+  </property>
+
+  <property>
+    <name>fs.azure.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>
+    <value>{ACCOUNTKEY}</value>
+  </property>
+
+  <property>
+    <name>fs.azure.test.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>
+    <value>{ACCOUNTKEY}</value>
+  </property>
+
+  <property>
+    <name>fs.contract.test.fs.adfs</name>
+    <value>adfs://{CONTAINERNAME}@{ACCOUNTNAME}.dfs.core.windows.net/value>
+    <description>The name of the azure file system for testing.</description>
+  </property>
+
+  -->
+  <!-- Save above configuration properties in a separate file named -->
+  <!-- azure-adfs-auth-keys.xml in the same directory as this file. -->
+  <!-- DO NOT ADD azure-adfs-auth-keys.xml TO REVISION CONTROL.  The keys to your -->
+  <!-- Azure Storage account are a secret and must not be shared. -->
+
+  <include xmlns="http://www.w3.org/2001/XInclude" href="azure-adfs-auth-keys.xml">
+    <fallback />
+  </include>
+
   <!--<property>-->
-  <!--<name>fs.azure.test.host.name</name>-->
-  <!--<value>{HOSTNAME}</value>-->
+    <!--<name>fs.azure.test.host.name</name>-->
+    <!--<value>{HOSTNAME}</value>-->
   <!--</property>-->
 
   <!--<property>-->
-  <!--<name>fs.azure.test.host.port</name>-->
-  <!--<value>{PORT}</value>-->
+    <!--<name>fs.azure.test.host.port</name>-->
+    <!--<value>{PORT}</value>-->
   <!--</property>-->
 
   <!--<property>-->
-  <!--<name>fs.azure.test.account.name</name>-->
-  <!--<value>{YOURACCOUNT}</value>-->
-  <!--</property>-->
-
-  <!--<property>-->
-  <!--<name>fs.azure.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>-->
-  <!--<value>{ACCOUNTKEY}</value>-->
-  <!--</property>-->
-
-  <!--<property>-->
-  <!--<name>fs.azure.test.account.key.{YOURACCOUNT}.dfs.core.windows.net</name>-->
-  <!--<value>{ACCOUNTKEY}</value>-->
-  <!--</property>-->
-
-  <!--<property>-->
-  <!--<name>fs.azure.adfs.emulator.enabled</name>-->
-  <!--<value>true</value>-->
-  <!--</property>-->
-
-  <!--<property>-->
-  <!--<name>fs.contract.test.fs.wasb</name>-->
-  <!--<value>adfs://{CONTAINERNAME}@{ACCOUNTNAME}.dfs.core.windows.net/value>-->
-  <!--<description>The name of the azure file system for testing.</description>-->
+    <!--<name>fs.azure.adfs.emulator.enabled</name>-->
+    <!--<value>false</value>-->
   <!--</property>-->
 
   <property>

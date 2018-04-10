@@ -18,6 +18,7 @@ build
 # Filesystem contract test options and credentials
 auth-keys.xml
 azure-auth-keys.xml
+azure-adfs-auth-keys.xml
 
 # External tool builders
 */.externalToolBuilders

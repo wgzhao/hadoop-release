@@ -4886,3 +4886,7 @@ ATS V1.5:
 
     WASB-50. Updating ADFS http client to percent encode rename source header
 
+    WASB-55. Updating ADFS test configuration file
+
+    WASB-52. Adding retry logic to driver; Enable auto-throttling
+
