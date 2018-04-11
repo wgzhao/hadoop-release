@@ -4718,3 +4718,5 @@ ATS V1.5:
     UncaughtExceptionHandler for critical threads in RM. (Yufei Gu via kasha)
     YARN-6061. Addendum. Remove extraneous change. YARN-3742. YARN RM will shut
     down if ZKClient creation times out. (Daniel Templeton via kasha)
+
+    YARN-7962. Race Condition When Stopping DelegationTokenRenewer. Contributed by Beluga Behr

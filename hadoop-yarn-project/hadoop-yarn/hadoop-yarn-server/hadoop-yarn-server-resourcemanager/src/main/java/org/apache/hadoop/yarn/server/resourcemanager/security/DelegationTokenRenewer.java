@@ -179,12 +179,17 @@ public class DelegationTokenRenewer extends AbstractService {
     }
 
     setLocalSecretManagerAndServiceAddr();
+
     serviceStateLock.writeLock().lock();
-    isServiceStarted = true;
-    serviceStateLock.writeLock().unlock();
-    while(!pendingEventQueue.isEmpty()) {
-      processDelegationTokenRenewerEvent(pendingEventQueue.take());
+    try {
+      isServiceStarted = true;
+      while (!pendingEventQueue.isEmpty()) {
+        processDelegationTokenRenewerEvent(pendingEventQueue.take());
+      }
+    } finally {
+      serviceStateLock.writeLock().unlock();
     }
+
     super.serviceStart();
   }
 
@@ -209,7 +214,15 @@ public class DelegationTokenRenewer extends AbstractService {
     }
     appTokens.clear();
     allTokens.clear();
-    this.renewerService.shutdown();
+
+    serviceStateLock.writeLock().lock();
+    try {
+      isServiceStarted = false;
+      this.renewerService.shutdown();
+    } finally {
+      serviceStateLock.writeLock().unlock();
+    }
+
     dtCancelThread.interrupt();
     try {
       dtCancelThread.join(1000);
