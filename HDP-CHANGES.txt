@@ -3001,3 +3001,5 @@ ATS V1.5:
     Contributed by Wei-Chiu Chuang.
 
     BUG-100228. RM purging logic scans /registry znode too frequently
+
+    BUG-98609. YARN-7962. Race Condition When Stopping DelegationTokenRenewer. Contributed by Beluga Behr
