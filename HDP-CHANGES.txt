@@ -2999,3 +2999,5 @@ ATS V1.5:
 
     HADOOP-13638. KMS should set UGI's Configuration object properly.
     Contributed by Wei-Chiu Chuang.
+
+    BUG-100228. RM purging logic scans /registry znode too frequently
