@@ -5041,3 +5041,5 @@ ATS V1.5:
 
     WASB-96. Azure Blob File system: Mapping http error codes the correct error messages
 
+    BUG-107502. YARN-7962. Race Condition When Stopping DelegationTokenRenewer.
+    Contributed by Beluga Behr
