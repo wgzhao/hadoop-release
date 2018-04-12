@@ -17,16 +17,28 @@
  */
 package org.apache.hadoop.fs.azurebfs.contract;
 
+import java.util.Arrays;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractRootDirectoryTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class ITestAbfsFileSystemContractRootDirectory extends AbstractContractRootDirectoryTest {
+  @Parameterized.Parameters(name = "SecureMode={0}")
+  public static Iterable<Object[]> secure() {
+    return Arrays.asList(new Object[][] { {true}, {false} });
+  }
+
+  private final boolean isSecure;
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public ITestAbfsFileSystemContractRootDirectory() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest();
+  public ITestAbfsFileSystemContractRootDirectory(final boolean secure) throws Exception {
+    this.isSecure = secure;
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(secure);
   }
 
   @Override
@@ -36,8 +48,13 @@ public class ITestAbfsFileSystemContractRootDirectory extends AbstractContractRo
   }
 
   @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf);
+  protected Configuration createConfiguration() {
+    return this.dependencyInjectedContractTest.getConfiguration();
+  }
+
+  @Override
+  protected AbstractFSContract createContract(final Configuration conf) {
+    return new ITestAbfsFileSystemContract(conf, this.isSecure);
   }
 
   @Override

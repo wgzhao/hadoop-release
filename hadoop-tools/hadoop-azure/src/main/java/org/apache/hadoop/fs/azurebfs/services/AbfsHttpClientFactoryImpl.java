@@ -27,6 +27,7 @@ import okhttp3.Interceptor;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
@@ -87,7 +88,7 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
         this.abfsHttpClientSessionFactory.create(fs);
 
     final URIBuilder uriBuilder =
-        getURIBuilder(abfsHttpClientSession.getHostName());
+         getURIBuilder(abfsHttpClientSession.getHostName(), fs);
 
     final Interceptor networkInterceptor =
         this.abfsInterceptorFactory.createNetworkAuthenticationProxy(abfsHttpClientSession);
@@ -130,12 +131,12 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
   }
 
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String hostName) {
-    final boolean isSecure = this.configurationService.isSecureMode();
+  URIBuilder getURIBuilder(final String hostName, final FileSystem fs) {
+    final AzureBlobFileSystem abfs = (AzureBlobFileSystem) fs;
 
     String scheme = FileSystemUriSchemes.HTTP_SCHEME;
 
-    if (isSecure) {
+    if (abfs.isSecure()) {
       scheme = FileSystemUriSchemes.HTTPS_SCHEME;
     }
 

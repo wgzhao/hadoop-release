@@ -17,15 +17,28 @@
  */
 package org.apache.hadoop.fs.azurebfs.contract;
 
+import java.util.Arrays;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractConcatTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
+@RunWith(Parameterized.class)
 public class ITestAbfsFileSystemContractConcat extends AbstractContractConcatTest{
+  @Parameterized.Parameters(name = "SecureMode={0}")
+  public static Iterable<Object[]> secure() {
+    return Arrays.asList(new Object[][] { {true}, {false} });
+  }
+
+  private final boolean isSecure;
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public ITestAbfsFileSystemContractConcat() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest();
+  public ITestAbfsFileSystemContractConcat(final boolean secure) throws Exception {
+    this.isSecure = secure;
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(isSecure);
   }
 
   @Override
@@ -35,8 +48,12 @@ public class ITestAbfsFileSystemContractConcat extends AbstractContractConcatTes
   }
 
   @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf);
+  protected Configuration createConfiguration() {
+    return this.dependencyInjectedContractTest.getConfiguration();
   }
 
+  @Override
+  protected AbstractFSContract createContract(final Configuration conf) {
+    return new ITestAbfsFileSystemContract(conf, this.isSecure);
+  }
 }

@@ -30,6 +30,9 @@ import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 @InterfaceStability.Evolving
 public class SecureAzureBlobFileSystem extends AzureBlobFileSystem {
   @Override
+  public boolean isSecure() { return true; }
+
+  @Override
   public String getScheme() {
     return FileSystemUriSchemes.ABFS_SECURE_SCHEME;
   }

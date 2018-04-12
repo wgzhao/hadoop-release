@@ -24,6 +24,7 @@ import com.google.inject.Singleton;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionFactory;
@@ -56,7 +57,7 @@ public class MockAbfsHttpClientFactoryImpl extends AbfsHttpClientFactoryImpl {
   }
 
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String hostName) {
+  URIBuilder getURIBuilder(final String hostName, final FileSystem fs) {
     final URIBuilder uriBuilder = new URIBuilder();
 
     final String testHost = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);

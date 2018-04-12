@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.internal.util.MockUtil;
 
@@ -57,14 +58,32 @@ public abstract class DependencyInjectedTest {
   private final String testUrl;
   private final boolean isEmulator;
   private NativeAzureFileSystem wasb;
+  private String abfsScheme;
 
-  protected DependencyInjectedTest() throws Exception {
+  public DependencyInjectedTest(final boolean secure) {
+    this(secure ? FileSystemUriSchemes.ABFS_SECURE_SCHEME : FileSystemUriSchemes.ABFS_SCHEME);
+  }
+
+  protected DependencyInjectedTest() {
+    this(FileSystemUriSchemes.ABFS_SCHEME);
+  }
+
+  private DependencyInjectedTest(final String scheme) {
+    abfsScheme = scheme;
     fileSystemName = UUID.randomUUID().toString();
     configuration = new Configuration();
     configuration.addResource("azure-bfs-test.xml");
 
     final String abfsUrl = this.getFileSystemName() + "@" + this.getAccountName();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ABFS_SCHEME, abfsUrl, null, null, null);
+    URI defaultUri = null;
+
+    try {
+      defaultUri = new URI(abfsScheme, abfsUrl, null, null, null);
+    }
+    catch (Exception ex) {
+      Assert.fail(ex.getMessage());
+    }
+
     this.testUrl = defaultUri.toString();
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
     configuration.setBoolean(ConfigurationKeys.AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION, true);
@@ -161,15 +180,30 @@ public abstract class DependencyInjectedTest {
 
   protected boolean isEmulator() { return isEmulator; }
 
-  protected static String wasbUrlToAbfsUrl(String wasbUrl) {
-    String data = wasbUrl.replace("wasb://", "abfs://");
-    data = data.replace(".blob.", ".dfs.");
-    return data;
+  protected static String wasbUrlToAbfsUrl(final String wasbUrl) {
+    return ConvertTestUrls(
+        wasbUrl, FileSystemUriSchemes.WASB_SCHEME, FileSystemUriSchemes.WASB_SECURE_SCHEME, FileSystemUriSchemes.WASB_DNS_PREFIX,
+        FileSystemUriSchemes.ABFS_SCHEME, FileSystemUriSchemes.ABFS_SECURE_SCHEME, FileSystemUriSchemes.ABFS_DNS_PREFIX);
   }
 
-  protected static String abfsUrlToWasbUrl(String abfsUrl) {
-    String data = abfsUrl.replace("abfs://", "wasb://");
-    data = data.replace(".dfs.", ".blob.");
+  protected static String abfsUrlToWasbUrl(final String abfsUrl) {
+    return ConvertTestUrls(
+        abfsUrl, FileSystemUriSchemes.ABFS_SCHEME, FileSystemUriSchemes.ABFS_SECURE_SCHEME, FileSystemUriSchemes.ABFS_DNS_PREFIX,
+        FileSystemUriSchemes.WASB_SCHEME, FileSystemUriSchemes.WASB_SECURE_SCHEME, FileSystemUriSchemes.WASB_DNS_PREFIX);
+  }
+
+  private static String ConvertTestUrls(
+      final String url, final String fromNonSecureScheme, final String fromSecureScheme, final String fromDnsPrefix,
+      final String toNonSecureScheme, final String toSecureScheme, final String toDnsPrefix) {
+    String data = null;
+    if (url.startsWith(fromNonSecureScheme + "://")) {
+      data = url.replace(fromNonSecureScheme + "://", toNonSecureScheme + "://");
+    }
+    else if (url.startsWith(fromSecureScheme + "://")) {
+      data = url.replace(fromSecureScheme + "://", toSecureScheme + "://");
+    }
+
+    data = data.replace("." + fromDnsPrefix + ".", "." + toDnsPrefix + ".");
     return data;
   }
 }

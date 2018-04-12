@@ -23,6 +23,7 @@ import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.azurebfs.DependencyInjectedTest;
+import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
 
 public class DependencyInjectedContractTest extends DependencyInjectedTest {
@@ -30,17 +31,25 @@ public class DependencyInjectedContractTest extends DependencyInjectedTest {
   private final String fileSystemName;
   private final String accountName;
 
-  public DependencyInjectedContractTest() throws Exception {
-    super();
+  public DependencyInjectedContractTest(final boolean secure) throws Exception {
+    super(secure);
 
     Configuration configuration = getConfiguration();
-    this.testUri = new URI(configuration.get(TestConfigurationKeys.FS_AZURE_CONTRACT_TEST_URI));
+    String testUrl = configuration.get(TestConfigurationKeys.FS_AZURE_CONTRACT_TEST_URI);
+
+    if (secure) {
+      testUrl = testUrl.replaceFirst(FileSystemUriSchemes.ABFS_SCHEME, FileSystemUriSchemes.ABFS_SECURE_SCHEME);
+    }
+
+    this.testUri = new URI(testUrl);
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, this.testUri.toString());
 
     String[] splitAuthority = this.testUri.getAuthority().split("\\@");
     this.fileSystemName = splitAuthority[0];
     this.accountName = splitAuthority[1];
   }
+
+  public Configuration getConfiguration() { return super.getConfiguration(); }
 
   @Override
   protected String getTestUrl() {

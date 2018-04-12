@@ -4894,3 +4894,5 @@ ATS V1.5:
 
     WASB-57. Renaming AzureDistributedFileSystem to AzureBlobFileSystem
 
+    WASB-58. Enabling Abfss and SecureAzureBlobFileSystem
+

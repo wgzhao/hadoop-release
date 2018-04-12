@@ -18,15 +18,28 @@
 
 package org.apache.hadoop.fs.azurebfs.contract;
 
+import java.util.Arrays;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractRenameTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
+@RunWith(Parameterized.class)
 public class ITestAbfsFileSystemContractRename extends AbstractContractRenameTest {
+  @Parameterized.Parameters(name = "SecureMode={0}")
+  public static Iterable<Object[]> secure() {
+    return Arrays.asList(new Object[][] { {true}, {false} });
+  }
+
+  private final boolean isSecure;
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public ITestAbfsFileSystemContractRename() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest();
+  public ITestAbfsFileSystemContractRename(final boolean secure) throws Exception {
+    this.isSecure = secure;
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(this.isSecure);
   }
 
   @Override
@@ -36,7 +49,12 @@ public class ITestAbfsFileSystemContractRename extends AbstractContractRenameTes
   }
 
   @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf);
+  protected Configuration createConfiguration() {
+    return this.dependencyInjectedContractTest.getConfiguration();
+  }
+
+  @Override
+  protected AbstractFSContract createContract(final Configuration conf) {
+    return new ITestAbfsFileSystemContract(conf, this.isSecure);
   }
 }

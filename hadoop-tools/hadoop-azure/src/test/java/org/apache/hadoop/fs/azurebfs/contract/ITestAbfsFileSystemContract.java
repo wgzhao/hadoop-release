@@ -19,20 +19,23 @@
 package org.apache.hadoop.fs.azurebfs.contract;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.contract.AbstractBondedFSContract;
 
 public class ITestAbfsFileSystemContract extends AbstractBondedFSContract {
 
   public static final String CONTRACT_XML = "abfs.xml";
+  private final boolean isSecure;
 
-  protected ITestAbfsFileSystemContract(Configuration conf) {
+  protected ITestAbfsFileSystemContract(final Configuration conf, boolean secure) {
     super(conf);
     //insert the base features
     addConfResource(CONTRACT_XML);
+    this.isSecure = secure;
   }
 
   @Override
   public String getScheme() {
-    return "abfs";
+    return isSecure ? FileSystemUriSchemes.ABFS_SECURE_SCHEME : FileSystemUriSchemes.ABFS_SCHEME;
   }
 }

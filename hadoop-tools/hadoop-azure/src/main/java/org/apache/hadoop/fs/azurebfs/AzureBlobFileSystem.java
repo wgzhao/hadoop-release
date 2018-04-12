@@ -133,6 +133,8 @@ public class AzureBlobFileSystem extends FileSystem {
     }
   }
 
+  public boolean isSecure() { return false; }
+
   @Override
   public URI getUri() {
     return this.uri;

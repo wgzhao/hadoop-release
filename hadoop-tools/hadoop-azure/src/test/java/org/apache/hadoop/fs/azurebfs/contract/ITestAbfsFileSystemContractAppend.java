@@ -18,17 +18,30 @@
 
 package org.apache.hadoop.fs.azurebfs.contract;
 
+import java.util.Arrays;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractAppendTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.skip;
 
+@RunWith(Parameterized.class)
 public class ITestAbfsFileSystemContractAppend extends AbstractContractAppendTest {
+  @Parameterized.Parameters(name = "SecureMode={0}")
+  public static Iterable<Object[]> secure() {
+    return Arrays.asList(new Object[][] { {true}, {false} });
+  }
+
+  private final boolean isSecure;
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
-  public ITestAbfsFileSystemContractAppend() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest();
+  public ITestAbfsFileSystemContractAppend(final boolean secure) throws Exception {
+    this.isSecure = secure;
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(this.isSecure);
   }
 
   @Override
@@ -38,8 +51,13 @@ public class ITestAbfsFileSystemContractAppend extends AbstractContractAppendTes
   }
 
   @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf);
+  protected Configuration createConfiguration() {
+    return this.dependencyInjectedContractTest.getConfiguration();
+  }
+
+  @Override
+  protected AbstractFSContract createContract(final Configuration conf) {
+    return new ITestAbfsFileSystemContract(conf, this.isSecure);
   }
 
   @Override

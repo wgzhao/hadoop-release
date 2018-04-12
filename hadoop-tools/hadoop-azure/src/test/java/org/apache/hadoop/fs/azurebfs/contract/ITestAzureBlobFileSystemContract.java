@@ -27,7 +27,7 @@ public class ITestAzureBlobFileSystemContract extends FileSystemContractBaseTest
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
   public ITestAzureBlobFileSystemContract() throws Exception {
-    this.dependencyInjectedContractTest = new DependencyInjectedContractTest();
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(false);
   }
 
   @Override

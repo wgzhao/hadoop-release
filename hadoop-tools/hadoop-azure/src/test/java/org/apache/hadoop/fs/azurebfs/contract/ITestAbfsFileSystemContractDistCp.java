@@ -21,14 +21,11 @@ package org.apache.hadoop.fs.azurebfs.contract;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.tools.contract.AbstractContractDistCpTest;
 
-/**
- * Contract test suite covering WASB integration with DistCp.
- */
 public class ITestAbfsFileSystemContractDistCp extends AbstractContractDistCpTest {
   private final DependencyInjectedContractTest dependencyInjectedContractTest;
 
   public ITestAbfsFileSystemContractDistCp() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest();
+    dependencyInjectedContractTest = new DependencyInjectedContractTest(false);
   }
 
   @Override
@@ -39,6 +36,6 @@ public class ITestAbfsFileSystemContractDistCp extends AbstractContractDistCpTes
 
   @Override
   protected ITestAbfsFileSystemContract createContract(Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf);
+    return new ITestAbfsFileSystemContract(conf, false);
   }
 }
