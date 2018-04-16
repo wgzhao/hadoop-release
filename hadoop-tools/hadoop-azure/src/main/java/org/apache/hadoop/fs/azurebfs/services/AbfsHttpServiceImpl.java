@@ -45,8 +45,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -86,6 +88,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorRespo
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceNetworkException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPropertyException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClient;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
@@ -122,6 +125,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private final ConcurrentHashMap<AzureBlobFileSystem, AbfsHttpClient> abfsHttpClientCache;
   private final ConcurrentHashMap<AzureBlobFileSystem, ThreadPoolExecutor> abfsHttpClientWriteExecutorServiceCache;
   private final ConcurrentHashMap<AzureBlobFileSystem, ThreadPoolExecutor> abfsHttpClientReadExecutorServiceCache;
+  private final ConcurrentHashMap<ThreadPoolExecutor, CompletionService> abfsHttpClientCompletionServiceCache;
   private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
@@ -145,6 +149,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     this.abfsHttpClientCache = new ConcurrentHashMap<>();
     this.abfsHttpClientReadExecutorServiceCache = new ConcurrentHashMap<>();
     this.abfsHttpClientWriteExecutorServiceCache = new ConcurrentHashMap<>();
+    this.abfsHttpClientCompletionServiceCache = new ConcurrentHashMap<>();
     this.abfsHttpClientFactory = abfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AbfsHttpService.class);
@@ -168,7 +173,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Hashtable<String, String>> getFilesystemPropertiesAsync(final AzureBlobFileSystem azureBlobFileSystem) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "getFilesystemPropertiesAsync for filesystem: {0}",
@@ -189,7 +193,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.getFilesystemPropertiesAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.getFilesystemPropertiesAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
   @Override
@@ -213,7 +218,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     }
 
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "setFilesystemPropertiesAsync for filesystem: {0} with properties: {1}",
@@ -237,7 +241,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.setFilesystemPropertiesAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.setFilesystemPropertiesAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -257,7 +262,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Hashtable<String, String>> getPathPropertiesAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "getPathPropertiesAsync for filesystem: {0} path: {1}",
@@ -280,7 +284,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.getPathPropertiesAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.getPathPropertiesAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
   @Override
@@ -302,7 +307,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   Hashtable<String, String> properties) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "setFilesystemPropertiesAsync for filesystem: {0} path: {1} with properties: {2}",
@@ -342,7 +346,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.setPathPropertiesAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.setPathPropertiesAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -360,7 +365,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public Future<Void> createFilesystemAsync(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "createFilesystemAsync for filesystem: {0}",
@@ -379,7 +383,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.createFilesystemAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.createFilesystemAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -397,7 +402,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public Future<Void> deleteFilesystemAsync(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "deleteFilesystemAsync for filesystem: {0}",
@@ -411,7 +415,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.deleteFilesystemAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.deleteFilesystemAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -431,7 +436,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<OutputStream> createFileAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite)
       throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "createFileAsync filesystem: {0} path: {1} overwrite: {2}",
@@ -493,7 +497,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.createFileAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.createFileAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -512,7 +517,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Void> createDirectoryAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "createDirectoryAsync filesystem: {0} path: {1}",
@@ -558,7 +562,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.createDirectoryAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.createDirectoryAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -577,7 +582,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<InputStream> openFileForReadAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "openFileForReadAsync filesystem: {0} path: {1}",
@@ -609,7 +613,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.openFileForReadAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.openFileForReadAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
 
@@ -630,7 +635,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<OutputStream> openFileForWriteAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite)
       throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "openFileForWriteAsync filesystem: {0} path: {1} overwrite: {2}",
@@ -645,7 +649,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.openFileForWriteAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.openFileForWriteAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -667,7 +672,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       final int length, final ByteBuf targetBuffer, final int targetBufferOffset) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "readFileAsync filesystem: {0} path: {1} offset: {2} length: {3} targetBufferOffset: {4}",
@@ -715,7 +719,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.readFileAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.readFileAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
   @Override
@@ -735,7 +740,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Void> writeFileAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final
   ByteBuf body, final long offset) throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "writeFileAsync filesystem: {0} path: {1} offset: {2}",
@@ -774,7 +778,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.writeFileAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.writeFileAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -795,7 +800,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Void> flushFileAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final long offset, final boolean
       retainUncommitedData) throws AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "flushFileAsync filesystem: {0} path: {1} offset: {2}",
@@ -832,7 +836,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.flushFileAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.flushFileAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -859,7 +864,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     }
 
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "renameAsync filesystem: {0} source: {1} destination: {2}",
@@ -935,7 +939,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.renameAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.renameAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -956,7 +961,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Void> deleteAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean recursive) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor writeExecutorService = this.getOrCreateFileSystemClientWriteThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "deleteAsync filesystem: {0} path: {1} recursive: {2}",
@@ -1006,7 +1010,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.deleteAsync", abfsHttpClient, writeExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.deleteAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.WRITE, asyncCallable);
   }
 
   @Override
@@ -1025,7 +1030,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<FileStatus> getFileStatusAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "getFileStatusAsync filesystem: {0} path: {1}",
@@ -1039,7 +1043,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.getFileStatusAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.getFileStatusAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
   @Override
@@ -1058,7 +1063,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<FileStatus[]> listStatusAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
     final AbfsHttpClient abfsHttpClient = this.getOrCreateFileSystemClient(azureBlobFileSystem);
-    final ThreadPoolExecutor readExecutorService = this.getOrCreateFileSystemClientReadThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem);
 
     this.loggingService.debug(
         "listStatusAsync filesystem: {0} path: {1}",
@@ -1130,7 +1134,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     };
 
-    return executeAsync("AbfsHttpServiceImpl.listStatusAsync", abfsHttpClient, readExecutorService, asyncCallable);
+    return executeAsync("AbfsHttpServiceImpl.listStatusAsync", azureBlobFileSystem,
+            abfsHttpClient, ThreadPoolExecutorType.READ, asyncCallable);
   }
 
   @Override
@@ -1157,6 +1162,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final ThreadPoolExecutor readThreadPoolExecutor = this.abfsHttpClientReadExecutorServiceCache.get(azureBlobFileSystem);
 
     if (readThreadPoolExecutor != null) {
+      this.abfsHttpClientCompletionServiceCache.remove(readThreadPoolExecutor);
       readThreadPoolExecutor.shutdownNow();
       this.abfsHttpClientReadExecutorServiceCache.remove(azureBlobFileSystem);
     }
@@ -1164,6 +1170,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final ThreadPoolExecutor writeThreadPoolExecutor = this.abfsHttpClientWriteExecutorServiceCache.get(azureBlobFileSystem);
 
     if (writeThreadPoolExecutor != null) {
+      this.abfsHttpClientCompletionServiceCache.remove(writeThreadPoolExecutor);
       writeThreadPoolExecutor.shutdownNow();
       this.abfsHttpClientWriteExecutorServiceCache.remove(azureBlobFileSystem);
     }
@@ -1271,6 +1278,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
             : this.abfsHttpClientWriteExecutorServiceCache;
 
     cache.put(azureBlobFileSystem, threadPoolExecutor);
+    this.abfsHttpClientCompletionServiceCache.put(threadPoolExecutor, new ExecutorCompletionService(threadPoolExecutor));
     return threadPoolExecutor;
   }
 
@@ -1367,25 +1375,40 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   private <T> Future<T> executeAsync(
       final String scopeDescription,
+      final AzureBlobFileSystem azureBlobFileSystem,
       final AbfsHttpClient abfsHttpClient,
-      final ThreadPoolExecutor threadPoolExecutor,
-      final Callable<T> task) {
+      final ThreadPoolExecutorType threadPoolExecutorType,
+      final Callable<T> task) throws AzureBlobFileSystemException {
     if (abfsHttpClient.getSession().getSessionState() != AbfsHttpClientSessionState.OPEN) {
       throw new IllegalStateException("Cannot execute task in a closed session");
     }
 
     final SpanId currentTraceScopeId = this.tracingService.getCurrentTraceScopeSpanId();
 
+
+    Callable<T> taskWithObservable = new Callable<T>() {
+      @Override
+      public T call() throws Exception {
+        return execute(scopeDescription, task, currentTraceScopeId);
+      }
+    };
+
+    // check if need to wait
+    int maxTaskSize = (threadPoolExecutorType == ThreadPoolExecutorType.READ
+            ? FileSystemConfigurations.MAX_CONCURRENT_READ_THREADS
+            : FileSystemConfigurations.MAX_CONCURRENT_WRITE_THREADS);
+
+    final ThreadPoolExecutor threadPoolExecutor = getOrCreateFileSystemClientThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem, threadPoolExecutorType);
+
+    if (threadPoolExecutor.getQueue().size() >= maxTaskSize) {
+      this.waitForCompleted(threadPoolExecutor);
+    }
+
+    CompletionService completionService = this.abfsHttpClientCompletionServiceCache.get(threadPoolExecutor);
+
     for (;;) {
       try {
-        Callable<T> taskWithObservable = new Callable<T>() {
-          @Override
-          public T call() throws Exception {
-            return execute(scopeDescription, task, currentTraceScopeId);
-          }
-        };
-
-        return threadPoolExecutor.submit(taskWithObservable);
+        return completionService.submit(taskWithObservable);
       } catch (RejectedExecutionException ex) {
         // Ignore and retry
       }
@@ -1402,7 +1425,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         maxConcurrentThreads,
         1L,
         TimeUnit.SECONDS,
-        new SynchronousQueue<Runnable>(),
+        new LinkedBlockingQueue<Runnable>(),
         new ThreadFactoryBuilder().setNameFormat(threadName + "-%d").build(),
         new RejectedExecutionHandler() {
           @Override
@@ -1629,6 +1652,20 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     }
 
     return false;
+  }
+
+  private void waitForCompleted(ThreadPoolExecutor threadPoolExecutor) throws AzureBlobFileSystemException{
+    CompletionService completionService = abfsHttpClientCompletionServiceCache.get(threadPoolExecutor);
+    boolean completed;
+    for(completed = false; completionService.poll() != null; completed = true) {}
+
+    if (!completed) {
+      try {
+        completionService.take();
+      } catch (InterruptedException e) {
+        throw new FileSystemOperationUnhandledException(e);
+      }
+    }
   }
 
   private class VersionedFileStatus extends FileStatus {
