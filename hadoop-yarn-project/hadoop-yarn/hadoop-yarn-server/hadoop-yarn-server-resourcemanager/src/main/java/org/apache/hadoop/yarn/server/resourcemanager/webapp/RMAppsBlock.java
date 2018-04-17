@@ -63,6 +63,7 @@ public class RMAppsBlock extends AppsBlock {
           .th(".apptag", "Application Tags")
           .th(".queue", "Queue").th(".priority", "Application Priority")
           .th(".starttime", "StartTime")
+          .th("launchtime", "LaunchTime")
           .th(".finishtime", "FinishTime").th(".state", "State")
           .th(".finalstatus", "FinalStatus")
           .th(".runningcontainer", "Running Containers")
@@ -139,6 +140,7 @@ public class RMAppsBlock extends AppsBlock {
              .getQueue()))).append("\",\"").append(String
              .valueOf(app.getPriority()))
         .append("\",\"").append(app.getStartedTime())
+        .append("\",\"").append(app.getLaunchTime())
         .append("\",\"").append(app.getFinishedTime())
         .append("\",\"")
         .append(app.getAppState() == null ? UNAVAILABLE : app.getAppState())
