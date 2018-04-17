@@ -4896,3 +4896,5 @@ ATS V1.5:
 
     WASB-58. Enabling Abfss and SecureAzureBlobFileSystem
 
+    WASB-61. Fix for getting concurrent thread settings
+

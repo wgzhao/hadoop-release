@@ -1395,8 +1395,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
     // check if need to wait
     int maxTaskSize = (threadPoolExecutorType == ThreadPoolExecutorType.READ
-            ? FileSystemConfigurations.MAX_CONCURRENT_READ_THREADS
-            : FileSystemConfigurations.MAX_CONCURRENT_WRITE_THREADS);
+            ? this.configurationService.getMaxConcurrentReadThreads()
+            : this.configurationService.getMaxConcurrentWriteThreads());
 
     final ThreadPoolExecutor threadPoolExecutor = getOrCreateFileSystemClientThreadPoolExecutor(abfsHttpClient, azureBlobFileSystem, threadPoolExecutorType);
 
