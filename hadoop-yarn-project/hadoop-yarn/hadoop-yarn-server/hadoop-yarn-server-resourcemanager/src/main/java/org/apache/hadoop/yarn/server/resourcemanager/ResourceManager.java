@@ -215,9 +215,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
       this.conf.addResource(coreSiteXMLInputStream);
     }
 
-    // Do refreshUserToGroupsMappings with loaded core-site.xml
-    refreshUserToGroupMappingsWithConf();
-
     // Do refreshSuperUserGroupsConfiguration with loaded core-site.xml
     // Or use RM specific configurations to overwrite the common ones first
     // if they exist
@@ -277,21 +274,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
     rmContext.setSystemMetricsPublisher(systemMetricsPublisher);
 
     super.serviceInit(this.conf);
-  }
-
-  private void refreshUserToGroupMappingsWithConf()
-      throws YarnException, IOException {
-    Configuration newConf = new Configuration(false);
-    InputStream confFileInputStream =
-        configurationProvider
-        .getConfigurationInputStream(newConf, YarnConfiguration.CORE_SITE_CONFIGURATION_FILE);
-    if (confFileInputStream != null) {
-      newConf.addResource(confFileInputStream);
-    }
-
-    // Do refreshUserToGroupsMappings with loaded core-site.xml
-    Groups.getUserToGroupsMappingServiceWithLoadedConfiguration(newConf)
-        .refresh();
   }
 
   protected QueueACLsManager createQueueACLsManager(ResourceScheduler scheduler,
