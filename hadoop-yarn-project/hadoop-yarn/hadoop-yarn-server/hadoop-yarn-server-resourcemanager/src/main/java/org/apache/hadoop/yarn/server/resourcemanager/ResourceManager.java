@@ -213,10 +213,6 @@ public class ResourceManager extends CompositeService implements Recoverable {
       this.conf.addResource(coreSiteXMLInputStream);
     }
 
-    // Do refreshUserToGroupsMappings with loaded core-site.xml
-    Groups.getUserToGroupsMappingServiceWithLoadedConfiguration(this.conf)
-        .refresh();
-
     // Do refreshSuperUserGroupsConfiguration with loaded core-site.xml
     // Or use RM specific configurations to overwrite the common ones first
     // if they exist
@@ -277,7 +273,7 @@ public class ResourceManager extends CompositeService implements Recoverable {
 
     super.serviceInit(this.conf);
   }
-  
+
   protected QueueACLsManager createQueueACLsManager(ResourceScheduler scheduler,
       Configuration conf) {
     return new QueueACLsManager(scheduler, conf);
