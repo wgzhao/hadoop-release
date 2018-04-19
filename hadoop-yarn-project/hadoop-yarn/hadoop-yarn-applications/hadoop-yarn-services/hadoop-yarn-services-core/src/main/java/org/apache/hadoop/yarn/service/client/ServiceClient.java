@@ -79,7 +79,6 @@ import org.apache.hadoop.yarn.service.utils.ServiceRegistryUtils;
 import org.apache.hadoop.yarn.service.utils.ServiceUtils;
 import org.apache.hadoop.yarn.service.utils.SliderFileSystem;
 import org.apache.hadoop.yarn.service.utils.ZookeeperUtils;
-import org.apache.hadoop.yarn.util.DockerClientConfigHandler;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.util.Times;
 import org.slf4j.Logger;
@@ -711,7 +710,7 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
     amLaunchContext.setCommands(Collections.singletonList(cmdStr));
     amLaunchContext.setEnvironment(env);
     amLaunchContext.setLocalResources(localResources);
-    addCredentials(amLaunchContext, app);
+    addHdfsDelegationTokenIfSecure(amLaunchContext);
     submissionContext.setAMContainerSpec(amLaunchContext);
     yarnClient.submitApplication(submissionContext);
     return submissionContext.getApplicationId();
@@ -934,37 +933,28 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
     return appDir;
   }
 
-  private void addCredentials(ContainerLaunchContext amContext, Service app)
+  private void addHdfsDelegationTokenIfSecure(ContainerLaunchContext amContext)
       throws IOException {
-    Credentials allCreds = new Credentials();
-    // HDFS DT
-    if (UserGroupInformation.isSecurityEnabled()) {
-      String tokenRenewer = YarnClientUtils.getRmPrincipal(getConfig());
-      if (StringUtils.isEmpty(tokenRenewer)) {
-        throw new IOException(
-            "Can't get Master Kerberos principal for the RM to use as renewer");
-      }
-      final org.apache.hadoop.security.token.Token<?>[] tokens =
-          fs.getFileSystem().addDelegationTokens(tokenRenewer, allCreds);
-      if (LOG.isDebugEnabled()) {
-        if (tokens != null && tokens.length != 0) {
-          for (Token<?> token : tokens) {
-            LOG.debug("Got DT: " + token);
-          }
-        }
-      }
+    if (!UserGroupInformation.isSecurityEnabled()) {
+      return;
     }
-
-    if (!StringUtils.isEmpty(app.getDockerClientConfig())) {
-      allCreds.addAll(DockerClientConfigHandler.readCredentialsFromConfigFile(
-          new Path(app.getDockerClientConfig()), getConfig(), app.getName()));
+    Credentials credentials = new Credentials();
+    String tokenRenewer = YarnClientUtils.getRmPrincipal(getConfig());
+    if (StringUtils.isEmpty(tokenRenewer)) {
+      throw new IOException(
+          "Can't get Master Kerberos principal for the RM to use as renewer");
     }
-
-    if (allCreds.numberOfTokens() > 0) {
+    // Get hdfs dt
+    final org.apache.hadoop.security.token.Token<?>[] tokens =
+        fs.getFileSystem().addDelegationTokens(tokenRenewer, credentials);
+    if (tokens != null && tokens.length != 0) {
+      for (Token<?> token : tokens) {
+        LOG.debug("Got DT: " + token);
+      }
       DataOutputBuffer dob = new DataOutputBuffer();
-      allCreds.writeTokenStorageToStream(dob);
-      ByteBuffer tokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
-      amContext.setTokens(tokens);
+      credentials.writeTokenStorageToStream(dob);
+      ByteBuffer fsTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+      amContext.setTokens(fsTokens);
     }
   }
 
