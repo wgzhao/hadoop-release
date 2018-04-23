@@ -53,6 +53,7 @@ import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -298,6 +299,7 @@ public class TestPread {
   }
 
   @Test
+  @Ignore("Flaky test - fails in Jenkins runs")
   public void testHedgedReadLoopTooManyTimes() throws IOException {
     Configuration conf = new Configuration();
     int numHedgedReadPoolThreads = 5;

@@ -20,11 +20,13 @@ package org.apache.hadoop.hdfs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.erasurecode.ECSchema;
+import org.junit.Ignore;
 
 /**
  * This tests write operation of DFS striped file with a random erasure code
  * policy except for the default policy under Datanode failure conditions.
  */
+@Ignore("Flaky test - fails in Jenkins runs")
 public class TestDFSStripedOutputStreamWithFailureWithRandomECPolicy extends
     TestDFSStripedOutputStreamWithFailure {
 

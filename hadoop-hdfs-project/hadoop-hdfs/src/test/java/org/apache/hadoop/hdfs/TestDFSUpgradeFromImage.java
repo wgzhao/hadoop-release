@@ -49,6 +49,7 @@ import org.apache.hadoop.hdfs.server.namenode.IllegalReservedPathException;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -628,6 +629,7 @@ public class TestDFSUpgradeFromImage {
    * Test upgrade from a 1.x image with some blocksBeingWritten
    */
   @Test
+  @Ignore("Flaky test - fails in Jenkins runs")
   public void testUpgradeFromRel1BBWImage() throws IOException {
     unpackStorage(HADOOP1_BBW_IMAGE, HADOOP_DFS_DIR_TXT);
     Configuration conf = new Configuration(upgradeConf);

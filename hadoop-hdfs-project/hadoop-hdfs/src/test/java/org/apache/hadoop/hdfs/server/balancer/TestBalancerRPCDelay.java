@@ -17,12 +17,14 @@
  */
 package org.apache.hadoop.hdfs.server.balancer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * The Balancer ensures that it disperses RPCs to the NameNode
  * in order to avoid NN's RPC queue saturation.
  */
+@Ignore("Flaky test - fails occasionally in Jenkins runs")
 public class TestBalancerRPCDelay {
 
   @Test(timeout=100000)

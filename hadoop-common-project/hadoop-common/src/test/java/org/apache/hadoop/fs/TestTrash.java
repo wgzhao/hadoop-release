@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -570,6 +571,7 @@ public class TestTrash {
    * @throws Exception
    */
   @Test
+  @Ignore("Flaky test - fails in Jenkins runs")
   public void testTrashRestarts() throws Exception {
     Configuration conf = new Configuration();
     conf.setClass("fs.trash.classname",

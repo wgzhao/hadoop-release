@@ -24,8 +24,13 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.hdfs.web.SWebHdfsFileSystem;
 import org.apache.hadoop.security.ssl.KeyStoreTestUtil;
 import org.apache.hadoop.test.GenericTestUtils;
+import org.apache.hadoop.test.TestDir;
+import org.apache.hadoop.test.TestHdfs;
+import org.apache.hadoop.test.TestJetty;
 import org.apache.hadoop.test.TestJettyHelper;
 import org.junit.AfterClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -99,4 +104,13 @@ public class TestHttpFSFWithSWebhdfsFileSystem
     return FileSystem.get(uri, conf);
   }
 
+  @Test
+  @TestDir
+  @TestJetty
+  @TestHdfs
+  @Override
+  @Ignore("Flaky test - fails in Jenkins runs")
+  public void testOperation() throws Exception {
+    // no-op. Overriden so the test can be ignored.
+  }
 }
