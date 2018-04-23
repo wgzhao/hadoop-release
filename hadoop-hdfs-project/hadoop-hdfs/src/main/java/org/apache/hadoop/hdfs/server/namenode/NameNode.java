@@ -925,8 +925,8 @@ public class NameNode extends ReconfigurableBase implements
         conf, nsId);
 
     if (clientNamenodeAddress != null) {
-      LOG.info("Clients are to use {} to access"
-          + " this namenode/service.", clientNamenodeAddress );
+      LOG.info("Clients should use {} to access"
+          + " this namenode/service.", clientNamenodeAddress);
     }
     this.haEnabled = HAUtil.isHAEnabled(conf, nsId);
     state = createHAState(getStartupOption(conf));

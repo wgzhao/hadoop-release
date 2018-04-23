@@ -34,7 +34,9 @@ import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_HA_NAMENODES_KEY_PREFIX;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_NAMENODE_RPC_ADDRESS_KEY;
 
-
+/**
+ * Utility functions for the NameNode.
+ */
 @InterfaceAudience.Private
 public final class NameNodeUtils {
   public static final Logger LOG = LoggerFactory.getLogger(NameNodeUtils.class);
@@ -115,5 +117,9 @@ public final class NameNodeUtils {
       // the port is missing or 0. Figure out real bind address later.
       return null;
     }
+  }
+
+  private NameNodeUtils() {
+    // Disallow construction
   }
 }
