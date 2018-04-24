@@ -149,6 +149,10 @@
           <groupId>commons-el</groupId>
           <artifactId>commons-el</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.google.cloud.bigdataoss</groupId>
+          <artifactId>gcs-connector</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>

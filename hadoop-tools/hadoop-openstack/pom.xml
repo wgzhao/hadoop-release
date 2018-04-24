@@ -93,6 +93,12 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.cloud.bigdataoss</groupId>
+          <artifactId>gcs-connector</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -100,6 +106,12 @@
       <artifactId>hadoop-common</artifactId>
       <scope>compile</scope>
       <type>test-jar</type>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.cloud.bigdataoss</groupId>
+          <artifactId>gcs-connector</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
