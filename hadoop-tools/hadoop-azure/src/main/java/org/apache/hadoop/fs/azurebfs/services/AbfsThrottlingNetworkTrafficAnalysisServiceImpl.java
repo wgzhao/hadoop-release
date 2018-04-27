@@ -90,7 +90,7 @@ final class AbfsThrottlingNetworkTrafficAnalysisServiceImpl implements AbfsThrot
         && this.registeredAbfsClientSessions.get(accountName) != null) {
 
       ConcurrentArrayList<AbfsHttpClientSession> registeredSessions = this.registeredAbfsClientSessions.get(accountName);
-      if(!registeredSessions.contains(abfsHttpClientSession)) {
+      if (!registeredSessions.contains(abfsHttpClientSession)) {
         registeredSessions.add(abfsHttpClientSession);
       }
 

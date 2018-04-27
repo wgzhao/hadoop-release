@@ -173,37 +173,59 @@ class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public int getMinBackoffIntervalMilliseconds() { return this.minBackoffInterval; }
+  public int getMinBackoffIntervalMilliseconds() {
+    return this.minBackoffInterval;
+  }
 
   @Override
-  public int getMaxBackoffIntervalMilliseconds() { return this.maxBackoffInterval; }
+  public int getMaxBackoffIntervalMilliseconds() {
+    return this.maxBackoffInterval;
+  }
 
   @Override
-  public int getBackoffIntervalMilliseconds() { return this.backoffInterval; }
+  public int getBackoffIntervalMilliseconds() {
+    return this.backoffInterval;
+  }
 
   @Override
-  public int getMaxIoRetries() { return this.maxIoRetries; }
+  public int getMaxIoRetries() {
+    return this.maxIoRetries;
+  }
 
   @Override
-  public long getAzureBlockSize() { return this.azureBlockSize; }
+  public long getAzureBlockSize() {
+    return this.azureBlockSize;
+  }
 
   @Override
-  public String getAzureBlockLocationHost() { return this.azureBlockLocationHost; }
+  public String getAzureBlockLocationHost() {
+    return this.azureBlockLocationHost;
+  }
 
   @Override
-  public int getMaxConcurrentWriteThreads() { return this.maxConcurrentWriteThreads; }
+  public int getMaxConcurrentWriteThreads() {
+    return this.maxConcurrentWriteThreads;
+  }
 
   @Override
-  public int getMaxConcurrentReadThreads() { return this.maxConcurrentReadThreads; }
+  public int getMaxConcurrentReadThreads() {
+    return this.maxConcurrentReadThreads;
+  }
 
   @Override
-  public boolean getTolerateOobAppends() { return this.tolerateOobAppends; }
+  public boolean getTolerateOobAppends() {
+    return this.tolerateOobAppends;
+  }
 
   @Override
-  public String getAzureAtomicRenameDirs() { return this.azureAtomicDirs; }
+  public String getAzureAtomicRenameDirs() {
+    return this.azureAtomicDirs;
+  }
 
   @Override
-  public boolean getCreateRemoteFileSystemDuringInitialization() { return this.createRemoteFileSystemDuringInitialization; }
+  public boolean getCreateRemoteFileSystemDuringInitialization() {
+    return this.createRemoteFileSystemDuringInitialization;
+  }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(

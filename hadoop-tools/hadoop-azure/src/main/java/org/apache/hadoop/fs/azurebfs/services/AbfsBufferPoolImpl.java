@@ -33,7 +33,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsBufferPool;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AbfsBufferPoolImpl implements AbfsBufferPool {
-  public AbfsBufferPoolImpl() {
+  AbfsBufferPoolImpl() {
   }
 
   @Override

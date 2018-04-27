@@ -273,8 +273,11 @@ final class AbfsInputStream extends FSInputStream {
 
       Preconditions.checkArgument(totalReadLength == readLength);
     }
-    catch (AzureBlobFileSystemException | InterruptedException | ExecutionException ex) {
+    catch (AzureBlobFileSystemException | ExecutionException ex) {
       throw new IOException(ex);
+    }
+    catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
     }
     finally {
       this.tracingService.traceEnd(traceScope);

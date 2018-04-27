@@ -35,7 +35,7 @@ class AbfsRetryStrategyFactoryImpl implements AbfsRetryStrategyFactory {
   private final ConfigurationService configurationService;
 
   @Inject
-  public AbfsRetryStrategyFactoryImpl(final ConfigurationService configurationService) {
+  AbfsRetryStrategyFactoryImpl(final ConfigurationService configurationService) {
     this.configurationService = configurationService;
   }
 

@@ -48,4 +48,3 @@ public class Base64StringConfigurationBasicValidator extends ConfigurationBasicV
     return configValue;
   }
 }
-

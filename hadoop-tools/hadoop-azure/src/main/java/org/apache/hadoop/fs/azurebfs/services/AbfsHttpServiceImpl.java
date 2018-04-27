@@ -88,8 +88,8 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorRespo
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceNetworkException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPropertyException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
+import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsBufferPool;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClient;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionState;
@@ -129,6 +129,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
+  private final AbfsBufferPool bufferPool;
   private final Set<String> azureAtomicRenameDirSet;
 
   @Inject
@@ -137,15 +138,18 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       final AbfsHttpClientFactory abfsHttpClientFactory,
       final AbfsStreamFactory abfsStreamFactory,
       final TracingService tracingService,
-      final LoggingService loggingService) {
+      final LoggingService loggingService,
+      final AbfsBufferPool abfsBufferPool) {
     Preconditions.checkNotNull(abfsHttpClientFactory, "abfsHttpClientFactory");
     Preconditions.checkNotNull(abfsStreamFactory, "abfsStreamFactory");
     Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(tracingService, "tracingService");
     Preconditions.checkNotNull(loggingService, "loggingService");
+    Preconditions.checkNotNull(abfsBufferPool, "abfsBufferPool");
 
     this.configurationService = configurationService;
     this.abfsStreamFactory = abfsStreamFactory;
+    this.bufferPool = abfsBufferPool;
     this.abfsHttpClientCache = new ConcurrentHashMap<>();
     this.abfsHttpClientReadExecutorServiceCache = new ConcurrentHashMap<>();
     this.abfsHttpClientWriteExecutorServiceCache = new ConcurrentHashMap<>();
@@ -750,6 +754,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final Callable<Void> asyncCallable = new Callable<Void>() {
       @Override
       public Void call() throws Exception {
+        ByteBufInputStream bufferStream = new ByteBufInputStream(body, true);
         Observable<Void> updatePathAsync = abfsHttpClient.updatePathAsync(
             "append",
             abfsHttpClient.getSession().getFileSystem(),
@@ -769,12 +774,15 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
             null /* ifNoneMatch */,
             null /* ifModifiedSince */,
             null /* ifUnmodifiedSince */,
-            new ByteBufInputStream(body),
+            bufferStream,
             null /* xMsClientRequestId */,
             FileSystemConfigurations.FS_AZURE_DEFAULT_CONNECTION_TIMEOUT,
             null /* xMsDate */);
 
-        return updatePathAsync.toBlocking().single();
+        updatePathAsync.toBlocking().single();
+        bufferStream.close();
+        bufferPool.releaseByteBuffer(body);
+        return null;
       }
     };
 
@@ -858,7 +866,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public Future<Void> renameAsync(final AzureBlobFileSystem azureBlobFileSystem, final Path source, final Path destination) throws
       AzureBlobFileSystemException {
 
-    if(isAtomicRenameKey(source.getName())) {
+    if (isAtomicRenameKey(source.getName())) {
       this.loggingService.warning("The atomic rename feature is not supported by the ABFS scheme; however rename,"
           +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
     }
@@ -1224,24 +1232,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return abfsHttpClient;
   }
 
-  private synchronized ThreadPoolExecutor getOrCreateFileSystemClientReadThreadPoolExecutor(
-    final AbfsHttpClient abfsHttpClient,
-    final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    return getOrCreateFileSystemClientThreadPoolExecutor(
-        abfsHttpClient,
-        azureBlobFileSystem,
-        ThreadPoolExecutorType.READ);
-  }
-
-  private synchronized ThreadPoolExecutor getOrCreateFileSystemClientWriteThreadPoolExecutor(
-      final AbfsHttpClient abfsHttpClient,
-      final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    return getOrCreateFileSystemClientThreadPoolExecutor(
-        abfsHttpClient,
-        azureBlobFileSystem,
-        ThreadPoolExecutorType.WRITE);
-  }
-
   private synchronized ThreadPoolExecutor getOrCreateFileSystemClientThreadPoolExecutor(
       final AbfsHttpClient abfsHttpClient,
       final AzureBlobFileSystem azureBlobFileSystem,
@@ -1426,7 +1416,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         1L,
         TimeUnit.SECONDS,
         new LinkedBlockingQueue<Runnable>(),
-        new ThreadFactoryBuilder().setNameFormat(threadName + "-%d").build(),
+        new ThreadFactoryBuilder().setNameFormat(threadName + "-%d").setDaemon(true).build(),
         new RejectedExecutionHandler() {
           @Override
           public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
@@ -1657,13 +1647,13 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private void waitForCompleted(ThreadPoolExecutor threadPoolExecutor) throws AzureBlobFileSystemException{
     CompletionService completionService = abfsHttpClientCompletionServiceCache.get(threadPoolExecutor);
     boolean completed;
-    for(completed = false; completionService.poll() != null; completed = true) {}
+    for (completed = false; completionService.poll() != null; completed = true) {}
 
     if (!completed) {
       try {
         completionService.take();
       } catch (InterruptedException e) {
-        throw new FileSystemOperationUnhandledException(e);
+        Thread.currentThread().interrupt();
       }
     }
   }

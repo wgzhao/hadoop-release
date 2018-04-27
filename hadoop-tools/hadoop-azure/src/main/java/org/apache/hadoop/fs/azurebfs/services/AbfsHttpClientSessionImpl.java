@@ -38,7 +38,7 @@ final class AbfsHttpClientSessionImpl implements AbfsHttpClientSession {
   private final StorageCredentialsAccountAndKey storageCredentialsAccountAndKey;
   private AbfsHttpClientSessionState abfsHttpClientSessionState;
 
-  public AbfsHttpClientSessionImpl(
+  AbfsHttpClientSessionImpl(
       final String accountName,
       final String accountKey,
       final String fileSystem) {

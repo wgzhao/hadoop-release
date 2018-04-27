@@ -137,7 +137,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> createFilesystemAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> createFilesystemAsync(String filesystem, String resource, ServiceCallback<Void> serviceCallback);
 
   /**
    * Create Filesystem.
@@ -208,7 +208,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<Void> createFilesystemAsync(String filesystem, String resource, String xMsProperties, String xMsClientRequestId, Integer timeout, String
-      xMsDate, final ServiceCallback<Void> serviceCallback);
+      xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Create Filesystem.
@@ -280,7 +280,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> setFilesystemPropertiesAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> setFilesystemPropertiesAsync(String filesystem, String resource, ServiceCallback<Void> serviceCallback);
 
   /**
    * Set Filesystem Properties.
@@ -367,7 +367,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<Void> setFilesystemPropertiesAsync(String filesystem, String resource, String xMsProperties, String ifModifiedSince, String
-      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Set Filesystem Properties.
@@ -455,7 +455,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, final ServiceCallback<ListSchema> serviceCallback);
+  ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, ServiceCallback<ListSchema> serviceCallback);
 
   /**
    * List Paths.
@@ -541,7 +541,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<ListSchema> listPathsAsync(boolean recursive, String filesystem, String resource, String directory, String continuation, Integer
-      maxResults, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<ListSchema> serviceCallback);
+      maxResults, String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<ListSchema> serviceCallback);
 
   /**
    * List Paths.
@@ -621,7 +621,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, ServiceCallback<Void> serviceCallback);
 
   /**
    * Get Filesystem Properties.
@@ -684,7 +684,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, String xMsClientRequestId, Integer timeout, String xMsDate, final
+  ServiceFuture<Void> getFilesystemPropertiesAsync(String filesystem, String resource, String xMsClientRequestId, Integer timeout, String xMsDate,
   ServiceCallback<Void> serviceCallback);
 
   /**
@@ -758,7 +758,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, ServiceCallback<Void> serviceCallback);
 
   /**
    * Delete Filesystem.
@@ -850,7 +850,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<Void> deleteFilesystemAsync(String filesystem, String resource, String ifModifiedSince, String ifUnmodifiedSince, String
-      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Delete Filesystem.
@@ -934,7 +934,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> createPathAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> createPathAsync(String filesystem, String path, ServiceCallback<Void> serviceCallback);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -1118,7 +1118,7 @@ public interface AzureBlobFileSystemRestClient {
       String xMsContentLanguage, String xMsContentDisposition, String xMsRenameSource, String xMsLeaseAction, String xMsLeaseId, String xMsProposedLeaseId,
       String xMsSourceLeaseId, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
       xMsSourceIfMatch, String xMsSourceIfNoneMatch, String xMsSourceIfModifiedSince, String xMsSourceIfUnmodifiedSince, InputStream requestBody, String
-      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Create File | Create Directory | Rename File | Rename Directory.
@@ -1304,7 +1304,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, ServiceCallback<Void> serviceCallback);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
@@ -1460,7 +1460,7 @@ public interface AzureBlobFileSystemRestClient {
   ServiceFuture<Void> updatePathAsync(String action, String filesystem, String path, Long position, Boolean retainUncommittedData, String contentLength,
       String xMsLeaseAction, String xMsLeaseId, String xMsCacheControl, String xMsContentType, String xMsContentDisposition, String xMsContentEncoding, String
       xMsContentLanguage, String xMsProperties, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, InputStream requestBody,
-      String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Append Data | Flush Data | Set File Properties | Set Directory Properties.
@@ -1626,7 +1626,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, ServiceCallback<Void> serviceCallback);
 
   /**
    * Lease Path.
@@ -1752,7 +1752,7 @@ public interface AzureBlobFileSystemRestClient {
    */
   ServiceFuture<Void> leasePathAsync(String xMsLeaseAction, String filesystem, String path, Integer xMsLeaseDuration, Integer xMsLeaseBreakPeriod, String
       xMsLeaseId, String xMsProposedLeaseId, String ifMatch, String ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String
-      xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Lease Path.
@@ -1865,7 +1865,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<InputStream> readPathAsync(String filesystem, String path, final ServiceCallback<InputStream> serviceCallback);
+  ServiceFuture<InputStream> readPathAsync(String filesystem, String path, ServiceCallback<InputStream> serviceCallback);
 
   /**
    * Read File.
@@ -1948,7 +1948,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<InputStream> readPathAsync(String filesystem, String path, String range, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<InputStream> serviceCallback);
+      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<InputStream> serviceCallback);
 
   /**
    * Read File.
@@ -2030,7 +2030,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> getPathPropertiesAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> getPathPropertiesAsync(String filesystem, String path, ServiceCallback<Void> serviceCallback);
 
   /**
    * Get File Properties | Get Directory Properties.
@@ -2110,7 +2110,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<Void> getPathPropertiesAsync(String filesystem, String path, String ifMatch, String ifNoneMatch, String ifModifiedSince, String
-      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void> serviceCallback);
+      ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void> serviceCallback);
 
   /**
    * Get File Properties | Get Directory Properties.
@@ -2186,7 +2186,7 @@ public interface AzureBlobFileSystemRestClient {
    * @return the {@link ServiceFuture} object
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
-  ServiceFuture<Void> deletePathAsync(String filesystem, String path, final ServiceCallback<Void> serviceCallback);
+  ServiceFuture<Void> deletePathAsync(String filesystem, String path, ServiceCallback<Void> serviceCallback);
 
   /**
    * Delete File | Delete Directory.
@@ -2276,7 +2276,7 @@ public interface AzureBlobFileSystemRestClient {
    * @throws IllegalArgumentException thrown if parameters fail the validation
    */
   ServiceFuture<Void> deletePathAsync(String filesystem, String path, Boolean recursive, String continuation, String xMsLeaseId, String ifMatch, String
-      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, final ServiceCallback<Void>
+      ifNoneMatch, String ifModifiedSince, String ifUnmodifiedSince, String xMsClientRequestId, Integer timeout, String xMsDate, ServiceCallback<Void>
       serviceCallback);
 
   /**

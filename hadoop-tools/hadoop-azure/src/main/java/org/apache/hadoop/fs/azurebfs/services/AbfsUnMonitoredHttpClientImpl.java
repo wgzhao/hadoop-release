@@ -40,7 +40,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 final class AbfsUnMonitoredHttpClientImpl extends AbfsHttpClientBaseImpl {
-  public AbfsUnMonitoredHttpClientImpl(
+  AbfsUnMonitoredHttpClientImpl(
       final String baseUrl,
       final ConfigurationService configurationService,
       final Interceptor networkInterceptor,

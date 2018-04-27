@@ -34,4 +34,3 @@ public interface AbfsRetryStrategyFactory extends InjectableService {
    */
   AbfsRetryStrategy create() throws AzureBlobFileSystemException;
 }
-

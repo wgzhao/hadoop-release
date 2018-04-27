@@ -64,7 +64,7 @@ final class NetworkRetryImpl implements Interceptor {
 
             final long retryInterval = abfsRetryStrategy.getRetryInterval(retryCount);
 
-            if(retryInterval > MAX_RETRY_INTERVAL) {
+            if (retryInterval > MAX_RETRY_INTERVAL) {
                 this.loggingService.warning("Retry interval {0} larger than {1} will lead to stale state in sleepAtLeaseIgnoreInterrupts",
                     retryInterval, MAX_RETRY_INTERVAL);
             }

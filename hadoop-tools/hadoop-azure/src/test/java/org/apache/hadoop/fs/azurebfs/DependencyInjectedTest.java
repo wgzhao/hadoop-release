@@ -50,6 +50,7 @@ import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
 import static org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeNotNull;
 
 public abstract class DependencyInjectedTest {
   protected final MockServiceInjectorImpl mockServiceInjector;
@@ -74,13 +75,16 @@ public abstract class DependencyInjectedTest {
     configuration = new Configuration();
     configuration.addResource("azure-bfs-test.xml");
 
+    assumeNotNull(configuration.get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME));
+    assumeNotNull(configuration.get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_KEY_PREFIX + configuration.get(TestConfigurationKeys
+        .FS_AZURE_TEST_ACCOUNT_NAME)));
+
     final String abfsUrl = this.getFileSystemName() + "@" + this.getAccountName();
     URI defaultUri = null;
 
     try {
       defaultUri = new URI(abfsScheme, abfsUrl, null, null, null);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       Assert.fail(ex.getMessage());
     }
 
@@ -178,7 +182,9 @@ public abstract class DependencyInjectedTest {
     return this.configuration;
   }
 
-  protected boolean isEmulator() { return isEmulator; }
+  protected boolean isEmulator() {
+    return isEmulator;
+  }
 
   protected static String wasbUrlToAbfsUrl(final String wasbUrl) {
     return ConvertTestUrls(
@@ -198,8 +204,7 @@ public abstract class DependencyInjectedTest {
     String data = null;
     if (url.startsWith(fromNonSecureScheme + "://")) {
       data = url.replace(fromNonSecureScheme + "://", toNonSecureScheme + "://");
-    }
-    else if (url.startsWith(fromSecureScheme + "://")) {
+    } else if (url.startsWith(fromSecureScheme + "://")) {
       data = url.replace(fromSecureScheme + "://", toSecureScheme + "://");
     }
 

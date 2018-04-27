@@ -4898,3 +4898,5 @@ ATS V1.5:
 
     WASB-61. Fix for getting concurrent thread settings
 
+    WASB-62. Fixing a few Azure Blob Filesystem bugs
+

@@ -35,7 +35,7 @@ public interface TracingService extends InjectableService {
    * @param description the trace description.
    * @return created traceScope.
    */
-  TraceScope traceBegin(final String description);
+  TraceScope traceBegin(String description);
 
   /**
    * Creates a {@link TraceScope} object with the provided description.
@@ -43,7 +43,7 @@ public interface TracingService extends InjectableService {
    * @param parentSpanId the span id of the parent trace scope.
    * @return create traceScope
    */
-  TraceScope traceBegin(final String description, SpanId parentSpanId);
+  TraceScope traceBegin(String description, SpanId parentSpanId);
 
   /**
    * Gets current thread latest generated traceScope id.

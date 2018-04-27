@@ -59,7 +59,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
   private final AbfsStatisticsService abfsStatisticsService;
   private final Path path;
   private final int bufferSize;
-  private final ExecutorService taskCleanupJobExecutor;
 
   private ByteBuf buffer;
   private boolean closed;
@@ -99,9 +98,7 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
     this.bufferSize = bufferSize;
     this.buffer = this.abfsBufferPool.getDynamicByteBuffer(this.bufferSize);
     this.writeOperations = new ConcurrentArrayList<>();
-
     this.offset = offset;
-    this.taskCleanupJobExecutor = Executors.newCachedThreadPool();
   }
 
   /**
@@ -239,7 +236,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
     this.flushInternal();
     writeOperations.clear();
 
-    this.taskCleanupJobExecutor.shutdownNow();
     this.abfsBufferPool.releaseByteBuffer(this.buffer);
     this.closed = true;
   }
@@ -277,22 +273,8 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
           bytes,
           offset);
 
-      final Future job = this.taskCleanupJobExecutor.submit(new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-          try {
-            append.get();
-          }
-          finally {
-            abfsBufferPool.releaseByteBuffer(bytes);
-          }
-
-          return null;
-        }
-      });
-
       this.abfsStatisticsService.incrementBytesWritten(this.azureBlobFileSystem, readableBytes);
-      this.writeOperations.add(new WriteOperation(job, offset, readableBytes));
+      this.writeOperations.add(new WriteOperation(append, offset, readableBytes));
     } catch (AzureBlobFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -305,8 +287,10 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
     for (WriteOperation writeOperation : this.writeOperations) {
       try {
         writeOperation.task.get();
-      } catch (InterruptedException | ExecutionException ex) {
+      } catch (ExecutionException ex) {
         throw new IOException(ex);
+      } catch (InterruptedException ex){
+        Thread.currentThread().interrupt();
       }
     }
 

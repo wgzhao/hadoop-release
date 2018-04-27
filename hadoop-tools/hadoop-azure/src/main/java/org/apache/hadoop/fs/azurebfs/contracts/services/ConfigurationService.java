@@ -125,7 +125,7 @@ public interface ConfigurationService extends InjectableService {
    * rename is made atomic. The default value for this setting is just '/hbase'.
    * Example directories list : <value>/hbase,/data</value>
    * @see <a href="https://hadoop.apache.org/docs/stable/hadoop-azure/index.html#Configuring_Credentials">AtomicRenameProperty</a>
-   * @return
+   * @return atomic rename directories
    */
   String getAzureAtomicRenameDirs();
 

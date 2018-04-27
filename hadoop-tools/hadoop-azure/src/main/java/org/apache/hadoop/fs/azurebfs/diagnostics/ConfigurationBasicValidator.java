@@ -30,7 +30,7 @@ abstract class ConfigurationBasicValidator<T> implements ConfigurationValidator 
   private final String configKey;
   private final boolean throwIfInvalid;
 
-  public ConfigurationBasicValidator(final String configKey, final T defaultVal, final boolean throwIfInvalid) {
+  ConfigurationBasicValidator(final String configKey, final T defaultVal, final boolean throwIfInvalid) {
     this.configKey = configKey;
     this.defaultVal = defaultVal;
     this.throwIfInvalid = throwIfInvalid;
@@ -44,8 +44,8 @@ abstract class ConfigurationBasicValidator<T> implements ConfigurationValidator 
    * @throws InvalidConfigurationValueException in case the configValue is null and required to be set
    */
   public T validate(final String configValue) throws InvalidConfigurationValueException {
-    if(configValue == null) {
-      if(this.throwIfInvalid) {
+    if (configValue == null) {
+      if (this.throwIfInvalid) {
         throw new InvalidConfigurationValueException(this.configKey);
       }
       return this.defaultVal;
@@ -53,7 +53,15 @@ abstract class ConfigurationBasicValidator<T> implements ConfigurationValidator 
     return null;
   }
 
-  public T getDefaultVal() { return this.defaultVal; }
-  public String getConfigKey() { return this.configKey; }
-  public boolean getThrowIfInvalid() { return this.throwIfInvalid; }
+  public T getDefaultVal() {
+    return this.defaultVal;
+  }
+
+  public String getConfigKey() {
+    return this.configKey;
+  }
+
+  public boolean getThrowIfInvalid() {
+    return this.throwIfInvalid;
+  }
 }

@@ -44,7 +44,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 @InterfaceStability.Evolving
 final class AbfsMonitoredHttpClientImpl extends AbfsHttpClientBaseImpl {
   private final AbfsThrottlingNetworkTrafficAnalysisService abfsThrottlingNetworkTrafficAnalysisService;
-  public AbfsMonitoredHttpClientImpl(
+  AbfsMonitoredHttpClientImpl(
       final String baseUrl,
       final ConfigurationService configurationService,
       final Interceptor networkInterceptor,

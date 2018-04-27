@@ -271,7 +271,7 @@ public interface AbfsHttpService extends InjectableService {
    * @param offset offset to apply flush.
    * @param retainUncommitedData when flush is called out of order this parameter must be true.
    */
-  void flushFile(AzureBlobFileSystem azureBlobFileSystem, Path path, final long offset, final boolean retainUncommitedData) throws
+  void flushFile(AzureBlobFileSystem azureBlobFileSystem, Path path, long offset, boolean retainUncommitedData) throws
       AzureBlobFileSystemException;
 
   /**
@@ -282,7 +282,7 @@ public interface AbfsHttpService extends InjectableService {
    * @param retainUncommitedData when flush is called out of order this parameter must be true.
    * @return Future<Void> Future of a Void object.
    */
-  Future<Void> flushFileAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, final long offset, final boolean retainUncommitedData) throws
+  Future<Void> flushFileAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, long offset, boolean retainUncommitedData) throws
       AzureBlobFileSystemException;
 
   /**

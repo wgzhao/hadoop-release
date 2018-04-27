@@ -89,6 +89,7 @@ public class AzureBlobFileSystem extends FileSystem {
   private AbfsHttpService abfsHttpService;
   private ConfigurationService configurationService;
   private AbfsStatisticsService abfsStatisticsService;
+  private boolean isClosed;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -133,7 +134,9 @@ public class AzureBlobFileSystem extends FileSystem {
     }
   }
 
-  public boolean isSecure() { return false; }
+  public boolean isSecure() {
+    return false;
+  }
 
   @Override
   public URI getUri() {
@@ -273,7 +276,7 @@ public class AzureBlobFileSystem extends FileSystem {
 
             if (dstFileStatus != null) {
               if (!dstFileStatus.isDirectory()) {
-                return false;
+                return src.equals(dst);
               }
 
               adjustedDst = new Path(dst, sourceFileName);
@@ -292,12 +295,6 @@ public class AzureBlobFileSystem extends FileSystem {
         AzureServiceErrorCode.SOURCE_PATH_NOT_FOUND,
         AzureServiceErrorCode.INVALID_SOURCE_OR_DESTINATION_RESOURCE_TYPE,
         AzureServiceErrorCode.RENAME_DESTINATION_PARENT_PATH_NOT_FOUND);
-
-    if (rename.exception != null && rename.exception.getErrorCode() == AzureServiceErrorCode.INVALID_RENAME_SOURCE_PATH) {
-      if (src.equals(dst)) {
-        return true;
-      }
-    }
 
     return rename.result;
   }
@@ -379,7 +376,12 @@ public class AzureBlobFileSystem extends FileSystem {
   }
 
   @Override
-  public void close() throws IOException {
+  public synchronized void close() throws IOException {
+    if (isClosed) {
+      return;
+    }
+
+    super.close();
     this.loggingService.debug("AzureBlobFileSystem.close");
 
     final AzureBlobFileSystem azureBlobFileSystem = this;
@@ -395,6 +397,7 @@ public class AzureBlobFileSystem extends FileSystem {
 
     this.abfsStatisticsService.unsubscribe(this);
     evaluateFileSystemOperation(close);
+    this.isClosed = true;
   }
 
   @Override
@@ -658,14 +661,16 @@ public class AzureBlobFileSystem extends FileSystem {
   }
 
   @VisibleForTesting
-  FileSystem.Statistics getFsStatistics() { return this.statistics; }
+  FileSystem.Statistics getFsStatistics() {
+    return this.statistics;
+  }
 
   @VisibleForTesting
   class FileSystemOperation<T> {
     private final T result;
     private final AzureServiceErrorResponseException exception;
 
-    public FileSystemOperation(final T result, final AzureServiceErrorResponseException exception) {
+    FileSystemOperation(final T result, final AzureServiceErrorResponseException exception) {
       this.result = result;
       this.exception = exception;
     }
