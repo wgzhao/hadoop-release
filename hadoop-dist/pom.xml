@@ -143,7 +143,7 @@
                       run mv ./share/hadoop/tools/lib/azure-storage-*.jar ./share/hadoop/common/lib/
 
                       # Move GCS and dependencies to common.
-                      run mv ./share/hadoop/common/lib/gcs-connector-*.jar ./share/hadoop/common/
+                      run mv ./share/hadoop/tools/lib/gcs-connector-*.jar ./share/hadoop/common/
 
                       echo
                       echo "Hadoop dist layout available at: ${project.build.directory}/hadoop-${project.version}"

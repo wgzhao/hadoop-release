@@ -138,10 +138,6 @@
           <groupId>org.eclipse.jdt</groupId>
           <artifactId>core</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>com.google.cloud.bigdataoss</groupId>
-          <artifactId>gcs-connector</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
