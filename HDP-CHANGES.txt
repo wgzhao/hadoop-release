@@ -130,3 +130,5 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
     Dusane.
+
+    HADOOP-15434. Upgrade to ADLS SDK that exposes current timeout.
