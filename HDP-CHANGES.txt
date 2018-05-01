@@ -123,3 +123,5 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
     Dusane.
+
+    HADOOP-15434. Upgrade to ADLS SDK that exposes current timeout.
