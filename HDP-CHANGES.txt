@@ -4713,3 +4713,6 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    BUG-113841. HADOOP-14841 Kms client should disconnect if unable to get
+    output stream from connection. Contributed by Rushabh S Shah
