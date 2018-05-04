@@ -434,14 +434,14 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
           .getCommandWithArguments());
     }
 
+    // Some failures here are acceptable. Let the calling executor decide.
+    launchOp.disableFailureLogging();
+
     try {
       privilegedOperationExecutor.executePrivilegedOperation(null,
           launchOp, null, container.getLaunchContext().getEnvironment(),
           false, false);
     } catch (PrivilegedOperationException e) {
-      LOG.warn("Launch container failed. Exception: ", e);
-      LOG.info("Docker command used: " + runCommand.getCommandWithArguments());
-
       throw new ContainerExecutionException("Launch container failed", e
           .getExitCode(), e.getOutput(), e.getErrorOutput());
     }
