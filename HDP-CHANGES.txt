@@ -4819,3 +4819,4 @@ ATS V1.5:
 
     YARN-8518. test-container-executor test_is_empty() is broken (Jim_Brennan
     via rkanter)
+BUG-124273. HADOOP-14841 Kms client should disconnect if unable to get output stream from connection. Contributed by Rushabh S Shah
