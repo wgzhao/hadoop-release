@@ -4660,3 +4660,5 @@ ATS V1.5:
     ADLS SDK. Contributed by Atul Sikaria.
 
     BUG-95483. Backport Fixes for CVE-2017-15713 to 2.6-maint.
+
+    BUG-102684. HADOOP-15446. WASB: PageBlobInputStream.skip breaks HBASE replication
