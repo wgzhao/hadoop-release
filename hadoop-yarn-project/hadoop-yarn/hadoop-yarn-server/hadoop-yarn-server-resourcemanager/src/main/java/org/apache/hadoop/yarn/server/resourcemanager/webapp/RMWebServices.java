@@ -237,9 +237,49 @@ public class RMWebServices extends WebServices {
     return true;
   }
 
-  private void init() {
-    //clear content type
+  /**
+   * initForReadableEndpoints does the init for all readable REST end points.
+   */
+  private void initForReadableEndpoints() {
+    // clear content type
     response.setContentType(null);
+  }
+
+  /**
+   * initForWritableEndpoints does the init and acls verification for all
+   * writable REST end points.
+   *
+   * @param callerUGI
+   *          remote caller who initiated the request
+   * @param doAdminACLsCheck
+   *          boolean flag to indicate whether ACLs check is needed
+   * @throws AuthorizationException
+   *           in case of no access to perfom this op.
+   */
+  private void initForWritableEndpoints(UserGroupInformation callerUGI,
+      boolean doAdminACLsCheck) throws AuthorizationException {
+    // clear content type
+    response.setContentType(null);
+
+    if (callerUGI == null) {
+      String msg = "Unable to obtain user name, user not authenticated";
+      throw new AuthorizationException(msg);
+    }
+
+    if (UserGroupInformation.isSecurityEnabled() && isStaticUser(callerUGI)) {
+      String msg = "The default static user cannot carry out this operation.";
+      throw new ForbiddenException(msg);
+    }
+
+    if (doAdminACLsCheck) {
+      ApplicationACLsManager aclsManager = rm.getApplicationACLsManager();
+      if (aclsManager.areACLsEnabled()) {
+        if (!aclsManager.isAdmin(callerUGI)) {
+          String msg = "Only admins can carry out this operation.";
+          throw new ForbiddenException(msg);
+        }
+      }
+    }
   }
 
   @GET
@@ -252,7 +292,7 @@ public class RMWebServices extends WebServices {
   @Path("/info")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public ClusterInfo getClusterInfo() {
-    init();
+    initForReadableEndpoints();
     return new ClusterInfo(this.rm);
   }
 
@@ -260,7 +300,7 @@ public class RMWebServices extends WebServices {
   @Path("/metrics")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public ClusterMetricsInfo getClusterMetricsInfo() {
-    init();
+    initForReadableEndpoints();
     return new ClusterMetricsInfo(this.rm);
   }
 
@@ -268,7 +308,8 @@ public class RMWebServices extends WebServices {
   @Path("/scheduler")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public SchedulerTypeInfo getSchedulerInfo() {
-    init();
+    initForReadableEndpoints();
+
     ResourceScheduler rs = rm.getResourceScheduler();
     SchedulerInfo sinfo;
     if (rs instanceof CapacityScheduler) {
@@ -292,15 +333,9 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public String dumpSchedulerLogs(@FormParam("time") String time,
       @Context HttpServletRequest hsr) throws IOException {
-    init();
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    ApplicationACLsManager aclsManager = rm.getApplicationACLsManager();
-    if (aclsManager.areACLsEnabled()) {
-      if (callerUGI == null || !aclsManager.isAdmin(callerUGI)) {
-        String msg = "Only admins can carry out this operation.";
-        throw new ForbiddenException(msg);
-      }
-    }
+    initForWritableEndpoints(callerUGI, true);
+
     ResourceScheduler rs = rm.getResourceScheduler();
     int period = Integer.parseInt(time);
     if (period <= 0) {
@@ -328,7 +363,8 @@ public class RMWebServices extends WebServices {
   @Path("/nodes")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public NodesInfo getNodes(@QueryParam("states") String states) {
-    init();
+    initForReadableEndpoints();
+
     ResourceScheduler sched = this.rm.getResourceScheduler();
     if (sched == null) {
       throw new NotFoundException("Null ResourceScheduler instance");
@@ -364,7 +400,8 @@ public class RMWebServices extends WebServices {
   @Path("/nodes/{nodeId}")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public NodeInfo getNode(@PathParam("nodeId") String nodeId) {
-    init();
+    initForReadableEndpoints();
+
     if (nodeId == null || nodeId.isEmpty()) {
       throw new NotFoundException("nodeId, " + nodeId + ", is empty or null");
     }
@@ -405,6 +442,9 @@ public class RMWebServices extends WebServices {
       @QueryParam("finishedTimeEnd") String finishEnd,
       @QueryParam("applicationTypes") Set<String> applicationTypes,
       @QueryParam("applicationTags") Set<String> applicationTags) {
+
+    initForReadableEndpoints();
+
     boolean checkCount = false;
     boolean checkStart = false;
     boolean checkEnd = false;
@@ -419,7 +459,6 @@ public class RMWebServices extends WebServices {
     long fBegin = 0;
     long fEnd = Long.MAX_VALUE;
 
-    init();
     if (count != null && !count.isEmpty()) {
       checkCount = true;
       countNum = Long.parseLong(count);
@@ -574,7 +613,7 @@ public class RMWebServices extends WebServices {
       @Context HttpServletRequest hsr,
       @QueryParam("states") Set<String> stateQueries,
       @QueryParam("applicationTypes") Set<String> typeQueries) {
-    init();
+    initForReadableEndpoints();
 
     // parse the params and build the scoreboard
     // converting state/type name to lowercase
@@ -659,7 +698,8 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public AppInfo getApp(@Context HttpServletRequest hsr,
       @PathParam("appid") String appId) {
-    init();
+    initForReadableEndpoints();
+
     ApplicationId id = WebAppUtils.parseApplicationId(recordFactory, appId);
     RMApp app = rm.getRMContext().getRMApps().get(id);
     if (app == null) {
@@ -673,8 +713,8 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public AppAttemptsInfo getAppAttempts(@Context HttpServletRequest hsr,
       @PathParam("appid") String appId) {
+    initForReadableEndpoints();
 
-    init();
     ApplicationId id = WebAppUtils.parseApplicationId(recordFactory, appId);
     RMApp app = rm.getRMContext().getRMApps().get(id);
     if (app == null) {
@@ -698,7 +738,7 @@ public class RMWebServices extends WebServices {
   public org.apache.hadoop.yarn.server.webapp.dao.AppAttemptInfo getAppAttempt(@Context HttpServletRequest req,
       @Context HttpServletResponse res, @PathParam("appid") String appId,
       @PathParam("appattemptid") String appAttemptId) {
-    init(res);
+    initForReadableEndpoints(res);
     return super.getAppAttempt(req, res, appId, appAttemptId);
   }
 
@@ -709,7 +749,7 @@ public class RMWebServices extends WebServices {
   public ContainersInfo getContainers(@Context HttpServletRequest req,
       @Context HttpServletResponse res, @PathParam("appid") String appId,
       @PathParam("appattemptid") String appAttemptId) {
-    init(res);
+    initForReadableEndpoints(res);
     return super.getContainers(req, res, appId, appAttemptId);
   }
 
@@ -721,7 +761,7 @@ public class RMWebServices extends WebServices {
       @Context HttpServletResponse res, @PathParam("appid") String appId,
       @PathParam("appattemptid") String appAttemptId,
       @PathParam("containerid") String containerId) {
-    init(res);
+    initForReadableEndpoints(res);
     return super.getContainer(req, res, appId, appAttemptId, containerId);
   }
 
@@ -730,7 +770,8 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public AppState getAppState(@Context HttpServletRequest hsr,
       @PathParam("appid") String appId) throws AuthorizationException {
-    init();
+    initForReadableEndpoints();
+
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
     String userName = "";
     if (callerUGI != null) {
@@ -765,17 +806,8 @@ public class RMWebServices extends WebServices {
       throws AuthorizationException, YarnException, InterruptedException,
       IOException {
 
-    init();
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      String msg = "Unable to obtain user name, user not authenticated";
-      throw new AuthorizationException(msg);
-    }
-
-    if (UserGroupInformation.isSecurityEnabled() && isStaticUser(callerUGI)) {
-      String msg = "The default static user cannot carry out this operation.";
-      return Response.status(Status.FORBIDDEN).entity(msg).build();
-    }
+    initForWritableEndpoints(callerUGI, false);
 
     String userName = callerUGI.getUserName();
     RMApp app = null;
@@ -811,7 +843,7 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public NodeToLabelsInfo getNodeToLabels(@Context HttpServletRequest hsr)
       throws IOException {
-    init();
+    initForReadableEndpoints();
 
     NodeToLabelsInfo ntl = new NodeToLabelsInfo();
     HashMap<String, NodeLabelsInfo> ntlMap = ntl.getNodeToLabels();
@@ -831,7 +863,7 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public LabelsToNodesInfo getLabelsToNodes(
       @QueryParam("labels") Set<String> labels) throws IOException {
-    init();
+    initForReadableEndpoints();
 
     LabelsToNodesInfo lts = new LabelsToNodesInfo();
     Map<NodeLabelInfo, NodeIDsInfo> ltsMap = lts.getLabelsToNodes();
@@ -860,6 +892,9 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public Response replaceLabelsOnNodes(final NodeToLabelsEntryList newNodeToLabels,
       @Context HttpServletRequest hsr) throws IOException {
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    initForWritableEndpoints(callerUGI, false);
+
     Map<NodeId, Set<String>> nodeIdToLabels =
         new HashMap<NodeId, Set<String>>();
 
@@ -879,6 +914,9 @@ public class RMWebServices extends WebServices {
       @QueryParam("labels") Set<String> newNodeLabelsName,
       @Context HttpServletRequest hsr, @PathParam("nodeId") String nodeId)
       throws Exception {
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    initForWritableEndpoints(callerUGI, false);
+
     NodeId nid = ConverterUtils.toNodeIdWithDefaultPort(nodeId);
     Map<NodeId, Set<String>> newLabelsForNode =
         new HashMap<NodeId, Set<String>>();
@@ -891,7 +929,6 @@ public class RMWebServices extends WebServices {
   private Response replaceLabelsOnNode(
       Map<NodeId, Set<String>> newLabelsForNode, HttpServletRequest hsr,
       String operation) throws IOException {
-    init();
 
     checkAndThrowIfDistributedNodeLabelConfEnabled("replaceLabelsOnNode");
 
@@ -921,7 +958,7 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public NodeLabelsInfo getClusterNodeLabels(@Context HttpServletRequest hsr) 
     throws IOException {
-    init();
+    initForReadableEndpoints();
 
     List<NodeLabel> nodeLabels = rm.getRMContext().getNodeLabelManager()
         .getClusterNodeLabels();
@@ -936,14 +973,9 @@ public class RMWebServices extends WebServices {
   public Response addToClusterNodeLabels(final NodeLabelsInfo newNodeLabels,
       @Context HttpServletRequest hsr)
       throws Exception {
-    init();
-    
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      String msg = "Unable to obtain user name, user not authenticated for"
-        + " post to .../add-node-labels";
-      throw new AuthorizationException(msg);
-    }
+    initForWritableEndpoints(callerUGI, false);
+
     if (!rm.getRMContext().getNodeLabelManager().checkAccess(callerUGI)) {
       String msg = "User " + callerUGI.getShortUserName() + " not authorized"
         + " for post to .../add-node-labels ";
@@ -963,14 +995,9 @@ public class RMWebServices extends WebServices {
   public Response removeFromCluserNodeLabels(
       @QueryParam("labels") Set<String> oldNodeLabels,
       @Context HttpServletRequest hsr) throws Exception {
-    init();
-
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      String msg = "Unable to obtain user name, user not authenticated for"
-          + " post to .../remove-node-labels";
-      throw new AuthorizationException(msg);
-    }
+    initForWritableEndpoints(callerUGI, false);
+
     if (!rm.getRMContext().getNodeLabelManager().checkAccess(callerUGI)) {
       String msg = "User " + callerUGI.getShortUserName() + " not authorized"
           + " for post to .../remove-node-labels ";
@@ -991,7 +1018,7 @@ public class RMWebServices extends WebServices {
   public NodeLabelsInfo getLabelsOnNode(@Context HttpServletRequest hsr,
                                   @PathParam("nodeId") String nodeId) 
     throws IOException {
-    init();
+    initForReadableEndpoints();
 
     NodeId nid = ConverterUtils.toNodeIdWithDefaultPort(nodeId);
     return new NodeLabelsInfo(
@@ -1057,7 +1084,8 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public AppQueue getAppQueue(@Context HttpServletRequest hsr,
       @PathParam("appid") String appId) throws AuthorizationException {
-    init();
+    initForReadableEndpoints();
+
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
     String userName = "UNKNOWN-USER";
     if (callerUGI != null) {
@@ -1088,17 +1116,8 @@ public class RMWebServices extends WebServices {
       throws AuthorizationException, YarnException, InterruptedException,
       IOException {
 
-    init();
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      String msg = "Unable to obtain user name, user not authenticated";
-      throw new AuthorizationException(msg);
-    }
-
-    if (UserGroupInformation.isSecurityEnabled() && isStaticUser(callerUGI)) {
-      String msg = "The default static user cannot carry out this operation.";
-      return Response.status(Status.FORBIDDEN).entity(msg).build();
-    }
+    initForWritableEndpoints(callerUGI, false);
 
     String userName = callerUGI.getUserName();
     RMApp app = null;
@@ -1221,16 +1240,8 @@ public class RMWebServices extends WebServices {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public Response createNewApplication(@Context HttpServletRequest hsr)
       throws AuthorizationException, IOException, InterruptedException {
-    init();
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      throw new AuthorizationException("Unable to obtain user name, "
-          + "user not authenticated");
-    }
-    if (UserGroupInformation.isSecurityEnabled() && isStaticUser(callerUGI)) {
-      String msg = "The default static user cannot carry out this operation.";
-      return Response.status(Status.FORBIDDEN).entity(msg).build();
-    }
+    initForWritableEndpoints(callerUGI, false);
 
     NewApplication appId = createNewApplication();
     return Response.status(Status.OK).entity(appId).build();
@@ -1261,17 +1272,8 @@ public class RMWebServices extends WebServices {
       @Context HttpServletRequest hsr) throws AuthorizationException,
       IOException, InterruptedException {
 
-    init();
     UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      throw new AuthorizationException("Unable to obtain user name, "
-          + "user not authenticated");
-    }
-
-    if (UserGroupInformation.isSecurityEnabled() && isStaticUser(callerUGI)) {
-      String msg = "The default static user cannot carry out this operation.";
-      return Response.status(Status.FORBIDDEN).entity(msg).build();
-    }
+    initForWritableEndpoints(callerUGI, false);
 
     ApplicationSubmissionContext appContext =
         createAppSubmissionContext(newApp);
@@ -1481,14 +1483,9 @@ public class RMWebServices extends WebServices {
     return ret;
   }
 
-  private UserGroupInformation createKerberosUserGroupInformation(
-      HttpServletRequest hsr) throws AuthorizationException, YarnException {
-
-    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
-    if (callerUGI == null) {
-      String msg = "Unable to obtain user name, user not authenticated";
-      throw new AuthorizationException(msg);
-    }
+  private void createKerberosUserGroupInformation(HttpServletRequest hsr,
+      UserGroupInformation callerUGI)
+      throws AuthorizationException, YarnException {
 
     String authType = hsr.getAuthType();
     if (!KerberosAuthenticationHandler.TYPE.equalsIgnoreCase(authType)) {
@@ -1498,16 +1495,12 @@ public class RMWebServices extends WebServices {
               + KerberosAuthenticationHandler.TYPE + ", got type " + authType;
       throw new YarnException(msg);
     }
-    if (hsr
-      .getAttribute(DelegationTokenAuthenticationHandler.DELEGATION_TOKEN_UGI_ATTRIBUTE) != null) {
-      String msg =
-          "Delegation token operations cannot be carried out using delegation"
-              + " token authentication.";
+    if (hsr.getAttribute(
+        DelegationTokenAuthenticationHandler.DELEGATION_TOKEN_UGI_ATTRIBUTE) != null) {
+      String msg = "Delegation token operations cannot be carried out using "
+          + "delegation token authentication.";
       throw new YarnException(msg);
     }
-
-    callerUGI.setAuthenticationMethod(AuthenticationMethod.KERBEROS);
-    return callerUGI;
   }
 
   private LogAggregationContext createLogAggregationContext(
@@ -1527,10 +1520,12 @@ public class RMWebServices extends WebServices {
       @Context HttpServletRequest hsr) throws AuthorizationException,
       IOException, InterruptedException, Exception {
 
-    init();
-    UserGroupInformation callerUGI;
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    initForWritableEndpoints(callerUGI, false);
+
     try {
-      callerUGI = createKerberosUserGroupInformation(hsr);
+      createKerberosUserGroupInformation(hsr, callerUGI);
+      callerUGI.setAuthenticationMethod(AuthenticationMethod.KERBEROS);
     } catch (YarnException ye) {
       return Response.status(Status.FORBIDDEN).entity(ye.getMessage()).build();
     }
@@ -1546,10 +1541,12 @@ public class RMWebServices extends WebServices {
           throws AuthorizationException, IOException, InterruptedException,
           Exception {
 
-    init();
-    UserGroupInformation callerUGI;
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    initForWritableEndpoints(callerUGI, false);
+
     try {
-      callerUGI = createKerberosUserGroupInformation(hsr);
+      createKerberosUserGroupInformation(hsr, callerUGI);
+      callerUGI.setAuthenticationMethod(AuthenticationMethod.KERBEROS);
     } catch (YarnException ye) {
       return Response.status(Status.FORBIDDEN).entity(ye.getMessage()).build();
     }
@@ -1662,10 +1659,12 @@ public class RMWebServices extends WebServices {
       throws AuthorizationException, IOException, InterruptedException,
       Exception {
 
-    init();
-    UserGroupInformation callerUGI;
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    initForWritableEndpoints(callerUGI, false);
+
     try {
-      callerUGI = createKerberosUserGroupInformation(hsr);
+      createKerberosUserGroupInformation(hsr, callerUGI);
+      callerUGI.setAuthenticationMethod(AuthenticationMethod.KERBEROS);
     } catch (YarnException ye) {
       return Response.status(Status.FORBIDDEN).entity(ye.getMessage()).build();
     }

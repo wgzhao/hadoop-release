@@ -655,12 +655,21 @@ public class TestRMWebServices extends JerseyTestBase {
     assertTrue(appsInfo.getApps().isEmpty());
   }
 
+  private HttpServletRequest mockHttpServletRequestByUserName(String username) {
+    HttpServletRequest mockHsr = mock(HttpServletRequest.class);
+    when(mockHsr.getRemoteUser()).thenReturn(username);
+    Principal principal = mock(Principal.class);
+    when(principal.getName()).thenReturn(username);
+    when(mockHsr.getUserPrincipal()).thenReturn(principal);
+    return mockHsr;
+  }
+
   @Test
   public void testDumpingSchedulerLogs() throws Exception {
 
     ResourceManager mockRM = mock(ResourceManager.class);
     Configuration conf = new YarnConfiguration();
-    HttpServletRequest mockHsr = mock(HttpServletRequest.class);
+    HttpServletRequest mockHsr = mockHttpServletRequestByUserName("non-admin");
     ApplicationACLsManager aclsManager = new ApplicationACLsManager(conf);
     when(mockRM.getApplicationACLsManager()).thenReturn(aclsManager);
     RMWebServices webSvc =

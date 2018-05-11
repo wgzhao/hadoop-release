@@ -382,7 +382,7 @@ public class WebServices {
     return new ContainerInfo(container);
   }
 
-  protected void init(HttpServletResponse response) {
+  protected void initForReadableEndpoints(HttpServletResponse response) {
     // clear content type
     response.setContentType(null);
   }
