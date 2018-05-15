@@ -5138,3 +5138,6 @@ ATS V1.5:
     AzureBlobFileSystemStore
 
     HADOOP-15957. WASB: Add asterisk wildcard support for PageBlobDirSet.
+
+    HADOOP-15466. Correct units in adl.http.timeout. Contributed by Sean
+    Mackrory,
