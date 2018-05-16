@@ -136,7 +136,7 @@ public class JsonUtil {
     if (status.isErasureCoded()) {
       m.put("ecBit", true);
       if (status.getErasureCodingPolicy() != null) {
-        // to maintain backward compatibility
+        // to maintain backward comparability
         m.put("ecPolicy", status.getErasureCodingPolicy().getName());
         // to re-construct HdfsFileStatus object via WebHdfs
         m.put("ecPolicyObj", getEcPolicyAsMap(status.getErasureCodingPolicy()));
