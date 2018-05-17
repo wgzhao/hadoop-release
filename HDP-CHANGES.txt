@@ -5,6 +5,98 @@ by CHANGES.txt.
 
   NEW FEATURES
 
+    WASB-62. Fixing a few Azure Blob Filesystem bugs
+
+    WASB-61. Fix for getting concurrent thread settings
+
+    WASB-60. Updating threads management in AbfsHttpServiceImpl
+
+    WASB-59. Enabling Abfss and SecureAzureBlobFileSystem
+
+    WASB-57. Renaming AzureDistributedFileSystem to AzureBlobFileSystem
+
+    WASB-56. Fixing a few bugs when code was merged into trunk
+
+    WASB-55. Updating ADFS test configuration file
+
+    WASB-52. Adding retry logic to driver; Enable auto-throttling
+
+    WASB-51. Updating ListEntrySchema contract to the latest version
+
+    WASB-50. Updating ADFS http client to percent encode rename source header
+
+    WASB-49. Making filesystem creation configurable during AzureDistributedFileSystem initialize call
+
+    WASB-48. Updating ADFS http client auto-generated code to the latest version and removing previous workarounds
+
+    WASB-47. Adding createNonRecursive for ADFS driver and enabling disabled rename tests
+
+    WASB-46. Removing temporary work-around(s) in ADFS driver and upgraded the API version
+
+    WASB-45. Updating ADFS http client auto-generated code to the latest version
+
+    WASB-44. Enabling parallel test execution logic only in ADFS
+
+    WASB-43. Refactoring test class and create tests and itests for unit and integration tests
+
+    WASB-42. Added missing FileSystemContract tests and ADFS/WASB data compatibility tests
+
+    WASB-41. Reverting guava upgrade version due to conflict with hadoop
+
+    WASB-40. Fixes for updating createPath to throw for existing dirs, and AdfsoutputStream bug
+
+    WASB-39. Adding connection write timeout to ADFS http client
+
+    WASB-38. Fixing ADFS clients bugs
+
+    WASB-37. Enabling file system statistics for Azure Distributed File system
+
+    WASB-36. Updating listStatus/flush operations with workarounds to prevent invalid responses from the service
+
+    WASB-35. Updating the client for the list operation and fixing AdfsOutputStream concurrency issues
+
+    WASB-34. Fixing vast thread leaks due to underlying specific JDK ThreadPoolExecutor implementation and creating thread pools per client.
+
+    WASB-33. Updating ADFS Code to log warning on Rename Path for directories listed for "fs.azure.atomic.rename.key" property.
+
+    WASB-32. Updating ADFS http client auto-generated code to the latest version
+
+    WASB-31. Updating thread pool size for network read/write ops
+
+    WASB-30. Updating xms properties parser to decode base64 property values before usage
+
+    WASB-29. Async flush and updating the http layer to handle new xmsproperties
+
+    WASB-28. Updating logging service to return scope specific loggers
+    
+    WASB-27. Adding rename directory and delete directory apis and fixing bugs.
+
+    WASB-26. Adding more logging, support for OOB writes toleration.
+
+    WASB-24. Modifying the code to use the configuration validators
+
+    WASB-25. Fixed few ADFS bugs to unblock private preview
+
+    WASB-23. Creating auto throttler for Azure Distributed Filesystem.
+
+    WASB-20. Updating the code to help with switching between emulator and cluster for Azure Distributed File System.
+
+    WASB-22. Adding Validators for wasb2 configurations
+
+    WASB-19. Support for exponential backoff retry strategy and support for user defined read &write buffer size.
+
+    WASB-18. Adding contract tests to Azure Distributed File system and fixing bugs.
+
+    WASB-17. Implementing read/append/write/flush/rename/delete for Azure Distributed File System.
+
+    WASB-15. Implementing open, create, list path, rename file, delete file to Azure Distributed File System
+
+    WASB-13. Adding Azure Distributed file system auto-generated code and implementing related services.
+
+    WASB-12. Adding logging and tracing services to Azure Distributed Filesystem driver.
+ 
+    WASB-11. Adding initial skeleton for Azure Distributed Filesystem driver.    
+
     YARN-5910. Support for multi-cluster delegation tokens. Contributed by Jian
     He
 
