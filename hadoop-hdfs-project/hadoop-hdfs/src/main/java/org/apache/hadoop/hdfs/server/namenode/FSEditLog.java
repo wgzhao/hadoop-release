@@ -17,7 +17,6 @@
  */
 package org.apache.hadoop.hdfs.server.namenode;
 
-import org.apache.hadoop.ipc.RpcConstants;
 import static org.apache.hadoop.util.ExitUtil.terminate;
 import static org.apache.hadoop.util.Time.monotonicNow;
 
@@ -830,12 +829,6 @@ public class FSEditLog implements LogsPurgeable {
     }
 
     logRpcIds(op, toLogRpcIds);
-    if (Server.getClientId().length == RpcConstants.DUMMY_CLIENT_ID.length &&
-        Server.getCallId() != RpcConstants.INVALID_CALL_ID) {
-      LOG.warn("----- BUG-102930: Potentially invalid AddOp = " + op +
-          "\ntoLogRpcIds = " + toLogRpcIds +
-          "\nServer callId: " + Server.getCallId());
-    }
     logEdit(op);
   }
 
