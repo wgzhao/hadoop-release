@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.hdfs.server.namenode;
 
+import org.apache.hadoop.ipc.ClientId;
 import org.apache.hadoop.ipc.RpcConstants;
 import static org.apache.hadoop.util.ExitUtil.terminate;
 import static org.apache.hadoop.util.Time.monotonicNow;
@@ -777,9 +778,22 @@ public class FSEditLog implements LogsPurgeable {
 
   /** Record the RPC IDs if necessary */
   private void logRpcIds(FSEditLogOp op, boolean toLogRpcIds) {
+    byte[] clientId = Server.getClientId();
+    int callId = Server.getCallId();
     if (toLogRpcIds) {
-      op.setRpcClientId(Server.getClientId());
-      op.setRpcCallId(Server.getCallId());
+      op.setRpcClientId(clientId);
+      op.setRpcCallId(callId);
+    }
+    LOG.info("----- BUG-102930: Op = " + op +
+        "\ntoLogRpcIds = " + toLogRpcIds +
+        "\nServer clientId: " + ClientId.toString(clientId) +
+        "\nServer callId: " + callId);
+    if (callId != RpcConstants.INVALID_CALL_ID) {
+      if (clientId == null) {
+        LOG.warn("----- BUG-102930: ClientId is null");
+      } else if (clientId.length == RpcConstants.DUMMY_CLIENT_ID.length) {
+        LOG.warn("----- BUG-102930: ClientId is empty");
+      }
     }
   }
 
@@ -830,12 +844,6 @@ public class FSEditLog implements LogsPurgeable {
     }
 
     logRpcIds(op, toLogRpcIds);
-    if (Server.getClientId().length == RpcConstants.DUMMY_CLIENT_ID.length &&
-        Server.getCallId() != RpcConstants.INVALID_CALL_ID) {
-      LOG.warn("----- BUG-102930: Potentially invalid AddOp = " + op +
-          "\ntoLogRpcIds = " + toLogRpcIds +
-          "\nServer callId: " + Server.getCallId());
-    }
     logEdit(op);
   }
 
