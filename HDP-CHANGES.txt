@@ -4992,3 +4992,5 @@ ATS V1.5:
 
     WASB-62. Fixing a few Azure Blob Filesystem bugs
 
+    WASB-63. Fixed okhttp versioning issue during build
+
