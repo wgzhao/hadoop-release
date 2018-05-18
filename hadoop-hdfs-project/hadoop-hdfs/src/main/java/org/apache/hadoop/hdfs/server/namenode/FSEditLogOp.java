@@ -133,8 +133,6 @@ import org.apache.hadoop.ipc.RpcConstants;
 import org.apache.hadoop.security.token.delegation.DelegationKey;
 import org.apache.hadoop.util.DataChecksum;
 import org.apache.hadoop.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -157,8 +155,6 @@ public abstract class FSEditLogOp {
   long txid;
   byte[] rpcClientId;
   int rpcCallId;
-
-  public static final Logger LOG = LoggerFactory.getLogger(FSEditLogOp.class);
 
   public static class OpInstanceCache {
     private static final ThreadLocal<OpInstanceCacheMap> CACHE =
@@ -4878,11 +4874,6 @@ public abstract class FSEditLogOp {
       checksum.update(buf.getData(), start, end-start);
       int sum = (int)checksum.getValue();
       buf.writeInt(sum);
-
-      LOG.info("----- BUG-102930: Writing Op txId: " + op.txid +
-          "; offset start=" + start + "; end=" + buf.getLength() +
-          "; content length=" + length +
-          "; opCode: " + op.opCode);
     }
   }
 
