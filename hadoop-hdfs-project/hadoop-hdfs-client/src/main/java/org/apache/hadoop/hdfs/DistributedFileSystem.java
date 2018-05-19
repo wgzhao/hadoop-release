@@ -1534,6 +1534,14 @@ public class DistributedFileSystem extends FileSystem
   }
 
   /**
+   * Get upgrade status.
+   * @throws IOException
+   */
+  public boolean upgradeStatus() throws IOException {
+    return dfs.upgradeStatus();
+  }
+
+  /**
    * Rolling upgrade: prepare/finalize/query.
    */
   public RollingUpgradeInfo rollingUpgrade(RollingUpgradeAction action)
