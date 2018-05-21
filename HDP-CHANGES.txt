@@ -4665,3 +4665,6 @@ ATS V1.5:
 
     HADOOP-14542. Add IOUtils.cleanupWithLogger that accepts slf4j logger API.
     Contributed by Chen Liang.
+
+    HADOOP-15478. WASB: hflush() and hsync() regression. Contributed by Thomas
+    Marquardt.
