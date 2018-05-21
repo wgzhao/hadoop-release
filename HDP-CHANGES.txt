@@ -4994,3 +4994,5 @@ ATS V1.5:
 
     WASB-63. Fixed okhttp versioning issue during build
 
+    WASB-67. AbfsThrottlingNetworkTrafficAnalysisServiceImpl should use daemon timers
+

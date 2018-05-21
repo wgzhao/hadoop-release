@@ -113,7 +113,7 @@ final class AbfsThrottlingNetworkTrafficAnalysisServiceImpl implements AbfsThrot
     this.abfsThrottlingNetworkTrafficAnalysisResultCache.put(accountName, networkTrafficAnalysisResult);
     this.abfsThrottlingNetworkTrafficMetricsCache.put(accountName, networkTrafficMetrics);
 
-    final Timer timer = new Timer(String.format(accountName + "-AbfsThrottlingNetworkTrafficAnalysisServiceImplTimer"));
+    final Timer timer = new Timer(String.format(accountName + "-AbfsThrottlingNetworkTrafficAnalysisServiceImplTimer"), true);
     final AnalysisBackgroundTask task = new AnalysisBackgroundTask(
         accountName,
         this.abfsThrottlingNetworkTrafficMetricsCache,
