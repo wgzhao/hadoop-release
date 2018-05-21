@@ -41,7 +41,7 @@ public abstract class AbstractWasbTestBase {
 
   @VisibleForTesting
   protected NativeAzureFileSystem fs;
-  private AzureBlobStorageTestAccount testAccount;
+  protected AzureBlobStorageTestAccount testAccount;
 
   @Before
   public void setUp() throws Exception {

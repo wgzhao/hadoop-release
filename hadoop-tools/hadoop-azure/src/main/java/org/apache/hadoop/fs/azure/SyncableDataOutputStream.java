@@ -55,8 +55,6 @@ public class SyncableDataOutputStream extends DataOutputStream implements Syncab
   public void hflush() throws IOException {
     if (out instanceof Syncable) {
       ((Syncable) out).hflush();
-    } else {
-      out.flush();
     }
   }
 
@@ -64,8 +62,6 @@ public class SyncableDataOutputStream extends DataOutputStream implements Syncab
   public void hsync() throws IOException {
     if (out instanceof Syncable) {
       ((Syncable) out).hsync();
-    } else {
-      out.flush();
     }
   }
 }

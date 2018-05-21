@@ -5002,3 +5002,6 @@ ATS V1.5:
 
     HADOOP-15320. Remove customized getFileBlockLocations for hadoop-azure and
     hadoop-azure-datalake. Contributed by Shanyu Zhao
+
+    HADOOP-15478. WASB: hflush() and hsync() regression. Contributed by Thomas
+    Marquardt.
