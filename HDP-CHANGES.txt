@@ -5083,3 +5083,6 @@ ATS V1.5:
 
     BUG-108877. HADOOP-15486. Make NetworkTopology#netLock fair. Contributed by
     Nanda kumar.
+
+    BUG-108876. HADOOP-15450. Avoid fsync storm triggered by DiskChecker and
+    handle disk full situation. Contributed by Arpit Agarwal.
