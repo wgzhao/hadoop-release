@@ -4713,3 +4713,6 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+
+    BUG-107282. HADOOP-15450. Avoid fsync storm triggered by DiskChecker and
+    handle disk full situation. Contributed by Arpit Agarwal.
