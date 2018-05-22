@@ -220,7 +220,7 @@ One or more components of the service. If the service is HBase say, then the com
 
 |Name|Description|Required|Schema|Default|
 |----|----|----|----|----|
-|name|Name of the service component (mandatory). If Registry DNS is enabled, the max length is 63 characters. If unique component support is enabled, the max length is lowered to 44 characters.|true|string||
+|name|Name of the service component (mandatory). If Registry DNS is enabled, the max length is 44 characters.|true|string||
 |state|The state of the component|false|ComponentState||
 |dependencies|An array of service components which should be in READY state (as defined by readiness check), before this component can be started. The dependencies across all components of a service should be represented as a DAG.|false|string array||
 |readiness_check|Readiness check for this component.|false|ReadinessCheck||
@@ -233,6 +233,8 @@ One or more components of the service. If the service is HBase say, then the com
 |placement_policy|Advanced scheduling and placement policies for all containers of this component.|false|PlacementPolicy||
 |configuration|Config properties for this component.|false|Configuration||
 |quicklinks|A list of quicklink keys defined at the service level, and to be resolved by this component.|false|string array||
+|restart_policy|Policy of restart component. Including ALWAYS (Always restart
+ component even if instance exit code = 0); ON_FAILURE (Only restart component if instance exit code != 0); NEVER (Do not restart in any cases). Flexing is not supported for components which have restart_policy=ON_FAILURE/NEVER|false|string|ALWAYS|
 
 
 ### ComponentState
@@ -636,7 +638,6 @@ POST URL - http://localhost:8088:/app/v1/services/hbase-app-1
     {
       "name": "regionserver",
       "number_of_containers": 3,
-      "unique_component_support": "true",
       "artifact": {
         "id": "hbase:latest",
         "type": "DOCKER"
