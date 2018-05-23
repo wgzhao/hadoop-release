@@ -4818,3 +4818,6 @@ ATS V1.5:
     Bokor)
 
     BUG-120800. HADOOP-15317. Improve NetworkTopology chooseRandom's loop.
+
+    BUG-120800. HADOOP-15486. Make NetworkTopology#netLock fair. Contributed by
+    Nanda kumar.
