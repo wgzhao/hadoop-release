@@ -5080,3 +5080,6 @@ ATS V1.5:
 
     HADOOP-14754. TestCommonConfigurationFields failed: core-default.xml has 2
     wasb properties missing in classes. Contributed by John Zhuge.
+
+    BUG-108877. HADOOP-15486. Make NetworkTopology#netLock fair. Contributed by
+    Nanda kumar.
