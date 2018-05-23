@@ -593,12 +593,17 @@ public class FileUtil {
 
     try {
       entries = zipFile.entries();
+      String targetDirPath = unzipDir.getCanonicalPath() + File.separator;
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
         if (!entry.isDirectory()) {
           InputStream in = zipFile.getInputStream(entry);
           try {
             File file = new File(unzipDir, entry.getName());
+            if (!file.getCanonicalPath().startsWith(targetDirPath)) {
+              throw new IOException("expanding " + entry.getName()
+                  + " would create file outside of " + unzipDir);
+            }
             if (!file.getParentFile().mkdirs()) {
               if (!file.getParentFile().isDirectory()) {
                 throw new IOException("Mkdirs failed to create " + 
@@ -708,6 +713,13 @@ public class FileUtil {
   
   private static void unpackEntries(TarArchiveInputStream tis,
       TarArchiveEntry entry, File outputDir) throws IOException {
+    String targetDirPath = outputDir.getCanonicalPath() + File.separator;
+    File outputFile = new File(outputDir, entry.getName());
+    if (!outputFile.getCanonicalPath().startsWith(targetDirPath)) {
+      throw new IOException("expanding " + entry.getName()
+          + " would create entry outside of " + outputDir);
+    }
+
     if (entry.isDirectory()) {
       File subDir = new File(outputDir, entry.getName());
       if (!subDir.mkdirs() && !subDir.isDirectory()) {
@@ -722,7 +734,6 @@ public class FileUtil {
       return;
     }
 
-    File outputFile = new File(outputDir, entry.getName());
     if (!outputFile.getParentFile().exists()) {
       if (!outputFile.getParentFile().mkdirs()) {
         throw new IOException("Mkdirs failed to create tar internal dir "
