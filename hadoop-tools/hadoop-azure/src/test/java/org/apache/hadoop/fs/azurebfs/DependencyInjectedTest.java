@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,12 +37,9 @@ import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
-import org.apache.hadoop.fs.azurebfs.services.AbfsHttpClientTestUtils;
 import org.apache.hadoop.fs.azurebfs.services.MockAbfsHttpClientFactoryImpl;
 import org.apache.hadoop.fs.azurebfs.services.MockServiceInjectorImpl;
 import org.apache.hadoop.fs.azurebfs.services.MockServiceProviderImpl;
@@ -100,8 +98,6 @@ public abstract class DependencyInjectedTest {
   public void initialize() throws Exception {
     if (this.isEmulator) {
       this.mockServiceInjector.replaceProvider(AbfsHttpClientFactory.class, MockAbfsHttpClientFactoryImpl.class);
-      this.mockServiceInjector.replaceInstance(AbfsHttpClientSessionFactory.class,
-          AbfsHttpClientTestUtils.createAbfsHttpClientSessionFactory(this.getAccountName(), this.getAccountKey(), this.fileSystemName));
     }
 
     MockServiceProviderImpl.Create(this.mockServiceInjector);

@@ -18,116 +18,46 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import okhttp3.Interceptor;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
-import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClient;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSession;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsInterceptorFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsRetryStrategyFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsThrottlingNetworkTrafficAnalysisService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 
 @Singleton
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
   private final ConfigurationService configurationService;
-  private final AbfsHttpClientSessionFactory abfsHttpClientSessionFactory;
-  private final AbfsRetryStrategyFactory abfsRetryStrategyFactory;
-  private final AbfsInterceptorFactory abfsInterceptorFactory;
-  private final AbfsThrottlingNetworkTrafficAnalysisService abfsThrottlingNetworkTrafficAnalysisService;
   private final LoggingService loggingService;
-  private final boolean autoThrottleEnabled;
 
   @Inject
   AbfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
-      final AbfsHttpClientSessionFactory abfsHttpClientSessionFactory,
-      final AbfsThrottlingNetworkTrafficAnalysisService abfsThrottlingNetworkTrafficAnalysisService,
-      final AbfsRetryStrategyFactory abfsRetryStrategyFactory,
-      final AbfsInterceptorFactory abfsInterceptorFactory,
       final LoggingService loggingService) {
 
     Preconditions.checkNotNull(configurationService, "configurationService");
-    Preconditions.checkNotNull(abfsHttpClientSessionFactory, "abfsHttpClientSessionFactory");
-    Preconditions.checkNotNull(abfsRetryStrategyFactory, "abfsRetryStrategyFactory");
-    Preconditions.checkNotNull(abfsInterceptorFactory, "abfsInterceptorFactory");
-    Preconditions.checkNotNull(abfsThrottlingNetworkTrafficAnalysisService, "abfsThrottlingNetworkTrafficAnalysisService");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.configurationService = configurationService;
-    this.abfsHttpClientSessionFactory = abfsHttpClientSessionFactory;
-    this.abfsRetryStrategyFactory = abfsRetryStrategyFactory;
-    this.abfsInterceptorFactory = abfsInterceptorFactory;
-    this.abfsThrottlingNetworkTrafficAnalysisService = abfsThrottlingNetworkTrafficAnalysisService;
     this.loggingService = loggingService.get(AbfsHttpClientFactory.class);
-    this.autoThrottleEnabled = this.configurationService.getConfiguration().getBoolean(ConfigurationKeys.FS_AZURE_AUTOTHROTTLING_ENABLE, true);
-  }
-
-  @Override
-  public AbfsHttpClient create(final FileSystem fs) throws AzureBlobFileSystemException {
-    this.loggingService.debug(
-        "Creating AbfsHttpClient for filesystem: {0}", fs.getUri());
-
-    final AbfsHttpClientSession abfsHttpClientSession =
-        this.abfsHttpClientSessionFactory.create(fs);
-
-    final URIBuilder uriBuilder =
-         getURIBuilder(abfsHttpClientSession.getHostName(), fs);
-
-    final Interceptor networkInterceptor =
-        this.abfsInterceptorFactory.createNetworkAuthenticationProxy(abfsHttpClientSession);
-
-    final Interceptor retryInterceptor =
-        this.abfsInterceptorFactory.createRetryInterceptor(this.abfsRetryStrategyFactory.create());
-
-    if (autoThrottleEnabled) {
-      this.loggingService.debug(
-          "Auto throttle is enabled, creating AbfsMonitoredHttpClientImpl for filesystem: {0}", abfsHttpClientSession.getFileSystem());
-
-      final Interceptor networkThrottler =
-          this.abfsInterceptorFactory.createNetworkThrottler(abfsHttpClientSession);
-
-      final Interceptor networkThroughputMonitor =
-          this.abfsInterceptorFactory.createNetworkThroughputMonitor(abfsHttpClientSession);
-
-      return new AbfsMonitoredHttpClientImpl(
-          uriBuilder.toString(),
-          configurationService,
-          networkInterceptor,
-          networkThrottler,
-          networkThroughputMonitor,
-          retryInterceptor,
-          abfsHttpClientSession,
-          abfsThrottlingNetworkTrafficAnalysisService,
-          loggingService);
-    }
-
-    this.loggingService.debug(
-        "Auto throttle is disabled, creating AbfsUnMonitoredHttpClientImpl for filesystem: {0}", abfsHttpClientSession.getFileSystem());
-
-    return new AbfsUnMonitoredHttpClientImpl(
-        uriBuilder.toString(),
-        configurationService,
-        networkInterceptor,
-        retryInterceptor,
-        abfsHttpClientSession,
-        loggingService);
   }
 
   @VisibleForTesting
@@ -145,5 +75,47 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
     uriBuilder.setHost(hostName);
 
     return uriBuilder;
+  }
+
+  public AbfsClient create(final AzureBlobFileSystem fs) throws AzureBlobFileSystemException {
+    final URI uri = fs.getUri();
+    final String authority = uri.getRawAuthority();
+    if (null == authority) {
+      throw new InvalidUriAuthorityException(uri.toString());
+    }
+
+    if (!authority.contains(AbfsHttpConstants.AZURE_DISTRIBUTED_FILE_SYSTEM_AUTHORITY_DELIMITER)) {
+      throw new InvalidUriAuthorityException(uri.toString());
+    }
+
+    final String[] authorityParts = authority.split(AbfsHttpConstants.AZURE_DISTRIBUTED_FILE_SYSTEM_AUTHORITY_DELIMITER, 2);
+
+    if (authorityParts.length < 2 || "".equals(authorityParts[0])) {
+      final String errMsg = String
+          .format("URI '%s' has a malformed authority, expected container name. "
+                  + "Authority takes the form "+ FileSystemUriSchemes.ABFS_SCHEME + "://[<container name>@]<account name>",
+              uri.toString());
+      throw new InvalidUriException(errMsg);
+    }
+
+    final String fileSystemName = authorityParts[0];
+    final String accountName = authorityParts[1];
+
+    final URIBuilder uriBuilder = getURIBuilder(accountName, fs);
+
+    final String url = uriBuilder.toString() + AbfsHttpConstants.FORWARD_SLASH + fileSystemName;
+
+    URL baseUrl;
+    try {
+      baseUrl = new URL(url);
+    } catch (MalformedURLException e) {
+      throw new InvalidUriException(String.format("URI '%s' is malformed", uri.toString()));
+    }
+
+    SharedKeyCredentials creds =
+        new SharedKeyCredentials(accountName.substring(0, accountName.indexOf(AbfsHttpConstants.DOT)),
+                this.configurationService.getStorageAccountKey(accountName));
+
+    return new AbfsClient(baseUrl, creds, loggingService, configurationService, new ExponentialRetryPolicy());
   }
 }

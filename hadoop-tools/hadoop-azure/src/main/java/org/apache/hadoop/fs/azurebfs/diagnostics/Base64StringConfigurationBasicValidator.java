@@ -18,12 +18,12 @@
 
 package org.apache.hadoop.fs.azurebfs.diagnostics;
 
-import com.microsoft.azure.storage.core.Base64;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azurebfs.contracts.diagnostics.ConfigurationValidator;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.utils.Base64;
 
 /**
 * String Base64 configuration value Validator

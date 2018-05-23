@@ -16,25 +16,43 @@
  * limitations under the License.
  */
 
+package org.apache.hadoop.fs.azurebfs.contracts.services;
 
-package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
+import java.util.List;
 
-import org.apache.hadoop.classification.InterfaceAudience;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 
 /**
- * Exception to wrap invalid Azure service error responses.
+ * The ListResultSchema model.
  */
-@InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class InvalidAzureServiceErrorResponseException extends AzureServiceErrorResponseException {
-  public InvalidAzureServiceErrorResponseException(
-      final Exception innerException) {
-    super(
-        AzureServiceErrorCode.UNKNOWN.getStatusCode(),
-        AzureServiceErrorCode.UNKNOWN.getErrorCode(),
-        "InvalidAzureServiceErrorResponseException",
-        innerException);
+public class ListResultSchema {
+  /**
+   * The paths property.
+   */
+  @JsonProperty(value = "paths")
+  private List<ListResultEntrySchema> paths;
+
+  /**
+   * * Get the paths value.
+   *
+   * @return the paths value
+   */
+  public List<ListResultEntrySchema> paths() {
+    return this.paths;
   }
+
+  /**
+   * Set the paths value.
+   *
+   * @param paths the paths value to set
+   * @return the ListSchema object itself.
+   */
+  public ListResultSchema withPaths(final List<ListResultEntrySchema> paths) {
+    this.paths = paths;
+    return this;
+  }
+
 }

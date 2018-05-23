@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-
-package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
-
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
+package org.apache.hadoop.fs.azurebfs.services;
 
 /**
- * Exception to wrap invalid Azure service error responses.
+ * The Http Request / Response Headers for Rest AbfsClient
  */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public class InvalidAzureServiceErrorResponseException extends AzureServiceErrorResponseException {
-  public InvalidAzureServiceErrorResponseException(
-      final Exception innerException) {
-    super(
-        AzureServiceErrorCode.UNKNOWN.getStatusCode(),
-        AzureServiceErrorCode.UNKNOWN.getErrorCode(),
-        "InvalidAzureServiceErrorResponseException",
-        innerException);
+public class AbfsHttpHeader {
+  private final String name;
+  private final String value;
+
+  public AbfsHttpHeader(final String name, final String value) {
+    this.name = name;
+    this.value = value;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

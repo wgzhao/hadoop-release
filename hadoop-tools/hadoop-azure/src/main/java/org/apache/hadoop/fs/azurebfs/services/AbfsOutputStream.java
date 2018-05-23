@@ -20,85 +20,67 @@ package org.apache.hadoop.fs.azurebfs.services;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
-import io.netty.buffer.ByteBuf;
-import org.threadly.concurrent.collections.ConcurrentArrayList;
 
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FSExceptionMessages;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Syncable;
-import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
-import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsBufferPool;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsStatisticsService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
-import org.apache.htrace.core.TraceScope;
 
-@InterfaceAudience.Private
-@InterfaceStability.Evolving
-final class AbfsOutputStream extends OutputStream implements Syncable {
-  private final AzureBlobFileSystem azureBlobFileSystem;
-  private final AbfsHttpService abfsHttpService;
-  private final AbfsBufferPool abfsBufferPool;
-  private final TracingService tracingService;
-  private final LoggingService loggingService;
-  private final AbfsStatisticsService abfsStatisticsService;
-  private final Path path;
-  private final int bufferSize;
-
-  private ByteBuf buffer;
+/**
+ * The BlobFsOutputStream for Rest AbfsClient
+ */
+public class AbfsOutputStream extends OutputStream implements Syncable {
+  private final AbfsClient client;
+  private final String path;
+  private long position;
   private boolean closed;
-  private ConcurrentArrayList<WriteOperation> writeOperations;
-  private long offset;
+  private volatile IOException lastError;
+
   private long lastFlushOffset;
+  private long lastAppendOffset = 0;
 
-  AbfsOutputStream(
-      final AbfsHttpService abfsHttpService,
-      final AbfsBufferPool abfsBufferPool,
-      final AzureBlobFileSystem azureBlobFileSystem,
-      final AbfsStatisticsService abfsStatisticsService,
-      final TracingService tracingService,
-      final LoggingService loggingService,
-      final Path path,
-      final long offset,
+  private final int bufferSize;
+  private byte[] buffer;
+  private int bufferIndex;
+  private final int maxConcurrentRequestCount;
+
+  private ConcurrentLinkedDeque<WriteOperation> writeOperations;
+  private final ThreadPoolExecutor threadExecutor;
+  private final ExecutorCompletionService<Void> completionService;
+
+  public AbfsOutputStream(
+      final AbfsClient client,
+      final String path,
+      final long position,
       final int bufferSize) {
-    Preconditions.checkNotNull(azureBlobFileSystem, "azureBlobFileSystem");
-    Preconditions.checkNotNull(abfsStatisticsService, "abfsStatisticsService");
-    Preconditions.checkNotNull(abfsHttpService, "abfsHttpService");
-    Preconditions.checkNotNull(abfsBufferPool, "tracingService");
-    Preconditions.checkNotNull(abfsBufferPool, "loggingService");
-    Preconditions.checkNotNull(path, "path");
-    Preconditions.checkNotNull(abfsBufferPool, "abfsBufferPool");
-    Preconditions.checkArgument(offset >= 0);
-    Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE
-        && bufferSize <= FileSystemConfigurations.MAX_BUFFER_SIZE);
-
-    this.abfsBufferPool = abfsBufferPool;
-    this.azureBlobFileSystem = azureBlobFileSystem;
-    this.abfsHttpService = abfsHttpService;
-    this.abfsStatisticsService = abfsStatisticsService;
-    this.tracingService = tracingService;
-    this.loggingService = loggingService;
+    this.client = client;
     this.path = path;
+    this.position = position;
     this.closed = false;
+    this.lastError = null;
+    this.lastFlushOffset = 0;
     this.bufferSize = bufferSize;
-    this.buffer = this.abfsBufferPool.getDynamicByteBuffer(this.bufferSize);
-    this.writeOperations = new ConcurrentArrayList<>();
-    this.offset = offset;
+    this.buffer = new byte[bufferSize];
+    this.bufferIndex = 0;
+    this.writeOperations = new ConcurrentLinkedDeque<>();
+
+    this.maxConcurrentRequestCount = 4 * Runtime.getRuntime().availableProcessors();
+
+    this.threadExecutor
+            = new ThreadPoolExecutor(maxConcurrentRequestCount,
+            maxConcurrentRequestCount,
+            10L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue());
+    this.completionService = new ExecutorCompletionService(this.threadExecutor);
   }
 
   /**
@@ -129,8 +111,8 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
   @Override
   public synchronized void write(final byte[] data, final int off, final int length)
       throws IOException {
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    if (this.lastError != null) {
+      throw this.lastError;
     }
 
     Preconditions.checkArgument(data != null, "null data");
@@ -139,30 +121,25 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
       throw new IndexOutOfBoundsException();
     }
 
-    this.loggingService.debug("AbfsOutputStream.write byte array length: {0} offset: {1} len: {2}", data.length, off, length);
-    TraceScope traceScope = this.tracingService.traceBegin("AbfsOutputStream.write");
-
     int currentOffset = off;
-    int writableBytes = this.buffer.maxWritableBytes();
+    int writableBytes = bufferSize - bufferIndex;
     int numberOfBytesToWrite = length;
 
     while (numberOfBytesToWrite > 0) {
-      if (writableBytes < numberOfBytesToWrite) {
-        this.buffer.writeBytes(data, currentOffset, writableBytes);
+      if (writableBytes <= numberOfBytesToWrite) {
+        System.arraycopy(data, currentOffset, buffer, bufferIndex, writableBytes);
+        bufferIndex += writableBytes;
         writeCurrentBufferToService();
-
-        currentOffset = currentOffset + writableBytes;
+        currentOffset += writableBytes;
         numberOfBytesToWrite = numberOfBytesToWrite - writableBytes;
       } else {
-        this.buffer.writeBytes(data, currentOffset, numberOfBytesToWrite);
+        System.arraycopy(data, currentOffset, buffer, bufferIndex, numberOfBytesToWrite);
+        bufferIndex += numberOfBytesToWrite;
         numberOfBytesToWrite = 0;
       }
 
-      writableBytes = this.buffer.maxWritableBytes();
+      writableBytes = bufferSize - bufferIndex;
     }
-
-    this.abfsStatisticsService.incrementWriteOps(this.azureBlobFileSystem, 1);
-    this.tracingService.traceEnd(traceScope);
   }
 
   /**
@@ -173,10 +150,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void flush() throws IOException {
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
     this.flushInternalAsync();
   }
 
@@ -186,10 +159,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void sync() throws IOException {
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
     this.flushInternal();
   }
 
@@ -199,10 +168,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hsync() throws IOException {
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
     this.flushInternal();
   }
 
@@ -212,10 +177,6 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hflush() throws IOException {
-    if (closed) {
-      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
     this.flushInternal();
   }
 
@@ -233,126 +194,135 @@ final class AbfsOutputStream extends OutputStream implements Syncable {
       return;
     }
 
-    this.flushInternal();
-    writeOperations.clear();
-
-    this.abfsBufferPool.releaseByteBuffer(this.buffer);
-    this.closed = true;
+    try {
+      this.flushInternal();
+      this.threadExecutor.shutdown();
+    } finally {
+      this.lastError = new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+      this.buffer = null;
+      this.bufferIndex = 0;
+      this.closed = true;
+      this.writeOperations.clear();
+      if (!this.threadExecutor.isShutdown()) {
+        this.threadExecutor.shutdownNow();
+      }
+    }
   }
 
   private synchronized void flushInternal() throws IOException {
+    if (this.lastError != null) {
+      throw this.lastError;
+    }
     this.writeCurrentBufferToService();
     this.flushWrittenBytesToService();
   }
 
   private synchronized void flushInternalAsync() throws IOException {
+    if (this.lastError != null) {
+      throw this.lastError;
+    }
     this.writeCurrentBufferToService();
     this.flushWrittenBytesToServiceAsync();
   }
 
   private synchronized void writeCurrentBufferToService() throws IOException {
-    if (this.buffer.readableBytes() == 0) {
+    if (bufferIndex == 0) {
       return;
     }
 
-    this.loggingService.debug("AbfsOutputStream.writeCurrentBufferToService");
-    TraceScope traceScope = this.tracingService.traceBegin("AbfsOutputStream.writeCurrentBufferToService");
+    final byte[] bytes = this.buffer;
+    final int bytesLength = bufferIndex;
 
-    try {
-      final ByteBuf bytes = this.abfsBufferPool.copy(this.buffer);
-      final int readableBytes = bytes.readableBytes();
+    this.buffer = new byte[bufferSize];
+    this.bufferIndex = 0;
+    final long offset = this.position;
+    this.position += bytesLength;
 
-      this.abfsBufferPool.releaseByteBuffer(this.buffer);
-      this.buffer = this.abfsBufferPool.getDynamicByteBuffer(bufferSize);
-      final long offset = this.offset;
-      this.offset += readableBytes;
-
-      final Future<Void> append = abfsHttpService.writeFileAsync(
-          azureBlobFileSystem,
-          path,
-          bytes,
-          offset);
-
-      this.abfsStatisticsService.incrementBytesWritten(this.azureBlobFileSystem, readableBytes);
-      this.writeOperations.add(new WriteOperation(append, offset, readableBytes));
-    } catch (AzureBlobFileSystemException exception) {
-      throw new IOException(exception);
+    if (this.threadExecutor.getQueue().size() >= maxConcurrentRequestCount * 2) {
+      this.waitForTaskToComplete();
     }
-    finally {
-      this.tracingService.traceEnd(traceScope);
-    }
+
+    final Future job = this.completionService.submit(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        AbfsRestOperation op = client.append(path, offset, bytes, 0,
+            bytesLength);
+        return null;
+      }
+    });
+
+    this.writeOperations.add(new WriteOperation(job, offset, bytesLength));
+
+    // Try to shrink the queue
+    shrinkWriteOperationQueue();
   }
 
   private synchronized void flushWrittenBytesToService() throws IOException {
     for (WriteOperation writeOperation : this.writeOperations) {
       try {
         writeOperation.task.get();
-      } catch (ExecutionException ex) {
-        throw new IOException(ex);
-      } catch (InterruptedException ex){
-        Thread.currentThread().interrupt();
+      } catch (Exception ex) {
+        if (AzureBlobFileSystemException.class.isInstance(ex.getCause())) {
+          ex = AzureBlobFileSystemException.class.cast(ex.getCause());
+        }
+        this.lastError = new IOException(ex);
+        throw this.lastError;
       }
     }
-
-    flushWrittenBytesToServiceInternal(this.offset, false);
+    flushWrittenBytesToServiceInternal(this.position, false);
   }
 
   private synchronized void flushWrittenBytesToServiceAsync() throws IOException {
-    ArrayList<WriteOperation> finishedWriteOperations = new ArrayList<>();
-    for (WriteOperation writeOperation : this.writeOperations) {
-      if (writeOperation.task.isDone()
-          && (writeOperation.startOffset + writeOperation.length) >= this.lastFlushOffset) {
-        finishedWriteOperations.add(writeOperation);
-      }
+    shrinkWriteOperationQueue();
+
+    if (this.lastAppendOffset > this.lastFlushOffset) {
+      this.flushWrittenBytesToServiceInternal(this.lastAppendOffset, true);
     }
 
-    if (finishedWriteOperations.size() == 0) {
-      return;
-    }
-
-    Collections.sort(finishedWriteOperations, new Comparator<WriteOperation>() {
-      @Override
-      public int compare(WriteOperation o1, WriteOperation o2) {
-        if (o1.startOffset == o2.startOffset
-            && o1.task.hashCode() == o2.task.hashCode()
-            && o1.length == o2.length) {
-          return 0;
-        }
-
-        return (int) (o1.startOffset - o2.startOffset);
-      }
-    });
-
-    long writtenOffset = 0;
-    for (int i = 0; i < finishedWriteOperations.size() - 1; i++) {
-      if (finishedWriteOperations.get(i).startOffset + finishedWriteOperations.get(i).length
-          != finishedWriteOperations.get(i + 1).startOffset) {
-        return;
-      }
-
-      if (finishedWriteOperations.get(i).startOffset == writtenOffset) {
-        writtenOffset += finishedWriteOperations.get(i).length;
-      }
-    }
-
-    if (writtenOffset > this.lastFlushOffset) {
-      this.flushWrittenBytesToServiceInternal(writtenOffset, true);
-    }
+    this.lastAppendOffset = 0;
   }
 
   private synchronized void flushWrittenBytesToServiceInternal(final long offset, final boolean retainUncommitedData) throws IOException {
-    this.loggingService.debug("AbfsOutputStream.flushWrittenBytesToService");
-    TraceScope traceScope = this.tracingService.traceBegin("AbfsOutputStream.flushWrittenBytesToService");
-
     try {
-      abfsHttpService.flushFile(azureBlobFileSystem, path, offset, retainUncommitedData);
-      this.lastFlushOffset = offset;
-    } catch (AzureBlobFileSystemException exception) {
-      throw new IOException(exception);
-    } finally {
-      this.abfsBufferPool.releaseByteBuffer(this.buffer);
-      this.buffer = this.abfsBufferPool.getDynamicByteBuffer(this.bufferSize);
-      this.tracingService.traceEnd(traceScope);
+      client.flush(path, offset);
+    } catch (AzureBlobFileSystemException ex) {
+      throw new IOException(ex);
+    }
+    this.lastFlushOffset = offset;
+  }
+
+  /**
+   * Try to remove the completed write operations from the beginning of write
+   * operation FIFO queue.
+   */
+  private synchronized void shrinkWriteOperationQueue() throws IOException {
+    try {
+      while(this.writeOperations.peek() != null && this.writeOperations.peek().task.isDone()) {
+        this.writeOperations.peek().task.get();
+        this.lastAppendOffset += this.writeOperations.peek().length;
+        this.writeOperations.remove();
+      }
+    } catch (Exception e) {
+      if (AzureBlobFileSystemException.class.isInstance(e.getCause())) {
+        this.lastError = IOException.class.cast(e.getCause());
+      } else {
+        this.lastError = new IOException(e);
+      }
+      throw this.lastError;
+    }
+  }
+
+  private void waitForTaskToComplete() throws IOException {
+    boolean completed;
+    for(completed = false; this.completionService.poll() != null; completed = true) {}
+
+    if (!completed) {
+      try {
+        this.completionService.take();
+      } catch (InterruptedException e) {
+        this.lastError = new IOException(e);
+        throw this.lastError;
+      }
     }
   }
 

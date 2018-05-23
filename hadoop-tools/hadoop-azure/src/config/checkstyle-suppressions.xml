@@ -42,15 +42,6 @@
 -->
 
 <suppressions>
-    <suppress checks="FileLengthCheck|UnusedImportsCheck|ParameterNumber|RedundantThrows|MagicNumber"
-              files="com[\\/]microsoft[\\/]azure[\\/]bfs[\\/]rest[\\/]client[\\/]generated[\\/]implementation[\\/]AzureBlobFileSystemRestClientImpl.java"/>
-
-    <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="com[\\/]microsoft[\\/]azure[\\/]bfs[\\/]rest[\\/]client[\\/]generated[\\/]AzureBlobFileSystemRestClient.java"/>
-
-    <suppress checks="ParameterNumber|UnusedImportsCheck"
-              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsMonitoredHttpClientImpl.java"/>
-
     <suppress checks="ParameterNumber|UnusedImportsCheck"
               files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsInputStream.java"/>
 

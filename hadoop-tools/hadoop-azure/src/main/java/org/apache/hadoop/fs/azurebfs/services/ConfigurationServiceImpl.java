@@ -112,6 +112,10 @@ class ConfigurationServiceImpl implements ConfigurationService {
       DefaultValue = FileSystemConfigurations.DEFAULT_AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION)
   private boolean createRemoteFileSystemDuringInitialization;
 
+  @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_READ_AHEAD_QUEUE_DEPTH,
+      DefaultValue = FileSystemConfigurations.DEFAULT_READ_AHEAD_QUEUE_DEPTH)
+  private int readAheadQueueDepth;
+
   private Map<String, String> storageAccountKeys;
 
   @Inject
@@ -226,6 +230,9 @@ class ConfigurationServiceImpl implements ConfigurationService {
   public boolean getCreateRemoteFileSystemDuringInitialization() {
     return this.createRemoteFileSystemDuringInitialization;
   }
+
+  @Override
+  public int getReadAheadQueueDepth() { return this.readAheadQueueDepth; }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(

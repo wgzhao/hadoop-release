@@ -20,163 +20,105 @@ package org.apache.hadoop.fs.azurebfs.services;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.google.common.base.Preconditions;
-import io.netty.buffer.ByteBuf;
-import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.FuncN;
 
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.hadoop.fs.FSInputStream;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
-import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
+import org.apache.hadoop.fs.FileSystem.Statistics;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsBufferPool;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsStatisticsService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
-import org.apache.htrace.core.TraceScope;
 
-@InterfaceAudience.Private
-@InterfaceStability.Evolving
-final class AbfsInputStream extends FSInputStream {
-  private final AzureBlobFileSystem azureBlobFileSystem;
-  private final AbfsHttpService abfsHttpService;
-  private final AbfsBufferPool abfsBufferPool;
-  private final TracingService tracingService;
-  private final LoggingService loggingService;
-  private final AbfsStatisticsService abfsStatisticsService;
-  private final Path path;
+/**
+ * The AbfsInputStream for AbfsClient
+ */
+public class AbfsInputStream extends FSInputStream {
 
-  private long offset;
-  private long bufferOffsetInStream;
-  private long fileLength = 0;
-  private ByteBuf buffer;
-  private boolean closed;
-  private final int bufferSize;
-  private final String version;
+  private final AbfsClient client;
+  private final Statistics statistics;
+  private final String path;
+  private final long contentLength;
+  private final int bufferSize; // default buffer size
+  private final int readAheadQueueDepth;         // initialized in constructor
+  private final String eTag;                  // eTag of the path when InputStream are created
+  private final boolean tolerateOobAppends; // whether tolerate Oob Appends
+  private final boolean readAheadEnabled; // whether enable readAhead;
 
-  AbfsInputStream(
-      final AbfsBufferPool abfsBufferPool,
-      final AbfsHttpService abfsHttpService,
-      final AzureBlobFileSystem azureBlobFileSystem,
-      final AbfsStatisticsService abfsStatisticsService,
-      final TracingService tracingService,
-      final LoggingService loggingService,
-      final Path path,
-      final long fileLength,
+  private byte[] buffer = null;            // will be initialized on first use
+
+  private long fCursor = 0;  // cursor of buffer within file - offset of next byte to read from remote server
+  private long fCursorAfterLastRead = -1;
+  private int bCursor = 0;   // cursor of read within buffer - offset of next byte to be returned from buffer
+  private int limit = 0;     // offset of next byte to be read into buffer from service (i.e., upper marker+1
+  //                                                      of valid bytes in buffer)
+  private boolean closed = false;
+
+  public AbfsInputStream(
+      final AbfsClient client,
+      final Statistics statistics,
+      final String path,
+      final long contentLength,
       final int bufferSize,
-      final String version) {
-    Preconditions.checkNotNull(abfsBufferPool, "abfsBufferPool");
-    Preconditions.checkNotNull(azureBlobFileSystem, "azureBlobFileSystem");
-    Preconditions.checkNotNull(abfsHttpService, "abfsHttpService");
-    Preconditions.checkNotNull(tracingService, "tracingService");
-    Preconditions.checkNotNull(loggingService, "loggingService");
-    Preconditions.checkNotNull(abfsStatisticsService, "abfsStatisticsService");
-    Preconditions.checkNotNull(path, "path");
-    Preconditions.checkArgument(bufferSize >= FileSystemConfigurations.MIN_BUFFER_SIZE);
-    Preconditions.checkNotNull(version, "version");
-    Preconditions.checkArgument(version.length() > 0);
-
-    this.azureBlobFileSystem = azureBlobFileSystem;
-    this.abfsHttpService = abfsHttpService;
-    this.tracingService = tracingService;
-    this.loggingService = loggingService.get(AbfsInputStream.class);
-    this.abfsStatisticsService = abfsStatisticsService;
+      final int readAheadQueueDepth,
+      final String eTag) {
+    super();
+    this.client = client;
+    this.statistics = statistics;
     this.path = path;
-    this.offset = 0;
-    this.bufferOffsetInStream = -1;
-    this.fileLength = fileLength;
-    this.closed = false;
+    this.contentLength = contentLength;
     this.bufferSize = bufferSize;
-    this.abfsBufferPool = abfsBufferPool;
-    this.buffer = this.abfsBufferPool.getByteBuffer(new byte[this.bufferSize]);
-    this.buffer.clear();
-    this.version = version;
+    this.readAheadQueueDepth = (readAheadQueueDepth >= 0) ? readAheadQueueDepth : 2 * Runtime.getRuntime().availableProcessors();
+    this.eTag = eTag;
+    this.tolerateOobAppends = false;
+    this.readAheadEnabled = true;
   }
 
-  /**
-   * Return the size of the remaining available bytes
-   * if the size is less than or equal to {@link Integer#MAX_VALUE},
-   * otherwise, return {@link Integer#MAX_VALUE}.
-   * <p>
-   * This is to match the behavior of DFSInputStream.available(),
-   * which some clients may rely on (HBase write-ahead log reading in
-   * particular).
-   */
-  @Override
-  public synchronized int available() throws IOException {
-    if (closed) {
-      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
-    final long remaining = this.fileLength - this.offset;
-    return remaining <= Integer.MAX_VALUE
-        ? (int) remaining : Integer.MAX_VALUE;
+  public String getPath() {
+    return path;
   }
 
-  /*
-   * Reads the next byte of data from the input stream. The value byte is
-   * returned as an integer in the range 0 to 255. If no byte is available
-   * because the end of the stream has been reached, the value -1 is returned.
-   * This method blocks until input data is available, the end of the stream
-   * is detected, or an exception is thrown.
-   *
-   * @returns int An integer corresponding to the byte read.
-   */
   @Override
-  public synchronized int read() throws IOException {
-    byte[] tmpBuf = new byte[1];
-    if (read(tmpBuf, 0, 1) < 0) {
+  public int read() throws IOException {
+    byte[] b = new byte[1];
+    int numberOfBytesRead = read(b, 0, 1);
+    if (numberOfBytesRead < 0) {
       return -1;
+    } else {
+      return (b[0] & 0xFF);
     }
-
-    // byte values are in range of -128 to 128, with this we convert it to 0-256
-    return tmpBuf[0] & 0xFF;
   }
 
-  /*
-   * Reads up to len bytes of data from the input stream into an array of
-   * bytes. An attempt is made to read as many as len bytes, but a smaller
-   * number may be read. The number of bytes actually read is returned as an
-   * integer. This method blocks until input data is available, end of file is
-   * detected, or an exception is thrown. If len is zero, then no bytes are
-   * read and 0 is returned; otherwise, there is an attempt to read at least
-   * one byte. If no byte is available because the stream is at end of file,
-   * the value -1 is returned; otherwise, at least one byte is read and stored
-   * into b.
-   *
-   * @param b -- the buffer into which data is read
-   *
-   * @param off -- the start offset in the array b at which data is written
-   *
-   * @param len -- the maximum number of bytes read
-   *
-   * @ returns int The total number of byes read into the buffer, or -1 if
-   * there is no more data because the end of stream is reached.
-   */
   @Override
   public synchronized int read(final byte[] b, final int off, final int len) throws IOException {
-    this.loggingService.debug("AbfsInputStream.read byte array length: {0} offset: {1} len: {2}", b.length, off, len);
-    TraceScope traceScope = this.tracingService.traceBegin("AbfsInputStream.read");
+    int currentOff = off;
+    int currentLen = len;
+    int lastReadBytes;
+    int totalReadBytes = 0;
+    do {
+      lastReadBytes = readOneBlock(b, currentOff, currentLen);
+      if(lastReadBytes > 0) {
+        currentOff += lastReadBytes;
+        currentLen -= lastReadBytes;
+        totalReadBytes += lastReadBytes;
+      }
+      if(currentLen <= 0 || currentLen > b.length - currentOff) {
+        break;
+      }
+    } while(lastReadBytes > 0);
+    return totalReadBytes > 0 ? totalReadBytes : lastReadBytes;
+  }
 
+  private int readOneBlock(final byte[] b, final int off, final int len) throws IOException {
     if (closed) {
-      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
     }
+
+    Preconditions.checkNotNull(b);
 
     if (len == 0) {
       return 0;
     }
 
-    if (this.available() == 0) {
+    if(this.available() == 0) {
       return -1;
     }
 
@@ -184,146 +126,258 @@ final class AbfsInputStream extends FSInputStream {
       throw new IndexOutOfBoundsException();
     }
 
-    int readLength = len > available() ? available() : len;
-
-    // Check to see if buffer can be used.
-    boolean canReadFromBuffer = this.offset >= bufferOffsetInStream
-        && this.offset + readLength <= bufferOffsetInStream + this.buffer.writerIndex();
-
-    if (canReadFromBuffer) {
-      long bufferOffset = this.offset - bufferOffsetInStream;
-      this.buffer.readerIndex((int) bufferOffset);
-
-      this.offset += readLength;
-      this.buffer.readBytes(b, off, readLength);
-      this.tracingService.traceEnd(traceScope);
-      return readLength;
-    }
-
-    int remainingBytesToRead = readLength;
-    int bufferOffset = off;
-
-    final ByteBuf targetBuffer = this.abfsBufferPool.getByteBuffer(b);
-
-    List<Observable<Integer>> readObservables = new ArrayList<>();
-
-    try {
-      while (remainingBytesToRead != 0) {
-        Observable<Integer> readObservable;
-        int chunkLength;
-
-        if (remainingBytesToRead > bufferSize) {
-          readObservable = Observable.from(this.abfsHttpService.readFileAsync(
-              this.azureBlobFileSystem,
-              this.path,
-              this.version,
-              this.offset,
-              this.bufferSize,
-              targetBuffer,
-              bufferOffset));
-
-          chunkLength = bufferSize;
-        }
-        else {
-          // Last download will be into the buffer
-          this.buffer.setIndex(0, this.bufferSize);
-          this.bufferOffsetInStream = this.offset;
-
-          final long targetBufferOffset = bufferOffset;
-          final long targetBufferBytesToWrite = remainingBytesToRead;
-
-          readObservable = Observable.from(this.abfsHttpService.readFileAsync(
-              this.azureBlobFileSystem,
-              this.path,
-              this.version,
-              this.offset,
-              this.bufferSize,
-              this.buffer,
-              0)).switchMap(new Func1<Integer, Observable<Integer>>() {
-            @Override
-            public Observable<Integer> call(Integer integer) {
-              buffer.setIndex(0, integer);
-              buffer.readBytes(targetBuffer, (int) targetBufferOffset, (int) targetBufferBytesToWrite);
-              return Observable.just((int) targetBufferBytesToWrite);
-            }
-          });
-
-          chunkLength = remainingBytesToRead;
-        }
-
-        bufferOffset += chunkLength;
-        this.offset += chunkLength;
-        remainingBytesToRead -= chunkLength;
-
-        readObservables.add(readObservable);
+    //If buffer is empty, then fill the buffer.
+    if (bCursor == limit) {
+      //If EOF, then return -1
+      if (fCursor >= contentLength) {
+        return -1;
       }
 
-      // Wait synchronously on the list of read operations.
-      Integer totalReadLength = Observable.zip(readObservables, new FuncN<Integer>() {
-        @Override
-        public Integer call(Object... results) {
-          int totalLength = 0;
-          for (Object result : results) {
-            totalLength += (Integer) result;
-          }
+      long bytesRead = 0;
+      //reset buffer to initial state - i.e., throw away existing data
+      bCursor = 0;
+      limit = 0;
+      if (buffer == null) {
+        buffer = new byte[bufferSize];
+      }
 
-          return totalLength;
-        }
-      }).toBlocking().toFuture().get();
+      // Enable readAhead when reading sequentially
+      if (-1 == fCursorAfterLastRead || fCursorAfterLastRead == fCursor || b.length >= bufferSize) {
+        bytesRead = readInternal(fCursor, buffer, 0, bufferSize, false);
+      } else {
+        bytesRead = readInternal(fCursor, buffer, 0, b.length, true);
+      }
 
-      Preconditions.checkArgument(totalReadLength == readLength);
+      if (bytesRead == -1) {
+        return -1;
+      }
+
+      limit += bytesRead;
+      fCursor += bytesRead;
+      fCursorAfterLastRead = fCursor;
     }
-    catch (AzureBlobFileSystemException | ExecutionException ex) {
+
+    //If there is anything in the buffer, then return lesser of (requested bytes) and (bytes in buffer)
+    //(bytes returned may be less than requested)
+    int bytesRemaining = limit - bCursor;
+    int bytesToRead = Math.min(len, bytesRemaining);
+    System.arraycopy(buffer, bCursor, b, off, bytesToRead);
+    bCursor += bytesToRead;
+    if (statistics != null) {
+      statistics.incrementBytesRead(bytesToRead);
+    }
+    return bytesToRead;
+  }
+
+
+  private int readInternal(final long position, final byte[] b, final int offset, final int length,
+                           final boolean bypassReadAhead) throws IOException {
+    if (readAheadEnabled && !bypassReadAhead) {
+      // try reading from read-ahead
+      if (offset != 0) {
+        throw new IllegalArgumentException("readahead buffers cannot have non-zero buffer offsets");
+      }
+      int receivedBytes;
+
+      // queue read-aheads
+      int numReadAheads = this.readAheadQueueDepth;
+      long nextSize;
+      long nextOffset = position;
+      while (numReadAheads > 0 && nextOffset < contentLength) {
+        nextSize = Math.min((long) bufferSize, contentLength - nextOffset);
+        ReadBufferManager.getBufferManager().queueReadAhead(this, nextOffset, (int) nextSize);
+        nextOffset = nextOffset + nextSize;
+        numReadAheads--;
+      }
+
+      // try reading from buffers first
+      receivedBytes = ReadBufferManager.getBufferManager().getBlock(this, position, length, b);
+      if (receivedBytes > 0) {
+        return receivedBytes;
+      }
+
+      // got nothing from read-ahead, do our own read now
+      receivedBytes = readRemote(position, b, offset, length);
+      return receivedBytes;
+    } else {
+      return readRemote(position, b, offset, length);
+    }
+  }
+
+  int readRemote(long position, byte[] b, int offset, int length) throws IOException {
+    if (position < 0) {
+      throw new IllegalArgumentException("attempting to read from negative offset");
+    }
+    if (position >= contentLength) {
+      return -1;  // Hadoop prefers -1 to EOFException
+    }
+    if (b == null) {
+      throw new IllegalArgumentException("null byte array passed in to read() method");
+    }
+    if (offset >= b.length) {
+      throw new IllegalArgumentException("offset greater than length of array");
+    }
+    if (length < 0) {
+      throw new IllegalArgumentException("requested read length is less than zero");
+    }
+    if (length > (b.length - offset)) {
+      throw new IllegalArgumentException("requested read length is more than will fit after requested offset in buffer");
+    }
+    final AbfsRestOperation op;
+    try {
+      op = client.read(path, position, b, offset, length, tolerateOobAppends ? "*" : eTag);
+    } catch (AzureBlobFileSystemException ex) {
       throw new IOException(ex);
     }
-    catch (InterruptedException ex) {
-      Thread.currentThread().interrupt();
+    long bytesRead = op.getResult().getBytesReceived();
+    if (bytesRead > Integer.MAX_VALUE) {
+      throw new IOException("Unexpected Content-Length");
     }
-    finally {
-      this.tracingService.traceEnd(traceScope);
+    return (int) bytesRead;
+  }
+
+  /**
+   * Seek to given position in stream.
+   * @param n position to seek to
+   * @throws IOException if there is an error
+   * @throws EOFException if attempting to seek past end of file
+   */
+  @Override
+  public synchronized void seek(long n) throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+    if (n < 0) {
+      throw new EOFException(FSExceptionMessages.NEGATIVE_SEEK);
+    }
+    if (n > contentLength) {
+      throw new EOFException(FSExceptionMessages.CANNOT_SEEK_PAST_EOF);
     }
 
-    this.abfsStatisticsService.incrementReadOps(this.azureBlobFileSystem, 1);
-    this.abfsStatisticsService.incrementBytesRead(this.azureBlobFileSystem, readLength);
+    if (n>=fCursor-limit && n<=fCursor) { // within buffer
+      bCursor = (int) (n-(fCursor-limit));
+      return;
+    }
 
-    return readLength;
+    // next read will read from here
+    fCursor = n;
+
+    //invalidate buffer
+    limit = 0;
+    bCursor = 0;
+  }
+
+  @Override
+  public synchronized long skip(long n) throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+    long currentPos = getPos();
+    if (currentPos == contentLength) {
+      if (n > 0) {
+        throw new EOFException(FSExceptionMessages.CANNOT_SEEK_PAST_EOF);
+      }
+    }
+    long newPos = currentPos + n;
+    if (newPos < 0) {
+      newPos = 0;
+      n = newPos - currentPos;
+    }
+    if (newPos > contentLength) {
+      newPos = contentLength;
+      n = newPos - currentPos;
+    }
+    seek(newPos);
+    return n;
+  }
+
+  /**
+   * Return the size of the remaining available bytes
+   * if the size is less than or equal to {@link Integer#MAX_VALUE},
+   * otherwise, return {@link Integer#MAX_VALUE}.
+   *
+   * This is to match the behavior of DFSInputStream.available(),
+   * which some clients may rely on (HBase write-ahead log reading in
+   * particular).
+   */
+  @Override
+  public synchronized int available() throws IOException {
+    if (closed) {
+      throw new IOException(
+          FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+    final long remaining = this.contentLength - this.getPos();
+    return remaining <= Integer.MAX_VALUE
+        ? (int) remaining : Integer.MAX_VALUE;
+  }
+
+  /**
+   * Returns the length of the file that this stream refers to. Note that the length returned is the length
+   * as of the time the Stream was opened. Specifically, if there have been subsequent appends to the file,
+   * they wont be reflected in the returned length.
+   *
+   * @return length of the file.
+   * @throws IOException if the stream is closed
+   */
+  public long length() throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+    return contentLength;
+  }
+
+  /**
+   * Return the current offset from the start of the file
+   * @throws IOException throws {@link IOException} if there is an error
+   */
+  @Override
+  public synchronized long getPos() throws IOException {
+    if (closed) {
+      throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+    }
+    return fCursor - limit + bCursor;
+  }
+
+  /**
+   * Seeks a different copy of the data.  Returns true if
+   * found a new source, false otherwise.
+   * @throws IOException throws {@link IOException} if there is an error
+   */
+  @Override
+  public boolean seekToNewSource(long l) throws IOException {
+    return false;
   }
 
   @Override
   public synchronized void close() throws IOException {
-    if (closed) {
-      return;
-    }
-
     closed = true;
-    this.abfsBufferPool.releaseByteBuffer(this.buffer);
-    this.buffer = null;
+    buffer = null; // de-reference the buffer so it can be GC'ed sooner
   }
 
+  /**
+   * Not supported by this stream. Throws {@link UnsupportedOperationException}
+   * @param readlimit ignored
+   */
   @Override
-  public synchronized void seek(final long pos) throws EOFException {
-    if (closed) {
-      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
-    if (pos > this.fileLength || pos < 0) {
-      throw new EOFException();
-    }
-
-    this.offset = pos;
+  public synchronized void mark(int readlimit) {
+    throw new UnsupportedOperationException("mark()/reset() not supported on this stream");
   }
 
+  /**
+   * Not supported by this stream. Throws {@link UnsupportedOperationException}
+   */
   @Override
-  public synchronized long getPos() throws IOException {
-    if (closed) {
-      throw new EOFException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-
-    return this.offset;
+  public synchronized void reset() throws IOException {
+    throw new UnsupportedOperationException("mark()/reset() not supported on this stream");
   }
 
+  /**
+   * gets whether mark and reset are supported by {@code ADLFileInputStream}. Always returns false.
+   *
+   * @return always {@code false}
+   */
   @Override
-  public boolean seekToNewSource(final long targetPos) throws IOException {
+  public boolean markSupported() {
     return false;
   }
 }

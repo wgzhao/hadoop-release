@@ -22,6 +22,7 @@ package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
+import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
 
 /**
  * Exception to wrap Azure service error responses.
@@ -45,6 +46,19 @@ public class AzureServiceErrorResponseException extends AzureBlobFileSystemExcep
     this.errorMessage = errorMessage;
   }
 
+  public AzureServiceErrorResponseException(
+      final int statusCode,
+      final String errorCode,
+      final String errorMessage,
+      final Exception innerException,
+      final AbfsHttpOperation abfsHttpOperation) {
+    super(formatMessage(abfsHttpOperation));
+
+    this.statusCode = statusCode;
+    this.errorCode = AzureServiceErrorCode.getAzureServiceCode(this.statusCode, errorCode);
+    this.errorMessage = errorMessage;
+  }
+
   public int getStatusCode() {
     return this.statusCode;
   }
@@ -55,5 +69,16 @@ public class AzureServiceErrorResponseException extends AzureBlobFileSystemExcep
 
   public String getErrorMessage() {
     return this.errorMessage;
+  }
+
+  private static String formatMessage(final AbfsHttpOperation abfsHttpOperation) {
+    return String.format(
+        "%1$s %2$s\nStatusCode=%3$s\nStatusDescription=%4$s\nErrorCode=%5$s\nErrorMessage=%6$s",
+        abfsHttpOperation.getMethod(),
+        abfsHttpOperation.getUrl().toString(),
+        abfsHttpOperation.getStatusCode(),
+        abfsHttpOperation.getStatusDescription(),
+        abfsHttpOperation.getStorageErrorCode(),
+        abfsHttpOperation.getStorageErrorMessage());
   }
 }

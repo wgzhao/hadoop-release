@@ -59,7 +59,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.FileSystemOperationUnh
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsStatisticsService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
@@ -88,7 +87,6 @@ public class AzureBlobFileSystem extends FileSystem {
   private LoggingService loggingService;
   private AbfsHttpService abfsHttpService;
   private ConfigurationService configurationService;
-  private AbfsStatisticsService abfsStatisticsService;
   private boolean isClosed;
 
   @Override
@@ -105,7 +103,6 @@ public class AzureBlobFileSystem extends FileSystem {
       this.abfsHttpService = serviceProvider.get(AbfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class).get(AzureBlobFileSystem.class);
       this.configurationService = serviceProvider.get(ConfigurationService.class);
-      this.abfsStatisticsService = serviceProvider.get(AbfsStatisticsService.class);
     } catch (AzureBlobFileSystemException exception) {
       throw new IOException(exception);
     }
@@ -128,10 +125,6 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     this.mkdirs(this.workingDir);
-
-    if (statistics != null) {
-      this.abfsStatisticsService.subscribe(this, statistics);
-    }
   }
 
   public boolean isSecure() {
@@ -157,7 +150,8 @@ public class AzureBlobFileSystem extends FileSystem {
           public InputStream call() throws Exception {
             return abfsHttpService.openFileForRead(
                 azureBlobFileSystem,
-                makeQualified(path));
+                makeQualified(path),
+                statistics);
           }
         });
 
@@ -186,8 +180,7 @@ public class AzureBlobFileSystem extends FileSystem {
         });
 
     evaluateFileSystemPathOperation(f, create);
-    // Keep the second argument null. Statistics are already traced by abfsStatisticService.
-    return new FSDataOutputStream(create.result, null);
+    return new FSDataOutputStream(create.result, statistics);
   }
 
   @Override
@@ -252,7 +245,7 @@ public class AzureBlobFileSystem extends FileSystem {
         });
 
     evaluateFileSystemPathOperation(f, append);
-    return new FSDataOutputStream(append.result, null);
+    return new FSDataOutputStream(append.result, statistics);
   }
 
   public boolean rename(final Path src, final Path dst) throws IOException {
@@ -395,7 +388,6 @@ public class AzureBlobFileSystem extends FileSystem {
           }
         });
 
-    this.abfsStatisticsService.unsubscribe(this);
     evaluateFileSystemOperation(close);
     this.isClosed = true;
   }

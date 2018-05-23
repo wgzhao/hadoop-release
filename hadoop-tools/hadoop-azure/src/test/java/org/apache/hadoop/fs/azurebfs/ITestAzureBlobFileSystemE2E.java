@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+
 import org.junit.Test;
 
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -30,12 +31,20 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 public class ITestAzureBlobFileSystemE2E extends DependencyInjectedTest {
   public ITestAzureBlobFileSystemE2E() throws Exception {
     super();
+    Configuration configuration = this.getConfiguration();
+    configuration.set(ConfigurationKeys.FS_AZURE_READ_AHEAD_QUEUE_DEPTH, "0");
+    this.mockServiceInjector.replaceInstance(Configuration.class, configuration);
+
   }
 
   @Test

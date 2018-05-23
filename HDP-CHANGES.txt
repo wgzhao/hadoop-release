@@ -4996,3 +4996,4 @@ ATS V1.5:
 
     WASB-67. AbfsThrottlingNetworkTrafficAnalysisServiceImpl should use daemon timers
 
+    WASB-65. Refactoring abfs client and removing dependency on Autorest

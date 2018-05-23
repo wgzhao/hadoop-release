@@ -16,24 +16,14 @@
  * limitations under the License.
  */
 
-
 package org.apache.hadoop.fs.azurebfs.contracts.services;
 
-import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
-
 /**
- * AbfsClient factory.
+ * The ReadBufferStatus for Rest AbfsClient
  */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public interface AbfsHttpClientFactory extends InjectableService {
-  /**
-   * Creates and configures an instance of new AbfsClient
-   * @return AbfsClient instance
-   */
-  AbfsClient create(AzureBlobFileSystem fs) throws AzureBlobFileSystemException;
+public enum ReadBufferStatus {
+  NOT_AVAILABLE,  // buffers sitting in readaheadqueue have this stats
+  READING_IN_PROGRESS,  // reading is in progress on this buffer. Buffer should be in inProgressList
+  AVAILABLE,  // data is available in buffer. It should be in completedList
+  READ_FAILED  // read completed, but failed.
 }

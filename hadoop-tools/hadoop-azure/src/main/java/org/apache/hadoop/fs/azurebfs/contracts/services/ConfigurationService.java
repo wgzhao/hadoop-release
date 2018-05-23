@@ -134,4 +134,10 @@ public interface ConfigurationService extends InjectableService {
    * @return configured boolean for creating remote file system during initialization
    */
   boolean getCreateRemoteFileSystemDuringInitialization();
+
+  /**
+   * Retrieves configured value of read ahead queue
+   * @return depth of read ahead
+   */
+  int getReadAheadQueueDepth();
 }

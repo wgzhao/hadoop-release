@@ -27,10 +27,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsRetryStrategyFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsThrottlingNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsInterceptorFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.utils.UriUtils;
@@ -45,13 +41,8 @@ public class MockAbfsHttpClientFactoryImpl extends AbfsHttpClientFactoryImpl {
   @Inject
   MockAbfsHttpClientFactoryImpl(
       final ConfigurationService configurationService,
-      final AbfsHttpClientSessionFactory abfsHttpClientSessionFactory,
-      final AbfsThrottlingNetworkTrafficAnalysisService abfsThrottlingNetworkTrafficAnalysisService,
-      final AbfsRetryStrategyFactory abfsRetryStrategyFactory,
-      final AbfsInterceptorFactory abfsInterceptorFactory,
       final LoggingService loggingService) {
-    super(configurationService, abfsHttpClientSessionFactory, abfsThrottlingNetworkTrafficAnalysisService, abfsRetryStrategyFactory, abfsInterceptorFactory,
-        loggingService);
+    super(configurationService, loggingService);
 
     this.configurationService = configurationService;
   }

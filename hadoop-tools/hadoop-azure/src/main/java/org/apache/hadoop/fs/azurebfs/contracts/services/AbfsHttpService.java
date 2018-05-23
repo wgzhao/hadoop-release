@@ -18,16 +18,15 @@
 
 package org.apache.hadoop.fs.azurebfs.contracts.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
-import java.util.concurrent.Future;
-
-import io.netty.buffer.ByteBuf;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
@@ -45,13 +44,6 @@ public interface AbfsHttpService extends InjectableService {
    */
   Hashtable<String, String> getFilesystemProperties(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
 
-  /**
-   * Gets filesystem properties on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to get the properties.
-   * @return Future<Hashtable<String, String>> Future of a hash table containing the properties.
-   */
-  Future<Hashtable<String, String>> getFilesystemPropertiesAsync(AzureBlobFileSystem azureBlobFileSystem) throws
-      AzureBlobFileSystemException;
 
   /**
    * Sets filesystem properties on the Azure service.
@@ -59,15 +51,6 @@ public interface AbfsHttpService extends InjectableService {
    * @param properties file system properties to set.
    */
   void setFilesystemProperties(AzureBlobFileSystem azureBlobFileSystem, Hashtable<String, String> properties) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Sets filesystem properties on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to get the properties.
-   * @param properties file system properties to set.
-   * @return Future<void> Future of a Void object.
-   */
-  Future<Void> setFilesystemPropertiesAsync(AzureBlobFileSystem azureBlobFileSystem, Hashtable<String, String> properties) throws
       AzureBlobFileSystemException;
 
   /**
@@ -79,15 +62,6 @@ public interface AbfsHttpService extends InjectableService {
   Hashtable<String, String> getPathProperties(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
 
   /**
-   * Gets path properties on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to get the properties of the path.
-   * @param path path to get properties.
-   * @return Future<Hashtable<String, String>> Future of a hash table containing all the path properties.
-   */
-  Future<Hashtable<String, String>> getPathPropertiesAsync(AzureBlobFileSystem azureBlobFileSystem, Path path) throws
-      AzureBlobFileSystemException;
-
-  /**
    * Sets path properties on the Azure service.
    * @param azureBlobFileSystem filesystem to get the properties of the path.
    * @param path path to set properties.
@@ -97,40 +71,16 @@ public interface AbfsHttpService extends InjectableService {
       AzureBlobFileSystemException;
 
   /**
-   * Sets path properties on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to get the properties of the path.
-   * @param path path to get properties.
-   * @param properties hash table containing all the path properties.
-   * @return Future<Void> Future of a Void object.
-   */
-  Future<Void> setPathPropertiesAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, Hashtable<String, String> properties) throws
-      AzureBlobFileSystemException;
-
-  /**
    * Creates filesystem on the Azure service.
    * @param azureBlobFileSystem filesystem to be created.
    */
   void createFilesystem(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
 
   /**
-   * Creates filesystem on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to be created.
-   * @return Future<void> Future of a Void object.
-   */
-  Future<Void> createFilesystemAsync(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
-
-  /**
    * Deletes filesystem on the Azure service.
    * @param azureBlobFileSystem filesystem to be deleted.
    */
   void deleteFilesystem(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
-
-  /**
-   * Deletes filesystem on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to be deleted.
-   * @return Future<void> Future of a Void object.
-   */
-  Future<Void> deleteFilesystemAsync(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
 
   /**
    * Creates a file on the Azure service.
@@ -142,16 +92,6 @@ public interface AbfsHttpService extends InjectableService {
   OutputStream createFile(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite) throws AzureBlobFileSystemException;
 
   /**
-   * Creates a file on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to create file or directory.
-   * @param path path of the file to be created.
-   * @param overwrite should overwrite.
-   * @return Future<OutputStream> Future of a stream to the file.
-   */
-  Future<OutputStream> createFileAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite) throws
-      AzureBlobFileSystemException;
-
-  /**
    * Creates a directory on the Azure service.
    * @param azureBlobFileSystem filesystem to create file or directory.
    * @param path path of the directory to be created.
@@ -160,29 +100,12 @@ public interface AbfsHttpService extends InjectableService {
   Void createDirectory(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
 
   /**
-   * Creates a directory on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to create file or directory.
-   * @param path path of the file to be created.
-   * @return Future<Void> Future of a Void object.
-   */
-  Future<Void> createDirectoryAsync(AzureBlobFileSystem azureBlobFileSystem, Path path) throws
-      AzureBlobFileSystemException;
-
-  /**
    * Opens a file to read and returns the stream.
    * @param azureBlobFileSystem filesystem to read a file from.
    * @param path file path to read.
    * @return InputStream a stream to the file to read.
    */
-  InputStream openFileForRead(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
-
-  /**
-   * Opens a file to read and returns the stream asynchronously.
-   * @param azureBlobFileSystem filesystem to read a file from.
-   * @param path file path to read.
-   * @return Future<InputStream> Future of a stream to the file to read.
-   */
-  Future<InputStream> openFileForReadAsync(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
+  InputStream openFileForRead(AzureBlobFileSystem azureBlobFileSystem, Path path, FileSystem.Statistics statistics) throws AzureBlobFileSystemException;
 
   /**
    * Opens a file to write and returns the stream.
@@ -194,115 +117,12 @@ public interface AbfsHttpService extends InjectableService {
   OutputStream openFileForWrite(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite) throws AzureBlobFileSystemException;
 
   /**
-   * Opens a file to write and returns the stream asynchronously.
-   * @param azureBlobFileSystem filesystem to write a file to.
-   * @param path file path to write.
-   * @param overwrite should overwrite.
-   * @return Future<OutputStream> Future of a stream to the file to write.
-   */
-  Future<OutputStream> openFileForWriteAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Reads a file and returns the stream.
-   * @param azureBlobFileSystem filesystem to read a file from.
-   * @param path file path to be read.
-   * @param offset offset of the file to read
-   * @param length the length of read operation
-   * @param readBuffer buffer to read the file content.
-   * @param readBufferOffset offset of the read buffer.
-   * @return Integer total bytes read.
-   */
-  Integer readFile(
-      AzureBlobFileSystem azureBlobFileSystem,
-      Path path,
-      String version,
-      long offset,
-      int length,
-      ByteBuf readBuffer,
-      int readBufferOffset) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Reads a file and returns the stream.
-   * @param azureBlobFileSystem filesystem to read a file from asynchronously.
-   * @param path file path to be read.
-   * @param offset offset of the file to read
-   * @param length the length of read operation
-   * @param readBuffer buffer to read the file content.
-   * @param readBufferOffset offset of the read buffer.
-   * @param version of the file.
-   * @return Future<Integer> Future of total bytes read.
-   */
-  Future<Integer> readFileAsync(
-      AzureBlobFileSystem azureBlobFileSystem,
-      Path path,
-      String version,
-      long offset,
-      int length,
-      ByteBuf readBuffer,
-      int readBufferOffset) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Writes a byte array to a file.
-   * @param azureBlobFileSystem filesystem to append data to file.
-   * @param path path to append.
-   * @param body the content to append to file.
-   * @param offset offset to append.
-   */
-  void writeFile(AzureBlobFileSystem azureBlobFileSystem, Path path, ByteBuf body, long offset) throws AzureBlobFileSystemException;
-
-  /**
-   * Writes a byte array to a file asynchronously.
-   * @param azureBlobFileSystem filesystem to append data to file.
-   * @param path path to append.
-   * @param body the content to append to file.
-   * @param offset offset to append.
-   * @return Future<void> Future of a Void object.
-   */
-  Future<Void> writeFileAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, ByteBuf body, long offset) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Flushes the current pending appends to a file on the service.
-   * @param azureBlobFileSystem filesystem to flush.
-   * @param path path of the file to be flushed.
-   * @param offset offset to apply flush.
-   * @param retainUncommitedData when flush is called out of order this parameter must be true.
-   */
-  void flushFile(AzureBlobFileSystem azureBlobFileSystem, Path path, long offset, boolean retainUncommitedData) throws
-      AzureBlobFileSystemException;
-
-  /**
-   * Flushes the current pending appends to a file on the service asynchronously.
-   * @param azureBlobFileSystem filesystem to flush.
-   * @param path path of the file to be flushed.
-   * @param offset offset to apply flush.
-   * @param retainUncommitedData when flush is called out of order this parameter must be true.
-   * @return Future<Void> Future of a Void object.
-   */
-  Future<Void> flushFileAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, long offset, boolean retainUncommitedData) throws
-      AzureBlobFileSystemException;
-
-  /**
    * Renames a file or directory from source to destination.
    * @param azureBlobFileSystem filesystem to rename a path.
    * @param source source path.
    * @param destination destination path.
    */
-  void rename(AzureBlobFileSystem azureBlobFileSystem, Path source, Path destination)
-      throws AzureBlobFileSystemException;
-
-  /**
-   * Renames a file or directory from source to destination asynchronously.
-   * @param azureBlobFileSystem filesystem to rename a path.
-   * @param source source path.
-   * @param destination destination path.
-   * @return Future<Void> Future of a Void object.
-   */
-  Future<Void> renameAsync(AzureBlobFileSystem azureBlobFileSystem, Path source, Path destination) throws
-      AzureBlobFileSystemException;
+  void rename(AzureBlobFileSystem azureBlobFileSystem, Path source, Path destination) throws AzureBlobFileSystemException;
 
   /**
    * Deletes a file or directory.
@@ -313,16 +133,6 @@ public interface AbfsHttpService extends InjectableService {
   void delete(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean recursive) throws AzureBlobFileSystemException;
 
   /**
-   * Deletes a file or directory asynchronously.
-   * @param azureBlobFileSystem filesystem to delete the path.
-   * @param path file path to be deleted.
-   * @param recursive true if path is a directory and recursive deletion is desired.
-   * @return Future<Void> Future of a Void object.
-   */
-  Future<Void> deleteAsync(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean recursive)
-      throws AzureBlobFileSystemException;
-
-  /**
    * Gets path's status under the provided path on the Azure service.
    * @param azureBlobFileSystem filesystem to perform the get file status operation.
    * @param path path delimiter.
@@ -331,28 +141,12 @@ public interface AbfsHttpService extends InjectableService {
   FileStatus getFileStatus(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
 
   /**
-   * Gets path's status under the provided path on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to perform the get file status operation.
-   * @param path path delimiter.
-   * @return Future<FileStatus> Future of FileStatus of the path in the file system.
-   */
-  Future<FileStatus> getFileStatusAsync(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
-
-  /**
    * Lists all the paths under the provided path on the Azure service.
    * @param azureBlobFileSystem filesystem to perform the list operation.
    * @param path path delimiter.
    * @return FileStatus[] list of all paths in the file system.
    */
   FileStatus[] listStatus(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
-
-  /**
-   * Lists all the paths under the provided path on the Azure service asynchronously.
-   * @param azureBlobFileSystem filesystem to perform the list operation.
-   * @param path path delimiter.
-   * @return Future<FileStatus[]> Future of a list of all paths in the file system.
-   */
-  Future<FileStatus[]> listStatusAsync(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
 
   /**
    * Closes the client to filesystem to Azure service.

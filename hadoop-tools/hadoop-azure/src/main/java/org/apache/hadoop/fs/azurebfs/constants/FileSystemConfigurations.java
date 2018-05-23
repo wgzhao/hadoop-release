@@ -28,17 +28,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public final class FileSystemConfigurations {
   public static final String USER_HOME_DIRECTORY_PREFIX = "/user";
-  public static final int FS_AZURE_DEFAULT_CONNECTION_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_READ_TIMEOUT = 90;
-  public static final int FS_AZURE_DEFAULT_CONNECTION_WRITE_TIMEOUT = 90;
-  public static final String HDI_IS_FOLDER = "hdi_isfolder";
 
   // Retry parameter defaults.
   public static final int DEFAULT_MIN_BACKOFF_INTERVAL = 3 * 1000;  // 3s
   public static final int DEFAULT_MAX_BACKOFF_INTERVAL = 30 * 1000;  // 30s
   public static final int DEFAULT_BACKOFF_INTERVAL = 3 * 1000;  // 3s
   public static final int DEFAULT_MAX_RETRY_ATTEMPTS = 30;
-  public static final String ABFS_TARGET_STORAGE_VERSION = "2018-03-28";
 
   private static final int ONE_KB = 1024;
   private static final int ONE_MB = ONE_KB * ONE_KB;
@@ -56,7 +51,9 @@ public final class FileSystemConfigurations {
   public static final boolean DEFAULT_READ_TOLERATE_CONCURRENT_APPEND = false;
   public static final boolean DEFAULT_AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION = false;
 
-  public static final String DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES ="/hbase";
+  public static final String DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES = "/hbase";
+
+  public static final int DEFAULT_READ_AHEAD_QUEUE_DEPTH = -1;
 
   private FileSystemConfigurations() {}
 }

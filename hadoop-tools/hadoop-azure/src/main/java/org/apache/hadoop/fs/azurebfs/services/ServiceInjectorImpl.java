@@ -26,19 +26,11 @@ import com.google.inject.AbstractModule;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsBufferPool;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpAuthorizationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientSessionFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsThrottlingNetworkTrafficAnalysisService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsInterceptorFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsStatisticsService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsStreamFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsRetryStrategyFactory;
 
 /**
  * This class is responsible to configure all the services used by Azure Blob File System.
@@ -58,24 +50,13 @@ class ServiceInjectorImpl extends AbstractModule {
     this.instances.put(Configuration.class, this.configuration);
 
     this.providers.put(ConfigurationService.class, ConfigurationServiceImpl.class);
-    this.providers.put(AbfsHttpAuthorizationService.class, AbfsHttpAuthorizationServiceImpl.class);
 
     this.providers.put(AbfsHttpService.class, AbfsHttpServiceImpl.class);
     this.providers.put(AbfsHttpClientFactory.class, AbfsHttpClientFactoryImpl.class);
 
-    this.providers.put(AbfsHttpClientSessionFactory.class, AbfsHttpClientSessionFactoryImpl.class);
-    this.providers.put(AbfsStreamFactory.class, AbfsStreamFactoryImpl.class);
-
-    this.providers.put(AbfsBufferPool.class, AbfsBufferPoolImpl.class);
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
 
     this.providers.put(TracingService.class, TracingServiceImpl.class);
-
-    this.providers.put(AbfsRetryStrategyFactory.class, AbfsRetryStrategyFactoryImpl.class);
-    this.providers.put(AbfsInterceptorFactory.class, AbfsInterceptorFactoryImpl.class);
-
-    this.providers.put(AbfsThrottlingNetworkTrafficAnalysisService.class, AbfsThrottlingNetworkTrafficAnalysisServiceImpl.class);
-    this.providers.put(AbfsStatisticsService.class, AbfsStatisticsServiceImpl.class);
   }
 
   @Override
