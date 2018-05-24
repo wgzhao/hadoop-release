@@ -941,14 +941,6 @@ public interface ClientProtocol {
   void finalizeUpgrade() throws IOException;
 
   /**
-   * Get upgrade status.
-   *
-   * @throws IOException
-   */
-  @Idempotent
-  boolean upgradeStatus() throws IOException;
-
-  /**
    * Rolling upgrade operations.
    * @param action either query, prepare or finalize.
    * @return rolling upgrade information. On query, if no upgrade is in

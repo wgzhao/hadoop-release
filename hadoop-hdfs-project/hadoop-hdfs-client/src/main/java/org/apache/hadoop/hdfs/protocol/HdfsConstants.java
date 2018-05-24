@@ -146,11 +146,6 @@ public final class HdfsConstants {
     }
   }
 
-  // Upgrade Actions
-  public enum UpgradeAction {
-    QUERY, FINALIZE;
-  }
-
   // type of the datanode report
   public enum DatanodeReportType {
     ALL, LIVE, DEAD, DECOMMISSIONING, ENTERING_MAINTENANCE, IN_MAINTENANCE
