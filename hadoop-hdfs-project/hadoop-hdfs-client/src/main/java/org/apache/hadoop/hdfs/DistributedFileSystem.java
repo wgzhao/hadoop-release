@@ -1534,7 +1534,9 @@ public class DistributedFileSystem extends FileSystem
   }
 
   /**
-   * Get upgrade status.
+   * Get status of upgrade - finalized or not.
+   * @return true if upgrade is finalized or if no upgrade is in progress and
+   * false otherwise.
    * @throws IOException
    */
   public boolean upgradeStatus() throws IOException {

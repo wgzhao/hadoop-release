@@ -941,8 +941,9 @@ public interface ClientProtocol {
   void finalizeUpgrade() throws IOException;
 
   /**
-   * Get upgrade status.
-   *
+   * Get status of upgrade - finalized or not.
+   * @return true if upgrade is finalized or if no upgrade is in progress and
+   * false otherwise.
    * @throws IOException
    */
   @Idempotent

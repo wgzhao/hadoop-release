@@ -78,6 +78,7 @@ import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants.DatanodeReportType;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants.RollingUpgradeAction;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants.SafeModeAction;
+import org.apache.hadoop.hdfs.protocol.HdfsConstants.UpgradeAction;
 import org.apache.hadoop.hdfs.protocol.OpenFileEntry;
 import org.apache.hadoop.hdfs.protocol.OpenFilesIterator;
 import org.apache.hadoop.hdfs.protocol.ReconfigurationProtocol;
@@ -1150,7 +1151,7 @@ public class DFSAdmin extends FsShell {
 
     String upgrade = "-upgrade <query | finalize>:\n"
         + "     query: query the current upgrade status.\n"
-        + "  finalize: finalize the current upgrade (equivalent to " +
+        + "  finalize: finalize the upgrade of HDFS (equivalent to " +
         "-finalizeUpgrade.";
 
     String metaSave = "-metasave <filename>: \tSave Namenode's primary data structures\n" +
@@ -1425,7 +1426,11 @@ public class DFSAdmin extends FsShell {
     return 0;
   }
 
-
+  /**
+   * Command to get the upgrade status of each namenode in the nameservice.
+   * Usage: hdfs dfsadmin -upgrade query
+   * @exception IOException
+   */
   public int getUpgradeStatus() throws IOException {
     DistributedFileSystem dfs = getDFS();
 
@@ -1442,7 +1447,7 @@ public class DFSAdmin extends FsShell {
               nsId, ClientProtocol.class);
       List<IOException> exceptions = new ArrayList<>();
       for (ProxyAndInfo<ClientProtocol> proxy : proxies) {
-        try{
+        try {
           boolean upgradeFinalized = proxy.getProxy().upgradeStatus();
           if (upgradeFinalized) {
             System.out.println("Upgrade finalized for " + proxy.getAddress());
@@ -1450,13 +1455,13 @@ public class DFSAdmin extends FsShell {
             System.out.println("Upgrade not finalized for " +
                 proxy.getAddress());
           }
-        }catch (IOException ioe){
-          System.out.println("Getting upgrade status failed for " +
+        } catch (IOException ioe){
+          System.err.println("Getting upgrade status failed for " +
               proxy.getAddress());
           exceptions.add(ioe);
         }
       }
-      if(!exceptions.isEmpty()){
+      if (!exceptions.isEmpty()){
         throw MultipleIOException.createIOException(exceptions);
       }
     } else {
@@ -1470,12 +1475,18 @@ public class DFSAdmin extends FsShell {
     return 0;
   }
 
+  /**
+   * Upgrade command to get the status of upgrade or ask NameNode to finalize
+   * the previously performed upgrade.
+   * Usage: hdfs dfsadmin -upgrade [query | finalize]
+   * @exception IOException
+   */
   public int upgrade(String arg) throws IOException {
-    HdfsConstants.UpgradeAction action;
+    UpgradeAction action;
     if ("query".equalsIgnoreCase(arg)) {
-      action = HdfsConstants.UpgradeAction.QUERY;
+      action = UpgradeAction.QUERY;
     } else if ("finalize".equalsIgnoreCase(arg)) {
-      action = HdfsConstants.UpgradeAction.FINALIZE;
+      action = UpgradeAction.FINALIZE;
     } else {
       printUsage("-upgrade");
       return -1;
@@ -1486,8 +1497,10 @@ public class DFSAdmin extends FsShell {
       return getUpgradeStatus();
     case FINALIZE:
       return finalizeUpgrade();
+    default:
+      printUsage("-upgrade");
+      return -1;
     }
-    return 0;
   }
 
   /**

@@ -146,7 +146,9 @@ public final class HdfsConstants {
     }
   }
 
-  // Upgrade Actions
+  /**
+   * Upgrade actions.
+   */
   public enum UpgradeAction {
     QUERY, FINALIZE;
   }
