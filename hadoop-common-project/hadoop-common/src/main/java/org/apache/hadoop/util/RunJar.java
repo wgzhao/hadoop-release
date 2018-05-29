@@ -98,6 +98,7 @@ public class RunJar {
     JarFile jar = new JarFile(jarFile);
     try {
       int numOfFailedLastModifiedSet = 0;
+      String targetDirPath = toDir.getCanonicalPath() + File.separator;
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
         final JarEntry entry = entries.nextElement();
@@ -106,6 +107,10 @@ public class RunJar {
           InputStream in = jar.getInputStream(entry);
           try {
             File file = new File(toDir, entry.getName());
+            if (!file.getCanonicalPath().startsWith(targetDirPath)) {
+              throw new IOException("expanding " + entry.getName()
+                  + " would create file outside of " + toDir);
+            }
             ensureDirectory(file.getParentFile());
             OutputStream out = new FileOutputStream(file);
             try {
