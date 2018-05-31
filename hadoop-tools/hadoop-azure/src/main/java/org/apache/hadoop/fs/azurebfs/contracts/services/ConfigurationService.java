@@ -21,7 +21,7 @@ package org.apache.hadoop.fs.azurebfs.contracts.services;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 
 /**
  * Configuration service collects required Azure Hadoop configurations and provides it to the consumers.
@@ -46,7 +46,7 @@ public interface ConfigurationService extends InjectableService {
    * @param accountName the account name to retrieve the key.
    * @return storage account key;
    */
-  String getStorageAccountKey(String accountName) throws ConfigurationPropertyNotFoundException;
+  String getStorageAccountKey(String accountName) throws AzureBlobFileSystemException;
 
   /**
    * Returns Hadoop configuration.

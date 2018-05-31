@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.*;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
 
 import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.*;
 
@@ -80,7 +81,7 @@ public class TestConfigurationServiceFieldsValidation  {
     configuration.set(BASE64_KEY, encodedString);
     configuration.set(BOOLEAN_KEY, "true");
     configuration.set(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + "testaccount1.blob.core.windows.net", this.encodedAccountKey);
-    configService = new ConfigurationServiceImpl(configuration);
+    configService = new ConfigurationServiceImpl(configuration, new LoggingServiceImpl());
   }
 
   @Test

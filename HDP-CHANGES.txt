@@ -5010,3 +5010,6 @@ ATS V1.5:
     access key. Contributed by Mingliang Liu.
 
     HADOOP-12705 Upgrade Jackson 2.2.3 to 2.7.8
+
+    WASB-70. Adding ShellDecryptionKeyProvider to Azure Blob File System
+

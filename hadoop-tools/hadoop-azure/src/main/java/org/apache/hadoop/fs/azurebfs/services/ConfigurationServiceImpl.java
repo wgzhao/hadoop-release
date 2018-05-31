@@ -35,9 +35,12 @@ import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidati
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.StringConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.Base64StringConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.BooleanConfigurationValidatorAnnotation;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.diagnostics.Base64StringConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.BooleanConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.IntegerConfigurationBasicValidator;
@@ -49,6 +52,7 @@ import org.apache.hadoop.fs.azurebfs.diagnostics.StringConfigurationBasicValidat
 @InterfaceStability.Evolving
 class ConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
+  private final LoggingService loggingService;
   private final boolean isSecure;
 
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_WRITE_BUFFER_SIZE,
@@ -119,8 +123,10 @@ class ConfigurationServiceImpl implements ConfigurationService {
   private Map<String, String> storageAccountKeys;
 
   @Inject
-  ConfigurationServiceImpl(final Configuration configuration) throws IllegalAccessException, InvalidConfigurationValueException {
+  ConfigurationServiceImpl(final Configuration configuration, final LoggingService loggingService) throws IllegalAccessException,
+      InvalidConfigurationValueException {
     this.configuration = configuration;
+    this.loggingService = loggingService.get(ConfigurationService.class);
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
 
     validateStorageAccountKeys();
@@ -152,13 +158,38 @@ class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public String getStorageAccountKey(final String accountName) throws ConfigurationPropertyNotFoundException {
-    String accountKey = this.storageAccountKeys.get(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + accountName);
-    if (accountKey == null) {
+  public String getStorageAccountKey(final String accountName) throws AzureBlobFileSystemException {
+    String key;
+    String keyProviderClass =
+        configuration.get(ConfigurationKeys.AZURE_KEY_ACCOUNT_KEYPROVIDER_PREFIX + accountName);
+    KeyProvider keyProvider;
+
+    if (keyProviderClass == null) {
+      // No key provider was provided so use the provided key as is.
+      keyProvider = new SimpleKeyProvider(loggingService);
+    } else {
+      // create an instance of the key provider class and verify it
+      // implements KeyProvider
+      Object keyProviderObject;
+      try {
+        Class<?> clazz = configuration.getClassByName(keyProviderClass);
+        keyProviderObject = clazz.getDeclaredConstructor(LoggingService.class).newInstance(loggingService);
+      } catch (Exception e) {
+        throw new KeyProviderException("Unable to load key provider class.", e);
+      }
+      if (!(keyProviderObject instanceof KeyProvider)) {
+        throw new KeyProviderException(keyProviderClass
+            + " specified in config is not a valid KeyProvider class.");
+      }
+      keyProvider = (KeyProvider) keyProviderObject;
+    }
+    key = keyProvider.getStorageAccountKey(accountName, configuration);
+
+    if (key == null) {
       throw new ConfigurationPropertyNotFoundException(accountName);
     }
 
-    return accountKey;
+    return key;
   }
 
   @Override
