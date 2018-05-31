@@ -120,6 +120,11 @@ class ConfigurationServiceImpl implements ConfigurationService {
       DefaultValue = FileSystemConfigurations.DEFAULT_READ_AHEAD_QUEUE_DEPTH)
   private int readAheadQueueDepth;
 
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_ENABLE_FLUSH,
+          DefaultValue = FileSystemConfigurations.DEFAULT_ENABLE_FLUSH)
+  private boolean enableFlush;
+
+
   private Map<String, String> storageAccountKeys;
 
   @Inject
@@ -264,6 +269,11 @@ class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public int getReadAheadQueueDepth() { return this.readAheadQueueDepth; }
+
+  @Override
+  public boolean isFlushEnabled() {
+    return this.enableFlush;
+  }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(

@@ -42,6 +42,8 @@
 -->
 
 <suppressions>
+    <suppress checks="ParameterNumber|MagicNumber"
+              files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]utils[\\/]Base64.java"/>
     <suppress checks="ParameterNumber|UnusedImportsCheck"
               files="org[\\/]apache[\\/]hadoop[\\/]fs[\\/]azurebfs[\\/]services[\\/]AbfsInputStream.java"/>
 

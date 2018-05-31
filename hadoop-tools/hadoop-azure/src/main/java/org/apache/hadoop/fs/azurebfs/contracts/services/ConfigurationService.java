@@ -140,4 +140,10 @@ public interface ConfigurationService extends InjectableService {
    * @return depth of read ahead
    */
   int getReadAheadQueueDepth();
+
+  /**
+   * Retrieves configured boolean for enabling compact block
+   * @return configured boolean for enabling compact block
+   */
+  boolean isFlushEnabled();
 }

@@ -242,7 +242,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     try {
       outputStream = new FSDataOutputStream(
           new AbfsOutputStream(client, AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), 0,
-              configurationService.getWriteBufferSize()), null);
+              configurationService.getWriteBufferSize(), configurationService.isFlushEnabled()), null);
     } catch (IOException ex) {
       throw new InvalidAzureServiceErrorResponseException(ex);
     }
@@ -323,7 +323,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     try {
       outputStream = new FSDataOutputStream(
           new AbfsOutputStream(client, AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path),
-              offset, configurationService.getWriteBufferSize()), null);
+              offset, configurationService.getWriteBufferSize(), configurationService.isFlushEnabled()), null);
 
     } catch (IOException ex) {
       throw new InvalidAzureServiceErrorResponseException(ex);

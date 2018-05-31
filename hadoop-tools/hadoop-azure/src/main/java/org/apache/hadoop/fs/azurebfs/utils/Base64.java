@@ -30,7 +30,7 @@ public final class Base64 {
   /**
    * Decoded values, -1 is invalid character, -2 is = pad character.
    */
-  private static final byte DECODE_64[] = {
+  private static final byte[] DECODE_64 = {
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0-15
 
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /*

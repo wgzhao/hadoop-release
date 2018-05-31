@@ -42,6 +42,7 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
   private final String path;
   private long position;
   private boolean closed;
+  private boolean supportFlush;
   private volatile IOException lastError;
 
   private long lastFlushOffset;
@@ -60,7 +61,8 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
       final AbfsClient client,
       final String path,
       final long position,
-      final int bufferSize) {
+      final int bufferSize,
+      final boolean supportFlush) {
     this.client = client;
     this.path = path;
     this.position = position;
@@ -68,6 +70,7 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
     this.lastError = null;
     this.lastFlushOffset = 0;
     this.bufferSize = bufferSize;
+    this.supportFlush = supportFlush;
     this.buffer = new byte[bufferSize];
     this.bufferIndex = 0;
     this.writeOperations = new ConcurrentLinkedDeque<>();
@@ -150,7 +153,9 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void flush() throws IOException {
-    this.flushInternalAsync();
+    if (supportFlush) {
+      this.flushInternalAsync();
+    }
   }
 
   /**
@@ -159,7 +164,9 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void sync() throws IOException {
-    this.flushInternal();
+    if (supportFlush) {
+      this.flushInternal();
+    }
   }
 
   /** Similar to posix fsync, flush out the data in client's user buffer
@@ -168,7 +175,9 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hsync() throws IOException {
-    this.flushInternal();
+    if (supportFlush) {
+      this.flushInternal();
+    }
   }
 
   /** Flush out the data in client's user buffer. After the return of
@@ -177,7 +186,9 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
    */
   @Override
   public void hflush() throws IOException {
-    this.flushInternal();
+    if (supportFlush) {
+      this.flushInternal();
+    }
   }
 
   /**

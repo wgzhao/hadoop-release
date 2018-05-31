@@ -52,8 +52,8 @@ public final class FileSystemConfigurations {
   public static final boolean DEFAULT_AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION = false;
 
   public static final String DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES = "/hbase";
-
   public static final int DEFAULT_READ_AHEAD_QUEUE_DEPTH = -1;
+  public static final boolean DEFAULT_ENABLE_FLUSH = true;
 
   private FileSystemConfigurations() {}
 }

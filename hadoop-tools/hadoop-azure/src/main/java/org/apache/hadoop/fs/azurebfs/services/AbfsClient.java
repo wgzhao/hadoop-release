@@ -54,7 +54,7 @@ public class AbfsClient {
     this.sharedKeyCredentials = sharedKeyCredentials;
     String baseUrlString = baseUrl.toString();
     this.filesystem = baseUrlString.substring(baseUrlString.lastIndexOf(AbfsHttpConstants.FORWARD_SLASH) + 1);
-    this.loggingService = loggingService;
+    this.loggingService = loggingService.get(AbfsClient.class);
     this.configurationService = configurationService;
     this.retryPolicy = exponentialRetryPolicy;
     this.userAgent = initializeUserAgent();

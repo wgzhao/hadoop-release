@@ -148,6 +148,13 @@ public abstract class DependencyInjectedTest {
     return fs;
   }
 
+  public AzureBlobFileSystem getFileSystem(String abfsUri) throws Exception {
+    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
+    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, abfsUri);
+    final AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(configuration);
+    return fs;
+  }
+
   protected NativeAzureFileSystem getWasbFileSystem() {
     return this.wasb;
   }
