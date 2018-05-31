@@ -4819,3 +4819,6 @@ ATS V1.5:
 
     BUG-115597. MAPREDUCE-6741. Add MR support to redact job conf properties.
     Contributed by Haibo Chen
+
+    BUG-121897. YARN-8197. Fixed AM IP Filter and Webapp proxy to redirect app
+    tracking-URLs correctly when UI is secure. Contributed by Sunil Govindan.
