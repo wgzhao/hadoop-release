@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-121742. YARN-8197. Fixed AM IP Filter and Webapp proxy to redirect app
+    tracking-URLs correctly when UI is secure. Contributed by Sunil Govindan.
