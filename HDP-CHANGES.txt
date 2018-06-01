@@ -4819,3 +4819,6 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+
+    BUG-108683. YARN-7962. Race Condition When Stopping DelegationTokenRenewer
+    causes RM crash during failover. (BELUGA BEHR via wangda)
