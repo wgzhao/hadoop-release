@@ -237,6 +237,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
   private int userRemappingGidThreshold;
   private Set<String> capabilities;
   private boolean delayedRemovalAllowed;
+  private Set<String> defaultROMounts = new HashSet<>();
+  private Set<String> defaultRWMounts = new HashSet<>();
 
   /**
    * Return whether the given environment variables indicate that the operation
@@ -299,6 +301,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     this.conf = conf;
     dockerClient = new DockerClient(conf);
     allowedNetworks.clear();
+    defaultROMounts.clear();
+    defaultRWMounts.clear();
     allowedNetworks.addAll(Arrays.asList(
         conf.getTrimmedStrings(
             YarnConfiguration.NM_DOCKER_ALLOWED_CONTAINER_NETWORKS,
@@ -340,6 +344,14 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     delayedRemovalAllowed = conf.getBoolean(
         YarnConfiguration.NM_DOCKER_ALLOW_DELAYED_REMOVAL,
         YarnConfiguration.DEFAULT_NM_DOCKER_ALLOW_DELAYED_REMOVAL);
+
+    defaultROMounts.addAll(Arrays.asList(
+        conf.getTrimmedStrings(
+        YarnConfiguration.NM_DOCKER_DEFAULT_RO_MOUNTS)));
+
+    defaultRWMounts.addAll(Arrays.asList(
+        conf.getTrimmedStrings(
+        YarnConfiguration.NM_DOCKER_DEFAULT_RW_MOUNTS)));
   }
 
   private Set<String> getDockerCapabilitiesFromConf() throws
@@ -612,19 +624,8 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
    */
   private boolean allowPrivilegedContainerExecution(Container container)
       throws ContainerExecutionException {
-    Map<String, String> environment = container.getLaunchContext()
-        .getEnvironment();
-    String runPrivilegedContainerEnvVar = environment
-        .get(ENV_DOCKER_CONTAINER_RUN_PRIVILEGED_CONTAINER);
 
-    if (runPrivilegedContainerEnvVar == null) {
-      return false;
-    }
-
-    if (!runPrivilegedContainerEnvVar.equalsIgnoreCase("true")) {
-      LOG.warn("NOT running a privileged container. Value of " +
-          ENV_DOCKER_CONTAINER_RUN_PRIVILEGED_CONTAINER
-          + "is invalid: " + runPrivilegedContainerEnvVar);
+    if(!isContainerRequestedAsPrivileged(container)) {
       return false;
     }
 
@@ -664,6 +665,20 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     return true;
   }
 
+  /**
+   * This function only returns whether a privileged container was requested,
+   * not whether the container was or will be launched as privileged.
+   * @param container
+   * @return
+   */
+  private boolean isContainerRequestedAsPrivileged(
+      Container container) {
+    String runPrivilegedContainerEnvVar = container.getLaunchContext()
+        .getEnvironment().get(ENV_DOCKER_CONTAINER_RUN_PRIVILEGED_CONTAINER);
+    return Boolean.parseBoolean(runPrivilegedContainerEnvVar);
+  }
+
+  @VisibleForTesting
   private String mountReadOnlyPath(String mount,
       Map<Path, List<String>> localizedResources)
       throws ContainerExecutionException {
@@ -830,6 +845,32 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
       }
     }
 
+    if(defaultROMounts != null && !defaultROMounts.isEmpty()) {
+      for (String mount : defaultROMounts) {
+        String[] dir = StringUtils.split(mount, ':');
+        if (dir.length != 2) {
+          throw new ContainerExecutionException("Invalid mount : " +
+              mount);
+        }
+        String src = dir[0];
+        String dst = dir[1];
+        runCommand.addReadOnlyMountLocation(src, dst);
+      }
+    }
+
+    if(defaultRWMounts != null && !defaultRWMounts.isEmpty()) {
+      for (String mount : defaultRWMounts) {
+        String[] dir = StringUtils.split(mount, ':');
+        if (dir.length != 2) {
+          throw new ContainerExecutionException("Invalid mount : " +
+              mount);
+        }
+        String src = dir[0];
+        String dst = dir[1];
+        runCommand.addReadWriteMountLocation(src, dst);
+      }
+    }
+
     if (allowHostPidNamespace(container)) {
       runCommand.setPidNamespace("host");
     }
@@ -958,19 +999,16 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
   public void signalContainer(ContainerRuntimeContext ctx)
       throws ContainerExecutionException {
     ContainerExecutor.Signal signal = ctx.getExecutionAttribute(SIGNAL);
-    String containerId = ctx.getContainer().getContainerId().toString();
     Map<String, String> env =
         ctx.getContainer().getLaunchContext().getEnvironment();
     try {
       if (ContainerExecutor.Signal.NULL.equals(signal)) {
         executeLivelinessCheck(ctx);
+      } else if (ContainerExecutor.Signal.TERM.equals(signal)) {
+        String containerId = ctx.getContainer().getContainerId().toString();
+        handleContainerStop(containerId, env);
       } else {
-        if (ContainerExecutor.Signal.KILL.equals(signal)
-            || ContainerExecutor.Signal.TERM.equals(signal)) {
-          handleContainerStop(containerId, env);
-        } else {
-          handleContainerKill(containerId, env, signal);
-        }
+        handleContainerKill(ctx, env, signal);
       }
     } catch (ContainerExecutionException e) {
       LOG.warn("Signal docker container failed. Exception: ", e);
@@ -1178,21 +1216,50 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
     }
   }
 
-  private void handleContainerKill(String containerId, Map<String, String> env,
+  private void handleContainerKill(ContainerRuntimeContext ctx,
+      Map<String, String> env,
       ContainerExecutor.Signal signal) throws ContainerExecutionException {
-    DockerCommandExecutor.DockerContainerStatus containerStatus =
-        DockerCommandExecutor.getContainerStatus(containerId, conf,
-            privilegedOperationExecutor, nmContext);
-    if (DockerCommandExecutor.isKillable(containerStatus)) {
-      DockerKillCommand dockerKillCommand =
-          new DockerKillCommand(containerId).setSignal(signal.name());
-      DockerCommandExecutor.executeDockerCommand(dockerKillCommand, containerId,
-          env, conf, privilegedOperationExecutor, false, nmContext);
-    } else {
-      if (LOG.isDebugEnabled()) {
+    Container container = ctx.getContainer();
+
+    // Only need to check whether the container was asked to be privileged.
+    // If the container had failed the permissions checks upon launch, it
+    // would have never been launched and thus we wouldn't be here
+    // attempting to signal it.
+    if (isContainerRequestedAsPrivileged(container)) {
+      String containerId = container.getContainerId().toString();
+      DockerCommandExecutor.DockerContainerStatus containerStatus =
+          DockerCommandExecutor.getContainerStatus(containerId, conf,
+          privilegedOperationExecutor, nmContext);
+      if (DockerCommandExecutor.isKillable(containerStatus)) {
+        DockerKillCommand dockerKillCommand =
+            new DockerKillCommand(containerId).setSignal(signal.name());
+        DockerCommandExecutor.executeDockerCommand(dockerKillCommand,
+            containerId, env, conf, privilegedOperationExecutor, false,
+            nmContext);
+      } else {
         LOG.debug(
-            "Container status is " + containerStatus.getName()
-                + ", skipping kill - " + containerId);
+            "Container status is {}, skipping kill - {}",
+            containerStatus.getName(), containerId);
+      }
+    } else {
+      PrivilegedOperation privOp = new PrivilegedOperation(
+          PrivilegedOperation.OperationType.SIGNAL_CONTAINER);
+      privOp.appendArgs(ctx.getExecutionAttribute(RUN_AS_USER),
+          ctx.getExecutionAttribute(USER),
+          Integer.toString(PrivilegedOperation.RunAsUserCommand
+          .SIGNAL_CONTAINER.getValue()),
+          ctx.getExecutionAttribute(PID),
+          Integer.toString(ctx.getExecutionAttribute(SIGNAL).getValue()));
+      privOp.disableFailureLogging();
+      try {
+        privilegedOperationExecutor.executePrivilegedOperation(null,
+            privOp, null, null, false, false);
+      } catch (PrivilegedOperationException e) {
+        //Don't log the failure here. Some kinds of signaling failures are
+        // acceptable. Let the calling executor decide what to do.
+        throw new ContainerExecutionException("Signal container failed using "
+            + "signal: " + signal.name(), e
+            .getExitCode(), e.getOutput(), e.getErrorOutput());
       }
     }
   }
@@ -1235,14 +1302,15 @@ public class DockerLinuxContainerRuntime implements LinuxContainerRuntime {
                   .getParent();
           File dockerConfigPath = new File(nmPrivateDir + "/config.json");
           try {
-            DockerClientConfigHandler
-                .writeDockerCredentialsToPath(dockerConfigPath, credentials);
+            if (DockerClientConfigHandler
+                .writeDockerCredentialsToPath(dockerConfigPath, credentials)) {
+              dockerRunCommand.setClientConfigDir(dockerConfigPath.getParent());
+            }
           } catch (IOException e) {
             throw new ContainerExecutionException(
                 "Unable to write Docker client credentials to "
                     + dockerConfigPath);
           }
-          dockerRunCommand.setClientConfigDir(dockerConfigPath.getParent());
         }
       }
     }
