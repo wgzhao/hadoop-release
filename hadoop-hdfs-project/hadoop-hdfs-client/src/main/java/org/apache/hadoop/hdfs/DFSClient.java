@@ -2952,6 +2952,12 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     }
   }
 
+  void updateFileSystemECReadStats(int nRead) {
+    if (stats != null) {
+      stats.incrementBytesReadErasureCoded(nRead);
+    }
+  }
+
   /**
    * Create hedged reads thread pool, HEDGED_READ_THREAD_POOL, if
    * it does not already exist.
