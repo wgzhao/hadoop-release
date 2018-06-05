@@ -5014,3 +5014,6 @@ ATS V1.5:
     WASB-70. Adding ShellDecryptionKeyProvider to Azure Blob File System
 
     WASB-69. Adding configuration to enable/disable hflush() and hsync()
+
+    WASB-71. Tweaking write buffer size and read ahead queue size
+
