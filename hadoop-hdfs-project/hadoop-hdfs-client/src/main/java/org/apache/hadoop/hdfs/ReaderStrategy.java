@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.hdfs;
 
+import org.apache.hadoop.hdfs.protocol.BlockType;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -117,6 +119,9 @@ class ByteArrayStrategy implements ReaderStrategy {
                            int length) throws IOException {
     int nRead = blockReader.read(readBuf, offset, length);
     if (nRead > 0) {
+      if (readStatistics.getBlockType() == BlockType.STRIPED) {
+        dfsClient.updateFileSystemECReadStats(nRead);
+      }
       offset += nRead;
     }
     return nRead;
@@ -181,6 +186,9 @@ class ByteBufferStrategy implements ReaderStrategy {
     // Only when data are read, update the position
     if (nRead > 0) {
       readBuf.position(readBuf.position() + nRead);
+      if (readStatistics.getBlockType() == BlockType.STRIPED) {
+        dfsClient.updateFileSystemECReadStats(nRead);
+      }
     }
 
     return nRead;
