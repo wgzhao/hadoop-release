@@ -76,7 +76,7 @@ public class TestContainerChecks {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("does not exist."));
+          ex.getMessage().contains("is not found."));
     }
     assertFalse(container.exists());
 
@@ -111,7 +111,7 @@ public class TestContainerChecks {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("does not exist."));
+          ex.getMessage().contains("is not found."));
     }
     assertFalse(container.exists());
 
@@ -140,7 +140,7 @@ public class TestContainerChecks {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("does not exist."));
+          ex.getMessage().contains("is not found."));
     }
     assertFalse(container.exists());
 
@@ -155,6 +155,9 @@ public class TestContainerChecks {
     // Neither should a rename
     assertFalse(fs.rename(new Path("/foo"), new Path("/bar")));
     assertFalse(container.exists());
+
+    // Create a container outside of the WASB FileSystem
+    container.create();
 
     // But a write should.
     assertTrue(fs.createNewFile(new Path("/foo")));
