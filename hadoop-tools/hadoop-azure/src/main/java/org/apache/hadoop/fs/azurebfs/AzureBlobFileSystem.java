@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -78,6 +79,7 @@ import org.apache.htrace.core.TraceScope;
 @InterfaceStability.Stable
 public class AzureBlobFileSystem extends FileSystem {
   private URI uri;
+  private String fsUuid;
   private Path workingDir;
   private UserGroupInformation userGroupInformation;
   private String user;
@@ -98,6 +100,7 @@ public class AzureBlobFileSystem extends FileSystem {
     setConf(configuration);
 
     try {
+      this.fsUuid = UUID.randomUUID().toString();
       this.serviceProvider = ServiceProviderImpl.create(configuration);
       this.tracingService = serviceProvider.get(TracingService.class);
       this.abfsHttpService = serviceProvider.get(AbfsHttpService.class);
@@ -476,12 +479,23 @@ public class AzureBlobFileSystem extends FileSystem {
     return locations;
   }
 
+  @Override
+  protected void finalize() throws Throwable {
+    this.loggingService.debug("finalize() called.");
+    close();
+    super.finalize();
+  }
+
   public String getOwnerUser() {
     return user;
   }
 
   public String getOwnerUserPrimaryGroup() {
     return primaryUserGroup;
+  }
+
+  public String getFsUuid() {
+    return this.fsUuid;
   }
 
   private boolean deleteRoot() throws IOException {

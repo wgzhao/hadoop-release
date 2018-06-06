@@ -38,10 +38,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.CompletionService;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -89,10 +86,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private static final int RENAME_TIMEOUT_MILISECONDS = 180000;
 
   private final AbfsHttpClientFactory abfsHttpClientFactory;
-  private final ConcurrentHashMap<AzureBlobFileSystem, AbfsClient> clientCache;
-  private final ConcurrentHashMap<AzureBlobFileSystem, ThreadPoolExecutor> abfsHttpClientWriteExecutorServiceCache;
-  private final ConcurrentHashMap<AzureBlobFileSystem, ThreadPoolExecutor> abfsHttpClientReadExecutorServiceCache;
-  private final ConcurrentHashMap<ThreadPoolExecutor, CompletionService> abfsHttpClientCompletionServiceCache;
+  private final ConcurrentHashMap<String, AbfsClient> clientCache;
   private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
@@ -111,9 +105,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
     this.configurationService = configurationService;
     this.clientCache = new ConcurrentHashMap<>();
-    this.abfsHttpClientReadExecutorServiceCache = new ConcurrentHashMap<>();
-    this.abfsHttpClientWriteExecutorServiceCache = new ConcurrentHashMap<>();
-    this.abfsHttpClientCompletionServiceCache = new ConcurrentHashMap<>();
     this.abfsHttpClientFactory = abfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AbfsHttpService.class);
@@ -500,13 +491,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public synchronized void closeFileSystem(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    this.clientCache.remove(azureBlobFileSystem);
-  }
-
-  @VisibleForTesting
-  synchronized boolean threadPoolsAreRunning(final AzureBlobFileSystem azureBlobFileSystem) {
-    return this.abfsHttpClientReadExecutorServiceCache.get(azureBlobFileSystem) != null
-        || this.abfsHttpClientWriteExecutorServiceCache.get(azureBlobFileSystem) != null;
+    this.clientCache.remove(azureBlobFileSystem.getFsUuid());
   }
 
   @Override
@@ -537,7 +522,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       AzureBlobFileSystemException {
     Preconditions.checkNotNull(azureBlobFileSystem, "azureBlobFileSystem");
 
-    AbfsClient client = this.clientCache.get(azureBlobFileSystem);
+    AbfsClient client = this.clientCache.get(azureBlobFileSystem.getFsUuid());
 
     if (client != null) {
       return client;
@@ -545,7 +530,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
     client = abfsHttpClientFactory.create(azureBlobFileSystem);
     this.clientCache.put(
-        azureBlobFileSystem,
+        azureBlobFileSystem.getFsUuid(),
         client);
     return client;
   }

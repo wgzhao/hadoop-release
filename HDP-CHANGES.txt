@@ -5021,3 +5021,5 @@ ATS V1.5:
 
     WASB-78. Updating AzureBlobFileSystem to ensure working dir is not created during initialization
 
+    WASB-74. Override finalize() in AzureBlobFileSystem
+

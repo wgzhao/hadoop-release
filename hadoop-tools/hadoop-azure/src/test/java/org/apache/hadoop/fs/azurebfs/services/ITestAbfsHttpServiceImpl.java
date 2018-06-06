@@ -20,7 +20,6 @@ package org.apache.hadoop.fs.azurebfs.services;
 
 import java.util.Hashtable;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -114,14 +113,5 @@ public class ITestAbfsHttpServiceImpl extends DependencyInjectedTest {
         ServiceProviderImpl.instance().get(AbfsHttpService.class).getPathProperties(fs, new Path("/testpath"));
 
     Assert.assertEquals(properties, fetchedProperties);
-  }
-
-  @After
-  public void ensurePoolCleanup() throws Exception {
-    final AzureBlobFileSystem fs = this.getFileSystem();
-    final AbfsHttpService abfsHttpService = ServiceProviderImpl.instance().get(AbfsHttpService.class);
-
-    abfsHttpService.closeFileSystem(fs);
-    Assert.assertFalse(((AbfsHttpServiceImpl) abfsHttpService).threadPoolsAreRunning(fs));
   }
 }

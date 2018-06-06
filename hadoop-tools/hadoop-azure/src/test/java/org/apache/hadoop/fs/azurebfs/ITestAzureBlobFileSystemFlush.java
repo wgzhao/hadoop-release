@@ -34,10 +34,10 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
 
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertThat;
 
 public class ITestAzureBlobFileSystemFlush extends DependencyInjectedTest {
   private static final String TEST_FILE = "/testfile";
-  private static final int TEST_FILE_LENGTH = 1024 * 1024 * 4;
+  private static final int TEST_FILE_LENGTH = FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE;
 
   public ITestAzureBlobFileSystemFlush() throws Exception {
     super();
