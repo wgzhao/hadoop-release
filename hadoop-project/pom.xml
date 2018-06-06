@@ -932,6 +932,12 @@
         <version>2.9.1</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>azure-storage</artifactId>
+        <version>7.0.0</version>
+      </dependency>
+
      <dependency>
        <groupId>org.apache.curator</groupId>
        <artifactId>curator-recipes</artifactId>
