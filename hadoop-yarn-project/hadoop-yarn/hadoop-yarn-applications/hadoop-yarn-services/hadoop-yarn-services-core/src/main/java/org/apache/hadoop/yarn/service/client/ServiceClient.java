@@ -308,6 +308,16 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
     return actionUpgrade(persistedService, containersToUpgrade);
   }
 
+  @Override
+  public int actionCleanUp(String appName, String userName) throws
+      IOException, YarnException {
+    if (cleanUpRegistry(appName, userName)) {
+      return EXIT_SUCCESS;
+    } else {
+      return EXIT_FALSE;
+    }
+  }
+
   public int actionUpgrade(Service service, List<Container> compInstances)
       throws IOException, YarnException {
     ApplicationReport appReport =
@@ -639,9 +649,23 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
     }
   }
 
+  private boolean cleanUpRegistry(String serviceName, String user) throws
+      SliderException {
+    String encodedName = RegistryUtils.registryUser(user);
+
+    String registryPath = RegistryUtils.servicePath(encodedName,
+        YarnServiceConstants.APP_TYPE, serviceName);
+    return cleanUpRegistryPath(registryPath, serviceName);
+  }
+
   private boolean cleanUpRegistry(String serviceName) throws SliderException {
     String registryPath =
         ServiceRegistryUtils.registryPathForInstance(serviceName);
+    return cleanUpRegistryPath(registryPath, serviceName);
+  }
+
+  private boolean cleanUpRegistryPath(String registryPath, String
+      serviceName) throws SliderException {
     try {
       if (getRegistryClient().exists(registryPath)) {
         getRegistryClient().delete(registryPath, true);
@@ -871,6 +895,17 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
     //TODO debugAM CLI.add(Arguments.ARG_DEBUG)
     CLI.add("-" + ServiceMaster.YARNFILE_OPTION, new Path(appRootDir,
         app.getName() + ".json"));
+    CLI.add("-" + ServiceMaster.SERVICE_NAME_OPTION, app.getName());
+    if (app.getKerberosPrincipal() != null) {
+      if (!StringUtils.isEmpty(app.getKerberosPrincipal().getKeytab())) {
+        CLI.add("-" + ServiceMaster.KEYTAB_OPTION,
+            app.getKerberosPrincipal().getKeytab());
+      }
+      if (!StringUtils.isEmpty(app.getKerberosPrincipal().getPrincipalName())) {
+        CLI.add("-" + ServiceMaster.PRINCIPAL_NAME_OPTION,
+            app.getKerberosPrincipal().getPrincipalName());
+      }
+    }
     // pass the registry binding
     CLI.addConfOptionToCLI(conf, RegistryConstants.KEY_REGISTRY_ZK_ROOT,
         RegistryConstants.DEFAULT_ZK_REGISTRY_ROOT);
@@ -978,6 +1013,8 @@ public class ServiceClient extends AppAdminClient implements SliderExitCodes,
       // see if it is actually running and bail out;
       verifyNoLiveAppInRM(serviceName, "start");
       ApplicationId appId = submitApp(service);
+      cachedAppInfo.put(serviceName, new AppInfo(appId, service
+          .getKerberosPrincipal().getPrincipalName()));
       service.setId(appId.toString());
       // write app definition on to hdfs
       Path appJson = ServiceApiUtil.writeAppDefinition(fs, appDir, service);
