@@ -78,7 +78,6 @@ public class ITestWasbAbfsCompatibility extends DependencyInjectedTest {
   }
 
   @Test
-  @Ignore("3/2/2018: Can not use WASB to consume file created by ABFS, a bug has been created to track this issue")
   public void testReadFile() throws Exception {
     boolean[] createFileWithAbfs = new boolean[]{false, true, false, true};
     boolean[] readFileWithAbfs = new boolean[]{false, true, true, false};

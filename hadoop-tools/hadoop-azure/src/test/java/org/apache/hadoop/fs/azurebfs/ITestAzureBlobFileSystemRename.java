@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.hadoop.fs.FileStatus;
@@ -66,12 +65,9 @@ public class ITestAzureBlobFileSystemRename extends DependencyInjectedTest {
     assertNotNull(fileStatus);
   }
 
-  @Ignore("3/23/2018: Fix for UTF-8 unicode percent encoding/decoding is waiting for merge, so ignore this test for now")
   @Test
   public void testRenameFileUsingUnicode() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
-    //Todo: 3/23/2018 known issue: ListStatus operation to folders/files whose name contains '?' will fail
-    //This is because Auto rest client didn't encode '?' in the uri query parameters
     String[] folders1 = new String[]{"/%2c%26", "/ÖáΠ⇒", "/A +B", "/A~`!@#$%^&*()-_+={};:'>,<B"};
     String[] folders2 = new String[]{"/abcÖ⇒123", "/abcÖáΠ⇒123", "/B+ C", "/B~`!@#$%^&*()-_+={};:'>,<C"};
     String[] files = new String[]{"/%2c%27", "/中文", "/C +D", "/C~`!@#$%^&*()-_+={};:'>,<D"};

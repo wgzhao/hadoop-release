@@ -44,7 +44,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -60,7 +59,6 @@ public class ITestAzureBlobFileSystemFlush extends DependencyInjectedTest {
   }
 
   @Test
-  @Ignore(value = "Due to bug in the service")
   public void testAbfsOutputStreamAsyncFlushWithRetainUncommitedData() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     final FSDataOutputStream stream = fs.create(new Path(TEST_FILE));
@@ -166,7 +164,6 @@ public class ITestAzureBlobFileSystemFlush extends DependencyInjectedTest {
   }
 
   @Test
-  @Ignore(value = "Due to bug in the service")
   public void testWriteHeavyBytesToFileAsyncFlush() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     fs.create(new Path(TEST_FILE));

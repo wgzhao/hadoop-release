@@ -34,6 +34,7 @@ public final class HttpQueryParams {
   public static final String QUERY_PARAM_ACTION = "action";
   public static final String QUERY_PARAM_POSITION = "position";
   public static final String QUERY_PARAM_TIMEOUT = "timeout";
+  public static final String QUERY_PARAM_RETAIN_UNCOMMITTED_DATA = "retainUncommittedData";
 
   private HttpQueryParams() {}
 }

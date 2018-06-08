@@ -63,7 +63,6 @@ public class ITestAbfsHttpServiceImpl extends DependencyInjectedTest {
     assertEquals(1, fileStatus.getLen());
   }
 
-  // Todo: A fix is required
   @Test
   @Ignore("Skip due to a known issue")
   public void testBase64FileSystemProperties() throws Exception {

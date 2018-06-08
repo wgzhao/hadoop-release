@@ -295,7 +295,7 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
 
   private synchronized void flushWrittenBytesToServiceInternal(final long offset, final boolean retainUncommitedData) throws IOException {
     try {
-      client.flush(path, offset);
+      client.flush(path, offset, retainUncommitedData);
     } catch (AzureBlobFileSystemException ex) {
       throw new IOException(ex);
     }

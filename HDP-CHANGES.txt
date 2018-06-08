@@ -5017,3 +5017,5 @@ ATS V1.5:
 
     WASB-71. Tweaking write buffer size and read ahead queue size
 
+    WASB-77. Adding support for retainUncommittedData when flush()
+

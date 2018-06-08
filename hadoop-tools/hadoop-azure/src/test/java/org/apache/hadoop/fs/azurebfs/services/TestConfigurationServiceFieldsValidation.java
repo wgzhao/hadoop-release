@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.*;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
 
 import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.*;
 
