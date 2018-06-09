@@ -5019,3 +5019,5 @@ ATS V1.5:
 
     WASB-77. Adding support for retainUncommittedData when flush()
 
+    WASB-78. Updating AzureBlobFileSystem to ensure working dir is not created during initialization
+

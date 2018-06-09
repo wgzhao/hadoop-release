@@ -123,8 +123,6 @@ public class AzureBlobFileSystem extends FileSystem {
     if (this.configurationService.getCreateRemoteFileSystemDuringInitialization()) {
       this.createFileSystem();
     }
-
-    this.mkdirs(this.workingDir);
   }
 
   public boolean isSecure() {

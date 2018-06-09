@@ -50,7 +50,7 @@ public class ITestAzureBlobFileSystemDelete extends DependencyInjectedTest {
     fs.create(new Path("/testFolder1/testfile3"));
 
     FileStatus[] ls = fs.listStatus(new Path("/"));
-    assertEquals(4, ls.length); // and user dir
+    assertEquals(3, ls.length);
 
     fs.delete(new Path("/"), true);
     ls = fs.listStatus(new Path("/"));

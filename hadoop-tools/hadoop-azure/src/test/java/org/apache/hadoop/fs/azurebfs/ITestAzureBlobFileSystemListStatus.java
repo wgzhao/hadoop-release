@@ -64,7 +64,7 @@ public class ITestAzureBlobFileSystemListStatus extends DependencyInjectedTest {
 
     es.shutdownNow();
     FileStatus[] files = fs.listStatus(new Path("/"));
-    Assert.assertEquals(files.length, 6000 + 1 /* user directory */);
+    Assert.assertEquals(6000, files.length);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class ITestAzureBlobFileSystemListStatus extends DependencyInjectedTest {
     fs.mkdirs(new Path("/test"));
 
     FileStatus[] fileStatuses = fs.listStatus(new Path("/"));
-    assertEquals(fileStatuses.length, 2);
+    assertEquals(1, fileStatuses.length);
 
     fs.mkdirs(new Path("/test/sub"));
     fileStatuses = fs.listStatus(new Path("/test"));

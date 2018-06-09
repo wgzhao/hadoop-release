@@ -20,6 +20,8 @@ package org.apache.hadoop.fs.azurebfs;
 
 import java.io.FileNotFoundException;
 
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
@@ -42,6 +44,7 @@ public class ITestAzureBlobFileSystemInitAndCreate extends DependencyInjectedTes
   @Test (expected = FileNotFoundException.class)
   public void ensureFilesystemWillNotBeCreatedIfCreationConfigIsNotSet() throws Exception {
     super.initialize();
-    this.getFileSystem();
+    final AzureBlobFileSystem fs = this.getFileSystem();
+    FileStatus[] fileStatuses = fs.listStatus(new Path("/"));
   }
 }
