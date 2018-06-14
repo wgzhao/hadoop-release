@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
@@ -55,7 +57,7 @@ public class AbfsClient {
     this.filesystem = baseUrlString.substring(baseUrlString.lastIndexOf(AbfsHttpConstants.FORWARD_SLASH) + 1);
     this.loggingService = loggingService.get(AbfsClient.class);
     this.retryPolicy = exponentialRetryPolicy;
-    this.userAgent = initializeUserAgent();
+    this.userAgent = initializeUserAgent(configurationService);
   }
 
   public String getFileSystem() {
@@ -391,13 +393,19 @@ public class AbfsClient {
     return encodedString;
   }
 
-  private String initializeUserAgent() {
+  @VisibleForTesting
+  String initializeUserAgent(final ConfigurationService configurationService) {
     final String userAgentComment = String.format(Locale.ROOT,
             "(JavaJRE %s; %s %s)",
             System.getProperty(AbfsHttpConstants.JAVA_VERSION),
             System.getProperty(AbfsHttpConstants.OS_NAME)
                     .replaceAll(AbfsHttpConstants.SINGLE_WHITE_SPACE, AbfsHttpConstants.EMPTY_STRING),
             System.getProperty(AbfsHttpConstants.OS_VERSION));
+
+    String customUserAgentId = configurationService.getCustomUserAgentPrefix();
+    if (customUserAgentId != null && !customUserAgentId.isEmpty()) {
+      return String.format(Locale.ROOT, AbfsHttpConstants.CLIENT_VERSION + " %s %s", userAgentComment, customUserAgentId);
+    }
 
     return String.format(AbfsHttpConstants.CLIENT_VERSION + " %s", userAgentComment);
   }

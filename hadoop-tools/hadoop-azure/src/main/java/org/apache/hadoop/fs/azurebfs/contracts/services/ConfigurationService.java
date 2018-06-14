@@ -146,4 +146,10 @@ public interface ConfigurationService extends InjectableService {
    * @return configured boolean for enabling compact block
    */
   boolean isFlushEnabled();
+
+  /**
+   * Retrieves custom user agent id set in Hadoop configuration
+   * @return custom user agent id set in Hadoop configuration
+   */
+  String getCustomUserAgentPrefix();
 }
