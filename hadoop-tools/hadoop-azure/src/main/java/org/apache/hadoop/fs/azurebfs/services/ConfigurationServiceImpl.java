@@ -124,6 +124,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           DefaultValue = FileSystemConfigurations.DEFAULT_ENABLE_FLUSH)
   private boolean enableFlush;
 
+  @StringConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_USER_AGENT_PREFIX_KEY,
+          DefaultValue = "")
+  private String userAgentId;
 
   private Map<String, String> storageAccountKeys;
 
@@ -272,6 +275,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @Override
   public boolean isFlushEnabled() {
     return this.enableFlush;
+  }
+
+  @Override
+  public String getCustomUserAgentPrefix() {
+    return userAgentId;
   }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
