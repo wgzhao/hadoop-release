@@ -254,6 +254,14 @@
       <artifactId>htrace-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.htrace</groupId>
+      <artifactId>htrace-core4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.threadly</groupId>
+      <artifactId>threadly</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <exclusions>

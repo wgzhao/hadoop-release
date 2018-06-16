@@ -135,12 +135,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.threadly</groupId>
-      <artifactId>threadly</artifactId>
-      <version>4.9.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
       <scope>compile</scope>
@@ -167,6 +161,12 @@
     <dependency>
       <groupId>org.apache.htrace</groupId>
       <artifactId>htrace-core4</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.threadly</groupId>
+      <artifactId>threadly</artifactId>
       <scope>compile</scope>
     </dependency>
 
