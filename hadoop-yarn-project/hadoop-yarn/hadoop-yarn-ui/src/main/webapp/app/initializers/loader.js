@@ -204,6 +204,7 @@ export default {
 };
 
 const skipTrailingSlash = function(path) {
+  path = path.replace('index.html', '');
   path = path.replace('ui2/', '');
   return path.replace(/\/$/, '');
 };

@@ -1167,7 +1167,19 @@ public class ResourceManager extends CompositeService implements Recoverable {
       }
     }
 
-    webApp = builder.start(new RMWebApp(this), uiWebAppContext);
+    // Build the webapp.
+    webApp = builder.build(new RMWebApp(this));
+
+    // If UI2 is enabled, add UI2 context to webapp.
+    if (uiWebAppContext != null) {
+      // Copy all necessary filters from default context to UI2.
+      RMWebAppUtil.addFiltersForUI2Context(uiWebAppContext,
+          webApp.httpServer(), getConfig());
+      webApp.httpServer().addHandlerAtFront(uiWebAppContext);
+    }
+
+    // Start webapp after setting all required contexts.
+    builder.startWithOutBuild(webApp);
   }
 
   private String getWebAppsPath(String appName) {

@@ -44,7 +44,6 @@ import org.apache.hadoop.security.http.RestCsrfPreventionFilter;
 import org.apache.hadoop.security.http.XFrameOptionsFilter;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -417,16 +416,8 @@ public class WebApps {
     }
 
     public WebApp start(WebApp webapp) {
-      return start(webapp, null);
-    }
-
-    public WebApp start(WebApp webapp, WebAppContext ui2Context) {
       WebApp webApp = build(webapp);
       HttpServer2 httpServer = webApp.httpServer();
-      if (ui2Context != null) {
-        addFiltersForNewContext(ui2Context);
-        httpServer.addHandlerAtFront(ui2Context);
-      }
       try {
         httpServer.start();
         LOG.info("Web app " + name + " started at "
@@ -437,24 +428,14 @@ public class WebApps {
       return webApp;
     }
 
-    private void addFiltersForNewContext(WebAppContext ui2Context) {
-      Map<String, String> params = getConfigParameters(csrfConfigPrefix);
-
-      if (hasCSRFEnabled(params)) {
-        LOG.info("CSRF Protection has been enabled for the {} application. "
-            + "Please ensure that there is an authentication mechanism "
-            + "enabled (kerberos, custom, etc).", name);
-        String restCsrfClassName = RestCsrfPreventionFilter.class.getName();
-        HttpServer2.defineFilter(ui2Context, restCsrfClassName,
-            restCsrfClassName, params, new String[]{"/*"});
-      }
-
-      params = getConfigParameters(xfsConfigPrefix);
-
-      if (hasXFSEnabled()) {
-        String xfsClassName = XFrameOptionsFilter.class.getName();
-        HttpServer2.defineFilter(ui2Context, xfsClassName, xfsClassName, params,
-            new String[]{"/*"});
+    public void startWithOutBuild(WebApp webApp) {
+      HttpServer2 httpServer = webApp.httpServer();
+      try {
+        httpServer.start();
+        LOG.info("Web app " + name + " started at "
+            + httpServer.getConnectorAddress(0).getPort());
+      } catch (IOException e) {
+        throw new WebAppException("Error starting http server", e);
       }
     }
 
