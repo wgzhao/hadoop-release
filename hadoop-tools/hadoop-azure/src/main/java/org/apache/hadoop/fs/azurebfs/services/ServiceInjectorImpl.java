@@ -30,7 +30,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 
 /**
  * This class is responsible to configure all the services used by Azure Blob File System.
@@ -55,8 +54,6 @@ class ServiceInjectorImpl extends AbstractModule {
     this.providers.put(AbfsHttpClientFactory.class, AbfsHttpClientFactoryImpl.class);
 
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
-
-    this.providers.put(TracingService.class, TracingServiceImpl.class);
   }
 
   @Override

@@ -58,7 +58,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
@@ -88,7 +87,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private final AbfsHttpClientFactory abfsHttpClientFactory;
   private final ConcurrentHashMap<String, AbfsClient> clientCache;
   private final ConfigurationService configurationService;
-  private final TracingService tracingService;
   private final LoggingService loggingService;
   private final Set<String> azureAtomicRenameDirSet;
 
@@ -96,17 +94,14 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   AbfsHttpServiceImpl(
       final ConfigurationService configurationService,
       final AbfsHttpClientFactory abfsHttpClientFactory,
-      final TracingService tracingService,
       final LoggingService loggingService) {
     Preconditions.checkNotNull(abfsHttpClientFactory, "abfsHttpClientFactory");
     Preconditions.checkNotNull(configurationService, "configurationService");
-    Preconditions.checkNotNull(tracingService, "tracingService");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
     this.configurationService = configurationService;
     this.clientCache = new ConcurrentHashMap<>();
     this.abfsHttpClientFactory = abfsHttpClientFactory;
-    this.tracingService = tracingService;
     this.loggingService = loggingService.get(AbfsHttpService.class);
     this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(configurationService.getAzureAtomicRenameDirs().split(AbfsHttpConstants.COMMA)));
   }

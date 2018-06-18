@@ -38,7 +38,6 @@ import java.util.concurrent.Future;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.threadly.util.ExceptionUtils;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -64,12 +63,10 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
-import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Progressable;
-import org.apache.htrace.core.TraceScope;
 
 /**
  * A {@link org.apache.hadoop.fs.FileSystem} for reading and writing files stored on <a
@@ -85,7 +82,6 @@ public class AzureBlobFileSystem extends FileSystem {
   private String user;
   private String primaryUserGroup;
   private ServiceProvider serviceProvider;
-  private TracingService tracingService;
   private LoggingService loggingService;
   private AbfsHttpService abfsHttpService;
   private ConfigurationService configurationService;
@@ -102,7 +98,6 @@ public class AzureBlobFileSystem extends FileSystem {
     try {
       this.fsUuid = UUID.randomUUID().toString();
       this.serviceProvider = ServiceProviderImpl.create(configuration);
-      this.tracingService = serviceProvider.get(TracingService.class);
       this.abfsHttpService = serviceProvider.get(AbfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class).get(AzureBlobFileSystem.class);
       this.configurationService = serviceProvider.get(ConfigurationService.class);
@@ -617,26 +612,19 @@ public class AzureBlobFileSystem extends FileSystem {
       final String scopeDescription,
       final Callable<T> callableFileOperation,
       T defaultResultValue) throws IOException {
-
-    final TraceScope traceScope = tracingService.traceBegin(scopeDescription);
     try {
       final T executionResult = callableFileOperation.call();
       return new FileSystemOperation(executionResult, null);
     } catch (AzureServiceErrorResponseException azureServiceErrorResponseException) {
       return new FileSystemOperation(defaultResultValue, azureServiceErrorResponseException);
     } catch (AzureBlobFileSystemException azureBlobFileSystemException) {
-      tracingService.traceException(traceScope, azureBlobFileSystemException);
       throw new IOException(azureBlobFileSystemException);
     } catch (Exception exception) {
       if (exception instanceof ExecutionException) {
-        exception = (Exception) ExceptionUtils.getRootCause(exception);
+        exception = (Exception) getRootCause(exception);
       }
-
       final FileSystemOperationUnhandledException fileSystemOperationUnhandledException = new FileSystemOperationUnhandledException(exception);
-      tracingService.traceException(traceScope, fileSystemOperationUnhandledException);
       throw new IOException(fileSystemOperationUnhandledException);
-    } finally {
-      tracingService.traceEnd(traceScope);
     }
   }
 
@@ -653,15 +641,35 @@ public class AzureBlobFileSystem extends FileSystem {
     if (fileSystemOperation.failed()) {
       if (!ArrayUtils.contains(whitelistedErrorCodes, fileSystemOperation.exception.getErrorCode())) {
         if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-          throw new FileNotFoundException(path == null ? null : path.toString());
+          throw new FileNotFoundException(String.format("%s not found, %n %s", path, fileSystemOperation.exception.getMessage()));
         }
         if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_CONFLICT) {
-          throw new FileAlreadyExistsException(path == null ? null : path.toString());
+          throw new FileAlreadyExistsException(String.format("%s already exists, %n %s", path, fileSystemOperation.exception.getMessage()));
         }
 
         throw new IOException(fileSystemOperation.exception);
       }
     }
+  }
+
+  /**
+   * Gets the root cause of a provided {@link Throwable}.  If there is no cause for the
+   * {@link Throwable} provided into this function, the original {@link Throwable} is returned.
+   *
+   * @param throwable starting {@link Throwable}
+   * @return root cause {@link Throwable}
+   */
+  public static Throwable getRootCause(Throwable throwable) {
+    if (throwable == null) {
+      throw new IllegalArgumentException("throwable can not be null");
+    }
+
+    Throwable result = throwable;
+    while (result.getCause() != null) {
+      result = result.getCause();
+    }
+
+    return result;
   }
 
   @VisibleForTesting
