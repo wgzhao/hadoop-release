@@ -5071,3 +5071,6 @@ ATS V1.5:
 
     HADOOP-15679: ShutdownHookManager shutdown time to be configurable.
     Contributed by Steve Loughran.
+
+    HADOOP-15533. Make WASB listStatus messages consistent. Contributed by
+    Esfandiar Manii

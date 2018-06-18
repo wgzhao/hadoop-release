@@ -75,7 +75,7 @@ public class ITestContainerChecks extends AbstractWasbTestWithTimeout {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("is not found."));
+          ex.getMessage().contains("is not found"));
     }
     assertFalse(container.exists());
 
@@ -115,7 +115,7 @@ public class ITestContainerChecks extends AbstractWasbTestWithTimeout {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("is not found."));
+          ex.getMessage().contains("is not found"));
     }
     assertFalse(container.exists());
 
@@ -143,7 +143,7 @@ public class ITestContainerChecks extends AbstractWasbTestWithTimeout {
       assertTrue("Should've thrown.", false);
     } catch (FileNotFoundException ex) {
       assertTrue("Unexpected exception: " + ex,
-          ex.getMessage().contains("is not found."));
+          ex.getMessage().contains("is not found"));
     }
     assertFalse(container.exists());
 
