@@ -5025,3 +5025,5 @@ ATS V1.5:
 
     WASB-84. Removing htrace-core4 and threadly
 
+    WASB-86. Removing dependency on joda-time
+

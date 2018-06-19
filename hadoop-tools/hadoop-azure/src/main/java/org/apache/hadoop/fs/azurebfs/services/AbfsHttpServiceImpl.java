@@ -31,8 +31,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -62,8 +65,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -403,7 +404,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
           true,
           1,
           blockSize,
-          parseLastModifiedTime(lastModified).getMillis(),
+          parseLastModifiedTime(lastModified),
           path,
           eTag);
     } else {
@@ -422,7 +423,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
           parseIsDirectory(resourceType),
           1,
           blockSize,
-          parseLastModifiedTime(lastModified).getMillis(),
+          parseLastModifiedTime(lastModified),
           path,
           eTag);
     }
@@ -460,10 +461,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
         boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
         if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
-          final DateTime dateTime = DateTime.parse(
-                  entry.lastModified(),
-                  DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
-          lastModifiedMillis = dateTime.getMillis();
+          lastModifiedMillis = parseLastModifiedTime(entry.lastModified());
         }
 
         fileStatuses.add(
@@ -542,10 +540,16 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return resourceType == null ? false : resourceType.equalsIgnoreCase(AbfsHttpConstants.DIRECTORY);
   }
 
-  private DateTime parseLastModifiedTime(final String lastModifiedTime) {
-    return DateTime.parse(
-        lastModifiedTime,
-        DateTimeFormat.forPattern(DATE_TIME_PATTERN).withZoneUTC());
+  private long parseLastModifiedTime(final String lastModifiedTime) {
+    long parsedTime = 0;
+    try {
+      Date utcDate = new SimpleDateFormat(DATE_TIME_PATTERN).parse(lastModifiedTime);
+      parsedTime = utcDate.getTime();
+    } catch (ParseException e) {
+      this.loggingService.error("Failed to parse the date {0}", lastModifiedTime);
+    } finally {
+      return parsedTime;
+    }
   }
 
   private String convertXmsPropertiesToCommaSeparatedString(final Hashtable<String, String> properties) throws
