@@ -956,6 +956,12 @@ public class UserGroupInformation {
     return start + (long) ((end - start) * TICKET_RENEW_WINDOW);
   }
 
+  @InterfaceAudience.Private
+  @InterfaceStability.Unstable
+  public boolean shouldRelogin() {
+    return hasKerberosCredentials();
+  }
+
   /**Spawn a thread to do periodic renewals of kerberos credentials*/
   private void spawnAutoRenewalThreadForUserCreds() {
     if (isSecurityEnabled()) {

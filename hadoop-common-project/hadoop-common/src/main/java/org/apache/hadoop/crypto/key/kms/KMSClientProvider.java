@@ -602,7 +602,9 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
         String requestMethod = conn.getRequestMethod();
         URL url = conn.getURL();
         conn = createConnection(url, requestMethod);
-        conn.setRequestProperty(CONTENT_TYPE, contentType);
+        if (contentType != null && !contentType.isEmpty()) {
+          conn.setRequestProperty(CONTENT_TYPE, contentType);
+        }
         return call(conn, jsonOutput, expectedResponse, klass,
             authRetryCount - 1);
       }
@@ -1040,7 +1042,7 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
     }
     return tokens;
   }
-  
+
   private Text getDelegationTokenService() throws IOException {
     URL url = new URL(kmsUrl);
     InetSocketAddress addr = new InetSocketAddress(url.getHost(),
@@ -1075,8 +1077,7 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
       actualUgi = currentUgi.getRealUser();
     }
     if (UserGroupInformation.isSecurityEnabled() &&
-        !containsKmsDt(actualUgi) &&
-        !actualUgi.hasKerberosCredentials()) {
+        !containsKmsDt(actualUgi) && !actualUgi.shouldRelogin()) {
       // Use login user is only necessary when Kerberos is enabled
       // but the actual user does not have either
       // Kerberos credential or KMS delegation token for KMS operations
