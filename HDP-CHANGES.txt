@@ -5033,3 +5033,5 @@ ATS V1.5:
 
     WASB-81. Adding configurable custom user agent to AbfsClient
 
+    WASB-89. Replacing dependency from "com.fasterxml.jackson" to "org.codehaus.jackson"
+

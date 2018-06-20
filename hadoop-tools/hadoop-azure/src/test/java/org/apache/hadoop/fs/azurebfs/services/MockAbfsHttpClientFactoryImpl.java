@@ -56,7 +56,7 @@ public class MockAbfsHttpClientFactoryImpl extends AbfsHttpClientFactoryImpl {
     uriBuilder.setHost(testHost);
     uriBuilder.setPort(testHostPort);
 
-    uriBuilder.setPath("/" + UriUtils.extractRawAccountFromAccountName(testAccount) + "/");
+    uriBuilder.setPath("/" + UriUtils.extractRawAccountFromAccountName(testAccount));
 
     return uriBuilder;
   }

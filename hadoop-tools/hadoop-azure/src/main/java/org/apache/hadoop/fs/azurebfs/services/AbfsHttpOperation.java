@@ -26,10 +26,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
@@ -346,7 +346,7 @@ public class AbfsHttpOperation {
         return;
       }
       JsonFactory jf = new JsonFactory();
-      try (JsonParser jp = jf.createParser(stream)) {
+      try (JsonParser jp = jf.createJsonParser(stream)) {
         String fieldName, fieldValue;
         jp.nextToken();  // START_OBJECT - {
         jp.nextToken();  // FIELD_NAME - "error":
