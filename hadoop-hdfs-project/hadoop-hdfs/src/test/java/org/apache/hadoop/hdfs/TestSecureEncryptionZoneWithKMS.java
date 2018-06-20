@@ -105,6 +105,8 @@ public class TestSecureEncryptionZoneWithKMS {
   // MiniKMS
   private static MiniKMS miniKMS;
   private final String testKey = "test_key";
+  private static boolean testKeyCreated = false;
+  private static final long AUTH_TOKEN_VALIDITY = 1;
 
   // MiniDFS
   private MiniDFSCluster cluster;
@@ -126,7 +128,7 @@ public class TestSecureEncryptionZoneWithKMS {
   }
 
   @Rule
-  public Timeout timeout = new Timeout(30000);
+  public Timeout timeout = new Timeout(120000);
 
   @BeforeClass
   public static void init() throws Exception {
@@ -213,6 +215,9 @@ public class TestSecureEncryptionZoneWithKMS {
         "HTTP/localhost");
     kmsConf.set("hadoop.kms.authentication.kerberos.name.rules", "DEFAULT");
     kmsConf.set("hadoop.kms.acl.GENERATE_EEK", "hdfs");
+    // set kms auth token expiration low for testCreateZoneAfterAuthTokenExpiry
+    kmsConf.setLong("hadoop.kms.authentication.token.validity",
+        AUTH_TOKEN_VALIDITY);
 
     Writer writer = new FileWriter(kmsFile);
     kmsConf.writeXml(writer);
@@ -257,7 +262,10 @@ public class TestSecureEncryptionZoneWithKMS {
     cluster.waitActive();
 
     // Create a test key
-    DFSTestUtil.createKey(testKey, cluster, conf);
+    if (!testKeyCreated) {
+      DFSTestUtil.createKey(testKey, cluster, conf);
+      testKeyCreated = true;
+    }
   }
 
   @After
@@ -303,5 +311,30 @@ public class TestSecureEncryptionZoneWithKMS {
             }
           }
         });
+  }
+
+  @Test
+  public void testCreateZoneAfterAuthTokenExpiry() throws Exception {
+    final UserGroupInformation ugi = UserGroupInformation
+        .loginUserFromKeytabAndReturnUGI(hdfsPrincipal, keytab);
+    LOG.info("Created ugi: {} ", ugi);
+
+    ugi.doAs(new PrivilegedExceptionAction<Void>() {
+      @Override
+      public Void run() throws Exception {
+        final Path zone = new Path("/expire1");
+        fsWrapper.mkdir(zone, FsPermission.getDirDefault(), true);
+        dfsAdmin.createEncryptionZone(zone, testKey, NO_TRASH);
+
+        final Path zone1 = new Path("/expire2");
+        fsWrapper.mkdir(zone1, FsPermission.getDirDefault(), true);
+        final long sleepInterval = (AUTH_TOKEN_VALIDITY + 1) * 1000;
+        LOG.info("Sleeping {} seconds to wait for kms auth token expiration",
+                sleepInterval);
+        Thread.sleep(sleepInterval);
+        dfsAdmin.createEncryptionZone(zone1, testKey, NO_TRASH);
+        return null;
+      }
+    });
   }
 }
