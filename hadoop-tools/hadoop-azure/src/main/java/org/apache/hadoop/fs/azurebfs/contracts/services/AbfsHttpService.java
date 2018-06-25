@@ -146,10 +146,4 @@ public interface AbfsHttpService extends InjectableService {
    * @return FileStatus[] list of all paths in the file system.
    */
   FileStatus[] listStatus(AzureBlobFileSystem azureBlobFileSystem, Path path) throws AzureBlobFileSystemException;
-
-  /**
-   * Closes the client to filesystem to Azure service.
-   * @param azureBlobFileSystem filesystem to perform the list operation.
-   */
-  void closeFileSystem(AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException;
 }

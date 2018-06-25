@@ -5029,3 +5029,5 @@ ATS V1.5:
 
     WASB-90. Azure Blob File system: Removed configuration service Singleton
 
+    WASB-91. Azure Blob File system: Removed client cache from AbfsHttpServiceImpl
+
