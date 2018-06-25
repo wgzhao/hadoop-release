@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -55,7 +54,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAzureServiceErr
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPropertyException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
@@ -81,22 +79,14 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   private static final int DELETE_DIRECTORY_TIMEOUT_MILISECONDS = 180000;
   private static final int RENAME_TIMEOUT_MILISECONDS = 180000;
 
-  private final AbfsHttpClientFactory abfsHttpClientFactory;
-  private final ConcurrentHashMap<String, AbfsClient> clientCache;
   private final TracingService tracingService;
   private final LoggingService loggingService;
 
   @Inject
-  AbfsHttpServiceImpl(
-      final AbfsHttpClientFactory abfsHttpClientFactory,
-      final TracingService tracingService,
-      final LoggingService loggingService) {
-    Preconditions.checkNotNull(abfsHttpClientFactory, "abfsHttpClientFactory");
+  AbfsHttpServiceImpl(final LoggingService loggingService,
+      final TracingService tracingService) {
     Preconditions.checkNotNull(tracingService, "tracingService");
     Preconditions.checkNotNull(loggingService, "loggingService");
-
-    this.clientCache = new ConcurrentHashMap<>();
-    this.abfsHttpClientFactory = abfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AbfsHttpService.class);
   }
@@ -104,7 +94,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public Hashtable<String, String> getFilesystemProperties(final AzureBlobFileSystem azureBlobFileSystem)
       throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "getFilesystemProperties for filesystem: {0}",
@@ -127,7 +117,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       return;
     }
 
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "setFilesystemProperties for filesystem: {0} with properties: {1}",
@@ -146,7 +136,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public Hashtable<String, String> getPathProperties(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
       AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "getPathProperties for filesystem: {0} path: {1}",
@@ -167,7 +157,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public void setPathProperties(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final Hashtable<String,
       String> properties) throws
       AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "setFilesystemProperties for filesystem: {0} path: {1} with properties: {2}",
@@ -186,7 +176,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public void createFilesystem(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "createFilesystem for filesystem: {0}",
@@ -197,7 +187,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public void deleteFilesystem(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "deleteFilesystem for filesystem: {0}",
@@ -209,7 +199,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public OutputStream createFile(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite) throws
       AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "createFile filesystem: {0} path: {1} overwrite: {2}",
@@ -232,7 +222,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public Void createDirectory(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "createDirectory filesystem: {0} path: {1} overwrite: {2}",
@@ -247,7 +237,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public InputStream openFileForRead(final AzureBlobFileSystem azureBlobFileSystem, final Path path,
                                      final FileSystem.Statistics statistics) throws AzureBlobFileSystemException {
-    final AbfsClient client = getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "openFileForRead filesystem: {0} path: {1}",
@@ -277,7 +267,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public OutputStream openFileForWrite(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite) throws
       AzureBlobFileSystemException {
-    final AbfsClient client = getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "openFileForWrite filesystem: {0} path: {1} overwrite: {2}",
@@ -322,7 +312,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
           +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
     }
 
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "renameAsync filesystem: {0} source: {1} destination: {2}",
@@ -353,7 +343,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public void delete(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean recursive) throws
       AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "delete filesystem: {0} path: {1} recursive: {2}",
@@ -380,7 +370,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public FileStatus getFileStatus(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "getFileStatus filesystem: {0} path: {1}",
@@ -426,7 +416,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   @Override
   public FileStatus[] listStatus(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws AzureBlobFileSystemException {
-    final AbfsClient client = this.getOrCreateClient(azureBlobFileSystem);
+    final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
         "listStatus filesystem: {0} path: {1}",
@@ -477,11 +467,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return fileStatuses.toArray(new FileStatus[0]);
   }
 
-  @Override
-  public synchronized void closeFileSystem(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
-    this.clientCache.remove(azureBlobFileSystem.getFsUuid());
-  }
-
   private String getRelativePath(final Path path) {
     Preconditions.checkNotNull(path, "path");
     final String relativePath = path.toUri().getPath();
@@ -499,23 +484,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     }
 
     return relativePath;
-  }
-
-  private synchronized AbfsClient getOrCreateClient(final AzureBlobFileSystem azureBlobFileSystem) throws
-      AzureBlobFileSystemException {
-    Preconditions.checkNotNull(azureBlobFileSystem, "azureBlobFileSystem");
-
-    AbfsClient client = this.clientCache.get(azureBlobFileSystem.getFsUuid());
-
-    if (client != null) {
-      return client;
-    }
-
-    client = abfsHttpClientFactory.create(azureBlobFileSystem);
-    this.clientCache.put(
-        azureBlobFileSystem.getFsUuid(),
-        client);
-    return client;
   }
 
   private long parseContentLength(final String contentLength) {

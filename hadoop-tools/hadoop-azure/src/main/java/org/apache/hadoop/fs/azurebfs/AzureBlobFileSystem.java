@@ -63,11 +63,13 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorRespo
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.FileSystemOperationUnhandledException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
+import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
+import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.ConfigurationServiceImpl;
 import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
@@ -94,6 +96,7 @@ public class AzureBlobFileSystem extends FileSystem {
   private LoggingService loggingService;
   private AbfsHttpService abfsHttpService;
   private ConfigurationService configurationService;
+  private AbfsClient abfsClient;
   private Set<String> azureAtomicRenameDirSet;
   private boolean isClosed;
 
@@ -105,6 +108,13 @@ public class AzureBlobFileSystem extends FileSystem {
 
     setConf(configuration);
 
+    this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
+    this.userGroupInformation = UserGroupInformation.getCurrentUser();
+    this.user = userGroupInformation.getUserName();
+    this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
+
+    this.setWorkingDirectory(this.getHomeDirectory());
+
     try {
       this.fsUuid = UUID.randomUUID().toString();
       this.serviceProvider = ServiceProviderImpl.create();
@@ -112,6 +122,7 @@ public class AzureBlobFileSystem extends FileSystem {
       this.abfsHttpService = serviceProvider.get(AbfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class).get(AzureBlobFileSystem.class);
       this.configurationService = new ConfigurationServiceImpl(configuration, this.loggingService);
+      this.abfsClient = serviceProvider.get(AbfsHttpClientFactory.class).create(this);
 
       this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(configurationService.getAzureAtomicRenameDirs().split(AbfsHttpConstants.COMMA)));
     } catch (AzureBlobFileSystemException | IllegalAccessException exception) {
@@ -120,16 +131,6 @@ public class AzureBlobFileSystem extends FileSystem {
 
     this.loggingService.debug(
         "Initializing AzureBlobFileSystem for {0}", uri);
-
-    this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
-    this.userGroupInformation = UserGroupInformation.getCurrentUser();
-    this.user = userGroupInformation.getUserName();
-    this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
-
-    this.loggingService.debug(
-        "Initializing NativeAzureFileSystem for {0}", uri);
-
-    this.setWorkingDirectory(this.getHomeDirectory());
 
     if (this.configurationService.getCreateRemoteFileSystemDuringInitialization()) {
       this.createFileSystem();
@@ -142,6 +143,10 @@ public class AzureBlobFileSystem extends FileSystem {
 
   public ConfigurationService getConfigurationService() {
     return configurationService;
+  }
+
+  public AbfsClient getClient() {
+    return abfsClient;
   }
 
   public boolean isAtomicRenameKey(final String key) {
@@ -393,19 +398,6 @@ public class AzureBlobFileSystem extends FileSystem {
 
     super.close();
     this.loggingService.debug("AzureBlobFileSystem.close");
-
-    final AzureBlobFileSystem azureBlobFileSystem = this;
-    final FileSystemOperation<Void> close = execute(
-        "AzureBlobFileSystem.close",
-        new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
-            abfsHttpService.closeFileSystem(azureBlobFileSystem);
-            return null;
-          }
-        });
-
-    evaluateFileSystemOperation(close);
     this.isClosed = true;
   }
 
