@@ -5027,3 +5027,5 @@ ATS V1.5:
 
     WASB-86. Removing dependency on joda-time
 
+    WASB-90. Azure Blob File system: Removed configuration service Singleton
+

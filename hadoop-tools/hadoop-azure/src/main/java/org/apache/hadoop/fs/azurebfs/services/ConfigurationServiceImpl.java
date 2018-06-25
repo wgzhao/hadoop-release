@@ -22,8 +22,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -47,10 +45,12 @@ import org.apache.hadoop.fs.azurebfs.diagnostics.IntegerConfigurationBasicValida
 import org.apache.hadoop.fs.azurebfs.diagnostics.LongConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.StringConfigurationBasicValidator;
 
-@Singleton
+/**
+ * This class is responsible to store and validate configuration values.
+ */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-class ConfigurationServiceImpl implements ConfigurationService {
+public class ConfigurationServiceImpl implements ConfigurationService {
   private final Configuration configuration;
   private final LoggingService loggingService;
   private final boolean isSecure;
@@ -127,8 +127,7 @@ class ConfigurationServiceImpl implements ConfigurationService {
 
   private Map<String, String> storageAccountKeys;
 
-  @Inject
-  ConfigurationServiceImpl(final Configuration configuration, final LoggingService loggingService) throws IllegalAccessException,
+  public ConfigurationServiceImpl(final Configuration configuration, final LoggingService loggingService) throws IllegalAccessException,
       InvalidConfigurationValueException {
     this.configuration = configuration;
     this.loggingService = loggingService.get(ConfigurationService.class);

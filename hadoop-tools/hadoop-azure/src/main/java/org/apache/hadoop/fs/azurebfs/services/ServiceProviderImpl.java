@@ -25,7 +25,6 @@ import com.google.inject.Injector;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ServiceResolutionException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.InjectableService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
@@ -39,8 +38,8 @@ public final class ServiceProviderImpl implements ServiceProvider {
   private static ServiceProviderImpl serviceProvider;
   private final Injector serviceInjector;
 
-  private ServiceProviderImpl(final Configuration configuration) {
-    this.serviceInjector = Guice.createInjector(new ServiceInjectorImpl(Preconditions.checkNotNull(configuration, "configuration")));
+  private ServiceProviderImpl() {
+    this.serviceInjector = Guice.createInjector(new ServiceInjectorImpl());
   }
 
   @VisibleForTesting
@@ -52,12 +51,11 @@ public final class ServiceProviderImpl implements ServiceProvider {
   /**
    * Create an instance or returns existing instance of service provider.
    * This method must be marked as synchronized to ensure thread-safety.
-   * @param configuration hadoop configuration.
    * @return ServiceProvider the service provider instance.
    */
-  public static synchronized ServiceProvider create(final Configuration configuration) {
+  public static synchronized ServiceProvider create() {
     if (serviceProvider == null) {
-      serviceProvider = new ServiceProviderImpl(configuration);
+      serviceProvider = new ServiceProviderImpl();
     }
 
     return serviceProvider;

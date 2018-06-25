@@ -25,10 +25,8 @@ import com.google.inject.AbstractModule;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
 /**
@@ -37,22 +35,15 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 class ServiceInjectorImpl extends AbstractModule {
-  private final Configuration configuration;
   private final Map<Class, Class> providers;
   private final Map<Class, Object> instances;
 
-  ServiceInjectorImpl(Configuration configuration) {
+  ServiceInjectorImpl() {
     this.providers = new HashMap<>();
     this.instances = new HashMap<>();
-    this.configuration = configuration;
-
-    this.instances.put(Configuration.class, this.configuration);
-
-    this.providers.put(ConfigurationService.class, ConfigurationServiceImpl.class);
 
     this.providers.put(AbfsHttpService.class, AbfsHttpServiceImpl.class);
     this.providers.put(AbfsHttpClientFactory.class, AbfsHttpClientFactoryImpl.class);
-
     this.providers.put(LoggingService.class, LoggingServiceImpl.class);
   }
 
@@ -65,10 +56,6 @@ class ServiceInjectorImpl extends AbstractModule {
     for (Map.Entry<Class, Class> entrySet : this.providers.entrySet()) {
       bind(entrySet.getKey()).to(entrySet.getValue());
     }
-  }
-
-  protected Configuration getConfiguration() {
-    return this.configuration;
   }
 
   protected Map<Class, Class> getProviders() {

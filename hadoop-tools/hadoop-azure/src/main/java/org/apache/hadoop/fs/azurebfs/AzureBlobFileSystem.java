@@ -28,7 +28,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,6 +54,7 @@ import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
@@ -63,6 +67,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
+import org.apache.hadoop.fs.azurebfs.services.ConfigurationServiceImpl;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -85,6 +90,7 @@ public class AzureBlobFileSystem extends FileSystem {
   private LoggingService loggingService;
   private AbfsHttpService abfsHttpService;
   private ConfigurationService configurationService;
+  private Set<String> azureAtomicRenameDirSet;
   private boolean isClosed;
 
   @Override
@@ -97,11 +103,13 @@ public class AzureBlobFileSystem extends FileSystem {
 
     try {
       this.fsUuid = UUID.randomUUID().toString();
-      this.serviceProvider = ServiceProviderImpl.create(configuration);
+      this.serviceProvider = ServiceProviderImpl.create();
       this.abfsHttpService = serviceProvider.get(AbfsHttpService.class);
       this.loggingService = serviceProvider.get(LoggingService.class).get(AzureBlobFileSystem.class);
-      this.configurationService = serviceProvider.get(ConfigurationService.class);
-    } catch (AzureBlobFileSystemException exception) {
+      this.configurationService = new ConfigurationServiceImpl(configuration, this.loggingService);
+
+      this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(configurationService.getAzureAtomicRenameDirs().split(AbfsHttpConstants.COMMA)));
+    } catch (AzureBlobFileSystemException | IllegalAccessException exception) {
       throw new IOException(exception);
     }
 
@@ -125,6 +133,14 @@ public class AzureBlobFileSystem extends FileSystem {
 
   public boolean isSecure() {
     return false;
+  }
+
+  public ConfigurationService getConfigurationService() {
+    return configurationService;
+  }
+
+  public boolean isAtomicRenameKey(final String key) {
+    return isKeyForDirectorySet(key, azureAtomicRenameDirSet);
   }
 
   @Override
@@ -650,6 +666,27 @@ public class AzureBlobFileSystem extends FileSystem {
         throw new IOException(fileSystemOperation.exception);
       }
     }
+  }
+
+  private boolean isKeyForDirectorySet(String key, Set<String> dirSet) {
+    for (String dir : dirSet) {
+      if (dir.isEmpty() || key.startsWith(dir + AbfsHttpConstants.FORWARD_SLASH)) {
+        return true;
+      }
+
+      try {
+        URI uri = new URI(dir);
+        if (null == uri.getAuthority()) {
+          if (key.startsWith(dir + "/")){
+            return true;
+          }
+        }
+      } catch (URISyntaxException e) {
+        this.loggingService.info("URI syntax error creating URI for {}", dir);
+      }
+    }
+
+    return false;
   }
 
   /**
