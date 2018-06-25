@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
@@ -36,24 +37,18 @@ import org.apache.http.client.utils.URIBuilder;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class MockAbfsHttpClientFactoryImpl extends AbfsHttpClientFactoryImpl {
-  private final ConfigurationService configurationService;
-
   @Inject
-  MockAbfsHttpClientFactoryImpl(
-      final ConfigurationService configurationService,
-      final LoggingService loggingService) {
-    super(configurationService, loggingService);
-
-    this.configurationService = configurationService;
+  MockAbfsHttpClientFactoryImpl(final LoggingService loggingService) {
+    super(loggingService);
   }
 
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String hostName, final FileSystem fs) {
+  URIBuilder getURIBuilder(final String hostName, final AzureBlobFileSystem fs) {
     final URIBuilder uriBuilder = new URIBuilder();
 
-    final String testHost = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
-    final Integer testHostPort = this.configurationService.getConfiguration().getInt(TestConfigurationKeys.FS_AZURE_TEST_HOST_PORT, 80);
-    final String testAccount = this.configurationService.getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME);
+    final String testHost = fs.getConfigurationService().getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);
+    final Integer testHostPort = fs.getConfigurationService().getConfiguration().getInt(TestConfigurationKeys.FS_AZURE_TEST_HOST_PORT, 80);
+    final String testAccount = fs.getConfigurationService().getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_ACCOUNT_NAME);
 
     String scheme = FileSystemUriSchemes.HTTP_SCHEME;
 

@@ -74,7 +74,7 @@ public class ITestAzureBlobFileSystemE2E extends DependencyInjectedTest {
   @Test (expected = IOException.class)
   public void testOOBWrites() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
-    int readBufferSize = ServiceProviderImpl.instance().get(ConfigurationService.class).getReadBufferSize();
+    int readBufferSize = fs.getConfigurationService().getReadBufferSize();
 
     fs.create(new Path("testfile"));
     FSDataOutputStream writeStream = fs.create(new Path("testfile"));

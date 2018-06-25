@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -34,9 +32,7 @@ import java.nio.charset.CharsetEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -60,7 +56,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPrope
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.TracingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
@@ -88,28 +83,22 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
   private final AbfsHttpClientFactory abfsHttpClientFactory;
   private final ConcurrentHashMap<String, AbfsClient> clientCache;
-  private final ConfigurationService configurationService;
   private final TracingService tracingService;
   private final LoggingService loggingService;
-  private final Set<String> azureAtomicRenameDirSet;
 
   @Inject
   AbfsHttpServiceImpl(
-      final ConfigurationService configurationService,
       final AbfsHttpClientFactory abfsHttpClientFactory,
       final TracingService tracingService,
       final LoggingService loggingService) {
     Preconditions.checkNotNull(abfsHttpClientFactory, "abfsHttpClientFactory");
-    Preconditions.checkNotNull(configurationService, "configurationService");
     Preconditions.checkNotNull(tracingService, "tracingService");
     Preconditions.checkNotNull(loggingService, "loggingService");
 
-    this.configurationService = configurationService;
     this.clientCache = new ConcurrentHashMap<>();
     this.abfsHttpClientFactory = abfsHttpClientFactory;
     this.tracingService = tracingService;
     this.loggingService = loggingService.get(AbfsHttpService.class);
-    this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(configurationService.getAzureAtomicRenameDirs().split(AbfsHttpConstants.COMMA)));
   }
 
   @Override
@@ -234,7 +223,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     try {
       outputStream = new FSDataOutputStream(
           new AbfsOutputStream(client, AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), 0,
-              configurationService.getWriteBufferSize(), configurationService.isFlushEnabled()), null);
+              azureBlobFileSystem.getConfigurationService().getWriteBufferSize(), azureBlobFileSystem.getConfigurationService().isFlushEnabled()), null);
     } catch (IOException ex) {
       throw new InvalidAzureServiceErrorResponseException(ex);
     }
@@ -282,7 +271,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     // Add statistics for InputStream
     return new FSDataInputStream(
         new AbfsInputStream(client, statistics, AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), contentLength,
-            configurationService.getReadBufferSize(), configurationService.getReadAheadQueueDepth(), eTag));
+            azureBlobFileSystem.getConfigurationService().getReadBufferSize(), azureBlobFileSystem.getConfigurationService().getReadAheadQueueDepth(), eTag));
   }
 
   @Override
@@ -315,7 +304,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     try {
       outputStream = new FSDataOutputStream(
           new AbfsOutputStream(client, AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path),
-              offset, configurationService.getWriteBufferSize(), configurationService.isFlushEnabled()), null);
+              offset, azureBlobFileSystem.getConfigurationService().getWriteBufferSize(), azureBlobFileSystem.getConfigurationService().isFlushEnabled()),
+          null);
 
     } catch (IOException ex) {
       throw new InvalidAzureServiceErrorResponseException(ex);
@@ -327,7 +317,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   public void rename(final AzureBlobFileSystem azureBlobFileSystem, final Path source, final Path destination) throws
       AzureBlobFileSystemException {
 
-    if (isAtomicRenameKey(source.getName())) {
+    if (azureBlobFileSystem.isAtomicRenameKey(source.getName())) {
       this.loggingService.warning("The atomic rename feature is not supported by the ABFS scheme; however rename,"
           +" create and delete operations are atomic if Namespace is enabled for your Azure Storage account.");
     }
@@ -399,7 +389,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
     if (path.isRoot()) {
       AbfsRestOperation op = client.getFilesystemProperties();
-      final long blockSize = configurationService.getAzureBlockSize();
+      final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
       final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
       final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
       return new VersionedFileStatus(
@@ -415,7 +405,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     } else {
       AbfsRestOperation op = client.getPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path));
 
-      final long blockSize = configurationService.getAzureBlockSize();
+      final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
       final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
       final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
       final String contentLength = op.getResult().getResponseHeader(HttpHeaderConfigurations.CONTENT_LENGTH);
@@ -459,7 +449,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
             null);
       }
 
-      long blockSize = configurationService.getAzureBlockSize();
+      long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
 
       for (ListResultEntrySchema entry : retrievedSchema.paths()) {
         long lastModifiedMillis = 0;
@@ -490,11 +480,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public synchronized void closeFileSystem(final AzureBlobFileSystem azureBlobFileSystem) throws AzureBlobFileSystemException {
     this.clientCache.remove(azureBlobFileSystem.getFsUuid());
-  }
-
-  @Override
-  public boolean isAtomicRenameKey(String key) {
-    return isKeyForDirectorySet(key, azureAtomicRenameDirSet);
   }
 
   private String getRelativePath(final Path path) {
@@ -621,27 +606,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     }
 
     return properties;
-  }
-
-  private boolean isKeyForDirectorySet(String key, Set<String> dirSet) {
-    for (String dir : dirSet) {
-      if (dir.isEmpty() || key.startsWith(dir + AbfsHttpConstants.FORWARD_SLASH)) {
-        return true;
-      }
-
-      try {
-        URI uri = new URI(dir);
-        if (null == uri.getAuthority()) {
-          if (key.startsWith(dir + "/")){
-            return true;
-          }
-        }
-      } catch (URISyntaxException e) {
-        this.loggingService.info("URI syntax error creating URI for {}", dir);
-      }
-    }
-
-    return false;
   }
 
   private class VersionedFileStatus extends FileStatus {

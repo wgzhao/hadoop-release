@@ -18,13 +18,7 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import org.apache.hadoop.conf.Configuration;
-
 public class MockServiceInjectorImpl extends ServiceInjectorImpl {
-  public MockServiceInjectorImpl(Configuration configuration) {
-    super(configuration);
-  }
-
   public <T> void replaceInstance(Class<T> tInterface, Object object) {
     this.removeInstance(tInterface);
     this.removeProvider(tInterface);

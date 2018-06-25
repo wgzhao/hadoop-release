@@ -47,7 +47,7 @@ public class ITestReadWriteAndSeek extends DependencyInjectedTest {
 
   private void testReadWriteAndSeek(int bufferSize) throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
-    final ConfigurationServiceImpl configurationservice = (ConfigurationServiceImpl) ServiceProviderImpl.instance().get(ConfigurationService.class);
+    final ConfigurationServiceImpl configurationservice = (ConfigurationServiceImpl)fs.getConfigurationService();
 
     fs.create(new Path("testfile"));
 

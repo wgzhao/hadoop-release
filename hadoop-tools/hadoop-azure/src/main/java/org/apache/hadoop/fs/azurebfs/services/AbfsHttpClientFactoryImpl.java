@@ -35,7 +35,6 @@ import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
-import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
@@ -45,18 +44,11 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
-  private final ConfigurationService configurationService;
   private final LoggingService loggingService;
 
   @Inject
-  AbfsHttpClientFactoryImpl(
-      final ConfigurationService configurationService,
-      final LoggingService loggingService) {
-
-    Preconditions.checkNotNull(configurationService, "configurationService");
+  AbfsHttpClientFactoryImpl(final LoggingService loggingService) {
     Preconditions.checkNotNull(loggingService, "loggingService");
-
-    this.configurationService = configurationService;
     this.loggingService = loggingService.get(AbfsHttpClientFactory.class);
   }
 
@@ -114,8 +106,8 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
 
     SharedKeyCredentials creds =
         new SharedKeyCredentials(accountName.substring(0, accountName.indexOf(AbfsHttpConstants.DOT)),
-                this.configurationService.getStorageAccountKey(accountName));
+                fs.getConfigurationService().getStorageAccountKey(accountName));
 
-    return new AbfsClient(baseUrl, creds, loggingService, configurationService, new ExponentialRetryPolicy());
+    return new AbfsClient(baseUrl, creds, loggingService, fs.getConfigurationService(), new ExponentialRetryPolicy());
   }
 }

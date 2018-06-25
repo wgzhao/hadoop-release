@@ -44,7 +44,6 @@ public class AbfsClient {
   private final ExponentialRetryPolicy retryPolicy;
   private final String filesystem;
   private final LoggingService loggingService;
-  private final ConfigurationService configurationService;
   private final String userAgent;
 
   public AbfsClient(final URL baseUrl, final SharedKeyCredentials sharedKeyCredentials,
@@ -55,7 +54,6 @@ public class AbfsClient {
     String baseUrlString = baseUrl.toString();
     this.filesystem = baseUrlString.substring(baseUrlString.lastIndexOf(AbfsHttpConstants.FORWARD_SLASH) + 1);
     this.loggingService = loggingService.get(AbfsClient.class);
-    this.configurationService = configurationService;
     this.retryPolicy = exponentialRetryPolicy;
     this.userAgent = initializeUserAgent();
   }

@@ -89,7 +89,7 @@ public abstract class DependencyInjectedTest {
     this.testUrl = defaultUri.toString();
     configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
     configuration.setBoolean(ConfigurationKeys.AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION, true);
-    this.mockServiceInjector = new MockServiceInjectorImpl(configuration);
+    this.mockServiceInjector = new MockServiceInjectorImpl();
 
     this.isEmulator = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
   }
@@ -143,15 +143,13 @@ public abstract class DependencyInjectedTest {
   }
 
   public AzureBlobFileSystem getFileSystem() throws Exception {
-    final Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
-    final AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(configuration);
+    final AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(this.configuration);
     return fs;
   }
 
   public AzureBlobFileSystem getFileSystem(String abfsUri) throws Exception {
-    Configuration configuration = ServiceProviderImpl.instance().get(ConfigurationService.class).getConfiguration();
-    configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, abfsUri);
-    final AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(configuration);
+    this.configuration.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, abfsUri);
+    final AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(this.configuration);
     return fs;
   }
 
