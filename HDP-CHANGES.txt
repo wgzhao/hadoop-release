@@ -5035,3 +5035,7 @@ ATS V1.5:
 
     WASB-89. Replacing dependency from "com.fasterxml.jackson" to "org.codehaus.jackson"
 
+    WASB-92. Azure Blob File system: Percent encoding query param values
+
+    WASB-95. Azure Blob File system: Fixed a test bug which caused random failures
+

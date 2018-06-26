@@ -42,8 +42,10 @@ public class MockAbfsHttpClientFactoryImpl extends AbfsHttpClientFactoryImpl {
     super(loggingService);
   }
 
+  @Override
   @VisibleForTesting
-  URIBuilder getURIBuilder(final String hostName, final AzureBlobFileSystem fs) {
+  URIBuilder getURIBuilder(final String hostName, final FileSystem fs1) {
+    final AzureBlobFileSystem fs = (AzureBlobFileSystem) fs1;
     final URIBuilder uriBuilder = new URIBuilder();
 
     final String testHost = fs.getConfigurationService().getConfiguration().get(TestConfigurationKeys.FS_AZURE_TEST_HOST_NAME);

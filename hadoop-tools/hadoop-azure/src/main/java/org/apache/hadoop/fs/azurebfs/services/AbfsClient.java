@@ -139,7 +139,7 @@ public class AbfsClient {
 
     final AbfsUriQueryBuilder abfsUriQueryBuilder = createDefaultUriQueryBuilder();
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_RESOURCE, AbfsHttpConstants.FILESYSTEM);
-    abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_DIRECTORY, relativePath == null ? "" : urlEncode(relativePath));
+    abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_DIRECTORY, relativePath == null ? "" : relativePath);
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_RECURSIVE, String.valueOf(recursive));
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_CONTINUATION, continuation);
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_MAXRESULTS, String.valueOf(listMaxResults));
@@ -380,8 +380,8 @@ public class AbfsClient {
     return url;
   }
 
-  private static String urlEncode(final String value) throws AzureBlobFileSystemException {
-    String encodedString = null;
+  public static String urlEncode(final String value) throws AzureBlobFileSystemException {
+    String encodedString;
     try {
       encodedString =  URLEncoder.encode(value, AbfsHttpConstants.UTF_8)
           .replace(AbfsHttpConstants.PLUS, AbfsHttpConstants.PLUS_ENCODE)
