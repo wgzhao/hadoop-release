@@ -5031,3 +5031,7 @@ ATS V1.5:
 
     WASB-81. Adding configurable custom user agent to AbfsClient
 
+    WASB-92. Azure Blob File system: Percent encoding query param values
+
+    WASB-95. Azure Blob File system: Fixed a test bug which caused random failures
+

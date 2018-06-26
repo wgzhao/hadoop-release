@@ -19,6 +19,7 @@
 package org.apache.hadoop.fs.azurebfs.services;
 
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,13 @@ public class AbfsUriQueryBuilder {
       } else {
         sb.append(AbfsHttpConstants.AND_MARK);
       }
-      sb.append(entry.getKey()).append(AbfsHttpConstants.EQUAL).append(entry.getValue());
+
+      try {
+        sb.append(entry.getKey()).append(AbfsHttpConstants.EQUAL).append(AbfsClient.urlEncode(entry.getValue()));
+      }
+      catch (AzureBlobFileSystemException ex) {
+        throw new IllegalArgumentException("Query string param is not encode-able: " + entry.getKey() + "=" + entry.getValue());
+      }
     }
     return sb.toString();
   }
