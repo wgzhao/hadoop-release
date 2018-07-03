@@ -5039,3 +5039,5 @@ ATS V1.5:
 
     WASB-95. Azure Blob File system: Fixed a test bug which caused random failures
 
+    WASB-96. Azure Blob File system: Mapping http error codes the correct error messages
+

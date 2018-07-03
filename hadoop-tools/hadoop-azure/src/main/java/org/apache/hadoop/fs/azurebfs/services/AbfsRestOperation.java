@@ -159,7 +159,7 @@ public class AbfsRestOperation {
           loggingService.debug("HttpRequestFailure: " + method + "," + url, ex);
         }
       }
-      if (!client.getRetryPolicy().shouldRetry(retryCount, -1)) {
+      if (!client.getRetryPolicy().shouldRetry(retryCount, httpOperation.getStatusCode())) {
         throw new InvalidAzureServiceErrorResponseException(ex);
       }
       return false;

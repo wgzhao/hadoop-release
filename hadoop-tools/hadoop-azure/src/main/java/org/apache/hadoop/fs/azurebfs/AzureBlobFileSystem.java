@@ -128,7 +128,9 @@ public class AzureBlobFileSystem extends FileSystem {
         "Initializing AzureBlobFileSystem for {0}", uri);
 
     if (this.configurationService.getCreateRemoteFileSystemDuringInitialization()) {
-      this.createFileSystem();
+      if (!this.fileSystemExists()) {
+        this.createFileSystem();
+      }
     }
   }
 
@@ -547,6 +549,23 @@ public class AzureBlobFileSystem extends FileSystem {
     }
   }
 
+  private boolean fileSystemExists() throws IOException {
+    this.loggingService.debug(
+        "AzureBlobFileSystem.fileSystemExists uri: {0}", uri);
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+    final FileSystemOperation<Void> fileSystemExists = execute("AzureBlobFileSystem.fileSystemExists",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.getFilesystemProperties(azureBlobFileSystem);
+            return null;
+          }
+        });
+
+    return !fileSystemExists.failed();
+  }
+
   private void createFileSystem() throws IOException {
     this.loggingService.debug(
         "AzureBlobFileSystem.createFileSystem uri: {0}", uri);
@@ -561,7 +580,7 @@ public class AzureBlobFileSystem extends FileSystem {
           }
         });
 
-    evaluateFileSystemOperation(createFileSystem, AzureServiceErrorCode.FILE_SYSTEM_ALREADY_EXISTS);
+    evaluateFileSystemOperation(createFileSystem);
   }
 
   private URI ensureAuthority(URI uri, final Configuration conf) {
@@ -639,7 +658,7 @@ public class AzureBlobFileSystem extends FileSystem {
   private <T> void evaluateFileSystemOperation(
       final FileSystemOperation<T> fileSystemOperation,
       final AzureServiceErrorCode... whitelistedErrorCodes) throws IOException {
-    evaluateFileSystemPathOperation(null, fileSystemOperation, whitelistedErrorCodes);
+    evaluateFileSystemPathOperation(makeQualified(new Path("/")), fileSystemOperation, whitelistedErrorCodes);
   }
 
   private <T> void evaluateFileSystemPathOperation(
@@ -649,10 +668,10 @@ public class AzureBlobFileSystem extends FileSystem {
     if (fileSystemOperation.failed()) {
       if (!ArrayUtils.contains(whitelistedErrorCodes, fileSystemOperation.exception.getErrorCode())) {
         if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-          throw new FileNotFoundException(String.format("%s not found, %n %s", path, fileSystemOperation.exception.getMessage()));
+          throw new FileNotFoundException(String.format("%s not found, %n %s", makeQualified(path), fileSystemOperation.exception.getMessage()));
         }
         if (fileSystemOperation.exception.getStatusCode() == HttpURLConnection.HTTP_CONFLICT) {
-          throw new FileAlreadyExistsException(String.format("%s already exists, %n %s", path, fileSystemOperation.exception.getMessage()));
+          throw new FileAlreadyExistsException(String.format("%s already exists, %n %s", makeQualified(path), fileSystemOperation.exception.getMessage()));
         }
 
         throw new IOException(fileSystemOperation.exception);
