@@ -519,7 +519,14 @@ public class CapacityScheduler extends
     // First randomize the start point
     int current = 0;
     Collection<FiCaSchedulerNode> nodes = cs.nodeTracker.getAllNodes();
-    int start = random.nextInt(nodes.size());
+
+    // If nodes size is 0 (when there are no node managers registered,
+    // we can return from here itself.
+    int nodeSize = nodes.size();
+    if(nodeSize == 0) {
+      return;
+    }
+    int start = random.nextInt(nodeSize);
 
     // To avoid too verbose DEBUG logging, only print debug log once for
     // every 10 secs.
@@ -572,6 +579,7 @@ public class CapacityScheduler extends
 
     @Override
     public void run() {
+      int debuggingLogCounter = 0;
       while (!Thread.currentThread().isInterrupted()) {
         try {
           if (!runSchedules.get()) {
@@ -583,6 +591,14 @@ public class CapacityScheduler extends
               Thread.sleep(1);
             } else{
               schedule(cs);
+              if(LOG.isDebugEnabled()) {
+                // Adding a debug log here to ensure that the thread is alive
+                // and running fine.
+                if (debuggingLogCounter++ > 10000) {
+                  debuggingLogCounter = 0;
+                  LOG.debug("AsyncScheduleThread[" + getName() + "] is running!");
+                }
+              }
             }
           }
         } catch (InterruptedException ie) {
@@ -733,7 +749,7 @@ public class CapacityScheduler extends
       if (queue == null) {
         //During a restart, this indicates a queue was removed, which is
         //not presently supported
-        if (!YarnConfiguration.shouldRMFailFast(getConfig())) {
+        if (!getConfiguration().shouldAppFailFast(getConfig())) {
           this.rmContext.getDispatcher().getEventHandler().handle(
               new RMAppEvent(applicationId, RMAppEventType.KILL,
                   "Application killed on recovery as it"
@@ -754,7 +770,7 @@ public class CapacityScheduler extends
       if (!(queue instanceof LeafQueue)) {
         // During RM restart, this means leaf queue was converted to a parent
         // queue, which is not supported for running apps.
-        if (!YarnConfiguration.shouldRMFailFast(getConfig())) {
+        if (!getConfiguration().shouldAppFailFast(getConfig())) {
           this.rmContext.getDispatcher().getEventHandler().handle(
               new RMAppEvent(applicationId, RMAppEventType.KILL,
                   "Application killed on recovery as it was "
@@ -813,7 +829,7 @@ public class CapacityScheduler extends
           return autoCreateLeafQueue(placementContext);
         } catch (YarnException | IOException e) {
           if (isRecovery) {
-            if (!YarnConfiguration.shouldRMFailFast(getConfig())) {
+            if (!getConfiguration().shouldAppFailFast(getConfig())) {
               LOG.error("Could not auto-create leaf queue " + queueName +
                   " due to : ", e);
               this.rmContext.getDispatcher().getEventHandler().handle(
