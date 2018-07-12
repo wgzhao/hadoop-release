@@ -4816,3 +4816,6 @@ ATS V1.5:
 
     BUG-120927. HDFS-9208. Disabling atime may fail clients like distCp. (Kihwal
     Lee via yliu)
+
+    YARN-8518. test-container-executor test_is_empty() is broken (Jim_Brennan
+    via rkanter)
