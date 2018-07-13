@@ -22,6 +22,9 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderException;
+import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
 /**
  * Configuration service collects required Azure Hadoop configurations and provides it to the consumers.
@@ -152,4 +155,8 @@ public interface ConfigurationService extends InjectableService {
    * @return custom user agent id set in Hadoop configuration
    */
   String getCustomUserAgentPrefix();
+
+  AuthType getAuthType(String accountName);
+
+  AccessTokenProvider getTokenProvider(String accountName) throws TokenAccessProviderException;
 }

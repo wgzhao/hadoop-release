@@ -36,6 +36,7 @@ import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpClientFactory;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
@@ -104,10 +105,17 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
       throw new InvalidUriException(String.format("URI '%s' is malformed", uri.toString()));
     }
 
-    SharedKeyCredentials creds =
-        new SharedKeyCredentials(accountName.substring(0, accountName.indexOf(AbfsHttpConstants.DOT)),
-                fs.getConfigurationService().getStorageAccountKey(accountName));
+    SharedKeyCredentials creds = null;
+    AccessTokenProvider tokenProvider = null;
+    if( fs.getConfigurationService().getAuthType(accountName) == AuthType.SharedKey) {
+      creds = new SharedKeyCredentials(accountName.substring(0, accountName.indexOf(AbfsHttpConstants.DOT)),
+              fs.getConfigurationService().getStorageAccountKey(accountName));
+    }
+    else
+    {
+      tokenProvider = fs.getConfigurationService().getTokenProvider(accountName);
+    }
 
-    return new AbfsClient(baseUrl, creds, loggingService, fs.getConfigurationService(), new ExponentialRetryPolicy());
+    return new AbfsClient(baseUrl, creds, loggingService, fs.getConfigurationService(), new ExponentialRetryPolicy(), tokenProvider);
   }
 }

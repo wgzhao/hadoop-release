@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemExc
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.diagnostics.Base64StringConfigurationBasicValidator;
@@ -44,6 +46,10 @@ import org.apache.hadoop.fs.azurebfs.diagnostics.BooleanConfigurationBasicValida
 import org.apache.hadoop.fs.azurebfs.diagnostics.IntegerConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.LongConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.StringConfigurationBasicValidator;
+import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
 
 /**
  * This class is responsible to store and validate configuration values.
@@ -128,6 +134,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           DefaultValue = "")
   private String userAgentId;
 
+
   private Map<String, String> storageAccountKeys;
 
   public ConfigurationServiceImpl(final Configuration configuration, final LoggingService loggingService) throws IllegalAccessException,
@@ -137,6 +144,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     this.isSecure = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_SECURE_MODE, false);
 
     validateStorageAccountKeys();
+
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field field : fields) {
       field.setAccessible(true);
@@ -282,6 +290,52 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return userAgentId;
   }
 
+  @Override
+    public AuthType getAuthType(final String accountName) {
+        return configuration.getEnum(ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME + accountName, AuthType.SharedKey);
+    }
+
+  @Override
+  public AccessTokenProvider getTokenProvider(final String accountName) throws TokenAccessProviderException {
+
+    AuthType authType = configuration.getEnum(ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME + accountName, AuthType.SharedKey);
+    if (authType != AuthType.OAuth) {
+      throw new TokenAccessProviderException("invalid auth type");
+    }
+
+    try {
+        Class<? extends AccessTokenProvider> tokenProviderClass =
+                configuration.getClass(ConfigurationKeys.FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME + accountName, null,
+                        AccessTokenProvider.class);
+
+        AccessTokenProvider tokenProvider = null;
+        if(tokenProviderClass == ClientCredsTokenProvider.class) {
+          String authEndpoint = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT + accountName);
+          String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID + accountName);
+          String clientSecret = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_SECRET + accountName);
+          tokenProvider = new ClientCredsTokenProvider(loggingService, authEndpoint, clientId, clientSecret);
+        }
+        else if(tokenProviderClass == UserPasswordTokenProvider.class) {
+          String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT + accountName);
+          String username = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_NAME + accountName);
+          String password = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_PASSWORD + accountName);
+          tokenProvider = new UserPasswordTokenProvider(loggingService, clientId, username, password);
+        }
+        else if(tokenProviderClass == MsiTokenProvider.class) {
+          String tenantGuid = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT + accountName);
+          String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID + accountName);
+          tokenProvider = new MsiTokenProvider(loggingService, tenantGuid, clientId);
+        }
+        else {
+          throw new IllegalArgumentException("Failed to initialize " + tokenProviderClass);
+        }
+
+        return tokenProvider;
+    } catch (Exception e) {
+      throw new TokenAccessProviderException("Unable to load key provider class.", e);
+    }
+  }
+
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {
     Base64StringConfigurationBasicValidator validator = new Base64StringConfigurationBasicValidator(
         ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME, "", true);
@@ -359,5 +413,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @VisibleForTesting
   void setWriteBufferSize(int bufferSize) {
     this.writeBufferSize = bufferSize;
+  }
+
+  String getPasswordString(String key)
+          throws IOException {
+    char[] passchars = this.configuration.getPassword(key);
+    if (passchars != null) {
+      return new String(passchars);
+    }
+
+    return null;
   }
 }

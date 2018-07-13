@@ -18,6 +18,17 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
+import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
+import org.apache.hadoop.fs.azurebfs.constants.HttpQueryParams;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
+import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
+import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,16 +36,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import com.google.common.annotations.VisibleForTesting;
-
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
-import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
-import org.apache.hadoop.fs.azurebfs.constants.HttpQueryParams;
 
 /**
  * AbfsClient
@@ -48,9 +49,15 @@ public class AbfsClient {
   private final LoggingService loggingService;
   private final String userAgent;
 
+  private final String accountFQDN;
+  private String accessToken;
+  private final AccessTokenProvider tokenProvider;
+  private final long clientId;
+
   public AbfsClient(final URL baseUrl, final SharedKeyCredentials sharedKeyCredentials,
                     final LoggingService loggingService, final ConfigurationService configurationService,
-                    final ExponentialRetryPolicy exponentialRetryPolicy) {
+                    final ExponentialRetryPolicy exponentialRetryPolicy,
+                    final AccessTokenProvider tokenProvider) {
     this.baseUrl = baseUrl;
     this.sharedKeyCredentials = sharedKeyCredentials;
     String baseUrlString = baseUrl.toString();
@@ -58,6 +65,12 @@ public class AbfsClient {
     this.loggingService = loggingService.get(AbfsClient.class);
     this.retryPolicy = exponentialRetryPolicy;
     this.userAgent = initializeUserAgent(configurationService);
+    this.tokenProvider = tokenProvider;
+
+    this.accountFQDN = null;
+    this.accessToken = null;
+    this.clientId = 0;
+
   }
 
   public String getFileSystem() {
@@ -391,6 +404,14 @@ public class AbfsClient {
     }
 
     return encodedString;
+  }
+
+  synchronized public String getAccessToken() throws IOException {
+    if (tokenProvider != null ) {
+      return "Bearer " + tokenProvider.getToken().getAccessToken();
+    } else {
+      return accessToken;
+    }
   }
 
   @VisibleForTesting

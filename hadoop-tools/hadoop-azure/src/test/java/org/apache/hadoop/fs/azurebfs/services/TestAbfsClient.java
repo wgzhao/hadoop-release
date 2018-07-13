@@ -39,7 +39,7 @@ public final class TestAbfsClient {
     final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
     ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(
         configuration, loggingService);
-    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null);
+    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null, null);
     String userAgent = abfsClient.initializeUserAgent(configurationService);
     Pattern pattern = Pattern.compile(expectedUserAgentPattern);
     Assert.assertTrue(pattern.matcher(userAgent).matches());
@@ -53,7 +53,7 @@ public final class TestAbfsClient {
     final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
     ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(
         configuration, loggingService);
-    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null);
+    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null, null);
     String userAgent = abfsClient.initializeUserAgent(configurationService);
     Pattern pattern = Pattern.compile(expectedUserAgentPattern);
     Assert.assertTrue(pattern.matcher(userAgent).matches());

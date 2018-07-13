@@ -26,13 +26,14 @@ import java.util.List;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
+import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
 import org.apache.hadoop.fs.azurebfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
-/**
+/** 
  * The AbfsRestOperation for Rest AbfsClient
  */
 public class AbfsRestOperation {
@@ -140,10 +141,18 @@ public class AbfsRestOperation {
       // initialize the HTTP request and open the connection
       httpOperation = new AbfsHttpOperation(url, method, requestHeaders, client.getLoggingService());
 
-      // sign the HTTP request
-      client.getSharedKeyCredentials().signRequest(
-          httpOperation.getConnection(),
-          hasRequestBody ? bufferLength : 0);
+      if(client.getAccessToken() == null)
+      {
+        // sign the HTTP request
+        client.getSharedKeyCredentials().signRequest(
+                httpOperation.getConnection(),
+                hasRequestBody ? bufferLength : 0);
+      }
+      else
+      {
+        httpOperation.getConnection().setRequestProperty(HttpHeaderConfigurations.AUTHORIZATION,
+                client.getAccessToken());
+      }
 
       if (hasRequestBody) {
         // HttpUrlConnection requires that the

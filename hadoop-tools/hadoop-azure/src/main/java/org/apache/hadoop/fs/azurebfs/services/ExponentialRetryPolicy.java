@@ -21,7 +21,10 @@ package org.apache.hadoop.fs.azurebfs.services;
 import java.util.Random;
 import java.net.HttpURLConnection;
 
-class ExponentialRetryPolicy {
+/**
+ * This class is responsible for Exponential Retry
+ */
+public class ExponentialRetryPolicy {
   /**
    * Represents the default number of retry attempts.
    */
