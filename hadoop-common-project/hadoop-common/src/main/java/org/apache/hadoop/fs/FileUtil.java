@@ -599,7 +599,7 @@ public class FileUtil {
           InputStream in = zipFile.getInputStream(entry);
           try {
             File file = new File(unzipDir, entry.getName());
-            if (!file.getParentFile().mkdirs()) {           
+            if (!file.getParentFile().mkdirs()) {
               if (!file.getParentFile().isDirectory()) {
                 throw new IOException("Mkdirs failed to create " + 
                                       file.getParentFile().toString());
