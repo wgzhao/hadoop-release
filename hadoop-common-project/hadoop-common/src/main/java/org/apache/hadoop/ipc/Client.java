@@ -130,6 +130,7 @@ public class Client implements AutoCloseable {
   private final int connectionTimeout;
 
   private final boolean fallbackAllowed;
+  private final boolean bindToWildCardAddress;
   private final byte[] clientId;
   
   final static int CONNECTION_CONTEXT_CALL_ID = -3;
@@ -642,6 +643,11 @@ public class Client implements AutoCloseable {
               InetAddress localAddr = NetUtils.getLocalInetAddress(host);
               if (localAddr != null) {
                 this.socket.setReuseAddress(true);
+                localAddr = NetUtils.bindToLocalAddress(localAddr,
+                    bindToWildCardAddress);
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Binding to " + localAddr);
+                }
                 this.socket.bind(new InetSocketAddress(localAddr, 0));
               }
             }
@@ -1248,6 +1254,15 @@ public class Client implements AutoCloseable {
         CommonConfigurationKeys.IPC_CLIENT_CONNECT_TIMEOUT_DEFAULT);
     this.fallbackAllowed = conf.getBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY,
         CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_DEFAULT);
+    this.bindToWildCardAddress = conf
+        .getBoolean(CommonConfigurationKeys.IPC_CLIENT_BIND_WILDCARD_ADDR_KEY,
+            CommonConfigurationKeys.IPC_CLIENT_BIND_WILDCARD_ADDR_DEFAULT);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(
+          CommonConfigurationKeys.IPC_CLIENT_BIND_WILDCARD_ADDR_KEY + " set to "
+              + bindToWildCardAddress);
+    }
+
     this.clientId = ClientId.getClientId();
     this.sendParamsExecutor = clientExcecutorFactory.refAndGetInstance();
     this.maxAsyncCalls = conf.getInt(
