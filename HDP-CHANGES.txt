@@ -5035,3 +5035,5 @@ ATS V1.5:
 
     WASB-95. Azure Blob File system: Fixed a test bug which caused random failures
 
+    BUG-107750. HADOOP-15547/ WASB: improve listStatus performance.
+    Contributed by Thomas Marquardt.
