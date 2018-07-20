@@ -22,14 +22,22 @@ import org.junit.Test;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 
 import static org.junit.Assert.assertEquals;
 
 public class ITestAzureBlobFileSystemFileStatus extends DependencyInjectedTest {
+  private static final String DEFAULT_FILE_PERMISSION_VALUE = "640";
+  private static final String DEFAULT_DIR_PERMISSION_VALUE = "750";
+  private static final String DEFAULT_PERMISSION_VALUE = "777";
+
+  private final String filePermissions;
+  private final String dirPermissions;
+
   public ITestAzureBlobFileSystemFileStatus() throws Exception {
     super();
+    this.filePermissions = this.isNamespaceEnabled() ? DEFAULT_FILE_PERMISSION_VALUE : DEFAULT_PERMISSION_VALUE;
+    this.dirPermissions = this.isNamespaceEnabled() ? DEFAULT_DIR_PERMISSION_VALUE : DEFAULT_PERMISSION_VALUE;
   }
 
   @Test
@@ -47,12 +55,12 @@ public class ITestAzureBlobFileSystemFileStatus extends DependencyInjectedTest {
     fs.mkdirs(new Path("/testDir"));
 
     FileStatus fileStatus = fs.getFileStatus(new Path("/testFile"));
-    assertEquals(new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL), fileStatus.getPermission());
+    assertEquals(new FsPermission(filePermissions), fileStatus.getPermission());
     assertEquals(fs.getOwnerUser(), fileStatus.getGroup());
     assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getOwner());
 
     fileStatus = fs.getFileStatus(new Path("/testDir"));
-    assertEquals(new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL), fileStatus.getPermission());
+    assertEquals(new FsPermission(dirPermissions), fileStatus.getPermission());
     assertEquals(fs.getOwnerUser(), fileStatus.getGroup());
     assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getOwner());
   }

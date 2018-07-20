@@ -56,6 +56,7 @@ public abstract class DependencyInjectedTest {
   private final String fileSystemName;
   private final String testUrl;
   private final boolean isEmulator;
+  private final boolean isNamespaceEnabled;
   private NativeAzureFileSystem wasb;
   private String abfsScheme;
 
@@ -92,6 +93,7 @@ public abstract class DependencyInjectedTest {
     this.mockServiceInjector = new MockServiceInjectorImpl();
 
     this.isEmulator = this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_EMULATOR_ENABLED, false);
+    this.isNamespaceEnabled = getIsNamespaceEnabled(getAccountName());
   }
 
   @Before
@@ -187,6 +189,10 @@ public abstract class DependencyInjectedTest {
     return isEmulator;
   }
 
+  protected boolean isNamespaceEnabled() {
+    return isNamespaceEnabled;
+  }
+
   protected static String wasbUrlToAbfsUrl(final String wasbUrl) {
     return ConvertTestUrls(
         wasbUrl, FileSystemUriSchemes.WASB_SCHEME, FileSystemUriSchemes.WASB_SECURE_SCHEME, FileSystemUriSchemes.WASB_DNS_PREFIX,
@@ -197,6 +203,18 @@ public abstract class DependencyInjectedTest {
     return ConvertTestUrls(
         abfsUrl, FileSystemUriSchemes.ABFS_SCHEME, FileSystemUriSchemes.ABFS_SECURE_SCHEME, FileSystemUriSchemes.ABFS_DNS_PREFIX,
         FileSystemUriSchemes.WASB_SCHEME, FileSystemUriSchemes.WASB_SECURE_SCHEME, FileSystemUriSchemes.WASB_DNS_PREFIX);
+  }
+
+  protected boolean getIsNamespaceEnabled(final String accountName) {
+    if(accountName == null || accountName.isEmpty()) {
+      return false;
+    }
+
+    final int indexOfDot = accountName.indexOf(".");
+    final String nameWithoutSuffix = indexOfDot == -1 ? accountName : accountName.substring(0, indexOfDot);
+
+    return this.configuration.getBoolean(ConfigurationKeys.FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_PREFIX
+        + nameWithoutSuffix + ConfigurationKeys.FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_SUFFIX, false);
   }
 
   private static String ConvertTestUrls(

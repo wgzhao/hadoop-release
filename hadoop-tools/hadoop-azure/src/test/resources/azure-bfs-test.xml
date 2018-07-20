@@ -38,6 +38,11 @@
     <description>The name of the azure file system for testing.</description>
   </property>
 
+  <property>
+     <name>fs.azure.account.namespace.{YOURACCOUNT}.enabled</name>
+     <value>true if namespace is enabled for this account</value>
+  </property>
+
   -->
   <!-- Save above configuration properties in a separate file named -->
   <!-- azure-bfs-auth-keys.xml in the same directory as this file. -->

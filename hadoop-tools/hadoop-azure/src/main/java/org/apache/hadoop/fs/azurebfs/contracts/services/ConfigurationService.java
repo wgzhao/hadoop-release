@@ -165,4 +165,16 @@ public interface ConfigurationService extends InjectableService {
   AuthType getAuthType(String accountName);
 
   AccessTokenProvider getTokenProvider(String accountName) throws TokenAccessProviderException;
+
+  /**
+   * Retrieves configured boolean for enabling namespace account
+   * @return configured boolean for enabling namespace account
+   */
+  boolean getIsNamespaceEnabled(String accountName);
+
+  /**
+   * Retrieves configured boolean for enabling acl bit
+   * @return configured boolean for enabling acl bit
+   */
+  boolean isAclBitEnabled();
 }

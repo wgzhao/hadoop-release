@@ -17,6 +17,18 @@
  */
 package org.apache.hadoop.fs.azurebfs;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.Random;
+import java.util.concurrent.Callable;
+
+import org.junit.Assume;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -26,15 +38,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
 import org.apache.hadoop.fs.contract.ContractTestUtils;
-import org.junit.Test;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.Random;
-import java.util.concurrent.Callable;
 
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
-import static org.junit.Assert.*;
 
 public class ITestAzureBlobFileSystemRandomRead extends DependencyInjectedTest {
   private static final int KILOBYTE = 1024;
@@ -48,6 +53,8 @@ public class ITestAzureBlobFileSystemRandomRead extends DependencyInjectedTest {
 
   public ITestAzureBlobFileSystemRandomRead() throws Exception {
     super();
+
+    Assume.assumeFalse(this.isNamespaceEnabled());
   }
 
   @Test

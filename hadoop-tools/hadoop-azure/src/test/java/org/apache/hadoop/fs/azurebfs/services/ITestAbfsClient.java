@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
+import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +34,15 @@ public final class ITestAbfsClient extends DependencyInjectedTest {
     final AbfsHttpClientFactory abfsHttpClientFactory = new AbfsHttpClientFactoryImpl(new LoggingServiceImpl());
     final AbfsClient abfsClient = abfsHttpClientFactory.create(fs);
 
-    AbfsRestOperation op = abfsClient.listPath("/", true, 5000, "===========");
-    Assert.assertTrue(op.getUrl().toString().contains("continuation=%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D"));
+    try {
+      AbfsRestOperation op = abfsClient.listPath("/", true, 5000, "===========");
+      Assert.assertTrue(op.getUrl().toString().contains("continuation=%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D"));
+    } catch (AzureServiceErrorResponseException ex) {
+      if (ex.getErrorCode() == AzureServiceErrorCode.INVALID_QUERY_PARAMETER_VALUE) {
+        // Ignore
+      } else {
+        throw ex;
+      }
+    }
   }
 }

@@ -22,6 +22,8 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+
+import org.junit.Assume;
 import org.junit.Test;
 
 import org.apache.hadoop.fs.FileStatus;
@@ -33,6 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class ITestAzureBlobFileSystemBackCompat extends DependencyInjectedTest {
   public ITestAzureBlobFileSystemBackCompat() throws Exception {
     super();
+    Assume.assumeFalse(this.isNamespaceEnabled());
   }
 
   @Test
@@ -69,7 +72,7 @@ public class ITestAzureBlobFileSystemBackCompat extends DependencyInjectedTest {
           + ";AccountKey=" + this.getAccountKey();
     } else {
       connectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" +
-          this.getAccountName().replaceFirst("\\.dfs\\.", "\\.blob\\.")
+          this.getAccountName().replaceFirst("\\.dfs\\.", ".blob.")
           + ";AccountName=" + this.getAccountName().split("\\.")[0]
           + ";AccountKey=" + this.getAccountKey();
     }

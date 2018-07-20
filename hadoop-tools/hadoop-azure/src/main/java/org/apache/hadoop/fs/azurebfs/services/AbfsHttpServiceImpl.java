@@ -36,6 +36,10 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -63,6 +67,8 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
+import org.apache.hadoop.fs.permission.AclEntry;
+import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 
@@ -108,7 +114,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   @Override
   public void setFilesystemProperties(final AzureBlobFileSystem azureBlobFileSystem, final Hashtable<String, String> properties) throws
       AzureBlobFileSystemException {
-    if (properties == null || properties.size() == 0) {
+    if (properties == null || properties.isEmpty()) {
       return;
     }
 
@@ -166,7 +172,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     } catch (CharacterCodingException ex) {
       throw new InvalidAzureServiceErrorResponseException(ex);
     }
-    client.setPathProperties("/" + getRelativePath(path), commaSeparatedProperties);
+    client.setPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), commaSeparatedProperties);
   }
 
   @Override
@@ -192,17 +198,19 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   }
 
   @Override
-  public OutputStream createFile(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite) throws
-      AzureBlobFileSystemException {
+  public OutputStream createFile(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite, FsPermission permission)
+      throws AzureBlobFileSystemException {
     final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
-        "createFile filesystem: {0} path: {1} overwrite: {2}",
+        "createFile filesystem: {0} path: {1} overwrite: {2} permission: {3}",
         client.getFileSystem(),
         path.toString(),
-        overwrite);
+        overwrite,
+        permission.toString());
 
-    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), true, overwrite);
+    final String permissionString = permission == null ? null : String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal());
+    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), true, overwrite, permissionString);
 
     final OutputStream outputStream;
     try {
@@ -216,15 +224,17 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   }
 
   @Override
-  public Void createDirectory(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws AzureBlobFileSystemException {
+  public Void createDirectory(final AzureBlobFileSystem azureBlobFileSystem, final Path path, FsPermission permission) throws AzureBlobFileSystemException {
     final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
-        "createDirectory filesystem: {0} path: {1} overwrite: {2}",
+        "createDirectory filesystem: {0} path: {1} permission: {2}",
         client.getFileSystem(),
-        path.toString());
+        path.toString(),
+        permission.toString());
 
-    client.createPath("/" + getRelativePath(path), false, true);
+    final String permissionString = permission == null ? null : String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal());
+    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), false, true, permissionString);
 
     return null;
   }
@@ -373,13 +383,26 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString());
 
     if (path.isRoot()) {
-      AbfsRestOperation op = client.getFilesystemProperties();
+      final AbfsRestOperation op1 = client.getFilesystemProperties();
       final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
-      final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
-      final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
+      final String eTag = op1.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
+      final String lastModified = op1.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
+
+      String owner = null;
+      String group = null;
+      String permissions = null;
+      if(client.isAccountNamespaceEnabled()) {
+        final AbfsRestOperation op2 = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + AbfsHttpConstants.ROOT_PATH);
+        owner = op2.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
+        group = op2.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
+        permissions = op2.getResult().getResponseHeader((HttpHeaderConfigurations.X_MS_PERMISSIONS));
+      }
+
       return new VersionedFileStatus(
-          azureBlobFileSystem.getOwnerUser(),
-          azureBlobFileSystem.getOwnerUserPrimaryGroup(),
+          owner == null ? azureBlobFileSystem.getOwnerUser() : owner,
+          group == null ? azureBlobFileSystem.getOwnerUserPrimaryGroup() : group,
+          permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, false)
+              : AbfsPermission.valueOf(permissions, azureBlobFileSystem.isAclBitEnabled()),
           0,
           true,
           1,
@@ -388,17 +411,24 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
           path,
           eTag);
     } else {
-      AbfsRestOperation op = client.getPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path));
+      final AbfsRestOperation op = client.getPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path));
+      final AbfsHttpOperation result = op.getResult();
 
       final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
-      final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
-      final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
-      final String contentLength = op.getResult().getResponseHeader(HttpHeaderConfigurations.CONTENT_LENGTH);
-      final String resourceType = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_RESOURCE_TYPE);
+
+      final String eTag = result.getResponseHeader(HttpHeaderConfigurations.ETAG);
+      final String lastModified = result.getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
+      final String contentLength = result.getResponseHeader(HttpHeaderConfigurations.CONTENT_LENGTH);
+      final String resourceType = result.getResponseHeader(HttpHeaderConfigurations.X_MS_RESOURCE_TYPE);
+      final String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
+      final String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
+      final String permissions = result.getResponseHeader((HttpHeaderConfigurations.X_MS_PERMISSIONS));
 
       return new VersionedFileStatus(
-          azureBlobFileSystem.getOwnerUser(),
-          azureBlobFileSystem.getOwnerUserPrimaryGroup(),
+          owner == null ? azureBlobFileSystem.getOwnerUser() : owner,
+          group == null ? azureBlobFileSystem.getOwnerUserPrimaryGroup() : group,
+          permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, false)
+              : AbfsPermission.valueOf(permissions, azureBlobFileSystem.isAclBitEnabled()),
           parseContentLength(contentLength),
           parseIsDirectory(resourceType),
           1,
@@ -437,6 +467,12 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
 
       for (ListResultEntrySchema entry : retrievedSchema.paths()) {
+        final String owner = entry.owner() == null ? azureBlobFileSystem.getOwnerUser() : entry.owner();
+        final String group = entry.group() == null ? azureBlobFileSystem.getOwnerUserPrimaryGroup() : entry.group();
+        final FsPermission fsPermission = entry.permissions() == null
+            ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, false)
+            : AbfsPermission.valueOf(entry.permissions(), azureBlobFileSystem.isAclBitEnabled());
+
         long lastModifiedMillis = 0;
         long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
         boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
@@ -446,8 +482,9 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
 
         fileStatuses.add(
             new VersionedFileStatus(
-                azureBlobFileSystem.getOwnerUser(),
-                azureBlobFileSystem.getOwnerUserPrimaryGroup(),
+                owner,
+                group,
+                fsPermission,
                 contentLength,
                 isDirectory,
                 1,
@@ -462,19 +499,222 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return fileStatuses.toArray(new FileStatus[0]);
   }
 
+  @Override
+  public void setOwner(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final String owner, final String group) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "setOwner filesystem: {0} path: {1} owner: {2} group: {3}",
+        client.getFileSystem(),
+        path.toString(),
+        owner,
+        group);
+
+    client.setOwner(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), owner, group);
+  }
+
+  @Override
+  public void setPermission(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final FsPermission permission) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "setPermission filesystem: {0} path: {1} permission: {2}",
+        client.getFileSystem(),
+        path.toString(),
+        permission.toString());
+
+    client.setPermission(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true),
+        String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal()));
+  }
+
+  @Override
+  public void modifyAclEntries(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final List<AclEntry> aclSpec) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "modifyAclEntries filesystem: {0} path: {1} aclSpec: {2}",
+        client.getFileSystem(),
+        path.toString(),
+        AclEntry.aclSpecToString(aclSpec));
+
+    final Map<String, String> modifyAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+
+    final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+
+    for(Map.Entry<String, String> modifyAclEntry : modifyAclEntries.entrySet()) {
+       aclEntries.put(modifyAclEntry.getKey(), modifyAclEntry.getValue());
+    }
+
+    if(!modifyAclEntries.containsKey(AbfsHttpConstants.ACCESS_MASK)) {
+      aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
+    }
+
+    if(!modifyAclEntries.containsKey(AbfsHttpConstants.DEFAULT_MASK)) {
+      aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
+    }
+
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+  }
+
+  @Override
+  public void removeAclEntries(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final List<AclEntry> aclSpec) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "removeAclEntries filesystem: {0} path: {1} aclSpec: {2}",
+        client.getFileSystem(),
+        path.toString(),
+        AclEntry.aclSpecToString(aclSpec));
+
+    final Map<String, String> removeAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+
+    final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+
+    for(Map.Entry<String, String> removeAclEntry : removeAclEntries.entrySet()) {
+      aclEntries.remove(removeAclEntry.getKey());
+    }
+
+    if(!removeAclEntries.containsKey(AbfsHttpConstants.ACCESS_MASK)) {
+      aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
+    }
+
+    if(!removeAclEntries.containsKey(AbfsHttpConstants.DEFAULT_MASK)) {
+      aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
+    }
+
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+  }
+
+  @Override
+  public void removeDefaultAcl(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "removeDefaultAcl filesystem: {0} path: {1}",
+        client.getFileSystem(),
+        path.toString());
+
+    final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+
+    final Map<String, String> defaultAclEntries = new HashMap<>();
+
+    for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
+      if(aclEntry.getKey().startsWith("default:")) {
+        defaultAclEntries.put(aclEntry.getKey(), aclEntry.getValue());
+      }
+    }
+
+    for(Map.Entry<String, String> defaultAclEntry : defaultAclEntries.entrySet()) {
+      aclEntries.remove(defaultAclEntry.getKey());
+    }
+
+    if(!aclEntries.containsKey(AbfsHttpConstants.ACCESS_MASK)) {
+      aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
+    }
+
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+  }
+
+  @Override
+  public void removeAcl(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "removeAcl filesystem: {0} path: {1}",
+        client.getFileSystem(),
+        path.toString());
+
+    final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+
+    final Map<String, String> newAclEntries = new HashMap<>();
+    newAclEntries.put(AbfsHttpConstants.ACCESS_USER, aclEntries.get(AbfsHttpConstants.ACCESS_USER));
+    newAclEntries.put(AbfsHttpConstants.ACCESS_GROUP, aclEntries.get(AbfsHttpConstants.ACCESS_GROUP));
+    newAclEntries.put(AbfsHttpConstants.ACCESS_OTHER, aclEntries.get(AbfsHttpConstants.ACCESS_OTHER));
+
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(newAclEntries));
+  }
+
+  @Override
+  public void setAcl(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final List<AclEntry> aclSpec) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "setAcl filesystem: {0} path: {1} aclspec: {2}",
+        client.getFileSystem(),
+        path.toString(),
+        AclEntry.aclSpecToString(aclSpec));
+
+    final Map<String, String> aclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+
+    final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final Map<String, String> getAclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+
+    for(Map.Entry<String, String> ace : getAclEntries.entrySet()) {
+      if(ace.getKey().startsWith("default:") && (ace.getKey() != AbfsHttpConstants.DEFAULT_MASK)
+          && !aclEntries.containsKey(ace.getKey())) {
+        aclEntries.put(ace.getKey(), ace.getValue());
+      }
+    }
+
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+  }
+
+  @Override
+  public AclStatus getAclStatus(final AzureBlobFileSystem azureBlobFileSystem, final Path path) throws
+      AzureBlobFileSystemException {
+    final AbfsClient client = azureBlobFileSystem.getClient();
+
+    this.loggingService.debug(
+        "getAclStatus filesystem: {0} path: {1}",
+        client.getFileSystem(),
+        path.toString());
+
+    AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    AbfsHttpOperation result = op.getResult();
+
+    final String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
+    final String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
+    final String permissions = result.getResponseHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS);
+    final String aclSpecString = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL);
+
+    final List<AclEntry> processedAclEntries = AclEntry.parseAclSpec(processAclString(aclSpecString), true);
+
+    final FsPermission fsPermission = permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, false)
+        : AbfsPermission.valueOf(permissions, azureBlobFileSystem.isAclBitEnabled());
+
+    final AclStatus.Builder aclStatusBuilder = new AclStatus.Builder();
+    aclStatusBuilder.owner(owner == null ? azureBlobFileSystem.getOwnerUser() : owner);
+    aclStatusBuilder.group(group == null ? azureBlobFileSystem.getOwnerUserPrimaryGroup() : group);
+    aclStatusBuilder.setPermission(fsPermission);
+    aclStatusBuilder.stickyBit(fsPermission.getStickyBit());
+    aclStatusBuilder.addEntries(processedAclEntries);
+    return aclStatusBuilder.build();
+  }
+
   private String getRelativePath(final Path path) {
+    return getRelativePath(path, false);
+  }
+
+  private String getRelativePath(final Path path, final boolean allowRootPath) {
     Preconditions.checkNotNull(path, "path");
     final String relativePath = path.toUri().getPath();
 
-    if (relativePath.length() == 0) {
-      return relativePath;
+    if (relativePath.length() == 0 || (relativePath.length() == 1 && relativePath.charAt(0) == Path.SEPARATOR_CHAR)) {
+      return allowRootPath ? AbfsHttpConstants.ROOT_PATH : AbfsHttpConstants.EMPTY_STRING;
     }
 
     if (relativePath.charAt(0) == Path.SEPARATOR_CHAR) {
-      if (relativePath.length() == 1) {
-        return AbfsHttpConstants.EMPTY_STRING;
-      }
-
       return relativePath.substring(1);
     }
 
@@ -571,19 +811,59 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return properties;
   }
 
+  private Map<String, String> deserializeAclSpec(final String aclSpecString) {
+    final Map<String, String> aclEntries  = new HashMap<>();
+    final String[] aclArray = aclSpecString.split(AbfsHttpConstants.COMMA);
+    for(String acl : aclArray) {
+      int idx = acl.lastIndexOf(AbfsHttpConstants.COLON);
+      aclEntries.put(acl.substring(0, idx), acl.substring(idx + 1));
+    }
+    return aclEntries;
+  }
+
+  private String serializeAclSpec(final Map<String, String> aclEntries) {
+    final StringBuilder sb = new StringBuilder();
+    for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
+      sb.append(aclEntry.getKey() + AbfsHttpConstants.COLON + aclEntry.getValue() + AbfsHttpConstants.COMMA);
+    }
+    if(sb.length() > 0) {
+      sb.setLength(sb.length() - 1);
+    }
+    return sb.toString();
+  }
+
+  private String processAclString(final String aclSpecString) {
+    final List<String> aclEntries = Arrays.asList(aclSpecString.split(AbfsHttpConstants.COMMA));
+    final StringBuilder sb = new StringBuilder();
+
+    boolean containsMask = false;
+    for (int i = aclEntries.size() - 1; i >= 0; i--) {
+      String ace = aclEntries.get(i);
+      if(ace.startsWith("other::") || ace.startsWith("user::")) {
+        // skip
+      } else if(ace.startsWith("mask::")) {
+        containsMask = true;
+        // skip
+      } else if(ace.startsWith("group::") && !containsMask) {
+          // skip
+      } else {
+        sb.insert(0, ace + AbfsHttpConstants.COMMA);
+      }
+    }
+
+    return sb.length() == 0 ? AbfsHttpConstants.EMPTY_STRING : sb.substring(0, sb.length() - 1);
+  }
+
   private class VersionedFileStatus extends FileStatus {
     private final String version;
 
     VersionedFileStatus(
-        final String owner, final String group,
+        final String owner, final String group, final FsPermission fsPermission,
         final long length, final boolean isdir, final int blockReplication,
         final long blocksize, final long modificationTime, final Path path,
         String version) {
       super(length, isdir, blockReplication, blocksize, modificationTime, 0,
-          new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL),
-          owner,
-          group,
-          path);
+          fsPermission, owner, group, path);
 
       this.version = version;
     }

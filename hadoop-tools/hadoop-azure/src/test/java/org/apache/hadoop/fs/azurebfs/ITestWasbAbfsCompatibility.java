@@ -46,6 +46,7 @@ public class ITestWasbAbfsCompatibility extends DependencyInjectedTest {
     super();
 
     Assume.assumeFalse(this.isEmulator());
+    Assume.assumeFalse(this.isNamespaceEnabled());
   }
 
   @Test

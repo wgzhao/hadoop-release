@@ -33,6 +33,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -71,6 +72,8 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.ConfigurationServiceImpl;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
+import org.apache.hadoop.fs.permission.AclEntry;
+import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Progressable;
@@ -95,6 +98,7 @@ public class AzureBlobFileSystem extends FileSystem {
   private AbfsClient abfsClient;
   private Set<String> azureAtomicRenameDirSet;
   private boolean isClosed;
+  private boolean enableAclBit;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -137,6 +141,8 @@ public class AzureBlobFileSystem extends FileSystem {
       //Provide a default group name
       this.primaryUserGroup = this.user;
     }
+
+    this.enableAclBit = this.configurationService.isAclBitEnabled();
   }
 
   public boolean isSecure() {
@@ -154,6 +160,8 @@ public class AzureBlobFileSystem extends FileSystem {
   public boolean isAtomicRenameKey(final String key) {
     return isKeyForDirectorySet(key, azureAtomicRenameDirSet);
   }
+
+  public boolean isAclBitEnabled() { return enableAclBit; }
 
   @Override
   public URI getUri() {
@@ -199,7 +207,7 @@ public class AzureBlobFileSystem extends FileSystem {
         new Callable<OutputStream>() {
           @Override
           public OutputStream call() throws Exception {
-            return abfsHttpService.createFile(azureBlobFileSystem, makeQualified(f), overwrite);
+            return abfsHttpService.createFile(azureBlobFileSystem, makeQualified(f), overwrite, applyUMask(permission, true));
           }
         });
 
@@ -383,7 +391,7 @@ public class AzureBlobFileSystem extends FileSystem {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            abfsHttpService.createDirectory(azureBlobFileSystem, makeQualified(f));
+            abfsHttpService.createDirectory(azureBlobFileSystem, makeQualified(f), applyUMask(permission, false));
             return null;
           }
         });
@@ -542,6 +550,249 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     return true;
+  }
+
+  /**
+   * Set owner of a path (i.e. a file or a directory).
+   * The parameters owner and group cannot both be null.
+   *
+   * @param path  The path
+   * @param owner If it is null, the original username remains unchanged.
+   * @param group If it is null, the original groupname remains unchanged.
+   */
+  @Override
+  public void setOwner(final Path path, final String owner, final String group)
+      throws IOException {
+    this.loggingService.debug(
+        "AzureBlobFileSystem.setOwner path: {0}", path.toString());
+
+    if((owner == null || owner.isEmpty()) && (group == null || group.isEmpty())) {
+      throw new IllegalArgumentException("The parameters owner and group cannot both be blank");
+    }
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+    final FileSystemOperation<Void> setOwner = execute(
+        "AzureBlobFileSystem.setOwner",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.setOwner(azureBlobFileSystem, makeQualified(path),
+                owner,
+                group);
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, setOwner);
+  }
+
+  /**
+   * Set permission of a path.
+   *
+   * @param path       The path
+   * @param permission Access permission
+   */
+  @Override
+  public void setPermission(final Path path, final FsPermission permission)
+      throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.setPermission path: {0}", path.toString());
+
+    if(permission == null) {
+      throw new IllegalArgumentException("The permission can't be null");
+    }
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+    final FileSystemOperation<Void> setPermission = execute(
+        "AzureBlobFileSystem.setPermission",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.setPermission(azureBlobFileSystem, makeQualified(path), permission);
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, setPermission);
+  }
+
+  /**
+   * Modifies ACL entries of files and directories.  This method can add new ACL
+   * entries or modify the permissions on existing ACL entries.  All existing
+   * ACL entries that are not specified in this call are retained without
+   * changes.  (Modifications are merged into the current ACL.)
+   *
+   * @param path    Path to modify
+   * @param aclSpec List of AbfsAclEntry describing modifications
+   * @throws IOException if an ACL could not be modified
+   */
+  @Override
+  public void modifyAclEntries(final Path path, final List<AclEntry> aclSpec)
+      throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.modifyAclEntries path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    if(aclSpec == null || aclSpec.isEmpty()) {
+      throw new IllegalArgumentException("The aclSpec can't be blank");
+    }
+
+    final FileSystemOperation<Void> modifyAclEntries = execute(
+        "AzureBlobFileSystem.modifyAclEntries",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.modifyAclEntries(azureBlobFileSystem, makeQualified(path), aclSpec);
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, modifyAclEntries);
+  }
+
+  /**
+   * Removes ACL entries from files and directories.  Other ACL entries are
+   * retained.
+   *
+   * @param path    Path to modify
+   * @param aclSpec List of AclEntry describing entries to remove
+   * @throws IOException if an ACL could not be modified
+   */
+  @Override
+  public void removeAclEntries(final Path path, final List<AclEntry> aclSpec)
+      throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.removeAclEntries path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    if(aclSpec == null || aclSpec.isEmpty()) {
+      throw new IllegalArgumentException("The aclSpec can't be blank");
+    }
+
+    final FileSystemOperation<Void> removeAclEntries = execute(
+        "AzureBlobFileSystem.removeAclEntries",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.removeAclEntries(azureBlobFileSystem, makeQualified(path), aclSpec);
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, removeAclEntries);
+  }
+
+  /**
+   * Removes all default ACL entries from files and directories.
+   *
+   * @param path Path to modify
+   * @throws IOException if an ACL could not be modified
+   */
+  @Override
+  public void removeDefaultAcl(final Path path)
+      throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.removeDefaultAcl path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    final FileSystemOperation<Void> removeDefaultAcl = execute(
+        "AzureBlobFileSystem.removeDefaultAcl",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.removeDefaultAcl(azureBlobFileSystem, makeQualified(path));
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, removeDefaultAcl);
+  }
+
+  /**
+   * Removes all but the base ACL entries of files and directories.  The entries
+   * for user, group, and others are retained for compatibility with permission
+   * bits.
+   *
+   * @param path Path to modify
+   * @throws IOException if an ACL could not be removed
+   */
+  @Override
+  public void removeAcl(final Path path) throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.removeAcl path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    final FileSystemOperation<Void> removeAcl = execute(
+        "AzureBlobFileSystem.removeAcl",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.removeAcl(azureBlobFileSystem, makeQualified(path));
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, removeAcl);
+  }
+
+  /**
+   * Fully replaces ACL of files and directories, discarding all existing
+   * entries.
+   *
+   * @param path    Path to modify
+   * @param aclSpec List of AclEntry describing modifications, must include
+   *                entries for user, group, and others for compatibility with
+   *                permission bits.
+   * @throws IOException if an ACL could not be modified
+   */
+  @Override
+  public void setAcl(final Path path, final List<AclEntry> aclSpec)
+      throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.setAcl path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    if(aclSpec == null || aclSpec.size() == 0) {
+      throw new IllegalArgumentException("The aclSpec can't be blank");
+    }
+
+    final FileSystemOperation<Boolean> setAcl = execute(
+        "AzureBlobFileSystem.setAcl",
+        new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            abfsHttpService.setAcl(azureBlobFileSystem, makeQualified(path), aclSpec);
+            return null;
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, setAcl);
+  }
+
+  /**
+   * Gets the ACL of a file or directory.
+   *
+   * @param path Path to get
+   * @return AbfsAclStatus describing the ACL of the file or directory
+   * @throws IOException if an ACL could not be read
+   */
+  @Override
+  public AclStatus getAclStatus(final Path path) throws IOException {
+    this.loggingService.debug("AzureBlobFileSystem.getAclStatus path: {0}", path.toString());
+
+    final AzureBlobFileSystem azureBlobFileSystem = this;
+
+    final FileSystemOperation<AclStatus> getAclStatus = execute(
+        "AzureBlobFileSystem.getAclStatus",
+        new Callable<AclStatus>() {
+          @Override
+          public AclStatus call() throws Exception {
+            return abfsHttpService.getAclStatus(azureBlobFileSystem, makeQualified(path));
+          }
+        });
+
+    evaluateFileSystemPathOperation(path, getAclStatus);
+    return getAclStatus.result;
+
   }
 
   private FileStatus tryGetFileStatus(final Path f) {
@@ -703,6 +954,14 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     return false;
+  }
+
+  private FsPermission applyUMask(FsPermission permission, final boolean isFile) {
+    if (permission == null) {
+      permission = isFile ? FsPermission.getFileDefault() : FsPermission.getDirDefault();
+    }
+
+    return permission.applyUMask(FsPermission.getUMask(getConf()));
   }
 
   /**

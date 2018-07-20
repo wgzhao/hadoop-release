@@ -124,7 +124,7 @@ public class AbfsRestOperation {
       }
     }
 
-    if (result.getStatusCode() > HttpURLConnection.HTTP_BAD_REQUEST) {
+    if (result.getStatusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
       throw new AzureServiceErrorResponseException(result.getStatusCode(), result.getStorageErrorCode(),
           result.getStorageErrorMessage(), null, result);
     }

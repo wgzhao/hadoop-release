@@ -58,6 +58,24 @@ public class ListResultEntrySchema {
   private Long contentLength;
 
   /**
+   * The owner property.
+   */
+  @JsonProperty(value = "owner")
+  private String owner;
+
+  /**
+   * The group property.
+   */
+  @JsonProperty(value = "group")
+  private String group;
+
+  /**
+   * The permissions property.
+   */
+  @JsonProperty(value = "permissions")
+  private String permissions;
+
+  /**
    * Get the name value.
    *
    * @return the name value
@@ -157,4 +175,63 @@ public class ListResultEntrySchema {
     return this;
   }
 
+  /**
+   * Get the owner value.
+   *
+   * @return the owner value
+   */
+  public String owner() {
+    return this.owner;
+  }
+
+  /**
+   * Set the owner value.
+   *
+   * @param owner the owner value to set
+   * @return the ListEntrySchema object itself.
+   */
+  public ListResultEntrySchema withOwner(final String owner) {
+    this.owner = owner;
+    return this;
+  }
+
+  /**
+   * Get the group value.
+   *
+   * @return the group value
+   */
+  public String group() {
+    return this.group;
+  }
+
+  /**
+   * Set the group value.
+   *
+   * @param group the group value to set
+   * @return the ListEntrySchema object itself.
+   */
+  public ListResultEntrySchema withGroup(final String group) {
+    this.group = group;
+    return this;
+  }
+
+  /**
+   * Get the permissions value.
+   *
+   * @return the permissions value
+   */
+  public String permissions() {
+    return this.permissions;
+  }
+
+  /**
+   * Set the permissions value.
+   *
+   * @param permissions the permissions value to set
+   * @return the ListEntrySchema object itself.
+   */
+  public ListResultEntrySchema withPermissions(final String permissions) {
+    this.permissions = permissions;
+    return this;
+  }
 }

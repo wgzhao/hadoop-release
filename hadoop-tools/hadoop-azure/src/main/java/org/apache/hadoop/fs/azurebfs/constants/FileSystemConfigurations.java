@@ -55,6 +55,7 @@ public final class FileSystemConfigurations {
   public static final String DEFAULT_FS_AZURE_ATOMIC_RENAME_DIRECTORIES = "/hbase";
   public static final int DEFAULT_READ_AHEAD_QUEUE_DEPTH = -1;
   public static final boolean DEFAULT_ENABLE_FLUSH = true;
+  public static final boolean DEFAULT_ENABLE_ACL_BIT = true;
 
   private FileSystemConfigurations() {}
 }

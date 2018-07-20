@@ -27,6 +27,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.IntegerConfigurationValidatorAnnotation;
@@ -138,6 +139,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           DefaultValue = "")
   private String userAgentId;
 
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_ENABLE_ACL_BIT,
+      DefaultValue = FileSystemConfigurations.DEFAULT_ENABLE_ACL_BIT)
+  private boolean enableAclBit;
 
   private Map<String, String> storageAccountKeys;
 
@@ -209,6 +213,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     return key;
+  }
+
+  @Override
+  public boolean getIsNamespaceEnabled(final String accountName) {
+    if(accountName == null || accountName.isEmpty()) {
+      return false;
+    }
+
+    final int indexOfDot = accountName.indexOf(AbfsHttpConstants.DOT);
+    final String nameWithoutSuffix = indexOfDot < 0 ? accountName : accountName.substring(0, indexOfDot);
+    return configuration.getBoolean(ConfigurationKeys.FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_PREFIX
+        + nameWithoutSuffix + ConfigurationKeys.FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_SUFFIX, false);
   }
 
   @Override
@@ -303,6 +319,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public AuthType getAuthType(final String accountName) {
         return configuration.getEnum(ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME + accountName, AuthType.SharedKey);
     }
+
+  @Override
+  public boolean isAclBitEnabled() { return this.enableAclBit; }
 
   @Override
   public AccessTokenProvider getTokenProvider(final String accountName) throws TokenAccessProviderException {

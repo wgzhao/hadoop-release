@@ -65,9 +65,13 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID = "fs.azure.account.oauth2.client.id.";
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_SECRET = "fs.azure.account.oauth2.client.secret.";
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT = "fs.azure.account.oauth2.client.endpoint.";
-  public static final String FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT = "fs.azure.account.oauth2.msi.tenant";
+  public static final String FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT = "fs.azure.account.oauth2.msi.tenant.";
   public static final String FS_AZURE_ACCOUNT_OAUTH_USER_NAME = "fs.azure.account.oauth2.user.name.";
   public static final String FS_AZURE_ACCOUNT_OAUTH_USER_PASSWORD = "fs.azure.account.oauth2.user.password.";
 
+  public static final String FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_PREFIX = "fs.azure.account.namespace.";
+  public static final String FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_SUFFIX = ".enabled";
+
+  public static final String FS_AZURE_ENABLE_ACL_BIT = "fs.azure.enable.acl.bit";
   private ConfigurationKeys() {}
 }

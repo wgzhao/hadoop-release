@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import com.microsoft.azure.storage.blob.BlockEntry;
 import com.microsoft.azure.storage.blob.BlockListingFilter;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
 
@@ -38,6 +39,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -312,7 +314,7 @@ public class ITestAzureBlobFileSystemFlush extends DependencyInjectedTest {
   }
 
   @Test
-  public void testHsyncWithFlushEnabled() throws Exception {
+  public void testHsyncWithFlyushEnabled() throws Exception {
     setEnableFlush(true);
 
     final AzureBlobFileSystem fs = this.getFileSystem();
