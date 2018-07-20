@@ -194,6 +194,9 @@ public class TestCommonConfigurationFields extends TestConfigurationFieldsBase {
     // - org.apache.hadoop.io.SequenceFile
     xmlPropsToSkipCompare.add("io.seqfile.local.dir");
 
+    //fs.abfs.impl and fs.abfss.impl don't need to be in config class
+    xmlPropsToSkipCompare.add("fs.abfs.impl");
+    xmlPropsToSkipCompare.add("fs.abfss.impl");
 
   }
 }

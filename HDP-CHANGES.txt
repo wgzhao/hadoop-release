@@ -5043,3 +5043,7 @@ ATS V1.5:
 
     BUG-107502. YARN-7962. Race Condition When Stopping DelegationTokenRenewer.
     Contributed by Beluga Behr
+
+    WASB-99. TestCommonConfigurationFields#testCompareXmlAgainstConfigurationClass
+    due to missing properties from configuration classes
+
