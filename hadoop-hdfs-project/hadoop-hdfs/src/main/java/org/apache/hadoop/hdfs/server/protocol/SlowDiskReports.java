@@ -136,7 +136,6 @@ public final class SlowDiskReports {
       return value;
     }
 
-    @JsonCreator
     public static DiskOp fromValue(final String value) {
       for (DiskOp as : DiskOp.values()) {
         if (as.value.equals(value)) {

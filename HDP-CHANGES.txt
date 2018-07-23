@@ -5047,3 +5047,5 @@ ATS V1.5:
     WASB-99. TestCommonConfigurationFields#testCompareXmlAgainstConfigurationClass
     due to missing properties from configuration classes
 
+    HDFS-195. DiskOp is incompatible with Jackson 2.7
+
