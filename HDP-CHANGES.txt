@@ -4816,3 +4816,4 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+HADOOP-15395. DefaultImpersonationProvider fails to parse proxy user config if username has . in it. Contributed by Ajay Kumar.
