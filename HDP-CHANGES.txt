@@ -4722,3 +4722,6 @@ ATS V1.5:
 
     YARN-5037. Fix random failure of TestRMRestart#testQueueMetricsOnRMRestart
     (sandflee via Varun Saxena).
+
+    HADOOP-15395. DefaultImpersonationProvider fails to parse proxy user config
+    if username has . in it. Contributed by Ajay Kumar.
