@@ -107,12 +107,10 @@ class AbfsHttpClientFactoryImpl implements AbfsHttpClientFactory {
 
     SharedKeyCredentials creds = null;
     AccessTokenProvider tokenProvider = null;
-    if( fs.getConfigurationService().getAuthType(accountName) == AuthType.SharedKey) {
+    if (fs.getConfigurationService().getAuthType(accountName) == AuthType.SharedKey) {
       creds = new SharedKeyCredentials(accountName.substring(0, accountName.indexOf(AbfsHttpConstants.DOT)),
               fs.getConfigurationService().getStorageAccountKey(accountName));
-    }
-    else
-    {
+    } else {
       tokenProvider = fs.getConfigurationService().getTokenProvider(accountName);
     }
 

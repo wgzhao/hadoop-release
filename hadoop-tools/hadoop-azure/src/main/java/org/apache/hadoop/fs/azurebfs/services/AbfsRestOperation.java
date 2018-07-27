@@ -141,15 +141,12 @@ public class AbfsRestOperation {
       // initialize the HTTP request and open the connection
       httpOperation = new AbfsHttpOperation(url, method, requestHeaders, client.getLoggingService());
 
-      if(client.getAccessToken() == null)
-      {
+      if(client.getAccessToken() == null) {
         // sign the HTTP request
         client.getSharedKeyCredentials().signRequest(
                 httpOperation.getConnection(),
                 hasRequestBody ? bufferLength : 0);
-      }
-      else
-      {
+      } else {
         httpOperation.getConnection().setRequestProperty(HttpHeaderConfigurations.AUTHORIZATION,
                 client.getAccessToken());
       }

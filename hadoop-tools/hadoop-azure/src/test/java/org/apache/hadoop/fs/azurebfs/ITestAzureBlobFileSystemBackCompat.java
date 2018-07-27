@@ -67,10 +67,9 @@ public class ITestAzureBlobFileSystemBackCompat extends DependencyInjectedTest {
           this.getHostName() + ":8880/" + this.getAccountName().split("\\.") [0]
           + ";AccountName=" + this.getAccountName().split("\\.")[0]
           + ";AccountKey=" + this.getAccountKey();
-    }
-    else {
+    } else {
       connectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" +
-          this.getAccountName().replaceFirst(".dfs.", ".blob.")
+          this.getAccountName().replaceFirst("\\.dfs\\.", "\\.blob\\.")
           + ";AccountName=" + this.getAccountName().split("\\.")[0]
           + ";AccountKey=" + this.getAccountKey();
     }

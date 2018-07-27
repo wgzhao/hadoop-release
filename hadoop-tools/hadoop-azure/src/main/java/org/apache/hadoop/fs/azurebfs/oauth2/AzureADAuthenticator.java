@@ -32,12 +32,16 @@ import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
-public class AzureADAuthenticator {
+public final class AzureADAuthenticator {
 
   private static final Logger LOG = LoggerFactory.getLogger(AzureADAuthenticator.class);
-  static private final String RESOURCE_NAME = "https://storage.azure.com/";
+  private static final String RESOURCE_NAME = "https://storage.azure.com/";
   private static final int CONNECT_TIMEOUT = 30 * 1000;
   private static final int READ_TIMEOUT = 30 * 1000;
+
+  private AzureADAuthenticator() {
+    //not called
+  }
 
   /**
    * gets Azure Active Directory token using the user ID and password of a service principal (that is, Web App

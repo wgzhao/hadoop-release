@@ -107,7 +107,14 @@ public class AzureBlobFileSystem extends FileSystem {
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
     this.userGroupInformation = UserGroupInformation.getCurrentUser();
     this.user = userGroupInformation.getUserName();
-    this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
+    try {
+      this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
+    } catch (IOException e) {
+      this.loggingService.debug("Failed to get primaryUserGroup ", e);
+      // Using user name to represent primaryUserGroup for now.
+      this.primaryUserGroup = this.user;
+    }
+
 
     this.setWorkingDirectory(this.getHomeDirectory());
 

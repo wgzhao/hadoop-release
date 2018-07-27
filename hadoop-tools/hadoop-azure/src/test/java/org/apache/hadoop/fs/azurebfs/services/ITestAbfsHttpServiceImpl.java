@@ -63,7 +63,6 @@ public class ITestAbfsHttpServiceImpl extends DependencyInjectedTest {
   }
 
   @Test
-  @Ignore("Skip due to a known issue")
   public void testBase64FileSystemProperties() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     final Hashtable<String, String> properties = new Hashtable<>();

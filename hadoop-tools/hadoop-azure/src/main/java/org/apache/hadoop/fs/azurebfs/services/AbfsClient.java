@@ -406,8 +406,8 @@ public class AbfsClient {
     return encodedString;
   }
 
-  synchronized public String getAccessToken() throws IOException {
-    if (tokenProvider != null ) {
+  public synchronized String getAccessToken() throws IOException {
+    if (tokenProvider != null) {
       return "Bearer " + tokenProvider.getToken().getAccessToken();
     } else {
       return accessToken;

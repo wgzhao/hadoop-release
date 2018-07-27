@@ -5051,3 +5051,8 @@ ATS V1.5:
 
     BUG-108788. YARN-4579. Allow DefaultContainerExecutor container log
     directory permissions to be configurable (rchiang via rkanter)
+
+    WASB-105. Providing default primaryUserGroup when it is missing
+
+    WASB-101. OAuth support for ABFS driver
+
