@@ -5056,3 +5056,5 @@ ATS V1.5:
 
     WASB-101. OAuth support for ABFS driver
 
+    WASB-106. Adding configuration key for skipping user group metadata
+

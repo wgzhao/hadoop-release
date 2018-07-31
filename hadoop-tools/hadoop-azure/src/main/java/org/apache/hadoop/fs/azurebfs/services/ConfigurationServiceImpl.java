@@ -122,6 +122,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       DefaultValue = FileSystemConfigurations.DEFAULT_AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION)
   private boolean createRemoteFileSystemDuringInitialization;
 
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.AZURE_SKIP_USER_GROUP_METADATA_DURING_INITIALIZATION,
+          DefaultValue = FileSystemConfigurations.DEFAULT_AZURE_SKIP_USER_GROUP_METADATA_DURING_INITIALIZATION)
+  private boolean skipUserGroupMetadataDuringInitialization;
+
   @IntegerConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_READ_AHEAD_QUEUE_DEPTH,
       DefaultValue = FileSystemConfigurations.DEFAULT_READ_AHEAD_QUEUE_DEPTH)
   private int readAheadQueueDepth;
@@ -275,6 +279,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @Override
   public boolean getCreateRemoteFileSystemDuringInitialization() {
     return this.createRemoteFileSystemDuringInitialization;
+  }
+
+  @Override
+  public boolean getSkipUserGroupMetadataDuringInitialization() {
+    return this.skipUserGroupMetadataDuringInitialization;
   }
 
   @Override

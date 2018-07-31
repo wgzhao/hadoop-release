@@ -139,6 +139,12 @@ public interface ConfigurationService extends InjectableService {
   boolean getCreateRemoteFileSystemDuringInitialization();
 
   /**
+   * Retrieves configured boolean for retrieving user group metadata during initialization
+   * @return configured boolean for retrieving user group metadata during initialization
+   */
+  boolean getSkipUserGroupMetadataDuringInitialization();
+
+  /**
    * Retrieves configured value of read ahead queue
    * @return depth of read ahead
    */

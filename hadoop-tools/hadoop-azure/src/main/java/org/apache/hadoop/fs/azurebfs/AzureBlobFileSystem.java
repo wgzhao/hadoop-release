@@ -107,15 +107,6 @@ public class AzureBlobFileSystem extends FileSystem {
     this.uri = URI.create(uri.getScheme() + "://" + uri.getAuthority());
     this.userGroupInformation = UserGroupInformation.getCurrentUser();
     this.user = userGroupInformation.getUserName();
-    try {
-      this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
-    } catch (IOException e) {
-      this.loggingService.debug("Failed to get primaryUserGroup ", e);
-      // Using user name to represent primaryUserGroup for now.
-      this.primaryUserGroup = this.user;
-    }
-
-
     this.setWorkingDirectory(this.getHomeDirectory());
 
     try {
@@ -138,6 +129,13 @@ public class AzureBlobFileSystem extends FileSystem {
       if (!this.fileSystemExists()) {
         this.createFileSystem();
       }
+    }
+
+    if (!this.configurationService.getSkipUserGroupMetadataDuringInitialization()) {
+      this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
+    } else {
+      //Provide a default group name
+      this.primaryUserGroup = this.user;
     }
   }
 
