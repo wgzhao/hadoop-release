@@ -289,8 +289,6 @@ public class AbfsOutputStream extends OutputStream implements Syncable {
     if (this.lastAppendOffset > this.lastFlushOffset) {
       this.flushWrittenBytesToServiceInternal(this.lastAppendOffset, true);
     }
-
-    this.lastAppendOffset = 0;
   }
 
   private synchronized void flushWrittenBytesToServiceInternal(final long offset, final boolean retainUncommitedData) throws IOException {
