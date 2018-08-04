@@ -290,7 +290,10 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     final AzureBlobFileSystem azureBlobFileSystem = this;
-    final FileStatus dstFileStatus = tryGetFileStatus(dst);
+
+    final FileStatus dstFileStatus = azureBlobFileSystem.getClient().isAccountNamespaceEnabled()
+        ? null : tryGetFileStatus(dst); // if namespace enabled, skip this call
+
     final FileSystemOperation<Boolean> rename = execute(
         "AzureBlobFileSystem.rename",
         new Callable<Boolean>() {

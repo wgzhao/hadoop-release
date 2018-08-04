@@ -73,5 +73,6 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_SUFFIX = ".enabled";
 
   public static final String FS_AZURE_ENABLE_ACL_BIT = "fs.azure.enable.acl.bit";
+
   private ConfigurationKeys() {}
 }

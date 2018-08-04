@@ -147,4 +147,19 @@ public class ITestAzureBlobFileSystemRename extends DependencyInjectedTest {
     renamed = fs.rename(new Path(fs.getUri().toString() + "/"), new Path(fs.getUri().toString() + "/s"));
     assertFalse(renamed);
   }
+
+  @Test
+  public void testPosixRenameDirectory() throws Exception {
+    final AzureBlobFileSystem fs = this.getFileSystem();;
+    fs.mkdirs(new Path("testDir2/test1/test2/test3"));
+    fs.mkdirs(new Path("testDir2/test4"));
+
+    Assert.assertTrue(fs.rename(new Path("testDir2/test1/test2/test3"), new Path("testDir2/test4")));
+    assertTrue(fs.exists(new Path("testDir2")));
+    assertTrue(fs.exists(new Path("testDir2/test1/test2")));
+    assertTrue(fs.exists(new Path("testDir2/test4")));
+    assertTrue(fs.exists(new Path("testDir2/test4/test3")));
+
+    assertFalse(fs.exists(new Path("testDir2/test1/test2/test3")));
+  }
 }
