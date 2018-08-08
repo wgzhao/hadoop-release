@@ -430,6 +430,10 @@ public class AbfsClient {
   }
 
   public AbfsRestOperation setAcl(final String path, final String aclSpecString) throws AzureBlobFileSystemException {
+    return setAcl(path, aclSpecString, AbfsHttpConstants.EMPTY_STRING);
+  }
+
+  public AbfsRestOperation setAcl(final String path, final String aclSpecString, final String eTag) throws AzureBlobFileSystemException {
     if(!isAccountNamespaceEnabled) {
       throw new InvalidAclOperationException(path);
     }
@@ -440,6 +444,10 @@ public class AbfsClient {
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_HTTP_METHOD_OVERRIDE,
         AbfsHttpConstants.HTTP_METHOD_PATCH));
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_MS_ACL, aclSpecString));
+
+    if(eTag != null && !eTag.isEmpty()) {
+      requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.IF_MATCH, eTag));
+    }
 
     final AbfsUriQueryBuilder abfsUriQueryBuilder = createDefaultUriQueryBuilder();
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_ACTION, AbfsHttpConstants.SET_ACCESS_CONTROL);

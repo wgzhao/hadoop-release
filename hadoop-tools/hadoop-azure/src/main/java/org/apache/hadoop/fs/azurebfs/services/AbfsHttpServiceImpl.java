@@ -543,6 +543,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final Map<String, String> modifyAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
+
     final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     for(Map.Entry<String, String> modifyAclEntry : modifyAclEntries.entrySet()) {
@@ -557,7 +559,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -574,8 +576,9 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final Map<String, String> removeAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
     for(Map.Entry<String, String> removeAclEntry : removeAclEntries.entrySet()) {
       aclEntries.remove(removeAclEntry.getKey());
     }
@@ -588,7 +591,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -602,8 +605,9 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString());
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
+    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
     final Map<String, String> defaultAclEntries = new HashMap<>();
 
     for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
@@ -620,7 +624,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -634,6 +638,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString());
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
+
     final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     final Map<String, String> newAclEntries = new HashMap<>();
@@ -641,7 +647,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     newAclEntries.put(AbfsHttpConstants.ACCESS_GROUP, aclEntries.get(AbfsHttpConstants.ACCESS_GROUP));
     newAclEntries.put(AbfsHttpConstants.ACCESS_OTHER, aclEntries.get(AbfsHttpConstants.ACCESS_OTHER));
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(newAclEntries));
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(newAclEntries), eTag);
   }
 
   @Override
@@ -658,6 +664,8 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final Map<String, String> aclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
+    final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
+
     final Map<String, String> getAclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     for(Map.Entry<String, String> ace : getAclEntries.entrySet()) {
@@ -667,7 +675,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries));
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
