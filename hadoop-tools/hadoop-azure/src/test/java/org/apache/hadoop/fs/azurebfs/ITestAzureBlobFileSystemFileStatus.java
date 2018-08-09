@@ -56,12 +56,12 @@ public class ITestAzureBlobFileSystemFileStatus extends DependencyInjectedTest {
 
     FileStatus fileStatus = fs.getFileStatus(new Path("/testFile"));
     assertEquals(new FsPermission(filePermissions), fileStatus.getPermission());
-    assertEquals(fs.getOwnerUser(), fileStatus.getGroup());
-    assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getOwner());
+    assertEquals(fs.getOwnerUser(), fileStatus.getOwner());
+    assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getGroup());
 
     fileStatus = fs.getFileStatus(new Path("/testDir"));
     assertEquals(new FsPermission(dirPermissions), fileStatus.getPermission());
-    assertEquals(fs.getOwnerUser(), fileStatus.getGroup());
-    assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getOwner());
+    assertEquals(fs.getOwnerUser(), fileStatus.getOwner());
+    assertEquals(fs.getOwnerUserPrimaryGroup(), fileStatus.getGroup());
   }
 }

@@ -5062,3 +5062,10 @@ ATS V1.5:
 
 
     WASB-102: Acl Support for ABFS Driver
+
+    WASB-113. Add conditional check for acl operation
+
+    WASB-112. Fixed ITestAzureBlobFileSystemFileStatus
+
+    WASB-110. Enable Posix rename configuration in Driver
+

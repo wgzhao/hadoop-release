@@ -66,8 +66,6 @@ public class ITestAzureBlobFileSystemRename extends DependencyInjectedTest {
     assertNotNull(fileStatus);
   }
 
-  //TODO: 7/27/2018  Remove ignore next week
-  @Ignore("Fix is checked in but not deployed to tenant")
   @Test
   public void testRenameFileUsingUnicode() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
