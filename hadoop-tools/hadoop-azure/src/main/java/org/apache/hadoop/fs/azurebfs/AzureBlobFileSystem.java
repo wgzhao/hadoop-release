@@ -207,7 +207,8 @@ public class AzureBlobFileSystem extends FileSystem {
         new Callable<OutputStream>() {
           @Override
           public OutputStream call() throws Exception {
-            return abfsHttpService.createFile(azureBlobFileSystem, makeQualified(f), overwrite, applyUMask(permission, true));
+            return abfsHttpService.createFile(azureBlobFileSystem, makeQualified(f), overwrite, getValueOrDefault(permission, true),
+                FsPermission.getUMask(getConf()));
           }
         });
 
@@ -394,7 +395,8 @@ public class AzureBlobFileSystem extends FileSystem {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            abfsHttpService.createDirectory(azureBlobFileSystem, makeQualified(f), applyUMask(permission, false));
+            abfsHttpService.createDirectory(azureBlobFileSystem, makeQualified(f), getValueOrDefault(permission, false),
+                FsPermission.getUMask(getConf()));
             return null;
           }
         });
@@ -959,12 +961,12 @@ public class AzureBlobFileSystem extends FileSystem {
     return false;
   }
 
-  private FsPermission applyUMask(FsPermission permission, final boolean isFile) {
+  private FsPermission getValueOrDefault(FsPermission permission, final boolean isFile) {
     if (permission == null) {
       permission = isFile ? FsPermission.getFileDefault() : FsPermission.getDirDefault();
     }
 
-    return permission.applyUMask(FsPermission.getUMask(getConf()));
+    return permission;
   }
 
   /**

@@ -47,7 +47,7 @@ public interface CustomTokenProviderAdaptee {
    * @param accountName Account Name
    * @throws IOException if instance can not be configured.
    */
-  public abstract void initialize(Configuration configuration, final String accountName)
+  void initialize(Configuration configuration, final String accountName)
           throws IOException;
 
   /**
@@ -59,7 +59,7 @@ public interface CustomTokenProviderAdaptee {
    * @return String containing the access token
    * @throws IOException if there is an error fetching the token
    */
-  public abstract String getAccessToken() throws IOException;
+  String getAccessToken() throws IOException;
 
   /**
    * Obtain expiry time of the token. If implementation is performant enough to
@@ -71,5 +71,5 @@ public interface CustomTokenProviderAdaptee {
    *
    * @return Date to expire access token retrieved from AAD.
    */
-  public abstract Date getExpiryTime();
+  Date getExpiryTime();
 }

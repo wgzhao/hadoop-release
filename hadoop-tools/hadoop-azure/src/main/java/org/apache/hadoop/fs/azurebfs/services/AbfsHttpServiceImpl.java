@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -198,19 +197,20 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   }
 
   @Override
-  public OutputStream createFile(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite, FsPermission permission)
+  public OutputStream createFile(final AzureBlobFileSystem azureBlobFileSystem, final Path path, final boolean overwrite, FsPermission permission,
+                                 FsPermission umask)
       throws AzureBlobFileSystemException {
     final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
-        "createFile filesystem: {0} path: {1} overwrite: {2} permission: {3}",
+        "createFile filesystem: {0} path: {1} overwrite: {2} permission: {3} umask: {4}",
         client.getFileSystem(),
         path.toString(),
         overwrite,
-        permission.toString());
+        permission.toString(),
+        umask.toString());
 
-    final String permissionString = permission == null ? null : String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal());
-    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), true, overwrite, permissionString);
+    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), true, overwrite, getOctalNotation(permission), getOctalNotation(umask));
 
     final OutputStream outputStream;
     try {
@@ -224,17 +224,18 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
   }
 
   @Override
-  public Void createDirectory(final AzureBlobFileSystem azureBlobFileSystem, final Path path, FsPermission permission) throws AzureBlobFileSystemException {
+  public Void createDirectory(final AzureBlobFileSystem azureBlobFileSystem, final Path path, FsPermission permission, FsPermission umask)
+      throws AzureBlobFileSystemException {
     final AbfsClient client = azureBlobFileSystem.getClient();
 
     this.loggingService.debug(
-        "createDirectory filesystem: {0} path: {1} permission: {2}",
+        "createDirectory filesystem: {0} path: {1} permission: {2} umask: {3}",
         client.getFileSystem(),
         path.toString(),
-        permission.toString());
+        permission.toString(),
+        umask.toString());
 
-    final String permissionString = permission == null ? null : String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal());
-    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), false, true, permissionString);
+    client.createPath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), false, true, getOctalNotation(permission), getOctalNotation(umask));
 
     return null;
   }
@@ -383,20 +384,16 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString());
 
     if (path.isRoot()) {
-      final AbfsRestOperation op1 = client.getFilesystemProperties();
-      final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
-      final String eTag = op1.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
-      final String lastModified = op1.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
+      final AbfsRestOperation op = client.isAccountNamespaceEnabled()
+          ? client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + AbfsHttpConstants.ROOT_PATH)
+          : client.getFilesystemProperties();
 
-      String owner = null;
-      String group = null;
-      String permissions = null;
-      if(client.isAccountNamespaceEnabled()) {
-        final AbfsRestOperation op2 = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + AbfsHttpConstants.ROOT_PATH);
-        owner = op2.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
-        group = op2.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-        permissions = op2.getResult().getResponseHeader((HttpHeaderConfigurations.X_MS_PERMISSIONS));
-      }
+      final long blockSize = azureBlobFileSystem.getConfigurationService().getAzureBlockSize();
+      final String owner = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
+      final String group = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
+      final String permissions = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS);
+      final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
+      final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
 
       return new VersionedFileStatus(
           owner == null ? azureBlobFileSystem.getOwnerUser() : owner,
@@ -540,12 +537,12 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString(),
         AclEntry.aclSpecToString(aclSpec));
 
-    final Map<String, String> modifyAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+    final Map<String, String> modifyAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     for(Map.Entry<String, String> modifyAclEntry : modifyAclEntries.entrySet()) {
        aclEntries.put(modifyAclEntry.getKey(), modifyAclEntry.getValue());
@@ -559,7 +556,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -573,25 +570,16 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString(),
         AclEntry.aclSpecToString(aclSpec));
 
-    final Map<String, String> removeAclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+    final Map<String, String> removeAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
-    for(Map.Entry<String, String> removeAclEntry : removeAclEntries.entrySet()) {
-      aclEntries.remove(removeAclEntry.getKey());
-    }
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
-    if(!removeAclEntries.containsKey(AbfsHttpConstants.ACCESS_MASK)) {
-      aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
-    }
+    AbfsAclHelper.removeAclEntriesInternal(aclEntries, removeAclEntries);
 
-    if(!removeAclEntries.containsKey(AbfsHttpConstants.DEFAULT_MASK)) {
-      aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
-    }
-
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -607,7 +595,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
     final Map<String, String> defaultAclEntries = new HashMap<>();
 
     for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
@@ -624,7 +612,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -640,14 +628,14 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
-    final Map<String, String> aclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     final Map<String, String> newAclEntries = new HashMap<>();
     newAclEntries.put(AbfsHttpConstants.ACCESS_USER, aclEntries.get(AbfsHttpConstants.ACCESS_USER));
     newAclEntries.put(AbfsHttpConstants.ACCESS_GROUP, aclEntries.get(AbfsHttpConstants.ACCESS_GROUP));
     newAclEntries.put(AbfsHttpConstants.ACCESS_OTHER, aclEntries.get(AbfsHttpConstants.ACCESS_OTHER));
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(newAclEntries), eTag);
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(newAclEntries), eTag);
   }
 
   @Override
@@ -661,12 +649,12 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
         path.toString(),
         AclEntry.aclSpecToString(aclSpec));
 
-    final Map<String, String> aclEntries = deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(aclSpec));
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
 
-    final Map<String, String> getAclEntries = deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
+    final Map<String, String> getAclEntries = AbfsAclHelper.deserializeAclSpec(op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL));
 
     for(Map.Entry<String, String> ace : getAclEntries.entrySet()) {
       if(ace.getKey().startsWith("default:") && (ace.getKey() != AbfsHttpConstants.DEFAULT_MASK)
@@ -675,7 +663,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       }
     }
 
-    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), serializeAclSpec(aclEntries), eTag);
+    client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
   }
 
   @Override
@@ -696,7 +684,7 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     final String permissions = result.getResponseHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS);
     final String aclSpecString = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL);
 
-    final List<AclEntry> processedAclEntries = AclEntry.parseAclSpec(processAclString(aclSpecString), true);
+    final List<AclEntry> processedAclEntries = AclEntry.parseAclSpec(AbfsAclHelper.processAclString(aclSpecString), true);
 
     final FsPermission fsPermission = permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL, false)
         : AbfsPermission.valueOf(permissions, azureBlobFileSystem.isAclBitEnabled());
@@ -708,6 +696,11 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     aclStatusBuilder.stickyBit(fsPermission.getStickyBit());
     aclStatusBuilder.addEntries(processedAclEntries);
     return aclStatusBuilder.build();
+  }
+
+  private String getOctalNotation(FsPermission fsPermission) {
+    Preconditions.checkNotNull(fsPermission, "fsPermission");
+    return String.format(AbfsHttpConstants.PERMISSION_FORMAT, fsPermission.toOctal());
   }
 
   private String getRelativePath(final Path path) {
@@ -819,48 +812,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
     return properties;
   }
 
-  private Map<String, String> deserializeAclSpec(final String aclSpecString) {
-    final Map<String, String> aclEntries  = new HashMap<>();
-    final String[] aclArray = aclSpecString.split(AbfsHttpConstants.COMMA);
-    for(String acl : aclArray) {
-      int idx = acl.lastIndexOf(AbfsHttpConstants.COLON);
-      aclEntries.put(acl.substring(0, idx), acl.substring(idx + 1));
-    }
-    return aclEntries;
-  }
-
-  private String serializeAclSpec(final Map<String, String> aclEntries) {
-    final StringBuilder sb = new StringBuilder();
-    for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
-      sb.append(aclEntry.getKey() + AbfsHttpConstants.COLON + aclEntry.getValue() + AbfsHttpConstants.COMMA);
-    }
-    if(sb.length() > 0) {
-      sb.setLength(sb.length() - 1);
-    }
-    return sb.toString();
-  }
-
-  private String processAclString(final String aclSpecString) {
-    final List<String> aclEntries = Arrays.asList(aclSpecString.split(AbfsHttpConstants.COMMA));
-    final StringBuilder sb = new StringBuilder();
-
-    boolean containsMask = false;
-    for (int i = aclEntries.size() - 1; i >= 0; i--) {
-      String ace = aclEntries.get(i);
-      if(ace.startsWith("other::") || ace.startsWith("user::")) {
-        // skip
-      } else if(ace.startsWith("mask::")) {
-        containsMask = true;
-        // skip
-      } else if(ace.startsWith("group::") && !containsMask) {
-          // skip
-      } else {
-        sb.insert(0, ace + AbfsHttpConstants.COMMA);
-      }
-    }
-
-    return sb.length() == 0 ? AbfsHttpConstants.EMPTY_STRING : sb.substring(0, sb.length() - 1);
-  }
 
   private class VersionedFileStatus extends FileStatus {
     private final String version;
@@ -876,4 +827,5 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       this.version = version;
     }
   }
+
 }

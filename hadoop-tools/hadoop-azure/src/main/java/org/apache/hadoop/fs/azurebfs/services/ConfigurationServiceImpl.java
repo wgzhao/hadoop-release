@@ -367,8 +367,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
     else if(authType == AuthType.Custom) {
 
-      try
-      {
+      try {
         Class<? extends CustomTokenProviderAdaptee> azureADTokenProviderClass =
                 configuration.getClass(ConfigurationKeys.FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME + accountName, null,
                         CustomTokenProviderAdaptee.class);

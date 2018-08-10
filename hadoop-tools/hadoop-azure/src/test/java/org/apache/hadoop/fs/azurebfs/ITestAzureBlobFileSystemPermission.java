@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -72,7 +73,9 @@ public class ITestAzureBlobFileSystemPermission extends DependencyInjectedTest{
 
   @Test
   public void testFilePermission() throws Exception {
+
     final AzureBlobFileSystem fs = this.getFileSystem();
+    fs.getConf().set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "027");
     path = new Path(testRoot, UUID.randomUUID().toString());
 
     fs.mkdirs(path.getParent(),
@@ -87,6 +90,8 @@ public class ITestAzureBlobFileSystemPermission extends DependencyInjectedTest{
   @Test
   public void testFolderPermission() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
+    fs.getConf().set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "027");
+
     path = new Path(testRoot, UUID.randomUUID().toString());
 
     fs.mkdirs(path.getParent(),

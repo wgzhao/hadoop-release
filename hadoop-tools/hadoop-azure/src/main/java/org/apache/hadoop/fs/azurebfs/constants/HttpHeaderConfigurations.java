@@ -56,6 +56,7 @@ public final class HttpHeaderConfigurations {
   public static final String X_MS_GROUP = "x-ms-group";
   public static final String X_MS_ACL = "x-ms-acl";
   public static final String X_MS_PERMISSIONS = "x-ms-permissions";
+  public static final String X_MS_UMASK = "x-ms-umask";
 
   private HttpHeaderConfigurations() {}
 }

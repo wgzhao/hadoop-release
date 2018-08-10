@@ -82,6 +82,10 @@ public final class AbfsHttpConstants {
   public static final String ACCESS_GROUP = "group:";
   public static final String ACCESS_OTHER = "other:";
   public static final String DEFAULT_MASK = "default:mask:";
+  public static final String DEFAULT_USER = "default:user:";
+  public static final String DEFAULT_GROUP = "default:group:";
+  public static final String DEFAULT_OTHER = "default:other:";
+  public static final String DEFAULT_SCOPE = "default:";
   public static final String PERMISSION_FORMAT = "%04d";
 
   private AbfsHttpConstants() {}

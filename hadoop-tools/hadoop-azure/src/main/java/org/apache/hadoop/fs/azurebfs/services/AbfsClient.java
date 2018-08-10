@@ -205,14 +205,20 @@ public class AbfsClient {
     return op;
   }
 
-  public AbfsRestOperation createPath(final String path, final boolean isFile, final boolean overwrite, final String permission)
-          throws AzureBlobFileSystemException {
+  public AbfsRestOperation createPath(final String path, final boolean isFile, final boolean overwrite, final String permission,
+      final String umask) throws AzureBlobFileSystemException {
     final List<AbfsHttpHeader> requestHeaders = createDefaultHeaders();
     if (!overwrite) {
       requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.IF_NONE_MATCH,  AbfsHttpConstants.STAR));
     }
-    if (isAccountNamespaceEnabled && permission != null && permission != AbfsHttpConstants.EMPTY_STRING) {
-      requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS, permission));
+
+    if (isAccountNamespaceEnabled) {
+      if(permission != null && !permission.isEmpty()) {
+        requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS, permission));
+      }
+      if(umask != null && !umask.isEmpty()) {
+        requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_MS_UMASK, umask));
+      }
     }
 
     final AbfsUriQueryBuilder abfsUriQueryBuilder = createDefaultUriQueryBuilder();

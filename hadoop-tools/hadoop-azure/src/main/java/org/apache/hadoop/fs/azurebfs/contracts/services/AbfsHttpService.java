@@ -91,18 +91,21 @@ public interface AbfsHttpService extends InjectableService {
    * @param path path of the file to be created.
    * @param overwrite should overwrite.
    * @param permission permission of the file created
+   * @param umask umask used for the directory created
    * @return OutputStream stream to the file.
    */
-  OutputStream createFile(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite, FsPermission permission) throws AzureBlobFileSystemException;
+  OutputStream createFile(AzureBlobFileSystem azureBlobFileSystem, Path path, boolean overwrite, FsPermission permission, FsPermission umask)
+      throws AzureBlobFileSystemException;
 
   /**
    * Creates a directory on the Azure service.
    * @param azureBlobFileSystem filesystem to create file or directory.
    * @param path path of the directory to be created.
    * @param permission permission of the directory created
+   * @param umask umask used for the directory created
    * @return OutputStream stream to the file.
    */
-  Void createDirectory(AzureBlobFileSystem azureBlobFileSystem, Path path, FsPermission permission) throws AzureBlobFileSystemException;
+  Void createDirectory(AzureBlobFileSystem azureBlobFileSystem, Path path, FsPermission permission, FsPermission umask) throws AzureBlobFileSystemException;
 
   /**
    * Opens a file to read and returns the stream.

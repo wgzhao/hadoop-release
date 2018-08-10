@@ -132,15 +132,16 @@ public final class AzureADAuthenticator {
    * @throws IOException throws IOException if there is a failure in connecting to Azure AD
    */
   public static AzureADToken getTokenUsingRefreshToken(String clientId, String refreshToken)
-          throws IOException
-  {
+          throws IOException {
     String authEndpoint = "https://login.microsoftonline.com/Common/oauth2/token";
 
     QueryParams qp = new QueryParams();
     qp.add("grant_type", "refresh_token");
     qp.add("refresh_token", refreshToken);
-    if (clientId != null) qp.add("client_id", clientId);
-    LOG.debug("AADToken: starting to fetch token using refresh token for client ID " + clientId );
+    if (clientId != null) {
+      qp.add("client_id", clientId);
+    }
+    LOG.debug("AADToken: starting to fetch token using refresh token for client ID " + clientId);
 
     return getTokenCall(authEndpoint, qp.serialize(), null, null);
   }
