@@ -436,13 +436,15 @@ public final class FSImageFormatProtobuf {
       out.write(lengthBytes);
     }
 
-    private void saveInodes(FileSummary.Builder summary) throws IOException {
+    private long saveInodes(FileSummary.Builder summary) throws IOException {
       FSImageFormatPBINode.Saver saver = new FSImageFormatPBINode.Saver(this,
           summary);
 
       saver.serializeINodeSection(sectionOutputStream);
       saver.serializeINodeDirectorySection(sectionOutputStream);
       saver.serializeFilesUCSection(sectionOutputStream);
+
+      return saver.getNumImageErrors();
     }
 
     /**
@@ -499,8 +501,9 @@ public final class FSImageFormatProtobuf {
 
       Step step = new Step(StepType.INODES, filePath);
       prog.beginStep(Phase.SAVING_CHECKPOINT, step);
-      saveInodes(b);
-      long numErrors = saveSnapshots(b);
+      // Count number of non-fatal errors when saving inodes and snapshots.
+      long numErrors = saveInodes(b);
+      numErrors += saveSnapshots(b);
       prog.endStep(Phase.SAVING_CHECKPOINT, step);
 
       step = new Step(StepType.DELEGATION_TOKENS, filePath);

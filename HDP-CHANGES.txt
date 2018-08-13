@@ -4716,3 +4716,6 @@ ATS V1.5:
 
     BUG-109691. HDFS-11711. DN should not delete the block On "Too many open
     files" Exception. Contributed by Brahma Reddy Battula.
+
+    HDFS-13813. Exit NameNode if dangling child inode is detected when saving
+    FsImage. Contributed by Siyao Meng.
