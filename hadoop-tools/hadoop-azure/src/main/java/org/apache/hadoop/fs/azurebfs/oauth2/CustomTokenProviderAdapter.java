@@ -18,46 +18,45 @@
 
 package org.apache.hadoop.fs.azurebfs.oauth2;
 
-import java.io.IOException;
-
 import com.google.common.base.Preconditions;
-
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
+import java.io.IOException;
+
 /**
- * Provides tokens based on client credentials
+ * Provides tokens based on custom implementation, following the Adapter Design
+ * Pattern.
  */
-public class ClientCredsTokenProvider extends AccessTokenProvider {
+public final class CustomTokenProviderAdapter extends AccessTokenProvider {
 
-  private final String authEndpoint;
-
-  private final String clientId;
-
-  private final String clientSecret;
-
+  private CustomTokenProviderAdaptee adaptee;
   private final LoggingService loggingService;
 
-
-  public ClientCredsTokenProvider(final LoggingService loggingService, final String authEndpoint, final String clientId, final String clientSecret) {
+  /**
+   * Constructs a token provider based on the custom token provider.
+   *
+   * @param loggingService the logging service
+   * @param adaptee the custom token provider
+   */
+  public CustomTokenProviderAdapter(final LoggingService loggingService, CustomTokenProviderAdaptee adaptee) {
     super(loggingService);
 
     Preconditions.checkNotNull(loggingService, "loggingService");
-    Preconditions.checkNotNull(authEndpoint, "authEndpoint");
-    Preconditions.checkNotNull(clientId, "clientId");
-    Preconditions.checkNotNull(clientSecret, "clientSecret");
+    Preconditions.checkNotNull(adaptee, "adaptee");
 
-    this.loggingService = loggingService.get(ClientCredsTokenProvider.class);
-    this.authEndpoint = authEndpoint;
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
+    this.loggingService = loggingService.get(CustomTokenProviderAdapter.class);
+
+    this.adaptee = adaptee;
   }
 
-
-  @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing client-credential based token");
-    return AzureADAuthenticator.getTokenUsingClientCreds(authEndpoint, clientId, clientSecret);
+
+    this.loggingService.debug("AADToken: refreshing custom based token");
+
+    AzureADToken azureADToken = new AzureADToken();
+    azureADToken.setAccessToken(adaptee.getAccessToken());
+    azureADToken.setExpiry(adaptee.getExpiryTime());
+
+    return azureADToken;
   }
-
-
 }

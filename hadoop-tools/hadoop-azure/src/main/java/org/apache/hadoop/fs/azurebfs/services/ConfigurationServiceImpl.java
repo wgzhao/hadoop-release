@@ -48,9 +48,13 @@ import org.apache.hadoop.fs.azurebfs.diagnostics.IntegerConfigurationBasicValida
 import org.apache.hadoop.fs.azurebfs.diagnostics.LongConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.StringConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.CustomTokenProviderAdaptee;
 import org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.RefreshTokenBasedTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.CustomTokenProviderAdapter;
 import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
+import org.apache.hadoop.util.ReflectionUtils;
 
 /**
  * This class is responsible to store and validate configuration values.
@@ -327,40 +331,67 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   public AccessTokenProvider getTokenProvider(final String accountName) throws TokenAccessProviderException {
 
     AuthType authType = configuration.getEnum(ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME + accountName, AuthType.SharedKey);
-    if (authType != AuthType.OAuth) {
-      throw new TokenAccessProviderException("invalid auth type");
-    }
-
-    try {
+    if (authType == AuthType.OAuth) {
+      try {
         Class<? extends AccessTokenProvider> tokenProviderClass =
                 configuration.getClass(ConfigurationKeys.FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME + accountName, null,
                         AccessTokenProvider.class);
 
         AccessTokenProvider tokenProvider = null;
-        if(tokenProviderClass == ClientCredsTokenProvider.class) {
+        if (tokenProviderClass == ClientCredsTokenProvider.class) {
           String authEndpoint = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT + accountName);
           String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID + accountName);
           String clientSecret = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_SECRET + accountName);
           tokenProvider = new ClientCredsTokenProvider(loggingService, authEndpoint, clientId, clientSecret);
-        }
-        else if(tokenProviderClass == UserPasswordTokenProvider.class) {
+        } else if (tokenProviderClass == UserPasswordTokenProvider.class) {
           String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT + accountName);
           String username = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_NAME + accountName);
           String password = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_PASSWORD + accountName);
           tokenProvider = new UserPasswordTokenProvider(loggingService, clientId, username, password);
-        }
-        else if(tokenProviderClass == MsiTokenProvider.class) {
+        } else if (tokenProviderClass == MsiTokenProvider.class) {
           String tenantGuid = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT + accountName);
           String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID + accountName);
           tokenProvider = new MsiTokenProvider(loggingService, tenantGuid, clientId);
-        }
-        else {
+        } else if (tokenProviderClass == RefreshTokenBasedTokenProvider.class) {
+          String refreshToken = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_REFRESH_TOKEN + accountName);
+          String clientId = getPasswordString(ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID + accountName);
+          tokenProvider = new RefreshTokenBasedTokenProvider(loggingService, clientId, refreshToken);
+        } else {
           throw new IllegalArgumentException("Failed to initialize " + tokenProviderClass);
         }
 
         return tokenProvider;
-    } catch (Exception e) {
-      throw new TokenAccessProviderException("Unable to load key provider class.", e);
+      } catch (Exception e) {
+        throw new TokenAccessProviderException("Unable to load token provider class.", e);
+      }
+    }
+    else if(authType == AuthType.Custom) {
+
+      try
+      {
+        Class<? extends CustomTokenProviderAdaptee> azureADTokenProviderClass =
+                configuration.getClass(ConfigurationKeys.FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME + accountName, null,
+                        CustomTokenProviderAdaptee.class);
+
+        if (azureADTokenProviderClass == null) {
+          throw new IllegalArgumentException(
+                  "Configuration  " + azureADTokenProviderClass + " " + "not defined/accessible.");
+        }
+
+        CustomTokenProviderAdaptee azureTokenProvider = ReflectionUtils
+                .newInstance(azureADTokenProviderClass, configuration);
+        if (azureTokenProvider == null) {
+          throw new IllegalArgumentException("Failed to initialize " + azureADTokenProviderClass);
+        }
+
+        azureTokenProvider.initialize(configuration, accountName);
+        return new CustomTokenProviderAdapter(loggingService, azureTokenProvider);
+      } catch (Exception e) {
+        throw new TokenAccessProviderException("Unable to load custom token provider class.", e);
+      }
+    }
+    else {
+      throw new TokenAccessProviderException("invalid auth type");
     }
   }
 

@@ -24,40 +24,39 @@ import com.google.common.base.Preconditions;
 
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
+
 /**
- * Provides tokens based on client credentials
+ * Provides tokens based on refresh token.
  */
-public class ClientCredsTokenProvider extends AccessTokenProvider {
-
-  private final String authEndpoint;
-
+public class RefreshTokenBasedTokenProvider extends AccessTokenProvider {
   private final String clientId;
 
-  private final String clientSecret;
+  private final String refreshToken;
 
   private final LoggingService loggingService;
 
-
-  public ClientCredsTokenProvider(final LoggingService loggingService, final String authEndpoint, final String clientId, final String clientSecret) {
+  /**
+   * Constructs a token provider based on the refresh token provided.
+   *
+   * @param loggingService the logging service
+   * @param clientId the client ID (GUID) of the client web app obtained from Azure Active Directory configuration
+   * @param refreshToken the refresh token
+   */
+  public RefreshTokenBasedTokenProvider(final LoggingService loggingService, String clientId, String refreshToken) {
     super(loggingService);
 
     Preconditions.checkNotNull(loggingService, "loggingService");
-    Preconditions.checkNotNull(authEndpoint, "authEndpoint");
-    Preconditions.checkNotNull(clientId, "clientId");
-    Preconditions.checkNotNull(clientSecret, "clientSecret");
+    Preconditions.checkNotNull(refreshToken, "refreshToken");
 
     this.loggingService = loggingService.get(ClientCredsTokenProvider.class);
-    this.authEndpoint = authEndpoint;
     this.clientId = clientId;
-    this.clientSecret = clientSecret;
+    this.refreshToken = refreshToken;
   }
 
 
   @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing client-credential based token");
-    return AzureADAuthenticator.getTokenUsingClientCreds(authEndpoint, clientId, clientSecret);
+    this.loggingService.debug("AADToken: refreshing refresh-token based token");
+    return AzureADAuthenticator.getTokenUsingRefreshToken(clientId, refreshToken);
   }
-
-
 }

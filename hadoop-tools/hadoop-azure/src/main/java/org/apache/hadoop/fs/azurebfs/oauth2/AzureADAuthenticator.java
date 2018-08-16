@@ -1,7 +1,19 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- * See License.txt in the project root for license information.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.hadoop.fs.azurebfs.oauth2;
@@ -110,6 +122,29 @@ public final class AzureADAuthenticator {
     LOG.debug("AADToken: starting to fetch token using MSI");
     return getTokenCall(authEndpoint, qp.serialize(), headers, "GET");
   }
+
+  /**
+   * Gets Azure Active Directory token using refresh token.
+   *
+   * @param clientId the client ID (GUID) of the client web app obtained from Azure Active Directory configuration
+   * @param refreshToken the refresh token
+   * @return {@link AzureADToken} obtained using the refresh token
+   * @throws IOException throws IOException if there is a failure in connecting to Azure AD
+   */
+  public static AzureADToken getTokenUsingRefreshToken(String clientId, String refreshToken)
+          throws IOException
+  {
+    String authEndpoint = "https://login.microsoftonline.com/Common/oauth2/token";
+
+    QueryParams qp = new QueryParams();
+    qp.add("grant_type", "refresh_token");
+    qp.add("refresh_token", refreshToken);
+    if (clientId != null) qp.add("client_id", clientId);
+    LOG.debug("AADToken: starting to fetch token using refresh token for client ID " + clientId );
+
+    return getTokenCall(authEndpoint, qp.serialize(), null, null);
+  }
+
 
   private static class HttpException extends IOException {
     private int httpErrorCode;
