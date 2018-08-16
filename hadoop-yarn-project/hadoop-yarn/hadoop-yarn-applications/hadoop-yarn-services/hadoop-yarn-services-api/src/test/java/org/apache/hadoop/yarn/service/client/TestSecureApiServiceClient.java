@@ -73,7 +73,8 @@ public class TestSecureApiServiceClient extends KerberosSecurityTestcase {
 
   @Test
   public void testHttpSpnegoChallenge() throws Exception {
-    UserGroupInformation.loginUserFromKeytab(clientPrincipal, keytabFile.getCanonicalPath());
+    UserGroupInformation.loginUserFromKeytab(clientPrincipal, keytabFile
+        .getCanonicalPath());
     ApiServiceClient asc = new ApiServiceClient();
     String challenge = asc.generateToken("localhost");
     assertNotNull(challenge);

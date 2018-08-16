@@ -27,16 +27,17 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
 import org.apache.hadoop.security.authentication.client.AuthenticationException;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -57,7 +58,6 @@ import org.apache.hadoop.yarn.service.conf.RestApiConstants;
 import org.apache.hadoop.yarn.service.utils.JsonSerDeser;
 import org.apache.hadoop.yarn.service.utils.ServiceApiUtil;
 import org.apache.hadoop.yarn.util.RMHAUtils;
-import org.apache.http.HttpHeaders;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.ietf.jgss.GSSContext;
@@ -83,7 +83,7 @@ import static org.apache.hadoop.yarn.service.exceptions.LauncherExitCodes.*;
 public class ApiServiceClient extends AppAdminClient {
   private static final Logger LOG =
       LoggerFactory.getLogger(ApiServiceClient.class);
-  private static final Base64 base64codec = new Base64(0);
+  private static final Base64 BASE_64_CODEC = new Base64(0);
   protected YarnClient yarnClient;
 
   @Override protected void serviceInit(Configuration configuration)
@@ -103,34 +103,41 @@ public class ApiServiceClient extends AppAdminClient {
   String generateToken(String server) throws IOException, InterruptedException {
     UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
     LOG.debug("The user credential is {}", currentUser);
-    String challenge = currentUser.doAs(new PrivilegedExceptionAction<String>() {
-      @Override public String run() throws Exception {
-        try {
-          // This Oid for Kerberos GSS-API mechanism.
-          Oid mechOid = KerberosUtil.getOidInstance("GSS_KRB5_MECH_OID");
-          GSSManager manager = GSSManager.getInstance();
-          // GSS name for server
-          GSSName serverName = manager.createName("HTTP@" + server, GSSName.NT_HOSTBASED_SERVICE);
-          // Create a GSSContext for authentication with the service.
-          // We're passing client credentials as null since we want them to be read from the Subject.
-          GSSContext gssContext =
-            manager.createContext(serverName.canonicalize(mechOid), mechOid, null, GSSContext.DEFAULT_LIFETIME);
-          gssContext.requestMutualAuth(true);
-          gssContext.requestCredDeleg(true);
-          // Establish context
-          byte[] inToken = new byte[0];
-          byte[] outToken = gssContext.initSecContext(inToken, 0, inToken.length);
-          gssContext.dispose();
-          // Base64 encoded and stringified token for server
-          LOG.debug("Got valid challenge for host {}", serverName);
-          return new String(base64codec.encode(outToken), StandardCharsets.US_ASCII);
-        }
-        catch (GSSException | IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
-          LOG.error("Error: {}", e);
-          throw new AuthenticationException(e);
-        }
-      }
-    });
+    String challenge = currentUser
+        .doAs(new PrivilegedExceptionAction<String>() {
+          @Override
+          public String run() throws Exception {
+            try {
+              // This Oid for Kerberos GSS-API mechanism.
+              Oid mechOid = KerberosUtil.getOidInstance("GSS_KRB5_MECH_OID");
+              GSSManager manager = GSSManager.getInstance();
+              // GSS name for server
+              GSSName serverName = manager.createName("HTTP@" + server,
+                  GSSName.NT_HOSTBASED_SERVICE);
+              // Create a GSSContext for authentication with the service.
+              // We're passing client credentials as null since we want them to
+              // be read from the Subject.
+              GSSContext gssContext = manager.createContext(
+                  serverName.canonicalize(mechOid), mechOid, null,
+                  GSSContext.DEFAULT_LIFETIME);
+              gssContext.requestMutualAuth(true);
+              gssContext.requestCredDeleg(true);
+              // Establish context
+              byte[] inToken = new byte[0];
+              byte[] outToken = gssContext.initSecContext(inToken, 0,
+                  inToken.length);
+              gssContext.dispose();
+              // Base64 encoded and stringified token for server
+              LOG.debug("Got valid challenge for host {}", serverName);
+              return new String(BASE_64_CODEC.encode(outToken),
+                  StandardCharsets.US_ASCII);
+            } catch (GSSException | IllegalAccessException
+                | NoSuchFieldException | ClassNotFoundException e) {
+              LOG.error("Error: {}", e);
+              throw new AuthenticationException(e);
+            }
+          }
+        });
     return challenge;
   }
 
@@ -173,7 +180,8 @@ public class ApiServiceClient extends AppAdminClient {
         if (useKerberos) {
           String[] server = host.split(":");
           String challenge = generateToken(server[0]);
-          webResource.header(HttpHeaders.AUTHORIZATION, "Negotiate " + challenge);
+          webResource.header(HttpHeaders.AUTHORIZATION, "Negotiate " +
+              challenge);
           LOG.debug("Authorization: Negotiate {}", challenge);
         }
         ClientResponse test = webResource.get(ClientResponse.class);
@@ -265,9 +273,9 @@ public class ApiServiceClient extends AppAdminClient {
         .resource(requestPath).type(MediaType.APPLICATION_JSON);
     if (conf.get("hadoop.http.authentication.type").equals("kerberos")) {
       try {
-      URI url = new URI(requestPath);
-      String challenge = generateToken(url.getHost());
-      builder.header(HttpHeaders.AUTHORIZATION, "Negotiate " + challenge);
+        URI url = new URI(requestPath);
+        String challenge = generateToken(url.getHost());
+        builder.header(HttpHeaders.AUTHORIZATION, "Negotiate " + challenge);
       } catch (Exception e) {
         throw new IOException(e);
       }
