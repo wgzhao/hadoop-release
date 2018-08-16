@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,6 +38,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.*;
+import static org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes.HTTPS_SCHEME;
 
 /**
  * AbfsClient
@@ -69,9 +73,21 @@ public class AbfsClient {
 
     this.loggingService = loggingService.get(AbfsClient.class);
     this.retryPolicy = exponentialRetryPolicy;
-    this.userAgent = initializeUserAgent(configurationService);
+
+    String sslProviderName = null;
+
+    if (this.baseUrl.toString().startsWith(HTTPS_SCHEME)) {
+      try {
+        SSLSocketFactoryEx.initializeDefaultFactory(configurationService.getPreferredSSLFactoryOption());
+        sslProviderName = SSLSocketFactoryEx.getDefaultFactory().getProviderName();
+      } catch (IOException e) {
+        // Suppress exception. Failure to init SSLSocketFactoryEx would have only performance impact.
+      }
+    }
+
     this.tokenProvider = tokenProvider;
 
+    this.userAgent = initializeUserAgent(configurationService, sslProviderName);
     this.accountFQDN = null;
     this.accessToken = null;
     this.clientId = 0;
@@ -99,10 +115,10 @@ public class AbfsClient {
     final List<AbfsHttpHeader> requestHeaders = new ArrayList<AbfsHttpHeader>();
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.X_MS_VERSION, xMsVersion));
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.ACCEPT, AbfsHttpConstants.APPLICATION_JSON
-            + AbfsHttpConstants.COMMA + AbfsHttpConstants.SINGLE_WHITE_SPACE + AbfsHttpConstants.APPLICATION_OCTET_STREAM));
+            + AbfsHttpConstants.COMMA + SINGLE_WHITE_SPACE + AbfsHttpConstants.APPLICATION_OCTET_STREAM));
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.ACCEPT_CHARSET,
             AbfsHttpConstants.UTF_8));
-    requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.CONTENT_TYPE, AbfsHttpConstants.EMPTY_STRING));
+    requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.CONTENT_TYPE, EMPTY_STRING));
     requestHeaders.add(new AbfsHttpHeader(HttpHeaderConfigurations.USER_AGENT, userAgent));
     return requestHeaders;
   }
@@ -158,7 +174,7 @@ public class AbfsClient {
 
     final AbfsUriQueryBuilder abfsUriQueryBuilder = createDefaultUriQueryBuilder();
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_RESOURCE, AbfsHttpConstants.FILESYSTEM);
-    abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_DIRECTORY, relativePath == null ? AbfsHttpConstants.EMPTY_STRING : relativePath);
+    abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_DIRECTORY, relativePath == null ? EMPTY_STRING : relativePath);
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_RECURSIVE, String.valueOf(recursive));
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_CONTINUATION, continuation);
     abfsUriQueryBuilder.addQuery(HttpQueryParams.QUERY_PARAM_MAXRESULTS, String.valueOf(listMaxResults));
@@ -436,7 +452,7 @@ public class AbfsClient {
   }
 
   public AbfsRestOperation setAcl(final String path, final String aclSpecString) throws AzureBlobFileSystemException {
-    return setAcl(path, aclSpecString, AbfsHttpConstants.EMPTY_STRING);
+    return setAcl(path, aclSpecString, EMPTY_STRING);
   }
 
   public AbfsRestOperation setAcl(final String path, final String aclSpecString, final String eTag) throws AzureBlobFileSystemException {
@@ -489,7 +505,7 @@ public class AbfsClient {
   }
 
   private URL createRequestUrl(final String query) throws AzureBlobFileSystemException {
-    return createRequestUrl(AbfsHttpConstants.EMPTY_STRING, query);
+    return createRequestUrl(EMPTY_STRING, query);
   }
 
   private URL createRequestUrl(final String path, final String query)
@@ -539,13 +555,22 @@ public class AbfsClient {
   }
 
   @VisibleForTesting
-  String initializeUserAgent(final ConfigurationService configurationService) {
-    final String userAgentComment = String.format(Locale.ROOT,
-            "(JavaJRE %s; %s %s)",
-            System.getProperty(AbfsHttpConstants.JAVA_VERSION),
-            System.getProperty(AbfsHttpConstants.OS_NAME)
-                    .replaceAll(AbfsHttpConstants.SINGLE_WHITE_SPACE, AbfsHttpConstants.EMPTY_STRING),
-            System.getProperty(AbfsHttpConstants.OS_VERSION));
+  String initializeUserAgent(final ConfigurationService configurationService,
+                             final String sslProviderName) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("(JavaJRE ");
+    sb.append(System.getProperty(JAVA_VERSION));
+    sb.append("; ");
+    sb.append(
+        System.getProperty(OS_NAME).replaceAll(SINGLE_WHITE_SPACE, EMPTY_STRING));
+    sb.append(" ");
+    sb.append(System.getProperty(OS_VERSION));
+    if (sslProviderName != null && !sslProviderName.isEmpty()) {
+      sb.append("; ");
+      sb.append(sslProviderName);
+    }
+    sb.append(")");
+    final String userAgentComment = sb.toString();
 
     String customUserAgentId = configurationService.getCustomUserAgentPrefix();
     if (customUserAgentId != null && !customUserAgentId.isEmpty()) {

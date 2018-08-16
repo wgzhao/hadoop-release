@@ -28,8 +28,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.*;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
 
 import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.*;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_SSL_CHANNEL_MODE_KEY;
+
 
 public class TestConfigurationServiceFieldsValidation  {
   private ConfigurationServiceImpl configService;
@@ -124,5 +128,20 @@ public class TestConfigurationServiceFieldsValidation  {
   @Test (expected = ConfigurationPropertyNotFoundException.class)
   public void testGetAccountKeyWithNonExistingAccountName() throws Exception {
     configService.getStorageAccountKey("bogusAccountName");
+  }
+
+  @Test
+  public void testSSLSocketFactoryConfiguration() throws InvalidConfigurationValueException, IllegalAccessException {
+    assertEquals(SSLSocketFactoryEx.SSLChannelMode.Default, configService.getPreferredSSLFactoryOption());
+    assertNotEquals(SSLSocketFactoryEx.SSLChannelMode.Default_JSSE, configService.getPreferredSSLFactoryOption());
+    assertNotEquals(SSLSocketFactoryEx.SSLChannelMode.OpenSSL, configService.getPreferredSSLFactoryOption());
+    Configuration configuration = new Configuration();
+    configuration.setEnum(FS_AZURE_SSL_CHANNEL_MODE_KEY, SSLSocketFactoryEx.SSLChannelMode.Default_JSSE);
+    ConfigurationServiceImpl localAbfsConfiguration = new ConfigurationServiceImpl(configuration, new LoggingServiceImpl());
+    assertEquals(SSLSocketFactoryEx.SSLChannelMode.Default_JSSE, localAbfsConfiguration.getPreferredSSLFactoryOption());
+    configuration = new Configuration();
+    configuration.setEnum(FS_AZURE_SSL_CHANNEL_MODE_KEY, SSLSocketFactoryEx.SSLChannelMode.OpenSSL);
+    localAbfsConfiguration = new ConfigurationServiceImpl(configuration,  new LoggingServiceImpl());
+    assertEquals(SSLSocketFactoryEx.SSLChannelMode.OpenSSL, localAbfsConfiguration.getPreferredSSLFactoryOption());
   }
 }

@@ -26,6 +26,8 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderExc
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
+import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
+
 /**
  * Configuration service collects required Azure Hadoop configurations and provides it to the consumers.
  */
@@ -165,6 +167,9 @@ public interface ConfigurationService extends InjectableService {
   AuthType getAuthType(String accountName);
 
   AccessTokenProvider getTokenProvider(String accountName) throws TokenAccessProviderException;
+
+  public SSLSocketFactoryEx.SSLChannelMode getPreferredSSLFactoryOption();
+
 
   /**
    * Retrieves configured boolean for enabling namespace account
