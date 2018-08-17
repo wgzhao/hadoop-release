@@ -374,7 +374,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         if (azureADTokenProviderClass == null) {
           throw new IllegalArgumentException(
-                  "Configuration  " + azureADTokenProviderClass + " " + "not defined/accessible.");
+                  "Configuration  " + "azureADTokenProviderClass" + " " + "not defined/accessible.");
         }
 
         CustomTokenProviderAdaptee azureTokenProvider = ReflectionUtils
