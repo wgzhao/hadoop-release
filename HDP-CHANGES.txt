@@ -5069,3 +5069,5 @@ ATS V1.5:
 
     WASB-110. Enable Posix rename configuration in Driver
 
+    HADOOP-15679: ShutdownHookManager shutdown time to be configurable.
+    Contributed by Steve Loughran.
