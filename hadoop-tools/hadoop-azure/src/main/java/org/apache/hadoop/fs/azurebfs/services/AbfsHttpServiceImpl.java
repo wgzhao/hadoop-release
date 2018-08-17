@@ -608,10 +608,6 @@ final class AbfsHttpServiceImpl implements AbfsHttpService {
       aclEntries.remove(defaultAclEntry.getKey());
     }
 
-    if(!aclEntries.containsKey(AbfsHttpConstants.ACCESS_MASK)) {
-      aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
-    }
-
     client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
   }
 
