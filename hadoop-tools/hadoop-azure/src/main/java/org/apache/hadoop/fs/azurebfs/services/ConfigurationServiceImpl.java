@@ -47,13 +47,14 @@ import org.apache.hadoop.fs.azurebfs.diagnostics.BooleanConfigurationBasicValida
 import org.apache.hadoop.fs.azurebfs.diagnostics.IntegerConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.LongConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.StringConfigurationBasicValidator;
+import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
-import org.apache.hadoop.fs.azurebfs.oauth2.CustomTokenProviderAdaptee;
 import org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.RefreshTokenBasedTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.CustomTokenProviderAdapter;
 import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
+import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.util.ReflectionUtils;
 
 import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
@@ -150,6 +151,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_ENABLE_ACL_BIT,
       DefaultValue = FileSystemConfigurations.DEFAULT_ENABLE_ACL_BIT)
   private boolean enableAclBit;
+
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = ConfigurationKeys.FS_AZURE_ENABLE_DELEGATION_TOKEN,
+          DefaultValue = FileSystemConfigurations.DEFAULT_ENABLE_DELEGATION_TOKEN)
+  private boolean enableDelegationToken;
 
   private Map<String, String> storageAccountKeys;
 
@@ -332,6 +337,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   public boolean isAclBitEnabled() { return this.enableAclBit; }
 
   @Override
+  public boolean isDelegationTokenManagerEnabled() {
+    return enableDelegationToken;
+  }
+
+  @Override
+  public AbfsDelegationTokenManager getDelegationTokenManager() throws IOException {
+
+    return new AbfsDelegationTokenManager(configuration);
+  }
+
+  @Override
   public AccessTokenProvider getTokenProvider(final String accountName) throws TokenAccessProviderException {
 
     AuthType authType = configuration.getEnum(ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME + accountName, AuthType.SharedKey);
@@ -372,23 +388,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     else if(authType == AuthType.Custom) {
 
       try {
-        Class<? extends CustomTokenProviderAdaptee> azureADTokenProviderClass =
+        Class<? extends CustomTokenProviderAdaptee> customTokenProviderClass =
                 configuration.getClass(ConfigurationKeys.FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME + accountName, null,
                         CustomTokenProviderAdaptee.class);
 
-        if (azureADTokenProviderClass == null) {
+        if (customTokenProviderClass == null) {
           throw new IllegalArgumentException(
-                  "Configuration  " + "azureADTokenProviderClass" + " " + "not defined/accessible.");
+                  "Configuration  " + "customTokenProviderClass" + " " + "not defined/accessible.");
         }
 
-        CustomTokenProviderAdaptee azureTokenProvider = ReflectionUtils
-                .newInstance(azureADTokenProviderClass, configuration);
-        if (azureTokenProvider == null) {
-          throw new IllegalArgumentException("Failed to initialize " + azureADTokenProviderClass);
+        CustomTokenProviderAdaptee customTokenProvider = ReflectionUtils
+                .newInstance(customTokenProviderClass, configuration);
+        if (customTokenProvider == null) {
+          throw new IllegalArgumentException("Failed to initialize " + customTokenProviderClass);
         }
 
-        azureTokenProvider.initialize(configuration, accountName);
-        return new CustomTokenProviderAdapter(loggingService, azureTokenProvider);
+        customTokenProvider.initialize(configuration, accountName);
+        return new CustomTokenProviderAdapter(loggingService, customTokenProvider);
       } catch (Exception e) {
         throw new TokenAccessProviderException("Unable to load custom token provider class.", e);
       }

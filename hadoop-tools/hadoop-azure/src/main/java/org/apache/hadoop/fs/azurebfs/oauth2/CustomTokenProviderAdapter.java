@@ -20,6 +20,7 @@ package org.apache.hadoop.fs.azurebfs.oauth2;
 
 import com.google.common.base.Preconditions;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee;
 
 import java.io.IOException;
 

@@ -69,6 +69,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ConfigurationService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ServiceProvider;
+import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.ConfigurationServiceImpl;
 import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
@@ -76,6 +77,7 @@ import org.apache.hadoop.fs.permission.AclEntry;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.util.Progressable;
 
 /**
@@ -99,6 +101,9 @@ public class AzureBlobFileSystem extends FileSystem {
   private Set<String> azureAtomicRenameDirSet;
   private boolean isClosed;
   private boolean enableAclBit;
+
+  private boolean delegationTokenEnabled = false;
+  private AbfsDelegationTokenManager delegationTokenManager;
 
   @Override
   public void initialize(URI uri, Configuration configuration)
@@ -143,6 +148,14 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     this.enableAclBit = this.configurationService.isAclBitEnabled();
+
+    if (UserGroupInformation.isSecurityEnabled()) {
+      this.delegationTokenEnabled = this.configurationService.isDelegationTokenManagerEnabled();
+
+      if(this.delegationTokenEnabled) {
+        this.delegationTokenManager = this.configurationService.getDelegationTokenManager();
+      }
+    }
   }
 
   public boolean isSecure() {
@@ -987,6 +1000,22 @@ public class AzureBlobFileSystem extends FileSystem {
     }
 
     return result;
+  }
+
+  /**
+   * Get a delegation token from remote service endpoint if
+   * 'fs.azure.enable.kerberos.support' is set to 'true'.
+   * @param renewer the account name that is allowed to renew the token.
+   * @return delegation token
+   * @throws IOException thrown when getting the current user.
+   */
+  @Override
+  public synchronized Token<?> getDelegationToken(final String renewer) throws IOException {
+    if (this.delegationTokenEnabled) {
+      return this.delegationTokenManager.getDelegationToken(renewer);
+    } else {
+      return super.getDelegationToken(renewer);
+    }
   }
 
   @VisibleForTesting

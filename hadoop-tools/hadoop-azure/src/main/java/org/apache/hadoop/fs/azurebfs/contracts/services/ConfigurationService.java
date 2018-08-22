@@ -18,12 +18,15 @@
 
 package org.apache.hadoop.fs.azurebfs.contracts.services;
 
+import java.io.IOException;
+
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderException;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
 import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
@@ -164,8 +167,19 @@ public interface ConfigurationService extends InjectableService {
    */
   String getCustomUserAgentPrefix();
 
+  /**
+   * Retrieves auth type for provided account name from Hadoop configuration.
+   * @param accountName the account name to retrieve the auth type.
+   * @return the authorization type
+   */
   AuthType getAuthType(String accountName);
 
+  /**
+   * Retrieves Access Token Provider for provided account name from Hadoop configuration.
+   * @param accountName the account name to retrieve the auth type.
+   * @return the token provider
+   * @throws TokenAccessProviderException if an error occurs.
+   */
   AccessTokenProvider getTokenProvider(String accountName) throws TokenAccessProviderException;
 
   public SSLSocketFactoryEx.SSLChannelMode getPreferredSSLFactoryOption();
@@ -182,4 +196,17 @@ public interface ConfigurationService extends InjectableService {
    * @return configured boolean for enabling acl bit
    */
   boolean isAclBitEnabled();
+
+  /**
+   * Retrieves configured boolean for enabling Delegation Token Manager.
+   * @return configured boolean for enabling Delegation Token Manager
+   */
+  boolean isDelegationTokenManagerEnabled();
+
+  /**
+   * Retrieves Delegation Token Manager.
+   * @return configured Delegation Token Manager
+   * @throws IOException if an error occurs.
+   */
+  AbfsDelegationTokenManager getDelegationTokenManager() throws IOException;
 }

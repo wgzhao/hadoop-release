@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.azurebfs.oauth2;
+package org.apache.hadoop.fs.azurebfs.extensions;
 
 import java.io.IOException;
 import java.util.Date;

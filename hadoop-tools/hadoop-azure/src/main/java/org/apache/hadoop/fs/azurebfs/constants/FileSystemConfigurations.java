@@ -58,6 +58,8 @@ public final class FileSystemConfigurations {
   public static final boolean DEFAULT_ENABLE_FLUSH = true;
   public static final boolean DEFAULT_ENABLE_ACL_BIT = true;
 
+  public static final boolean DEFAULT_ENABLE_DELEGATION_TOKEN = false;
+
   public static final SSLSocketFactoryEx.SSLChannelMode DEFAULT_FS_AZURE_SSL_CHANNEL_MODE
       = SSLSocketFactoryEx.SSLChannelMode.Default;
 

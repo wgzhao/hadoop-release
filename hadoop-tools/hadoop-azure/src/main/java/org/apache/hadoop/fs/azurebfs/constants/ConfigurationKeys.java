@@ -76,5 +76,8 @@ public final class ConfigurationKeys {
 
   public static final String FS_AZURE_ENABLE_ACL_BIT = "fs.azure.enable.acl.bit";
 
+  public static final String FS_AZURE_ENABLE_DELEGATION_TOKEN = "fs.azure.enable.delegation.token";
+  public static final String FS_AZURE_DELEGATION_TOKEN_PROVIDER_TYPE = "fs.azure.delegation.token.provider.type";
+
   private ConfigurationKeys() {}
 }
