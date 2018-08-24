@@ -14,3 +14,4 @@
 # limitations under the License.
 
 org.apache.hadoop.fs.azure.security.WasbDelegationTokenIdentifier
+org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenIdentifier
