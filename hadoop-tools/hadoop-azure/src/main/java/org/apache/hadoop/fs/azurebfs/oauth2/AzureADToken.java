@@ -37,11 +37,11 @@ public class AzureADToken {
   }
 
   public Date getExpiry() {
-    return this.expiry;
+    return new Date(this.expiry.getTime());
   }
 
   public void setExpiry(Date expiry) {
-    this.expiry = expiry;
+    this.expiry = new Date(expiry.getTime());
   }
 
 }

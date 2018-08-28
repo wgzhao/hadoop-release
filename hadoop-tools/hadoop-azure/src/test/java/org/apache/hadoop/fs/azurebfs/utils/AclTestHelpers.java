@@ -19,14 +19,14 @@ package org.apache.hadoop.fs.azurebfs.utils;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.AclEntry;
 import org.apache.hadoop.fs.permission.AclEntryScope;
 import org.apache.hadoop.fs.permission.AclEntryType;
 import org.apache.hadoop.fs.permission.FsAction;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Helper methods useful for writing ACL tests.
@@ -111,5 +111,9 @@ public final class AclTestHelpers {
   public static void assertPermission(FileSystem fs, Path pathToCheck,
                                       short perm) throws IOException {
     assertEquals(perm, fs.getFileStatus(pathToCheck).getPermission().toShort());
+  }
+
+  private AclTestHelpers() {
+    // Not called.
   }
 }

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.hadoop.fs.CommonConfigurationKeys;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -35,13 +36,16 @@ import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.azurebfs.utils.Parallelized;
 
+/**
+ * Test permission operations.
+ */
 @RunWith(Parallelized.class)
-public class ITestAzureBlobFileSystemPermission extends DependencyInjectedTest{
-
+public class ITestAzureBlobFileSystemPermission extends AbstractAbfsIntegrationTest{
 
   private static Path testRoot = new Path("/test");
   private static final String DEFAULT_UMASK_VALUE = "027";
   private static final FsPermission DEFAULT_UMASK_PERMISSION = new FsPermission(DEFAULT_UMASK_VALUE);
+  private static final int KILOBYTE = 1024;
   private FsPermission permission;
 
   private Path path;
@@ -50,11 +54,11 @@ public class ITestAzureBlobFileSystemPermission extends DependencyInjectedTest{
     super();
     permission = testPermission;
 
-    Assume.assumeTrue(this.isNamespaceEnabled());
+    Assume.assumeTrue(this.getAuthType() == AuthType.OAuth);
   }
 
   @Parameterized.Parameters(name = "{0}")
-  public static Collection AbfsCreateNonRecursiveTestData()
+  public static Collection abfsCreateNonRecursiveTestData()
       throws Exception {
     /*
       Test Data
@@ -75,14 +79,14 @@ public class ITestAzureBlobFileSystemPermission extends DependencyInjectedTest{
   public void testFilePermission() throws Exception {
 
     final AzureBlobFileSystem fs = this.getFileSystem();
-    fs.getConf().set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "027");
+    fs.getConf().set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, DEFAULT_UMASK_VALUE);
     path = new Path(testRoot, UUID.randomUUID().toString());
 
     fs.mkdirs(path.getParent(),
         new FsPermission(FsAction.ALL, FsAction.NONE, FsAction.NONE));
     fs.removeDefaultAcl(path.getParent());
 
-    fs.create(path, permission, true, 1024, (short) 1, 1023, null);
+    fs.create(path, permission, true, KILOBYTE, (short) 1, KILOBYTE - 1, null);
     FileStatus status = fs.getFileStatus(path);
     Assert.assertEquals(permission.applyUMask(DEFAULT_UMASK_PERMISSION), status.getPermission());
   }

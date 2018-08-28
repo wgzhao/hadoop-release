@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import org.apache.hadoop.fs.Path;
 
-public class ITestAzureBlobFileSystemOpen extends DependencyInjectedTest {
+public class ITestAzureBlobFileSystemOpen extends AbstractAbfsIntegrationTest {
   public ITestAzureBlobFileSystemOpen() throws Exception {
     super();
   }

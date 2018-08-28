@@ -21,11 +21,12 @@ package org.apache.hadoop.fs.azurebfs.oauth2;
 import java.io.IOException;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
 /**
- * Provides tokens based on client credentials
+ * Provides tokens based on client credentials.
  */
 public class ClientCredsTokenProvider extends AccessTokenProvider {
 
@@ -35,18 +36,16 @@ public class ClientCredsTokenProvider extends AccessTokenProvider {
 
   private final String clientSecret;
 
-  private final LoggingService loggingService;
+  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenProvider.class);
 
 
-  public ClientCredsTokenProvider(final LoggingService loggingService, final String authEndpoint, final String clientId, final String clientSecret) {
-    super(loggingService);
+  public ClientCredsTokenProvider(final String authEndpoint,
+                                  final String clientId, final String clientSecret) {
 
-    Preconditions.checkNotNull(loggingService, "loggingService");
     Preconditions.checkNotNull(authEndpoint, "authEndpoint");
     Preconditions.checkNotNull(clientId, "clientId");
     Preconditions.checkNotNull(clientSecret, "clientSecret");
 
-    this.loggingService = loggingService.get(ClientCredsTokenProvider.class);
     this.authEndpoint = authEndpoint;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -55,7 +54,7 @@ public class ClientCredsTokenProvider extends AccessTokenProvider {
 
   @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing client-credential based token");
+    LOG.debug("AADToken: refreshing client-credential based token");
     return AzureADAuthenticator.getTokenUsingClientCreds(authEndpoint, clientId, clientSecret);
   }
 

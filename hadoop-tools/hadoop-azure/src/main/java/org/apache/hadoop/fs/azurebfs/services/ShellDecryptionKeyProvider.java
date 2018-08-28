@@ -21,27 +21,19 @@ package org.apache.hadoop.fs.azurebfs.services;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.google.common.base.Preconditions;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.util.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Shell decryption key provider which invokes an external script that will
  * perform the key decryption.
  */
 public class ShellDecryptionKeyProvider extends SimpleKeyProvider {
-  private final LoggingService loggingService;
-
-  ShellDecryptionKeyProvider(final LoggingService loggingService) {
-    super(loggingService);
-
-    Preconditions.checkNotNull(loggingService, "loggingService");
-    this.loggingService = loggingService.get(SimpleKeyProvider.class);
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(ShellDecryptionKeyProvider.class);
 
   @Override
   public String getStorageAccountKey(String accountName, Configuration conf)

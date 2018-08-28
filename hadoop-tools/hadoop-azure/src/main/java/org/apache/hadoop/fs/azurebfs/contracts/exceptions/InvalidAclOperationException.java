@@ -18,16 +18,16 @@
 
 package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
 
-    import org.apache.hadoop.classification.InterfaceAudience;
-    import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Thrown when acl operation is not supported.
+ * Thrown when there is an attempt to perform an invalid operation on an ACL.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public final class InvalidAclOperationException extends AzureBlobFileSystemException {
-  public InvalidAclOperationException(String url) {
-    super(String.format("%s account don't support acl operation.", url));
+  public InvalidAclOperationException(String message) {
+    super(message);
   }
 }

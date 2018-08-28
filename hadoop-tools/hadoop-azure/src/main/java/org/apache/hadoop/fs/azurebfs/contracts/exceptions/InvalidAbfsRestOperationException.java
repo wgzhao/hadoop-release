@@ -28,13 +28,13 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class InvalidAzureServiceErrorResponseException extends AzureServiceErrorResponseException {
-  public InvalidAzureServiceErrorResponseException(
+public class InvalidAbfsRestOperationException extends AbfsRestOperationException {
+  public InvalidAbfsRestOperationException(
       final Exception innerException) {
     super(
         AzureServiceErrorCode.UNKNOWN.getStatusCode(),
         AzureServiceErrorCode.UNKNOWN.getErrorCode(),
-        "InvalidAzureServiceErrorResponseException",
+        "InvalidAbfsRestOperationException",
         innerException);
   }
 }

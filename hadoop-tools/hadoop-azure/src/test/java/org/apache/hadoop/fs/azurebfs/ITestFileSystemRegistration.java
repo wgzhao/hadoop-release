@@ -20,60 +20,93 @@ package org.apache.hadoop.fs.azurebfs;
 
 import java.net.URI;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import org.apache.hadoop.fs.AbstractFileSystem;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doReturn;
+/**
+ * Test AzureBlobFileSystem registration.
+ * Use casts to have interesting stack traces on failures.
+ */
+public class ITestFileSystemRegistration extends AbstractAbfsIntegrationTest {
 
-public class ITestFileSystemRegistration extends DependencyInjectedTest {
+  protected static final String ABFS = "org.apache.hadoop.fs.azurebfs.Abfs";
+  protected static final String ABFSS = "org.apache.hadoop.fs.azurebfs.Abfss";
+
   public ITestFileSystemRegistration() throws Exception {
-    super();
+  }
 
-    this.mockServiceInjector.removeProvider(AbfsHttpService.class);
-    this.mockServiceInjector.replaceInstance(AbfsHttpService.class, Mockito.mock(AbfsHttpService.class));
+  private void assertConfigMatches(Configuration conf, String key, String expected) {
+    String v = conf.get(key);
+    assertNotNull("No value for key " + key, v);
+    assertEquals("Wrong value for key " + key, expected, v);
+  }
+
+  @Test
+  public void testAbfsFileSystemRegistered() throws Throwable {
+    assertConfigMatches(new Configuration(true),
+        "fs.abfs.impl",
+        "org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem");
+  }
+
+  @Test
+  public void testSecureAbfsFileSystemRegistered() throws Throwable {
+    assertConfigMatches(new Configuration(true),
+        "fs.abfss.impl",
+        "org.apache.hadoop.fs.azurebfs.SecureAzureBlobFileSystem");
+  }
+
+  @Test
+  public void testAbfsFileContextRegistered() throws Throwable {
+    assertConfigMatches(new Configuration(true),
+        "fs.AbstractFileSystem.abfs.impl",
+        ABFS);
+  }
+
+  @Test
+  public void testSecureAbfsFileContextRegistered() throws Throwable {
+    assertConfigMatches(new Configuration(true),
+        "fs.AbstractFileSystem.abfss.impl",
+        ABFSS);
   }
 
   @Test
   public void ensureAzureBlobFileSystemIsDefaultFileSystem() throws Exception {
-    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
-        .when(ServiceProviderImpl.instance().get(AbfsHttpService.class))
-        .getFileStatus((AzureBlobFileSystem) anyObject(), (Path) anyObject());
+    AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(getConfiguration());
+    assertNotNull("filesystem", fs);
 
-    FileSystem fs = FileSystem.get(this.getConfiguration());
-    Assert.assertTrue(fs instanceof AzureBlobFileSystem);
+    if (this.getAuthType() == AuthType.OAuth) {
+      Abfss afs = (Abfss) FileContext.getFileContext(getConfiguration()).getDefaultFileSystem();
+      assertNotNull("filecontext", afs);
+    } else {
+      Abfs afs = (Abfs) FileContext.getFileContext(getConfiguration()).getDefaultFileSystem();
+      assertNotNull("filecontext", afs);
+    }
 
-    AbstractFileSystem afs = FileContext.getFileContext(this.getConfiguration()).getDefaultFileSystem();
-    Assert.assertTrue(afs instanceof Abfs);
   }
 
   @Test
   public void ensureSecureAzureBlobFileSystemIsDefaultFileSystem() throws Exception {
-    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
-        .when(ServiceProviderImpl.instance().get(AbfsHttpService.class))
-        .getFileStatus((AzureBlobFileSystem) anyObject(), (Path) anyObject());
+    final String accountName = getAccountName();
+    final String fileSystemName = getFileSystemName();
 
-    final String accountName = this.getAccountName();
-    final String filesystem = this.getFileSystemName();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME,
+        fileSystemName + "@" + accountName,
+        null,
+        null,
+        null);
+    getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY,
+        defaultUri.toString());
 
-    final URI defaultUri = new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME, filesystem + "@" + accountName, null, null, null);
-    this.getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
-
-    FileSystem fs = FileSystem.get(this.getConfiguration());
-    Assert.assertTrue(fs instanceof SecureAzureBlobFileSystem);
-
-    AbstractFileSystem afs = FileContext.getFileContext(this.getConfiguration()).getDefaultFileSystem();
-    Assert.assertTrue(afs instanceof Abfss);
+    SecureAzureBlobFileSystem fs = (SecureAzureBlobFileSystem) FileSystem.get(
+        getConfiguration());
+    assertNotNull("filesystem", fs);
+    Abfss afs = (Abfss) FileContext.getFileContext(getConfiguration()).getDefaultFileSystem();
+    assertNotNull("filecontext", afs);
   }
 }

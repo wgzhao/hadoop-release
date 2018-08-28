@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * Utility class to help with Abfs url transformation to blob urls.
  */
 public final class UriUtils {
-  private static final String ABFS_URI_REGEX = "[^.]+\\.dfs\\.(preprod\\.){0,1}core.windows.net";
+  private static final String ABFS_URI_REGEX = "[^.]+\\.dfs\\.(preprod\\.){0,1}core\\.windows\\.net";
   private static final Pattern ABFS_URI_PATTERN = Pattern.compile(ABFS_URI_REGEX);
 
   /**
@@ -60,6 +60,16 @@ public final class UriUtils {
     }
 
     return splitByDot[0];
+  }
+
+  /**
+   * Generate unique test path for multiple user tests.
+   *
+   * @return root test path
+   */
+  public static String generateUniqueTestPath() {
+    String testUniqueForkId = System.getProperty("test.unique.fork.id");
+    return testUniqueForkId == null ? "/test" : "/" + testUniqueForkId + "/test";
   }
 
   private UriUtils() {

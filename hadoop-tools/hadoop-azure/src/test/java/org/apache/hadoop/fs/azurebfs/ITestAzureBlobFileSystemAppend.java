@@ -25,46 +25,54 @@ import org.junit.Test;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.contract.ContractTestUtils;
 
-import static org.junit.Assert.assertEquals;
-
-public class ITestAzureBlobFileSystemAppend extends DependencyInjectedTest {
-  public ITestAzureBlobFileSystemAppend() throws Exception {
+/**
+ * Test append operations.
+ */
+public class ITestAzureBlobFileSystemAppend extends
+    AbstractAbfsIntegrationTest {
+  private static final Path TEST_FILE_PATH = new Path("testfile");
+  private static final Path TEST_FOLDER_PATH = new Path("testFolder");
+  public ITestAzureBlobFileSystemAppend() {
     super();
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testAppendDirShouldFail() throws Exception {
-    final AzureBlobFileSystem fs = this.getFileSystem();
-    fs.mkdirs(new Path("testfile"));
-    fs.append(new Path("testfile"), 0);
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path filePath = TEST_FILE_PATH;
+    fs.mkdirs(filePath);
+    fs.append(filePath, 0);
   }
 
   @Test
   public void testAppendWithLength0() throws Exception {
-    final AzureBlobFileSystem fs = this.getFileSystem();
-    FSDataOutputStream stream = fs.create(new Path("testFile"));
-    final byte[] b = new byte[10240000];
-    new Random().nextBytes(b);
-    stream.write(b, 1000, 0);
-
-    assertEquals(0, stream.getPos());
+    final AzureBlobFileSystem fs = getFileSystem();
+    try(FSDataOutputStream stream = fs.create(TEST_FILE_PATH)) {
+      final byte[] b = new byte[1024];
+      new Random().nextBytes(b);
+      stream.write(b, 1000, 0);
+      assertEquals(0, stream.getPos());
+    }
   }
 
 
   @Test(expected = FileNotFoundException.class)
   public void testAppendFileAfterDelete() throws Exception {
-    final AzureBlobFileSystem fs = this.getFileSystem();
-    fs.create(new Path("/testFile"));
-    fs.delete(new Path("/testFile"), false);
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path filePath = TEST_FILE_PATH;
+    ContractTestUtils.touch(fs, filePath);
+    fs.delete(filePath, false);
 
-    fs.append(new Path("/testFile"));
+    fs.append(filePath);
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testAppendDirectory() throws Exception {
-    final AzureBlobFileSystem fs = this.getFileSystem();
-    fs.mkdirs(new Path("testFolder"));
-    fs.append(new Path("testFolder"));
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path folderPath = TEST_FOLDER_PATH;
+    fs.mkdirs(folderPath);
+    fs.append(folderPath);
   }
 }

@@ -18,14 +18,14 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
+
 /**
- * The UrlQueryBuilder for Rest AbfsClient
+ * The UrlQueryBuilder for Rest AbfsClient.
  */
 public class AbfsUriQueryBuilder {
   private Map<String, String> parameters;
@@ -52,7 +52,6 @@ public class AbfsUriQueryBuilder {
       } else {
         sb.append(AbfsHttpConstants.AND_MARK);
       }
-
       try {
         sb.append(entry.getKey()).append(AbfsHttpConstants.EQUAL).append(AbfsClient.urlEncode(entry.getValue()));
       }

@@ -29,13 +29,14 @@ public interface KeyProvider {
    * Key providers must implement this method. Given a list of configuration
    * parameters for the specified Azure storage account, retrieve the plaintext
    * storage account key.
-   * 
+   *
    * @param accountName
    *          the storage account name
    * @param conf
    *          Hadoop configuration parameters
    * @return the plaintext storage account key
-   * @throws KeyProviderException
+   * @throws KeyProviderException if an error occurs while attempting to get
+   *         the storage account key.
    */
   String getStorageAccountKey(String accountName, Configuration conf)
       throws KeyProviderException;

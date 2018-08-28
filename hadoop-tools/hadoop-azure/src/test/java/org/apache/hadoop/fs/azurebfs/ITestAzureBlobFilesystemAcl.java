@@ -18,18 +18,17 @@
 
 package org.apache.hadoop.fs.azurebfs;
 
+import com.google.common.collect.Lists;
+
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.hadoop.mapred.Counters;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.utils.AclTestHelpers;
@@ -46,26 +45,29 @@ import static org.apache.hadoop.fs.permission.AclEntryType.OTHER;
 import static org.apache.hadoop.fs.permission.AclEntryType.MASK;
 import static org.apache.hadoop.fs.azurebfs.utils.AclTestHelpers.aclEntry;
 
-public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
-  private static FsAction ALL = FsAction.ALL;
-  private static FsAction NONE = FsAction.NONE;
-  private static FsAction READ = FsAction.READ;
-  private static FsAction READ_EXECUTE = FsAction.READ_EXECUTE;
-  private static FsAction READ_WRITE = FsAction.READ_WRITE;
+/**
+ * Test acl operations.
+ */
+public class ITestAzureBlobFilesystemAcl extends AbstractAbfsIntegrationTest {
+  private static final FsAction ALL = FsAction.ALL;
+  private static final FsAction NONE = FsAction.NONE;
+  private static final FsAction READ = FsAction.READ;
+  private static final FsAction READ_EXECUTE = FsAction.READ_EXECUTE;
+  private static final FsAction READ_WRITE = FsAction.READ_WRITE;
   private static Path testRoot = new Path("/test");
   private Path path;
 
   public ITestAzureBlobFilesystemAcl() throws Exception {
     super();
 
-    Assume.assumeTrue(this.isNamespaceEnabled());
+    Assume.assumeTrue(this.getAuthType() == AuthType.OAuth);
   }
 
   @Test
   public void testModifyAclEntries() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    fs.mkdirs(path, FsPermission.createImmutable((short)0750));
+    fs.mkdirs(path, FsPermission.createImmutable((short) 0750));
 
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
@@ -90,7 +92,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -98,7 +100,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -113,14 +115,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", READ_EXECUTE),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
   public void testModifyAclEntriesOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -135,7 +137,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -143,7 +145,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, "foo", READ_WRITE));
     fs.modifyAclEntries(path, aclSpec);
@@ -152,14 +154,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", READ_WRITE),
         aclEntry(ACCESS, GROUP, READ) }, returned);
-    assertPermission(fs, (short)0660);
+    assertPermission(fs, (short) 0660);
   }
 
   @Test
   public void testModifyAclEntriesMinimalDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
@@ -171,7 +173,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -179,7 +181,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, MASK, NONE));
@@ -189,14 +191,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ) }, returned);
-    assertPermission(fs, (short)0600);
+    assertPermission(fs, (short) 0600);
   }
 
   @Test
   public void testModifyAclEntriesStickyBit() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)01750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 01750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -218,7 +220,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)01750);
+    assertPermission(fs, (short) 01750);
   }
 
   @Test(expected=FileNotFoundException.class)
@@ -239,7 +241,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.modifyAclEntries(path, aclSpec);
@@ -249,7 +251,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testRemoveAclEntries() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -269,7 +271,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -277,7 +279,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -293,14 +295,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "bar", READ_WRITE),
         aclEntry(ACCESS, GROUP, READ_WRITE) }, returned);
-    assertPermission(fs, (short)0760);
+    assertPermission(fs, (short) 0760);
   }
 
   @Test
   public void testRemoveAclEntriesOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE),
@@ -319,7 +321,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -327,7 +329,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0760));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0760));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -341,14 +343,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0760);
+    assertPermission(fs, (short) 0760);
   }
 
   @Test
   public void testRemoveAclEntriesMinimalDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -368,14 +370,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
   public void testRemoveAclEntriesStickyBit() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)01750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 01750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -395,7 +397,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)01750);
+    assertPermission(fs, (short) 01750);
   }
 
   @Test(expected=FileNotFoundException.class)
@@ -412,7 +414,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testRemoveDefaultAcl() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -426,7 +428,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, (short)0770);
+    assertPermission(fs, (short) 0770);
   }
 
   @Test
@@ -434,7 +436,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -447,14 +449,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, (short)0770);
+    assertPermission(fs, (short) 0770);
   }
 
   @Test
   public void testRemoveDefaultAclOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -462,26 +464,26 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
   public void testRemoveDefaultAclMinimal() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     fs.removeDefaultAcl(path);
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
   public void testRemoveDefaultAclStickyBit() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)01750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 01750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -495,7 +497,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, (short)01770);
+    assertPermission(fs, (short) 01770);
   }
 
   @Test(expected=FileNotFoundException.class)
@@ -510,7 +512,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testRemoveAcl() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -524,7 +526,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -532,19 +534,19 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     fs.removeAcl(path);
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0640);
+    assertPermission(fs, (short) 0640);
   }
 
   @Test
   public void testRemoveAclStickyBit() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)01750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 01750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -556,14 +558,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)01750);
+    assertPermission(fs, (short) 01750);
   }
 
   @Test
   public void testRemoveAclOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE),
@@ -574,7 +576,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test(expected=FileNotFoundException.class)
@@ -589,7 +591,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testSetAcl() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -607,7 +609,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0770);
+    assertPermission(fs, (short) 0770);
   }
 
   @Test
@@ -615,7 +617,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, READ_WRITE),
         aclEntry(ACCESS, USER, "foo", READ),
@@ -627,14 +629,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", READ),
         aclEntry(ACCESS, GROUP, READ) }, returned);
-    assertPermission(fs, (short)0640);
+    assertPermission(fs, (short) 0640);
   }
 
   @Test
   public void testSetAclOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -646,7 +648,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -654,7 +656,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0644));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0644));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, READ_WRITE),
         aclEntry(ACCESS, USER, "foo", READ),
@@ -669,14 +671,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, (short)0640);
+    assertPermission(fs, (short) 0640);
   }
 
   @Test
   public void testSetAclMinimalDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
@@ -688,7 +690,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0750);
+    assertPermission(fs, (short) 0750);
   }
 
   @Test
@@ -696,7 +698,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, READ_WRITE),
         aclEntry(ACCESS, USER, "foo", READ),
@@ -709,14 +711,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", READ),
         aclEntry(ACCESS, GROUP, READ) }, returned);
-    assertPermission(fs, (short)0670);
+    assertPermission(fs, (short) 0670);
   }
 
   @Test
   public void testSetAclStickyBit() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)01750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 01750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -734,7 +736,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)01770);
+    assertPermission(fs, (short) 01770);
   }
 
   @Test(expected=FileNotFoundException.class)
@@ -755,7 +757,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -765,7 +767,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testSetPermission() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, USER, "foo", ALL),
@@ -773,7 +775,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(ACCESS, OTHER, NONE),
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
-    fs.setPermission(path, FsPermission.createImmutable((short)0700));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0700));
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] {
@@ -784,7 +786,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0700);
+    assertPermission(fs, (short) 0700);
   }
 
   @Test
@@ -792,34 +794,34 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     fs.create(path).close();
-    fs.setPermission(path, FsPermission.createImmutable((short)0640));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0640));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, READ_WRITE),
         aclEntry(ACCESS, USER, "foo", READ),
         aclEntry(ACCESS, GROUP, READ),
         aclEntry(ACCESS, OTHER, NONE));
     fs.setAcl(path, aclSpec);
-    fs.setPermission(path, FsPermission.createImmutable((short)0600));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0600));
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", READ),
         aclEntry(ACCESS, GROUP, READ) }, returned);
-    assertPermission(fs, (short)0600);
+    assertPermission(fs, (short) 0600);
   }
 
   @Test
   public void testSetPermissionOnlyDefault() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE),
         aclEntry(ACCESS, OTHER, NONE),
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
-    fs.setPermission(path, FsPermission.createImmutable((short)0700));
+    fs.setPermission(path, FsPermission.createImmutable((short) 0700));
     AclStatus s = fs.getAclStatus(path);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] {
@@ -828,14 +830,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, (short)0700);
+    assertPermission(fs, (short) 0700);
   }
 
   @Test
   public void testDefaultAclNewFile() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -846,7 +848,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, filePath, (short)0640);
+    assertPermission(fs, filePath, (short) 0640);
   }
 
   @Test
@@ -854,7 +856,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testOnlyAccessAclNewFile() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, "foo", ALL));
     fs.modifyAclEntries(path, aclSpec);
@@ -863,7 +865,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(filePath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, filePath, (short)0644);
+    assertPermission(fs, filePath, (short) 0644);
   }
 
   @Test
@@ -871,7 +873,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testDefaultMinimalAclNewFile() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
@@ -882,14 +884,14 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(filePath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, filePath, (short)0640);
+    assertPermission(fs, filePath, (short) 0640);
   }
 
   @Test
   public void testDefaultAclNewDir() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
@@ -907,7 +909,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, dirPath, (short)0770);
+    assertPermission(fs, dirPath, (short) 0770);
   }
 
   @Test
@@ -915,7 +917,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testOnlyAccessAclNewDir() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(ACCESS, USER, "foo", ALL));
     fs.modifyAclEntries(path, aclSpec);
@@ -924,7 +926,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     AclStatus s = fs.getAclStatus(dirPath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] { }, returned);
-    assertPermission(fs, dirPath, (short)0755);
+    assertPermission(fs, dirPath, (short) 0755);
   }
 
   @Test
@@ -932,7 +934,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
   public void testDefaultMinimalAclNewDir() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
@@ -946,20 +948,20 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, USER, ALL),
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, OTHER, NONE) }, returned);
-    assertPermission(fs, dirPath, (short)0750);
+    assertPermission(fs, dirPath, (short) 0750);
   }
 
   @Test
   public void testDefaultAclNewFileWithMode() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0755));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0755));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
     Path filePath = new Path(path, "file1");
     int bufferSize =  4 * 1024 * 1024;
-    fs.create(filePath, new FsPermission((short)0740), false, bufferSize,
+    fs.create(filePath, new FsPermission((short) 0740), false, bufferSize,
         fs.getDefaultReplication(filePath), fs.getDefaultBlockSize(path), null)
         .close();
     AclStatus s = fs.getAclStatus(filePath);
@@ -967,19 +969,19 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     assertArrayEquals(new AclEntry[] {
         aclEntry(ACCESS, USER, "foo", ALL),
         aclEntry(ACCESS, GROUP, READ_EXECUTE) }, returned);
-    assertPermission(fs, filePath, (short)0740);
+    assertPermission(fs, filePath, (short) 0740);
   }
 
   @Test
   public void testDefaultAclNewDirWithMode() throws Exception {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
-    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short)0755));
+    FileSystem.mkdirs(fs, path, FsPermission.createImmutable((short) 0755));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(path, aclSpec);
     Path dirPath = new Path(path, "dir1");
-    fs.mkdirs(dirPath, new FsPermission((short)0740));
+    fs.mkdirs(dirPath, new FsPermission((short) 0740));
     AclStatus s = fs.getAclStatus(dirPath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(new AclEntry[] {
@@ -990,7 +992,7 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
         aclEntry(DEFAULT, GROUP, READ_EXECUTE),
         aclEntry(DEFAULT, MASK, ALL),
         aclEntry(DEFAULT, OTHER, READ_EXECUTE) }, returned);
-    assertPermission(fs, dirPath, (short)0740);
+    assertPermission(fs, dirPath, (short) 0740);
   }
 
   @Test
@@ -998,20 +1000,20 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     Path dirPath = new Path(path, "dir");
-    FileSystem.mkdirs(fs, dirPath, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, dirPath, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(dirPath, aclSpec);
     Path filePath = new Path(path, "file1");
     fs.create(filePath).close();
-    fs.setPermission(filePath, FsPermission.createImmutable((short)0640));
+    fs.setPermission(filePath, FsPermission.createImmutable((short) 0640));
     Path renamedFilePath = new Path(dirPath, "file1");
     fs.rename(filePath, renamedFilePath);
     AclEntry[] expected = new AclEntry[] { };
     AclStatus s = fs.getAclStatus(renamedFilePath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(expected, returned);
-    assertPermission(fs, renamedFilePath, (short)0640);
+    assertPermission(fs, renamedFilePath, (short) 0640);
   }
 
   @Test
@@ -1019,22 +1021,20 @@ public class ITestAzureBlobFilesystemAcl extends DependencyInjectedTest {
     final AzureBlobFileSystem fs = this.getFileSystem();
     path = new Path(testRoot, UUID.randomUUID().toString());
     Path dirPath = new Path(path, "dir");
-    FileSystem.mkdirs(fs, dirPath, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, dirPath, FsPermission.createImmutable((short) 0750));
     List<AclEntry> aclSpec = Lists.newArrayList(
         aclEntry(DEFAULT, USER, "foo", ALL));
     fs.setAcl(dirPath, aclSpec);
     Path subdirPath = new Path(path, "subdir");
-    FileSystem.mkdirs(fs, subdirPath, FsPermission.createImmutable((short)0750));
+    FileSystem.mkdirs(fs, subdirPath, FsPermission.createImmutable((short) 0750));
     Path renamedSubdirPath = new Path(dirPath, "subdir");
     fs.rename(subdirPath, renamedSubdirPath);
     AclEntry[] expected = new AclEntry[] { };
     AclStatus s = fs.getAclStatus(renamedSubdirPath);
     AclEntry[] returned = s.getEntries().toArray(new AclEntry[0]);
     assertArrayEquals(expected, returned);
-    assertPermission(fs, renamedSubdirPath, (short)0750);
+    assertPermission(fs, renamedSubdirPath, (short) 0750);
   }
-
-
 
   @Test
   public void testEnsureAclOperationWorksForRoot() throws Exception {

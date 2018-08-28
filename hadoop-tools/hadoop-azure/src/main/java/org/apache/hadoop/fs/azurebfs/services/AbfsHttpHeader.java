@@ -19,7 +19,7 @@
 package org.apache.hadoop.fs.azurebfs.services;
 
 /**
- * The Http Request / Response Headers for Rest AbfsClient
+ * The Http Request / Response Headers for Rest AbfsClient.
  */
 public class AbfsHttpHeader {
   private final String name;

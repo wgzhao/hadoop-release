@@ -20,56 +20,58 @@ package org.apache.hadoop.fs.azurebfs;
 
 import java.net.URI;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
-import org.apache.hadoop.fs.azurebfs.contracts.services.AbfsHttpService;
-import org.apache.hadoop.fs.azurebfs.services.ServiceProviderImpl;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doReturn;
-
-public class ITestFileSystemInitialization extends DependencyInjectedTest {
-  public ITestFileSystemInitialization() throws Exception {
+/**
+ * Test AzureBlobFileSystem initialization.
+ */
+public class ITestFileSystemInitialization extends AbstractAbfsIntegrationTest {
+  public ITestFileSystemInitialization() {
     super();
-
-    this.mockServiceInjector.removeProvider(AbfsHttpService.class);
-    this.mockServiceInjector.replaceInstance(AbfsHttpService.class, Mockito.mock(AbfsHttpService.class));
   }
 
   @Test
   public void ensureAzureBlobFileSystemIsInitialized() throws Exception {
-    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
-        .when(ServiceProviderImpl.instance().get(AbfsHttpService.class))
-        .getFileStatus((AzureBlobFileSystem) anyObject(), (Path) anyObject());
+    final AzureBlobFileSystem fs = getFileSystem();
+    final String accountName = getAccountName();
+    final String filesystem = getFileSystemName();
 
-    final FileSystem fs = FileSystem.get(this.getConfiguration());
-    final String accountName = this.getAccountName();
-    final String filesystem = this.getFileSystemName();
-
-    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ABFS_SCHEME, filesystem + "@" + accountName, null, null, null));
-    Assert.assertNotNull(fs.getWorkingDirectory());
+    String scheme = this.getAuthType() == AuthType.SharedKey ? FileSystemUriSchemes.ABFS_SCHEME
+            : FileSystemUriSchemes.ABFS_SECURE_SCHEME;
+    assertEquals(fs.getUri(),
+        new URI(scheme,
+            filesystem + "@" + accountName,
+            null,
+            null,
+            null));
+    assertNotNull("working directory", fs.getWorkingDirectory());
   }
 
   @Test
   public void ensureSecureAzureBlobFileSystemIsInitialized() throws Exception {
-    doReturn(new FileStatus(0, true, 0, 0, 0, new Path("/blah")))
-        .when(ServiceProviderImpl.instance().get(AbfsHttpService.class))
-        .getFileStatus((AzureBlobFileSystem) anyObject(), (Path) anyObject());
+    final String accountName = getAccountName();
+    final String filesystem = getFileSystemName();
+    final URI defaultUri = new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME,
+        filesystem + "@" + accountName,
+        null,
+        null,
+        null);
+    Configuration conf = getConfiguration();
+    conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
 
-    final String accountName = this.getAccountName();
-    final String filesystem = this.getFileSystemName();
-    final URI defaultUri = new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME, filesystem + "@" + accountName, null, null, null);
-    this.getConfiguration().set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, defaultUri.toString());
-
-    final FileSystem fs = FileSystem.get(this.getConfiguration());
-    Assert.assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME, filesystem + "@" + accountName, null, null, null));
-    Assert.assertNotNull(fs.getWorkingDirectory());
+    try(SecureAzureBlobFileSystem fs = (SecureAzureBlobFileSystem) FileSystem.newInstance(conf)) {
+      assertEquals(fs.getUri(), new URI(FileSystemUriSchemes.ABFS_SECURE_SCHEME,
+          filesystem + "@" + accountName,
+          null,
+          null,
+          null));
+      assertNotNull("working directory", fs.getWorkingDirectory());
+    }
   }
 }

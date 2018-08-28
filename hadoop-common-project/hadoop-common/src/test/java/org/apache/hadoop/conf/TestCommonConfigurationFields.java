@@ -110,7 +110,7 @@ public class TestCommonConfigurationFields extends TestConfigurationFieldsBase {
     xmlPrefixToSkipCompare.add("fs.adl.");
     xmlPropsToSkipCompare.add("fs.AbstractFileSystem.adl.impl");
 
-    // Azure properties are in a different class
+    // WASB properties are in a different class
     // - org.apache.hadoop.fs.azure.AzureNativeFileSystemStore
     // - org.apache.hadoop.fs.azure.SASKeyGeneratorImpl
     // - org.apache.hadoop.fs.azure.NativeAzureFileSystem
@@ -121,6 +121,9 @@ public class TestCommonConfigurationFields extends TestConfigurationFieldsBase {
     xmlPropsToSkipCompare.add("fs.azure.authorization.caching.enable");
     xmlPropsToSkipCompare.add("fs.azure.saskey.usecontainersaskeyforallaccess");
     xmlPropsToSkipCompare.add("fs.azure.user.agent.prefix");
+    xmlPrefixToSkipCompare.add("fs.abfs.impl");
+    xmlPrefixToSkipCompare.add("fs.abfss.impl");
+
 
     // ADL properties are in a different subtree
     // - org.apache.hadoop.hdfs.web.ADLConfKeys

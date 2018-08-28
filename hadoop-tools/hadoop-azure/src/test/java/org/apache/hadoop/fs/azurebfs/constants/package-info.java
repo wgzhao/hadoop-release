@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,20 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
-
+@InterfaceAudience.Private
+@InterfaceStability.Evolving
+package org.apache.hadoop.fs.azurebfs.constants;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-
-/**
- * Thrown when acl entries is invalid.
- */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public final class InvalidAclArgumentException extends AzureBlobFileSystemException {
-
-  public InvalidAclArgumentException(String message) {
-    super(message);
-  }
-}

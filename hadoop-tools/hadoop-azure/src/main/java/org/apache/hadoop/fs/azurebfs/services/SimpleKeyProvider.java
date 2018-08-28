@@ -20,26 +20,20 @@ package org.apache.hadoop.fs.azurebfs.services;
 
 import java.io.IOException;
 
-import com.google.common.base.Preconditions;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 import org.apache.hadoop.security.ProviderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Key provider that simply returns the storage account key from the
  * configuration as plaintext.
  */
 public class SimpleKeyProvider implements KeyProvider {
-  private final LoggingService loggingService;
-  SimpleKeyProvider(final LoggingService loggingService) {
-    Preconditions.checkNotNull(loggingService, "loggingService");
-
-    this.loggingService = loggingService.get(SimpleKeyProvider.class);
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleKeyProvider.class);
 
   @Override
   public String getStorageAccountKey(String accountName, Configuration conf)
@@ -53,7 +47,7 @@ public class SimpleKeyProvider implements KeyProvider {
         key = new String(keyChars);
       }
     } catch(IOException ioe) {
-      loggingService.warning("Unable to get key from credential providers. {0}", ioe);
+      LOG.warn("Unable to get key from credential providers. {}", ioe);
     }
     return key;
   }

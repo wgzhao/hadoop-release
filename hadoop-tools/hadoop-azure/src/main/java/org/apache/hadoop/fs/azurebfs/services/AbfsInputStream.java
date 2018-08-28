@@ -29,10 +29,9 @@ import org.apache.hadoop.fs.FileSystem.Statistics;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 
 /**
- * The AbfsInputStream for AbfsClient
+ * The AbfsInputStream for AbfsClient.
  */
 public class AbfsInputStream extends FSInputStream {
-
   private final AbfsClient client;
   private final Statistics statistics;
   private final String path;
@@ -60,7 +59,6 @@ public class AbfsInputStream extends FSInputStream {
       final int bufferSize,
       final int readAheadQueueDepth,
       final String eTag) {
-    super();
     this.client = client;
     this.statistics = statistics;
     this.path = path;
@@ -95,15 +93,15 @@ public class AbfsInputStream extends FSInputStream {
     int totalReadBytes = 0;
     do {
       lastReadBytes = readOneBlock(b, currentOff, currentLen);
-      if(lastReadBytes > 0) {
+      if (lastReadBytes > 0) {
         currentOff += lastReadBytes;
         currentLen -= lastReadBytes;
         totalReadBytes += lastReadBytes;
       }
-      if(currentLen <= 0 || currentLen > b.length - currentOff) {
+      if (currentLen <= 0 || currentLen > b.length - currentOff) {
         break;
       }
-    } while(lastReadBytes > 0);
+    } while (lastReadBytes > 0);
     return totalReadBytes > 0 ? totalReadBytes : lastReadBytes;
   }
 
@@ -118,7 +116,7 @@ public class AbfsInputStream extends FSInputStream {
       return 0;
     }
 
-    if(this.available() == 0) {
+    if (this.available() == 0) {
       return -1;
     }
 

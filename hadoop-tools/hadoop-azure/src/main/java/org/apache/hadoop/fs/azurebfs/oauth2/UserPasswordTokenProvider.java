@@ -15,18 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hadoop.fs.azurebfs.oauth2;
 
 import java.io.IOException;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.conf.Configuration;
 /**
- * Provides tokens based on username and password
+ * Provides tokens based on username and password.
  */
 public class UserPasswordTokenProvider extends AccessTokenProvider {
 
@@ -36,17 +36,14 @@ public class UserPasswordTokenProvider extends AccessTokenProvider {
 
   private final String password;
 
-  private final LoggingService loggingService;
+  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenProvider.class);
 
-  public UserPasswordTokenProvider(final LoggingService loggingService, final String authEndpoint, final String username, final String password) {
-    super(loggingService);
-
-    Preconditions.checkNotNull(loggingService, "loggingService");
+  public UserPasswordTokenProvider(final String authEndpoint,
+                                   final String username, final String password) {
     Preconditions.checkNotNull(authEndpoint, "authEndpoint");
     Preconditions.checkNotNull(username, "username");
     Preconditions.checkNotNull(password, "password");
 
-    this.loggingService = loggingService.get(UserPasswordTokenProvider.class);
     this.authEndpoint = authEndpoint;
     this.username = username;
     this.password = password;
@@ -54,7 +51,7 @@ public class UserPasswordTokenProvider extends AccessTokenProvider {
 
   @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing user-password based token");
+    LOG.debug("AADToken: refreshing user-password based token");
     return AzureADAuthenticator.getTokenUsingClientCreds(authEndpoint, username, password);
   }
 

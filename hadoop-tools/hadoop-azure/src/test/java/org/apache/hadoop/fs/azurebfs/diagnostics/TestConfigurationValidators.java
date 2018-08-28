@@ -18,18 +18,26 @@
 
 package org.apache.hadoop.fs.azurebfs.diagnostics;
 
-import com.microsoft.azure.storage.core.Base64;
+import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.hadoop.fs.azurebfs.DependencyInjectedTest;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
 
-import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.*;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.utils.Base64;
+
+import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.MIN_BUFFER_SIZE;
+import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.MAX_BUFFER_SIZE;
+import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.DEFAULT_READ_BUFFER_SIZE;
+import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.DEFAULT_WRITE_BUFFER_SIZE;
+
 import static org.junit.Assert.assertEquals;
 
-public class TestConfigurationValidators extends DependencyInjectedTest {
+/**
+ * Test configuration validators.
+ */
+public class TestConfigurationValidators extends Assert {
 
-  private final String FAKE_KEY = "FakeKey";
+  private static final String FAKE_KEY = "FakeKey";
 
   public TestConfigurationValidators() throws Exception {
     super();
@@ -110,6 +118,6 @@ public class TestConfigurationValidators extends DependencyInjectedTest {
   @Test(expected = InvalidConfigurationValueException.class)
   public void testBase64StringConfigValidatorThrowsIfMissingValidValue() throws Exception {
     Base64StringConfigurationBasicValidator base64StringConfigurationValidator = new Base64StringConfigurationBasicValidator(FAKE_KEY, "value", true);
-    String result = base64StringConfigurationValidator.validate("some&%Value");
+    base64StringConfigurationValidator.validate("some&%Value");
   }
 }

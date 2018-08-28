@@ -21,7 +21,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all abfs http headers here
+ * Responsible to keep all abfs http headers here.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
@@ -57,6 +57,7 @@ public final class HttpHeaderConfigurations {
   public static final String X_MS_ACL = "x-ms-acl";
   public static final String X_MS_PERMISSIONS = "x-ms-permissions";
   public static final String X_MS_UMASK = "x-ms-umask";
+  public static final String X_MS_NAMESPACE_ENABLED = "x-ms-namespace-enabled";
 
   private HttpHeaderConfigurations() {}
 }

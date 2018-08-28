@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,23 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.hadoop.fs.azurebfs.services;
-
-public class MockServiceInjectorImpl extends ServiceInjectorImpl {
-  public <T> void replaceInstance(Class<T> tInterface, Object object) {
-    this.removeInstance(tInterface);
-    this.removeProvider(tInterface);
-    this.getInstances().put(tInterface, object);
-  }
-
-  public <T> void removeInstance(Class<T> tInterface) { this.getInstances().remove(tInterface); }
-
-  public <T> void replaceProvider(Class<T> tInterface, Class<? extends T> tClazz) {
-    this.removeInstance(tInterface);
-    this.removeProvider(tInterface);
-    this.getProviders().put(tInterface, tClazz);
-  }
-
-  public <T> void removeProvider(Class<T> tInterface) { this.getProviders().remove(tInterface); }
-}
+@InterfaceAudience.Private
+@InterfaceStability.Evolving
+package org.apache.hadoop.fs.azurebfs.contract;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;

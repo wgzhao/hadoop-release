@@ -20,25 +20,34 @@ package org.apache.hadoop.fs.azurebfs;
 
 import java.lang.ref.WeakReference;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ITestAzureBlobFileSystemFinalize extends DependencyInjectedTest{
-  static final String DISABLE_CACHE_KEY = "fs.abfs.impl.disable.cache";
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.azurebfs.services.AuthType;
+
+/**
+ * Test finalize() method when "fs.abfs.impl.disable.cache" is enabled.
+ */
+public class ITestAzureBlobFileSystemFinalize extends AbstractAbfsScaleTest{
+  static final String DISABLE_ABFS_CACHE_KEY = "fs.abfs.impl.disable.cache";
+  static final String DISABLE_ABFSSS_CACHE_KEY = "fs.abfss.impl.disable.cache";
 
   public ITestAzureBlobFileSystemFinalize() throws Exception {
     super();
-    Configuration configuration = this.getConfiguration();
-    // Disable the cache for filesystem to make sure there is no reference.
-    configuration.setBoolean(this.DISABLE_CACHE_KEY, true);
-    this.mockServiceInjector.replaceInstance(Configuration.class, configuration);
   }
 
   @Test
   public void testFinalize() throws Exception {
+    // Disable the cache for filesystem to make sure there is no reference.
+    Configuration configuration = this.getConfiguration();
+    configuration.setBoolean(
+            this.getAuthType() == AuthType.SharedKey ? DISABLE_ABFS_CACHE_KEY : DISABLE_ABFSSS_CACHE_KEY,
+    true);
 
-    AzureBlobFileSystem fs = this.getFileSystem();
+    AzureBlobFileSystem fs = (AzureBlobFileSystem) FileSystem.get(configuration);
+
     WeakReference<Object> ref = new WeakReference<Object>(fs);
     fs = null;
 

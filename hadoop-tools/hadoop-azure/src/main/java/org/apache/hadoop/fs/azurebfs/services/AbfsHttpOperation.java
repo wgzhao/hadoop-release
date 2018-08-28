@@ -26,21 +26,28 @@ import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
-import org.apache.hadoop.fs.azurebfs.contracts.log.LogLevel;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
 /**
  * Represents an HTTP operation.
  */
 public class AbfsHttpOperation {
+  private static final Logger LOG = LoggerFactory.getLogger(AbfsHttpOperation.class);
+
   private static final int CONNECT_TIMEOUT = 30 * 1000;
   private static final int READ_TIMEOUT = 30 * 1000;
 
@@ -71,9 +78,9 @@ public class AbfsHttpOperation {
   private long sendRequestTimeMs;
   private long recvResponseTimeMs;
 
-  private final LoggingService loggingService;
-
-  protected  HttpURLConnection getConnection() { return connection; }
+  protected  HttpURLConnection getConnection() {
+    return connection;
+  }
 
   public String getMethod() {
     return method;
@@ -111,11 +118,17 @@ public class AbfsHttpOperation {
     return bytesSent;
   }
 
-  public long getBytesReceived() { return bytesReceived; }
+  public long getBytesReceived() {
+    return bytesReceived;
+  }
 
-  public ListResultSchema getListResultSchema() { return listResultSchema; }
+  public ListResultSchema getListResultSchema() {
+    return listResultSchema;
+  }
 
-  public String getResponseHeader(String httpHeader) { return connection.getHeaderField(httpHeader); }
+  public String getResponseHeader(String httpHeader) {
+    return connection.getHeaderField(httpHeader);
+  }
 
   // Returns a trace message for the request
   @Override
@@ -157,15 +170,21 @@ public class AbfsHttpOperation {
    *
    * @throws IOException if an error occurs.
    */
-  public AbfsHttpOperation(final URL url, final String method, final List<AbfsHttpHeader> requestHeaders, LoggingService loggingService)
+  public AbfsHttpOperation(final URL url, final String method, final List<AbfsHttpHeader> requestHeaders)
       throws IOException {
-    this.loggingService = loggingService;
-    this.isTraceEnabled = loggingService.logLevelEnabled(LogLevel.Trace);
+    this.isTraceEnabled = LOG.isTraceEnabled();
     this.url = url;
     this.method = method;
     this.clientRequestId = UUID.randomUUID().toString();
 
     this.connection = openConnection();
+    if (this.connection instanceof HttpsURLConnection) {
+      HttpsURLConnection secureConn = (HttpsURLConnection) this.connection;
+      SSLSocketFactory sslSocketFactory = SSLSocketFactoryEx.getDefaultFactory();
+      if (sslSocketFactory != null) {
+        secureConn.setSSLSocketFactory(sslSocketFactory);
+      }
+    }
 
     this.connection.setConnectTimeout(CONNECT_TIMEOUT);
     this.connection.setReadTimeout(READ_TIMEOUT);
@@ -179,7 +198,7 @@ public class AbfsHttpOperation {
     this.connection.setRequestProperty(HttpHeaderConfigurations.X_MS_CLIENT_REQUEST_ID, clientRequestId);
   }
 
-  /**
+   /**
    * Sends the HTTP request.  Note that HttpUrlConnection requires that an
    * empty buffer be sent in order to set the "Content-Length: 0" header, which
    * is required by our endpoint.
@@ -207,7 +226,7 @@ public class AbfsHttpOperation {
     if (this.isTraceEnabled) {
       startTime = System.nanoTime();
     }
-    try (final OutputStream outputStream = this.connection.getOutputStream()) {
+    try (OutputStream outputStream = this.connection.getOutputStream()) {
       // update bytes sent before they are sent so we may observe
       // attempted sends as well as successful sends via the
       // accompanying statusCode
@@ -222,6 +241,10 @@ public class AbfsHttpOperation {
 
   /**
    * Gets and processes the HTTP response.
+   *
+   * @param buffer a buffer to hold the response entity body
+   * @param offset an offset in the buffer where the data will being.
+   * @param length the number of bytes to be written to the buffer.
    *
    * @throws IOException if an error occurs.
    */
@@ -247,6 +270,7 @@ public class AbfsHttpOperation {
     }
 
     if (AbfsHttpConstants.HTTP_METHOD_HEAD.equals(this.method)) {
+      // If it is HEAD, and it is ERROR
       return;
     }
 
@@ -263,15 +287,16 @@ public class AbfsHttpOperation {
     } else {
       // consume the input stream to release resources
       int totalBytesRead = 0;
+
       try (InputStream stream = this.connection.getInputStream()) {
-        if (stream == null) {
+        if (isNullInputStream(stream)) {
           return;
         }
         boolean endOfStream = false;
 
         // this is a list operation and need to retrieve the data
         // need a better solution
-        if(AbfsHttpConstants.HTTP_METHOD_GET.equals(this.method) && buffer == null) {
+        if (AbfsHttpConstants.HTTP_METHOD_GET.equals(this.method) && buffer == null) {
           parseListFilesResponse(stream);
         } else {
           if (buffer != null) {
@@ -294,7 +319,7 @@ public class AbfsHttpOperation {
           }
         }
       } catch (IOException ex) {
-        this.loggingService.error("UnexpectedError: ", ex);
+        LOG.error("UnexpectedError: ", ex);
         throw ex;
       } finally {
         if (this.isTraceEnabled) {
@@ -375,7 +400,7 @@ public class AbfsHttpOperation {
       // Ignore errors that occur while attempting to parse the storage
       // error, since the response may have been handled by the HTTP driver
       // or for other reasons have an unexpected
-      this.loggingService.debug("ExpectedError: ", ex);
+      LOG.debug("ExpectedError: ", ex);
     }
   }
 
@@ -393,11 +418,11 @@ public class AbfsHttpOperation {
    * @throws IOException
    */
   private void parseListFilesResponse(final InputStream stream) throws IOException {
-    if(stream == null) {
+    if (stream == null) {
       return;
     }
 
-    if(listResultSchema != null) {
+    if (listResultSchema != null) {
       // already parse the response
       return;
     }
@@ -406,8 +431,16 @@ public class AbfsHttpOperation {
       final ObjectMapper objectMapper = new ObjectMapper();
       this.listResultSchema = objectMapper.readValue(stream, ListResultSchema.class);
     } catch (IOException ex) {
-      this.loggingService.error("Unable to deserialize list results", ex);
+      LOG.error("Unable to deserialize list results", ex);
       throw ex;
     }
+  }
+
+  /**
+   * Check null stream, this is to pass findbugs's redundant check for NULL
+   * @param stream InputStream
+   */
+  private boolean isNullInputStream(InputStream stream) {
+    return stream == null ? true : false;
   }
 }

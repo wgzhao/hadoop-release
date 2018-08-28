@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.fs.azurebfs.contracts.exceptions;
 
+import java.io.IOException;
+
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -26,7 +28,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public abstract class AzureBlobFileSystemException extends Exception {
+public abstract class AzureBlobFileSystemException extends IOException {
   public AzureBlobFileSystemException(final String message) {
     super(message);
   }
@@ -38,7 +40,7 @@ public abstract class AzureBlobFileSystemException extends Exception {
   @Override
   public String toString() {
     if (this.getMessage() == null && this.getCause() == null) {
-      return null;
+      return "AzureBlobFileSystemException";
     }
 
     if (this.getCause() == null) {

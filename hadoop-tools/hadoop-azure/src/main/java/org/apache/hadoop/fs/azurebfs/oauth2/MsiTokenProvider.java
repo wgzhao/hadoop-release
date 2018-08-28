@@ -20,12 +20,11 @@ package org.apache.hadoop.fs.azurebfs.oauth2;
 
 import java.io.IOException;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Provides tokens based on Azure VM's Managed Service Identity
+ * Provides tokens based on Azure VM's Managed Service Identity.
  */
 public class MsiTokenProvider extends AccessTokenProvider {
 
@@ -33,21 +32,16 @@ public class MsiTokenProvider extends AccessTokenProvider {
 
   private final String clientId;
 
-  private final LoggingService loggingService;
+  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenProvider.class);
 
-  public MsiTokenProvider(final LoggingService loggingService, final String tenantGuid, final String clientId) {
-    super(loggingService);
-
-    Preconditions.checkNotNull(loggingService, "loggingService");
-
-    this.loggingService = loggingService.get(ClientCredsTokenProvider.class);
+  public MsiTokenProvider(final String tenantGuid, final String clientId) {
     this.tenantGuid = tenantGuid;
     this.clientId = clientId;
   }
 
   @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing token from MSI");
+    LOG.debug("AADToken: refreshing token from MSI");
     AzureADToken token = AzureADAuthenticator.getTokenFromMsi(tenantGuid, clientId, false);
     return token;
   }

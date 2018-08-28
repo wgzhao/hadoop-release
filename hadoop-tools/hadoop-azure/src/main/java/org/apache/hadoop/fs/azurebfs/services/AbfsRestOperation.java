@@ -23,18 +23,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
-import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AbfsRestOperationException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureServiceErrorResponseException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAzureServiceErrorResponseException;
-import org.apache.hadoop.fs.azurebfs.contracts.log.LogLevel;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAbfsRestOperationException;
+import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 
-/** 
- * The AbfsRestOperation for Rest AbfsClient
+/**
+ * The AbfsRestOperation for Rest AbfsClient.
  */
 public class AbfsRestOperation {
   // Blob FS client, which has the credentials, retry policy, and logs.
@@ -50,7 +49,7 @@ public class AbfsRestOperation {
   // request body and all the download methods have a response body.
   private final boolean hasRequestBody;
 
-  private final LoggingService loggingService;
+  private static final Logger LOG = LoggerFactory.getLogger(AbfsClient.class);
 
   // For uploads, this is the request entity body.  For downloads,
   // this will hold the response entity body.
@@ -82,7 +81,6 @@ public class AbfsRestOperation {
     this.requestHeaders = requestHeaders;
     this.hasRequestBody = (AbfsHttpConstants.HTTP_METHOD_PUT.equals(method)
             || AbfsHttpConstants.HTTP_METHOD_PATCH.equals(method));
-    this.loggingService = client.getLoggingService();
   }
 
   /**
@@ -125,7 +123,7 @@ public class AbfsRestOperation {
     }
 
     if (result.getStatusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
-      throw new AzureServiceErrorResponseException(result.getStatusCode(), result.getStorageErrorCode(),
+      throw new AbfsRestOperationException(result.getStatusCode(), result.getStorageErrorCode(),
           result.getStorageErrorMessage(), null, result);
     }
   }
@@ -139,9 +137,10 @@ public class AbfsRestOperation {
     AbfsHttpOperation httpOperation = null;
     try {
       // initialize the HTTP request and open the connection
-      httpOperation = new AbfsHttpOperation(url, method, requestHeaders, client.getLoggingService());
+      httpOperation = new AbfsHttpOperation(url, method, requestHeaders);
 
-      if(client.getAccessToken() == null) {
+      // sign the HTTP request
+      if (client.getAccessToken() == null) {
         // sign the HTTP request
         client.getSharedKeyCredentials().signRequest(
                 httpOperation.getConnection(),
@@ -152,28 +151,26 @@ public class AbfsRestOperation {
       }
 
       if (hasRequestBody) {
-        // HttpUrlConnection requires that the
+        // HttpUrlConnection requires
         httpOperation.sendRequest(buffer, bufferOffset, bufferLength);
       }
 
       httpOperation.processResponse(buffer, bufferOffset, bufferLength);
     } catch (IOException ex) {
-      if (loggingService.logLevelEnabled(LogLevel.Debug)) {
+      if (LOG.isDebugEnabled()) {
         if (httpOperation != null) {
-          loggingService.debug("HttpRequestFailure: " + httpOperation.toString(), ex);
+          LOG.debug("HttpRequestFailure: " + httpOperation.toString(), ex);
         } else {
-          loggingService.debug("HttpRequestFailure: " + method + "," + url, ex);
+          LOG.debug("HttpRequestFailure: " + method + "," + url, ex);
         }
       }
-      if (!client.getRetryPolicy().shouldRetry(retryCount, httpOperation.getStatusCode())) {
-        throw new InvalidAzureServiceErrorResponseException(ex);
+      if (!client.getRetryPolicy().shouldRetry(retryCount, -1)) {
+        throw new InvalidAbfsRestOperationException(ex);
       }
       return false;
     }
 
-    if (loggingService.logLevelEnabled(LogLevel.Debug)) {
-      loggingService.debug("HttpRequest: " + httpOperation.toString());
-    }
+    LOG.debug("HttpRequest: " + httpOperation.toString());
 
     if (client.getRetryPolicy().shouldRetry(retryCount, httpOperation.getStatusCode())) {
       return false;
@@ -182,10 +179,5 @@ public class AbfsRestOperation {
     result = httpOperation;
 
     return true;
-  }
-
-  @VisibleForTesting
-  URL getUrl() {
-    return this.url;
   }
 }

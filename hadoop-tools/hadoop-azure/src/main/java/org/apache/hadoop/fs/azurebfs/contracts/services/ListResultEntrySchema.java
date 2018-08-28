@@ -81,7 +81,7 @@ public class ListResultEntrySchema {
    * @return the name value
    */
   public String name() {
-    return this.name;
+    return name;
   }
 
   /**
@@ -101,7 +101,7 @@ public class ListResultEntrySchema {
    * @return the isDirectory value
    */
   public Boolean isDirectory() {
-    return this.isDirectory;
+    return isDirectory;
   }
 
   /**
@@ -121,7 +121,7 @@ public class ListResultEntrySchema {
    * @return the lastModified value
    */
   public String lastModified() {
-    return this.lastModified;
+    return lastModified;
   }
 
   /**
@@ -141,7 +141,7 @@ public class ListResultEntrySchema {
    * @return the etag value
    */
   public String eTag() {
-    return this.eTag;
+    return eTag;
   }
 
   /**
@@ -161,7 +161,7 @@ public class ListResultEntrySchema {
    * @return the contentLength value
    */
   public Long contentLength() {
-    return this.contentLength;
+    return contentLength;
   }
 
   /**
@@ -176,12 +176,13 @@ public class ListResultEntrySchema {
   }
 
   /**
-   * Get the owner value.
+   *
+   Get the owner value.
    *
    * @return the owner value
    */
   public String owner() {
-    return this.owner;
+    return owner;
   }
 
   /**
@@ -201,7 +202,7 @@ public class ListResultEntrySchema {
    * @return the group value
    */
   public String group() {
-    return this.group;
+    return group;
   }
 
   /**
@@ -221,7 +222,7 @@ public class ListResultEntrySchema {
    * @return the permissions value
    */
   public String permissions() {
-    return this.permissions;
+    return permissions;
   }
 
   /**
@@ -234,4 +235,5 @@ public class ListResultEntrySchema {
     this.permissions = permissions;
     return this;
   }
+
 }

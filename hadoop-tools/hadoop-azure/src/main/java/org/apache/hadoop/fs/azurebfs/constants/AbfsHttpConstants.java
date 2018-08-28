@@ -22,7 +22,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Responsible to keep all constant keys used in abfs rest client here
+ * Responsible to keep all constant keys used in abfs rest client here.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
@@ -62,7 +62,6 @@ public final class AbfsHttpConstants {
   public static final String COMMA = ",";
   public static final String COLON = ":";
   public static final String EQUAL = "=";
-  public static final String DASH = "-";
   public static final String QUESTION_MARK = "?";
   public static final String AND_MARK = "&";
   public static final String SEMICOLON = ";";

@@ -29,7 +29,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAclArgumentException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAclOperationException;
 import org.apache.hadoop.fs.permission.FsAction;
 
 /**
@@ -47,7 +47,7 @@ public final class AbfsAclHelper {
   public static Map<String, String> deserializeAclSpec(final String aclSpecString) {
     final Map<String, String> aclEntries  = new HashMap<>();
     final String[] aclArray = aclSpecString.split(AbfsHttpConstants.COMMA);
-    for(String acl : aclArray) {
+    for (String acl : aclArray) {
       int idx = acl.lastIndexOf(AbfsHttpConstants.COLON);
       aclEntries.put(acl.substring(0, idx), acl.substring(idx + 1));
     }
@@ -56,10 +56,10 @@ public final class AbfsAclHelper {
 
   public static String serializeAclSpec(final Map<String, String> aclEntries) {
     final StringBuilder sb = new StringBuilder();
-    for(Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
+    for (Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
       sb.append(aclEntry.getKey() + AbfsHttpConstants.COLON + aclEntry.getValue() + AbfsHttpConstants.COMMA);
     }
-    if(sb.length() > 0) {
+    if (sb.length() > 0) {
       sb.setLength(sb.length() - 1);
     }
     return sb.toString();
@@ -72,12 +72,12 @@ public final class AbfsAclHelper {
     boolean containsMask = false;
     for (int i = aclEntries.size() - 1; i >= 0; i--) {
       String ace = aclEntries.get(i);
-      if(ace.startsWith(AbfsHttpConstants.ACCESS_OTHER) || ace.startsWith(AbfsHttpConstants.ACCESS_USER + AbfsHttpConstants.COLON)) {
+      if (ace.startsWith(AbfsHttpConstants.ACCESS_OTHER)|| ace.startsWith(AbfsHttpConstants.ACCESS_USER + AbfsHttpConstants.COLON)) {
         // skip
-      } else if(ace.startsWith(AbfsHttpConstants.ACCESS_MASK)) {
+      } else if (ace.startsWith(AbfsHttpConstants.ACCESS_MASK)) {
         containsMask = true;
         // skip
-      } else if(ace.startsWith(AbfsHttpConstants.ACCESS_GROUP + AbfsHttpConstants.COLON) && !containsMask) {
+      } else if (ace.startsWith(AbfsHttpConstants.ACCESS_GROUP + AbfsHttpConstants.COLON) && !containsMask) {
         // skip
       } else {
         sb.insert(0, ace + AbfsHttpConstants.COMMA);
@@ -87,59 +87,62 @@ public final class AbfsAclHelper {
     return sb.length() == 0 ? AbfsHttpConstants.EMPTY_STRING : sb.substring(0, sb.length() - 1);
   }
 
-  public static void removeAclEntriesInternal(Map<String, String> aclEntries, Map<String, String> toRemoveEntries) throws AzureBlobFileSystemException {
+  public static void removeAclEntriesInternal(Map<String, String> aclEntries, Map<String, String> toRemoveEntries)
+      throws AzureBlobFileSystemException {
     boolean accessAclTouched = false;
     boolean defaultAclTouched = false;
 
     final Set<String> removeIndicationSet = new HashSet<>();
 
-    for(String entryKey : toRemoveEntries.keySet()) {
+    for (String entryKey : toRemoveEntries.keySet()) {
       final boolean isDefaultAcl = isDefaultAce(entryKey);
-      if(removeNamedAceAndUpdateRemoveIndicationSet(entryKey, isDefaultAcl, removeIndicationSet, aclEntries)) {
-        if(isDefaultAcl) {
+      if (removeNamedAceAndUpdateSet(entryKey, isDefaultAcl, removeIndicationSet, aclEntries)) {
+        if (isDefaultAcl) {
           defaultAclTouched = true;
         } else {
           accessAclTouched = true;
         }
       }
     }
-    if(accessAclTouched) {
-      if(removeIndicationSet.contains(AbfsHttpConstants.ACCESS_MASK)) {
+    if (accessAclTouched) {
+      if (removeIndicationSet.contains(AbfsHttpConstants.ACCESS_MASK)) {
         aclEntries.remove(AbfsHttpConstants.ACCESS_MASK);
       }
       recalculateMask(aclEntries, false);
     }
-    if(defaultAclTouched) {
-      if(removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_MASK)) {
+    if (defaultAclTouched) {
+      if (removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_MASK)) {
         aclEntries.remove(AbfsHttpConstants.DEFAULT_MASK);
       }
-      if(removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_USER)) {
+      if (removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_USER)) {
         aclEntries.put(AbfsHttpConstants.DEFAULT_USER, aclEntries.get(AbfsHttpConstants.ACCESS_USER));
       }
-      if(removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_GROUP)) {
+      if (removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_GROUP)) {
         aclEntries.put(AbfsHttpConstants.DEFAULT_GROUP, aclEntries.get(AbfsHttpConstants.ACCESS_GROUP));
       }
-      if(removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_OTHER)) {
+      if (removeIndicationSet.contains(AbfsHttpConstants.DEFAULT_OTHER)) {
         aclEntries.put(AbfsHttpConstants.DEFAULT_OTHER, aclEntries.get(AbfsHttpConstants.ACCESS_OTHER));
       }
       recalculateMask(aclEntries, true);
     }
   }
 
-  private static boolean removeNamedAceAndUpdateRemoveIndicationSet(String entry, boolean isDefaultAcl, Set<String> removeIndicationSet,
-      Map<String, String> aclEntries) throws AzureBlobFileSystemException {
+  private static boolean removeNamedAceAndUpdateSet(String entry, boolean isDefaultAcl, Set<String> removeIndicationSet,
+                                                    Map<String, String> aclEntries)
+      throws AzureBlobFileSystemException {
     final int startIndex = isDefaultAcl ? 1 : 0;
     final String[] entryParts = entry.split(AbfsHttpConstants.COLON);
     final String tag = isDefaultAcl ? AbfsHttpConstants.DEFAULT_SCOPE + entryParts[startIndex] + AbfsHttpConstants.COLON
         : entryParts[startIndex] + AbfsHttpConstants.COLON;
 
-    if((entry.equals(AbfsHttpConstants.ACCESS_USER) || entry.equals(AbfsHttpConstants.ACCESS_GROUP) || entry.equals(AbfsHttpConstants.ACCESS_OTHER))
+    if ((entry.equals(AbfsHttpConstants.ACCESS_USER) || entry.equals(AbfsHttpConstants.ACCESS_GROUP)
+        || entry.equals(AbfsHttpConstants.ACCESS_OTHER))
         && !isNamedAce(entry)) {
-      throw new InvalidAclArgumentException("cannot remove user, group or other entry from access ACL");
+      throw new InvalidAclOperationException("Cannot remove user, group or other entry from access ACL.");
     }
 
     boolean touched = false;
-    if(!isNamedAce(entry)) {
+    if (!isNamedAce(entry)) {
       removeIndicationSet.add(tag); // this must not be a access user, group or other
       touched = true;
     } else {
@@ -152,18 +155,20 @@ public final class AbfsAclHelper {
 
   private static void recalculateMask(Map<String, String> aclEntries, boolean isDefaultMask) {
     FsAction umask = FsAction.NONE;
-    if(!isExtendAcl(aclEntries, isDefaultMask)) {
+    if (!isExtendAcl(aclEntries, isDefaultMask)) {
       return;
     }
 
-    for(String entryKey : aclEntries.keySet()) {
-      if(isDefaultMask) {
-        if((isDefaultAce(entryKey) && isNamedAce(entryKey)) || entryKey.equals(AbfsHttpConstants.DEFAULT_GROUP)) {
-          umask = umask.or(FsAction.getFsAction(aclEntries.get(entryKey)));
+    for (Map.Entry<String, String> aclEntry : aclEntries.entrySet()) {
+      if (isDefaultMask) {
+        if ((isDefaultAce(aclEntry.getKey()) && isNamedAce(aclEntry.getKey()))
+            || aclEntry.getKey().equals(AbfsHttpConstants.DEFAULT_GROUP)) {
+          umask = umask.or(FsAction.getFsAction(aclEntry.getValue()));
         }
       } else {
-        if((!isDefaultAce(entryKey) && isNamedAce(entryKey)) || entryKey.equals(AbfsHttpConstants.ACCESS_GROUP)) {
-          umask = umask.or(FsAction.getFsAction(aclEntries.get(entryKey)));
+        if ((!isDefaultAce(aclEntry.getKey()) && isNamedAce(aclEntry.getKey()))
+            || aclEntry.getKey().equals(AbfsHttpConstants.ACCESS_GROUP)) {
+          umask = umask.or(FsAction.getFsAction(aclEntry.getValue()));
         }
       }
     }
@@ -173,11 +178,13 @@ public final class AbfsAclHelper {
 
   private static boolean isExtendAcl(Map<String, String> aclEntries, boolean checkDefault) {
     for (String entryKey : aclEntries.keySet()) {
-      if (checkDefault && !(entryKey.equals(AbfsHttpConstants.DEFAULT_USER) || entryKey.equals(AbfsHttpConstants.DEFAULT_GROUP)
+      if (checkDefault && !(entryKey.equals(AbfsHttpConstants.DEFAULT_USER)
+          || entryKey.equals(AbfsHttpConstants.DEFAULT_GROUP)
           || entryKey.equals(AbfsHttpConstants.DEFAULT_OTHER) || !isDefaultAce(entryKey))) {
         return true;
       }
-      if (!checkDefault && !(entryKey.equals(AbfsHttpConstants.ACCESS_USER) || entryKey.equals(AbfsHttpConstants.ACCESS_GROUP)
+      if (!checkDefault && !(entryKey.equals(AbfsHttpConstants.ACCESS_USER)
+          || entryKey.equals(AbfsHttpConstants.ACCESS_GROUP)
           || entryKey.equals(AbfsHttpConstants.ACCESS_OTHER) || isDefaultAce(entryKey))) {
         return true;
       }

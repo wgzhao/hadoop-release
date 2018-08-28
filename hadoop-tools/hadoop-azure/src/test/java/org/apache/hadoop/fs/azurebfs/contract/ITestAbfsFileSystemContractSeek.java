@@ -18,43 +18,35 @@
 
 package org.apache.hadoop.fs.azurebfs.contract;
 
-import java.util.Arrays;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.contract.AbstractContractSeekTest;
 import org.apache.hadoop.fs.contract.AbstractFSContract;
 
-@RunWith(Parameterized.class)
+/**
+ * Contract test for seek operation.
+ */
 public class ITestAbfsFileSystemContractSeek extends AbstractContractSeekTest{
-  @Parameterized.Parameters(name = "SecureMode={0}")
-  public static Iterable<Object[]> secure() {
-    return Arrays.asList(new Object[][] { {true}, {false} });
-  }
-
   private final boolean isSecure;
-  private final DependencyInjectedContractTest dependencyInjectedContractTest;
+  private final ABFSContractTestBinding binding;
 
-  public ITestAbfsFileSystemContractSeek(final boolean secure) throws Exception {
-    this.isSecure = secure;
-    dependencyInjectedContractTest = new DependencyInjectedContractTest(this.isSecure);
+  public ITestAbfsFileSystemContractSeek() throws Exception {
+    binding = new ABFSContractTestBinding();
+    this.isSecure = binding.isSecureMode();
   }
 
   @Override
   public void setup() throws Exception {
-    dependencyInjectedContractTest.initialize();
+    binding.setup();
     super.setup();
   }
 
   @Override
   protected Configuration createConfiguration() {
-    return this.dependencyInjectedContractTest.getConfiguration();
+    return binding.getConfiguration();
   }
 
   @Override
   protected AbstractFSContract createContract(final Configuration conf) {
-    return new ITestAbfsFileSystemContract(conf, this.isSecure);
+    return new AbfsFileSystemContract(conf, isSecure);
   }
 }

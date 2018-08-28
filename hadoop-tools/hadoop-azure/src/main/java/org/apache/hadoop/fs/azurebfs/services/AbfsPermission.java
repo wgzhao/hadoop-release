@@ -23,15 +23,9 @@ import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
- * Hadoop shell command -getfacl does not invoke getAclStatus if FsPermission
- * from getFileStatus has not set ACL bit to true. By default getAclBit returns
- * false.
- *
- * Provision to make additional call to invoke getAclStatus would be redundant
- * when abfs is running as additional FS. To avoid this redundancy, provided
- * configuration to return true/false on getAclBit.
+ * The AbfsPermission for AbfsClient.
  */
-class AbfsPermission extends FsPermission {
+public class AbfsPermission extends FsPermission {
   private static final int STICKY_BIT_OCTAL_VALUE = 01000;
   private final boolean aclBit;
 
@@ -40,18 +34,17 @@ class AbfsPermission extends FsPermission {
     this.aclBit = aclBitStatus;
   }
 
-  public AbfsPermission(FsAction u, FsAction g, FsAction o, boolean aclBitStatus) {
+  public AbfsPermission(FsAction u, FsAction g, FsAction o) {
     super(u, g, o, false);
-    this.aclBit = aclBitStatus;
+    this.aclBit = false;
   }
 
   /**
-   * Returns true if "adl.feature.support.acl.bit" configuration is set to
-   * true.
+   * Returns true if there is also an ACL (access control list).
    *
-   * If configuration is not set then default value is true.
-   *
-   * @return If configuration is not set then default value is true.
+   * @return boolean true if there is also an ACL (access control list).
+   * @deprecated Get acl bit from the {@link org.apache.hadoop.fs.FileStatus}
+   * object.
    */
   public boolean getAclBit() {
     return aclBit;
@@ -72,9 +65,10 @@ class AbfsPermission extends FsPermission {
   /**
    * Create a AbfsPermission from a abfs symbolic permission string
    * @param abfsSymbolicPermission e.g. "rw-rw-rw-+" / "rw-rw-rw-"
+   * @return a permission object for the provided string representation
    */
-  public static AbfsPermission valueOf(final String abfsSymbolicPermission, final boolean enableAclBit) {
-    if(abfsSymbolicPermission == null) {
+  public static AbfsPermission valueOf(final String abfsSymbolicPermission) {
+    if (abfsSymbolicPermission == null) {
       return null;
     }
 
@@ -84,20 +78,33 @@ class AbfsPermission extends FsPermission {
         : abfsSymbolicPermission;
 
     int n = 0;
-    for(int i = 0; i < abfsRawSymbolicPermission.length(); i++) {
+    for (int i = 0; i < abfsRawSymbolicPermission.length(); i++) {
       n = n << 1;
       char c = abfsRawSymbolicPermission.charAt(i);
       n += (c == '-' || c == 'T' || c == 'S') ? 0: 1;
     }
 
     // Add sticky bit value if set
-    if(abfsRawSymbolicPermission.charAt(abfsRawSymbolicPermission.length() - 1) == 't'
+    if (abfsRawSymbolicPermission.charAt(abfsRawSymbolicPermission.length() - 1) == 't'
         || abfsRawSymbolicPermission.charAt(abfsRawSymbolicPermission.length() - 1) == 'T') {
       n += STICKY_BIT_OCTAL_VALUE;
     }
 
+    return new AbfsPermission((short) n, isExtendedAcl);
+  }
 
-    return new AbfsPermission((short) n, isExtendedAcl && enableAclBit);
+  /**
+   * Check whether abfs symbolic permission string is a extended Acl
+   * @param abfsSymbolicPermission e.g. "rw-rw-rw-+" / "rw-rw-rw-"
+   * @return true if the permission string indicates the existence of an
+   * extended ACL; otherwise false.
+   */
+  public static boolean isExtendedAcl(final String abfsSymbolicPermission) {
+    if (abfsSymbolicPermission == null) {
+      return false;
+    }
+
+    return abfsSymbolicPermission.charAt(abfsSymbolicPermission.length() - 1) == '+';
   }
 
   @Override
@@ -105,4 +112,3 @@ class AbfsPermission extends FsPermission {
     return toShort();
   }
 }
-

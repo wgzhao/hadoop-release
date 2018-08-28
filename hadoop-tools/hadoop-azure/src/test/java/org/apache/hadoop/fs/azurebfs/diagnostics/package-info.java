@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,15 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.hadoop.fs.azurebfs.services;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-public class MockServiceProviderImpl {
-  public static void Create(MockServiceInjectorImpl serviceInjector) {
-    Injector injector = Guice.createInjector(serviceInjector);
-    ServiceProviderImpl.create(injector);
-  }
-}
+@InterfaceAudience.Private
+@InterfaceStability.Evolving
+package org.apache.hadoop.fs.azurebfs.diagnostics;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;

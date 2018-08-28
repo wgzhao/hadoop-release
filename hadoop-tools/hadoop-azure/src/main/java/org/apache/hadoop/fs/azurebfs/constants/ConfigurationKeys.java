@@ -55,27 +55,34 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_READ_AHEAD_QUEUE_DEPTH = "fs.azure.readaheadqueue.depth";
   public static final String FS_AZURE_ENABLE_FLUSH = "fs.azure.enable.flush";
   public static final String FS_AZURE_USER_AGENT_PREFIX_KEY = "fs.azure.user.agent.prefix";
+  public static final String FS_AZURE_SSL_CHANNEL_MODE_KEY = "fs.azure.ssl.channel.mode";
 
   public static final String AZURE_KEY_ACCOUNT_KEYPROVIDER_PREFIX = "fs.azure.account.keyprovider.";
   public static final String AZURE_KEY_ACCOUNT_SHELLKEYPROVIDER_SCRIPT = "fs.azure.shellkeyprovider.script";
 
+  /** Prefix for auth type properties: {@value}. */
   public static final String FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME = "fs.azure.account.auth.type.";
+  /** Prefix for oauth token provider type: {@value}. */
   public static final String FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME = "fs.azure.account.oauth.provider.type.";
-
+  /** Prefix for oauth AAD client id: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID = "fs.azure.account.oauth2.client.id.";
+  /** Prefix for oauth AAD client secret: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_SECRET = "fs.azure.account.oauth2.client.secret.";
+  /** Prefix for oauth AAD client endpoint: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_CLIENT_ENDPOINT = "fs.azure.account.oauth2.client.endpoint.";
+  /** Prefix for oauth msi tenant id: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT = "fs.azure.account.oauth2.msi.tenant.";
+  /** Prefix for oauth user name: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_USER_NAME = "fs.azure.account.oauth2.user.name.";
+  /** Prefix for oauth user password: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_USER_PASSWORD = "fs.azure.account.oauth2.user.password.";
+  /** Prefix for oauth refresh token: {@value}. */
   public static final String FS_AZURE_ACCOUNT_OAUTH_REFRESH_TOKEN = "fs.azure.account.oauth2.refresh.token.";
 
-  public static final String FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_PREFIX = "fs.azure.account.namespace.";
-  public static final String FS_AZURE_ACCOUNT_NAMESPACE_ENABLED_SUFFIX = ".enabled";
-
-  public static final String FS_AZURE_ENABLE_ACL_BIT = "fs.azure.enable.acl.bit";
-
+  /** Indicates whether the delegation token provider is enabled: {@value}. */
   public static final String FS_AZURE_ENABLE_DELEGATION_TOKEN = "fs.azure.enable.delegation.token";
+
+  /** Optional delegation token provider type: {@value}. */
   public static final String FS_AZURE_DELEGATION_TOKEN_PROVIDER_TYPE = "fs.azure.delegation.token.provider.type";
 
   private ConfigurationKeys() {}

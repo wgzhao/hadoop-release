@@ -18,9 +18,9 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import org.apache.hadoop.fs.azurebfs.contracts.services.ReadBufferStatus;
-
 import java.util.concurrent.CountDownLatch;
+
+import org.apache.hadoop.fs.azurebfs.contracts.services.ReadBufferStatus;
 
 class ReadBufferWorker implements Runnable {
 
@@ -29,6 +29,13 @@ class ReadBufferWorker implements Runnable {
 
   ReadBufferWorker(final int id) {
     this.id = id;
+  }
+
+  /**
+   * return the ID of ReadBufferWorker.
+   */
+  public int getId() {
+    return this.id;
   }
 
   /**

@@ -29,12 +29,12 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class AzureServiceErrorResponseException extends AzureBlobFileSystemException {
+public class AbfsRestOperationException extends AzureBlobFileSystemException {
   private final int statusCode;
   private final AzureServiceErrorCode errorCode;
   private final String errorMessage;
 
-  public AzureServiceErrorResponseException(
+  public AbfsRestOperationException(
       final int statusCode,
       final String errorCode,
       final String errorMessage,
@@ -46,7 +46,7 @@ public class AzureServiceErrorResponseException extends AzureBlobFileSystemExcep
     this.errorMessage = errorMessage;
   }
 
-  public AzureServiceErrorResponseException(
+  public AbfsRestOperationException(
       final int statusCode,
       final String errorCode,
       final String errorMessage,
@@ -73,7 +73,7 @@ public class AzureServiceErrorResponseException extends AzureBlobFileSystemExcep
 
   private static String formatMessage(final AbfsHttpOperation abfsHttpOperation) {
     return String.format(
-        "%1$s %2$s\nStatusCode=%3$s\nStatusDescription=%4$s\nErrorCode=%5$s\nErrorMessage=%6$s",
+        "%1$s %2$s%nStatusCode=%3$s%nStatusDescription=%4$s%nErrorCode=%5$s%nErrorMessage=%6$s",
         abfsHttpOperation.getMethod(),
         abfsHttpOperation.getUrl().toString(),
         abfsHttpOperation.getStatusCode(),

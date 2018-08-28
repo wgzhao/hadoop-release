@@ -21,6 +21,9 @@ package org.apache.hadoop.fs.azurebfs.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test ABFS UriUtils.
+ */
 public final class TestUriUtils {
   @Test
   public void testIfUriContainsAbfs() throws Exception {

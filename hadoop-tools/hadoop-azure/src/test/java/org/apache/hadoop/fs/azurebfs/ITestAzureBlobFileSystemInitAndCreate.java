@@ -26,24 +26,27 @@ import org.junit.Test;
 
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 
-public class ITestAzureBlobFileSystemInitAndCreate extends DependencyInjectedTest {
-  public ITestAzureBlobFileSystemInitAndCreate() throws Exception {
-    super();
+/**
+ * Test filesystem initialization and creation.
+ */
+public class ITestAzureBlobFileSystemInitAndCreate extends
+    AbstractAbfsIntegrationTest {
+  public ITestAzureBlobFileSystemInitAndCreate() {
 
     this.getConfiguration().unset(ConfigurationKeys.AZURE_CREATE_REMOTE_FILESYSTEM_DURING_INITIALIZATION);
   }
 
   @Override
-  public void initialize() throws Exception {
+  public void setup() {
   }
 
   @Override
-  public void testCleanup() throws Exception {
+  public void teardown() {
   }
 
   @Test (expected = FileNotFoundException.class)
   public void ensureFilesystemWillNotBeCreatedIfCreationConfigIsNotSet() throws Exception {
-    super.initialize();
+    super.setup();
     final AzureBlobFileSystem fs = this.getFileSystem();
     FileStatus[] fileStatuses = fs.listStatus(new Path("/"));
   }

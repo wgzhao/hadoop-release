@@ -18,11 +18,15 @@
 
 package org.apache.hadoop.fs.azurebfs.oauth2;
 
-import com.google.common.base.Preconditions;
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
-import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee;
 
 import java.io.IOException;
+
+import com.google.common.base.Preconditions;
+import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 /**
  * Provides tokens based on custom implementation, following the Adapter Design
@@ -31,28 +35,20 @@ import java.io.IOException;
 public final class CustomTokenProviderAdapter extends AccessTokenProvider {
 
   private CustomTokenProviderAdaptee adaptee;
-  private final LoggingService loggingService;
+  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenProvider.class);
 
   /**
    * Constructs a token provider based on the custom token provider.
    *
-   * @param loggingService the logging service
    * @param adaptee the custom token provider
    */
-  public CustomTokenProviderAdapter(final LoggingService loggingService, CustomTokenProviderAdaptee adaptee) {
-    super(loggingService);
-
-    Preconditions.checkNotNull(loggingService, "loggingService");
+  public CustomTokenProviderAdapter(CustomTokenProviderAdaptee adaptee) {
     Preconditions.checkNotNull(adaptee, "adaptee");
-
-    this.loggingService = loggingService.get(CustomTokenProviderAdapter.class);
-
     this.adaptee = adaptee;
   }
 
   protected AzureADToken refreshToken() throws IOException {
-
-    this.loggingService.debug("AADToken: refreshing custom based token");
+    LOG.debug("AADToken: refreshing custom based token");
 
     AzureADToken azureADToken = new AzureADToken();
     azureADToken.setAccessToken(adaptee.getAccessToken());

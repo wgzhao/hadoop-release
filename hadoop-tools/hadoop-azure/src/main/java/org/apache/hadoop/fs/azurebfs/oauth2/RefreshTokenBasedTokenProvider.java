@@ -21,34 +21,29 @@ package org.apache.hadoop.fs.azurebfs.oauth2;
 import java.io.IOException;
 
 import com.google.common.base.Preconditions;
-
-import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Provides tokens based on refresh token.
  */
 public class RefreshTokenBasedTokenProvider extends AccessTokenProvider {
+  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenProvider.class);
+
   private final String clientId;
 
   private final String refreshToken;
 
-  private final LoggingService loggingService;
-
   /**
    * Constructs a token provider based on the refresh token provided.
    *
-   * @param loggingService the logging service
    * @param clientId the client ID (GUID) of the client web app obtained from Azure Active Directory configuration
    * @param refreshToken the refresh token
    */
-  public RefreshTokenBasedTokenProvider(final LoggingService loggingService, String clientId, String refreshToken) {
-    super(loggingService);
-
-    Preconditions.checkNotNull(loggingService, "loggingService");
+  public RefreshTokenBasedTokenProvider(String clientId, String refreshToken) {
+    Preconditions.checkNotNull(clientId, "clientId");
     Preconditions.checkNotNull(refreshToken, "refreshToken");
-
-    this.loggingService = loggingService.get(ClientCredsTokenProvider.class);
     this.clientId = clientId;
     this.refreshToken = refreshToken;
   }
@@ -56,7 +51,7 @@ public class RefreshTokenBasedTokenProvider extends AccessTokenProvider {
 
   @Override
   protected AzureADToken refreshToken() throws IOException {
-    this.loggingService.debug("AADToken: refreshing refresh-token based token");
+    LOG.debug("AADToken: refreshing refresh-token based token");
     return AzureADAuthenticator.getTokenUsingRefreshToken(clientId, refreshToken);
   }
 }

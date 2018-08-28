@@ -33,10 +33,14 @@ import org.apache.hadoop.util.Shell;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Test ShellDecryptionKeyProvider.
+ *
+ */
 public class TestShellDecryptionKeyProvider {
   public static final Log LOG = LogFactory
       .getLog(TestShellDecryptionKeyProvider.class);
-  private static File TEST_ROOT_DIR = new File(System.getProperty(
+  private static final File TEST_ROOT_DIR = new File(System.getProperty(
       "test.build.data", "/tmp"), "TestShellDecryptionKeyProvider");
 
   @Test
@@ -44,7 +48,7 @@ public class TestShellDecryptionKeyProvider {
     if (!Shell.WINDOWS) {
       return;
     }
-    ShellDecryptionKeyProvider provider = new ShellDecryptionKeyProvider(new LoggingServiceImpl());
+    ShellDecryptionKeyProvider provider = new ShellDecryptionKeyProvider();
     Configuration conf = new Configuration();
     String account = "testacct";
     String key = "key";
@@ -71,7 +75,7 @@ public class TestShellDecryptionKeyProvider {
     File scriptFile = new File(TEST_ROOT_DIR, "testScript.cmd");
     FileUtils.writeStringToFile(scriptFile, "@echo %1 " + expectedResult);
 
-    ShellDecryptionKeyProvider provider = new ShellDecryptionKeyProvider(new LoggingServiceImpl());
+    ShellDecryptionKeyProvider provider = new ShellDecryptionKeyProvider();
     Configuration conf = new Configuration();
     String account = "testacct";
     String key = "key1";

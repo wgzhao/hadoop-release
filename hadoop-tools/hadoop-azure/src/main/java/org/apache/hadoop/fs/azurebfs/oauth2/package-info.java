@@ -15,8 +15,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * Classes to help fetch and manage Azure ActiveDirectory tokens
- */
 package org.apache.hadoop.fs.azurebfs.oauth2;

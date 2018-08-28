@@ -22,13 +22,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
+import com.google.common.base.Preconditions;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +39,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 
 /**
- * This class provides convenience methods to obtain AAD tokens. While convenient, it is not necessary to
- * use these methods to obtain the tokens. Customers can use any other method (e.g., using the adal4j client)
- * to obtain tokens.
+ * This class provides convenience methods to obtain AAD tokens.
+ * While convenient, it is not necessary to use these methods to
+ * obtain the tokens. Customers can use any other method
+ * (e.g., using the adal4j client) to obtain tokens.
  */
 
 @InterfaceAudience.Private
@@ -52,29 +55,37 @@ public final class AzureADAuthenticator {
   private static final int READ_TIMEOUT = 30 * 1000;
 
   private AzureADAuthenticator() {
-    //not called
+    // no operation
   }
 
   /**
-   * gets Azure Active Directory token using the user ID and password of a service principal (that is, Web App
-   * in Azure Active Directory).
-   * <p>
-   * Azure Active Directory allows users to set up a web app as a service principal. Users can optionally
-   * obtain service principal keys from AAD. This method gets a token using a service principal's client ID
-   * and keys. In addition, it needs the token endpoint associated with the user's directory.
-   * </P>
+   * gets Azure Active Directory token using the user ID and password of
+   * a service principal (that is, Web App in Azure Active Directory).
    *
-   * @param authEndpoint the OAuth 2.0 token endpoint associated with the user's directory
-   *                     (obtain from Active Directory configuration)
-   * @param clientId     the client ID (GUID) of the client web app obtained from Azure Active Directory configuration
+   * Azure Active Directory allows users to set up a web app as a
+   * service principal. Users can optionally obtain service principal keys
+   * from AAD. This method gets a token using a service principal's client ID
+   * and keys. In addition, it needs the token endpoint associated with the
+   * user's directory.
+   *
+   *
+   * @param authEndpoint the OAuth 2.0 token endpoint associated
+   *                     with the user's directory (obtain from
+   *                     Active Directory configuration)
+   * @param clientId     the client ID (GUID) of the client web app
+   *                     btained from Azure Active Directory configuration
    * @param clientSecret the secret key of the client web app
    * @return {@link AzureADToken} obtained using the creds
    * @throws IOException throws IOException if there is a failure in connecting to Azure AD
    */
-  public static AzureADToken getTokenUsingClientCreds(String authEndpoint, String clientId, String clientSecret)
+  public static AzureADToken getTokenUsingClientCreds(String authEndpoint,
+                                                      String clientId, String clientSecret)
           throws IOException {
-    QueryParams qp = new QueryParams();
+    Preconditions.checkNotNull(authEndpoint, "authEndpoint");
+    Preconditions.checkNotNull(clientId, "clientId");
+    Preconditions.checkNotNull(clientSecret, "clientSecret");
 
+    QueryParams qp = new QueryParams();
     qp.add("resource", RESOURCE_NAME);
     qp.add("grant_type", "client_credentials");
     qp.add("client_id", clientId);
@@ -85,17 +96,23 @@ public final class AzureADAuthenticator {
   }
 
   /**
-   * Gets AAD token from the local virtual machine's VM extension. This only works on an Azure VM with MSI extension
+   * Gets AAD token from the local virtual machine's VM extension. This only works on
+   * an Azure VM with MSI extension
    * enabled.
    *
    * @param tenantGuid  (optional) The guid of the AAD tenant. Can be {@code null}.
-   * @param clientId    (optional) The clientId guid of the MSI service principal to use. Can be {@code null}.
+   * @param clientId    (optional) The clientId guid of the MSI service
+   *                    principal to use. Can be {@code null}.
    * @param bypassCache {@code boolean} specifying whether a cached token is acceptable or a fresh token
    *                    request should me made to AAD
    * @return {@link AzureADToken} obtained using the creds
    * @throws IOException throws IOException if there is a failure in obtaining the token
    */
-  public static AzureADToken getTokenFromMsi(String tenantGuid, String clientId, boolean bypassCache) throws IOException {
+  public static AzureADToken getTokenFromMsi(String tenantGuid, String clientId,
+                                             boolean bypassCache) throws IOException {
+    Preconditions.checkNotNull(tenantGuid, "tenantGuid");
+    Preconditions.checkNotNull(clientId, "clientId");
+
     String authEndpoint = "http://169.254.169.254/metadata/identity/oauth2/token";
 
     QueryParams qp = new QueryParams();
@@ -103,12 +120,12 @@ public final class AzureADAuthenticator {
     qp.add("resource", RESOURCE_NAME);
 
 
-    if (tenantGuid != null && tenantGuid.length() > 0) {
+    if (tenantGuid.length() > 0) {
       String authority = "https://login.microsoftonline.com/" + tenantGuid;
       qp.add("authority", authority);
     }
 
-    if (clientId != null && clientId.length() > 0) {
+    if (clientId.length() > 0) {
       qp.add("client_id", clientId);
     }
 
@@ -116,7 +133,7 @@ public final class AzureADAuthenticator {
       qp.add("bypass_cache", "true");
     }
 
-    Hashtable<String, String> headers = new Hashtable<String, String>();
+    Hashtable<String, String> headers = new Hashtable<>();
     headers.put("Metadata", "true");
 
     LOG.debug("AADToken: starting to fetch token using MSI");
@@ -131,10 +148,9 @@ public final class AzureADAuthenticator {
    * @return {@link AzureADToken} obtained using the refresh token
    * @throws IOException throws IOException if there is a failure in connecting to Azure AD
    */
-  public static AzureADToken getTokenUsingRefreshToken(String clientId, String refreshToken)
-          throws IOException {
+  public static AzureADToken getTokenUsingRefreshToken(String clientId,
+                                                       String refreshToken) throws IOException {
     String authEndpoint = "https://login.microsoftonline.com/Common/oauth2/token";
-
     QueryParams qp = new QueryParams();
     qp.add("grant_type", "refresh_token");
     qp.add("refresh_token", refreshToken);
@@ -142,10 +158,8 @@ public final class AzureADAuthenticator {
       qp.add("client_id", clientId);
     }
     LOG.debug("AADToken: starting to fetch token using refresh token for client ID " + clientId);
-
     return getTokenCall(authEndpoint, qp.serialize(), null, null);
   }
-
 
   private static class HttpException extends IOException {
     private int httpErrorCode;
@@ -159,17 +173,19 @@ public final class AzureADAuthenticator {
       return this.requestId;
     }
 
-    public HttpException(int httpErrorCode, String requestId, String message) {
+    HttpException(int httpErrorCode, String requestId, String message) {
       super(message);
       this.httpErrorCode = httpErrorCode;
       this.requestId = requestId;
     }
   }
 
-  private static AzureADToken getTokenCall(String authEndpoint, String body, Hashtable<String, String> headers, String httpMethod)
+  private static AzureADToken getTokenCall(String authEndpoint, String body,
+                                           Hashtable<String, String> headers, String httpMethod)
           throws IOException {
     AzureADToken token = null;
-    ExponentialRetryPolicy retryPolicy = new ExponentialRetryPolicy(3, 0, 1000, 2);
+    ExponentialRetryPolicy retryPolicy
+            = new ExponentialRetryPolicy(3, 0, 1000, 2);
 
     int httperror = 0;
     String requestId;
@@ -204,7 +220,8 @@ public final class AzureADAuthenticator {
     return token;
   }
 
-  private static AzureADToken getTokenSingleCall(String authEndpoint, String payload, Hashtable<String, String> headers, String httpMethod)
+  private static AzureADToken getTokenSingleCall(
+          String authEndpoint, String payload, Hashtable<String, String> headers, String httpMethod)
           throws IOException {
 
     AzureADToken token = null;
@@ -224,8 +241,8 @@ public final class AzureADAuthenticator {
       conn.setConnectTimeout(CONNECT_TIMEOUT);
 
       if (headers != null && headers.size() > 0) {
-        for (String name : headers.keySet()) {
-          conn.setRequestProperty(name, headers.get(name));
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+          conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
       }
       conn.setRequestProperty("Connection", "close");
@@ -241,7 +258,8 @@ public final class AzureADAuthenticator {
       long responseContentLength = conn.getHeaderFieldLong("Content-Length", 0);
 
       requestId = requestId == null ? "" : requestId;
-      if (httpResponseCode == HttpURLConnection.HTTP_OK  && responseContentType.startsWith("application/json") && responseContentLength > 0) {
+      if (httpResponseCode == HttpURLConnection.HTTP_OK
+              && responseContentType.startsWith("application/json") && responseContentLength > 0) {
         InputStream httpResponseStream = conn.getInputStream();
         token = parseTokenFromStream(httpResponseStream);
       } else {
@@ -250,7 +268,7 @@ public final class AzureADAuthenticator {
         String httpProxy = System.getProperty("http.proxy");
         String httpsProxy = System.getProperty("https.proxy");
         if (httpProxy != null || httpsProxy != null) {
-          proxies = "http:" + httpProxy + ";https:" + httpsProxy;
+          proxies = "http:" + httpProxy + "; https:" + httpsProxy;
         }
         String logMessage =
                 "AADToken: HTTP connection failed for getting token from AzureAD. Http response: "
@@ -277,7 +295,7 @@ public final class AzureADAuthenticator {
       int expiryPeriod = 0;
 
       JsonFactory jf = new JsonFactory();
-      JsonParser jp = jf.createParser(httpResponseStream);
+      JsonParser jp = jf.createJsonParser(httpResponseStream);
       String fieldName, fieldValue;
       jp.nextToken();
       while (jp.hasCurrentToken()) {
@@ -321,8 +339,6 @@ public final class AzureADAuthenticator {
       }
     } while (bytesRead >= 0 && totalBytesRead < length);
 
-    return new String(b, 0, totalBytesRead);
+    return new String(b, 0, totalBytesRead, StandardCharsets.UTF_8);
   }
 }
-
-

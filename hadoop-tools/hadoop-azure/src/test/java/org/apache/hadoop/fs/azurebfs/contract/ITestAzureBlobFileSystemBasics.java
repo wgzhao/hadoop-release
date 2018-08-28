@@ -17,29 +17,49 @@
  */
 package org.apache.hadoop.fs.azurebfs.contract;
 
-import org.apache.hadoop.fs.*;
+import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystemContractBaseTest;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.contract.ContractTestUtils;
+
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class ITestAzureBlobFileSystemContract extends FileSystemContractBaseTest {
-  private final DependencyInjectedContractTest dependencyInjectedContractTest;
+/**
+ * Basic Contract test for Azure BlobFileSystem.
+ */
+public class ITestAzureBlobFileSystemBasics extends FileSystemContractBaseTest {
+  private final ABFSContractTestBinding binding;
 
-  public ITestAzureBlobFileSystemContract() throws Exception {
-    dependencyInjectedContractTest = new DependencyInjectedContractTest(false);
+  public ITestAzureBlobFileSystemBasics() throws Exception {
+    // If all contract tests are running in parallel, some root level tests in FileSystemContractBaseTest will fail
+    // due to the race condition. Hence for this contract test it should be tested in different container
+    binding = new ABFSContractTestBinding(false);
+  }
+
+
+  @Before
+  public void setUp() throws Exception {
+    binding.setup();
+    fs = binding.getFileSystem();
   }
 
   @Override
-  protected void setUp() throws Exception {
-    this.dependencyInjectedContractTest.initialize();
-    fs = this.dependencyInjectedContractTest.getFileSystem();
-    super.setUp();
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  public void tearDown() throws Exception {
+    // This contract test is not using existing container for test,
+    // instead it creates its own temp container for test, hence we need to destroy
+    // it after the test.
+    try {
+      super.tearDown();
+    } finally {
+      binding.teardown();
+    }
   }
 
   @Test
@@ -67,7 +87,7 @@ public class ITestAzureBlobFileSystemContract extends FileSystemContractBaseTest
     Path filePath = path("testListStatus/file");
 
     assertTrue(fs.mkdirs(folderPath));
-    fs.create(filePath);
+    ContractTestUtils.touch(fs, filePath);
 
     FileStatus[] listFolderStatus;
     listFolderStatus = fs.listStatus(path("testListStatus"));

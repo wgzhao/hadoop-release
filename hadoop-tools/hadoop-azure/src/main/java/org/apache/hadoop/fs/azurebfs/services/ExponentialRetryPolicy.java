@@ -22,8 +22,8 @@ import java.util.Random;
 import java.net.HttpURLConnection;
 
 /**
- * This class is responsible for Exponential Retry
- */
+ * Retry policy used by AbfsClient.
+ * */
 public class ExponentialRetryPolicy {
   /**
    * Represents the default number of retry attempts.
@@ -43,7 +43,7 @@ public class ExponentialRetryPolicy {
   private static final int DEFAULT_MAX_BACKOFF = 1000 * 30;
 
   /**
-   *Represents the default minimum amount of time used when calculating the exponential
+   * Represents the default minimum amount of time used when calculating the exponential
    * delay between retries.
    */
   private static final int DEFAULT_MIN_BACKOFF = 1000 * 3;

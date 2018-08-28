@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,25 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-package org.apache.hadoop.fs.azurebfs.contracts.services;
-
+@InterfaceAudience.Private
+@InterfaceStability.Evolving
+package org.apache.hadoop.fs.azurebfs.utils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
-import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
-
-/**
- * AbfsClient factory.
- */
-@InterfaceAudience.Public
-@InterfaceStability.Evolving
-public interface AbfsHttpClientFactory extends InjectableService {
-  /**
-   * Creates and configures an instance of new AbfsClient
-   * @return AbfsClient instance
-   */
-  AbfsClient create(AzureBlobFileSystem fs) throws AzureBlobFileSystemException;
-}

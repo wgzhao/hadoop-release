@@ -26,7 +26,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationVa
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
 
 /**
-* String Base64 configuration value Validator
+* String Base64 configuration value Validator.
 */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving

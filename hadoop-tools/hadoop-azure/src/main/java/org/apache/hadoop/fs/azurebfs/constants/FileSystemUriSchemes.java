@@ -29,7 +29,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 public final class FileSystemUriSchemes {
   public static final String ABFS_SCHEME = "abfs";
   public static final String ABFS_SECURE_SCHEME = "abfss";
-  public static final String[] ABFS_SCHEMES = {ABFS_SCHEME, ABFS_SECURE_SCHEME};
   public static final String ABFS_DNS_PREFIX = "dfs";
 
   public static final String HTTP_SCHEME = "http";
