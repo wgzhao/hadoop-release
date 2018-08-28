@@ -1,0 +1,100 @@
+Changes in HDP and not in Apache Hadoop-3.1.1 release
+=========================================================================
+
+YARN and MAPREDUCE
+------------------
+
+
+HDFS and HADOOP-COMMON
+----------------------
+HADOOP-15596. Stack trace should not be printed out when running hadoop key commands. Contributed by Kitti Nanasi.
+HADOOP-15550. Avoid static initialization of ObjectMappers
+HDFS-13690. Improve error message when creating encryption zone while KMS is unreachable. Contributed by Kitti Nanasi.
+HADOOP-15316. GenericTestUtils can exceed maxSleepTime. Contributed by Adam Antal.
+BUG-103055 Remove aiyun, openstack from hadoop-cloud-project
+HDFS-13485. DataNode WebHDFS endpoint throws NPE. Contributed by Siyao Meng.
+HDFS-13663. Should throw exception when incorrect block size is set. Contributed by Shweta.
+HADOOP-15549. Upgrade to commons-configuration 2.1 regresses task CPU consumption
+HADOOP-15581. Set default jetty log level to INFO in KMS. Contributed by Kitti Nanasi.
+HDFS-13622. mkdir should print the parent directory in the error message when parent directories do not exist. Contributed by Shweta.
+HADOOP-15395. DefaultImpersonationProvider fails to parse proxy user config if username has . in it. Contributed by Ajay Kumar.
+HADOOP-14396. Add builder interface to FileContext. Contributed by  Lei (Eddy) Xu.
+HDFS-11060. make DEFAULT_MAX_CORRUPT_FILEBLOCKS_RETURNED configurable. Contributed by Lantao Jin.
+HADOOP-15611. Log more details for FairCallQueue. Contributed by Ryan Wu.
+HADOOP-15591. KMSClientProvider should log KMS DT acquisition at INFO level. Contributed by Kitti Nanasi.
+HADOOP-14313. Replace/improve Hadoop's byte[] comparator. Contributed by Vikas Vishwakarma.
+HADOOP-15307. NFS: flavor AUTH_SYS should use VerifierNone. Contributed by Gabor Bota.
+HADOOP-15520. Add tests for various org.apache.hadoop.util classes. Contributed by Arash Nabili
+HDFS-13642. Creating a file with block size smaller than EC policy's cell size should fail.
+HADOOP-15512. Clean up Shell from JDK7 workarounds. Contributed by Zsolt Venczel.
+HADOOP-14783. [KMS] Add missing configuration properties into kms-default.xml. Contributed by Chetna Chaudhari.
+HDFS-13646. DFSAdmin doesn't display specialized help for triggerBlockReport. Contributed by Takanobu Asanuma.
+HDFS-13440. Log HDFS file name when client fails to connect.  Contributed by Gabor Bota.
+HDFS-13626. Fix incorrect username when deny the setOwner operation. Contributed by Zsolt Venczel.
+HADOOP-15455. Incorrect debug message in KMSACL#hasAccess. Contributed by Yuen-Kuei Hsueh.
+HDFS-13598. Reduce unnecessary byte-to-string transform operation in INodesInPath#toString. Contributed by Gabor Bota.
+HADOOP-15457. Add Security-Related HTTP Response Header in WEBUIs. (kanwaljeets via rkanter)
+HDFS-13573. Javadoc for BlockPlacementPolicyDefault is inaccurate. Contributed by Zsolt Venczel.
+HADOOP-15377. Improve debug messages in MetricsConfig.java
+HDFS-13468. Add erasure coding metrics into ReadStatistics. (Contributed by Lei (Eddy) Xu)
+HADOOP-15402. Prevent double logout of UGI's LoginContext
+HADOOP-12502 SetReplication OutOfMemoryError. Contributed by Vinayakumar B.
+HADOOP-15340. Provide meaningful RPC server name for RpcMetrics. Contributed by Elek Marton.
+HDFS-13363. Record file path when FSDirAclOp throws AclException. Contributed by Gabor Bota.
+HDFS-13292. Crypto command should give proper exception when trying to set key on existing EZ directory. Contributed by Ranith Sardar.
+HADOOP-14855. Hadoop scripts may errantly believe a daemon is still running, preventing it from starting. Contributed by Robert Kanter.
+HDFS-13357. Improve AclException message "Invalid ACL: only directories may have a default ACL.". Contributed by Gabor Bota.
+HDFS-13357. Improve AclException message "Invalid ACL: only directories may have a default ACL.". Contributed by Gabor Bota.
+HADOOP-15679. ShutdownHookManager shutdown time needs to be configurable & extended. Contributed by Steve Loughran.
+HDFS-13772. Erasure coding: Unnecessary NameNode Logs displaying for Enabling/Disabling Erasure coding policies which are already enabled/disabled. Contributed by Ayush Saxena
+HADOOP-9214. Create a new touch command to allow modifying atime and mtime. Contributed by Hrishikesh Gadre.
+HADOOP-15655. Enhance KMS client retry behavior. Contributed by Kitti Nanasi.
+HDFS-10240. Race between close/recoverLease leads to missing block. Contributed by Jinglun, zhouyingchao and Wei-Chiu Chuang.
+HDFS-13732. ECAdmin should print the policy name when an EC policy is set. Contributed by Zsolt Venczel.
+HDFS-13217. Audit log all EC policy names during addErasureCodingPolicies. Contributed by liaoyuxiangqin.
+HDFS-13819. TestDirectoryScanner#testDirectoryScannerInFederatedCluster is flaky
+HDFS-13668. FSPermissionChecker may throws AIOOE when check inode permission. Contributed by He Xiaoqiao.
+HDFS-13658. Expose HighestPriorityLowRedundancy blocks statistics. Contributed by Kitti Nanasi.
+HDFS-13447. Fix Typos - Node Not Chosen. Contributed by Beluga Behr.
+HDFS-13785. EC: 'removePolicy' is not working for built-in/system Erasure Code policies. Contributed by Ayush Saxena
+HDFS-13799. TestEditLogTailer#testTriggersLogRollsForAllStandbyNN fails due to missing synchronization             between rollEditsRpcExecutor and tailerThread shutdown. Contributed by Hrishikesh Gadre.
+HDFS-13792. Fix FSN read/write lock metrics name. Contributed by Chao Sun.
+HADOOP-14212. Addendum patch: Expose SecurityEnabled boolean field in JMX for other services besides NameNode. Contributed by Adam Antal.
+HADOOP-14212. Expose SecurityEnabled boolean field in JMX for other services besides NameNode. Contributed by Adam Antal.
+HADOOP-15661. ABFS: Add support for ACL. Contributed by Junhua Gu and Da Zhou.
+HADOOP-15660. ABFS: Add support for OAuth Contributed by Da Zhou, Rajeev Bansal, and Junhua Gu.
+HADOOP-15669. ABFS: Improve HTTPS Performance. Contributed by Vishwajeet Dusane.
+HADOOP-15659. Code changes for bug fix and new tests. Contributed by Da Zhou.
+HDFS-13750. RBF: Router ID in RouterRpcClient is always null. Contributed by Takanobu Asanuma.
+HADOOP-15674. Test failure TestSSLHttpServer.testExcludedCiphers with TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 cipher suite. Contributed by Szilard Nemeth.
+HDFS-13747. Statistic for list_located_status is incremented incorrectly by listStatusIterator. Contributed by Antal Mihalyi.
+HDFS-13746. Still occasional "Should be different group" failure in TestRefreshUserMappings#testGroupMappingRefresh (Contributed by Siyao Meng via Daniel Templeton)
+HDFS-13788. Update EC documentation about rack fault tolerance. Contributed by Kitti Nanasi.
+HDFS-13758. DatanodeManager should throw exception if it has BlockRecoveryCommand but the block is not under construction. Contributed by chencan.
+HDFS-13738. fsck -list-corruptfileblocks has infinite loop if user is not privileged. Contributed by Yuen-Kuei Hsueh.
+HDFS-13813. Exit NameNode if dangling child inode is detected when saving FsImage. Contributed by Siyao Meng.
+HDFS-13786. EC: Display erasure coding policy for sub-directories is not working. Contributed by Ayush Saxena.
+HDFS-13735. Make QJM HTTP URL connection timeout configurable. Contributed by Chao Sun.
+HDFS-13721. NPE in DataNode due to uninitialized DiskBalancer.
+HDFS-13823. NameNode UI : "Utilities -> Browse the file system -> open a file -> Head the file" is not working. Contributed by Nanda kumar.
+HADOOP-15638. KMS Accept Queue Size default changed from 500 to 128 in Hadoop 3.x. Contributed by Wei-Chiu Chuang.
+HDFS-13721. NPE in DataNode due to uninitialized DiskBalancer.
+HDFS-13728. Disk Balancer should not fail if volume usage is greater than capacity. Contributed by Stephen O'Donnell.
+HADOOP-15637. LocalFs#listLocatedStatus does not filter out hidden .crc files. Contributed by Erik Krogen.
+HADOOP-15637. LocalFs#listLocatedStatus does not filter out hidden .crc files. Contributed by Erik Krogen.
+HDFS-12716. 'dfs.datanode.failed.volumes.tolerated' to support minimum number of volumes to be available. Contributed by Ranith Sardar and usharani
+HADOOP-15607. AliyunOSS: fix duplicated partNumber issue in AliyunOSSBlockOutputStream. Contributed by Jinhu Wu.
+HDFS-13727. Log full stack trace if DiskBalancer exits with an unhandled exception. Contributed by Gabor Bota.
+BUG-10842: 5HADOOP-15609. Retry KMS calls when SSLHandshakeException occurs. Contributed by Kitti Nanasi.
+HADOOP-15382. Log kinit output in credential renewal thread. Contributed by Gabor Bota.
+HADOOP-15560. ABFS: removed dependency injection and unnecessary dependencies. Contributed by Da Zhou.
+HADOOP-15407. HADOOP-15540. Support Windows Azure Storage - Blob file system "ABFS" in Hadoop: Core Commit.
+BUG-103209: Dependency upgrades related to blackduck scan.
+BUG-104243: Dependency jackson-databind dependency related to blackduck scan.
+HADOOP-15299. Bump Jackson 2 version to Jackson 2.9.x.
+BUG-102169 Include Google Connector in Hadoop
+BUG-102156. HDFS-13512. WebHdfs getFileStatus doesn't return ecPolicy. Contributed by Ajay Kumar.
+BUG-101422. Disable HDFS and Hadoop unit tests that are flaky in Mawo.
+BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memory error occurs. Extension of BUG-5700 contributed by Chris Nauroth.
+BUG-100895. Ignore UTs failing due to environmental issues.
+Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
