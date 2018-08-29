@@ -20,12 +20,13 @@ package org.apache.hadoop.fs.azurebfs.security;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenRenewer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Token Renewer for renewing ABFS delegation tokens with remote service.
