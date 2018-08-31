@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
+import org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.IntegerConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.BooleanConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.StringConfigurationValidatorAnnotation;
@@ -96,7 +97,7 @@ public class TestAbfsConfigurationFieldsValidation {
     this.encodedString = Base64.encode("base64Value".getBytes());
     this.encodedAccountKey = Base64.encode("someAccountKey".getBytes());
     Configuration configuration = new Configuration();
-    configuration.addResource("azure-bfs-test.xml");
+    configuration.addResource(TestConfigurationKeys.TEST_CONFIGURATION_FILE_NAME);
     configuration.set(INT_KEY, "1234565");
     configuration.set(LONG_KEY, "4194304");
     configuration.set(STRING_KEY, "stringValue");
