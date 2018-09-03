@@ -57,10 +57,6 @@ import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.util.ReflectionUtils;
 
-import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
-import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_SSL_CHANNEL_MODE_KEY;
-import static org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations.DEFAULT_FS_AZURE_SSL_CHANNEL_MODE;
-
 /**
  * This class is responsible to store and validate configuration values.
  */
@@ -412,10 +408,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     else {
       throw new TokenAccessProviderException("invalid auth type");
     }
-  }
-
-  public SSLSocketFactoryEx.SSLChannelMode getPreferredSSLFactoryOption() {
-    return configuration.getEnum(FS_AZURE_SSL_CHANNEL_MODE_KEY, DEFAULT_FS_AZURE_SSL_CHANNEL_MODE);
   }
 
   void validateStorageAccountKeys() throws InvalidConfigurationValueException {

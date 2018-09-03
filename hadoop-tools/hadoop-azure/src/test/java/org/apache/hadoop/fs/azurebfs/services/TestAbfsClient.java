@@ -22,7 +22,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,22 +31,6 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.LoggingService;
 
 public final class TestAbfsClient {
 
-  private void validateUserAgent(String expectedPattern,
-                                 URL baseUrl,
-                                 ConfigurationServiceImpl config,
-                                 boolean includeSSLProvider) {
-    final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
-    AbfsClient client = new AbfsClient(baseUrl, null,
-        loggingService, config, null, null);
-    String sslProviderName = null;
-    if (includeSSLProvider) {
-      sslProviderName = SSLSocketFactoryEx.getDefaultFactory().getProviderName();
-    }
-    String userAgent = client.initializeUserAgent(config, sslProviderName);
-    Pattern pattern = Pattern.compile(expectedPattern);
-    Assert.assertTrue(pattern.matcher(userAgent).matches());
-  }
-
   @Test
   public void verifyUnknownUserAgent() throws Exception {
     String expectedUserAgentPattern = "Azure Blob FS\\/1.0 \\(JavaJRE ([^\\)]+)\\)";
@@ -56,8 +39,10 @@ public final class TestAbfsClient {
     final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
     ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(
         configuration, loggingService);
-    validateUserAgent(expectedUserAgentPattern, new URL("http://azure.com"),
-        configurationService, false);
+    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null, null);
+    String userAgent = abfsClient.initializeUserAgent(configurationService);
+    Pattern pattern = Pattern.compile(expectedUserAgentPattern);
+    Assert.assertTrue(pattern.matcher(userAgent).matches());
   }
 
   @Test
@@ -68,21 +53,9 @@ public final class TestAbfsClient {
     final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
     ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(
         configuration, loggingService);
-    validateUserAgent(expectedUserAgentPattern, new URL("http://azure.com"),
-        configurationService, false);
-  }
-
-  @Test
-  public void verifyUserAgentWithSSLProvider() throws Exception {
-    String expectedUserAgentPattern = "Azure Blob FS\\/1.0 \\(JavaJRE ([^\\)]+) SunJSSE-1.8\\) Partner Service";
-    final Configuration configuration = new Configuration();
-    configuration.set(ConfigurationKeys.FS_AZURE_USER_AGENT_PREFIX_KEY, "Partner Service");
-    configuration.set(ConfigurationKeys.FS_AZURE_SSL_CHANNEL_MODE_KEY,
-        SSLSocketFactoryEx.SSLChannelMode.Default_JSSE.name());
-    final LoggingService loggingService = AbfsLoggingTestUtils.createMockLoggingService(new ArrayList<String>());
-    ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(
-        configuration, loggingService);
-    validateUserAgent(expectedUserAgentPattern, new URL("https://azure.com"),
-        configurationService, true);
+    AbfsClient abfsClient = new AbfsClient(new URL("http://azure.com"), null, loggingService, configurationService, null, null);
+    String userAgent = abfsClient.initializeUserAgent(configurationService);
+    Pattern pattern = Pattern.compile(expectedUserAgentPattern);
+    Assert.assertTrue(pattern.matcher(userAgent).matches());
   }
 }
