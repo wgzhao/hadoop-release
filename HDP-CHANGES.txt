@@ -5178,3 +5178,4 @@ ATS V1.5:
     after HADOOP-15679
 HADOOP-16315. ABFS: transform full UPN for named user in AclStatus
 HADOOP-16242. ABFS: add bufferpool to AbfsOutputStream.
+MAPREDUCE-7131. Job History Server has race condition where it moves files from intermediate to finished but thinks file is in intermediate. Contributed by Anthony Hsu
