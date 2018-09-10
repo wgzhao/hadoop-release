@@ -5074,3 +5074,6 @@ ATS V1.5:
 
     HADOOP-15533. Make WASB listStatus messages consistent. Contributed by
     Esfandiar Manii
+
+    BUG-111568. HADOOP-15677. WASB: Add support for StreamCapabilities.
+    Contributed by Thomas Marquardt.
