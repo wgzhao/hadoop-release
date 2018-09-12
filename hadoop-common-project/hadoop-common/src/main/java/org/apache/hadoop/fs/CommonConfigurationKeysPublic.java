@@ -886,7 +886,9 @@ public class CommonConfigurationKeysPublic {
           "fs.s3a.*.server-side-encryption.key",
           "fs.azure\\.account.key.*",
           "credential$",
-          "oauth.*token$",
+          "oauth.*secret",
+          "oauth.*password",
+          "oauth.*token",
           HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS);
   public static final String HADOOP_SYSTEM_TAGS = "hadoop.system.tags";
   public static final String HADOOP_CUSTOM_TAGS = "hadoop.custom.tags";
