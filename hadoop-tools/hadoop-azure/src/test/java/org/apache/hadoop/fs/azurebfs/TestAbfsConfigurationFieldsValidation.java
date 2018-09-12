@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azurebfs;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 import org.apache.commons.codec.Charsets;
@@ -66,6 +67,7 @@ public class TestAbfsConfigurationFieldsValidation {
   private static final int TEST_INT = 1234565;
   private static final int TEST_LONG = 4194304;
 
+  private final String accountName;
   private final String encodedString;
   private final String encodedAccountKey;
 
@@ -95,6 +97,7 @@ public class TestAbfsConfigurationFieldsValidation {
 
   public TestAbfsConfigurationFieldsValidation() throws Exception {
     super();
+    this.accountName = "testaccount1.blob.core.windows.net";
     this.encodedString = Base64.encode("base64Value".getBytes(Charsets.UTF_8));
     this.encodedAccountKey = Base64.encode("someAccountKey".getBytes(Charsets.UTF_8));
     Configuration configuration = new Configuration();
@@ -104,8 +107,8 @@ public class TestAbfsConfigurationFieldsValidation {
     configuration.set(STRING_KEY, "stringValue");
     configuration.set(BASE64_KEY, encodedString);
     configuration.set(BOOLEAN_KEY, "true");
-    configuration.set(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + "testaccount1.blob.core.windows.net", this.encodedAccountKey);
-    abfsConfiguration = new AbfsConfiguration(configuration);
+    configuration.set(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME + "." + accountName, this.encodedAccountKey);
+    abfsConfiguration = new AbfsConfiguration(configuration, accountName);
   }
 
   @Test
@@ -142,29 +145,34 @@ public class TestAbfsConfigurationFieldsValidation {
 
   @Test
   public void testGetAccountKey() throws Exception {
-    String accountKey = abfsConfiguration.getStorageAccountKey("testaccount1.blob.core.windows.net");
+    String accountKey = abfsConfiguration.getStorageAccountKey();
     assertEquals(this.encodedAccountKey, accountKey);
   }
 
   @Test(expected = ConfigurationPropertyNotFoundException.class)
   public void testGetAccountKeyWithNonExistingAccountName() throws Exception {
-    abfsConfiguration.getStorageAccountKey("bogusAccountName");
+    Configuration configuration = new Configuration();
+    configuration.addResource(TestConfigurationKeys.TEST_CONFIGURATION_FILE_NAME);
+    configuration.unset(ConfigurationKeys.FS_AZURE_ACCOUNT_KEY_PROPERTY_NAME);
+    AbfsConfiguration abfsConfig = new AbfsConfiguration(configuration, "bogusAccountName");
+    abfsConfig.getStorageAccountKey();
   }
 
   @Test
-  public void testSSLSocketFactoryConfiguration() throws InvalidConfigurationValueException, IllegalAccessException {
+  public void testSSLSocketFactoryConfiguration()
+      throws InvalidConfigurationValueException, IllegalAccessException, IOException {
     assertEquals(SSLSocketFactoryEx.SSLChannelMode.Default, abfsConfiguration.getPreferredSSLFactoryOption());
     assertNotEquals(SSLSocketFactoryEx.SSLChannelMode.Default_JSSE, abfsConfiguration.getPreferredSSLFactoryOption());
     assertNotEquals(SSLSocketFactoryEx.SSLChannelMode.OpenSSL, abfsConfiguration.getPreferredSSLFactoryOption());
 
     Configuration configuration = new Configuration();
     configuration.setEnum(FS_AZURE_SSL_CHANNEL_MODE_KEY, SSLSocketFactoryEx.SSLChannelMode.Default_JSSE);
-    AbfsConfiguration localAbfsConfiguration = new AbfsConfiguration(configuration);
+    AbfsConfiguration localAbfsConfiguration = new AbfsConfiguration(configuration, accountName);
     assertEquals(SSLSocketFactoryEx.SSLChannelMode.Default_JSSE, localAbfsConfiguration.getPreferredSSLFactoryOption());
 
     configuration = new Configuration();
     configuration.setEnum(FS_AZURE_SSL_CHANNEL_MODE_KEY, SSLSocketFactoryEx.SSLChannelMode.OpenSSL);
-    localAbfsConfiguration = new AbfsConfiguration(configuration);
+    localAbfsConfiguration = new AbfsConfiguration(configuration, accountName);
     assertEquals(SSLSocketFactoryEx.SSLChannelMode.OpenSSL, localAbfsConfiguration.getPreferredSSLFactoryOption());
   }
 
