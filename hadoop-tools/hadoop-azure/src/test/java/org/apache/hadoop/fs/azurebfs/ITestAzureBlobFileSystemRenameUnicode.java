@@ -65,7 +65,7 @@ public class ITestAzureBlobFileSystemRenameUnicode extends
         });
   }
 
-  public ITestAzureBlobFileSystemRenameUnicode() {
+  public ITestAzureBlobFileSystemRenameUnicode() throws Exception {
   }
 
   /**

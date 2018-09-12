@@ -41,7 +41,8 @@ import static org.apache.hadoop.fs.contract.ContractTestUtils.assertPathDoesNotE
  */
 public class ITestAzureBlobFileSystemDelete extends
     AbstractAbfsIntegrationTest {
-  public ITestAzureBlobFileSystemDelete() {
+
+  public ITestAzureBlobFileSystemDelete() throws Exception {
     super();
   }
 

@@ -27,7 +27,8 @@ import org.apache.hadoop.fs.Path;
  * Test mkdir operation.
  */
 public class ITestAzureBlobFileSystemMkDir extends AbstractAbfsIntegrationTest {
-  public ITestAzureBlobFileSystemMkDir() {
+
+  public ITestAzureBlobFileSystemMkDir() throws Exception {
     super();
   }
 

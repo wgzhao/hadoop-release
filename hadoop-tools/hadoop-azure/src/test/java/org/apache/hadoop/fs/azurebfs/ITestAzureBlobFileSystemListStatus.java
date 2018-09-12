@@ -41,7 +41,8 @@ import static org.junit.Assert.*;
 public class ITestAzureBlobFileSystemListStatus extends
     AbstractAbfsIntegrationTest {
   private static final int TEST_FILES_NUMBER = 6000;
-  public ITestAzureBlobFileSystemListStatus() {
+
+  public ITestAzureBlobFileSystemListStatus() throws Exception {
     super();
   }
 
