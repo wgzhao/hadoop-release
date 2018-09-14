@@ -100,3 +100,6 @@ BUG-100895. Ignore UTs failing due to environmental issues.
 Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
 HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Marquardt.
 BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Contributed by Steve Loughran.
+
+    BUG-111485. YARN-8720. CapacityScheduler does not enforce max resource
+    allocation check at queue level. Contributed by Tarun Parimi.
