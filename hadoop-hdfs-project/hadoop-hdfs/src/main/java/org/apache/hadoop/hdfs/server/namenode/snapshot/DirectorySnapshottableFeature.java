@@ -258,7 +258,7 @@ public class DirectorySnapshottableFeature extends DirectoryWithSnapshotFeature 
     Snapshot fromSnapshot = getSnapshotByName(snapshotRoot, from);
     Snapshot toSnapshot = getSnapshotByName(snapshotRoot, to);
     // if the start point is equal to the end point, return null
-    if (from.equals(to)) {
+    if (from != null && from.equals(to)) {
       return null;
     }
     SnapshotDiffInfo diffs = new SnapshotDiffInfo(snapshotRoot, fromSnapshot,

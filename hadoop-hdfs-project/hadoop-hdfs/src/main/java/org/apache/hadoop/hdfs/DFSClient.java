@@ -2814,6 +2814,10 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     checkOpen();
     TraceScope scope = Trace.startSpan("getSnapshotDiffReport", traceSampler);
     try {
+      Preconditions.checkArgument(fromSnapshot != null,
+          "null fromSnapshot");
+      Preconditions.checkArgument(toSnapshot != null,
+          "null toSnapshot");
       return namenode.getSnapshotDiffReport(snapshotDir,
           fromSnapshot, toSnapshot);
     } catch(RemoteException re) {
