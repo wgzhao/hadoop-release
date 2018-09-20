@@ -99,4 +99,4 @@ BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memor
 BUG-100895. Ignore UTs failing due to environmental issues.
 Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
 HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Marquardt.
-
+BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Contributed by Steve Loughran.
