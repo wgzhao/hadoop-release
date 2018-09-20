@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-112081. HADOOP-15748. S3 listing inconsistency can raise NPE in globber.
+    Contributed by Steve Loughran.
