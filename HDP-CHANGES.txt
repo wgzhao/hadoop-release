@@ -103,3 +103,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     BUG-111485. YARN-8720. CapacityScheduler does not enforce max resource
     allocation check at queue level. Contributed by Tarun Parimi.
+
+    BUG-111853. MAPREDUCE-7125. JobResourceUploader creates LocalFileSystem when
+    it's not necessary. (Peter Cseh via wangda)
