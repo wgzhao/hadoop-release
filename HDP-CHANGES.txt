@@ -106,3 +106,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     BUG-111853. MAPREDUCE-7125. JobResourceUploader creates LocalFileSystem when
     it's not necessary. (Peter Cseh via wangda)
+
+    HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled
+    in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
