@@ -5089,3 +5089,6 @@ ATS V1.5:
 
     HADOOP-12710. Remove dependency on commons-httpclient for TestHttpServerLogs
     (Wei-Chiu Chuang via iwasakims)
+
+    HADOOP-15801. ABFS: Fixing skipUserGroupMetadata in
+    AzureBlobFileSystemStore. Contributed by Da Zhou
