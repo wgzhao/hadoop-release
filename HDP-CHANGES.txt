@@ -5092,3 +5092,6 @@ ATS V1.5:
 
     HADOOP-15801. ABFS: Fixing skipUserGroupMetadata in
     AzureBlobFileSystemStore. Contributed by Da Zhou
+
+    HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled
+    in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
