@@ -240,7 +240,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetOwnerAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     fs.setOwner(TEST_WRITE_ONLY_FILE_PATH_0, "testUser", "testGroup");
   }
@@ -248,7 +248,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetOwnerUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     intercept(AbfsAuthorizationException.class,
         new Callable<Object>() {
@@ -263,7 +263,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetPermissionAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     fs.setPermission(TEST_WRITE_ONLY_FILE_PATH_0, new FsPermission(FsAction.ALL, FsAction.NONE, FsAction.NONE));
   }
@@ -271,7 +271,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetPermissionUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     intercept(AbfsAuthorizationException.class,
         new Callable<Object>() {
@@ -286,7 +286,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testModifyAclEntriesAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     fs.modifyAclEntries(TEST_WRITE_ONLY_FILE_PATH_0, aclSpec);
@@ -295,7 +295,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testModifyAclEntriesUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     final List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     intercept(AbfsAuthorizationException.class,
@@ -311,7 +311,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveAclEntriesAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     fs.removeAclEntries(TEST_WRITE_ONLY_FILE_PATH_0, aclSpec);
@@ -320,7 +320,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveAclEntriesUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     final List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     intercept(AbfsAuthorizationException.class,
@@ -336,7 +336,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveDefaultAclAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     fs.removeDefaultAcl(TEST_WRITE_ONLY_FILE_PATH_0);
   }
@@ -344,7 +344,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveDefaultAclUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     intercept(AbfsAuthorizationException.class,
         new Callable<Object>() {
@@ -359,7 +359,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveAclAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     fs.removeAcl(TEST_WRITE_ONLY_FILE_PATH_0);
   }
@@ -367,7 +367,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testRemoveAclUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     intercept(AbfsAuthorizationException.class,
         new Callable<Object>() {
@@ -382,7 +382,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetAclAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     fs.setAcl(TEST_WRITE_ONLY_FILE_PATH_0, aclSpec);
@@ -391,7 +391,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testSetAclUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     final List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     intercept(AbfsAuthorizationException.class,
@@ -407,7 +407,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testGetAclStatusAuthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_THEN_READ_ONLY_PATH).close();
     List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     fs.getAclStatus(TEST_WRITE_THEN_READ_ONLY_PATH);
@@ -416,7 +416,7 @@ public class ITestAzureBlobFileSystemAuthorization extends AbstractAbfsIntegrati
   @Test
   public void testGetAclStatusUnauthorized() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
-    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabeld());
+    assumeTrue("This test case only runs when namespace is enabled", fs.getIsNamespaceEnabled());
     fs.create(TEST_WRITE_ONLY_FILE_PATH_0).close();
     List<AclEntry> aclSpec = Arrays.asList(aclEntry(ACCESS, GROUP, "bar", FsAction.ALL));
     intercept(AbfsAuthorizationException.class,
