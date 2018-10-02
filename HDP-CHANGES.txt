@@ -102,3 +102,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15795. Make HTTPS the default protocol for ABFS. Contributed by Da
     Zhou.
+
+    HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled
+    in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
