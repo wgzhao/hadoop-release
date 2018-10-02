@@ -109,3 +109,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled
     in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
+
+    HADOOP-15792. typo in AzureBlobFileSystem.getIsNamespaceEnabeld. Contributed
+    by Abhishek Modi.
