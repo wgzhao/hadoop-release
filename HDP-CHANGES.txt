@@ -105,3 +105,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled
     in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
+
+    HADOOP-15792. typo in AzureBlobFileSystem.getIsNamespaceEnabeld. Contributed
+    by Abhishek Modi.
