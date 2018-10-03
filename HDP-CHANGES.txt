@@ -100,3 +100,5 @@ BUG-100895. Ignore UTs failing due to environmental issues.
 Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
 HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Marquardt.
 
+    HADOOP-15795. Make HTTPS the default protocol for ABFS. Contributed by Da
+    Zhou.
