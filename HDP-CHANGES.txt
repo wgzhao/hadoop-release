@@ -108,3 +108,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15792. typo in AzureBlobFileSystem.getIsNamespaceEnabeld. Contributed
     by Abhishek Modi.
+
+    HADOOP-15795. Make HTTPS the default protocol for ABFS. Contributed by Da
+    Zhou.
