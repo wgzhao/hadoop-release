@@ -112,3 +112,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15792. typo in AzureBlobFileSystem.getIsNamespaceEnabeld. Contributed
     by Abhishek Modi.
+
+    HADOOP-15795. Make HTTPS the default protocol for ABFS. Contributed by Da
+    Zhou.
