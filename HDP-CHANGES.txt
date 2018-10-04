@@ -118,3 +118,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15680. ITestNativeAzureFileSystemConcurrencyLive times out.
     Contributed by Andras Bokor.
+
+    BUG-111586. YARN-8758. Support getting PreemptionMessage when using
+    AMRMClientAsyn. (Zian Chen via wangda)
