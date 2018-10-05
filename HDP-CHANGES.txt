@@ -121,3 +121,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     BUG-111586. YARN-8758. Support getting PreemptionMessage when using
     AMRMClientAsyn. (Zian Chen via wangda)
+
+    BUG-112689. HADOOP-15809. ABFS: better exception handling when making
+    getAccessToken call. Contributed by Da Zhou
