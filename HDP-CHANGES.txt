@@ -5104,3 +5104,6 @@ ATS V1.5:
 
     HADOOP-15680. ITestNativeAzureFileSystemConcurrencyLive times out.
     Contributed by Andras Bokor.
+
+    HADOOP-15809. ABFS: better exception handling when making getAccessToken
+    call. Contributed by Da Zhou
