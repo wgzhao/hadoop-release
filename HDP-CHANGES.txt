@@ -114,3 +114,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15680. ITestNativeAzureFileSystemConcurrencyLive times out.
     Contributed by Andras Bokor.
+
+    BUG-112689. HADOOP-15809. ABFS: better exception handling when making
+    getAccessToken call. Contributed by Da Zhou
