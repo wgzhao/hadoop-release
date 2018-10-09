@@ -117,3 +117,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     BUG-112689. HADOOP-15809. ABFS: better exception handling when making
     getAccessToken call. Contributed by Da Zhou
+
+    BUG-112690. HADOOP-15825. ABFS: Enable some tests for namespace not enabled
+    account using OAuth. Contributed by Da Zhou.
