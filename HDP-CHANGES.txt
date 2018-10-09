@@ -5110,3 +5110,6 @@ ATS V1.5:
 
     HADOOP-15086. NativeAzureFileSystem file rename is not atomic. Contributed
     by Thomas Marquardt
+
+    HADOOP-15825. ABFS: Enable some tests for namespace not enabled account
+    using OAuth. Contributed by Da Zhou.

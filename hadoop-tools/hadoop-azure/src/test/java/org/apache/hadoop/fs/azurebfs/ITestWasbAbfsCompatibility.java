@@ -31,7 +31,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.NativeAzureFileSystem;
 import org.apache.hadoop.fs.contract.ContractTestUtils;
-import org.apache.hadoop.fs.azurebfs.services.AuthType;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertDeleted;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertIsDirectory;
@@ -50,7 +49,6 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
 
   public ITestWasbAbfsCompatibility() throws Exception {
     Assume.assumeFalse("Emulator is not supported", isIPAddress());
-    Assume.assumeTrue(this.getAuthType() == AuthType.SharedKey);
   }
 
   @Test
@@ -58,7 +56,8 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
     // crate file using abfs
     AzureBlobFileSystem fs = getFileSystem();
     // test only valid for non-namespace enabled account
-    Assume.assumeFalse(fs.getIsNamespaceEnabled());
+    Assume.assumeFalse("Namespace enabled account does not support this test,",
+            fs.getIsNamespaceEnabled());
 
     NativeAzureFileSystem wasb = getWasbFileSystem();
 
@@ -92,7 +91,8 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
 
     AzureBlobFileSystem abfs = getFileSystem();
     // test only valid for non-namespace enabled account
-    Assume.assumeFalse(abfs.getIsNamespaceEnabled());
+    Assume.assumeFalse("Namespace enabled account does not support this test",
+            abfs.getIsNamespaceEnabled());
 
     NativeAzureFileSystem wasb = getWasbFileSystem();
 
@@ -131,7 +131,8 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
 
     AzureBlobFileSystem abfs = getFileSystem();
     // test only valid for non-namespace enabled account
-    Assume.assumeFalse(abfs.getIsNamespaceEnabled());
+    Assume.assumeFalse("Namespace enabled account does not support this test",
+            abfs.getIsNamespaceEnabled());
 
     NativeAzureFileSystem wasb = getWasbFileSystem();
 
@@ -165,7 +166,8 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
     //create folders
     AzureBlobFileSystem abfs = getFileSystem();
     // test only valid for non-namespace enabled account
-    Assume.assumeFalse(abfs.getIsNamespaceEnabled());
+    Assume.assumeFalse("Namespace enabled account does not support this test",
+            abfs.getIsNamespaceEnabled());
 
     NativeAzureFileSystem wasb = getWasbFileSystem();
 
