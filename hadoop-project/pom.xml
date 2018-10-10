@@ -102,6 +102,8 @@
     <mssql.version>6.2.1.jre7</mssql.version>
     <okhttp.version>2.7.5</okhttp.version>
 
+    <bouncycastle.version>1.60</bouncycastle.version>
+
     <!-- define the Java language version used by the compiler -->
     <javac.version>1.8</javac.version>
 
@@ -1218,47 +1220,51 @@
             <artifactId>commons-beanutils</artifactId>
           </exclusion>
         </exclusions>
-     </dependency>
+      </dependency>
 
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-recipes</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-client</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-framework</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-test</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.bouncycastle</groupId>
-       <artifactId>bcprov-jdk16</artifactId>
-       <version>1.46</version>
-       <scope>test</scope>
-     </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-recipes</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-client</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-framework</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-test</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
 
-     <dependency>
+      <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
         <version>${joda-time.version}</version>
-     </dependency>
+      </dependency>
 
       <dependency>
-          <groupId>com.nimbusds</groupId>
-          <artifactId>nimbus-jose-jwt</artifactId>
-          <version>4.41.1</version>
-          <scope>compile</scope>
-          <exclusions>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>4.41.1</version>
+        <scope>compile</scope>
+        <exclusions>
           <exclusion>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
