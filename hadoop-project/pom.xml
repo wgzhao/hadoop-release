@@ -78,6 +78,9 @@
 
     <tomcat.version>6.0.53</tomcat.version>
     <joda-time.version>2.9.4</joda-time.version>
+
+    <bouncycastle.version>1.60</bouncycastle.version>
+
     <okhttp.version>2.7.5</okhttp.version>
 
     <!-- define the Java language version used by the compiler -->
@@ -987,10 +990,14 @@
      </dependency>
      <dependency>
        <groupId>org.bouncycastle</groupId>
-       <artifactId>bcprov-jdk16</artifactId>
-       <version>1.46</version>
-       <scope>test</scope>
+       <artifactId>bcprov-jdk15on</artifactId>
+       <version>${bouncycastle.version}</version>
      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
 
       <!--Wildfly openssl dependency is introduced by HADOOP-15669-->
       <dependency>
