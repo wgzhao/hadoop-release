@@ -139,3 +139,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
     HDFS-13662. TestBlockReaderLocal#testStatisticsForErasureCodingRead is flaky
 
     YARN-8535. Fix DistributedShell unit tests. Contributed by Abhishek Modi.
+
+    HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security
+    .sensitive-config-keys. Contributed by Steve Loughran.
