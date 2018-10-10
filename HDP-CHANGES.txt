@@ -5116,3 +5116,6 @@ ATS V1.5:
 
     HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
     Dusane.
+
+    HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security
+    .sensitive-config-keys. Contributed by Steve Loughran.
