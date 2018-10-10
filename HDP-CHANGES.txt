@@ -132,3 +132,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and
     removeAclEntries.
+
+    HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security
+    .sensitive-config-keys. Contributed by Steve Loughran.
