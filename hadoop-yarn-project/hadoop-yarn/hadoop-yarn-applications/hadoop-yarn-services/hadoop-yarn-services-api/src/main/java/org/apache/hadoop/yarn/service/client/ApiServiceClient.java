@@ -175,16 +175,16 @@ public class ApiServiceClient extends AppAdminClient {
             LOG.debug("Fail to resolve username: {}", e);
           }
         }
-        WebResource webResource = client
-            .resource(sb.toString());
+        Builder builder = client
+            .resource(sb.toString()).type(MediaType.APPLICATION_JSON);
         if (useKerberos) {
           String[] server = host.split(":");
           String challenge = generateToken(server[0]);
-          webResource.header(HttpHeaders.AUTHORIZATION, "Negotiate " +
+          builder.header(HttpHeaders.AUTHORIZATION, "Negotiate " +
               challenge);
           LOG.debug("Authorization: Negotiate {}", challenge);
         }
-        ClientResponse test = webResource.get(ClientResponse.class);
+        ClientResponse test = builder.get(ClientResponse.class);
         if (test.getStatus() == 200) {
           rmAddress = host;
           break;
