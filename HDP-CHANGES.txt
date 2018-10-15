@@ -127,3 +127,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     BUG-112690. HADOOP-15825. ABFS: Enable some tests for namespace not enabled
     account using OAuth. Contributed by Da Zhou.
+
+    HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
+    Dusane.
