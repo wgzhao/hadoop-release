@@ -5113,3 +5113,6 @@ ATS V1.5:
 
     HADOOP-15825. ABFS: Enable some tests for namespace not enabled account
     using OAuth. Contributed by Da Zhou.
+
+    HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
+    Dusane.
