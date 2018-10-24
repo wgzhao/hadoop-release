@@ -135,3 +135,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security
     .sensitive-config-keys. Contributed by Steve Loughran.
+
+    HADOOP-15823. ABFS: Stop requiring client ID and tenant ID for MSI
+    (Contributed by Da Zhou via Daniel Templeton)
