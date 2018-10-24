@@ -142,3 +142,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security
     .sensitive-config-keys. Contributed by Steve Loughran.
+
+    HADOOP-15823. ABFS: Stop requiring client ID and tenant ID for MSI
+    (Contributed by Da Zhou via Daniel Templeton)
