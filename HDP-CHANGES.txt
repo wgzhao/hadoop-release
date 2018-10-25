@@ -148,3 +148,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HDFS-13941. make storageId in BlockPoolTokenSecretManager.checkAccess
     optional. Contributed by Wei-Chiu Chuang.
+
+    HDFS-14026. Overload BlockPoolTokenSecretManager.checkAccess to make
+    storageId and storageType optional. Contributed by Arpit Agarwal.
