@@ -102,3 +102,6 @@ Remove super user privilege requirement for NameNode.getServiceStatus. Contribut
     BUG-113126. HDFS-13941. make storageId in
     BlockPoolTokenSecretManager.checkAccess optional. Contributed by Wei-Chiu
     Chuang.
+
+    BUG-113126. HDFS-14026. Overload BlockPoolTokenSecretManager.checkAccess to
+    make storageId and storageType optional. Contributed by Arpit Agarwal.
