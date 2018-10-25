@@ -145,3 +145,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15823. ABFS: Stop requiring client ID and tenant ID for MSI
     (Contributed by Da Zhou via Daniel Templeton)
+
+    HDFS-13941. make storageId in BlockPoolTokenSecretManager.checkAccess
+    optional. Contributed by Wei-Chiu Chuang.
