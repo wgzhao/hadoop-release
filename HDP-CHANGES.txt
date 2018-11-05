@@ -234,3 +234,6 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     BUG-121363. YARN-6695. Fixed NPE in publishing appFinished events to ATSv2.
     Contributed by Prabhu Joseph
+
+    BUG-121641. HDFS-14042. Fix NPE when PROVIDED storage is missing.
+    Contributed by Virajith Jalaparti.
