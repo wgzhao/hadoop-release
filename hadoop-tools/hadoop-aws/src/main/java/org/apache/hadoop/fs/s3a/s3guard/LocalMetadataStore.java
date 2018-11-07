@@ -304,12 +304,18 @@ public class LocalMetadataStore implements MetadataStore {
   }
 
   @Override
-  public synchronized void prune(long modTime) throws IOException {
+  public void prune(long modTime) throws IOException{
+    prune(modTime, "");
+  }
+
+  @Override
+  public synchronized void prune(long modTime, String keyPrefix)
+      throws IOException {
     Iterator<Map.Entry<Path, PathMetadata>> files =
         fileHash.entrySet().iterator();
     while (files.hasNext()) {
       Map.Entry<Path, PathMetadata> entry = files.next();
-      if (expired(entry.getValue().getFileStatus(), modTime)) {
+      if (expired(entry.getValue().getFileStatus(), modTime, keyPrefix)) {
         files.remove();
       }
     }
@@ -324,7 +330,7 @@ public class LocalMetadataStore implements MetadataStore {
 
       for (PathMetadata child : oldChildren) {
         FileStatus status = child.getFileStatus();
-        if (!expired(status, modTime)) {
+        if (!expired(status, modTime, keyPrefix)) {
           newChildren.add(child);
         }
       }
@@ -340,10 +346,11 @@ public class LocalMetadataStore implements MetadataStore {
     }
   }
 
-  private boolean expired(FileStatus status, long expiry) {
+  private boolean expired(FileStatus status, long expiry, String keyPrefix) {
     // Note: S3 doesn't track modification time on directories, so for
     // consistency with the DynamoDB implementation we ignore that here
-    return status.getModificationTime() < expiry && !status.isDirectory();
+    return status.getModificationTime() < expiry && !status.isDirectory()
+      && status.getPath().toString().startsWith(keyPrefix);
   }
 
   @VisibleForTesting
