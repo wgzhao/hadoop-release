@@ -153,3 +153,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15812. ABFS: Improve AbfsRestOperationException format to ensure full
     msg can be displayed on console.
+
+    HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and
+    removeAclEntries.
