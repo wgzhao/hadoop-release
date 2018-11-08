@@ -5125,3 +5125,6 @@ ATS V1.5:
 
     HADOOP-15812. ABFS: Improve AbfsRestOperationException format to ensure full
     msg can be displayed on console.
+
+    HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and
+    removeAclEntries.
