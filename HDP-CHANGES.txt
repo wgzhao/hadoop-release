@@ -150,3 +150,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     BUG-114054. YARN-8950. Fix compilation issue due to dependency convergence
     error for hbase.profile=2.0.
+
+    HADOOP-15812. ABFS: Improve AbfsRestOperationException format to ensure full
+    msg can be displayed on console.
