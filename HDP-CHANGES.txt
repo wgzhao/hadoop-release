@@ -130,3 +130,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
     by Atul Sikaria and Sean Mackrory.
 
     HDFS-13662. TestBlockReaderLocal#testStatisticsForErasureCodingRead is flaky
+
+    HADOOP-15812. ABFS: Improve AbfsRestOperationException format to ensure full
+    msg can be displayed on console.
