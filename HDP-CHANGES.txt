@@ -124,8 +124,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
     HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet
     Dusane.
 
-    HADOOP-15356. Make HTTP timeout configurable in ADLS connector. Contributed
-    by Atul Sikaria and Sean Mackrory.
 
     HDFS-13662. TestBlockReaderLocal#testStatisticsForErasureCodingRead is flaky
 
