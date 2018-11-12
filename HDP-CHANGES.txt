@@ -4666,3 +4666,5 @@ ATS V1.5:
     Revert YARN-4126. RM should not issue delegation tokens in unsecure mode.
 
     YARN-4593 Deadlock in AbstractService.getConfig() (stevel)
+
+    YARN-7468. Provide means for container network policy control.

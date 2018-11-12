@@ -21,12 +21,13 @@
 package org.apache.hadoop.yarn.server.nodemanager.containermanager.linux.resources;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.linux.privileged.PrivilegedOperationExecutor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,8 @@ import java.util.List;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class ResourceHandlerModule {
+  private static final Log LOG = LogFactory.getLog(
+      ResourceHandlerModule.class);
   private static volatile ResourceHandlerChain resourceHandlerChain;
 
   /**
@@ -47,6 +50,8 @@ public class ResourceHandlerModule {
    */
   private static volatile TrafficControlBandwidthHandlerImpl
       trafficControlBandwidthHandler;
+  private static volatile NetworkPacketTaggingHandlerImpl
+      networkPacketTaggingHandlerImpl;
   private static volatile CGroupsHandler cGroupsHandler;
   private static volatile CGroupsBlkioResourceHandlerImpl
       cGroupsBlkioResourceHandler;
@@ -101,6 +106,36 @@ public class ResourceHandlerModule {
     }
   }
 
+  public static ResourceHandler getNetworkResourceHandler(Configuration conf)
+      throws ResourceHandlerException {
+    boolean useNetworkTagHandler = conf.getBoolean(
+        YarnConfiguration.NM_NETWORK_TAG_HANDLER_ENABLED,
+        YarnConfiguration.DEFAULT_NM_NETWORK_TAG_HANDLER_ENABLED);
+    if (useNetworkTagHandler) {
+      LOG.info("Using network-tagging-handler.");
+      return getNetworkTaggingHandler(conf);
+    } else {
+      LOG.info("Using traffic control bandwidth handler");
+      return getTrafficControlBandwidthHandler(conf);
+    }
+  }
+
+  public static ResourceHandler getNetworkTaggingHandler(Configuration conf)
+      throws ResourceHandlerException {
+    if (networkPacketTaggingHandlerImpl == null) {
+      synchronized (OutboundBandwidthResourceHandler.class) {
+        if (networkPacketTaggingHandlerImpl == null) {
+          LOG.info("Creating new network-tagging-handler.");
+          networkPacketTaggingHandlerImpl =
+              new NetworkPacketTaggingHandlerImpl(
+                  PrivilegedOperationExecutor.getInstance(conf),
+                  getInitializedCGroupsHandler(conf));
+        }
+      }
+    }
+    return networkPacketTaggingHandlerImpl;
+  }
+
   public static OutboundBandwidthResourceHandler
   getOutboundBandwidthResourceHandler(Configuration conf)
       throws ResourceHandlerException {
@@ -141,7 +176,7 @@ public class ResourceHandlerModule {
       Configuration conf) throws ResourceHandlerException {
     ArrayList<ResourceHandler> handlerList = new ArrayList<>();
 
-    addHandlerIfNotNull(handlerList, getOutboundBandwidthResourceHandler(conf));
+    addHandlerIfNotNull(handlerList, getNetworkResourceHandler(conf));
     addHandlerIfNotNull(handlerList, getDiskResourceHandler(conf));
     resourceHandlerChain = new ResourceHandlerChain(handlerList);
   }
