@@ -156,3 +156,6 @@ BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Con
 
     HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and
     removeAclEntries.
+
+    MAPREDUCE-7158. Inefficient Flush Logic in JobHistory EventWriter. (Zichen
+    Sun via wangda)
