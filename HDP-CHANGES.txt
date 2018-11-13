@@ -138,3 +138,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-15823. ABFS: Stop requiring client ID and tenant ID for MSI
     (Contributed by Da Zhou via Daniel Templeton)
+
+    MAPREDUCE-7158. Inefficient Flush Logic in JobHistory EventWriter. (Zichen
+    Sun via wangda)
