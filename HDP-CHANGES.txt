@@ -5133,3 +5133,6 @@ ATS V1.5:
 
     HADOOP-16004. ABFS: Convert 404 error response in AbfsInputStream and
     AbfsOutPutStream to FileNotFoundException.
+
+    HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in
+    AzureBlobFileSystemStore
