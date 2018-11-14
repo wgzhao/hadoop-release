@@ -731,6 +731,26 @@ hierarchical namespace enabled, and set the following configuration settings:
      <description>AAD client id.</description>
    </property>
   -->
+
+  <!--
+    <property>
+        <name>fs.azure.enable.fileowner.shortname</name>
+        <value>true</value>
+        <description>use shortname for file owner</description>
+    </property>
+
+    <property>
+        <name>fs.azure.localuserasfileowner.principal.spn</name>
+        <value>HDI service principal oid</value>
+        <description></description>
+    </property>
+
+    <property>
+        <name>fs.azure.localuserasfileowner.replace.principals</name>
+        <value>*,mapred,hdfs,yarn,hive,tez</value>
+        <description></description>
+    </property>
+    -->
 ```
 
 If running tests against an endpoint that uses the URL format
