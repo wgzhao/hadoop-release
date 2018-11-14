@@ -55,6 +55,9 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_USER_AGENT_PREFIX_KEY = "fs.azure.user.agent.prefix";
   public static final String FS_AZURE_SSL_CHANNEL_MODE_KEY = "fs.azure.ssl.channel.mode";
   public static final String FS_AZURE_USE_UPN = "fs.azure.use.upn";
+  public static final String FS_AZURE_FILE_OWNER_ENABLE_SHORTNAME = "fs.azure.enable.fileowner.shortname";
+  public static final String FS_AZURE_OVERRIDE_OWNER_SP = "fs.azure.localuserasfileowner.principal.spn";
+  public static final String FS_AZURE_OVERRIDE_OWNER_SP_LIST = "fs.azure.localuserasfileowner.replace.principals";
 
   public static final String AZURE_KEY_ACCOUNT_KEYPROVIDER = "fs.azure.account.keyprovider";
   public static final String AZURE_KEY_ACCOUNT_SHELLKEYPROVIDER_SCRIPT = "fs.azure.shellkeyprovider.script";
