@@ -64,7 +64,6 @@ class EventWriter {
     wrapper.type = event.getEventType();
     wrapper.event = event.getDatum();
     writer.write(wrapper, encoder);
-    encoder.flush();
     out.writeBytes("\n");
   }
   
