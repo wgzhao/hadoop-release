@@ -269,3 +269,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 HOTFIX-2880 YARN-10055. bower install fails. (#1778)
 BUG-123906. YARN-9685: NPE when rendering the info table of leaf queue in non-accessible partitions. Contributed by Tao Yang.
+BUG-123908. HDFS-13963. NN UI is broken with IE11. Contributed by Ayush Saxena.
