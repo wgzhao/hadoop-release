@@ -45,6 +45,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -137,6 +139,8 @@ public class ContainerLaunch implements Callable<Integer> {
   protected Path pidFilePath = null;
 
   protected final LocalDirsHandlerService dirsHandler;
+
+  private final Lock containerExecLock = new ReentrantLock();
 
   public ContainerLaunch(Context context, Configuration configuration,
       Dispatcher dispatcher, ContainerExecutor exec, Application app,
@@ -491,7 +495,12 @@ public class ContainerLaunch implements Callable<Integer> {
       throws IOException, ConfigurationException {
     int launchPrep = prepareForLaunch(ctx);
     if (launchPrep == 0) {
-      return exec.launchContainer(ctx);
+      containerExecLock.lock();
+      try {
+        return exec.launchContainer(ctx);
+      } finally {
+        containerExecLock.unlock();
+      }
     }
     return launchPrep;
   }
@@ -501,7 +510,12 @@ public class ContainerLaunch implements Callable<Integer> {
       throws IOException, ConfigurationException {
     int launchPrep = prepareForLaunch(ctx);
     if (launchPrep == 0) {
-      return exec.relaunchContainer(ctx);
+      containerExecLock.lock();
+      try {
+        return exec.relaunchContainer(ctx);
+      } finally {
+        containerExecLock.unlock();
+      }
     }
     return launchPrep;
   }
@@ -812,18 +826,22 @@ public class ContainerLaunch implements Callable<Integer> {
         lfs.delete(pidFilePath.suffix(EXIT_CODE_FILE_SUFFIX), false);
       }
     }
-
-    // Reap the container
-    boolean result = exec.reapContainer(
-        new ContainerReapContext.Builder()
-            .setContainer(container)
-            .setUser(container.getUser())
-            .build());
-    if (!result) {
-      throw new IOException("Reap container failed for container "
-          + containerIdStr);
+    containerExecLock.lock();
+    try {
+      // Reap the container
+      boolean result = exec.reapContainer(
+          new ContainerReapContext.Builder()
+              .setContainer(container)
+              .setUser(container.getUser())
+              .build());
+      if (!result) {
+        throw new IOException("Reap container failed for container "
+            + containerIdStr);
+      }
+      cleanupContainerFiles(getContainerWorkDir());
+    } finally {
+      containerExecLock.unlock();
     }
-    cleanupContainerFiles(getContainerWorkDir());
   }
 
   /**
