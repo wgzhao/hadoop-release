@@ -88,6 +88,7 @@ public final class AbfsHttpConstants {
   public static final String DEFAULT_OTHER = "default:other:";
   public static final String DEFAULT_SCOPE = "default:";
   public static final String PERMISSION_FORMAT = "%04d";
+  public static final String SUPER_USER = "$superuser";
 
   private AbfsHttpConstants() {}
 }
