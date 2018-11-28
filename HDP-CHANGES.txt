@@ -277,3 +277,4 @@ HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced
 HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced(addendum). Contributed by Surendra Singh Lilhore.
 HDFS-14847. Erasure Coding: Blocks are over-replicated while EC decommissioning. Contributed by Fei Hui.
 HDFS-14920. Erasure Coding: Decommission may hang If one or more datanodes are out of service during decommission. Contributed by Fei Hui.
+BUG-124003. HDFS-14108. Performance improvement in BlockManager Data Structures. Contributed by Beluga Behr.
