@@ -294,7 +294,7 @@ public class TestDeviceMappingManager {
     Map<String, String> env = new HashMap<>();
     if (dockerContainerEnabled) {
       env.put(ContainerRuntimeConstants.ENV_CONTAINER_TYPE,
-          ContainerRuntimeConstants.CONTAINER_RUNTIME_DOCKER);
+          "docker");
     }
     when(clc.getEnvironment()).thenReturn(env);
     when(c.getLaunchContext()).thenReturn(clc);

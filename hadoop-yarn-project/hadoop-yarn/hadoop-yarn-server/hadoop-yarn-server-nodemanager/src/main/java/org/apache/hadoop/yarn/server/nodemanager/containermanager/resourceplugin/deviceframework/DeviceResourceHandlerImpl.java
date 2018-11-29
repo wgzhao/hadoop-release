@@ -123,13 +123,7 @@ public class DeviceResourceHandlerImpl implements ResourceHandler {
     deviceMappingManager.recoverAssignedDevices(resourceName, containerId);
     return null;
   }
-
-  @Override
-  public List<PrivilegedOperation> updateContainer(Container container)
-      throws ResourceHandlerException {
-    return null;
-  }
-
+  
   @Override
   public synchronized List<PrivilegedOperation> postComplete(
       ContainerId containerId) throws ResourceHandlerException {
