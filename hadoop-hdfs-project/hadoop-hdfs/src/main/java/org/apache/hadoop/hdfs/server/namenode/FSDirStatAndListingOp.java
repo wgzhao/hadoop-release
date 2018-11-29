@@ -131,15 +131,14 @@ class FSDirStatAndListingOp {
     FSPermissionChecker pc = fsd.getPermissionChecker();
     src = fsd.resolvePath(pc, src, pathComponents);
     final INodesInPath iip = fsd.getINodesInPath(src, false);
-    // getContentSummaryInt() call will check access (if enabled) when
-    // traversing all sub directories. But if this is file already, then there is
-    // no subdirectories to concern. Check permission right here
-    INode last = iip.getLastINode();
-    if (last != null && !last.isDirectory() && fsd.isPermissionEnabled()) {
+    if (fsd.isPermissionEnabled() && fsd.isPermissionContentSummarySubAccess()) {
       fsd.checkPermission(pc, iip, false, null, null, null,
           FsAction.READ_EXECUTE);
+      pc = null;
     }
-    return getContentSummaryInt(fsd, iip);
+    // getContentSummaryInt() call will check access (if enabled) when
+    // traversing all sub directories.
+    return getContentSummaryInt(fsd, pc, iip);
   }
 
   private static byte getStoragePolicyID(byte inodePolicy, byte parentPolicy) {
@@ -486,7 +485,7 @@ class FSDirStatAndListingOp {
   }
 
   private static ContentSummary getContentSummaryInt(FSDirectory fsd,
-      INodesInPath iip) throws IOException {
+      FSPermissionChecker pc, INodesInPath iip) throws IOException {
     fsd.readLock();
     try {
       INode targetNode = iip.getLastINode();
@@ -498,8 +497,7 @@ class FSDirStatAndListingOp {
         // processed. 0 means disabled. I.e. blocking for the entire duration.
         ContentSummaryComputationContext cscc =
             new ContentSummaryComputationContext(fsd, fsd.getFSNamesystem(),
-                fsd.getContentCountLimit(), fsd.getContentSleepMicroSec(),
-                fsd.getPermissionChecker());
+                fsd.getContentCountLimit(), fsd.getContentSleepMicroSec(), pc);
         ContentSummary cs = targetNode.computeAndConvertContentSummary(
             iip.getPathSnapshotId(), cscc);
         fsd.addYieldCount(cscc.getYieldCount());
@@ -531,7 +529,7 @@ class FSDirStatAndListingOp {
       return usage;
     } else {
       //If quota isn't set, fall back to getContentSummary.
-      return getContentSummaryInt(fsd, iip);
+      return getContentSummaryInt(fsd, pc, iip);
     }
   }
 
