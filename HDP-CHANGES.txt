@@ -4654,3 +4654,4 @@ ATS V1.5:
 
     BUG-121878. MAPREDUCE-6763. Shuffle server listen queue is too small (Jason
     Lowe via Varun Saxena)
+BUG-124457. HDFS-14112. Avoid recursive call to external authorizer for getContentSummary.
