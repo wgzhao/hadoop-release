@@ -5136,3 +5136,5 @@ ATS V1.5:
 
     HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in
     AzureBlobFileSystemStore
+
+    HADOOP-15957. WASB: Add asterisk wildcard support for PageBlobDirSet.
