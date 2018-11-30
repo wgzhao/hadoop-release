@@ -7,6 +7,58 @@ YARN and MAPREDUCE
 
 HDFS and HADOOP-COMMON
 ----------------------
+
+HDFS-14112. Avoid recursive call to external authorizer for getContentSummary.
+HADOOP-14445.  Addendum: Use DelegationTokenIssuer to create KMS delegation tokens that can authenticate to all KMS instances.
+HADOOP-14445. Use DelegationTokenIssuer to create KMS delegation tokens that can authenticate to all KMS instances. Contributed by Daryn Sharp, Xiao Chen, Rushabh S Shah.
+HADOOP-15872. ABFS: Update to target 2018-11-09 REST version for ADLS Gen 2
+HADOOP-15815. Upgrade Eclipse Jetty version to 9.3.24. Cotributed by Boris Vulikh.
+HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and removeAclEntries.
+HADOOP-15812. ABFS: Improve AbfsRestOperationException format to ensure full msg can be displayed on console.
+HDFS-14026. Overload BlockPoolTokenSecretManager.checkAccess to make storageId and storageType optional. Contributed by Arpit Agarwal.
+HDFS-13941. make storageId in BlockPoolTokenSecretManager.checkAccess optional. Contributed by Wei-Chiu Chuang.
+BUG-112407. HADOOP-15837. DynamoDB table Update can fail S3A FS init. Contributed by Steve Loughran.
+HADOOP-15882. Upgrade maven-shade-plugin from 2.4.3 to 3.2.0. Contributed by Takanobu Asanuma.
+HADOOP-15823. ABFS: Stop requiring client ID and tenant ID for MSI (Contributed by Da Zhou via Daniel Templeton)
+HADOOP-15839. Review + update cloud store sensitive keys in hadoop.security.sensitive-config-keys. Contributed by Steve Loughran.
+HDFS-13662. TestBlockReaderLocal#testStatisticsForErasureCodingRead is flaky
+HADOOP-15850 CopyCommitter#concatFileChunks should check that the blocks per chunk is not 0
+HADOOP-15851. Disable wildfly logs to the console. Contributed by Vishwajeet Dusane.
+BUG-112690. HADOOP-15825. ABFS: Enable some tests for namespace not enabled account using OAuth. Contributed by Da Zhou.
+BUG-112689. HADOOP-15809. ABFS: better exception handling when making getAccessToken call. Contributed by Da Zhou
+BUG-112086.  Fixed Authentication Header passing.
+HADOOP-15680. ITestNativeAzureFileSystemConcurrencyLive times out. Contributed by Andras Bokor.
+HADOOP-15795. Make HTTPS the default protocol for ABFS. Contributed by Da Zhou.
+HADOOP-15792. typo in AzureBlobFileSystem.getIsNamespaceEnabeld. Contributed by Abhishek Modi.
+HADOOP-15793. ABFS: Skip unsupported test cases when non namespace enabled in ITestAzureBlobFileSystemAuthorization Contributed by Yuan Gao.
+HADOOP-15801. ABFS: Fixing skipUserGroupMetadata in AzureBlobFileSystemStore. Contributed by Da Zhou
+HADOOP-15723. ABFS: Ranger Support. Contributed by Yuan Gao.
+HADOOP-15739. ABFS: remove unused maven dependencies and add used undeclared dependencies. Contributed by Da Zhou.
+HADOOP-15778. ABFS: Fix client side throttling for read. Contributed by Sneha Varma.
+HADOOP-15704. Mark ABFS extension package and interfaces as LimitedPrivate/Unstable. Contributed by Steve Loughran.
+HADOOP-15773. Fixing checkstyle and other issues raised by Yetus.
+HADOOP-15769. ABFS: distcp tests are always skipped. Contributed by Steve Loughran
+HADOOP-15719. Fail-fast when using OAuth over http. Contributed by Da Zhou.
+HADOOP-15714. Tune abfs/wasb parallel and sequential test execution. Contributed by Da Zhou.
+HADOOP-15715. ITestAzureBlobFileSystemE2E timing out with non-scale timeout of 10 min. Contributed by Da Zhou
+HADOOP-15744. AbstractContractAppendTest fails against HDFS on HADOOP-15407 branch. Contributed by Steve Loughran.
+HADOOP-15694. ABFS: Allow OAuth credentials to not be tied to accounts. Contributed by Sean Mackrory.
+HADOOP-15740. ABFS: Check variable names during initialization of AbfsClientThrottlingIntercept. Contributed by Sneha Varma.
+HADOOP-15745. ABFS: Add ABFS configuration to ConfigRedactor.
+1b3f36c0447 Fixing findbugs and license issues related to:
+BUG-111427. HADOOP-15748. S3 listing inconsistency can raise NPE in globber. Contributed by Steve Loughran.
+HADOOP-15728. ABFS: Add backward compatibility to handle Unsupported Operation for storage account with no namespace feature.
+HADOOP-15753. ABFS: support path "abfs://mycluster/file/path" Contributed by Da Zhou.
+HADOOP-15757. ABFS: remove dependency on common-codec Base64. Contributed by Da Zhou.
+BUG-110754. HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Marquardt.
+HADOOP-15703. ABFS - Implement client-side throttling. Contributed by Sneha Varma and Thomas Marquardt.
+HADOOP-15664. ABFS: Reduce test run time via parallelization and grouping. Contributed by Da Zhou.
+HADOOP-15663. ABFS: Simplify configuration. Contributed by Da Zhou.
+HADOOP-15692. ABFS: extensible support for custom oauth. Contributed by Junhua Gu and Rajeev Bansal.
+HADOOP-15682. ABFS: Add support for StreamCapabilities. Fix javadoc and checkstyle. Contributed by Thomas Marquardt.
+HADOOP 15688. ABFS: InputStream wrapped in FSDataInputStream twice. Contributed by Sean Mackrory.
+Revert "HADOOP-15457. Add Security-Related HTTP Response Header in WEBUIs. (kanwaljeets via rkanter)"
+
 HADOOP-15596. Stack trace should not be printed out when running hadoop key commands. Contributed by Kitti Nanasi.
 HADOOP-15550. Avoid static initialization of ObjectMappers
 HDFS-13690. Improve error message when creating encryption zone while KMS is unreachable. Contributed by Kitti Nanasi.
