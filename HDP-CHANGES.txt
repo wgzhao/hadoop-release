@@ -148,3 +148,5 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
     AbfsOutPutStream to FileNotFoundException.
 
     HADOOP-16036. WASB: Disable jetty logging configuration announcement.
+
+    HADOOP-15957. WASB: Add asterisk wildcard support for PageBlobDirSet.
