@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-114808. HDFS-7766. Add a flag to WebHDFS op=CREATE to not respond with a 307 redirect
+    (Ravi Prakash via aw)
