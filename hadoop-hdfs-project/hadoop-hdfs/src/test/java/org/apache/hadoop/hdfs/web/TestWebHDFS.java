@@ -75,6 +75,7 @@ import org.apache.hadoop.hdfs.server.protocol.NamenodeProtocols;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem.WebHdfsInputStream;
 import org.apache.hadoop.hdfs.web.resources.GetOpParam;
 import org.apache.hadoop.hdfs.web.resources.LengthParam;
+import org.apache.hadoop.hdfs.web.resources.NoRedirectParam;
 import org.apache.hadoop.hdfs.web.resources.OffsetParam;
 import org.apache.hadoop.hdfs.web.resources.Param;
 import org.apache.hadoop.http.HttpServer2;
@@ -88,6 +89,8 @@ import org.apache.hadoop.security.token.SecretManager.InvalidToken;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.log4j.Level;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -1192,6 +1195,85 @@ public class TestWebHDFS {
     } finally {
       if(http != null) {
         http.stop();
+      }
+    }
+  }
+
+  private void checkResponseContainsLocation(URL url, String TYPE)
+    throws JSONException, IOException {
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod(TYPE);
+    conn.setInstanceFollowRedirects(false);
+    String response = IOUtils.toString(conn.getInputStream());
+    LOG.info("Response was : " + response);
+    Assert.assertEquals(
+      "Response wasn't " + HttpURLConnection.HTTP_OK,
+      HttpURLConnection.HTTP_OK, conn.getResponseCode());
+
+    JSONObject responseJson = new JSONObject(response);
+    Assert.assertTrue("Response didn't give us a location. " + response,
+      responseJson.has("Location"));
+
+    //Test that the DN allows CORS on Create
+    if(TYPE.equals("CREATE")) {
+      URL dnLocation = new URL(responseJson.getString("Location"));
+      HttpURLConnection dnConn = (HttpURLConnection) dnLocation.openConnection();
+      dnConn.setRequestMethod("OPTIONS");
+      Assert.assertEquals("Datanode url : " + dnLocation + " didn't allow "
+        + "CORS", HttpURLConnection.HTTP_OK, dnConn.getResponseCode());
+    }
+  }
+
+  @Test
+  /**
+   * Test that when "&noredirect=true" is added to operations CREATE, APPEND,
+   * OPEN, and GETFILECHECKSUM the response (which is usually a 307 temporary
+   * redirect) is a 200 with JSON that contains the redirected location
+   */
+  public void testWebHdfsNoRedirect() throws Exception {
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(3).build();
+      LOG.info("Started cluster");
+      InetSocketAddress addr = cluster.getNameNode().getHttpAddress();
+
+      URL url = new URL("http", addr.getHostString(), addr.getPort(),
+        WebHdfsFileSystem.PATH_PREFIX + "/testWebHdfsNoRedirectCreate" +
+        "?op=CREATE" + Param.toSortedString("&", new NoRedirectParam(true)));
+      LOG.info("Sending create request " + url);
+      checkResponseContainsLocation(url, "PUT");
+
+      //Write a file that we can read
+      final WebHdfsFileSystem fs = WebHdfsTestUtil.getWebHdfsFileSystem(
+        conf, WebHdfs.SCHEME);
+      final String PATH = "/testWebHdfsNoRedirect";
+      byte[] CONTENTS = new byte[1024];
+      RANDOM.nextBytes(CONTENTS);
+      try (OutputStream os = fs.create(new Path(PATH))) {
+        os.write(CONTENTS);
+      }
+      url = new URL("http", addr.getHostString(), addr.getPort(),
+        WebHdfsFileSystem.PATH_PREFIX + "/testWebHdfsNoRedirect" +
+        "?op=OPEN" + Param.toSortedString("&", new NoRedirectParam(true)));
+      LOG.info("Sending open request " + url);
+      checkResponseContainsLocation(url, "GET");
+
+      url = new URL("http", addr.getHostString(), addr.getPort(),
+        WebHdfsFileSystem.PATH_PREFIX + "/testWebHdfsNoRedirect" +
+        "?op=GETFILECHECKSUM" + Param.toSortedString(
+        "&", new NoRedirectParam(true)));
+      LOG.info("Sending getfilechecksum request " + url);
+      checkResponseContainsLocation(url, "GET");
+
+      url = new URL("http", addr.getHostString(), addr.getPort(),
+        WebHdfsFileSystem.PATH_PREFIX + "/testWebHdfsNoRedirect" +
+        "?op=APPEND" + Param.toSortedString("&", new NoRedirectParam(true)));
+      LOG.info("Sending append request " + url);
+      checkResponseContainsLocation(url, "POST");
+    } finally {
+      if (cluster != null) {
+        cluster.shutdown();
       }
     }
   }

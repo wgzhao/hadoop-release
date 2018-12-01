@@ -4825,3 +4825,6 @@ ATS V1.5:
 
     BUG-86833. YARN-7090. testRMRestartAfterNodeLabelDisabled[1] UT Fails.
     Contributed by Wangda Tan.
+
+    BUG-114808. HDFS-7766. Add a flag to WebHDFS op=CREATE to not respond with a 307 redirect
+    (Ravi Prakash via aw)
