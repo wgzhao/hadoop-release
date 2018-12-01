@@ -4713,3 +4713,4 @@ ATS V1.5:
 
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
+HDFS-7766. Add a flag to WebHDFS op=CREATE to not respond with a 307 redirect     (Ravi Prakash via aw)
