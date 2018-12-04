@@ -5128,3 +5128,5 @@ ATS V1.5:
 
     HADOOP-15846. ABFS: fix mask related bugs in setAcl, modifyAclEntries and
     removeAclEntries.
+
+    HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
