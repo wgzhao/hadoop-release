@@ -141,3 +141,5 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     MAPREDUCE-7158. Inefficient Flush Logic in JobHistory EventWriter. (Zichen
     Sun via wangda)
+
+    HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
