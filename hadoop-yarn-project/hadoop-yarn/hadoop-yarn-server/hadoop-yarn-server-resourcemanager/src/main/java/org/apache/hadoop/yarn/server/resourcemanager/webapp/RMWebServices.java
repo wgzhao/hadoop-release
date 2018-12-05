@@ -120,6 +120,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeToLabelsEntr
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeToLabelsInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodeToLabelsEntryList;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.NodesInfo;
+import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.RMQueueAclInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.ResourceInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.SchedulerInfo;
 import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.SchedulerTypeInfo;
@@ -140,6 +141,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -1771,5 +1773,52 @@ public class RMWebServices extends WebServices {
   protected List<ContainerReport> getContainersReport(
       GetContainersRequest request) throws YarnException, IOException {
     return rm.getClientRMService().getContainers(request).getContainerList();
+  }
+
+  @GET
+  @Path("/queues/{queue}/access")
+  @Produces({  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+  public RMQueueAclInfo checkUserAccessToQueue(
+      @PathParam("queue") String queue,
+      @QueryParam("user") String username,
+      @QueryParam("queue-acl-type")
+      @DefaultValue("SUBMIT_APPLICATIONS") String queueAclType,
+      @Context HttpServletRequest hsr) throws AuthorizationException {
+    response.setContentType(null);
+
+    // For the user who invokes this REST call, he/she should have admin access
+    // to the queue. Otherwise we will reject the call.
+    UserGroupInformation callerUGI = getCallerUserGroupInformation(hsr, true);
+    if (callerUGI != null && !this.rm.getResourceScheduler().checkAccess(
+        callerUGI, QueueACL.ADMINISTER_QUEUE, queue)) {
+      throw new ForbiddenException(
+          "User=" + callerUGI.getUserName() + " doesn't haven access to queue="
+              + queue + " so it cannot check ACLs for other users.");
+    }
+
+    // Create UGI for the to-be-checked user.
+    UserGroupInformation user = UserGroupInformation.createRemoteUser(username);
+    if (user == null) {
+      throw new ForbiddenException(
+          "Failed to retrieve UserGroupInformation for user=" + username);
+    }
+
+    // Check if the specified queue acl is valid.
+    QueueACL queueACL;
+    try {
+      queueACL = QueueACL.valueOf(queueAclType);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("Specified queueAclType=" + queueAclType
+          + " is not a valid type, valid queue acl types={"
+          + "SUBMIT_APPLICATIONS/ADMINISTER_QUEUE}");
+    }
+
+    if (!this.rm.getResourceScheduler().checkAccess(user, queueACL, queue)) {
+      return new RMQueueAclInfo(false, user.getUserName(),
+          "User=" + username + " doesn't have access to queue=" + queue
+              + " with acl-type=" + queueAclType);
+    }
+
+    return new RMQueueAclInfo(true, user.getUserName(), "");
   }
 }
