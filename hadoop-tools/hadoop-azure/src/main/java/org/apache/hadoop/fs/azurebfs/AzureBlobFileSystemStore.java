@@ -114,8 +114,6 @@ public class AzureBlobFileSystemStore {
   private static final String DATE_TIME_PATTERN = "E, dd MMM yyyy HH:mm:ss 'GMT'";
   private static final String XMS_PROPERTIES_ENCODING = "ISO-8859-1";
   private static final int LIST_MAX_RESULTS = 500;
-  private static final int DELETE_DIRECTORY_TIMEOUT_MILISECONDS = 180000;
-  private static final int RENAME_TIMEOUT_MILISECONDS = 180000;
 
   private final AbfsConfiguration abfsConfiguration;
   private final Set<String> azureAtomicRenameDirSet;
@@ -448,17 +446,8 @@ public class AzureBlobFileSystemStore {
             destination);
 
     String continuation = null;
-    long deadline = now() + RENAME_TIMEOUT_MILISECONDS;
 
     do {
-      if (now() > deadline) {
-        LOG.debug("Rename {} to {} timed out.",
-                source,
-                destination);
-
-        throw new TimeoutException("Rename timed out.");
-      }
-
       AbfsRestOperation op = client.renamePath(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(source),
               AbfsHttpConstants.FORWARD_SLASH + getRelativePath(destination), continuation);
       continuation = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_CONTINUATION);
@@ -474,15 +463,8 @@ public class AzureBlobFileSystemStore {
             String.valueOf(recursive));
 
     String continuation = null;
-    long deadline = now() + DELETE_DIRECTORY_TIMEOUT_MILISECONDS;
 
     do {
-      if (now() > deadline) {
-        LOG.debug("Delete directory {} timed out.", path);
-
-        throw new TimeoutException("Delete directory timed out.");
-      }
-
       AbfsRestOperation op = client.deletePath(
           AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), recursive, continuation);
       continuation = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_CONTINUATION);
