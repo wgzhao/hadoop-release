@@ -143,3 +143,6 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
     Sun via wangda)
 
     HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
+
+    HADOOP-16004. ABFS: Convert 404 error response in AbfsInputStream and
+    AbfsOutPutStream to FileNotFoundException.
