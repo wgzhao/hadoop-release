@@ -5130,3 +5130,6 @@ ATS V1.5:
     removeAclEntries.
 
     HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
+
+    HADOOP-16004. ABFS: Convert 404 error response in AbfsInputStream and
+    AbfsOutPutStream to FileNotFoundException.
