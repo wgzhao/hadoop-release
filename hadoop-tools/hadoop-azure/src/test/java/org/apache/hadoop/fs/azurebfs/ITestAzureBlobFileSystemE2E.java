@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.fs.azurebfs;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
@@ -31,9 +32,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertArrayEquals;
+import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_TOLERATE_CONCURRENT_APPEND;
 
 /**
@@ -167,6 +166,52 @@ public class ITestAzureBlobFileSystemE2E extends AbstractAbfsIntegrationTest {
 
     assertArrayEquals(readBuffer, writeBuffer);
     inputStream.close();
+  }
+
+  @Test
+  public void testReadWithFileNotFoundException() throws Exception {
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path testFilePath = new Path(methodName.getMethodName());
+    testWriteOneByteToFile(testFilePath);
+
+    FSDataInputStream inputStream = fs.open(testFilePath, TEST_DEFAULT_BUFFER_SIZE);
+    fs.delete(testFilePath, true);
+    assertFalse(fs.exists(testFilePath));
+
+    intercept(FileNotFoundException.class,
+            () -> inputStream.read(new byte[1]));
+  }
+
+  @Test
+  public void testWriteWithFileNotFoundException() throws Exception {
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path testFilePath = new Path(methodName.getMethodName());
+
+    FSDataOutputStream stream = fs.create(testFilePath);
+    assertTrue(fs.exists(testFilePath));
+    stream.write(TEST_BYTE);
+
+    fs.delete(testFilePath, true);
+    assertFalse(fs.exists(testFilePath));
+
+    // trigger append call
+    intercept(FileNotFoundException.class,
+            () -> stream.close());
+  }
+
+  @Test
+  public void testFlushWithFileNotFoundException() throws Exception {
+    final AzureBlobFileSystem fs = getFileSystem();
+    final Path testFilePath = new Path(methodName.getMethodName());
+
+    FSDataOutputStream stream = fs.create(testFilePath);
+    assertTrue(fs.exists(testFilePath));
+
+    fs.delete(testFilePath, true);
+    assertFalse(fs.exists(testFilePath));
+
+    intercept(FileNotFoundException.class,
+            () -> stream.close());
   }
 
   private void testWriteOneByteToFile(Path testFilePath) throws Exception {
