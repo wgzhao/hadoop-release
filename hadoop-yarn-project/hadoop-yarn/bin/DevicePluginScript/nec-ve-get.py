@@ -115,7 +115,9 @@ if __name__ == '__main__':
     else:
         nodes = find_all_nodes()
 
-    assert(len(nodes) > 0)
+    if len(nodes) <= 0:
+        print('No VE devices found')
+        sys.exit(-1)
     if result.follow:
         VENodeState.monitor([VENodeState(n) for n in nodes])
     else:

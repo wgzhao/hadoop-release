@@ -102,7 +102,7 @@ public class NECVEPlugin implements DevicePlugin, DevicePluginScheduler {
       output = shexec.getOutput();
       parseOutput(r,output);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn(e.toString());
     }
     return r;
   }
