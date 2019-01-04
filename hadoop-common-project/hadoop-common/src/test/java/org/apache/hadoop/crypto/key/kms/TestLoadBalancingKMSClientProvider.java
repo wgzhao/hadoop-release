@@ -18,6 +18,7 @@
 package org.apache.hadoop.crypto.key.kms;
 
 import static org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.EncryptedKeyVersion;
+import static org.apache.hadoop.crypto.key.kms.KMSDelegationToken.TOKEN_KIND;
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -35,6 +36,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,11 +47,15 @@ import org.apache.hadoop.crypto.key.KeyProvider;
 import org.apache.hadoop.crypto.key.KeyProvider.Options;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.net.ConnectTimeoutException;
 import org.apache.hadoop.security.AccessControlException;
+import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.SecurityUtil;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.AuthenticationException;
 import org.apache.hadoop.security.authorize.AuthorizationException;
+import org.apache.hadoop.security.token.Token;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
