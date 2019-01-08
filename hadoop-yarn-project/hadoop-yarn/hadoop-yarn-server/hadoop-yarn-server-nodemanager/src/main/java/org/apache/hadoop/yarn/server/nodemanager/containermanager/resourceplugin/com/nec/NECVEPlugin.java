@@ -73,8 +73,8 @@ public class NECVEPlugin implements DevicePlugin, DevicePluginScheduler {
       binaryFile = new File(dir, binaryName);
       if (binaryFile.exists()) {
         found = true;
-        this.binaryName = binaryFile.getAbsolutePath();
-        LOG.info("Found script:" + this.binaryName);
+        this.binaryPath = binaryFile.getAbsolutePath();
+        LOG.info("Found script:" + this.binaryPath);
         break;
       }
     }
