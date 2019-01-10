@@ -146,3 +146,5 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
 
     HADOOP-16004. ABFS: Convert 404 error response in AbfsInputStream and
     AbfsOutPutStream to FileNotFoundException.
+
+    HADOOP-16036. WASB: Disable jetty logging configuration announcement.
