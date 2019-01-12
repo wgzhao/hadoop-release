@@ -5163,3 +5163,5 @@ ATS V1.5:
 
     HADOOP-15482. Upgrade jackson-databind to version 2.9.5. Contributed by
     Lokesh Jain.
+
+    HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
