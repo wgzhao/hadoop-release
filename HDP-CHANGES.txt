@@ -241,3 +241,5 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
 
     HADOOP-16104. Wasb tests to downgrade to skip when test a/c is namespace
     enabled. Contributed by Masatake Iwasaki.
+
+    HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
