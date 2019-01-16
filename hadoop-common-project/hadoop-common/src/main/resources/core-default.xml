@@ -534,6 +534,7 @@
       oauth.*password
       oauth.*token
       hadoop.security.sensitive-config-keys
+      fs.s3.*[Ss]ecret.?[Kk]ey
   </value>
   <description>A comma-separated or multi-line list of regular expressions to
       match configuration keys that should be redacted where appropriate, for
