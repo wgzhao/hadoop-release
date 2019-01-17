@@ -170,18 +170,6 @@ public class AbfsConfiguration{
       DefaultValue = DEFAULT_USE_UPN)
   private boolean useUpn;
 
-  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_FILE_OWNER_ENABLE_SHORTNAME,
-      DefaultValue = DEFAULT_ENABLE_SHORT_NAME)
-  private boolean enableShortName;
-
-  @StringConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_OVERRIDE_OWNER_SP,
-          DefaultValue = "")
-  private String overrideOwnerSp;
-
-  @StringConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_OVERRIDE_OWNER_SP_LIST,
-          DefaultValue = "")
-  private String overrideOwnerSpList;
-
   private Map<String, String> storageAccountKeys;
 
   public AbfsConfiguration(final Configuration rawConfig, String accountName)
@@ -459,18 +447,6 @@ public class AbfsConfiguration{
 
   public boolean isUpnUsed() {
     return this.useUpn;
-  }
-
-  public boolean enableFileOwnerShortName() {
-    return this.enableShortName;
-  }
-
-  public String getOverrideOwnerSp() {
-    return this.overrideOwnerSp;
-  }
-
-  public String getOverrideOwnerSpList() {
-    return this.overrideOwnerSpList;
   }
 
   public AccessTokenProvider getTokenProvider() throws TokenAccessProviderException {
