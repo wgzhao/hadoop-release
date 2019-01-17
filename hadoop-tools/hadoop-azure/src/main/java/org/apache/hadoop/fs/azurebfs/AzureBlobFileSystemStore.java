@@ -92,8 +92,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.FORWARD_SLASH;
-import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.SUPER_USER;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_OVERRIDE_OWNER_SP;
@@ -122,7 +120,6 @@ public class AzureBlobFileSystemStore {
   private boolean isNamespaceEnabled;
 
   final private boolean isSecure;
-  private AuthType authType;
   private String overrideOwnerSPN;
   private String overrideOwnerSPList;
   private boolean overrideOwner;
@@ -165,7 +162,6 @@ public class AzureBlobFileSystemStore {
 
     boolean useHttps = (usingOauth || abfsConfiguration.isHttpsAlwaysUsed()) ? true : isSecureScheme;
 
-    this.authType = abfsConfiguration.getAuthType(accountName);
     this.isSecure = UserGroupInformation.isSecurityEnabled();
     this.overrideOwnerSPList = abfsConfiguration.getOverrideOwnerSpList();
     this.overrideOwner = StringUtils.isEmpty(overrideOwnerSPList) ? false : true;
@@ -494,8 +490,8 @@ public class AzureBlobFileSystemStore {
 
       String owner = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
       String group = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-      owner = isSuperUserOrEmpty(owner) ? userName : owner;
-      group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
+      owner = owner == null ? userName : owner;
+      group = group == null ? primaryUserGroup : group;
 
       if (shouldReplaceOwnerAndGroup(owner)) {
         owner = userName;
@@ -530,8 +526,8 @@ public class AzureBlobFileSystemStore {
 
       String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
       String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-      owner = isSuperUserOrEmpty(owner) ? userName : owner;
-      group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
+      owner = owner == null ? userName : owner;
+      group = group == null ? primaryUserGroup : group;
 
       if (shouldReplaceOwnerAndGroup(owner)) {
         owner = userName;
@@ -579,8 +575,8 @@ public class AzureBlobFileSystemStore {
       long blockSize = abfsConfiguration.getAzureBlockSize();
 
       for (ListResultEntrySchema entry : retrievedSchema.paths()) {
-        String owner = isSuperUserOrEmpty(entry.owner()) ? userName : entry.owner();
-        String group = isSuperUserOrEmpty(entry.group()) ? primaryUserGroup : entry.group();
+        String owner = entry.owner() == null ? userName : entry.owner();
+        String group = entry.group() == null ? primaryUserGroup : entry.group();
 
         if (overrideOwner) {
           if (shouldReplaceOwnerAndGroup(owner)) {
@@ -636,18 +632,9 @@ public class AzureBlobFileSystemStore {
           "This operation is only valid for storage accounts with the hierarchical namespace enabled.");
     }
 
-    String effectiveOwner = owner;
-    String effectiveGroupName = group;
-
-    if (AuthType.SharedKey == authType && owner.equals(userName)) {
-      effectiveOwner = SUPER_USER;
-      effectiveGroupName = SUPER_USER;
-    } else {
-      //Check if owner is a daemon user/group. If it is daemon user then use the service principal UPN.
-      effectiveOwner = shouldUseDaemonUserOrGroup(owner) ? overrideOwnerSPN : owner;
-      effectiveGroupName = shouldUseDaemonUserOrGroup(group) ? overrideOwnerSPN : group;
-    }
-
+    //Check if owner is a daemon user/group. If it is daemon user then use the service principal UPN.
+    String effectiveOwner = shouldUseDaemonUserOrGroup(owner) ? overrideOwnerSPN : owner;
+    String effectiveGroupName = shouldUseDaemonUserOrGroup(group) ? overrideOwnerSPN : group;
     LOG.debug(
             "setOwner filesystem: {} path: {} owner: {} group: {}",
             client.getFileSystem(),
@@ -820,9 +807,8 @@ public class AzureBlobFileSystemStore {
 
     String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
     String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-    owner = isSuperUserOrEmpty(owner) ? userName : owner;
-    group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
-
+    owner = owner == null ? userName : owner;
+    group = group == null ? primaryUserGroup : group;
     if (shouldReplaceOwnerAndGroup(owner)) {
       owner = userName;
       group = primaryUserGroup;
@@ -1106,7 +1092,7 @@ public class AzureBlobFileSystemStore {
   }
 
   private boolean shouldReplaceOwnerAndGroup(String owner) {
-    return owner != null && overrideOwner && (overrideOwnerSPList.contains("*") || (overrideOwnerSPList.contains(userName) && owner.equals(overrideOwnerSPN)));
+    return  overrideOwner && (overrideOwnerSPList.contains("*") || (overrideOwnerSPList.contains(userName) && owner.equals(overrideOwnerSPN)));
   }
 
   private boolean shouldUseDaemonUserOrGroup(String name) {
@@ -1143,9 +1129,7 @@ public class AzureBlobFileSystemStore {
       String name = aclEntry.getName();
       //intercept only if it is daemon user or short name of the user.
       if (name != null && !name.isEmpty() && !aclEntry.getType().equals(AclEntryType.OTHER) && !aclEntry.getType().equals(AclEntryType.MASK)) {
-        if (AuthType.SharedKey == authType && name.equals(userName)) {
-          name = SUPER_USER;
-        } else if (shouldUseDaemonUserOrGroup(name)) {
+        if (shouldUseDaemonUserOrGroup(name)) {
           name = overrideOwnerSPN;
         }
       }
@@ -1158,10 +1142,6 @@ public class AzureBlobFileSystemStore {
       aclEntries.add(aclEntryBuilder.build());
     }
     return aclEntries;
-  }
-
-  private boolean isSuperUserOrEmpty(final String name) {
-    return name == null || name.equals(SUPER_USER);
   }
 
   @VisibleForTesting
