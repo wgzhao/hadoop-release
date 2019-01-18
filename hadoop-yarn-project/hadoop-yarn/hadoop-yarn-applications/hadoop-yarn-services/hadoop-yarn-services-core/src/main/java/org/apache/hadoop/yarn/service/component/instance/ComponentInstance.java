@@ -346,8 +346,10 @@ public class ComponentInstance implements EventHandler<ComponentInstanceEvent>,
         // record in ATS
         LOG.info("Publishing component instance status {} {} ",
             event.getContainerId(), containerState);
+        int exitStatus = failureBeforeLaunch || event.getStatus() == null ?
+            ContainerExitStatus.INVALID : event.getStatus().getExitStatus();
         compInstance.serviceTimelinePublisher.componentInstanceFinished(
-            event.getContainerId(), event.getStatus().getExitStatus(),
+            event.getContainerId(), exitStatus,
             containerState, containerDiag);
       }
 
@@ -362,8 +364,10 @@ public class ComponentInstance implements EventHandler<ComponentInstanceEvent>,
 
       if (compInstance.timelineServiceEnabled) {
         // record in ATS
+        int exitStatus = failureBeforeLaunch || event.getStatus() == null ?
+            ContainerExitStatus.INVALID : event.getStatus().getExitStatus();
         compInstance.serviceTimelinePublisher.componentInstanceFinished(
-            event.getContainerId(), event.getStatus().getExitStatus(),
+            event.getContainerId(), exitStatus,
             containerState, containerDiag);
       }
 
