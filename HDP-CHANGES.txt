@@ -247,3 +247,8 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs
     url has special characters in hdfs file path. Contributed by Srinivasu
     Majeti.
+
+    BUG-120576. YARN-9205. When using custom resource type, application will
+    fail to run due to the CapacityScheduler throws
+    InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by
+    Zhankun Tang.
