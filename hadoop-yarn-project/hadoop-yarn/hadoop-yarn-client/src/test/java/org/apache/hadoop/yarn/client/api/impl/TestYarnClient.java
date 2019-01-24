@@ -570,6 +570,43 @@ public class TestYarnClient {
   }
 
   @Test(timeout = 10000)
+  public void testGetContainersOnAHSFail() throws YarnException, IOException {
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.APPLICATION_HISTORY_ENABLED,
+        true);
+
+    final YarnClient client = new MockYarnClient() {
+      @Override
+      public List<ContainerReport> getContainers(
+          ApplicationAttemptId appAttemptId) throws YarnException,
+          IOException  {
+        return getContainersOnAHSFail(appAttemptId);
+      }
+    };
+
+    client.init(conf);
+    client.start();
+
+    ApplicationId applicationId = ApplicationId.newInstance(1234, 5);
+    ApplicationAttemptId appAttemptId = ApplicationAttemptId.newInstance(
+        applicationId, 1);
+    List<ContainerReport> reports = client.getContainers(appAttemptId);
+    Assert.assertNotNull(reports);
+    Assert.assertTrue(reports.size() == 2);
+    Assert.assertEquals(reports.get(0).getContainerId(),
+        (ContainerId.newContainerId(appAttemptId, 1)));
+    Assert.assertEquals(reports.get(1).getContainerId(),
+        (ContainerId.newContainerId(appAttemptId, 2)));
+
+    //Only 2 running containers from RM are present when AHS throws exception
+    Assert.assertEquals(ContainerState.RUNNING,
+        (reports.get(0).getContainerState()));
+    Assert.assertEquals(ContainerState.RUNNING,
+        (reports.get(1).getContainerState()));
+    client.stop();
+  }
+
+  @Test(timeout = 10000)
   public void testGetContainerReport() throws YarnException, IOException {
     Configuration conf = new Configuration();
     conf.setBoolean(YarnConfiguration.APPLICATION_HISTORY_ENABLED,
@@ -961,6 +998,18 @@ public class TestYarnClient {
         getContainersReport(appAttemptId));
       when(historyClient.getContainers(any(ApplicationAttemptId.class)))
       .thenReturn(getContainersFromAHS(appAttemptId));
+      return super.getContainers(appAttemptId);
+    }
+
+    protected List<ContainerReport>
+        getContainersOnAHSFail(ApplicationAttemptId appAttemptId)
+          throws YarnException, IOException {
+      when(mockContainersResponse.getContainerList()).thenReturn(
+          getContainersReport(appAttemptId));
+      when(historyClient.getContainers(any(ApplicationAttemptId.class)))
+          .thenThrow(new ApplicationNotFoundException(
+              appAttemptId.getApplicationId() +
+                  " does not exist in the timeline store"));
       return super.getContainers(appAttemptId);
     }
 
