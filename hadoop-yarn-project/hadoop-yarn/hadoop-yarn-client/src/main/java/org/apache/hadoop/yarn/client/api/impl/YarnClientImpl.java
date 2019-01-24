@@ -813,7 +813,7 @@ public class YarnClientImpl extends YarnClient {
       try {
         containersListFromAHS =
             historyClient.getContainers(applicationAttemptId);
-      } catch (IOException e) {
+      } catch (IOException | YarnException e) {
         // History service access might be enabled but system metrics publisher
         // is disabled hence app not found exception is possible
         if (appNotFoundInRM) {
