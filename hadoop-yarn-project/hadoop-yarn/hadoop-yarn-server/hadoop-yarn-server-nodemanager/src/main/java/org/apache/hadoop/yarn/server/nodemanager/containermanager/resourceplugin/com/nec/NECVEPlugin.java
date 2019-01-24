@@ -120,6 +120,7 @@ public class NECVEPlugin implements DevicePlugin, DevicePluginScheduler {
     LOG.info("Parsing output: {}", output);
     String[] lines = output.split("\n");
     for (String line : lines) {
+      Device device = null;
       Device.Builder builder = Device.Builder.newInstance();
       String[] keyvalues = line.trim().split(",");
       for (String keyvalue : keyvalues) {
@@ -151,7 +152,10 @@ public class NECVEPlugin implements DevicePlugin, DevicePluginScheduler {
           builder.setMinorNumber(Integer.valueOf(tokens[1]));
         }
       }// for key value pars
-      r.add(builder.build());
+      device = builder.build();
+      if (device.isHealthy()) {
+        r.add(device);
+      }
     }
   }
 
