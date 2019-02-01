@@ -186,15 +186,6 @@ public final class AbfsAclHelper {
     }
   }
 
-  public static boolean isUpnFormatAclEntries(Map<String, String> aclEntries) {
-    for (Map.Entry<String, String> entry : aclEntries.entrySet()) {
-      if (entry.getKey().contains(AbfsHttpConstants.AT)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static boolean removeNamedAceAndUpdateSet(String entry, boolean isDefaultAcl, Set<String> removeIndicationSet,
                                                     Map<String, String> aclEntries)
       throws AzureBlobFileSystemException {
