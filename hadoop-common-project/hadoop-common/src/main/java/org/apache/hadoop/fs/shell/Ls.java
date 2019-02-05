@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 
@@ -32,6 +33,7 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.BlockStoragePolicySpi;
 
 /**
  * Get a listing of all files in that match the file patterns.
@@ -54,13 +56,15 @@ class Ls extends FsCommand {
   private static final String OPTION_MTIME = "t";
   private static final String OPTION_ATIME = "u";
   private static final String OPTION_SIZE = "S";
+  private static final String OPTION_SPOLICY = "sp";
 
   public static final String NAME = "ls";
   public static final String USAGE = "[-" + OPTION_PATHONLY + "] [-" +
       OPTION_DIRECTORY + "] [-" + OPTION_HUMAN + "] [-" +
       OPTION_HIDENONPRINTABLE + "] [-" + OPTION_RECURSIVE + "] [-" +
       OPTION_MTIME + "] [-" + OPTION_SIZE + "] [-" + OPTION_REVERSE + "] [-" +
-      OPTION_ATIME + "] [<path> ...]";
+      OPTION_ATIME + "] [-" + OPTION_SPOLICY
+      + "] [<path> ...]";
 
   public static final String DESCRIPTION =
       "List the contents that match the specified file pattern. If " +
@@ -91,7 +95,9 @@ class Ls extends FsCommand {
           "  Reverse the order of the sort.\n" +
           "  -" + OPTION_ATIME +
           "  Use time of last access instead of modification for\n" +
-          "      display and sorting.";
+          "      display and sorting.\n"+
+          "  -" + OPTION_SPOLICY +
+          "  Display the storage policy of files and directories.\n";
 
   protected final SimpleDateFormat dateFormat =
     new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -104,6 +110,7 @@ class Ls extends FsCommand {
   private boolean orderTime;
   private boolean orderSize;
   private boolean useAtime;
+  private boolean displaySPolicy;
   private Comparator<PathData> orderComparator;
 
   protected boolean humanReadable = false;
@@ -129,7 +136,8 @@ class Ls extends FsCommand {
     CommandFormat cf = new CommandFormat(0, Integer.MAX_VALUE,
         OPTION_PATHONLY, OPTION_DIRECTORY, OPTION_HUMAN,
         OPTION_HIDENONPRINTABLE, OPTION_RECURSIVE, OPTION_REVERSE,
-        OPTION_MTIME, OPTION_SIZE, OPTION_ATIME);
+        OPTION_MTIME, OPTION_SIZE, OPTION_ATIME,
+        OPTION_SPOLICY);
     cf.parse(args);
     pathOnly = cf.getOpt(OPTION_PATHONLY);
     dirRecurse = !cf.getOpt(OPTION_DIRECTORY);
@@ -140,6 +148,7 @@ class Ls extends FsCommand {
     orderTime = cf.getOpt(OPTION_MTIME);
     orderSize = !orderTime && cf.getOpt(OPTION_SIZE);
     useAtime = cf.getOpt(OPTION_ATIME);
+    displaySPolicy = cf.getOpt(OPTION_SPOLICY);
     if (args.isEmpty()) args.add(Path.CUR_DIR);
 
     initialiseOrderComparator();
@@ -213,6 +222,16 @@ class Ls extends FsCommand {
     return this.useAtime;
   }
 
+  /**
+   * Should storage policies be displayed.
+   * @return true display storage policies, false doesn't display storage
+   *         policies
+   */
+  @VisibleForTesting
+  boolean isDisplaySPolicy() {
+    return this.displaySPolicy;
+  }
+
   @Override
   protected void processPathArgument(PathData item) throws IOException {
     // implicitly recurse once for cmdline directories
@@ -251,6 +270,7 @@ class Ls extends FsCommand {
         (stat.isFile() ? stat.getReplication() : "-"),
         stat.getOwner(),
         stat.getGroup(),
+        displaySPolicy ? item.fs.getStoragePolicy(item.path).getName() : "",
         formatSize(stat.getLen()),
         dateFormat.format(new Date(isUseAtime()
             ? stat.getAccessTime()
@@ -263,7 +283,7 @@ class Ls extends FsCommand {
    * Compute column widths and rebuild the format string
    * @param items to find the max field width for each column
    */
-  private void adjustColumnWidths(PathData items[]) {
+  private void adjustColumnWidths(PathData items[]) throws IOException {
     for (PathData item : items) {
       FileStatus stat = item.stat;
       maxRepl  = maxLength(maxRepl, stat.getReplication());
@@ -280,6 +300,15 @@ class Ls extends FsCommand {
     // http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html#intFlags
     fmt.append((maxOwner > 0) ? "%-" + maxOwner + "s " : "%s");
     fmt.append((maxGroup > 0) ? "%-" + maxGroup + "s " : "%s");
+    int maxSpolicy = 0;
+    if (displaySPolicy) {
+      if (items.length != 0) {
+        for (BlockStoragePolicySpi s : items[0].fs.getAllStoragePolicies()) {
+          maxSpolicy = maxLength(maxSpolicy, s.getName());
+        }
+      }
+    }
+    fmt.append((maxSpolicy > 0) ? "%-" + maxSpolicy + "s " : "%s");
     fmt.append("%"  + maxLen   + "s ");
     fmt.append("%s %s"); // mod time & path
     lineFormat = fmt.toString();

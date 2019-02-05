@@ -84,6 +84,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -C option is recognised
@@ -101,6 +102,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -d option is recognised
@@ -118,6 +120,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -h option is recognised
@@ -135,6 +138,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -R option is recognised
@@ -152,6 +156,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -r option is recognised
@@ -169,6 +174,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -S option is recognised
@@ -186,6 +192,7 @@ public class TestLs {
     assertTrue(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the -t option is recognised
@@ -203,6 +210,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertTrue(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the precedence of the -t and -S options
@@ -221,6 +229,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertTrue(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // check the precedence of the -t, -S and -r options
@@ -240,6 +249,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertTrue(ls.isOrderTime());
     assertFalse(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
   }
 
   // chheck the -u option is recognised
@@ -257,6 +267,25 @@ public class TestLs {
     assertFalse(ls.isOrderSize());
     assertFalse(ls.isOrderTime());
     assertTrue(ls.isUseAtime());
+    assertFalse(ls.isDisplaySPolicy());
+  }
+
+  // check the -sp option is recognised
+  @Test
+  public void processOptionsDisplaySPolicy() throws IOException {
+    LinkedList<String> options = new LinkedList<String>();
+    options.add("-sp");
+    Ls ls = new Ls();
+    ls.processOptions(options);
+    assertFalse(ls.isPathOnly());
+    assertTrue(ls.isDirRecurse());
+    assertFalse(ls.isHumanReadable());
+    assertFalse(ls.isRecursive());
+    assertFalse(ls.isOrderReverse());
+    assertFalse(ls.isOrderSize());
+    assertFalse(ls.isOrderTime());
+    assertFalse(ls.isUseAtime());
+    assertTrue(ls.isDisplaySPolicy());
   }
 
   // check all options is handled correctly
@@ -271,6 +300,7 @@ public class TestLs {
     options.add("-t"); // time order
     options.add("-S"); // size order
     options.add("-u"); // show atime
+    options.add("-sp"); // show storage policies
     Ls ls = new Ls();
     ls.processOptions(options);
     assertTrue(ls.isPathOnly());
@@ -281,6 +311,7 @@ public class TestLs {
     assertFalse(ls.isOrderSize()); // -t overrules -S
     assertTrue(ls.isOrderTime());
     assertTrue(ls.isUseAtime());
+    assertTrue(ls.isDisplaySPolicy());
   }
 
   // check listing of a single file
