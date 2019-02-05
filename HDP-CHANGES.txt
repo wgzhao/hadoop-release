@@ -101,3 +101,4 @@ Remove super user privilege requirement for NameNode.getServiceStatus. Contribut
 
     BUG-119554. HDFS-14112. Avoid recursive call to external authorizer for
     getContentSummary.
+BUG-123779. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
