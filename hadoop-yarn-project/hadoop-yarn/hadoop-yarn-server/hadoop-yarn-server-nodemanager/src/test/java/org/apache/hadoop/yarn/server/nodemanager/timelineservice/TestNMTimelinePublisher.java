@@ -57,6 +57,8 @@ public class TestNMTimelinePublisher {
     Configuration conf = new Configuration();
     conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
     conf.setFloat(YarnConfiguration.TIMELINE_SERVICE_VERSION, 2.0f);
+    conf.setBoolean(YarnConfiguration.NM_PUBLISH_CONTAINER_EVENTS_ENABLED,
+            true);
 
     NMTimelinePublisher publisher = new NMTimelinePublisher(context) {
       public void createTimelineClient(ApplicationId appId) {
