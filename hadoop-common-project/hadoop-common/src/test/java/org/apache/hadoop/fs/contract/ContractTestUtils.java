@@ -371,6 +371,21 @@ public class ContractTestUtils extends Assert {
   }
 
   /**
+   * Rename operation. Safety check for attempts to rename the root directory.
+   * Verifies that src no longer exists after rename.
+   * @param fileSystem filesystem to work with
+   * @param src source path
+   * @param dst destination path
+   * @throws IOException If rename fails or src is the root directory.
+   */
+  public static void rename(FileSystem fileSystem, Path src, Path dst)
+      throws IOException {
+    rejectRootOperation(src, false);
+    assertTrue(fileSystem.rename(src, dst));
+    assertPathDoesNotExist(fileSystem, "renamed", src);
+  }
+
+  /**
    * Block any operation on the root path. This is a safety check
    * @param path path in the filesystem
    * @param allowRootOperation can the root directory be manipulated?
@@ -800,6 +815,18 @@ public class ContractTestUtils extends Assert {
     assertTrue("Path " + subdir
                       + " not found in directory " + dir + ":" + builder,
                       found);
+  }
+
+  /**
+   * Execute {@link FileSystem#mkdirs(Path)}; expect {@code true} back.
+   * (Note: does not work for localFS if the directory already exists)
+   * Does not perform any validation of the created directory.
+   * @param fs filesystem
+   * @param dir directory to create
+   * @throws IOException IO Problem
+   */
+  public static void assertMkdirs(FileSystem fs, Path dir) throws IOException {
+    assertTrue("mkdirs(" + dir + ") returned false", fs.mkdirs(dir));
   }
 
   /**
