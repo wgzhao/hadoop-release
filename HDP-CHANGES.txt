@@ -269,3 +269,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 HOTFIX-2917 YARN-10055. bower install fails. (#1778)
 BUG-124258. YARN-7088. Add application launch time to Resource Manager REST API. (Kanwaljeet Sachdev via Haibo Chen)
+BUG-124258. YARN-7171: RM UI should sort memory / cores numerically. Contributed by Ahmed Hussein
