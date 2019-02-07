@@ -273,3 +273,4 @@ YARN-9903: Support reservations continue looking for Node Labels. Contributed by
 HDFS-15446. CreateSnapshotOp fails during edit log loading for /.reserved/raw/path with error java.io.FileNotFoundException: Directory does not exist: /.reserved/raw/path. Contributed by Stephen O'Donnell.
 BUG-124415. YARN-7088. Add application launch time to Resource Manager REST API. (Kanwaljeet Sachdev via Haibo Chen)
 BUG-124415. YARN-8751. Reduce conditions that mark node manager as unhealthy.            Contributed by Craig Condit
+BUG-124415. YARN-7171: RM UI should sort memory / cores numerically. Contributed by Ahmed Hussein
