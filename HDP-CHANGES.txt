@@ -272,3 +272,4 @@ BUG-124830. HDFS-14373. EC : Decoding is failing when block group last incomplet
 MAPREDUCE-7298. Distcp doesn't close the job after the job is completed. Contributed by Aasha Medhi.
 HDFS-13926. ThreadLocal aggregations for FileSystem.Statistics are incorrect with striped reads. Contributed by Xiao Chen, Hrishikesh Gadre.
 HDFS-14218. EC: Ls -e throw NPE when directory ec policy is disabled. Contributed by Ayush Saxena.
+HDFS-14274. EC: NPE While Listing EC Policy For A Directory Following Replication Policy. Contributed by Ayush Saxena.
