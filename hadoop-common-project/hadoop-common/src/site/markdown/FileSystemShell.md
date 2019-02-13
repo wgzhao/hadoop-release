@@ -413,7 +413,7 @@ Return usage output.
 ls
 ----
 
-Usage: `hadoop fs -ls [-d] [-h] [-R]] [-sp] <args> `
+Usage: `hadoop fs -ls [-d] [-h] [-R] <args> `
 
 Options:
 
@@ -422,9 +422,6 @@ Options:
 * -h: Format file sizes in a human-readable fashion (eg 64.0m instead of 67108864).
 * -q: Print ? instead of non-printable characters.
 * -R: Recursively list subdirectories encountered.
-* -sp: Display the storage policy of files and directories.
-
-For a file/directory with no explicitly set storage policy the ls command with -sp returns the default storage policy.
 
 For a file ls returns stat on the file with the following format:
 
