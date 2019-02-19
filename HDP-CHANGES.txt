@@ -274,3 +274,4 @@ HDFS-15446. CreateSnapshotOp fails during edit log loading for /.reserved/raw/pa
 BUG-124415. YARN-7088. Add application launch time to Resource Manager REST API. (Kanwaljeet Sachdev via Haibo Chen)
 BUG-124415. YARN-8751. Reduce conditions that mark node manager as unhealthy.            Contributed by Craig Condit
 BUG-124415. YARN-7171: RM UI should sort memory / cores numerically. Contributed by Ahmed Hussein
+BUG-124415. YARN-9286. [Timeline Server] Sorting based on FinalStatus shows pop-up message. Contributed by Bilwa S T.
