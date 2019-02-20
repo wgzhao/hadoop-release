@@ -240,3 +240,6 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     HADOOP-16157. [Clean-up] Remove NULL check before instanceof in
     AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
     Templeton)
+
+    HADOOP-16104. Wasb tests to downgrade to skip when test a/c is namespace
+    enabled. Contributed by Masatake Iwasaki.
