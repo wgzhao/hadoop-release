@@ -4716,3 +4716,6 @@ ATS V1.5:
 
     HADOOP-13068. Clean up RunJar and related test class. (Contributed by Andras
     Bokor)
+
+    HADOOP-16126. ipc.Client.stop() may sleep too long to wait for all
+    connections.
