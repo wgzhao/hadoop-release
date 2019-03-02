@@ -50,13 +50,45 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
       <id>apache.website</id>
       <url>scpexe://people.apache.org/www/hadoop.apache.org/docs/r${project.version}</url>
     </site>
-  </distributionManagement>
+   </distributionManagement>
 
-  <repositories>
-    <repository>
+   <repositories>
+     <repository>
       <id>${distMgmtSnapshotsId}</id>
       <name>${distMgmtSnapshotsName}</name>
       <url>${distMgmtSnapshotsUrl}</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      <id>HDPReleases</id>
+      <name>HDP Releases</name>
+      <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <id>public.repo.hortonworks.com</id>
+      <name>Public Hortonworks Maven Repo</name>
+      <url>http://repo.hortonworks.com/content/groups/public/</url>
+      <snapshots>
+         <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>repository.hortonworks.jetty</id>
+      <url>http://repo.hortonworks.com/content/repositories/jetty-hadoop/</url>
+    </repository>
+    <repository>
+      <id>repository.hortonworks.re</id>
+      <url>http://repo.hortonworks.com/content/repositories/re-hosted/</url>
     </repository>
     <repository>
       <id>repository.jboss.org</id>
@@ -139,7 +171,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
                 <version>[3.0.2,)</version>
               </requireMavenVersion>
               <requireJavaVersion>
-                <version>[1.7,)</version>
+                <version>[1.8,)</version>
               </requireJavaVersion>
             </rules>
           </configuration>
