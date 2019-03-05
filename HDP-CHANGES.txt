@@ -221,3 +221,5 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
 
     HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in
     AzureBlobFileSystemStore
+
+    HADOOP-16136. ABFS: Should only transform username to short name
