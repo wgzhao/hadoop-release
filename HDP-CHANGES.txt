@@ -227,3 +227,5 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
 
     HADOOP-15813. Enable more reliable SSL connection reuse. Contributed by
     Daryn Sharp.
+
+    HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
