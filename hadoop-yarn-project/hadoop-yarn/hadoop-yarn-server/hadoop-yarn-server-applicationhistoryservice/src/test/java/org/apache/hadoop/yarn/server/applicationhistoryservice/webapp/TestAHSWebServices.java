@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Collections;
 import java.util.Properties;
 
 import javax.servlet.FilterConfig;
@@ -35,6 +36,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
+import javax.xml.bind.JAXBContext;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -957,4 +960,14 @@ public class TestAHSWebServices extends JerseyTestBase {
     }
     return redirectUrl;
   }
+
+  @Test
+  public void testContextFactory() throws Exception {
+    JAXBContext jaxbContext1 = ContextFactory.createContext(
+        new Class[]{}, Collections.EMPTY_MAP);
+    JAXBContext jaxbContext2 = ContextFactory.createContext(
+        new Class[]{}, Collections.EMPTY_MAP);
+    assertEquals(jaxbContext1, jaxbContext2);
+  }
+
 }
