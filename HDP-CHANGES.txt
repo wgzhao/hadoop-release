@@ -5149,3 +5149,5 @@ ATS V1.5:
     Daryn Sharp.
 
     HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
+
+    HADOOP-16169. ABFS: Bug fix for getPathProperties.
