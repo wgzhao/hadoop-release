@@ -231,3 +231,5 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     Daryn Sharp.
 
     HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
+
+    HADOOP-16169. ABFS: Bug fix for getPathProperties.
