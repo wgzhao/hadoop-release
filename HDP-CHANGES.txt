@@ -234,3 +234,7 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
 
     HADOOP-16068. ABFS Authentication and Delegation Token plugins to optionally
     be bound to specific URI of the store.
+
+    HADOOP-16157. [Clean-up] Remove NULL check before instanceof in
+    AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
+    Templeton)
