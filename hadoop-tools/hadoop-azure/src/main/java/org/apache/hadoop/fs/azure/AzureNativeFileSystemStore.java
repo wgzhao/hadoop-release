@@ -1761,7 +1761,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       throw new AzureException(e);
     } catch (IOException e) {
       Throwable t = e.getCause();
-      if (t != null && t instanceof StorageException) {
+      if (t instanceof StorageException) {
         StorageException se = (StorageException) t;
         // If we got this exception, the blob should have already been created
         if (!"LeaseIdMissing".equals(se.getErrorCode())) {
@@ -2637,7 +2637,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       return delete(key, null);
     } catch (IOException e) {
       Throwable t = e.getCause();
-      if (t != null && t instanceof StorageException) {
+      if (t instanceof StorageException) {
         StorageException se = (StorageException) t;
         if ("LeaseIdMissing".equals(se.getErrorCode())){
           SelfRenewingLease lease = null;
