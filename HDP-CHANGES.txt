@@ -5151,3 +5151,7 @@ ATS V1.5:
     HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
 
     HADOOP-16169. ABFS: Bug fix for getPathProperties.
+
+    HADOOP-16157. [Clean-up] Remove NULL check before instanceof in
+    AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
+    Templeton)
