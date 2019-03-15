@@ -219,3 +219,4 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
     NullPointerException. Contributed by Tarun Parimi
 HOTFIX-3110 YARN-10055. bower install fails. (#1778)
 BUG-123524. HDFS-14171. Performance improvement in Tailing EditLog. Contributed by Kenneth Yang.
+BUG-123524. HDFS-14366. Improve HDFS append performance. Contributed by Chao Sun.
