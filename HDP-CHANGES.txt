@@ -245,3 +245,6 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     BUG-122030. HDFS-14171. Performance improvement in Tailing EditLog.
     Contributed by Kenneth Yang.
+
+    BUG-122030. HDFS-14366. Improve HDFS append performance. Contributed by Chao
+    Sun.
