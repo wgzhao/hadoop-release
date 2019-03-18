@@ -221,3 +221,6 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
 
     HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in
     AzureBlobFileSystemStore
+
+    HADOOP-16182. Update abfs storage back-end with "close" flag when
+    application is done writing to a file.
