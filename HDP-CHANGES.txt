@@ -223,3 +223,6 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     AzureBlobFileSystemStore
 
     HADOOP-16136. ABFS: Should only transform username to short name
+
+    HADOOP-16182. Update abfs storage back-end with "close" flag when
+    application is done writing to a file.
