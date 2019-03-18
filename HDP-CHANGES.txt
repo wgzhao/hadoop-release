@@ -5141,3 +5141,6 @@ ATS V1.5:
 
     HADOOP-15466. Correct units in adl.http.timeout. Contributed by Sean
     Mackrory,
+
+    HADOOP-16182. Update abfs storage back-end with "close" flag when
+    application is done writing to a file.
