@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +46,6 @@ import java.util.Set;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -64,11 +62,11 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAbfsRestOperati
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPropertyException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
-import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.IdentityTransformer;
 import org.apache.hadoop.fs.azurebfs.services.AbfsAclHelper;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
@@ -82,7 +80,6 @@ import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
 import org.apache.hadoop.fs.azurebfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.AclEntry;
-import org.apache.hadoop.fs.permission.AclEntryType;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
@@ -91,13 +88,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.FORWARD_SLASH;
-import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.SUPER_USER;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
-import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME;
-import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_OVERRIDE_OWNER_SP;
-import static org.apache.hadoop.util.Time.now;
-
 /**
  * Provides the bridging logic between Hadoop's abstract filesystem and Azure Storage.
  */
@@ -108,7 +99,6 @@ public class AzureBlobFileSystemStore {
 
   private AbfsClient client;
   private URI uri;
-  private final UserGroupInformation userGroupInformation;
   private String userName;
   private String primaryUserGroup;
   private static final String DATE_TIME_PATTERN = "E, dd MMM yyyy HH:mm:ss 'GMT'";
@@ -119,18 +109,13 @@ public class AzureBlobFileSystemStore {
   private final Set<String> azureAtomicRenameDirSet;
   private boolean isNamespaceEnabledSet;
   private boolean isNamespaceEnabled;
+  private final AuthType authType;
+  private final UserGroupInformation userGroupInformation;
+  private final IdentityTransformer identityTransformer;
 
-  final private boolean isSecure;
-  private AuthType authType;
-  private String overrideOwnerSPN;
-  private String overrideOwnerSPList;
-  private boolean overrideOwner;
-  private boolean enableFileOwnerShortName;
-
-  public AzureBlobFileSystemStore(URI uri, boolean isSecureScheme, Configuration configuration, UserGroupInformation userGroupInformation)
-          throws AzureBlobFileSystemException, IOException {
+  public AzureBlobFileSystemStore(URI uri, boolean isSecureScheme, Configuration configuration)
+          throws IOException {
     this.uri = uri;
-
     String[] authorityParts = authorityParts(uri);
     final String fileSystemName = authorityParts[0];
     final String accountName = authorityParts[1];
@@ -140,10 +125,8 @@ public class AzureBlobFileSystemStore {
     } catch (IllegalAccessException exception) {
       throw new FileSystemOperationUnhandledException(exception);
     }
-
-    this.userGroupInformation = userGroupInformation;
+    this.userGroupInformation = UserGroupInformation.getCurrentUser();
     this.userName = userGroupInformation.getShortUserName();
-
     if (!abfsConfiguration.getSkipUserGroupMetadataDuringInitialization()) {
       try {
         this.primaryUserGroup = userGroupInformation.getPrimaryGroupName();
@@ -158,27 +141,25 @@ public class AzureBlobFileSystemStore {
 
     this.azureAtomicRenameDirSet = new HashSet<>(Arrays.asList(
         abfsConfiguration.getAzureAtomicRenameDirs().split(AbfsHttpConstants.COMMA)));
-
-    boolean usingOauth = (AuthType.OAuth == abfsConfiguration.getEnum(
-            FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME, AuthType.SharedKey));
-
-    boolean useHttps = (usingOauth || abfsConfiguration.isHttpsAlwaysUsed()) ? true : isSecureScheme;
-
     this.authType = abfsConfiguration.getAuthType(accountName);
-    this.isSecure = UserGroupInformation.isSecurityEnabled();
-    this.overrideOwnerSPList = abfsConfiguration.getOverrideOwnerSpList();
-    this.overrideOwner = StringUtils.isEmpty(overrideOwnerSPList) ? false : true;
-    this.enableFileOwnerShortName = abfsConfiguration.enableFileOwnerShortName();
-
-    if (overrideOwner || enableFileOwnerShortName) {
-      this.overrideOwnerSPN = abfsConfiguration.getOverrideOwnerSp();
-      if (StringUtils.isEmpty(overrideOwnerSPN)) {
-        throw new IllegalArgumentException(
-                "No value for " + FS_AZURE_OVERRIDE_OWNER_SP + " found in conf file.");
-      }
-    }
-
+    boolean usingOauth = (authType == AuthType.OAuth);
+    boolean useHttps = (usingOauth || abfsConfiguration.isHttpsAlwaysUsed()) ? true : isSecureScheme;
     initializeClient(uri, fileSystemName, accountName, useHttps);
+    this.identityTransformer = new IdentityTransformer(abfsConfiguration.getRawConfiguration());
+  }
+
+  /**
+   * @return local user name.
+   * */
+  public String getUser() {
+    return this.userName;
+  }
+
+  /**
+  * @return primary group that user belongs to.
+  * */
+  public String getPrimaryGroup() {
+    return this.primaryUserGroup;
   }
 
   private String[] authorityParts(URI uri) throws InvalidUriAuthorityException, InvalidUriException {
@@ -480,80 +461,54 @@ public class AzureBlobFileSystemStore {
             path,
             isNamespaceEnabled);
 
+    final AbfsRestOperation op;
     if (path.isRoot()) {
-      final AbfsRestOperation op = isNamespaceEnabled
-          ? client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + AbfsHttpConstants.ROOT_PATH)
-          : client.getFilesystemProperties();
-
-      final long blockSize = abfsConfiguration.getAzureBlockSize();
-      final String permissions = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS);
-      final String eTag = op.getResult().getResponseHeader(HttpHeaderConfigurations.ETAG);
-      final String lastModified = op.getResult().getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
-      final boolean hasAcl = AbfsPermission.isExtendedAcl(permissions);
-
-      String owner = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
-      String group = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-      owner = isSuperUserOrEmpty(owner) ? userName : owner;
-      group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
-
-      if (shouldReplaceOwnerAndGroup(owner)) {
-        owner = userName;
-        group = primaryUserGroup;
-      } else if (shouldUseShortUserName(owner)) {
-        owner = getShortName(owner);
-      }
-
-      return new VersionedFileStatus(
-              owner,
-              group,
-              permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL)
-                      : AbfsPermission.valueOf(permissions),
-              hasAcl,
-              0,
-              true,
-              1,
-              blockSize,
-              parseLastModifiedTime(lastModified),
-              path,
-              eTag);
+      op = isNamespaceEnabled
+              ? client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + AbfsHttpConstants.ROOT_PATH)
+              : client.getFilesystemProperties();
     } else {
-      AbfsRestOperation op = client.getPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), isNamespaceEnabled);
-
-      final long blockSize = abfsConfiguration.getAzureBlockSize();
-      final AbfsHttpOperation result = op.getResult();
-      final String eTag = result.getResponseHeader(HttpHeaderConfigurations.ETAG);
-      final String lastModified = result.getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
-      final String contentLength = result.getResponseHeader(HttpHeaderConfigurations.CONTENT_LENGTH);
-      final String resourceType = result.getResponseHeader(HttpHeaderConfigurations.X_MS_RESOURCE_TYPE);
-      final String permissions = result.getResponseHeader((HttpHeaderConfigurations.X_MS_PERMISSIONS));
-      final boolean hasAcl = AbfsPermission.isExtendedAcl(permissions);
-
-      String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
-      String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-      owner = isSuperUserOrEmpty(owner) ? userName : owner;
-      group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
-
-      if (shouldReplaceOwnerAndGroup(owner)) {
-        owner = userName;
-        group = primaryUserGroup;
-      } else if (shouldUseShortUserName(owner)) {
-        owner = getShortName(owner);
-      }
-
-      return new VersionedFileStatus(
-              owner,
-              group,
-              permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL)
-                      : AbfsPermission.valueOf(permissions),
-              hasAcl,
-              parseContentLength(contentLength),
-              parseIsDirectory(resourceType),
-              1,
-              blockSize,
-              parseLastModifiedTime(lastModified),
-              path,
-              eTag);
+      op = client.getPathProperties(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path), isNamespaceEnabled);
     }
+
+    final long blockSize = abfsConfiguration.getAzureBlockSize();
+    final AbfsHttpOperation result = op.getResult();
+
+    final String eTag = result.getResponseHeader(HttpHeaderConfigurations.ETAG);
+    final String lastModified = result.getResponseHeader(HttpHeaderConfigurations.LAST_MODIFIED);
+    final String permissions = result.getResponseHeader((HttpHeaderConfigurations.X_MS_PERMISSIONS));
+    final boolean hasAcl = AbfsPermission.isExtendedAcl(permissions);
+    final long contentLength;
+    final boolean resourceIsDir;
+
+    if (path.isRoot()) {
+      contentLength = 0;
+      resourceIsDir = true;
+    } else {
+      contentLength = parseContentLength(result.getResponseHeader(HttpHeaderConfigurations.CONTENT_LENGTH));
+      resourceIsDir = parseIsDirectory(result.getResponseHeader(HttpHeaderConfigurations.X_MS_RESOURCE_TYPE));
+    }
+
+    final String transformedOwner = identityTransformer.transformIdentityForGetRequest(
+              result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER),
+              userName);
+
+    final String transformedGroup = identityTransformer.transformIdentityForGetRequest(
+              result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP),
+              primaryUserGroup);
+
+    return new VersionedFileStatus(
+            transformedOwner,
+            transformedGroup,
+            permissions == null ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL)
+                    : AbfsPermission.valueOf(permissions),
+            hasAcl,
+            contentLength,
+            resourceIsDir,
+            1,
+            blockSize,
+            parseLastModifiedTime(lastModified),
+            path,
+            eTag);
   }
 
   public FileStatus[] listStatus(final Path path) throws IOException {
@@ -580,22 +535,8 @@ public class AzureBlobFileSystemStore {
       long blockSize = abfsConfiguration.getAzureBlockSize();
 
       for (ListResultEntrySchema entry : retrievedSchema.paths()) {
-        String owner = isSuperUserOrEmpty(entry.owner()) ? userName : entry.owner();
-        String group = isSuperUserOrEmpty(entry.group()) ? primaryUserGroup : entry.group();
-
-        if (overrideOwner) {
-          if (shouldReplaceOwnerAndGroup(owner)) {
-            owner = userName;
-            group = primaryUserGroup;
-          } else if(enableFileOwnerShortName && !owner.equalsIgnoreCase(overrideOwnerSPN)){
-            owner = getShortName(owner);
-          }
-        } else {
-          if (enableFileOwnerShortName && !owner.equalsIgnoreCase(overrideOwnerSPN)) {
-            owner = getShortName(owner);
-          }
-        }
-
+        final String owner = identityTransformer.transformIdentityForGetRequest(entry.owner(), userName);
+        final String group = identityTransformer.transformIdentityForGetRequest(entry.group(), primaryUserGroup);
         final FsPermission fsPermission = entry.permissions() == null
                 ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL)
                 : AbfsPermission.valueOf(entry.permissions());
@@ -628,7 +569,7 @@ public class AzureBlobFileSystemStore {
 
     } while (continuation != null && !continuation.isEmpty());
 
-    return fileStatuses.toArray(new FileStatus[0]);
+    return fileStatuses.toArray(new FileStatus[fileStatuses.size()]);
   }
 
   public void setOwner(final Path path, final String owner, final String group) throws
@@ -638,27 +579,17 @@ public class AzureBlobFileSystemStore {
           "This operation is only valid for storage accounts with the hierarchical namespace enabled.");
     }
 
-    String effectiveOwner = owner;
-    String effectiveGroupName = group;
-
-    if (AuthType.SharedKey == authType && owner.equals(userName)) {
-      effectiveOwner = SUPER_USER;
-      effectiveGroupName = SUPER_USER;
-    } else {
-      //Check if owner is a daemon user/group. If it is daemon user then use the service principal UPN.
-      effectiveOwner = shouldUseDaemonUserOrGroup(owner) ? overrideOwnerSPN : owner;
-      effectiveGroupName = shouldUseDaemonUserOrGroup(group) ? overrideOwnerSPN : group;
-    }
-
     LOG.debug(
             "setOwner filesystem: {} path: {} owner: {} group: {}",
             client.getFileSystem(),
             path.toString(),
-            effectiveOwner,
-            effectiveGroupName);
-    client.setOwner(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true),
-            effectiveOwner,
-            effectiveGroupName);
+            owner,
+            group);
+
+    final String transformedOwner = identityTransformer.transformUserOrGroupForSetRequest(owner);
+    final String transformedGroup = identityTransformer.transformUserOrGroupForSetRequest(group);
+
+    client.setOwner(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), transformedOwner, transformedGroup);
   }
 
   public void setPermission(final Path path, final FsPermission permission) throws
@@ -683,14 +614,15 @@ public class AzureBlobFileSystemStore {
       throw new UnsupportedOperationException(
           "This operation is only valid for storage accounts with the hierarchical namespace enabled.");
     }
-    List<AclEntry> effectiveAclSpec = getEffectiveAclEntries(aclSpec);
 
     LOG.debug(
             "modifyAclEntries filesystem: {} path: {} aclSpec: {}",
             client.getFileSystem(),
             path.toString(),
-            AclEntry.aclSpecToString(effectiveAclSpec));
-    final Map<String, String> modifyAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(effectiveAclSpec));
+            AclEntry.aclSpecToString(aclSpec));
+
+    final List<AclEntry> transformedAclEntries = identityTransformer.transformAclEntriesForSetRequest(aclSpec);
+    final Map<String, String> modifyAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(transformedAclEntries));
     boolean useUpn = AbfsAclHelper.isUpnFormatAclEntries(modifyAclEntries);
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), useUpn);
@@ -710,13 +642,14 @@ public class AzureBlobFileSystemStore {
           "This operation is only valid for storage accounts with the hierarchical namespace enabled.");
     }
 
-    List<AclEntry> effectiveAclSpec = getEffectiveAclEntries(aclSpec);
     LOG.debug(
             "removeAclEntries filesystem: {} path: {} aclSpec: {}",
             client.getFileSystem(),
             path.toString(),
-            AclEntry.aclSpecToString(effectiveAclSpec));
-    final Map<String, String> removeAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(effectiveAclSpec));
+            AclEntry.aclSpecToString(aclSpec));
+
+    final List<AclEntry> transformedAclEntries = identityTransformer.transformAclEntriesForSetRequest(aclSpec);
+    final Map<String, String> removeAclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(transformedAclEntries));
     boolean isUpnFormat = AbfsAclHelper.isUpnFormatAclEntries(removeAclEntries);
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), isUpnFormat);
@@ -752,9 +685,7 @@ public class AzureBlobFileSystemStore {
       }
     }
 
-    for (Map.Entry<String, String> defaultAclEntry : defaultAclEntries.entrySet()) {
-      aclEntries.remove(defaultAclEntry.getKey());
-    }
+    aclEntries.keySet().removeAll(defaultAclEntries.keySet());
 
     client.setAcl(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true),
         AbfsAclHelper.serializeAclSpec(aclEntries), eTag);
@@ -789,13 +720,15 @@ public class AzureBlobFileSystemStore {
       throw new UnsupportedOperationException(
           "This operation is only valid for storage accounts with the hierarchical namespace enabled.");
     }
-    List<AclEntry> effectiveAclSpec = getEffectiveAclEntries(aclSpec);
+
     LOG.debug(
             "setAcl filesystem: {} path: {} aclspec: {}",
             client.getFileSystem(),
             path.toString(),
-            AclEntry.aclSpecToString(effectiveAclSpec));
-    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(effectiveAclSpec));
+            AclEntry.aclSpecToString(aclSpec));
+
+    final List<AclEntry> transformedAclEntries = identityTransformer.transformAclEntriesForSetRequest(aclSpec);
+    final Map<String, String> aclEntries = AbfsAclHelper.deserializeAclSpec(AclEntry.aclSpecToString(transformedAclEntries));
     final boolean isUpnFormat = AbfsAclHelper.isUpnFormatAclEntries(aclEntries);
 
     final AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true), isUpnFormat);
@@ -822,17 +755,12 @@ public class AzureBlobFileSystemStore {
     AbfsRestOperation op = client.getAclStatus(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true));
     AbfsHttpOperation result = op.getResult();
 
-    String owner = result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER);
-    String group = result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP);
-    owner = isSuperUserOrEmpty(owner) ? userName : owner;
-    group = isSuperUserOrEmpty(group) ? primaryUserGroup : group;
-
-    if (shouldReplaceOwnerAndGroup(owner)) {
-      owner = userName;
-      group = primaryUserGroup;
-    } else if(shouldUseShortUserName(owner)) {
-      owner = getShortName(owner);
-    }
+    final String transformedOwner = identityTransformer.transformIdentityForGetRequest(
+            result.getResponseHeader(HttpHeaderConfigurations.X_MS_OWNER),
+            userName);
+    final String transformedGroup = identityTransformer.transformIdentityForGetRequest(
+            result.getResponseHeader(HttpHeaderConfigurations.X_MS_GROUP),
+            primaryUserGroup);
 
     final String permissions = result.getResponseHeader(HttpHeaderConfigurations.X_MS_PERMISSIONS);
     final String aclSpecString = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_ACL);
@@ -842,8 +770,8 @@ public class AzureBlobFileSystemStore {
             : AbfsPermission.valueOf(permissions);
 
     final AclStatus.Builder aclStatusBuilder = new AclStatus.Builder();
-    aclStatusBuilder.owner(owner);
-    aclStatusBuilder.group(group);
+    aclStatusBuilder.owner(transformedOwner);
+    aclStatusBuilder.group(transformedGroup);
 
     aclStatusBuilder.setPermission(fsPermission);
     aclStatusBuilder.stickyBit(fsPermission.getStickyBit());
@@ -1100,73 +1028,6 @@ public class AzureBlobFileSystemStore {
       sb.append('}');
       return sb.toString();
     }
-  }
-
-  private boolean isShortUserName(String owner) {
-    return (owner != null) && !owner.contains("@");
-  }
-
-  private boolean shouldUseShortUserName(String owner){
-    return (owner != null) && !owner.equalsIgnoreCase(overrideOwnerSPN) && enableFileOwnerShortName && !isShortUserName(owner);
-  }
-
-  private boolean shouldReplaceOwnerAndGroup(String owner) {
-    return owner != null && overrideOwner && (overrideOwnerSPList.contains("*") || (overrideOwnerSPList.contains(userName) && owner.equals(overrideOwnerSPN)));
-  }
-
-  private boolean shouldUseDaemonUserOrGroup(String name) {
-    return ((name != null) && (overrideOwner && (overrideOwnerSPList.equals("*")) || overrideOwnerSPList.contains(name)));
-  }
-
-  private String getShortName(String userName) {
-    if (userName == null)    {
-      return  null;
-    }
-
-    if(isShortUserName(userName)) {
-      return userName;
-    }
-
-    String userNameBeforeAt = userName.substring(0, userName.indexOf("@"));
-    if (isSecure) {
-      //In secure clusters we apply auth to local rules to lowercase all short user names (notice /L at the end), E.G. : RULE:[1:$1@$0](.*@FOO.ONMICROSOFT.COM)s/@.*///L
-      //Ideally we should use the HadoopKerberosName class to get new HadoopKerberosName(arg).getShortName. However,
-      //1. ADLS can report the Realm in lower case while returning file owner names( ie. : Some.User@realm.onmicrosoft.com)
-      //2. THe RULE specification does not allow specifying character classes to do case insensitive matches
-      //Due to this, we end up using a forced lowercase version of the manually shortened name
-      return userNameBeforeAt.toLowerCase();
-    }
-    return userNameBeforeAt;
-  }
-
-  private List<AclEntry> getEffectiveAclEntries(List<AclEntry> aclSpec){
-    List<AclEntry> aclEntries = new ArrayList<AclEntry>();
-    Iterator aclEntryIterator = aclSpec.iterator();
-
-    while (aclEntryIterator.hasNext()) {
-      AclEntry aclEntry = (AclEntry)aclEntryIterator.next();
-      String name = aclEntry.getName();
-      //intercept only if it is daemon user or short name of the user.
-      if (name != null && !name.isEmpty() && !aclEntry.getType().equals(AclEntryType.OTHER) && !aclEntry.getType().equals(AclEntryType.MASK)) {
-        if (AuthType.SharedKey == authType && name.equals(userName)) {
-          name = SUPER_USER;
-        } else if (shouldUseDaemonUserOrGroup(name)) {
-          name = overrideOwnerSPN;
-        }
-      }
-
-      AclEntry.Builder aclEntryBuilder = new AclEntry.Builder();
-      aclEntryBuilder.setType(aclEntry.getType());
-      aclEntryBuilder.setName(name);
-      aclEntryBuilder.setScope(aclEntry.getScope());
-      aclEntryBuilder.setPermission(aclEntry.getPermission());
-      aclEntries.add(aclEntryBuilder.build());
-    }
-    return aclEntries;
-  }
-
-  private boolean isSuperUserOrEmpty(final String name) {
-    return name == null || name.equals(SUPER_USER);
   }
 
   @VisibleForTesting
