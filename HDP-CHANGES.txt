@@ -221,3 +221,6 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
     BUG-121619. YARN-9334.  Allow YARN Service client to send SPNEGO challenge
     header when authentication type is not simple.             Contributed by
     Billie Rinaldi
+
+    BUG-121619. HADOOP-16199. KMSLoadBlanceClientProvider does not select token
+    correctly. Contributed by Xiaoyu Yao.
