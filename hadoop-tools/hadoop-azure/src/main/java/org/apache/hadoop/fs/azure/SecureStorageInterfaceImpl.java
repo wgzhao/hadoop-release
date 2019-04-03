@@ -83,10 +83,8 @@ public class SecureStorageInterfaceImpl extends StorageInterface {
       Configuration conf) throws SecureModeException {
 
     if (useLocalSASKeyMode) {
-      LOG.debug("Authenticating with SecureStorage and local SAS key");
       this.sasKeyGenerator = new LocalSASKeyGeneratorImpl(conf);
     } else {
-      LOG.debug("Authenticating with SecureStorage and remote SAS key generation");
       RemoteSASKeyGeneratorImpl remoteSasKeyGenerator =
           new RemoteSASKeyGeneratorImpl(conf);
       try {
@@ -98,8 +96,6 @@ public class SecureStorageInterfaceImpl extends StorageInterface {
       this.sasKeyGenerator = remoteSasKeyGenerator;
     }
     this.useContainerSasKeyForAllAccess = conf.getBoolean(KEY_USE_CONTAINER_SASKEY_FOR_ALL_ACCESS, true);
-    LOG.debug("Container SAS key {} be used for all access",
-        useContainerSasKeyForAllAccess ? "will" : "will not");
   }
 
   @Override
