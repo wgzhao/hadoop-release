@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.integration.AzureTestConstants;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
-import org.apache.hadoop.fs.azure.integration.AzureTestUtils;
 import org.apache.hadoop.metrics2.AbstractMetric;
 import org.apache.hadoop.metrics2.MetricsRecord;
 import org.apache.hadoop.metrics2.MetricsSink;
@@ -530,8 +529,6 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   static CloudStorageAccount createTestAccount(Configuration conf)
       throws URISyntaxException, KeyProviderException {
-    AzureTestUtils.assumeNamespaceDisabled(conf);
-
     String testAccountName = verifyWasbAccountNameInConfig(conf);
     if (testAccountName == null) {
       LOG.warn("Skipping live Azure test because of missing test account");
