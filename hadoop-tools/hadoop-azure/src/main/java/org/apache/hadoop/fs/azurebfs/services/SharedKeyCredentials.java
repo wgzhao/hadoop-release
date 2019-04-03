@@ -39,9 +39,6 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
@@ -51,9 +48,6 @@ import org.apache.hadoop.fs.azurebfs.utils.Base64;
  * account.
  */
 public class SharedKeyCredentials {
-
-  private static final Logger LOG = LoggerFactory.getLogger(
-      SharedKeyCredentials.class);
   private static final int EXPECTED_BLOB_QUEUE_CANONICALIZED_STRING_LENGTH = 300;
   private static final Pattern CRLF = Pattern.compile("\r\n", Pattern.LITERAL);
   private static final String HMAC_SHA256 = "HmacSHA256";
@@ -82,19 +76,14 @@ public class SharedKeyCredentials {
 
   public void signRequest(HttpURLConnection connection, final long contentLength) throws UnsupportedEncodingException {
 
-    String gmtTime = getGMTTime();
-    connection.setRequestProperty(HttpHeaderConfigurations.X_MS_DATE, gmtTime);
+    connection.setRequestProperty(HttpHeaderConfigurations.X_MS_DATE, getGMTTime());
 
     final String stringToSign = canonicalize(connection, accountName, contentLength);
 
     final String computedBase64Signature = computeHmac256(stringToSign);
 
-    String signature = String.format("%s %s:%s", "SharedKey", accountName,
-        computedBase64Signature);
     connection.setRequestProperty(HttpHeaderConfigurations.AUTHORIZATION,
-        signature);
-    LOG.debug("Signing request with timestamp of {} and signature {}",
-        gmtTime, signature);
+        String.format("%s %s:%s", "SharedKey", accountName, computedBase64Signature));
   }
 
   private String computeHmac256(final String stringToSign) {

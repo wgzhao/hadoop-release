@@ -233,6 +233,3 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
 
     HADOOP-16169. ABFS: Bug fix for getPathProperties.
-
-    HADOOP-16068. ABFS Authentication and Delegation Token plugins to optionally
-    be bound to specific URI of the store.

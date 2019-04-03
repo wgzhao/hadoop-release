@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.azurebfs.services.AbfsIoUtils;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 
 /**
@@ -166,14 +165,8 @@ public final class AzureADAuthenticator {
    * failed to get the Azure Active Directory token.
    */
   public static class HttpException extends IOException {
-    private final int httpErrorCode;
-    private final String requestId;
-
-    private final String url;
-
-    private final String contentType;
-
-    private final String body;
+    private int httpErrorCode;
+    private String requestId;
 
     /**
      * Gets Http error status code.
@@ -191,63 +184,11 @@ public final class AzureADAuthenticator {
       return this.requestId;
     }
 
-    HttpException(
-        final int httpErrorCode,
-        final String requestId,
-        final String message,
-        final String url,
-        final String contentType,
-        final String body) {
+    HttpException(int httpErrorCode, String requestId, String message) {
       super(message);
       this.httpErrorCode = httpErrorCode;
       this.requestId = requestId;
-      this.url = url;
-      this.contentType = contentType;
-      this.body = body;
     }
-
-    public String getUrl() {
-      return url;
-    }
-
-    public String getContentType() {
-      return contentType;
-    }
-
-    public String getBody() {
-      return body;
-    }
-
-    @Override
-    public String getMessage() {
-      final StringBuilder sb = new StringBuilder();
-      sb.append("HTTP Error ");
-      sb.append(httpErrorCode);
-      sb.append("; url='").append(url).append('\'');
-      sb.append(' ');
-      sb.append(super.getMessage());
-      sb.append("; requestId='").append(requestId).append('\'');
-      sb.append("; contentType='").append(contentType).append('\'');
-      sb.append("; response '").append(body).append('\'');
-      return sb.toString();
-    }
-  }
-
-  /**
-   * An unexpected HTTP response was raised, such as text coming back
-   * from what should be an OAuth endpoint.
-   */
-  public static class UnexpectedResponseException extends HttpException {
-
-    public UnexpectedResponseException(final int httpErrorCode,
-        final String requestId,
-        final String message,
-        final String url,
-        final String contentType,
-        final String body) {
-      super(httpErrorCode, requestId, message, url, contentType, body);
-    }
-
   }
 
   private static AzureADToken getTokenCall(String authEndpoint, String body,
@@ -295,8 +236,6 @@ public final class AzureADAuthenticator {
     }
 
     try {
-      LOG.debug("Requesting an OAuth token by {} to {}",
-          httpMethod, authEndpoint);
       URL url = new URL(urlString);
       conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod(httpMethod);
@@ -309,18 +248,13 @@ public final class AzureADAuthenticator {
         }
       }
       conn.setRequestProperty("Connection", "close");
-      AbfsIoUtils.dumpHeadersToDebugLog("Request Headers",
-          conn.getRequestProperties());
+
       if (httpMethod.equals("POST")) {
         conn.setDoOutput(true);
         conn.getOutputStream().write(payload.getBytes("UTF-8"));
       }
 
       int httpResponseCode = conn.getResponseCode();
-      LOG.debug("Response {}", httpResponseCode);
-      AbfsIoUtils.dumpHeadersToDebugLog("Response Headers",
-          conn.getHeaderFields());
-
       String requestId = conn.getHeaderField("x-ms-request-id");
       String responseContentType = conn.getHeaderField("Content-Type");
       long responseContentLength = conn.getHeaderFieldLong("Content-Length", 0);
@@ -331,49 +265,23 @@ public final class AzureADAuthenticator {
         InputStream httpResponseStream = conn.getInputStream();
         token = parseTokenFromStream(httpResponseStream);
       } else {
-        InputStream stream = conn.getErrorStream();
-        if (stream == null) {
-          // no error stream, try the original input stream
-          stream = conn.getInputStream();
-        }
-        String responseBody = consumeInputStream(stream, 1024);
+        String responseBody = consumeInputStream(conn.getErrorStream(), 1024);
         String proxies = "none";
         String httpProxy = System.getProperty("http.proxy");
         String httpsProxy = System.getProperty("https.proxy");
         if (httpProxy != null || httpsProxy != null) {
           proxies = "http:" + httpProxy + "; https:" + httpsProxy;
         }
-        String operation = "AADToken: HTTP connection to " + authEndpoint
-            + " failed for getting token from AzureAD.";
-        String logMessage = operation
-                        + " HTTP response: " + httpResponseCode
-                        + " " + conn.getResponseMessage()
+        String logMessage =
+                "AADToken: HTTP connection failed for getting token from AzureAD. Http response: "
+                        + httpResponseCode + " " + conn.getResponseMessage()
+                        + "\nContent-Type: " + responseContentType
+                        + " Content-Length: " + responseContentLength
+                        + " Request ID: " + requestId.toString()
                         + " Proxies: " + proxies
-                        + (responseBody.isEmpty()
-                          ? ""
-                          : ("\nFirst 1K of Body: " + responseBody));
+                        + "\nFirst 1K of Body: " + responseBody;
         LOG.debug(logMessage);
-        if (httpResponseCode == HttpURLConnection.HTTP_OK) {
-          // 200 is returned by some of the sign-on pages, but can also
-          // come from proxies, utterly wrong URLs, etc.
-          throw new UnexpectedResponseException(httpResponseCode,
-              requestId,
-              operation
-                  + " Unexpected response."
-                  + " Check configuration, URLs and proxy settings."
-                  + " proxies=" + proxies,
-              authEndpoint,
-              responseContentType,
-              responseBody);
-        } else {
-          // general HTTP error
-          throw new HttpException(httpResponseCode,
-              requestId,
-              operation,
-              authEndpoint,
-              responseContentType,
-              responseBody);
-        }
+        throw new HttpException(httpResponseCode, requestId, logMessage);
       }
     } finally {
       if (conn != null) {
@@ -422,10 +330,6 @@ public final class AzureADAuthenticator {
   }
 
   private static String consumeInputStream(InputStream inStream, int length) throws IOException {
-    if (inStream == null) {
-      // the HTTP request returned an empty body
-      return "";
-    }
     byte[] b = new byte[length];
     int totalBytesRead = 0;
     int bytesRead = 0;

@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -38,10 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
-import org.apache.hadoop.fs.azurebfs.extensions.ExtensionHelper;
 import org.apache.hadoop.fs.azurebfs.AbfsConfiguration;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
-import org.apache.hadoop.io.IOUtils;
 
 import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.*;
 import static org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes.HTTPS_SCHEME;
@@ -51,7 +48,7 @@ import static org.apache.hadoop.fs.azurebfs.constants.HttpQueryParams.*;
 /**
  * AbfsClient.
  */
-public class AbfsClient implements Closeable {
+public class AbfsClient {
   public static final Logger LOG = LoggerFactory.getLogger(AbfsClient.class);
   private final URL baseUrl;
   private final SharedKeyCredentials sharedKeyCredentials;
@@ -88,13 +85,6 @@ public class AbfsClient implements Closeable {
 
     this.userAgent = initializeUserAgent(abfsConfiguration, sslProviderName);
     this.tokenProvider = tokenProvider;
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (tokenProvider instanceof Closeable) {
-      IOUtils.cleanupWithLogger(LOG, (Closeable) tokenProvider);
-    }
   }
 
   public String getFileSystem() {
@@ -582,11 +572,6 @@ public class AbfsClient implements Closeable {
       sb.append("; ");
       sb.append(sslProviderName);
     }
-    String tokenProviderField =
-        ExtensionHelper.getUserAgentSuffix(tokenProvider, "");
-    if (!tokenProviderField.isEmpty()) {
-      sb.append("; ").append(tokenProviderField);
-    }
     sb.append(")");
     final String userAgentComment = sb.toString();
     String customUserAgentId = abfsConfiguration.getCustomUserAgentPrefix();
@@ -594,7 +579,7 @@ public class AbfsClient implements Closeable {
       return String.format(Locale.ROOT, CLIENT_VERSION + " %s %s",
           userAgentComment, customUserAgentId);
     }
-    return String.format(Locale.ROOT, CLIENT_VERSION + " %s", userAgentComment);
+    return String.format(CLIENT_VERSION + " %s", userAgentComment);
   }
 
   @VisibleForTesting
