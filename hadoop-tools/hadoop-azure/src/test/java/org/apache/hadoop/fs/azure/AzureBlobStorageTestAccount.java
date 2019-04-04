@@ -35,7 +35,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.commons.configuration2.SubsetConfiguration;
+import org.apache.commons.configuration.SubsetConfiguration;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

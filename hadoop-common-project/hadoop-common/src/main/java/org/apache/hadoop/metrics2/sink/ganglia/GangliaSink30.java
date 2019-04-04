@@ -26,8 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.configuration2.SubsetConfiguration;
-import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration.SubsetConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -59,7 +58,7 @@ public class GangliaSink30 extends AbstractGangliaSink {
   public void init(SubsetConfiguration conf) {
     super.init(conf);
 
-    conf.setListDelimiterHandler(new DefaultListDelimiterHandler(','));
+    conf.setListDelimiter(',');
     Iterator<String> it = (Iterator<String>) conf.getKeys();
     while (it.hasNext()) {
       String propertyName = it.next();
@@ -67,16 +66,19 @@ public class GangliaSink30 extends AbstractGangliaSink {
         String contextName = propertyName.substring(TAGS_FOR_PREFIX_PROPERTY_PREFIX.length());
         String[] tags = conf.getStringArray(propertyName);
         boolean useAllTags = false;
-        Set<String> set = new HashSet<>();
-        for (String tag : tags) {
-          tag = tag.trim();
-          useAllTags |= tag.equals("*");
-          if (tag.length() > 0) {
-            set.add(tag);
+        Set<String> set = null;
+        if (tags.length > 0) {
+          set = new HashSet<String>();
+          for (String tag : tags) {
+            tag = tag.trim();
+            useAllTags |= tag.equals("*");
+            if (tag.length() > 0) {
+              set.add(tag);
+            }
           }
-        }
-        if (useAllTags) {
-          set = null;
+          if (useAllTags) {
+            set = null;
+          }
         }
         useTagsMap.put(contextName, set);
       }

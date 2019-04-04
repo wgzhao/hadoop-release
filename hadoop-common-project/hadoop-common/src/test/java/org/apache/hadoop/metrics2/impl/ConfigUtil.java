@@ -18,12 +18,12 @@
 
 package org.apache.hadoop.metrics2.impl;
 
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
 /**
  * Helpers for config tests and debugging
@@ -31,20 +31,20 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 class ConfigUtil {
 
   static void dump(Configuration c) {
-    dump(null, c, new PrintWriter(System.out));
+    dump(null, c, System.out);
   }
 
   static void dump(String header, Configuration c) {
-    dump(header, c, new PrintWriter(System.out));
+    dump(header, c, System.out);
   }
 
-  static void dump(String header, Configuration c, PrintWriter out) {
+  static void dump(String header, Configuration c, PrintStream out) {
     PropertiesConfiguration p = new PropertiesConfiguration();
     p.copy(c);
     if (header != null) {
       out.println(header);
     }
-    try { p.write(out); }
+    try { p.save(out); }
     catch (Exception e) {
       throw new RuntimeException("Error saving config", e);
     }
