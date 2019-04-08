@@ -30,8 +30,6 @@ import org.apache.hadoop.security.token.TokenRenewer;
 
 /**
  * Token Renewer for renewing ABFS delegation tokens with remote service.
- *
- * Handles tokens of kind  {@link AbfsDelegationTokenIdentifier#TOKEN_KIND}.
  */
 public class AbfsTokenRenewer extends TokenRenewer {
   public static final Logger LOG =
