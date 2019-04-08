@@ -5152,10 +5152,6 @@ ATS V1.5:
 
     HADOOP-16169. ABFS: Bug fix for getPathProperties.
 
-    HADOOP-16157. [Clean-up] Remove NULL check before instanceof in
-    AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
-    Templeton)
-
     HADOOP-15482. Upgrade jackson-databind to version 2.9.5. Contributed by
     Lokesh Jain.
 
