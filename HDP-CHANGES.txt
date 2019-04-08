@@ -4819,3 +4819,6 @@ ATS V1.5:
 
     BUG-122611. HADOOP-15395. DefaultImpersonationProvider fails to parse proxy
     user config if username has . in it. Contributed by Ajay Kumar.
+
+    BUG-122611. YARN-9336. JobHistoryServer leaks CLOSE_WAIT tcp connections
+    when using LogAggregationIndexedFileController. Contributed by Tarun Parimi.
