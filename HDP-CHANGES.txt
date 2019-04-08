@@ -5148,8 +5148,6 @@ ATS V1.5:
     HADOOP-15813. Enable more reliable SSL connection reuse. Contributed by
     Daryn Sharp.
 
-    HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
-
     HADOOP-16169. ABFS: Bug fix for getPathProperties.
 
     HADOOP-15482. Upgrade jackson-databind to version 2.9.5. Contributed by
