@@ -24,6 +24,8 @@ import static com.google.common.base.Preconditions.*;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import java.util.StringJoiner;
+
 /**
  * Immutable tag for metrics (for grouping on host/queue/username etc.)
  */
@@ -80,9 +82,9 @@ public class MetricsTag implements MetricsInfo {
   }
 
   @Override public String toString() {
-    return Objects.toStringHelper(this)
-        .add("info", info)
-        .add("value", value())
+    return new StringJoiner(", ", this.getClass().getSimpleName() + "{", "}")
+        .add("info=" + info)
+        .add("value=" + value())
         .toString();
   }
 }

@@ -20,9 +20,9 @@ package org.apache.hadoop.metrics2.lib;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import com.google.common.collect.Maps;
-import com.google.common.base.Objects;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -402,9 +402,12 @@ public class MetricsRegistry {
     }
   }
 
-  @Override public String toString() {
-    return Objects.toStringHelper(this)
-        .add("info", metricsInfo).add("tags", tags()).add("metrics", metrics())
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", this.getClass().getSimpleName() + "{", "}")
+        .add("info=" + metricsInfo.toString())
+        .add("tags=" + tags())
+        .add("metrics=" + metrics())
         .toString();
   }
 }

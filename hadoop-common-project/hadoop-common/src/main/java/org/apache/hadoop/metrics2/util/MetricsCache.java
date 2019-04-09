@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -127,8 +128,9 @@ public class MetricsCache {
     }
 
     @Override public String toString() {
-      return Objects.toStringHelper(this)
-          .add("tags", tags).add("metrics", metrics)
+      return new StringJoiner(", ", this.getClass().getSimpleName() + "{", "}")
+          .add("tags=" + tags)
+          .add("metrics=" + metrics)
           .toString();
     }
   }

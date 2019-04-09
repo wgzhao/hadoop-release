@@ -24,6 +24,8 @@ import static com.google.common.base.Preconditions.*;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import java.util.StringJoiner;
+
 /**
  * The immutable metric
  */
@@ -83,10 +85,11 @@ public abstract class AbstractMetric implements MetricsInfo {
     return Objects.hashCode(info, value());
   }
 
-  @Override public String toString() {
-    return Objects.toStringHelper(this)
-        .add("info", info)
-        .add("value", value())
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", this.getClass().getSimpleName() + "{", "}")
+        .add("info=" + info)
+        .add("value=" + value())
         .toString();
   }
 }
