@@ -231,3 +231,6 @@ HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY. Contri
 BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     HADOOP-16376. ABFS: Override access() to no-op.
+
+    BUG-121363. YARN-6695. Fixed NPE in publishing appFinished events to ATSv2.
+    Contributed by Prabhu Joseph
