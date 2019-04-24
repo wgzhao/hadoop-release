@@ -390,7 +390,8 @@ public class ServiceTestUtils {
       try {
         fs = new SliderFileSystem(conf);
       } catch (IOException e) {
-        Throwables.propagate(e);
+        Throwables.throwIfUnchecked(e);
+        throw new RuntimeException(e);
       }
     }
 
