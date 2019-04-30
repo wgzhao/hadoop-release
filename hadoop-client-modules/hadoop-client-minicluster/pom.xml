@@ -775,6 +775,15 @@
                       </excludes>
                     </filter>
 
+                   <!-- remove the original signarues of the jars to be shaded -->
+                    <filter>
+                        <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                    </filter>
                   </filters>
 
                   <!-- relocate classes from mssql-jdbc -->
