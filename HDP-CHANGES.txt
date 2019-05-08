@@ -235,3 +235,4 @@ BUG-121434. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.3 and Guava t
     kevin su.
 
 HADOOP-16660. ABFS: Make RetryCount in ExponentialRetryPolicy Configurable.
+HADOOP-16269. ABFS: add listFileStatus with StartFrom.
