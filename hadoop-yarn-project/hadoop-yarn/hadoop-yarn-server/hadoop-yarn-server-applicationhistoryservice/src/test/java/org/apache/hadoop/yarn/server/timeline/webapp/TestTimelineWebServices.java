@@ -18,6 +18,7 @@
 
 package org.apache.hadoop.yarn.server.timeline.webapp;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -37,6 +38,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.authentication.server.AuthenticationFilter;
@@ -53,6 +56,7 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse.TimelineP
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.security.AdminACLsManager;
 import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
+import org.apache.hadoop.yarn.server.applicationhistoryservice.webapp.ContextFactory;
 import org.apache.hadoop.yarn.server.timeline.TestMemoryTimelineStore;
 import org.apache.hadoop.yarn.server.timeline.TimelineDataManager;
 import org.apache.hadoop.yarn.server.timeline.TimelineStore;
@@ -988,6 +992,23 @@ public class TestTimelineWebServices extends JerseyTestBase {
       assertEquals(Status.FORBIDDEN.getStatusCode(), response.getStatus());
     } finally {
       timelineACLsManager.setAdminACLsManager(oldAdminACLsManager);
+    }
+  }
+
+  @Test
+  public void testContextFactory() throws Exception {
+    JAXBContext jaxbContext1 = ContextFactory.createContext(
+        new Class[]{TimelineDomain.class}, Collections.EMPTY_MAP);
+    JAXBContext jaxbContext2 = ContextFactory.createContext(
+        new Class[]{TimelineDomain.class}, Collections.EMPTY_MAP);
+    assertEquals(jaxbContext1, jaxbContext2);
+
+    try {
+      ContextFactory.createContext(new Class[]{TimelineEntity.class},
+          Collections.EMPTY_MAP);
+      Assert.fail("Expected JAXBException");
+    } catch(Exception e) {
+      assertTrue(JAXBException.class.equals(e.getClass()));
     }
   }
 
