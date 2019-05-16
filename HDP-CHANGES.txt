@@ -237,3 +237,5 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     YARN-9197.  Add safe guard against NPE for component instance failure.
     Contributed by kyungwan nam
+
+    HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
