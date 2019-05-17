@@ -217,3 +217,5 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
 
     BUG-121794. HADOOP-16278. With S3A Filesystem, Long Running services End up
     Doing lot of GC and eventually die.
+
+    BUG-121794. HADOOP-16248. MutableQuantiles leak memory under heavy load.
