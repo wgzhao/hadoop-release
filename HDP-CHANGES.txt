@@ -99,3 +99,4 @@ BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memor
 BUG-100895. Ignore UTs failing due to environmental issues.
 Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
 BUG-123634. HADOOP-16278. With S3A Filesystem, Long Running services End up Doing lot of GC and eventually die.
+BUG-123634. HADOOP-16248. MutableQuantiles leak memory under heavy load.
