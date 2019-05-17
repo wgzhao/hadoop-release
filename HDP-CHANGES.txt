@@ -243,3 +243,7 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     enabled. Contributed by Masatake Iwasaki.
 
     HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
+
+    BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs
+    url has special characters in hdfs file path. Contributed by Srinivasu
+    Majeti.
