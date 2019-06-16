@@ -229,3 +229,5 @@ BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs url h
 BUG-120576. YARN-9205. When using custom resource type, application will fail to run due to the CapacityScheduler throws InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by Zhankun Tang.
 HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY. Contributed by Weiwei Yang.
 BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
+
+    HADOOP-16376. ABFS: Override access() to no-op.
