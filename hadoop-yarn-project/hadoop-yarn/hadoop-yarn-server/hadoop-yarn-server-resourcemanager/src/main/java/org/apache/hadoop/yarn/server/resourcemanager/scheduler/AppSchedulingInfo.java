@@ -765,4 +765,18 @@ public class AppSchedulingInfo {
       this.readLock.unlock();
     }
   }
+
+  /**
+   * Get the defaultNodeLabelExpression for the application's current queue.
+   *
+   * @return defaultNodeLabelExpression
+   */
+  public String getDefaultNodeLabelExpression() {
+    try {
+      this.readLock.lock();
+      return queue.getDefaultNodeLabelExpression();
+    } finally {
+      this.readLock.unlock();
+    }
+  }
 }
