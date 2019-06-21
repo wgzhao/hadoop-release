@@ -164,7 +164,7 @@ public class NECVEPlugin implements DevicePlugin, DevicePluginScheduler {
   }
 
   public Set<Device> allocateDevices(Set<Device> availableDevices,
-      Integer count) {
+      int count) {
     // Can consider topology, utilization.etc
     Set<Device> allocated = new TreeSet<Device>();
     int number = 0;
