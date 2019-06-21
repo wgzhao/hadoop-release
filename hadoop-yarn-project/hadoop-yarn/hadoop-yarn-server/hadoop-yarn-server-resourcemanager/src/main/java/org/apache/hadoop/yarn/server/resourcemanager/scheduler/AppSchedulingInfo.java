@@ -135,7 +135,7 @@ public class AppSchedulingInfo {
 
   public String getQueueName() {
     try {
-      this.readLock.lock();
+    this.readLock.lock();
       return queue.getQueueName();
     } finally {
       this.readLock.unlock();
@@ -465,7 +465,7 @@ public class AppSchedulingInfo {
   public List<ResourceRequest> getAllResourceRequests() {
     List<ResourceRequest> ret = new ArrayList<>();
     try {
-      this.readLock.lock();
+    this.readLock.lock();
       for (AppPlacementAllocator ap : schedulerKeyToAppPlacementAllocator
           .values()) {
         ret.addAll(ap.getResourceRequests().values());
@@ -478,9 +478,9 @@ public class AppSchedulingInfo {
 
   public PendingAsk getNextPendingAsk() {
     try {
-      readLock.lock();
-      SchedulerRequestKey firstRequestKey = schedulerKeys.first();
-      return getPendingAsk(firstRequestKey, ResourceRequest.ANY);
+    readLock.lock();
+        SchedulerRequestKey firstRequestKey = schedulerKeys.first();
+        return getPendingAsk(firstRequestKey, ResourceRequest.ANY);
     } finally {
       readLock.unlock();
     }
@@ -494,7 +494,7 @@ public class AppSchedulingInfo {
   public PendingAsk getPendingAsk(SchedulerRequestKey schedulerKey,
       String resourceName) {
     try {
-      this.readLock.lock();
+    this.readLock.lock();
       AppPlacementAllocator ap = schedulerKeyToAppPlacementAllocator.get(
           schedulerKey);
       return (ap == null) ? PendingAsk.ZERO : ap.getPendingAsk(resourceName);
@@ -530,7 +530,7 @@ public class AppSchedulingInfo {
       SchedulerNode node, SchedulerRequestKey schedulerKey,
       Container containerAllocated) {
     try {
-      writeLock.lock();
+    writeLock.lock();
 
       if (null != containerAllocated) {
         updateMetricsForAllocatedContainer(type, node, containerAllocated);
@@ -551,7 +551,7 @@ public class AppSchedulingInfo {
   
   public void move(Queue newQueue) {
     try {
-      this.writeLock.lock();
+    this.writeLock.lock();
       QueueMetrics oldMetrics = queue.getMetrics();
       QueueMetrics newMetrics = newQueue.getMetrics();
       for (AppPlacementAllocator ap : schedulerKeyToAppPlacementAllocator
@@ -590,7 +590,7 @@ public class AppSchedulingInfo {
   public void stop() {
     // clear pending resources metrics for the application
     try {
-      this.writeLock.lock();
+    this.writeLock.lock();
       QueueMetrics metrics = queue.getMetrics();
       for (AppPlacementAllocator ap : schedulerKeyToAppPlacementAllocator
           .values()) {
@@ -617,7 +617,7 @@ public class AppSchedulingInfo {
 
   public void setQueue(Queue queue) {
     try {
-      this.writeLock.lock();
+    this.writeLock.lock();
       this.queue = queue;
     } finally {
       this.writeLock.unlock();
@@ -646,7 +646,7 @@ public class AppSchedulingInfo {
       return;
     }
     try {
-      this.writeLock.lock();
+    this.writeLock.lock();
       QueueMetrics metrics = queue.getMetrics();
       if (pending) {
         // If there was any container to recover, the application was
@@ -674,7 +674,7 @@ public class AppSchedulingInfo {
   public boolean checkAllocation(NodeType type, SchedulerNode node,
       SchedulerRequestKey schedulerKey) {
     try {
-      readLock.lock();
+    readLock.lock();
       AppPlacementAllocator ap = schedulerKeyToAppPlacementAllocator.get(
           schedulerKey);
       if (null == ap) {
@@ -735,7 +735,7 @@ public class AppSchedulingInfo {
   public boolean canDelayTo(
       SchedulerRequestKey schedulerKey, String resourceName) {
     try {
-      this.readLock.lock();
+    this.readLock.lock();
       AppPlacementAllocator ap =
           schedulerKeyToAppPlacementAllocator.get(schedulerKey);
       return (ap == null) || ap.canDelayTo(resourceName);
@@ -756,11 +756,25 @@ public class AppSchedulingInfo {
   public boolean precheckNode(SchedulerRequestKey schedulerKey,
       SchedulerNode schedulerNode, SchedulingMode schedulingMode) {
     try {
-      this.readLock.lock();
+    this.readLock.lock();
       AppPlacementAllocator ap =
           schedulerKeyToAppPlacementAllocator.get(schedulerKey);
       return (ap != null) && ap.precheckNode(schedulerNode,
           schedulingMode);
+    } finally {
+      this.readLock.unlock();
+    }
+  }
+
+  /**
+   * Get the defaultNodeLabelExpression for the application's current queue.
+   *
+   * @return defaultNodeLabelExpression
+   */
+  public String getDefaultNodeLabelExpression() {
+    try {
+      this.readLock.lock();
+      return queue.getDefaultNodeLabelExpression();
     } finally {
       this.readLock.unlock();
     }
