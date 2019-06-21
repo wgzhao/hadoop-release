@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.placement;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.constraint.AllocationTags;
 import org.apache.hadoop.yarn.api.records.ExecutionType;
 import org.apache.hadoop.yarn.api.records.ExecutionTypeRequest;
@@ -72,7 +71,7 @@ public class TestSingleConstraintAppPlacementAllocator {
         TestUtils.getMockApplicationId(1));
     when(appSchedulingInfo.getApplicationAttemptId()).thenReturn(
         TestUtils.getMockApplicationAttemptId(1, 1));
-
+    when(appSchedulingInfo.getDefaultNodeLabelExpression()).thenReturn("y");
     // stub RMContext
     rmContext = TestUtils.getMockRMContext();
 
@@ -131,8 +130,6 @@ public class TestSingleConstraintAppPlacementAllocator {
             .build()).resourceSizing(
             ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
         .build());
-    Assert.assertEquals(ImmutableSet.of("mapper", "reducer"),
-        allocator.getTargetAllocationTags());
     Assert.assertEquals("", allocator.getTargetNodePartition());
 
     // Valid (with partition)
@@ -147,8 +144,6 @@ public class TestSingleConstraintAppPlacementAllocator {
             .build()).resourceSizing(
             ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
         .build());
-    Assert.assertEquals(ImmutableSet.of("mapper", "reducer"),
-        allocator.getTargetAllocationTags());
     Assert.assertEquals("x", allocator.getTargetNodePartition());
 
     // Valid (without specifying node partition)
@@ -162,9 +157,8 @@ public class TestSingleConstraintAppPlacementAllocator {
         .resourceSizing(
             ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
         .build());
-    Assert.assertEquals(ImmutableSet.of("mapper", "reducer"),
-        allocator.getTargetAllocationTags());
-    Assert.assertEquals("", allocator.getTargetNodePartition());
+    // Node partition is unspecified, use the default node label expression y
+    Assert.assertEquals("y", allocator.getTargetNodePartition());
 
     // Valid (with application Id target)
     assertValidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
@@ -178,9 +172,7 @@ public class TestSingleConstraintAppPlacementAllocator {
             ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
         .build());
     // Allocation tags should not include application Id
-    Assert.assertEquals(ImmutableSet.of("mapper", "reducer"),
-        allocator.getTargetAllocationTags());
-    Assert.assertEquals("", allocator.getTargetNodePartition());
+    Assert.assertEquals("y", allocator.getTargetNodePartition());
 
     // Invalid (without sizing)
     assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
@@ -198,75 +190,6 @@ public class TestSingleConstraintAppPlacementAllocator {
         .allocationRequestId(10L).priority(Priority.newInstance(1))
         .placementConstraintExpression(PlacementConstraints
             .targetNotIn(PlacementConstraints.NODE).build())
-        .build(), true);
-
-    // Invalid (with multiple allocation tags expression specified)
-    assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
-        ExecutionTypeRequest.newInstance(ExecutionType.GUARANTEED))
-        .allocationRequestId(10L).priority(Priority.newInstance(1))
-        .placementConstraintExpression(PlacementConstraints
-            .targetNotIn(PlacementConstraints.NODE,
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("mapper"),
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("reducer"),
-                PlacementConstraints.PlacementTargets.nodePartition(""))
-            .build()).resourceSizing(
-            ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
-        .build(), true);
-
-    // Invalid (with multiple node partition target expression specified)
-    assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
-        ExecutionTypeRequest.newInstance(ExecutionType.GUARANTEED))
-        .allocationRequestId(10L).priority(Priority.newInstance(1))
-        .placementConstraintExpression(PlacementConstraints
-            .targetNotIn(PlacementConstraints.NODE,
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("mapper"),
-                PlacementConstraints.PlacementTargets
-                    .allocationTag(""),
-                PlacementConstraints.PlacementTargets.nodePartition("x"))
-            .build()).resourceSizing(
-            ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
-        .build(), true);
-
-    // Invalid (not anti-affinity cardinality)
-    assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
-        ExecutionTypeRequest.newInstance(ExecutionType.GUARANTEED))
-        .allocationRequestId(10L).priority(Priority.newInstance(1))
-        .placementConstraintExpression(PlacementConstraints
-            .targetCardinality(PlacementConstraints.NODE, 1, 2,
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("mapper"),
-                PlacementConstraints.PlacementTargets.nodePartition(""))
-            .build()).resourceSizing(
-            ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
-        .build(), true);
-
-    // Invalid (not anti-affinity cardinality)
-    assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
-        ExecutionTypeRequest.newInstance(ExecutionType.GUARANTEED))
-        .allocationRequestId(10L).priority(Priority.newInstance(1))
-        .placementConstraintExpression(PlacementConstraints
-            .targetCardinality(PlacementConstraints.NODE, 0, 2,
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("mapper"),
-                PlacementConstraints.PlacementTargets.nodePartition(""))
-            .build()).resourceSizing(
-            ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
-        .build(), true);
-
-    // Invalid (not NODE scope)
-    assertInvalidSchedulingRequest(SchedulingRequest.newBuilder().executionType(
-        ExecutionTypeRequest.newInstance(ExecutionType.GUARANTEED))
-        .allocationRequestId(10L).priority(Priority.newInstance(1))
-        .placementConstraintExpression(PlacementConstraints
-            .targetNotIn(PlacementConstraints.RACK,
-                PlacementConstraints.PlacementTargets
-                    .allocationTag("mapper", "reducer"),
-                PlacementConstraints.PlacementTargets.nodePartition(""))
-            .build()).resourceSizing(
-            ResourceSizing.newInstance(1, Resource.newInstance(1024, 1)))
         .build(), true);
 
     // Invalid (not GUARANTEED)
