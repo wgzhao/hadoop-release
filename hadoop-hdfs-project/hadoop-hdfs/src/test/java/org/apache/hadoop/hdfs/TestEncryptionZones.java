@@ -96,6 +96,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.apache.hadoop.fs.CommonConfigurationKeys.DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
@@ -1677,6 +1679,18 @@ public class TestEncryptionZones {
     Assert.assertEquals("Key Provider for client and namenode are different",
         namenodeKeyProviderUri, cluster.getFileSystem().getClient()
         .getKeyProviderUri());
+
+    // Ignore the key provider from NN.
+    clusterConf.setBoolean(
+        DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI, true);
+    // Nullify the cached value for key provider uri on client
+    cluster.getFileSystem().getClient().setKeyProviderUri(null);
+    Assert.assertEquals("Expecting Key Provider for client config",
+        "dummy://foo:bar@test_provider1", cluster.getFileSystem().getClient()
+            .getKeyProviderUri().toString());
+    Assert.assertNotEquals("Key Provider for client and namenode is different",
+        namenodeKeyProviderUri, cluster.getFileSystem().getClient()
+            .getKeyProviderUri().toString());
   }
 
   /**

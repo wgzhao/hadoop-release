@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.hdfs;
 
+import static org.apache.hadoop.fs.CommonConfigurationKeys.DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI;
+import static org.apache.hadoop.fs.CommonConfigurationKeys.DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI_DEFAULT;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.HADOOP_SECURITY_CRYPTO_CODEC_CLASSES_KEY_PREFIX;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_BLOCK_SIZE_DEFAULT;
 import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_BLOCK_SIZE_KEY;
@@ -3670,12 +3672,17 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     }
 
     // Query the namenode for the key provider uri.
-    FsServerDefaults serverDefaults = getServerDefaults();
-    if (serverDefaults.getKeyProviderUri() != null) {
-      if (!serverDefaults.getKeyProviderUri().isEmpty()) {
-        keyProviderUri = URI.create(serverDefaults.getKeyProviderUri());
+    if (keyProviderUri == null) {
+      // Check if NN provided uri is not null and ignore property is false.
+      FsServerDefaults serverDefaults = getServerDefaults();
+      if (serverDefaults.getKeyProviderUri() != null && !conf.getBoolean(
+          DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI,
+          DFS_CLIENT_IGNORE_NAMENODE_DEFAULT_KMS_URI_DEFAULT)) {
+        if (!serverDefaults.getKeyProviderUri().isEmpty()) {
+          keyProviderUri = URI.create(serverDefaults.getKeyProviderUri());
+          return keyProviderUri;
+        }
       }
-      return keyProviderUri;
     }
 
     // Last thing is to trust its own conf to be backwards compatible.
