@@ -62,6 +62,7 @@
         <include>start-yarn.cmd</include>
         <include>stop-yarn.cmd</include>
         <include>FederationStateStore**/**</include>
+        <include>DevicePluginScript**/**</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>
