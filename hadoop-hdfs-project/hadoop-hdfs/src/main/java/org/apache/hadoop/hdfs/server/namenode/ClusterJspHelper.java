@@ -43,9 +43,9 @@ import org.apache.hadoop.hdfs.DFSUtil;
 import org.apache.hadoop.hdfs.DFSUtil.ConfiguredNNAddress;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo.AdminStates;
 import org.apache.hadoop.util.StringUtils;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.znerd.xmlenc.XMLOutputter;
 
 import com.google.common.base.Charsets;
@@ -342,25 +342,25 @@ class ClusterJspHelper {
     }
   
     public String getClusterId(String props) throws IOException {
-      return getProperty(props, "ClusterId").textValue();
+      return getProperty(props, "ClusterId").getTextValue();
     }
     
     public NamenodeStatus getNamenodeStatus(String props) throws IOException,
         MalformedObjectNameException, NumberFormatException {
       NamenodeStatus nn = new NamenodeStatus();
       nn.host = host;
-      nn.filesAndDirectories = getProperty(props, "TotalFiles").longValue();
-      nn.capacity = getProperty(props, "Total").longValue();
-      nn.free = getProperty(props, "Free").longValue();
-      nn.bpUsed = getProperty(props, "BlockPoolUsedSpace").longValue();
-      nn.nonDfsUsed = getProperty(props, "NonDfsUsedSpace").longValue();
-      nn.blocksCount = getProperty(props, "TotalBlocks").longValue();
+      nn.filesAndDirectories = getProperty(props, "TotalFiles").getLongValue();
+      nn.capacity = getProperty(props, "Total").getLongValue();
+      nn.free = getProperty(props, "Free").getLongValue();
+      nn.bpUsed = getProperty(props, "BlockPoolUsedSpace").getLongValue();
+      nn.nonDfsUsed = getProperty(props, "NonDfsUsedSpace").getLongValue();
+      nn.blocksCount = getProperty(props, "TotalBlocks").getLongValue();
       nn.missingBlocksCount = getProperty(props, "NumberOfMissingBlocks")
-          .longValue();
+          .getLongValue();
       nn.httpAddress = httpAddress.toURL();
       getLiveNodeCount(getProperty(props, "LiveNodes").asText(), nn);
       getDeadNodeCount(getProperty(props, "DeadNodes").asText(), nn);
-      nn.softwareVersion = getProperty(props, "SoftwareVersion").textValue();
+      nn.softwareVersion = getProperty(props, "SoftwareVersion").getTextValue();
       return nn;
     }
     
