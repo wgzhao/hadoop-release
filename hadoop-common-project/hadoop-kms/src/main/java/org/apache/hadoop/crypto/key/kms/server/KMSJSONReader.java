@@ -17,9 +17,8 @@
  */
 package org.apache.hadoop.crypto.key.kms.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.hadoop.classification.InterfaceAudience;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;

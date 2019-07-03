@@ -20,8 +20,8 @@ package org.apache.hadoop.jmx;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.http.HttpServer2;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
