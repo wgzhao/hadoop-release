@@ -252,3 +252,6 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     fail to run due to the CapacityScheduler throws
     InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by
     Zhankun Tang.
+
+    HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY.
+    Contributed by Weiwei Yang.
