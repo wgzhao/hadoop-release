@@ -217,3 +217,4 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
 HOTFIX-3020 YARN-10055. bower install fails. (#1778)
 BUG-123468. HDFS-14171. Performance improvement in Tailing EditLog. Contributed by Kenneth Yang.
 BUG-123468. HDFS-14366. Improve HDFS append performance. Contributed by Chao Sun.
+BUG-123468. HDFS-14632. Reduce useless #getNumLiveDataNodes call in SafeModeMonitor. Contributed by He Xiaoqiao.
