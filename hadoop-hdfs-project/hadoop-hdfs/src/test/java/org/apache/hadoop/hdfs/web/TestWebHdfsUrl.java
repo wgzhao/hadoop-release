@@ -175,7 +175,7 @@ public class TestWebHdfsUrl {
             new TokenArgumentParam(tokenString).toString(),
         },
         cancelTokenUrl);
-    
+
     // send token
     URL fileStatusUrl = webhdfs.toUrl(GetOpParam.Op.GETFILESTATUS, fsPath);
     checkQueryParams(
@@ -259,7 +259,7 @@ public class TestWebHdfsUrl {
             new TokenArgumentParam(tokenString).toString(),
         },
         cancelTokenUrl);
-    
+
     // send token
     URL fileStatusUrl = webhdfs.toUrl(GetOpParam.Op.GETFILESTATUS, fsPath);
     checkQueryParams(
@@ -283,7 +283,7 @@ public class TestWebHdfsUrl {
             new TokenArgumentParam(tokenString).toString()
         },
         cancelTokenUrl);
-    
+
     // send real+effective
     fileStatusUrl = webhdfs.toUrl(GetOpParam.Op.GETFILESTATUS, fsPath);
     checkQueryParams(
@@ -466,6 +466,20 @@ public class TestWebHdfsUrl {
     }
   }
 
+  @Test
+  public void testWebHdfsUrlEncoding() throws Exception {
+    final WebHdfsFileSystem fs =
+        (WebHdfsFileSystem) FileSystem.get(uri, WebHdfsTestUtil.createConf());
+
+    // characters which should not be urlencoded.
+    final String unreserved = "_-!.~'()*";
+    final String punct = ",:$&=";
+    String path = "/testWebHdfsUrlEncoding" + unreserved + punct;
+    URL url =
+        WebHdfsTestUtil.toUrl(fs, GetOpParam.Op.LISTSTATUS, new Path(path));
+    WebHdfsTestUtil.LOG.info(url.getPath());
+    assertEquals(WebHdfsFileSystem.PATH_PREFIX + path, url.getPath());
+  }
 
   @Test
   public void testWebHdfsPathWithSemicolon() throws Exception {
