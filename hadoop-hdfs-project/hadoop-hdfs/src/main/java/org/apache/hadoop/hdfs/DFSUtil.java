@@ -2003,4 +2003,25 @@ public class DFSUtil {
         CommonConfigurationKeys.HADOOP_SECURITY_KEY_PROVIDER_PATH,
         "").isEmpty();
   }
+
+  /**
+   * Returns current user home directory under a home directory prefix.
+   * The home directory prefix can be defined by
+   * {@link DFSConfigKeys#DFS_USER_HOME_DIR_PREFIX_KEY}.
+   * User info is obtained from given {@link UserGroupInformation}.
+   * @param conf configuration
+   * @param ugi {@link UserGroupInformation} of current user.
+   * @return the home directory of current user.
+   */
+  public static Path getHomeDirectory(Configuration conf,
+                                      UserGroupInformation ugi) {
+    String userHomePrefix = DFSConfigKeys
+        .DFS_USER_HOME_DIR_PREFIX_DEFAULT;
+    if (conf != null) {
+      userHomePrefix = conf.get(
+          DFSConfigKeys.DFS_USER_HOME_DIR_PREFIX_KEY,
+          DFSConfigKeys.DFS_USER_HOME_DIR_PREFIX_DEFAULT);
+    }
+    return new Path(userHomePrefix + "/" + ugi.getShortUserName());
+  }
 }
