@@ -366,7 +366,6 @@ public abstract class INodeReference extends INode {
   public static class WithCount extends INodeReference {
 
     private final List<WithName> withNameList = new ArrayList<>();
-
     /**
      * Compare snapshot with IDs, where null indicates the current status thus
      * is greater than any non-null snapshot.
@@ -500,14 +499,15 @@ public abstract class INodeReference extends INode {
     
     @Override
     public final ContentSummaryComputationContext computeContentSummary(
-        int snapshotId, ContentSummaryComputationContext summary) {
-      final int s = snapshotId < lastSnapshotId ? snapshotId : lastSnapshotId;
-      // only count storagespace for WithName
-      final QuotaCounts q = computeQuotaUsage(
-          summary.getBlockStoragePolicySuite(), getStoragePolicyID(), false, s);
-      summary.getCounts().addContent(Content.DISKSPACE, q.getStorageSpace());
-      summary.getCounts().addTypeSpaces(q.getTypeSpaces());
-      return summary;
+        int snapshotId, ContentSummaryComputationContext summary)
+        throws AccessControlException {
+      Preconditions.checkState(snapshotId == Snapshot.CURRENT_STATE_ID
+          || this.lastSnapshotId >= snapshotId);
+      final INode referred =
+          this.getReferredINode().asReference().getReferredINode();
+      int id = snapshotId != Snapshot.CURRENT_STATE_ID ? snapshotId :
+          this.lastSnapshotId;
+      return referred.computeContentSummary(id, summary);
     }
 
     @Override
@@ -671,8 +671,8 @@ public abstract class INodeReference extends INode {
      * {@inheritDoc}
      * <br/>
      * To destroy a DstReference node, we first remove its link with the 
-     * referred node. If the reference number of the referred node is <= 0, we 
-     * destroy the subtree of the referred node. Otherwise, we clean the 
+     * referred node. If the reference number of the referred node is <= 0, we
+     * destroy the subtree of the referred node. Otherwise, we clean the
      * referred node's subtree and delete everything created after the last 
      * rename operation, i.e., everything outside of the scope of the prior 
      * WithName nodes.
