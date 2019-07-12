@@ -131,7 +131,7 @@ public abstract class INodeReference extends INode {
   public final void setReferredINode(INode referred) {
     this.referred = referred;
   }
-  
+
   @Override
   public final boolean isReference() {
     return true;
@@ -375,9 +375,9 @@ public abstract class INodeReference extends INode {
   
   /** An anonymous reference with reference count. */
   public static class WithCount extends INodeReference {
-    
+
     private final List<WithName> withNameList = new ArrayList<WithName>();
-    
+
     /**
      * Compare snapshot with IDs, where null indicates the current status thus
      * is greater than any non-null snapshot.
@@ -511,24 +511,25 @@ public abstract class INodeReference extends INode {
     
     @Override
     public final ContentSummaryComputationContext computeContentSummary(
-        int snapshotId, ContentSummaryComputationContext summary) {
-      final QuotaCounts q = new QuotaCounts.Builder().build();
-      final int s = snapshotId < lastSnapshotId ? snapshotId : lastSnapshotId;
-      computeQuotaUsage(summary.getBlockStoragePolicySuite(),
-          getStoragePolicyID(), q, false, s);
-      summary.getCounts().addContent(Content.DISKSPACE, q.getStorageSpace());
-      summary.getCounts().addTypeSpaces(q.getTypeSpaces());
-      return summary;
+        int snapshotId, ContentSummaryComputationContext summary)
+        throws AccessControlException {
+      Preconditions.checkState(snapshotId == Snapshot.CURRENT_STATE_ID
+          || this.lastSnapshotId >= snapshotId);
+      final INode referred =
+          this.getReferredINode().asReference().getReferredINode();
+      int id = snapshotId != Snapshot.CURRENT_STATE_ID ? snapshotId :
+          this.lastSnapshotId;
+      return referred.computeContentSummary(id, summary);
     }
 
     @Override
     public final QuotaCounts computeQuotaUsage(BlockStoragePolicySuite bsps,
         byte blockStoragePolicyId, QuotaCounts counts, boolean useCache,
         int lastSnapshotId) {
-      // if this.lastSnapshotId < lastSnapshotId, the rename of the referred 
-      // node happened before the rename of its ancestor. This should be 
-      // impossible since for WithName node we only count its children at the 
-      // time of the rename. 
+      // if this.lastSnapshotId < lastSnapshotId, the rename of the referred
+      // node happened before the rename of its ancestor. This should be
+      // impossible since for WithName node we only count its children at the
+      // time of the rename.
       Preconditions.checkState(lastSnapshotId == Snapshot.CURRENT_STATE_ID
           || this.lastSnapshotId >= lastSnapshotId);
       final INode referred = this.getReferredINode().asReference()
@@ -593,7 +594,7 @@ public abstract class INodeReference extends INode {
       } else {
         int prior = getPriorSnapshot(this);
         INode referred = getReferredINode().asReference().getReferredINode();
-        
+
         if (snapshot != Snapshot.NO_SNAPSHOT_ID) {
           if (prior != Snapshot.NO_SNAPSHOT_ID && snapshot <= prior) {
             // the snapshot to be deleted has been deleted while traversing 
@@ -694,8 +695,8 @@ public abstract class INodeReference extends INode {
      * {@inheritDoc}
      * <br/>
      * To destroy a DstReference node, we first remove its link with the 
-     * referred node. If the reference number of the referred node is <= 0, we 
-     * destroy the subtree of the referred node. Otherwise, we clean the 
+     * referred node. If the reference number of the referred node is <= 0, we
+     * destroy the subtree of the referred node. Otherwise, we clean the
      * referred node's subtree and delete everything created after the last 
      * rename operation, i.e., everything outside of the scope of the prior 
      * WithName nodes.
