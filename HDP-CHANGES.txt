@@ -269,3 +269,5 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     HADOOP-16548 : Disable Flush() over config
 
     HADOOP-16460: ABFS: fix for Sever Name Indication (SNI)
+
+    HADOOP-16404. ABFS default blocksize change(256MB from 512MB)
