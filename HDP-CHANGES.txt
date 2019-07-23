@@ -215,43 +215,17 @@ BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memor
 BUG-100895. Ignore UTs failing due to environmental issues.
 BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated cluster. Contributed by Arpit Agarwal.
 HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
-
-    HADOOP-15855. Review hadoop credential doc, including object store details.
-    Contributed by Steve Loughran.
-
-    HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in
-    AzureBlobFileSystemStore
-
-    HADOOP-16182. Update abfs storage back-end with "close" flag when
-    application is done writing to a file.
-
-    HADOOP-15813. Enable more reliable SSL connection reuse. Contributed by
-    Daryn Sharp.
-
-    HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
-
-    HADOOP-16169. ABFS: Bug fix for getPathProperties.
-
-    HADOOP-16068. ABFS Authentication and Delegation Token plugins to optionally
-    be bound to specific URI of the store.
-
-    HADOOP-16157. [Clean-up] Remove NULL check before instanceof in
-    AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
-    Templeton)
-
-    HADOOP-16104. Wasb tests to downgrade to skip when test a/c is namespace
-    enabled. Contributed by Masatake Iwasaki.
-
-    HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
-
-    BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs
-    url has special characters in hdfs file path. Contributed by Srinivasu
-    Majeti.
-
-    BUG-120576. YARN-9205. When using custom resource type, application will
-    fail to run due to the CapacityScheduler throws
-    InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by
-    Zhankun Tang.
-
-    HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY.
-    Contributed by Weiwei Yang.
+HADOOP-15855. Review hadoop credential doc, including object store details. Contributed by Steve Loughran.
+HADOOP-15876. Use keySet().removeAll() to remove multiple keys from Map in AzureBlobFileSystemStore
+HADOOP-16182. Update abfs storage back-end with "close" flag when application is done writing to a file.
+HADOOP-15813. Enable more reliable SSL connection reuse. Contributed by Daryn Sharp.
+HADOOP-16163. NPE in setup/teardown of ITestAbfsDelegationTokens.
+HADOOP-16169. ABFS: Bug fix for getPathProperties.
+HADOOP-16068. ABFS Authentication and Delegation Token plugins to optionally be bound to specific URI of the store.
+HADOOP-16157. [Clean-up] Remove NULL check before instanceof in AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel Templeton)
+HADOOP-16104. Wasb tests to downgrade to skip when test a/c is namespace enabled. Contributed by Masatake Iwasaki.
+HADOOP-15994. Upgrade Jackson2 to 2.9.8. Contributed by lqjacklee.
+BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs url has special characters in hdfs file path. Contributed by Srinivasu Majeti.
+BUG-120576. YARN-9205. When using custom resource type, application will fail to run due to the CapacityScheduler throws InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by Zhankun Tang.
+HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY. Contributed by Weiwei Yang.
+BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
