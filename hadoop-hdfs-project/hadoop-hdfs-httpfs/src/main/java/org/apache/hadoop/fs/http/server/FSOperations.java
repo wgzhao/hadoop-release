@@ -248,6 +248,9 @@ public class FSOperations {
     json.put(HttpFSFileSystem.CONTENT_SUMMARY_QUOTA_JSON, contentSummary.getQuota());
     json.put(HttpFSFileSystem.CONTENT_SUMMARY_SPACE_CONSUMED_JSON, contentSummary.getSpaceConsumed());
     json.put(HttpFSFileSystem.CONTENT_SUMMARY_SPACE_QUOTA_JSON, contentSummary.getSpaceQuota());
+    json.put(HttpFSFileSystem.CONTENT_SUMMARY_ECPOLICY_JSON,
+            contentSummary.getErasureCodingPolicy());
+
     Map response = new LinkedHashMap();
     response.put(HttpFSFileSystem.CONTENT_SUMMARY_JSON, json);
     return response;

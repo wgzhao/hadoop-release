@@ -427,11 +427,13 @@ class JsonUtilClient {
     final long quota = ((Number) m.get("quota")).longValue();
     final long spaceConsumed = ((Number) m.get("spaceConsumed")).longValue();
     final long spaceQuota = ((Number) m.get("spaceQuota")).longValue();
+    final String ecPolicy = ((String) m.get("ecPolicy"));
     final Map<?, ?> typem = (Map<?, ?>) m.get("typeQuota");
 
     ContentSummary.Builder contentSummaryBuilder =new ContentSummary.Builder()
         .length(length).fileCount(fileCount).directoryCount(directoryCount)
-        .quota(quota).spaceConsumed(spaceConsumed).spaceQuota(spaceQuota);
+        .quota(quota).spaceConsumed(spaceConsumed).spaceQuota(spaceQuota)
+            .erasureCodingPolicy(ecPolicy);
     if (typem != null) {
       for (StorageType t : StorageType.getTypesSupportingQuota()) {
         Map<?, ?> type = (Map<?, ?>) typem.get(t.toString());
