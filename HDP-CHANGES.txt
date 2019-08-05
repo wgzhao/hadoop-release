@@ -255,3 +255,5 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     BUG-122030. HDFS-14859. Prevent unnecessary evaluation of costly operation
     getNumLiveDataNodes when dfs.namenode.safemode.min.datanodes is not zero.
     Contributed by Srinivasu Majeti.
+
+    HADOOP-16487. Update jackson-databind to 2.9.9.2. Contributed by Siyao Meng.
