@@ -69,7 +69,8 @@
 
     <!-- jackson versions -->
     <jackson.version>1.9.13</jackson.version>
-    <jackson2.version>2.9.5</jackson2.version>
+    <jackson2.version>2.9.9</jackson2.version>
+    <jackson.databind.version>2.9.9.2</jackson.databind.version>
 
     <!-- SLF4J version -->
     <slf4j.version>1.7.25</slf4j.version>
@@ -88,7 +89,7 @@
     <spotbugs.version>3.1.0-RC1</spotbugs.version>
     <dnsjava.version>2.1.7</dnsjava.version>
 
-    <guava.version>27.0-jre</guava.version>
+    <guava.version>28.0-jre</guava.version>
     <guice.version>4.0</guice.version>
     <joda-time.version>2.9.9</joda-time.version>
 
@@ -978,7 +979,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson2.version}</version>
+        <version>${jackson.databind.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -1218,47 +1219,47 @@
             <artifactId>commons-beanutils</artifactId>
           </exclusion>
         </exclusions>
-     </dependency>
+      </dependency>
 
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-recipes</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-client</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-framework</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.curator</groupId>
-       <artifactId>curator-test</artifactId>
-       <version>${curator.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.bouncycastle</groupId>
-       <artifactId>bcprov-jdk16</artifactId>
-       <version>1.46</version>
-       <scope>test</scope>
-     </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-recipes</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-client</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-framework</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.curator</groupId>
+        <artifactId>curator-test</artifactId>
+        <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk16</artifactId>
+        <version>1.46</version>
+        <scope>test</scope>
+      </dependency>
 
-     <dependency>
+      <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
         <version>${joda-time.version}</version>
-     </dependency>
+      </dependency>
 
       <dependency>
-          <groupId>com.nimbusds</groupId>
-          <artifactId>nimbus-jose-jwt</artifactId>
-          <version>4.41.1</version>
-          <scope>compile</scope>
-          <exclusions>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>4.41.1</version>
+        <scope>compile</scope>
+        <exclusions>
           <exclusion>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
