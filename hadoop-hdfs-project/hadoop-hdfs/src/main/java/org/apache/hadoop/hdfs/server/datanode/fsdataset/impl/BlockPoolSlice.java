@@ -43,6 +43,7 @@ import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs.BlockReportReplica;
+import org.apache.hadoop.hdfs.server.datanode.FSCachingGetSpaceUsed;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.server.datanode.BlockMetadataHeader;
 import org.apache.hadoop.hdfs.server.datanode.DatanodeUtil;
@@ -159,10 +160,12 @@ class BlockPoolSlice {
 
     // Use cached value initially if available. Or the following call will
     // block until the initial du command completes.
-    this.dfsUsage = new CachingGetSpaceUsed.Builder().setPath(bpDir)
-                                                     .setConf(conf)
-                                                     .setInitialUsed(loadDfsUsed())
-                                                     .build();
+    this.dfsUsage = new FSCachingGetSpaceUsed.Builder().setBpid(bpid)
+            .setVolume(volume)
+            .setPath(bpDir)
+            .setConf(conf)
+            .setInitialUsed(loadDfsUsed())
+            .build();
 
     // Make the dfs usage to be saved during shutdown.
     ShutdownHookManager.get().addShutdownHook(

@@ -654,4 +654,6 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * Confirm whether the block is deleting
    */
   public boolean isDeletingBlock(String bpid, long blockId);
+
+  Set<? extends Replica> deepCopyReplica(String bpid) throws IOException;
 }
