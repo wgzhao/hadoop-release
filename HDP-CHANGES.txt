@@ -225,4 +225,4 @@ HADOOP-16218. Findbugs warning of null param to non-nullable method in Configura
 HADOOP-16220. Add findbugs ignores for unjustified issues during update to guava to 27.0-jre in hadoop-project
 HADOOP-16222. Fix new deprecations after guava 27.0 update in trunk. Contributed by Gabor Bota.
 HADOOP-16237. Fix new findbugs issues after updating guava to 27.0-jre.
-BUG-121434. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.2 and Guava to 28.0-jre in Hadoop
+BUG-121434. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.3 and Guava to 28.0-jre in Hadoop
