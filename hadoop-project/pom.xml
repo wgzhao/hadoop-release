@@ -17,11 +17,11 @@
   <parent>
     <groupId>org.apache.hadoop</groupId>
     <artifactId>hadoop-main</artifactId>
-    <version>2.7.3.2.6.0.2-SNAPSHOT</version>
+    <version>2.7.3.2.6.0.61-1</version>
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-project</artifactId>
-  <version>2.7.3.2.6.0.2-SNAPSHOT</version>
+  <version>2.7.3.2.6.0.61-1</version>
   <description>Apache Hadoop Project POM</description>
   <name>Apache Hadoop Project POM</name>
   <packaging>pom</packaging>
@@ -72,7 +72,7 @@
     <protobuf.version>2.5.0</protobuf.version>
     <protoc.path>${env.HADOOP_PROTOC_PATH}</protoc.path>
 
-    <zookeeper.version>3.4.6.2.6.0.2-SNAPSHOT</zookeeper.version>
+    <zookeeper.version>3.4.6.2.6.0.61-1</zookeeper.version>
     <curator.version>2.7.1</curator.version>
     <findbugs.version>3.0.0</findbugs.version>
 
