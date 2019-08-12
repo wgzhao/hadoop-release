@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletContext;
@@ -50,6 +51,8 @@ import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.http.RestCsrfPreventionFilter;
+
+import com.sun.jersey.api.core.ResourceConfig;
 
 /**
  * Encapsulates the HTTP server started by the NameNode. 
@@ -112,9 +115,11 @@ public class NameNodeHttpServer {
     }
 
     // add webhdfs packages
+    final Map<String, String> params2 = new HashMap<>();
+    params2.put(ResourceConfig.FEATURE_MATCH_MATRIX_PARAMS, "true");
     httpServer2.addJerseyResourcePackage(
         jerseyResourcePackage + ";" + Param.class.getPackage().getName(),
-        pathSpec);
+        pathSpec, params2);
   }
 
   /**
