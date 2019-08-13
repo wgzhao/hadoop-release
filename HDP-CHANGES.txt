@@ -4822,3 +4822,6 @@ ATS V1.5:
 
     BUG-122611. YARN-9336. JobHistoryServer leaks CLOSE_WAIT tcp connections
     when using LogAggregationIndexedFileController. Contributed by Tarun Parimi.
+
+    BUG-122611. YARN-9744. RollingLevelDBTimelineStore.getEntityByTime fails
+    with NPE. Contributed by Prabhu Joseph.
