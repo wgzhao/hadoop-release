@@ -260,10 +260,14 @@ public class ComponentInstance implements EventHandler<ComponentInstanceEvent>,
       builder.append(", diagnostics=");
       builder.append(failureBeforeLaunch ? FAILED_BEFORE_LAUNCH_DIAG : event.getStatus().getDiagnostics());
 
-      if (event.getStatus().getExitStatus() != 0) {
+      try {
+        if (event.getStatus().getExitStatus() != 0) {
+          LOG.error(builder.toString());
+        } else {
+          LOG.info(builder.toString());
+        }
+      } catch (NullPointerException e) {
         LOG.error(builder.toString());
-      } else {
-        LOG.info(builder.toString());
       }
     } else {
       // When no relaunch, update component's #succeeded/#failed
