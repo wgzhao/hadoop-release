@@ -272,3 +272,4 @@ HDFS-14074. DataNode runs async disk checks maybe throws NullPointerException, a
 HDFS-14582. Failed to start DN with ArithmeticException when NULL checksum used. Contributed by Surendra Singh Lilhore.
 HDFS-14687. Standby Namenode never come out of safemode when EC files are being written. Contributed by Surendra Singh Lilhore.
 HDFS-14699. Erasure Coding: Storage not considered in live replica when replication streams hard limit reached to threshold. Contributed by Zhao Yi Ming.
+HDFS-14746. Trivial test code update after HDFS-14687. Contributed by kevin su.
