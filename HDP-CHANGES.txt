@@ -4813,3 +4813,6 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+
+    BUG-121704. HDFS-13101. Yet another fsimage corruption related to snapshot.
+    Contributed by Shashikant Banerjee.

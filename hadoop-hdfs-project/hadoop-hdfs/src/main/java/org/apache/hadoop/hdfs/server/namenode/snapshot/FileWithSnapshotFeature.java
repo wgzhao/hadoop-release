@@ -232,4 +232,9 @@ public class FileWithSnapshotFeature implements INode.Feature {
     else
       file.collectBlocksBeyondSnapshot(snapshotBlocks, info);
   }
+
+  @Override
+  public String toString() {
+    return "" + diffs;
+  }
 }
