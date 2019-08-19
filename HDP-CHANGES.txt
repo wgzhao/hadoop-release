@@ -272,3 +272,4 @@ BUG-123906. YARN-9685: NPE when rendering the info table of leaf queue in non-ac
 BUG-123908. HDFS-13963. NN UI is broken with IE11. Contributed by Ayush Saxena.
 BUG-123908. HDFS-14074. DataNode runs async disk checks maybe throws NullPointerException, and DataNode failed to register to NameSpace.  Contributed by guangyi lu.
 BUG-123908. HDFS-14687. Standby Namenode never come out of safemode when EC files are being written. Contributed by Surendra Singh Lilhore.
+BUG-123908. HDFS-14746. Trivial test code update after HDFS-14687. Contributed by kevin su.
