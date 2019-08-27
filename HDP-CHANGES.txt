@@ -257,3 +257,6 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     Contributed by Srinivasu Majeti.
 
     HADOOP-16487. Update jackson-databind to 2.9.9.2. Contributed by Siyao Meng.
+
+    HADOOP-16533. Upgrade jackson-databind to 2.9.9.3. (#1354). Contributed by
+    Akira Ajisaka.
