@@ -429,12 +429,6 @@ int change_user(uid_t user, gid_t group) {
   return 0;
 }
 
-int is_mount_cgroups_support_enabled() {
-    return is_feature_enabled(MOUNT_CGROUP_SUPPORT_ENABLED_KEY,
-                              DEFAULT_MOUNT_CGROUP_SUPPORT_ENABLED,
-                              &executor_cfg);
-}
-
 /**
  * Utility function to concatenate argB to argA using the concat_pattern.
  */
@@ -1035,7 +1029,6 @@ static int is_feature_enabled(const char* feature_key, int default_value) {
     }
 }
 
-
 int is_docker_support_enabled() {
     return is_feature_enabled(DOCKER_SUPPORT_ENABLED_KEY,
     DEFAULT_DOCKER_SUPPORT_ENABLED);
@@ -1045,6 +1038,12 @@ int is_tc_support_enabled() {
     return is_feature_enabled(TC_SUPPORT_ENABLED_KEY,
     DEFAULT_TC_SUPPORT_ENABLED);
 }
+
+int is_mount_cgroups_support_enabled() {
+    return is_feature_enabled(MOUNT_CGROUP_SUPPORT_ENABLED_KEY,
+                              DEFAULT_MOUNT_CGROUP_SUPPORT_ENABLED);
+}
+
 /**
  * Function to prepare the application directories for the container.
  */
