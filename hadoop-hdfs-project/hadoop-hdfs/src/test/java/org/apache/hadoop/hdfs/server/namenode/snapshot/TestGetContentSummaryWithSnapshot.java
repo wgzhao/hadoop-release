@@ -140,9 +140,6 @@ public class TestGetContentSummaryWithSnapshot {
 
     summary = cluster.getNameNodeRpc().getContentSummary(
         foo.toString());
-    Assert.assertEquals(0, summary.getSnapshotDirectoryCount());
-    Assert.assertEquals(1, summary.getSnapshotFileCount());
-    Assert.assertEquals(20, summary.getSnapshotLength());
     Assert.assertEquals(2, summary.getDirectoryCount());
     Assert.assertEquals(2, summary.getFileCount());
     Assert.assertEquals(30, summary.getLength());
@@ -155,9 +152,6 @@ public class TestGetContentSummaryWithSnapshot {
     cluster.getNameNodeRpc().rename(qux.toString(), "/temp/qux");
     summary = cluster.getNameNodeRpc().getContentSummary(
         foo.toString());
-    Assert.assertEquals(0, summary.getSnapshotDirectoryCount());
-    Assert.assertEquals(2, summary.getSnapshotFileCount());
-    Assert.assertEquals(30, summary.getSnapshotLength());
     Assert.assertEquals(2, summary.getDirectoryCount());
     Assert.assertEquals(2, summary.getFileCount());
     Assert.assertEquals(30, summary.getLength());

@@ -4814,3 +4814,4 @@ ATS V1.5:
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
 BUG-123528. HDFS-14499. Misleading REM_QUOTA value with snapshot and trash feature enabled for a directory. Contributed by Shashikant Banerjee.
+BUG-123528. HDFS-14499 Remove incompatible unit tests coming from 3.1-maint branch
