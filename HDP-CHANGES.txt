@@ -231,3 +231,6 @@ BUG-121434. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.3 and Guava t
 
     HADOOP-16341. ShutDownHookManager: Regressed performance on Hook removals
     after HADOOP-15679
+    HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by
+    kevin su.
+
