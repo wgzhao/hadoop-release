@@ -239,3 +239,6 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     Contributed by kyungwan nam
 
     HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
+
+    HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by
+    kevin su.
