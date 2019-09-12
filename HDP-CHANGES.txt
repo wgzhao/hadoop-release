@@ -271,3 +271,4 @@ HOTFIX-3066 YARN-10055. bower install fails. (#1778)
 HDFS-14074. DataNode runs async disk checks maybe throws NullPointerException, and DataNode failed to register to NameSpace.  Contributed by guangyi lu.
 HDFS-14582. Failed to start DN with ArithmeticException when NULL checksum used. Contributed by Surendra Singh Lilhore.
 HDFS-14687. Standby Namenode never come out of safemode when EC files are being written. Contributed by Surendra Singh Lilhore.
+HDFS-14699. Erasure Coding: Storage not considered in live replica when replication streams hard limit reached to threshold. Contributed by Zhao Yi Ming.
