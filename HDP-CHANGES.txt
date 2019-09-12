@@ -4825,3 +4825,6 @@ ATS V1.5:
 
     BUG-122611. YARN-9744. RollingLevelDBTimelineStore.getEntityByTime fails
     with NPE. Contributed by Prabhu Joseph.
+
+    BUG-122611. YARN-9816. EntityGroupFSTimelineStore#scanActiveLogs fails when
+    undesired files are present under /ats/active. Contribued by Prabhu Joseph.
