@@ -4819,3 +4819,4 @@ ATS V1.5:
 HADOOP-15395. DefaultImpersonationProvider fails to parse proxy user config if username has . in it. Contributed by Ajay Kumar.
 YARN-9336. JobHistoryServer leaks CLOSE_WAIT tcp connections when using LogAggregationIndexedFileController. Contributed by Tarun Parimi.
 YARN-9744. RollingLevelDBTimelineStore.getEntityByTime fails with NPE. Contributed by Prabhu Joseph.
+YARN-9816. EntityGroupFSTimelineStore#scanActiveLogs fails when undesired files are present under /ats/active. Contribued by Prabhu Joseph.
