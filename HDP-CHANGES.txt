@@ -229,3 +229,4 @@ HOTFIX-2902 YARN-10055. bower install fails. (#1778)
 BUG-124672. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
 BUG-124672. YARN-10240. Prevent Fatal CancelledException in TimelineV2Client when stopping
 BUG-124939. YARN-8751. Reduce conditions that mark node manager as unhealthy.            Contributed by Craig Condit
+BUG-124939. YARN-9833. Race condition when DirectoryCollection.checkDirs() runs during container launch. Contributed by Peter Bacsko.
