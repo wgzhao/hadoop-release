@@ -252,3 +252,6 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     HDFS-14859. Prevent unnecessary evaluation of costly operation
     getNumLiveDataNodes when dfs.namenode.safemode.min.datanodes is not zero.
     Contributed by Srinivasu Majeti.
+
+    YARN-9833. Race condition when DirectoryCollection.checkDirs() runs during
+    container launch. Contributed by Peter Bacsko.
