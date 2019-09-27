@@ -276,3 +276,4 @@ BUG-123908. HDFS-14746. Trivial test code update after HDFS-14687. Contributed b
 BUG-123908. HDFS-14699. Erasure Coding: Storage not considered in live replica when replication streams hard limit reached to threshold. Contributed by Zhao Yi Ming.
 BUG-123908. HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced. Contributed by  hemanthboyina.
 BUG-123908. HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced(addendum). Contributed by Surendra Singh Lilhore.
+BUG-123908. HDFS-14849. Erasure Coding: the internal block is replicated many times when datanode is decommissioning. Contributed by HuangTao.
