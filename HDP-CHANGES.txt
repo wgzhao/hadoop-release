@@ -5171,3 +5171,5 @@ ATS V1.5:
     HADOOP-16404. ABFS default blocksize change(256MB from 512MB)
 
     HADOOP-16640. WASB: Override getCanonicalServiceName() to return URI
+
+    HADOOP-16548 : Disable Flush() over config
