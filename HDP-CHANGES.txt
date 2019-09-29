@@ -265,3 +265,5 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     Contributed by Siyao Meng.
 
     HADOOP-16578 : Avoid FileSystem API calls when FileSystem already exists
+
+    HADOOP-16548 : Disable Flush() over config

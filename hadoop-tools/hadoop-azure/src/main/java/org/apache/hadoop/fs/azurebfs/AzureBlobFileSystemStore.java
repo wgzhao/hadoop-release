@@ -348,7 +348,8 @@ public class AzureBlobFileSystemStore implements Closeable {
         AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path),
         0,
         abfsConfiguration.getWriteBufferSize(),
-        abfsConfiguration.isFlushEnabled());
+        abfsConfiguration.isFlushEnabled(),
+        abfsConfiguration.isOutputStreamFlushDisabled());
   }
 
   public void createDirectory(final Path path, final FsPermission permission, final FsPermission umask)
@@ -420,7 +421,8 @@ public class AzureBlobFileSystemStore implements Closeable {
         AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path),
         offset,
         abfsConfiguration.getWriteBufferSize(),
-        abfsConfiguration.isFlushEnabled());
+        abfsConfiguration.isFlushEnabled(),
+        abfsConfiguration.isOutputStreamFlushDisabled());
   }
 
   public void rename(final Path source, final Path destination) throws
