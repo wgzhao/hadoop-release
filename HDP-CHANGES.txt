@@ -268,3 +268,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 
 HOTFIX-3024 YARN-10055. bower install fails. (#1778)
+BUG-124830. HDFS-14373. EC : Decoding is failing when block group last incomplete cell fall in to AlignedStripe. Contributed by Surendra Singh Lilhore.
