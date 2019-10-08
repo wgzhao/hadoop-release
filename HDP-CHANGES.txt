@@ -251,3 +251,7 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     BUG-122030. HDFS-14632. Reduce useless #getNumLiveDataNodes call in
     SafeModeMonitor. Contributed by He Xiaoqiao.
+
+    BUG-122030. HDFS-14859. Prevent unnecessary evaluation of costly operation
+    getNumLiveDataNodes when dfs.namenode.safemode.min.datanodes is not zero.
+    Contributed by Srinivasu Majeti.
