@@ -5169,3 +5169,5 @@ ATS V1.5:
     YARN-5107. TestContainerMetrics fails. (aajisaka)
 
     HADOOP-16404. ABFS default blocksize change(256MB from 512MB)
+
+    HADOOP-16640. WASB: Override getCanonicalServiceName() to return URI
