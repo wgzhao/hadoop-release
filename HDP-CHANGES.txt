@@ -274,3 +274,5 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     HDFS-14042. Fix NPE when PROVIDED storage is missing. Contributed by
     Virajith Jalaparti.
+
+    HADOOP-16640. WASB: Override getCanonicalServiceName() to return URI
