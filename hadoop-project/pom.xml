@@ -69,8 +69,7 @@
 
     <!-- jackson versions -->
     <jackson.version>1.9.13</jackson.version>
-    <jackson2.version>2.9.10</jackson2.version>
-    <jackson2.databind.version>2.9.10</jackson2.databind.version>
+    <jackson2.version>2.10.0</jackson2.version>
 
     <!-- SLF4J version -->
     <slf4j.version>1.7.25</slf4j.version>
@@ -981,7 +980,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson2.databind.version}</version>
+        <version>${jackson2.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
