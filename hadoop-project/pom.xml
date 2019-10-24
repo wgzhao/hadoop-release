@@ -147,7 +147,7 @@
     <snakeyaml.version>1.16</snakeyaml.version>
     <hbase.one.version>1.2.6</hbase.one.version>
     <hbase.two.version>2.0.0-beta-1</hbase.two.version>
-    <gcs.version>1.9.0.3.0.0.0-SNAPSHOT</gcs.version>
+    <gcs.version>hadoop3-1.9.17</gcs.version>
   </properties>
 
   <dependencyManagement>
@@ -1455,6 +1455,10 @@
           <exclusion>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
