@@ -4820,3 +4820,4 @@ HADOOP-15395. DefaultImpersonationProvider fails to parse proxy user config if u
 YARN-9336. JobHistoryServer leaks CLOSE_WAIT tcp connections when using LogAggregationIndexedFileController. Contributed by Tarun Parimi.
 YARN-9744. RollingLevelDBTimelineStore.getEntityByTime fails with NPE. Contributed by Prabhu Joseph.
 YARN-9816. EntityGroupFSTimelineStore#scanActiveLogs fails when undesired files are present under /ats/active. Contribued by Prabhu Joseph.
+HDFS-14912. Set dfs.image.string-tables.expanded default to false in branch-2.7. Contributed by Siyao Meng.
