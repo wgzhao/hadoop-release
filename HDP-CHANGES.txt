@@ -278,3 +278,4 @@ BUG-123908. HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks n
 BUG-123908. HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced(addendum). Contributed by Surendra Singh Lilhore.
 BUG-123908. HDFS-14849. Erasure Coding: the internal block is replicated many times when datanode is decommissioning. Contributed by HuangTao.
 BUG-123908. HDFS-14847. Erasure Coding: Blocks are over-replicated while EC decommissioning. Contributed by Fei Hui.
+BUG-123908. HDFS-14920. Erasure Coding: Decommission may hang If one or more datanodes are out of service during decommission. Contributed by Fei Hui.
