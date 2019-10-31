@@ -5156,6 +5156,9 @@ ATS V1.5:
     AzureNativeFileSystemStore (Contributed by Shweta Yakkali via Daniel
     Templeton)
 
+    HADOOP-16104. Wasb tests to downgrade to skip when test a/c is namespace
+    enabled. Contributed by Masatake Iwasaki.
+
     HADOOP-15482. Upgrade jackson-databind to version 2.9.5. Contributed by
     Lokesh Jain.
 
