@@ -276,3 +276,4 @@ HDFS-14746. Trivial test code update after HDFS-14687. Contributed by kevin su.
 HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced. Contributed by  hemanthboyina.
 HDFS-14754. Erasure Coding : The number of Under-Replicated Blocks never reduced(addendum). Contributed by Surendra Singh Lilhore.
 HDFS-14847. Erasure Coding: Blocks are over-replicated while EC decommissioning. Contributed by Fei Hui.
+HDFS-14920. Erasure Coding: Decommission may hang If one or more datanodes are out of service during decommission. Contributed by Fei Hui.
