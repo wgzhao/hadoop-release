@@ -229,50 +229,33 @@ BUG-120719. HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs url h
 BUG-120576. YARN-9205. When using custom resource type, application will fail to run due to the CapacityScheduler throws InvalidResourceRequestException(GREATER_THEN_MAX_ALLOCATION). Contributed by Zhankun Tang.
 HDFS-12748. NameNode memory leak when accessing webhdfs GETHOMEDIRECTORY. Contributed by Weiwei Yang.
 BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
-
-    HADOOP-16376. ABFS: Override access() to no-op.
-
-    BUG-121363. YARN-6695. Fixed NPE in publishing appFinished events to ATSv2.
-    Contributed by Prabhu Joseph
-
-    YARN-9197.  Add safe guard against NPE for component instance failure.
-    Contributed by kyungwan nam
-
-    HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
-
-    HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by
-    kevin su.
-
-    BUG-122030. HDFS-14171. Performance improvement in Tailing EditLog.
-    Contributed by Kenneth Yang.
-
-    BUG-122030. HDFS-14366. Improve HDFS append performance. Contributed by Chao
-    Sun.
-
-    BUG-122030. HDFS-14632. Reduce useless #getNumLiveDataNodes call in
-    SafeModeMonitor. Contributed by He Xiaoqiao.
-
-    BUG-122030. HDFS-14859. Prevent unnecessary evaluation of costly operation
-    getNumLiveDataNodes when dfs.namenode.safemode.min.datanodes is not zero.
-    Contributed by Srinivasu Majeti.
-
-    HADOOP-16487. Update jackson-databind to 2.9.9.2. Contributed by Siyao Meng.
-
-    HADOOP-16533. Upgrade jackson-databind to 2.9.9.3. (#1354). Contributed by
-    Akira Ajisaka.
-
-    HADOOP-16619. Upgrade jackson and jackson-databind to 2.9.10 (#1554).
-    Contributed by Siyao Meng.
-
-    HADOOP-16578 : Avoid FileSystem API calls when FileSystem already exists
-
-    HADOOP-16548 : Disable Flush() over config
-
-    HADOOP-16460: ABFS: fix for Sever Name Indication (SNI)
-
-    HADOOP-16404. ABFS default blocksize change(256MB from 512MB)
-
-    HDFS-14042. Fix NPE when PROVIDED storage is missing. Contributed by
-    Virajith Jalaparti.
-
-    HADOOP-16640. WASB: Override getCanonicalServiceName() to return URI
+HADOOP-16376. ABFS: Override access() to no-op.
+BUG-121363. YARN-6695. Fixed NPE in publishing appFinished events to ATSv2. Contributed by Prabhu Joseph
+HADOOP-16640. WASB: Override getCanonicalServiceName() to return URI
+BUG-122252 YARN-9921. Issue in PlacementConstraint when YARN Service AM retries allocation on component failure. Contributed by Tarun Parimi
+BUG-122241 YARN-9833. Race condition when DirectoryCollection.checkDirs() runs during container launch. Contributed by Peter Bacsko.
+BUG-122241 HDFS-14423. Percent (%) and plus (+) characters no longer work in WebHDFS.
+HDFS-14042. Fix NPE when PROVIDED storage is missing. Contributed by Virajith Jalaparti.
+HADOOP-16404. ABFS default blocksize change(256MB from 512MB)
+HADOOP-16460: ABFS: fix for Sever Name Indication (SNI)
+HADOOP-16548 : Disable Flush() over config
+HADOOP-16578 : Avoid FileSystem API calls when FileSystem already exists
+BUG-122158. Upgrade jackson-databind to 2.10.0
+HADOOP-16619. Upgrade jackson and jackson-databind to 2.9.10 (#1554). Contributed by Siyao Meng.
+HADOOP-16533. Upgrade jackson-databind to 2.9.9.3. (#1354). Contributed by Akira Ajisaka.
+HADOOP-16487. Update jackson-databind to 2.9.9.2. Contributed by Siyao Meng.
+BUG-122121 YARN-9816. EntityGroupFSTimelineStore#scanActiveLogs fails when undesired files are present under /ats/active. Contribued by Prabhu Joseph.
+BUG-122120 YARN-9744. RollingLevelDBTimelineStore.getEntityByTime fails with NPE. Contributed by Prabhu Joseph.
+BUG-121929 HADOOP-16278. With S3A Filesystem, Long Running services End up Doing lot of GC and eventually die.
+BUG-121929 HADOOP-16248. MutableQuantiles leak memory under heavy load.
+BUG-121938 YARN-9209. When nodePartition is not set in Placement Constraints, containers are allocated only in default partition. Contributed by Tarun Parimi.
+BUG-121938 YARN-8015. Support all types of placement constraint support for Capacity Scheduler. Contributed by Weiwei Yang.
+BUG-122030. HDFS-14859. Prevent unnecessary evaluation of costly operation getNumLiveDataNodes when dfs.namenode.safemode.min.datanodes is not zero. Contributed by Srinivasu Majeti.
+BUG-122030. HDFS-14632. Reduce useless #getNumLiveDataNodes call in SafeModeMonitor. Contributed by He Xiaoqiao.
+BUG-122030. HDFS-14366. Improve HDFS append performance. Contributed by Chao Sun.
+BUG-122030. HDFS-14171. Performance improvement in Tailing EditLog. Contributed by Kenneth Yang.
+HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by kevin su.
+BUG-121735: HDFS-13101. Yet another fsimage corruption related to snapshot. Contributed by Shashikant Banerjee.
+HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
+YARN-9197.  Add safe guard against NPE for component instance failure.             Contributed by kyungwan nam
+BUG-121662 HDFS-14499. Misleading REM_QUOTA value with snapshot and trash feature enabled for a directory. Contributed by Shashikant Banerjee.
