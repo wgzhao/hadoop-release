@@ -239,3 +239,4 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     Scheduler. Contributed by Weiwei Yang.
 HOTFIX-2865 YARN-10055. bower install fails. (#1778)
 BUG-123152. HDFS-13963. NN UI is broken with IE11. Contributed by Ayush Saxena.
+BUG-124297. YARN-9968. Public Localizer is exiting in NodeManager due to NullPointerException. Contributed by Tarun Parimi
