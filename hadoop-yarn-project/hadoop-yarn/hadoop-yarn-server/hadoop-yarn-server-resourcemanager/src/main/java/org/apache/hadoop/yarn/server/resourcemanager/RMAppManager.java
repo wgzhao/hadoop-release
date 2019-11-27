@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -830,8 +831,8 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       return usernameUsedForPlacement;
     }
     if (!isWhitelistedUser(user, conf)) {
-      LOG.warn("User '{}' is not allowed to do placement based " +
-              "on application tag", user);
+      LOG.warn("User "+ user + " is not allowed to do placement based " +
+          "on application tag");
       return usernameUsedForPlacement;
     }
     LOG.debug("Application tag based placement is enabled, checking for " +
@@ -839,7 +840,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
     Set<String> applicationTags = context.getApplicationTags();
     String userNameFromAppTag = getUserNameFromApplicationTag(applicationTags);
     if (userNameFromAppTag != null) {
-      LOG.debug("Found 'userid' '{}' in application tag", userNameFromAppTag);
+      LOG.debug("Found 'userid' " + userNameFromAppTag + " in application tag");
       UserGroupInformation callerUGI = UserGroupInformation
               .createRemoteUser(userNameFromAppTag);
       // check if the actual user has rights to submit application to the
@@ -850,9 +851,8 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
               .checkAccess(callerUGI, QueueACL.SUBMIT_APPLICATIONS, queue)) {
         usernameUsedForPlacement = userNameFromAppTag;
       } else {
-        LOG.warn("User '{}' from application tag does not have access to " +
-                " queue '{}'. " + "The placement is done for user '{}'",
-                userNameFromAppTag, queue, user);
+        LOG.warn("User " + userNameFromAppTag + " from application tag does not have access to " +
+            "queue " + queue + ". The placement is done for user " + user);
       }
     } else {
       LOG.warn("'userid' was not found in application tags");
