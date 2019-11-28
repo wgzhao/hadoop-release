@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.StorageType;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.ExtendedBlockId;
+import org.apache.hadoop.util.AutoCloseableLock;
 import org.apache.hadoop.hdfs.protocol.Block;
 import org.apache.hadoop.hdfs.protocol.BlockListAsLongs;
 import org.apache.hadoop.hdfs.protocol.BlockLocalPathInfo;
@@ -203,16 +204,14 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     }
   }
 
-  /**
-   * The deepCopyReplica call doesn't use the datasetock since it will lead the
-   * potential deadlock with the {@link FsVolumeList#addBlockPool} call.
-   */
   @Override
   public Set<? extends Replica> deepCopyReplica(String bpid)
       throws IOException {
-    Set<? extends Replica> replicas =
-        new HashSet<>(volumeMap.replicas(bpid) == null ? Collections.EMPTY_SET
-            : volumeMap.replicas(bpid));
+    Set<? extends Replica> replicas = null;
+    try (AutoCloseableLock lock = datasetLock.acquire()) {
+      replicas = new HashSet<>(volumeMap.replicas(bpid) == null ? Collections.
+          EMPTY_SET : volumeMap.replicas(bpid));
+    }
     return Collections.unmodifiableSet(replicas);
   }
 
@@ -294,6 +293,8 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
   private boolean blockPinningEnabled;
   private final int maxDataLength;
 
+  private final AutoCloseableLock datasetLock;
+
   /**
    * An FSDataset has a directory where it loads its data files.
    */
@@ -303,6 +304,7 @@ class FsDatasetImpl implements FsDatasetSpi<FsVolumeImpl> {
     this.datanode = datanode;
     this.dataStorage = storage;
     this.conf = conf;
+    this.datasetLock = new AutoCloseableLock();
     // The number of volumes required for operation is the total number
     // of volumes minus the number of failed volumes we can tolerate.
     volFailuresTolerated = datanode.getDnConf().getVolFailuresTolerated();
