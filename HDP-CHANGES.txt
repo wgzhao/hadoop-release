@@ -259,3 +259,6 @@ BUG-121735: HDFS-13101. Yet another fsimage corruption related to snapshot. Cont
 HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
 YARN-9197.  Add safe guard against NPE for component instance failure.             Contributed by kyungwan nam
 BUG-121662 HDFS-14499. Misleading REM_QUOTA value with snapshot and trash feature enabled for a directory. Contributed by Shashikant Banerjee.
+
+    YARN-9890. [UI2] Add Application tag to the app table and app detail page.
+    Contributed by Julia Kinga Marton
