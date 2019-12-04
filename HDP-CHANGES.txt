@@ -258,6 +258,12 @@ HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by kevin su
 HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
 YARN-9197.  Add safe guard against NPE for component instance failure.             Contributed by kyungwan nam
 BUG-121662 HDFS-14499. Misleading REM_QUOTA value with snapshot and trash feature enabled for a directory. Contributed by Shashikant Banerjee.
+BUG-122434 HDFS-14466. Add a regression test for HDFS-14323
+COMPX-1400 YARN-9886 Queue mapping based on userid passed through application tag.
+COMPX-1400 YARN-9991 Queue mapping based on userid passed through application tag: Change prefix to 'userid'.
+COMPX-1400 : Fix testcase issue
+YARN-9889 [UI] Add Application Tag column to RM All Applications table. Contributed by Kinga Marton
+YARN-9890. [UI2] Add Application tag to the app table and app detail page. Contributed by Julia Kinga Marton
+BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPointerException. Contributed by Tarun Parimi
 
-    YARN-9890. [UI2] Add Application tag to the app table and app detail page.
-    Contributed by Julia Kinga Marton
+
