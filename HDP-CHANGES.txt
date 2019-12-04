@@ -255,7 +255,6 @@ BUG-122030. HDFS-14632. Reduce useless #getNumLiveDataNodes call in SafeModeMoni
 BUG-122030. HDFS-14366. Improve HDFS append performance. Contributed by Chao Sun.
 BUG-122030. HDFS-14171. Performance improvement in Tailing EditLog. Contributed by Kenneth Yang.
 HADOOP-16542. Update commons-beanutils version to 1.9.4. Contributed by kevin su.
-BUG-121735: HDFS-13101. Yet another fsimage corruption related to snapshot. Contributed by Shashikant Banerjee.
 HADOOP-16247. NPE in FsUrlConnection. Contributed by Karthik Palanisamy.
 YARN-9197.  Add safe guard against NPE for component instance failure.             Contributed by kyungwan nam
 BUG-121662 HDFS-14499. Misleading REM_QUOTA value with snapshot and trash feature enabled for a directory. Contributed by Shashikant Banerjee.
