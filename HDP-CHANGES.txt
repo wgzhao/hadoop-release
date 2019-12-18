@@ -4817,3 +4817,4 @@ ATS V1.5:
     HADOOP-15390. Yarn RM logs flooded by DelegationTokenRenewer trying to renew
     KMS tokens (xiaochen via rkanter)
 HDFS-13101. Yet another fsimage corruption related to snapshot. Contributed by Shashikant Banerjee.
+HDFS-15012. NN fails to parse Edit logs after applying HDFS-13101. Contributed by Shashikant Banerjee.
