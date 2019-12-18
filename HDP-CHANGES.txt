@@ -4714,3 +4714,4 @@ ATS V1.5:
     BUG-92982. YARN-4550. Some tests in TestContainerLanch fails on non-english
     locale environment. (Takashi Ohnishi via stevel)
 HDFS-13101. Yet another fsimage corruption related to snapshot. Contributed by Shashikant Banerjee.
+HDFS-15012. NN fails to parse Edit logs after applying HDFS-13101. Contributed by Shashikant Banerjee.
