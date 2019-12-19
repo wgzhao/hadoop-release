@@ -272,3 +272,4 @@ BUG-124258. YARN-7088. Add application launch time to Resource Manager REST API.
 BUG-124258. YARN-7171: RM UI should sort memory / cores numerically. Contributed by Ahmed Hussein
 BUG-124258. YARN-9286. [Timeline Server] Sorting based on FinalStatus shows pop-up message. Contributed by Bilwa S T.
 BUG-124258. YARN-9285: RM UI progress column is of wrong type. Contributed by  Ahmed Hussein.
+BUG-124258. YARN-10038. [UI] Finish Time is not correctly parsed in the RM Apps page. Contributed by Inigo Goiri.
