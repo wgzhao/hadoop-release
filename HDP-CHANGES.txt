@@ -216,3 +216,4 @@ BUG-100895. Ignore UTs failing due to environmental issues.
 BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated cluster. Contributed by Arpit Agarwal.
 
     BUG-121054. HADOOP-15281. Distcp to add no-rename copy option.
+HOTFIX-2855 YARN-10055. bower install fails. (#1778)
