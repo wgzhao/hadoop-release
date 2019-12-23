@@ -150,3 +150,5 @@ HADOOP-15677. WASB: Add support for StreamCapabilities. Contributed by Thomas Ma
     HADOOP-16036. WASB: Disable jetty logging configuration announcement.
 
     HADOOP-15957. WASB: Add asterisk wildcard support for PageBlobDirSet.
+
+YARN-10055. bower install fails. (#1778)
