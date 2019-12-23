@@ -214,3 +214,4 @@ BUG-101422. Disable HDFS and Hadoop unit tests that are flaky in Mawo.
 BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memory error occurs. Extension of BUG-5700 contributed by Chris Nauroth.
 BUG-100895. Ignore UTs failing due to environmental issues.
 BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated cluster. Contributed by Arpit Agarwal.
+HOTFIX-3755 YARN-10055. bower install fails. (#1778)
