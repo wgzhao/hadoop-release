@@ -101,3 +101,4 @@ Remove super user privilege requirement for NameNode.getServiceStatus. Contribut
 
     BUG-122624. HDFS-14499. Misleading REM_QUOTA value with snapshot and trash
     feature enabled for a directory. Contributed by Shashikant Banerjee.
+YARN-10055. bower install fails. (#1778)
