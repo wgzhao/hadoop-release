@@ -220,3 +220,5 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
 
     HDFS-14323. Distcp fails in Hadoop 3.x when 2.x source webhdfs url has
     special characters in hdfs file path. Contributed by Srinivasu Majeti.
+
+    YARN-10055. bower install fails. (#1778)
