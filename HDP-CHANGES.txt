@@ -237,3 +237,4 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     YARN-8015. Support all types of placement constraint support for Capacity
     Scheduler. Contributed by Weiwei Yang.
+HOTFIX-2865 YARN-10055. bower install fails. (#1778)
