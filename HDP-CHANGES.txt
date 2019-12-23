@@ -228,3 +228,4 @@ HADOOP-15968. ABFS: add try catch for UGI failure when initializing ABFS.
     application is done writing to a file.
 
     HADOOP-16169. ABFS: Bug fix for getPathProperties.
+HOTFIX-2987 YARN-10055. bower install fails. (#1778)
