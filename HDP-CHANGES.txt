@@ -267,3 +267,4 @@ YARN-9890. [UI2] Add Application tag to the app table and app detail page. Contr
 BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPointerException. Contributed by Tarun Parimi
 
 
+HOTFIX-3804 YARN-10055. bower install fails. (#1778)
