@@ -217,3 +217,4 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
 
     BUG-122501. YARN-9968. Public Localizer is exiting in NodeManager due to
     NullPointerException. Contributed by Tarun Parimi
+HOTFIX-3110 YARN-10055. bower install fails. (#1778)
