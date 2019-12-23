@@ -240,3 +240,4 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
 
     BUG-121641. HDFS-13101. Yet another fsimage corruption related to snapshot.
     Contributed by Shashikant Banerjee.
+HOTFIX-2853 YARN-10055. bower install fails. (#1778)
