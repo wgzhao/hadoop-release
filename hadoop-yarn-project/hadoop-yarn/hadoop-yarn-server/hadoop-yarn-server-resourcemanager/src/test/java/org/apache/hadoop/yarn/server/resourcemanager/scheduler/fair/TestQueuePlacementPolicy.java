@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.security.GroupMappingServiceProvider;
+import org.apache.hadoop.security.Groups;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -389,16 +390,20 @@ public class TestQueuePlacementPolicy {
     sb.append("  <rule name='default' />");
     sb.append("</queuePlacementPolicy>");
 
+    // change the group resolution
     conf.setClass(CommonConfigurationKeys.HADOOP_SECURITY_GROUP_MAPPING,
         PeriodGroupsMapping.class, GroupMappingServiceProvider.class);
+    Groups.getUserToGroupsMappingServiceWithLoadedConfiguration(conf);
     // User queue would be created under primary group queue, and the period
     // in the group name should be converted into _dot_
     QueuePlacementPolicy policy = parse(sb.toString());
     assertEquals("root.user1_dot_group.user1",
         policy.assignAppToQueue("root.default", "user1"));
 
+    // undo the group resolution change
     conf.setClass(CommonConfigurationKeys.HADOOP_SECURITY_GROUP_MAPPING,
         SimpleGroupsMapping.class, GroupMappingServiceProvider.class);
+    Groups.getUserToGroupsMappingServiceWithLoadedConfiguration(conf);
   }
 
   @Test(expected=IOException.class)
