@@ -268,3 +268,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 
 HOTFIX-3661 YARN-10055. bower install fails. (#1778)
+YARN-10053. Use Shared Group Mapping Service in Placement Rules. Contributed by Wilfred Spiegelenburg.
