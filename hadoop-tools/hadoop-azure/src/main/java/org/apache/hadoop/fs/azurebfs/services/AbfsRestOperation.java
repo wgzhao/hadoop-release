@@ -145,6 +145,8 @@ public class AbfsRestOperation {
       throw new AbfsRestOperationException(result.getStatusCode(), result.getStorageErrorCode(),
           result.getStorageErrorMessage(), null, result);
     }
+
+    LOG.trace("{} REST operation complete", operationType);
   }
 
   /**
@@ -206,7 +208,7 @@ public class AbfsRestOperation {
       AbfsClientThrottlingIntercept.updateMetrics(operationType, httpOperation);
     }
 
-    LOG.debug("HttpRequest: " + httpOperation.toString());
+    LOG.debug("HttpRequest: {}", httpOperation.toString());
 
     if (client.getRetryPolicy().shouldRetry(retryCount, httpOperation.getStatusCode())) {
       return false;
