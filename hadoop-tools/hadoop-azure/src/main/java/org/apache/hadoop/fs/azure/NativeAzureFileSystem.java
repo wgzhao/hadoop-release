@@ -1062,6 +1062,7 @@ public class NativeAzureFileSystem extends FileSystem {
      */
     @Override
     public void write(int b) throws IOException {
+      checkOpen();
       try {
         out.write(b);
       } catch(IOException e) {
@@ -1085,6 +1086,7 @@ public class NativeAzureFileSystem extends FileSystem {
      */
     @Override
     public void write(byte[] b) throws IOException {
+      checkOpen();
       try {
         out.write(b);
       } catch(IOException e) {
@@ -1115,6 +1117,7 @@ public class NativeAzureFileSystem extends FileSystem {
      */
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+      checkOpen();
       try {
         out.write(b, off, len);
       } catch(IOException e) {
@@ -1177,6 +1180,17 @@ public class NativeAzureFileSystem extends FileSystem {
     private void restoreKey() throws IOException {
       store.rename(getEncodedKey(), getKey());
     }
+
+    /**
+     * Check for the stream being open.
+     * @throws IOException if the stream is closed.
+     */
+    private void checkOpen() throws IOException {
+      if (out == null) {
+        throw new IOException(FSExceptionMessages.STREAM_IS_CLOSED);
+      }
+    }
+
   }
 
   private URI uri;
