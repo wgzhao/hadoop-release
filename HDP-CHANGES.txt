@@ -278,3 +278,4 @@ BUG-124415. YARN-9286. [Timeline Server] Sorting based on FinalStatus shows pop-
 BUG-124415. YARN-9285: RM UI progress column is of wrong type. Contributed by  Ahmed Hussein.
 BUG-124415. YARN-10038. [UI] Finish Time is not correctly parsed in the RM Apps page. Contributed by Inigo Goiri.
 BUG-124415. YARN-10053. Use Shared Group Mapping Service in Placement Rules. Contributed by Wilfred Spiegelenburg.
+BUG-124415. YARN-10068. Fix TimelineV2Client leaking File Descriptors.
