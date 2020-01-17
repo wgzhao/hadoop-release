@@ -34,7 +34,13 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.resourcemanager.placement.UserGroupMappingPlacementRule.QueueMapping.MappingType;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.*;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.AutoCreatedLeafQueue;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CSQueue;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacitySchedulerConfiguration;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacitySchedulerContext;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacitySchedulerQueueManager;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.ManagedParentQueue;
 
 import static org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacitySchedulerConfiguration.DOT;
 
@@ -299,9 +305,9 @@ public class UserGroupMappingPlacementRule extends PlacementRule {
 
     // initialize groups if mappings are present
     if (newMappings.size() > 0) {
+      Groups groups = new Groups(conf);
       this.mappings = newMappings;
-      this.groups = Groups.getUserToGroupsMappingService(
-          schedulerContext.getConf());
+      this.groups = groups;
       this.overrideWithQueueMappings = overrideWithQueueMappings;
       return true;
     }
