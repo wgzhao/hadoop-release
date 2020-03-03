@@ -72,6 +72,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TimeoutException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
+import org.apache.hadoop.fs.azurebfs.extensions.SASTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.IdentityTransformer;
 import org.apache.hadoop.fs.azurebfs.services.AbfsAclHelper;
@@ -1102,8 +1103,9 @@ public class AzureBlobFileSystemStore {
 
     SharedKeyCredentials creds = null;
     AccessTokenProvider tokenProvider = null;
+    SASTokenProvider sasTokenProvider = null;
 
-    if (abfsConfiguration.getAuthType(accountName) == AuthType.SharedKey) {
+    if (authType == AuthType.SharedKey) {
       LOG.trace("Fetching SharedKey credentials");
       int dotIndex = accountName.indexOf(AbfsHttpConstants.DOT);
       if (dotIndex <= 0) {
@@ -1112,13 +1114,24 @@ public class AzureBlobFileSystemStore {
       }
       creds = new SharedKeyCredentials(accountName.substring(0, dotIndex),
             abfsConfiguration.getStorageAccountKey());
+    } else if (authType == AuthType.SAS) {
+      LOG.trace("Fetching SAS token provider");
+      sasTokenProvider = abfsConfiguration.getSASTokenProvider();
     } else {
       LOG.trace("Fetching token provider");
       tokenProvider = abfsConfiguration.getTokenProvider();
     }
 
     LOG.trace("Initializing AbfsClient for {}", baseUrl);
-    this.client =  new AbfsClient(baseUrl, creds, abfsConfiguration, new ExponentialRetryPolicy(abfsConfiguration.getMaxIoRetries()), tokenProvider, abfsPerfTracker);
+    if (tokenProvider != null) {
+      this.client = new AbfsClient(baseUrl, creds, abfsConfiguration,
+          new ExponentialRetryPolicy(abfsConfiguration.getMaxIoRetries()),
+          tokenProvider, abfsPerfTracker);
+    } else {
+      this.client = new AbfsClient(baseUrl, creds, abfsConfiguration,
+          new ExponentialRetryPolicy(abfsConfiguration.getMaxIoRetries()),
+          sasTokenProvider, abfsPerfTracker);
+    }
     LOG.trace("AbfsClient init complete");
   }
 
