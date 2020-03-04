@@ -78,10 +78,14 @@ public class AbfsClient {
 
     if (this.baseUrl.toString().startsWith(HTTPS_SCHEME)) {
       try {
+        LOG.trace("Initializing SSLSocketFactoryEx with {} SSL "
+                + "Channel Mode", this.abfsConfiguration.getPreferredSSLFactoryOption());
         SSLSocketFactoryEx.initializeDefaultFactory(this.abfsConfiguration.getPreferredSSLFactoryOption());
         sslProviderName = SSLSocketFactoryEx.getDefaultFactory().getProviderName();
       } catch (IOException e) {
         // Suppress exception. Failure to init SSLSocketFactoryEx would have only performance impact.
+        LOG.trace("NonCritFailure: SSLSocketFactoryEx Init failed : "
+            + "{}", e.getMessage());
       }
     }
 
