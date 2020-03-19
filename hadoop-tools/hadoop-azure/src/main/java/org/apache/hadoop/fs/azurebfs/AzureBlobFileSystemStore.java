@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.fs.azurebfs;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -71,6 +72,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
 import org.apache.hadoop.fs.azurebfs.extensions.SASTokenProvider;
+import org.apache.hadoop.fs.azurebfs.extensions.ExtensionHelper;
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.IdentityTransformer;
 import org.apache.hadoop.fs.azurebfs.services.AbfsAclHelper;
@@ -92,6 +94,7 @@ import org.apache.hadoop.fs.permission.AclEntry;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
@@ -113,7 +116,7 @@ import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_AB
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public class AzureBlobFileSystemStore {
+public class AzureBlobFileSystemStore implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(AzureBlobFileSystemStore.class);
 
   private AbfsClient client;
@@ -189,6 +192,11 @@ public class AzureBlobFileSystemStore {
   * */
   public String getPrimaryGroup() {
     return this.primaryUserGroup;
+  }
+
+  @Override
+  public void close() throws IOException {
+    IOUtils.cleanupWithLogger(LOG, client);
   }
 
   byte[] encodeAttribute(String value) throws UnsupportedEncodingException {
@@ -1085,7 +1093,8 @@ public class AzureBlobFileSystemStore {
     return isKeyForDirectorySet(key, azureAtomicRenameDirSet);
   }
 
-  private void initializeClient(URI uri, String fileSystemName, String accountName, boolean isSecure) throws AzureBlobFileSystemException {
+  private void initializeClient(URI uri, String fileSystemName, String accountName, boolean isSecure)
+      throws IOException {
     if (this.client != null) {
       return;
     }
@@ -1120,6 +1129,8 @@ public class AzureBlobFileSystemStore {
     } else {
       LOG.trace("Fetching token provider");
       tokenProvider = abfsConfiguration.getTokenProvider();
+      ExtensionHelper.bind(tokenProvider, uri,
+            abfsConfiguration.getRawConfiguration());
     }
 
     LOG.trace("Initializing AbfsClient for {}", baseUrl);

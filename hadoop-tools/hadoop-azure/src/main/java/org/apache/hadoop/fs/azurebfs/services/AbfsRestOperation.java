@@ -179,7 +179,9 @@ public class AbfsRestOperation {
               hasRequestBody ? bufferLength : 0);
           break;
       }
-
+      // dump the headers
+      AbfsIoUtils.dumpHeadersToDebugLog("Request Headers",
+          httpOperation.getConnection().getRequestProperties());
       AbfsClientThrottlingIntercept.sendingRequest(operationType);
 
       if (hasRequestBody) {
