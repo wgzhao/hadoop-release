@@ -1148,6 +1148,12 @@ public class ClientRMService extends AbstractService implements
   @Override
   public MoveApplicationAcrossQueuesResponse moveApplicationAcrossQueues(
       MoveApplicationAcrossQueuesRequest request) throws YarnException {
+
+    if (!getConfig().getBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED,
+            YarnConfiguration.DEFAULT_MOVE_QUEUE_ALLOWED)) {
+      throw RPCUtil.getRemoteException(new UnsupportedOperationException("Move Queue Operation is not supported"));
+    }
+
     ApplicationId applicationId = request.getApplicationId();
 
     UserGroupInformation callerUGI = getCallerUgi(applicationId,

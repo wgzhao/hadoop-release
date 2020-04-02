@@ -96,6 +96,7 @@ public class YarnConfiguration extends Configuration {
   @Evolving
   public static final int APPLICATION_MAX_TAG_LENGTH = 100;
 
+
   static {
     addDeprecatedKeys();
     Configuration.addDefaultResource(YARN_DEFAULT_CONFIGURATION_FILE);
@@ -215,6 +216,11 @@ public class YarnConfiguration extends Configuration {
   public static final String RM_CLIENT_THREAD_COUNT =
     RM_PREFIX + "client.thread-count";
   public static final int DEFAULT_RM_CLIENT_THREAD_COUNT = 50;
+
+  //** Move Queue switch to disable the movetoqueue opertion.*/
+  public static String MOVE_QUEUE_ALLOWED =
+          RM_PREFIX + "move.queue.allowed";
+  public static boolean DEFAULT_MOVE_QUEUE_ALLOWED = false;
 
   /** Number of threads used to launch/cleanup AM.*/
   public static final String RM_AMLAUNCHER_THREAD_COUNT =

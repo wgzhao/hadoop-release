@@ -159,16 +159,22 @@ import org.apache.hadoop.yarn.util.Clock;
 import org.apache.hadoop.yarn.util.UTCClock;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 public class TestClientRMService {
+
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
 
   private static final Log LOG = LogFactory.getLog(TestClientRMService.class);
 
@@ -632,6 +638,26 @@ public class TestClientRMService {
         new ConcurrentHashMap<ApplicationId, RMApp>());
     ClientRMService rmService = new ClientRMService(rmContext, null, null,
         null, null, null);
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService.init(conf);
+    ApplicationId applicationId =
+        BuilderUtils.newApplicationId(System.currentTimeMillis(), 0);
+    MoveApplicationAcrossQueuesRequest request =
+        MoveApplicationAcrossQueuesRequest.newInstance(applicationId,
+            "newqueue");
+    rmService.moveApplicationAcrossQueues(request);
+  }
+
+  @Test
+  public void testMoveApplicationWhenMoveQueueNotAllowed() throws YarnException {
+    exceptionRule.expect(YarnException.class);
+    exceptionRule.expectMessage("Move Queue Operation is not supported");
+    exceptionRule.expectCause(IsInstanceOf.instanceOf(UnsupportedOperationException.class));
+    RMContext rmContext = mock(RMContext.class);
+    ClientRMService rmService = new ClientRMService(rmContext, null, null,
+        null, null, null);
+    rmService.init(new Configuration());
     ApplicationId applicationId =
         BuilderUtils.newApplicationId(System.currentTimeMillis(), 0);
     MoveApplicationAcrossQueuesRequest request =
@@ -652,6 +678,9 @@ public class TestClientRMService {
     ClientRMService rmService = createClientRMServiceForMoveApplicationRequest(
         applicationId, aclUGI.getShortUserName(), appAclsManager,
         queueACLsManager);
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService.init(conf);
 
     // move as the owner queue in the acl
     MoveApplicationAcrossQueuesRequest moveAppRequest =
@@ -680,6 +709,9 @@ public class TestClientRMService {
     ClientRMService rmService2 =
         createClientRMServiceForMoveApplicationRequest(applicationId,
             aclUGI.getShortUserName(), appAclsManager, queueACLsManager);
+    Configuration conf2 = new Configuration();
+    conf2.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService2.init(conf2);
 
     // access to the queue not OK: user not allowed in this queue
     MoveApplicationAcrossQueuesRequest moveAppRequest2 =
@@ -713,6 +745,9 @@ public class TestClientRMService {
     ClientRMService rmService =
         createClientRMServiceForMoveApplicationRequest(applicationId,
             aclUGI.getShortUserName(), appAclsManager, queueAclsManager);
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService.init(conf);
 
     // user is admin move to queue in acl
     MoveApplicationAcrossQueuesRequest moveAppRequest =
@@ -746,6 +781,9 @@ public class TestClientRMService {
     MoveApplicationAcrossQueuesRequest moveAppRequest2 =
         MoveApplicationAcrossQueuesRequest.
             newInstance(applicationId, "move_queue");
+    Configuration conf2 = new Configuration();
+    conf2.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService2.init(conf2);
 
     try {
       rmService2.moveApplicationAcrossQueues(moveAppRequest2);
@@ -774,6 +812,9 @@ public class TestClientRMService {
     ClientRMService rmService =
         createClientRMServiceForMoveApplicationRequest(applicationId,
             aclUGI.getShortUserName(), appAclsManager, queueAclsManager);
+    Configuration conf = new Configuration();
+    conf.setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
+    rmService.init(conf);
 
     MoveApplicationAcrossQueuesRequest moveAppRequest =
         MoveApplicationAcrossQueuesRequest.newInstance(applicationId,

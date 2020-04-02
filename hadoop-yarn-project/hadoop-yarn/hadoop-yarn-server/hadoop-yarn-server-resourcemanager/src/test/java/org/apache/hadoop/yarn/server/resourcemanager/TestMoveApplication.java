@@ -80,6 +80,7 @@ public class TestMoveApplication {
     }
 
     ClientRMService clientRMService = resourceManager.getClientRMService();
+    clientRMService.getConfig().setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
     try {
       // FIFO scheduler does not support moves
       clientRMService.moveApplicationAcrossQueues(
@@ -99,6 +100,7 @@ public class TestMoveApplication {
     application.submit();
     
     ClientRMService clientRMService = resourceManager.getClientRMService();
+    clientRMService.getConfig().setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
     // Kill the application
     clientRMService.forceKillApplication(
         KillApplicationRequest.newInstance(appId));
@@ -126,6 +128,7 @@ public class TestMoveApplication {
     rm1.start();
     RMApp app = rm1.submitApp(1024);
     ClientRMService clientRMService = rm1.getClientRMService();
+    clientRMService.getConfig().setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
     // FIFO scheduler does not support moves
     clientRMService
       .moveApplicationAcrossQueues(MoveApplicationAcrossQueuesRequest
@@ -145,6 +148,7 @@ public class TestMoveApplication {
     application.submit();
 
     final ClientRMService clientRMService = resourceManager.getClientRMService();
+    clientRMService.getConfig().setBoolean(YarnConfiguration.MOVE_QUEUE_ALLOWED, true);
     try {
       UserGroupInformation.createRemoteUser("otheruser").doAs(
           new PrivilegedExceptionAction<MoveApplicationAcrossQueuesResponse>() {
