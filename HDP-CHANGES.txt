@@ -98,3 +98,4 @@ BUG-101422. Disable HDFS and Hadoop unit tests that are flaky in Mawo.
 BUG-65303. NameNode, DataNode, SecondaryNameNode should shutdown if out of memory error occurs. Extension of BUG-5700 contributed by Chris Nauroth.
 BUG-100895. Ignore UTs failing due to environmental issues.
 Remove super user privilege requirement for NameNode.getServiceStatus. Contributed by Chao Sun.
+HOTFIX-3529 Fixing bower.json abdmob/x2js package download failure.
