@@ -268,3 +268,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 
 HOTFIX-3010 YARN-10055. bower install fails. (#1778)
+BUG-124668. MAPREDUCE-7273.  Fixed Job History server token renewal.                  Contributed by Peter Bacsko via eyang
