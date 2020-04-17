@@ -4651,3 +4651,4 @@ ATS V1.5:
     own User Directory. Contributed by Rohith Sharma K S.
 
     BUG-90823. YARN-7400. incorrect log preview displayed in jobhistory server(xgong)
+BUG-124340. MAPREDUCE-7273.  Fixed Job History server token renewal.                  Contributed by Peter Bacsko via eyang
