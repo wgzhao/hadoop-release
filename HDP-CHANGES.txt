@@ -4813,3 +4813,4 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
+BUG-124803. MAPREDUCE-7273.  Fixed Job History server token renewal.                  Contributed by Peter Bacsko via eyang
