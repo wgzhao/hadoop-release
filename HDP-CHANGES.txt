@@ -236,3 +236,4 @@ BUG-121199. Upgrade jackson to 2.9.9 and jackson-databind to 2.9.9.1 in Hadoop
     Contributed by Prabhu Joseph
 HOTFIX-3175 YARN-10055. bower install fails. (#1778)
 BUG-123766. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
+BUG-123766. YARN-10240. Prevent Fatal CancelledException in TimelineV2Client when stopping
