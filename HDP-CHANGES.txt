@@ -101,3 +101,4 @@ Remove super user privilege requirement for NameNode.getServiceStatus. Contribut
 BUG-123634. HADOOP-16278. With S3A Filesystem, Long Running services End up Doing lot of GC and eventually die.
 BUG-123634. HADOOP-16248. MutableQuantiles leak memory under heavy load.
 BUG-123779. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
+BUG-123779. YARN-10240. Prevent Fatal CancelledException in TimelineV2Client when stopping
