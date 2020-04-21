@@ -269,3 +269,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 HOTFIX-3501 YARN-10055. bower install fails. (#1778)
 BUG-124579. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
+BUG-124579. YARN-10240. Prevent Fatal CancelledException in TimelineV2Client when stopping
