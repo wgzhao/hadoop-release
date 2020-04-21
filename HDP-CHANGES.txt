@@ -227,3 +227,4 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
     HDFS-14466. Add a regression test for HDFS-14323.
 HOTFIX-2902 YARN-10055. bower install fails. (#1778)
 BUG-124672. YARN-6735. Have a way to turn off container metrics from NMs. Contributed by Abhishek Modi.
+BUG-124672. YARN-10240. Prevent Fatal CancelledException in TimelineV2Client when stopping
