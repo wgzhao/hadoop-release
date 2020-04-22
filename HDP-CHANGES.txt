@@ -4818,3 +4818,4 @@ ATS V1.5:
     KMS tokens (xiaochen via rkanter)
 HDFS-13101. Yet another fsimage corruption related to snapshot. Contributed by Shashikant Banerjee.
 HDFS-15012. NN fails to parse Edit logs after applying HDFS-13101. Contributed by Shashikant Banerjee.
+HDFS-15276. Concat on INodeRefernce fails with illegal state exception. Contributed by hemanthboyina
