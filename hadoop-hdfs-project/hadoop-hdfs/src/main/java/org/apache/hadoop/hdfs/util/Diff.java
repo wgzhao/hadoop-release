@@ -17,12 +17,12 @@
  */
 package org.apache.hadoop.hdfs.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import com.google.common.base.Preconditions;
 
 /**
  * The difference between the current state and a previous state of a list.
@@ -160,6 +160,22 @@ public class Diff<K, E extends Diff.Element<K>> {
   public List<E> getList(final ListType type) {
     final List<E> list = type == ListType.CREATED? created: deleted;
     return list == null? Collections.<E>emptyList(): list;
+  }
+
+  public List<E> getCreatedUnmodifiable() {
+    return created != null? Collections.unmodifiableList(created)
+        : Collections.<E>emptyList();
+  }
+
+  public boolean removeCreated(final E element) {
+    if (created != null) {
+      final int i = search(created, element.getKey());
+      if (i >= 0 && created.get(i) == element) {
+        created.remove(i);
+        return true;
+      }
+    }
+    return false;
   }
 
   public int searchIndex(final ListType type, final K name) {
