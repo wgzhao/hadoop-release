@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.hdfs.protocol.QuotaExceededException;
@@ -775,21 +776,24 @@ public class DirectoryWithSnapshotFeature implements INode.Feature {
           // were created before "prior" will be covered by the later 
           // cleanSubtreeRecursively call.
           if (priorCreated != null) {
-            if (currentINode.isLastReference() &&
-                    currentINode.getDiffs().getLastSnapshotId() == prior) {
-              // If this is the last reference of the directory inode and it
-              // can not be accessed in any of the subsequent snapshots i.e,
-              // this is the latest snapshot diff and if this is the last
-              // reference, the created list can be
-              // destroyed.
-              priorDiff.getChildrenDiff().destroyCreatedList(
-                  bsps, currentINode, collectedBlocks, removedINodes);
-            } else {
-              // we only check the node originally in prior's created list
-              for (INode cNode : priorDiff.getChildrenDiff().getList(
-                  ListType.CREATED)) {
-                if (priorCreated.containsKey(cNode)) {
-                  counts.add(cNode.cleanSubtree(bsps, snapshot, Snapshot.NO_SNAPSHOT_ID,
+            // The nodes in priorCreated must be destroyed if
+            //   (1) this is the last reference, and
+            //   (2) prior is the last snapshot, and
+            //   (3) currentINode is not in the current state.
+            final boolean destroy = currentINode.isLastReference()
+                && currentINode.getDiffs().getLastSnapshotId() == prior
+                && !currentINode.isInCurrentState();
+            // we only check the node originally in prior's created list
+            for (INode cNode : new ArrayList<>(priorDiff.
+                diff.getCreatedUnmodifiable())) {
+              if (priorCreated.containsKey(cNode)) {
+                if (destroy) {
+                  cNode.computeQuotaUsage(bsps, counts, true);
+                  cNode.destroyAndCollectBlocks(bsps, collectedBlocks, removedINodes);
+                  currentINode.removeChild(cNode);
+                  priorDiff.diff.removeCreated(cNode);
+                } else {
+		  counts.add(cNode.cleanSubtree(bsps, snapshot, Snapshot.NO_SNAPSHOT_ID,
                       collectedBlocks, removedINodes));
                 }
               }
