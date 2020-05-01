@@ -221,6 +221,27 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
     return this;
   }
 
+  /** Is this inode in the current state? */
+  public boolean isInCurrentState() {
+    if (isRoot()) {
+      return true;
+    }
+    final INodeDirectory parentDir = getParent();
+    if (parentDir == null) {
+      return false; // this inode is only referenced in snapshots
+    }
+    if (!parentDir.isInCurrentState()) {
+      return false;
+    }
+    final INode child = parentDir.getChild(getLocalNameBytes(),
+            Snapshot.CURRENT_STATE_ID);
+    if (this == child) {
+      return true;
+    }
+    return child != null && child.isReference() &&
+        this.equals(child.asReference().getReferredINode());
+  }
+
   /** Is this inode in the latest snapshot? */
   public final boolean isInLatestSnapshot(final int latestSnapshotId) {
     if (latestSnapshotId == Snapshot.CURRENT_STATE_ID || latestSnapshotId == Snapshot.NO_SNAPSHOT_ID) {
@@ -229,6 +250,8 @@ public abstract class INode implements INodeAttributes, Diff.Element<byte[]> {
     // if parent is a reference node, parent must be a renamed node. We can 
     // stop the check at the reference node.
     if (parent != null && parent.isReference()) {
+      // TODO: Is it a bug to return true?
+      //       Some ancestor nodes may not be in the latest snapshot.
       return true;
     }
     final INodeDirectory parentDir = getParent();
