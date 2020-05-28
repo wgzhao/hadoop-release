@@ -4813,4 +4813,11 @@ ATS V1.5:
     HDFS-12347. TestBalancerRPCDelay#testBalancerRPCDelay fails very frequently
 
     BUG-100352. Remove RM registry purge for app attempt and container events.
-BUG-123688. HADOOP-12974. Create a CachingGetSpaceUsed implementation that uses df. Contributed by Elliott Clark.
+
+    BUG-123688. HADOOP-12974. Create a CachingGetSpaceUsed implementation that uses df. Contributed by Elliott Clark.
+
+    BUG-123688. HDFS-9282. Make data directory count and storage raw capacity related tests FsDataset-agnostic. (Tony Wu via lei)
+
+    BUG-123688. HDFS-12818. Support multiple storages in DataNodeCluster / SimulatedFSDataset. Contributed by Erik Krogen.
+
+    BUG-123688. HDFS-14313. Get hdfs used space from FsDatasetImpl#volumeMap#ReplicaInfo in memory instead of df/du. Contributed by Lisheng Sun.
