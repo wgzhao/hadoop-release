@@ -72,9 +72,14 @@ public class DataNodeUGIProvider {
     UserGroupInformation ugi;
 
     try {
-      if (UserGroupInformation.isSecurityEnabled()) {
-        final Token<DelegationTokenIdentifier> token = params.delegationToken();
+      final Token<DelegationTokenIdentifier> token = params.delegationToken();
 
+      // Create nonTokenUGI when token is null.
+      // This makes it possible for users to access secure DataNodes from insecure NameNodes.
+      // This is a temporary fix for HDFS Federation across secure and insecure NameNodes, and can be removed after
+      // insecure NameNodes are torn down.
+      // For more details, see IU-398.
+      if (UserGroupInformation.isSecurityEnabled() && token != null) {
         ugi = ugiCache.get(buildTokenCacheKey(token),
             new Callable<UserGroupInformation>() {
               @Override
