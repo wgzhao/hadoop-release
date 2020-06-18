@@ -265,8 +265,6 @@ COMPX-1400 : Fix testcase issue
 YARN-9889 [UI] Add Application Tag column to RM All Applications table. Contributed by Kinga Marton
 YARN-9890. [UI2] Add Application tag to the app table and app detail page. Contributed by Julia Kinga Marton
 BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPointerException. Contributed by Tarun Parimi
-
-
 HOTFIX-3066 YARN-10055. bower install fails. (#1778)
 HDFS-14074. DataNode runs async disk checks maybe throws NullPointerException, and DataNode failed to register to NameSpace.  Contributed by guangyi lu.
 HDFS-14582. Failed to start DN with ArithmeticException when NULL checksum used. Contributed by Surendra Singh Lilhore.
@@ -279,3 +277,6 @@ HDFS-14847. Erasure Coding: Blocks are over-replicated while EC decommissioning.
 HDFS-14920. Erasure Coding: Decommission may hang If one or more datanodes are out of service during decommission. Contributed by Fei Hui.
 BUG-124003. HDFS-14108. Performance improvement in BlockManager Data Structures. Contributed by Beluga Behr.
 BUG-124003. HDFS-14081. hdfs dfsadmin -metasave metasave_test results NPE. Contributed by Shweta Yakkali.
+YARN-8774. Memory leak when CapacityScheduler allocates from reserved container with non-default label. Contributed by Tao Yang.
+YARN-9903: Support reservations continue looking for Node Labels. Contributed by Jim Brennan (Jim_Brennan).
+HDFS-15406. Improve the speed of Datanode Block Scan. Contributed by hemanthboyina
