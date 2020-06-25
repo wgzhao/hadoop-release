@@ -99,7 +99,7 @@ public class NMTimelinePublisher extends CompositeService {
 
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
-    dispatcher = createDispatcher();
+    dispatcher = new AsyncDispatcher("NM Timeline dispatcher");
     dispatcher.register(NMTimelineEventType.class,
         new ForwardingEventHandler());
     addIfService(dispatcher);
@@ -118,10 +118,6 @@ public class NMTimelinePublisher extends CompositeService {
         YarnConfiguration.NM_PUBLISH_CONTAINER_EVENTS_ENABLED,
         YarnConfiguration.DEFAULT_NM_PUBLISH_CONTAINER_EVENTS_ENABLED);
     super.serviceInit(conf);
-  }
-
-  protected AsyncDispatcher createDispatcher() {
-    return new AsyncDispatcher("NM Timeline dispatcher");
   }
 
   @Override
@@ -151,9 +147,6 @@ public class NMTimelinePublisher extends CompositeService {
     case TIMELINE_ENTITY_PUBLISH:
       putEntity(((TimelinePublishEvent) event).getTimelineEntityToPublish(),
           ((TimelinePublishEvent) event).getApplicationId());
-      break;
-    case STOP_TIMELINE_CLIENT:
-      removeAndStopTimelineClient(event.getApplicationId());
       break;
     default:
       LOG.error("Unknown NMTimelineEvent type: " + event.getType());
@@ -449,11 +442,18 @@ public class NMTimelinePublisher extends CompositeService {
   }
 
   private static class TimelinePublishEvent extends NMTimelineEvent {
+    private ApplicationId appId;
     private TimelineEntity entityToPublish;
 
     public TimelinePublishEvent(TimelineEntity entity, ApplicationId appId) {
-      super(NMTimelineEventType.TIMELINE_ENTITY_PUBLISH, appId);
+      super(NMTimelineEventType.TIMELINE_ENTITY_PUBLISH, System
+          .currentTimeMillis());
+      this.appId = appId;
       this.entityToPublish = entity;
+    }
+
+    public ApplicationId getApplicationId() {
+      return appId;
     }
 
     public TimelineEntity getTimelineEntityToPublish() {
@@ -484,11 +484,6 @@ public class NMTimelinePublisher extends CompositeService {
   }
 
   public void stopTimelineClient(ApplicationId appId) {
-    dispatcher.getEventHandler().handle(
-        new NMTimelineEvent(NMTimelineEventType.STOP_TIMELINE_CLIENT, appId));
-  }
-
-  private void removeAndStopTimelineClient(ApplicationId appId) {
     TimelineV2Client client = appToClientMap.remove(appId);
     if (client != null) {
       client.stop();
