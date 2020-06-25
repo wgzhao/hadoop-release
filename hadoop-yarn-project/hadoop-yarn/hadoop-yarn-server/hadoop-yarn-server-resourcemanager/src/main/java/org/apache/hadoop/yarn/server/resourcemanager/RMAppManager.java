@@ -847,7 +847,7 @@ public class RMAppManager implements EventHandler<RMAppManagerEvent>,
       ApplicationPlacementContext appPlacementContext = placementManager
               .placeApplication(context, userNameFromAppTag);
       if (appPlacementContext == null) {
-        LOG.warn("No rule was found for user '{}'", userNameFromAppTag);
+        LOG.warn("No rule was found for user " + userNameFromAppTag);
         return usernameUsedForPlacement;
       }
       String queue = appPlacementContext.getQueue();
