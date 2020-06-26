@@ -149,7 +149,8 @@ public class AppsBlock extends HtmlBlock {
     TBODY<TABLE<Hamlet>> tbody =
         html.table("#apps").thead().tr().th(".id", "ID").th(".user", "User")
           .th(".name", "Name").th(".type", "Application Type")
-          .th(".queue", "Queue").th(".priority", "Application Priority")
+          .th(".apptag", "Application Tags").th(".queue", "Queue")
+          .th(".priority", "Application Priority")
           .th(".starttime", "StartTime")
           .th(".launchtime", "LaunchTime")
           .th(".finishtime", "FinishTime")
@@ -184,6 +185,10 @@ public class AppsBlock extends HtmlBlock {
         .append(
           StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(app
             .getType())))
+          .append("\",\"")
+          .append(
+              StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
+                  app.getApplicationTags() == null ? "" : app.getApplicationTags())))
         .append("\",\"")
         .append(
           StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(app
