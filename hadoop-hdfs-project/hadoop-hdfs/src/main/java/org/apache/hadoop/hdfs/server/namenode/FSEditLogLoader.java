@@ -768,7 +768,7 @@ public class FSEditLogLoader {
       final String snapshotRoot =
           renameReservedPathsOnUpgrade(createSnapshotOp.snapshotRoot,
               logVersion);
-      INodesInPath iip = fsDir.getINodesInPath(snapshotRoot, DirOp.WRITE);
+      INodesInPath iip = fsDir.unprotectedResolvePath(snapshotRoot);
       String path = fsNamesys.getSnapshotManager().createSnapshot(
           fsDir.getFSNamesystem().getLeaseManager(),
           iip, snapshotRoot, createSnapshotOp.snapshotName);
@@ -785,7 +785,7 @@ public class FSEditLogLoader {
       final String snapshotRoot =
           renameReservedPathsOnUpgrade(deleteSnapshotOp.snapshotRoot,
               logVersion);
-      INodesInPath iip = fsDir.getINodesInPath(snapshotRoot, DirOp.WRITE);
+      INodesInPath iip = fsDir.unprotectedResolvePath(snapshotRoot);
       fsNamesys.getSnapshotManager().deleteSnapshot(iip,
           deleteSnapshotOp.snapshotName,
           new INode.ReclaimContext(fsNamesys.dir.getBlockStoragePolicySuite(),
@@ -807,7 +807,7 @@ public class FSEditLogLoader {
       final String snapshotRoot =
           renameReservedPathsOnUpgrade(renameSnapshotOp.snapshotRoot,
               logVersion);
-      INodesInPath iip = fsDir.getINodesInPath(snapshotRoot, DirOp.WRITE);
+      INodesInPath iip = fsDir.unprotectedResolvePath(snapshotRoot);
       fsNamesys.getSnapshotManager().renameSnapshot(iip,
           snapshotRoot, renameSnapshotOp.snapshotOldName,
           renameSnapshotOp.snapshotNewName);

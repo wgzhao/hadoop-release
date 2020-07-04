@@ -270,3 +270,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 YARN-9685: NPE when rendering the info table of leaf queue in non-accessible partitions. Contributed by Tao Yang.
 YARN-8774. Memory leak when CapacityScheduler allocates from reserved container with non-default label. Contributed by Tao Yang.
 YARN-9903: Support reservations continue looking for Node Labels. Contributed by Jim Brennan (Jim_Brennan).
+HDFS-15446. CreateSnapshotOp fails during edit log loading for /.reserved/raw/path with error java.io.FileNotFoundException: Directory does not exist: /.reserved/raw/path. Contributed by Stephen O'Donnell.
