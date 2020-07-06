@@ -279,3 +279,4 @@ BUG-124415. YARN-9285: RM UI progress column is of wrong type. Contributed by  A
 BUG-124415. YARN-10038. [UI] Finish Time is not correctly parsed in the RM Apps page. Contributed by Inigo Goiri.
 BUG-124415. YARN-10053. Use Shared Group Mapping Service in Placement Rules. Contributed by Wilfred Spiegelenburg.
 BUG-124415. YARN-10068. Fix TimelineV2Client leaking File Descriptors.
+BUG-124415. YARN-10070. Fix NPE if no queue mapping defined for proxy user when using application tag based placement.
