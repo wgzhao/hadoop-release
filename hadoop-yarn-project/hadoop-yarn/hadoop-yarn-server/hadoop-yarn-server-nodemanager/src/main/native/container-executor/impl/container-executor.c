@@ -1037,7 +1037,7 @@ static int is_feature_enabled(const char* feature_key, int default_value) {
 
 int is_docker_support_enabled() {
     return is_feature_enabled(DOCKER_SUPPORT_ENABLED_KEY,
-                              DEFAULT_TC_SUPPORT_ENABLED);
+                              DEFAULT_DOCKER_SUPPORT_ENABLED);
 }
 
 int is_tc_support_enabled() {
