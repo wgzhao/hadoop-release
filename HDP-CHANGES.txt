@@ -217,4 +217,3 @@ BUG-100252. HDFS-13433. webhdfs requests can be routed incorrectly in federated 
 
     BUG-121054. HADOOP-15281. Distcp to add no-rename copy option.
 HOTFIX-2855 YARN-10055. bower install fails. (#1778)
-HADOOP-16126. ipc.Client.stop() may sleep too long to wait for all connections.
