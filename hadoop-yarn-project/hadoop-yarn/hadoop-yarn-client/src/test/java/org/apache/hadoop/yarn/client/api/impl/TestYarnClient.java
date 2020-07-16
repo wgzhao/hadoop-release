@@ -53,6 +53,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.UserGroupInformation.AuthenticationMethod;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.apache.hadoop.security.authentication.server.KerberosAuthenticationHandler;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptReportRequest;
@@ -1402,38 +1403,42 @@ public class TestYarnClient extends ParameterizedSchedulerTestBase {
         timelineClientBestEffort);
     conf.setFloat(YarnConfiguration.TIMELINE_SERVICE_VERSION,
         timelineVersion);
-    YarnClient client = new MockYarnClient();
-    if (client instanceof YarnClientImpl) {
-      YarnClientImpl impl = (YarnClientImpl) client;
-      YarnClientImpl spyClient = spy(impl);
-      when(spyClient.createTimelineClient()).thenThrow(mockErr);
-      CreateTimelineClientErrorVerifier verifier = spy(errVerifier);
-      spyClient.init(conf);
-      spyClient.start();
+    // Timeline Delegation token and client is only used for kerberos
+    conf.set(YarnConfiguration.TIMELINE_HTTP_AUTH_TYPE,
+            KerberosAuthenticationHandler.TYPE);
+    MockYarnClient client = new MockYarnClient();
+    MockYarnClient spyClient = spy(client);
+    when(spyClient.createTimelineClient()).thenThrow(mockErr);
+    CreateTimelineClientErrorVerifier verifier = spy(errVerifier);
+    spyClient.init(conf);
+    spyClient.start();
 
-      ApplicationSubmissionContext context =
-          mock(ApplicationSubmissionContext.class);
-      ContainerLaunchContext containerContext =
-          mock(ContainerLaunchContext.class);
-      ApplicationId applicationId =
-          ApplicationId.newInstance(System.currentTimeMillis(), 1);
-      when(containerContext.getTokens()).thenReturn(null);
-      when(context.getApplicationId()).thenReturn(applicationId);
-      when(spyClient.isSecurityEnabled()).thenReturn(true);
-      when(context.getAMContainerSpec()).thenReturn(containerContext);
+    ApplicationSubmissionContext context =
+        mock(ApplicationSubmissionContext.class);
+    ContainerLaunchContext containerContext =
+        mock(ContainerLaunchContext.class);
+    ApplicationId applicationId =
+        ApplicationId.newInstance(System.currentTimeMillis(), 1);
+    when(containerContext.getTokens()).thenReturn(null);
+    when(context.getApplicationId()).thenReturn(applicationId);
+    when(spyClient.isSecurityEnabled()).thenReturn(true);
+    when(context.getAMContainerSpec()).thenReturn(containerContext);
+    when(containerContext.getTokens()).thenReturn(null);
+    when(context.getApplicationId()).thenReturn(applicationId);
+    when(spyClient.isSecurityEnabled()).thenReturn(true);
+    when(context.getAMContainerSpec()).thenReturn(containerContext);
 
-      try {
-        spyClient.submitApplication(context);
-      } catch (Throwable e) {
-        verifier.verifyError(e);
-      } finally {
-        // Make sure the verifier runs with expected times
-        // This is required because in case throwable is swallowed
-        // and verifyError never gets the chance to run
-        verify(verifier, times(verifier.getExpectedTimes()))
-            .verifyError(any(Throwable.class));
-        spyClient.stop();
-      }
+    try {
+      spyClient.submitApplication(context);
+    } catch (Throwable e) {
+      verifier.verifyError(e);
+    } finally {
+      // Make sure the verifier runs with expected times
+      // This is required because in case throwable is swallowed
+      // and verifyError never gets the chance to run
+      verify(verifier, times(verifier.getExpectedTimes()))
+              .verifyError(any(Throwable.class));
+      spyClient.stop();
     }
   }
 
