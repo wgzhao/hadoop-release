@@ -44,7 +44,9 @@ import java.util.concurrent.Callable;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.RawLocalFileSystem;
 import org.apache.hadoop.http.HttpConfig;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.minikdc.MiniKdc;
@@ -65,13 +67,13 @@ import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
 import org.apache.hadoop.yarn.server.api.CollectorNodemanagerProtocol;
 import org.apache.hadoop.yarn.server.api.protocolrecords.GetTimelineCollectorContextRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.GetTimelineCollectorContextResponse;
-import org.apache.hadoop.yarn.server.timeline.security.TimelineAuthenticationFilterInitializer;
 import org.apache.hadoop.yarn.server.timelineservice.collector.AppLevelTimelineCollector;
 import org.apache.hadoop.yarn.server.timelineservice.collector.NodeTimelineCollectorManager;
 import org.apache.hadoop.yarn.server.timelineservice.collector.PerNodeTimelineCollectorsAuxService;
 import org.apache.hadoop.yarn.server.timelineservice.storage.FileSystemTimelineReaderImpl;
 import org.apache.hadoop.yarn.server.timelineservice.storage.FileSystemTimelineWriterImpl;
 import org.apache.hadoop.yarn.server.timelineservice.storage.TimelineWriter;
+import static org.apache.hadoop.yarn.conf.YarnConfiguration.TIMELINE_HTTP_AUTH_PREFIX;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -144,11 +146,13 @@ public class TestTimelineAuthFilterForV2 {
     // Setup timeline service v2.
     try {
       conf = new Configuration(false);
-      conf.setStrings(TimelineAuthenticationFilterInitializer.PREFIX + "type",
+      conf.setClass("fs.file.impl", RawLocalFileSystem.class,
+          FileSystem.class);
+      conf.setStrings(TIMELINE_HTTP_AUTH_PREFIX + "type",
           "kerberos");
-      conf.set(TimelineAuthenticationFilterInitializer.PREFIX +
+      conf.set(TIMELINE_HTTP_AUTH_PREFIX +
           KerberosAuthenticationHandler.PRINCIPAL, httpSpnegoPrincipal);
-      conf.set(TimelineAuthenticationFilterInitializer.PREFIX +
+      conf.set(TIMELINE_HTTP_AUTH_PREFIX +
           KerberosAuthenticationHandler.KEYTAB,
           httpSpnegoKeytabFile.getAbsolutePath());
       conf.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION,

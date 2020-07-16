@@ -30,6 +30,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.security.authentication.server.KerberosAuthenticationHandler;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.conf.Configuration;
@@ -348,7 +349,9 @@ public class TimelineClientImpl extends TimelineClient {
     client.start();
     try {
       if (UserGroupInformation.isSecurityEnabled()
-          && conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false)) {
+          && conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false)
+          && conf.get(YarnConfiguration.TIMELINE_HTTP_AUTH_TYPE)
+              .equals(KerberosAuthenticationHandler.TYPE)) {
         Token<TimelineDelegationTokenIdentifier> token =
             client.getDelegationToken(
                 UserGroupInformation.getCurrentUser().getUserName());
