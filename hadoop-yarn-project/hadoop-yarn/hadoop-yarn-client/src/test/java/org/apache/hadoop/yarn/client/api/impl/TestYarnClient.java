@@ -1202,7 +1202,8 @@ public class TestYarnClient extends ParameterizedSchedulerTestBase {
     Configuration conf = getConf();
     conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
     SecurityUtil.setAuthenticationMethod(AuthenticationMethod.KERBEROS, conf);
-
+    conf.set(YarnConfiguration.TIMELINE_HTTP_AUTH_TYPE,
+            KerberosAuthenticationHandler.TYPE);
     YarnClientImpl client = spy(new YarnClientImpl() {
 
       @Override
@@ -1236,6 +1237,8 @@ public class TestYarnClient extends ParameterizedSchedulerTestBase {
     Configuration conf = getConf();
     conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
     SecurityUtil.setAuthenticationMethod(AuthenticationMethod.KERBEROS, conf);
+    conf.set(YarnConfiguration.TIMELINE_HTTP_AUTH_TYPE,
+            KerberosAuthenticationHandler.TYPE);
     TimelineDelegationTokenIdentifier timelineDT =
         new TimelineDelegationTokenIdentifier();
     final Token<TimelineDelegationTokenIdentifier> dToken =
