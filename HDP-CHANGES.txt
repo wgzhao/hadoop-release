@@ -274,3 +274,4 @@ BUG-124258. YARN-9286. [Timeline Server] Sorting based on FinalStatus shows pop-
 BUG-124258. YARN-9285: RM UI progress column is of wrong type. Contributed by  Ahmed Hussein.
 BUG-124258. YARN-10038. [UI] Finish Time is not correctly parsed in the RM Apps page. Contributed by Inigo Goiri.
 BUG-124258. YARN-10070. Fix NPE if no queue mapping defined for proxy user when using application tag based placement.
+BUG-124258. YARN-10377. Fix filter index to show apps while clicking on queue in RM UI
