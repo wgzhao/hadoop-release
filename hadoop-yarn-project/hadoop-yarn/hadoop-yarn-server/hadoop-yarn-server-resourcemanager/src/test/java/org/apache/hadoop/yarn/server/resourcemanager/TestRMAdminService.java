@@ -1170,11 +1170,6 @@ public class TestRMAdminService {
       // Do nothing
     }
 
-    @Override
-    public Set<String> getGroupsSet(String user) throws IOException {
-      return ImmutableSet.copyOf(group);
-    }
-
     public static void updateGroups() {
       group.clear();
       group.add("test_group_D");

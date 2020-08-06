@@ -24,11 +24,8 @@ import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class uses {@link LdapGroupsMapping} for group lookup and applies the
@@ -66,51 +63,33 @@ public class RuleBasedLdapGroupsMapping extends LdapGroupsMapping {
     }
   }
 
-  /**
-   * Returns list of groups for a user.
-   * This calls {@link LdapGroupsMapping}'s getGroups and applies the
-   * configured rules on group names before returning.
-   *
-   * @param user get groups for this user
-   * @return list of groups for a given user
-   */
+    /**
+     * Returns list of groups for a user.
+     * This calls {@link LdapGroupsMapping}'s getGroups and applies the
+     * configured rules on group names before returning.
+     *
+     * @param user get groups for this user
+     * @return list of groups for a given user
+     */
   @Override
   public synchronized List<String> getGroups(String user) {
     List<String> groups = super.getGroups(user);
     List<String> result = new ArrayList<>(groups.size());
     switch (rule) {
-      case TO_UPPER:
-        for (String group : groups) {
-          result.add(StringUtils.toUpperCase(group));
-        }
-        return result;
-      case TO_LOWER:
-        for (String group : groups) {
-          result.add(StringUtils.toLowerCase(group));
-        }
-        return result;
-      case NONE:
-      default:
-        return groups;
+    case TO_UPPER:
+      for (String group : groups) {
+        result.add(StringUtils.toUpperCase(group));
+      }
+      return result;
+    case TO_LOWER:
+      for (String group : groups) {
+        result.add(StringUtils.toLowerCase(group));
+      }
+      return result;
+    case NONE:
+    default:
+      return groups;
     }
   }
 
-  @Override
-  public synchronized Set<String> getGroupsSet(String user) {
-    Set<String> groups = super.getGroupsSet(user);
-    Set<String> result = new LinkedHashSet<>();
-    switch (rule) {
-      case TO_UPPER:
-        for (String group: groups) {
-          result.add(StringUtils.toUpperCase(group));
-        }
-      case TO_LOWER:
-        for (String group : groups) {
-          result.add(StringUtils.toLowerCase(group));
-        }
-      case NONE:
-      default:
-        return groups;
-    }
-  }
 }

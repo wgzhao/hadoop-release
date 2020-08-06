@@ -20,11 +20,8 @@ package org.apache.hadoop.lib.service.security;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.apache.hadoop.security.GroupMappingServiceProvider;
 import org.apache.hadoop.test.HadoopUsersConfTestHelper;
 
@@ -50,18 +47,5 @@ public class DummyGroupMapping implements GroupMappingServiceProvider {
 
   @Override
   public void cacheGroupsAdd(List<String> groups) throws IOException {
-  }
-
-  @Override
-  public Set<String> getGroupsSet(String user) throws IOException {
-    if (user.equals("root")) {
-      return Sets.newHashSet("admin");
-    } else if (user.equals("nobody")) {
-      return Sets.newHashSet("nobody");
-    } else {
-      String[] groups = HadoopUsersConfTestHelper.getHadoopUserGroups(user);
-      return (groups != null) ? new LinkedHashSet(Arrays.asList(groups)) :
-          Collections.emptySet();
-    }
   }
 }

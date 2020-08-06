@@ -18,11 +18,8 @@
 package org.apache.hadoop.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,10 +37,10 @@ import org.apache.hadoop.util.Shell.ExitCodeException;
 @InterfaceStability.Evolving
 public class ShellBasedUnixGroupsMapping
   implements GroupMappingServiceProvider {
-
+  
   private static final Log LOG =
     LogFactory.getLog(ShellBasedUnixGroupsMapping.class);
-
+  
   /**
    * Returns list of groups for a user
    *
@@ -52,7 +49,7 @@ public class ShellBasedUnixGroupsMapping
    */
   @Override
   public List<String> getGroups(String user) throws IOException {
-    return new ArrayList(getUnixGroups(user));
+    return getUnixGroups(user);
   }
 
   /**
@@ -73,12 +70,7 @@ public class ShellBasedUnixGroupsMapping
     // does nothing in this provider of user to groups mapping
   }
 
-  @Override
-  public Set<String> getGroupsSet(String userName) throws IOException {
-    return getUnixGroups(userName);
-  }
-
-  /**
+  /** 
    * Get the current user's group list from Unix by running the command 'groups'
    * NOTE. For non-existing user it will return EMPTY list
    * @param user user name
@@ -86,7 +78,7 @@ public class ShellBasedUnixGroupsMapping
    *         group is returned first.
    * @throws IOException if encounter any error when running the command
    */
-  private static Set<String> getUnixGroups(final String user) throws IOException {
+  private static List<String> getUnixGroups(final String user) throws IOException {
     String result = "";
     try {
       result = Shell.execCommand(Shell.getGroupsForUserCommand(user));
@@ -94,14 +86,24 @@ public class ShellBasedUnixGroupsMapping
       // if we didn't get the group - just return empty list;
       LOG.warn("got exception trying to get groups for user " + user + ": "
           + e.getMessage());
-      return Collections.emptySet();
+      return new LinkedList<String>();
     }
-
+    
     StringTokenizer tokenizer =
         new StringTokenizer(result, Shell.TOKEN_SEPARATOR_REGEX);
-    Set<String> groups = new LinkedHashSet<>();
+    List<String> groups = new LinkedList<String>();
     while (tokenizer.hasMoreTokens()) {
       groups.add(tokenizer.nextToken());
+    }
+
+    // remove duplicated primary group
+    if (!Shell.WINDOWS) {
+      for (int i = 1; i < groups.size(); i++) {
+        if (groups.get(i).equals(groups.get(0))) {
+          groups.remove(i);
+          break;
+        }
+      }
     }
 
     return groups;

@@ -2232,7 +2232,7 @@ public abstract class FileSystem extends Configured implements Closeable {
       if (perm.getUserAction().implies(mode)) {
         return;
       }
-    } else if (ugi.getGroupsSet().contains(stat.getGroup())) {
+    } else if (ugi.getGroups().contains(stat.getGroup())) {
       if (perm.getGroupAction().implies(mode)) {
         return;
       }

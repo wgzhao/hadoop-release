@@ -35,11 +35,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -81,15 +78,6 @@ public class TestRefreshUserMappings {
   
     @Override
     public void cacheGroupsAdd(List<String> groups) throws IOException {
-    }
-
-    @Override
-    public Set<String> getGroupsSet(String user) {
-      String g1 = user + (10 * i + 1);
-      String g2 = user + (10 * i + 2);
-      Set<String> s = Sets.newHashSet(g1, g2);
-      i++;
-      return s;
     }
   }
   
@@ -161,12 +149,8 @@ public class TestRefreshUserMappings {
   @Test
   public void testRefreshSuperUserGroupsConfiguration() throws Exception {
     final String SUPER_USER = "super_user";
-    final List<String> groupNames1 = new ArrayList<>();
-    groupNames1.add("gr1");
-    groupNames1.add("gr2");
-    final List<String> groupNames2 = new ArrayList<>();
-    groupNames2.add("gr3");
-    groupNames2.add("gr4");
+    final String [] GROUP_NAMES1 = new String [] {"gr1" , "gr2"};
+    final String [] GROUP_NAMES2 = new String [] {"gr3" , "gr4"};
     
     //keys in conf
     String userKeyGroups = DefaultImpersonationProvider.getTestProvider().
@@ -194,10 +178,8 @@ public class TestRefreshUserMappings {
     when(ugi2.getUserName()).thenReturn("userL2");
    
     // set groups for users
-    when(ugi1.getGroups()).thenReturn(groupNames1);
-    when(ugi2.getGroups()).thenReturn(groupNames2);
-    when(ugi1.getGroupsSet()).thenReturn(new LinkedHashSet<>(groupNames1));
-    when(ugi2.getGroupsSet()).thenReturn(new LinkedHashSet<>(groupNames2));
+    when(ugi1.getGroupNames()).thenReturn(GROUP_NAMES1);
+    when(ugi2.getGroupNames()).thenReturn(GROUP_NAMES2);
    
     
     // check before

@@ -26,11 +26,8 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.apache.hadoop.HadoopIllegalArgumentException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
@@ -93,15 +90,6 @@ public class TestHSAdminServer {
 
     @Override
     public void cacheGroupsAdd(List<String> groups) throws IOException {
-    }
-
-    @Override
-    public Set<String> getGroupsSet(String user) throws IOException {
-      Set<String> result = new LinkedHashSet<>();
-      result.add(user + (10 * i + 1));
-      result.add(user + (10 * i +2));
-      i++;
-      return result;
     }
   }
 
@@ -200,7 +188,6 @@ public class TestHSAdminServer {
     when(superUser.getShortUserName()).thenReturn("superuser");
     when(superUser.getUserName()).thenReturn("superuser");
     when(ugi.getGroupNames()).thenReturn(new String[] { "group3" });
-    when(ugi.getGroupsSet()).thenReturn(Sets.newHashSet("group3"));
     when(ugi.getUserName()).thenReturn("regularUser");
 
     // Set super user groups not to include groups of regularUser

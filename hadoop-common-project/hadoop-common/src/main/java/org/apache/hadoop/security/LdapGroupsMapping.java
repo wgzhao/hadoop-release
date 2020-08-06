@@ -24,7 +24,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Collection;
@@ -220,26 +219,26 @@ public class LdapGroupsMapping
   }
 
   private DirContext ctx;
-  private volatile Configuration conf;
+  private Configuration conf;
   
   private String ldapUrl;
-  private volatile boolean useSsl;
+  private boolean useSsl;
   private String keystore;
   private String keystorePass;
   private String bindUser;
   private String bindPassword;
-  private volatile String userbaseDN;
+  private String userbaseDN;
   private String groupbaseDN;
   private String groupSearchFilter;
-  private volatile String userSearchFilter;
-  private volatile String memberOfAttr;
+  private String userSearchFilter;
+  private String memberOfAttr;
   private String groupMemberAttr;
-  private volatile String groupNameAttr;
-  private volatile int    groupHierarchyLevels;
-  private volatile String posixUidAttr;
-  private volatile String posixGidAttr;
+  private String groupNameAttr;
+  private int    groupHierarchyLevels;
+  private String posixUidAttr;
+  private String posixGidAttr;
   private boolean isPosix;
-  private volatile boolean useOneQuery;
+  private boolean useOneQuery;
 
   public static final int RECONNECT_RETRY_COUNT = 3;
   
@@ -255,7 +254,25 @@ public class LdapGroupsMapping
    */
   @Override
   public synchronized List<String> getGroups(String user) {
-    return new ArrayList<>(getGroupsSet(user));
+    /*
+     * Normal garbage collection takes care of removing Context instances when they are no longer in use. 
+     * Connections used by Context instances being garbage collected will be closed automatically.
+     * So in case connection is closed and gets CommunicationException, retry some times with new new DirContext/connection. 
+     */
+    for(int retry = 0; retry < RECONNECT_RETRY_COUNT; retry++) {
+      try {
+        return doGetGroups(user, groupHierarchyLevels);
+      } catch (NamingException e) {
+        LOG.warn("Failed to get groups for user " + user + " (retry=" + retry
+            + ") by " + e);
+        LOG.trace("TRACE", e);
+      }
+
+      //reset ctx so that new DirContext can be created with new connection
+      this.ctx = null;
+    }
+    
+    return Collections.emptyList();
   }
 
   /**
@@ -334,10 +351,10 @@ public class LdapGroupsMapping
    * @return a list of strings representing group names of the user.
    * @throws NamingException if unable to find group names
    */
-  private Set<String> lookupGroup(SearchResult result, DirContext c,
+  private List<String> lookupGroup(SearchResult result, DirContext c,
       int goUpHierarchy)
       throws NamingException {
-    Set<String> groups = new LinkedHashSet<String>();
+    List<String> groups = new ArrayList<String>();
     Set<String> groupDNs = new HashSet<String>();
 
     NamingEnumeration<SearchResult> groupResults = null;
@@ -361,7 +378,10 @@ public class LdapGroupsMapping
       }
       if (goUpHierarchy > 0 && !isPosix) {
         // convert groups to a set to ensure uniqueness
-        goUpGroupHierarchy(groupDNs, goUpHierarchy, groups);
+        Set<String> groupset = new HashSet<String>(groups);
+        goUpGroupHierarchy(groupDNs, goUpHierarchy, groupset);
+        // convert set back to list for compatibility
+        groups = new ArrayList<String>(groupset);
       }
     }
     return groups;
@@ -380,7 +400,7 @@ public class LdapGroupsMapping
    * return an empty string array.
    * @throws NamingException if unable to get group names
    */
-  Set<String> doGetGroups(String user, int goUpHierarchy)
+  List<String> doGetGroups(String user, int goUpHierarchy)
       throws NamingException {
     DirContext c = getDirContext();
 
@@ -393,11 +413,11 @@ public class LdapGroupsMapping
         LOG.debug("doGetGroups(" + user + ") returned no groups because the " +
             "user is not found.");
       }
-      return Collections.emptySet();
+      return new ArrayList<String>();
     }
     SearchResult result = results.nextElement();
 
-    Set<String> groups = Collections.emptySet();
+    List<String> groups = null;
     if (useOneQuery) {
       try {
         /**
@@ -411,7 +431,7 @@ public class LdapGroupsMapping
               memberOfAttr + "' attribute." +
               "Returned user object: " + result.toString());
         }
-        groups = new LinkedHashSet<>();
+        groups = new ArrayList<String>();
         NamingEnumeration groupEnumeration = groupDNAttr.getAll();
         while (groupEnumeration.hasMore()) {
           String groupDN = groupEnumeration.next().toString();
@@ -655,28 +675,5 @@ public class LdapGroupsMapping
     } catch (IOException ioe) {
       throw new RuntimeException("Could not read password file: " + pwFile, ioe);
     }
-  }
-
-  @Override
-  public synchronized Set<String> getGroupsSet(String user) {
-    /*
-     * Normal garbage collection takes care of removing Context instances when they are no longer in use.
-     * Connections used by Context instances being garbage collected will be closed automatically.
-     * So in case connection is closed and gets CommunicationException, retry some times with new new DirContext/connection.
-     */
-    for(int retry = 0; retry < RECONNECT_RETRY_COUNT; retry++) {
-      try {
-        return doGetGroups(user, groupHierarchyLevels);
-      } catch (NamingException e) {
-        LOG.warn("Failed to get groups for user " + user + " (retry=" + retry
-            + ") by " + e);
-        LOG.trace("TRACE", e);
-      }
-
-      //reset ctx so that new DirContext can be created with new connection
-      this.ctx = null;
-    }
-
-    return Collections.emptySet();
   }
 }

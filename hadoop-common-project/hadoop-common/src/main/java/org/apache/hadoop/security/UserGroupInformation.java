@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1515,8 +1514,8 @@ public class UserGroupInformation {
    * map that has the translation of usernames to groups.
    */
   private static class TestingGroups extends Groups {
-    private final Map<String, Set<String>> userToGroupsMapping =
-        new HashMap<>();
+    private final Map<String, List<String>> userToGroupsMapping = 
+      new HashMap<String,List<String>>();
     private Groups underlyingImplementation;
     
     private TestingGroups(Groups underlyingImplementation) {
@@ -1526,22 +1525,17 @@ public class UserGroupInformation {
     
     @Override
     public List<String> getGroups(String user) throws IOException {
-      return new ArrayList<>(getGroupsSet(user));
-    }
-
-    @Override
-    public Set<String> getGroupsSet(String user) throws IOException {
-      Set<String> result = userToGroupsMapping.get(user);
+      List<String> result = userToGroupsMapping.get(user);
+      
       if (result == null) {
-        result = underlyingImplementation.getGroupsSet(user);
+        result = underlyingImplementation.getGroups(user);
       }
+
       return result;
     }
 
     private void setUserGroups(String user, String[] groups) {
-      Set<String> groupsSet = new LinkedHashSet<>();
-      Collections.addAll(groupsSet, groups);
-      userToGroupsMapping.put(user, groupsSet);
+      userToGroupsMapping.put(user, Arrays.asList(groups));
     }
   }
 
@@ -1603,11 +1597,11 @@ public class UserGroupInformation {
   }
 
   public String getPrimaryGroupName() throws IOException {
-    Set<String> groups = getGroupsSet();
+    List<String> groups = getGroups();
     if (groups.isEmpty()) {
       throw new IOException("There is no primary group for UGI " + this);
     }
-    return groups.iterator().next();
+    return groups.get(0);
   }
 
   /**
@@ -1720,19 +1714,18 @@ public class UserGroupInformation {
   }
 
   /**
-   * Get the group names for this user. {@ #getGroupsSet(String)} is less
+   * Get the group names for this user. {@ #getGroups(String)} is less
    * expensive alternative when checking for a contained element.
    * @return the list of users with the primary group first. If the command
    *    fails, it returns an empty list.
    */
   public String[] getGroupNames() {
-    Collection<String> groupsSet = getGroupsSet();
-    return groupsSet.toArray(new String[groupsSet.size()]);
+    List<String> groups = getGroups();
+    return groups.toArray(new String[groups.size()]);
   }
 
   /**
-   * Get the group names for this user. {@link #getGroupsSet()} is less
-   * expensive alternative when checking for a contained element.
+   * Get the group names for this user.
    * @return the list of users with the primary group first. If the command
    *    fails, it returns an empty list.
    */
@@ -1747,21 +1740,6 @@ public class UserGroupInformation {
         LOG.trace("TRACE", ie);
       }
       return Collections.emptyList();
-    }
-  }
-
-  /**
-   * Get the groups names for the user as a Set.
-   * @return the set of users with the primary group first. If the command
-   *     fails, it returns an empty set.
-   */
-  public Set<String> getGroupsSet() {
-    ensureInitialized();
-    try {
-      return groups.getGroupsSet(getShortUserName());
-    } catch (IOException ie) {
-      LOG.debug("Failed to get groups for user {}", getShortUserName(), ie);
-      return Collections.emptySet();
     }
   }
 
