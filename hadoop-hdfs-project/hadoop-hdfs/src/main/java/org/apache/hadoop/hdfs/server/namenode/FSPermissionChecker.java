@@ -89,7 +89,7 @@ class FSPermissionChecker implements AccessControlEnforcer {
     this.fsOwner = fsOwner;
     this.supergroup = supergroup;
     this.callerUgi = callerUgi;
-    this.groups = callerUgi.getGroups();
+    groups = callerUgi.getGroupsSet();
     user = callerUgi.getShortUserName();
     isSuper = user.equals(fsOwner) || groups.contains(supergroup);
     this.attributeProvider = attributeProvider;
@@ -386,7 +386,6 @@ class FSPermissionChecker implements AccessControlEnforcer {
    * - Default entries may be present, but they are ignored during enforcement.
    *
    * @param inode INodeAttributes accessed inode
-   * @param snapshotId int snapshot ID
    * @param access FsAction requested permission
    * @param mode FsPermission mode from inode
    * @param aclFeature AclFeature of inode
