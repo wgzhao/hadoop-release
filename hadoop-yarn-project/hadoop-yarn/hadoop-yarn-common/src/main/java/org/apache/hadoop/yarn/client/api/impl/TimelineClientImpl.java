@@ -101,7 +101,9 @@ public class TimelineClientImpl extends TimelineClient {
     opts.addOption("help", false, "Print usage");
   }
 
-  private Client client;
+  @Private
+  @VisibleForTesting
+  Client client;
   private ConnectionConfigurator connConfigurator;
   private DelegationTokenAuthenticator authenticator;
   private DelegationTokenAuthenticatedURL.Token token;
@@ -326,6 +328,9 @@ public class TimelineClientImpl extends TimelineClient {
 
   @Override
   protected void serviceStop() throws Exception {
+    if(this.client != null) {
+      this.client.destroy();
+    }
     if (this.timelineWriter != null) {
       this.timelineWriter.close();
     }
