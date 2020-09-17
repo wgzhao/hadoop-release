@@ -280,3 +280,4 @@ BUG-124415. YARN-10038. [UI] Finish Time is not correctly parsed in the RM Apps 
 BUG-124415. YARN-10053. Use Shared Group Mapping Service in Placement Rules. Contributed by Wilfred Spiegelenburg.
 BUG-124415. YARN-10068. Fix TimelineV2Client leaking File Descriptors.
 BUG-124415. YARN-10070. Fix NPE if no queue mapping defined for proxy user when using application tag based placement.
+BUG-124415. HADOOP-17208. LoadBalanceKMSClientProvider#deleteKey should invalidateCache via all KMSClientProvider instances. (#2259)
