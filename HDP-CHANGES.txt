@@ -282,3 +282,4 @@ YARN-9903: Support reservations continue looking for Node Labels. Contributed by
 HDFS-15406. Improve the speed of Datanode Block Scan. Contributed by hemanthboyina
 HDFS-15583. Backport DirectoryScanner improvements HDFS-14476, HDFS-14751 and HDFS-15048 to branch 3.2 and 3.1. Contributed by Stephen O'Donnell
 HDFS-15574. Remove unnecessary sort of block list in DirectoryScanner. Contributed by Stephen O'Donnell.
+HDFS-15415. Reduce locking in Datanode DirectoryScanner. Contributed by Stephen O'Donnell
