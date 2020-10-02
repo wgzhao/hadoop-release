@@ -268,3 +268,4 @@ BUG-122525 YARN-9968. Public Localizer is exiting in NodeManager due to NullPoin
 
 
 HOTFIX-3024 YARN-10055. bower install fails. (#1778)
+BUG-124588. MAPREDUCE-7298. Distcp doesn't close the job after the job is completed. Contributed by Aasha Medhi.
