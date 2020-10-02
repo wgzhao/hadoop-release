@@ -206,8 +206,7 @@ class FSPermissionChecker implements AccessControlEnforcer {
     try {
       byte[][] localComponents = {inode.getLocalNameBytes()};
       INodeAttributes[] iNodeAttr = {inode.getSnapshotINode(snapshotId)};
-      AccessControlEnforcer enforcer =
-          getAttributesProvider().getExternalAccessControlEnforcer(this);
+      AccessControlEnforcer enforcer = getAccessControlEnforcer();
       enforcer.checkPermission(
           fsOwner, supergroup, callerUgi,
           iNodeAttr, // single inode attr in the array
