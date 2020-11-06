@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.yarn.server.nodemanager.timelineservice;
 
-import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
 /**
@@ -26,14 +25,11 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
  * timelineservice v2.
  */
 public class NMTimelineEvent extends AbstractEvent<NMTimelineEventType> {
-  private ApplicationId appId;
-
-  public NMTimelineEvent(NMTimelineEventType type, ApplicationId appId) {
-    super(type, System.currentTimeMillis());
-    this.appId=appId;
+  public NMTimelineEvent(NMTimelineEventType type) {
+    super(type);
   }
 
-  public ApplicationId getApplicationId() {
-    return appId;
+  public NMTimelineEvent(NMTimelineEventType type, long timestamp) {
+    super(type, timestamp);
   }
 }
