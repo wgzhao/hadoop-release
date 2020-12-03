@@ -295,8 +295,9 @@ public abstract class DelegationTokenAuthenticator implements Authenticator {
       dt = ((DelegationTokenAuthenticatedURL.Token) token).getDelegationToken();
       ((DelegationTokenAuthenticatedURL.Token) token).setDelegationToken(null);
     }
+    HttpURLConnection conn = null;
     try {
-      HttpURLConnection conn = aUrl.openConnection(url, token);
+      conn = aUrl.openConnection(url, token);
       conn.setRequestMethod(operation.getHttpMethod());
       HttpExceptionUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
       if (hasResponse) {
@@ -322,6 +323,9 @@ public abstract class DelegationTokenAuthenticator implements Authenticator {
     } finally {
       if (dt != null) {
         ((DelegationTokenAuthenticatedURL.Token) token).setDelegationToken(dt);
+      }
+      if (conn != null) {
+        conn.disconnect();
       }
     }
     return ret;

@@ -180,36 +180,42 @@ public class KerberosAuthenticator implements Authenticator {
     if (!token.isSet()) {
       this.url = url;
       base64 = new Base64(0);
-      conn = (HttpURLConnection) url.openConnection();
-      if (connConfigurator != null) {
-        conn = connConfigurator.configure(conn);
-      }
-      conn.setRequestMethod(AUTH_HTTP_METHOD);
-      conn.connect();
-      
-      boolean needFallback = false;
-      if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-        LOG.debug("JDK performed authentication on our behalf.");
-        // If the JDK already did the SPNEGO back-and-forth for
-        // us, just pull out the token.
-        AuthenticatedURL.extractToken(conn, token);
-        if (isTokenKerberos(token)) {
-          return;
+      try {
+        conn = (HttpURLConnection) url.openConnection();
+        if (connConfigurator != null) {
+          conn = connConfigurator.configure(conn);
         }
-        needFallback = true;
-      }
-      if (!needFallback && isNegotiate()) {
-        LOG.debug("Performing our own SPNEGO sequence.");
-        doSpnegoSequence(token);
-      } else {
-        LOG.debug("Using fallback authenticator sequence.");
-        Authenticator auth = getFallBackAuthenticator();
-        // Make sure that the fall back authenticator have the same
-        // ConnectionConfigurator, since the method might be overridden.
-        // Otherwise the fall back authenticator might not have the information
-        // to make the connection (e.g., SSL certificates)
-        auth.setConnectionConfigurator(connConfigurator);
-        auth.authenticate(url, token);
+        conn.setRequestMethod(AUTH_HTTP_METHOD);
+        conn.connect();
+
+        boolean needFallback = false;
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+          LOG.debug("JDK performed authentication on our behalf.");
+          // If the JDK already did the SPNEGO back-and-forth for
+          // us, just pull out the token.
+          AuthenticatedURL.extractToken(conn, token);
+          if (isTokenKerberos(token)) {
+            return;
+          }
+          needFallback = true;
+        }
+        if (!needFallback && isNegotiate()) {
+          LOG.debug("Performing our own SPNEGO sequence.");
+          doSpnegoSequence(token);
+        } else {
+          LOG.debug("Using fallback authenticator sequence.");
+          Authenticator auth = getFallBackAuthenticator();
+          // Make sure that the fall back authenticator have the same
+          // ConnectionConfigurator, since the method might be overridden.
+          // Otherwise the fall back authenticator might not have the information
+          // to make the connection (e.g., SSL certificates)
+          auth.setConnectionConfigurator(connConfigurator);
+          auth.authenticate(url, token);
+        }
+      } finally {
+        if (conn != null) {
+          conn.disconnect();
+        }
       }
     }
   }
