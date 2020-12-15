@@ -259,6 +259,13 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
       = "dfs.namenode.storageinfo.defragment.ratio";
   public static final double
       DFS_NAMENODE_STORAGEINFO_DEFRAGMENT_RATIO_DEFAULT = 0.75;
+
+  public static final String
+      DFS_NAMENODE_CORRUPT_BLOCK_DELETE_IMMEDIATELY_ENABLED =
+      "dfs.namenode.corrupt.block.delete.immediately.enabled";
+  public static final boolean
+      DFS_NAMENODE_CORRUPT_BLOCK_DELETE_IMMEDIATELY_ENABLED_DEFAULT = true;
+
   public static final String  DFS_WEBHDFS_AUTHENTICATION_FILTER_KEY = "dfs.web.authentication.filter";
   /* Phrased as below to avoid javac inlining as a constant, to match the behavior when
      this was AuthFilter.class.getName(). Note that if you change the import for AuthFilter, you
