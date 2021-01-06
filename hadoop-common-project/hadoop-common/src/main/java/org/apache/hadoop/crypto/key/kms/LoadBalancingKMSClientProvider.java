@@ -21,6 +21,7 @@ package org.apache.hadoop.crypto.key.kms;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -127,12 +128,43 @@ public class LoadBalancingKMSClientProvider extends KeyProvider implements
   public Token<?>[]
       addDelegationTokens(final String renewer, final Credentials credentials)
           throws IOException {
-    return doOp(new ProviderCallable<Token<?>[]>() {
-      @Override
-      public Token<?>[] call(KMSClientProvider provider) throws IOException {
-        return provider.addDelegationTokens(renewer, credentials);
+    if (providers.length == 0) {
+      throw new IOException("No providers configured !!");
+    }
+    List<Token<?>> allTokens = new ArrayList<Token<?>>();
+    IOException ex = null;
+    for (int i = 0; i< providers.length; i++) {
+      // add delegation tokens from all KMS providers
+      KMSClientProvider provider = providers[i];
+      try {
+        Token<?>[] tokens = provider.addDelegationTokens(renewer, credentials);
+
+        for (int tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+          allTokens.add(tokens[tokenIdx]);
+          LOG.info("Added delegation token {} from {}", tokens[tokenIdx],
+              provider.getKMSUrl());
+        }
+      } catch (IOException ioe) {
+        // don't throw right away. keep adding delegation tokens from other
+        // KMS providers
+        LOG.warn("KMS provider at [{}] threw an IOException!! {}",
+            provider.getKMSUrl(), StringUtils.stringifyException(ioe));
+        ex = ioe;
+      } catch (Exception e) {
+        if (e instanceof RuntimeException) {
+          throw (RuntimeException) e;
+        } else {
+          throw new WrapperException(e);
+        }
       }
-    }, nextIdx());
+    }
+    if (ex != null && allTokens.isEmpty()) {
+      LOG.warn("Aborting since the Request has failed with all KMS"
+          + " providers in the group. !!");
+      throw ex;
+    }
+    Token<?>[] tokenArray = new Token<?>[allTokens.size()];
+    return allTokens.toArray(tokenArray);
   }
 
   @Override

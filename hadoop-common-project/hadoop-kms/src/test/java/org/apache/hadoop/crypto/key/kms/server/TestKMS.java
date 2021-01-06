@@ -112,10 +112,22 @@ public class TestKMS {
   }
 
   public static abstract class KMSCallable<T> implements Callable<T> {
-    private URL kmsUrl;
+    private List<URL> kmsUrl;
 
     protected URL getKMSUrl() {
-      return kmsUrl;
+      return kmsUrl.get(0);
+    }
+
+    protected URL[] getKMSHAUrl() {
+      URL[] urls = new URL[kmsUrl.size()];
+      return kmsUrl.toArray(urls);
+    }
+
+    protected void addKMSUrl(URL url) {
+      if (kmsUrl == null) {
+        kmsUrl = new ArrayList<URL>();
+      }
+      kmsUrl.add(url);
     }
   }
 
@@ -125,6 +137,21 @@ public class TestKMS {
         new KMSClientProvider[] { new KMSClientProvider(uri, conf) }, conf);
   }
 
+  /**
+   * create a LoadBalancingKMSClientProvider from an array of URIs.
+   * @param uris an array of KMS URIs
+   * @param conf configuration object
+   * @return a LoadBalancingKMSClientProvider object
+   * @throws IOException
+   */
+  protected KeyProvider createHAProvider(URI[] uris, Configuration conf)
+      throws IOException {
+    KMSClientProvider[] providers = new KMSClientProvider[uris.length];
+    for (int i=0; i < providers.length; i++) {
+      providers[i] = new KMSClientProvider(uris[i], conf);
+    }
+    return new LoadBalancingKMSClientProvider(providers, conf);
+  }
   protected <T> T runServer(String keystore, String password, File confDir,
       KMSCallable<T> callable) throws Exception {
     return runServer(-1, keystore, password, confDir, callable);
@@ -132,22 +159,35 @@ public class TestKMS {
 
   protected <T> T runServer(int port, String keystore, String password, File confDir,
       KMSCallable<T> callable) throws Exception {
+    return runServer(new int[] {port}, keystore, password, confDir, callable);
+  }
+
+  protected <T> T runServer(int[] ports, String keystore, String password, File confDir,
+      KMSCallable<T> callable) throws Exception {
     MiniKMS.Builder miniKMSBuilder = new MiniKMS.Builder().setKmsConfDir(confDir)
         .setLog4jConfFile("log4j.properties");
     if (keystore != null) {
       miniKMSBuilder.setSslConf(new File(keystore), password);
     }
-    if (port > 0) {
-      miniKMSBuilder.setPort(port);
+    List<MiniKMS> kmsList = new ArrayList<MiniKMS>();
+
+    for (int i=0; i< ports.length; i++) {
+      if (ports[i] > 0) {
+        miniKMSBuilder.setPort(ports[i]);
+      }
+      MiniKMS miniKMS = miniKMSBuilder.build();
+      kmsList.add(miniKMS);
+      miniKMS.start();
+      LOG.info("Test KMS running at: " + miniKMS.getKMSUrl());
+      callable.addKMSUrl(miniKMS.getKMSUrl());
     }
-    MiniKMS miniKMS = miniKMSBuilder.build();
-    miniKMS.start();
+
     try {
-      System.out.println("Test KMS running at: " + miniKMS.getKMSUrl());
-      callable.kmsUrl = miniKMS.getKMSUrl();
       return callable.call();
     } finally {
-      miniKMS.stop();
+      for (MiniKMS miniKMS: kmsList) {
+        miniKMS.stop();
+      }
     }
   }
 
@@ -200,6 +240,14 @@ public class TestKMS {
     String str = kmsUrl.toString();
     str = str.replaceFirst("://", "@");
     return new URI("kms://" + str);
+  }
+
+  public static URI[] createKMSHAUri(URL[] kmsUrls) throws Exception {
+    URI[] uris = new URI[kmsUrls.length];
+    for (int i=0; i< kmsUrls.length; i++) {
+      uris[i] = createKMSUri(kmsUrls[i]);
+    }
+    return uris;
   }
 
 
@@ -2082,7 +2130,14 @@ public class TestKMS {
     doKMSWithZK(true, true);
   }
 
-  public void doKMSWithZK(boolean zkDTSM, boolean zkSigner) throws Exception {
+  private <T> T runServerWithZooKeeper(boolean zkDTSM, boolean zkSigner,
+      KMSCallable<T> callable) throws Exception {
+    return runServerWithZooKeeper(zkDTSM, zkSigner, callable, 1);
+  }
+
+  private <T> T runServerWithZooKeeper(boolean zkDTSM, boolean zkSigner,
+      KMSCallable<T> callable, int kmsSize) throws Exception {
+
     TestingServer zkServer = null;
     try {
       zkServer = new TestingServer();
@@ -2128,41 +2183,113 @@ public class TestKMS {
 
       writeConf(testDir, conf);
 
-      KMSCallable<KeyProvider> c =
-          new KMSCallable<KeyProvider>() {
-        @Override
-        public KeyProvider call() throws Exception {
-          final Configuration conf = new Configuration();
-          conf.setInt(KeyProvider.DEFAULT_BITLENGTH_NAME, 128);
-          final URI uri = createKMSUri(getKMSUrl());
-
-          final KeyProvider kp =
-              doAs("SET_KEY_MATERIAL",
-                  new PrivilegedExceptionAction<KeyProvider>() {
-                    @Override
-                    public KeyProvider run() throws Exception {
-                      KeyProvider kp = createProvider(uri, conf);
-                          kp.createKey("k1", new byte[16],
-                              new KeyProvider.Options(conf));
-                          kp.createKey("k2", new byte[16],
-                              new KeyProvider.Options(conf));
-                          kp.createKey("k3", new byte[16],
-                              new KeyProvider.Options(conf));
-                      return kp;
-                    }
-                  });
-          return kp;
-        }
-      };
-
-      runServer(null, null, testDir, c);
+      int [] ports = new int[kmsSize];
+      for (int i=0; i < ports.length; i++) {
+        ports[i] = -1;
+      }
+      return runServer(ports, null, null, testDir, callable);
     } finally {
       if (zkServer != null) {
         zkServer.stop();
         zkServer.close();
       }
     }
+  }
 
+  public void doKMSWithZK(boolean zkDTSM, boolean zkSigner) throws Exception {
+    KMSCallable<KeyProvider> c =
+        new KMSCallable<KeyProvider>() {
+          @Override
+          public KeyProvider call() throws Exception {
+            final Configuration conf = new Configuration();
+            conf.setInt(KeyProvider.DEFAULT_BITLENGTH_NAME, 128);
+            final URI uri = createKMSUri(getKMSUrl());
+
+            final KeyProvider kp =
+                doAs("SET_KEY_MATERIAL",
+                    new PrivilegedExceptionAction<KeyProvider>() {
+                      @Override
+                      public KeyProvider run() throws Exception {
+                        KeyProvider kp = createProvider(uri, conf);
+                        kp.createKey("k1", new byte[16],
+                            new KeyProvider.Options(conf));
+                        kp.createKey("k2", new byte[16],
+                            new KeyProvider.Options(conf));
+                        kp.createKey("k3", new byte[16],
+                            new KeyProvider.Options(conf));
+                        return kp;
+                      }
+                    });
+            return kp;
+          }
+        };
+
+    runServerWithZooKeeper(zkDTSM, zkSigner, c);
+  }
+
+  @Test
+  public void testKMSHAZooKeeperDelegationToken() throws Exception {
+    final int kmsSize = 2;
+    doKMSWithZKWithDelegationToken(true, true, kmsSize);
+  }
+
+  public void doKMSWithZKWithDelegationToken(boolean zkDTSM, boolean zkSigner,
+      int kmsSize) throws Exception {
+    // Create a KMSCallable to execute requests after ZooKeeper and KMS are up.
+    KMSCallable<Void> c = new KMSCallable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        final Configuration conf = new Configuration();
+        conf.setInt(KeyProvider.DEFAULT_BITLENGTH_NAME, 128);
+        final URI[] uris = createKMSHAUri(getKMSHAUrl());
+        final Credentials credentials = new Credentials();
+        // Create a UGI without Kerberos auth. It will be authenticate with
+        // delegation token.
+        final UserGroupInformation nonKerberosUgi =
+            UserGroupInformation.getCurrentUser();
+
+        // Login as a Kerberos user principal using keytab.
+        // Connect to KMS instances and add delegation tokens to credentials.
+        doAs("SET_KEY_MATERIAL",
+          new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+              KeyProvider kp = createHAProvider(uris, conf);
+              KeyProviderDelegationTokenExtension kpdte =
+                  KeyProviderDelegationTokenExtension.
+                      createKeyProviderDelegationTokenExtension(kp);
+              kpdte.addDelegationTokens("foo", credentials);
+              return null;
+            }
+        });
+
+        // Add delegation tokens to this UGI.
+        nonKerberosUgi.addCredentials(credentials);
+
+        // Access KMS using delegation token for authentication, no Kerberos.
+        nonKerberosUgi.doAs(new PrivilegedExceptionAction<Void>() {
+          @Override public Void run() throws Exception {
+            // Create a kms client with one provider at a time. Must use one
+            // provider so that if it fails to authenticate, it does not fall
+            // back to the next KMS instance.
+
+            // It should succeed because it has delegation tokens for any
+            // KMS instances.
+            for (int i=0; i < uris.length; i++) {
+              String key = "k" + i;
+              LOG.info("Connect to {} to create key {}.", uris[i], key);
+              KeyProvider kp = createProvider(uris[i], conf);
+              kp.createKey(key, new byte[16],
+                  new KeyProvider.Options(conf));
+            }
+            return null;
+          }
+        });
+        return null;
+      }
+    };
+
+    runServerWithZooKeeper(zkDTSM, zkSigner, c, kmsSize);
   }
 
 
