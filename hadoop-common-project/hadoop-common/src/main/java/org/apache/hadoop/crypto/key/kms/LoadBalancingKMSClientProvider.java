@@ -139,10 +139,12 @@ public class LoadBalancingKMSClientProvider extends KeyProvider implements
       try {
         Token<?>[] tokens = provider.addDelegationTokens(renewer, credentials);
 
-        for (int tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
-          allTokens.add(tokens[tokenIdx]);
-          LOG.info("Added delegation token {} from {}", tokens[tokenIdx],
-              provider.getKMSUrl());
+        if (tokens != null) {
+          for (int tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+            allTokens.add(tokens[tokenIdx]);
+            LOG.info("Added delegation token {} from {}", tokens[tokenIdx],
+                provider.getKMSUrl());
+          }
         }
       } catch (IOException ioe) {
         // don't throw right away. keep adding delegation tokens from other
